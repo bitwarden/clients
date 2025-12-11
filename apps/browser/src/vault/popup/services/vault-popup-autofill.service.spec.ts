@@ -262,6 +262,18 @@ describe("VaultPopupAutofillService", () => {
         );
       });
 
+      it("skips password prompt when skipPasswordReprompt is true", async () => {
+        mockCipher.id = "cipher-with-reprompt";
+        mockCipher.reprompt = CipherRepromptType.Password;
+        mockAutofillService.doAutoFill.mockResolvedValue(null);
+
+        const result = await service.doAutofill(mockCipher, true, true);
+
+        expect(result).toBe(true);
+        expect(mockPasswordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+        expect(mockAutofillService.doAutoFill).toHaveBeenCalled();
+      });
+
       describe("closePopup", () => {
         beforeEach(() => {
           jest.spyOn(BrowserApi, "closePopup").mockImplementation();

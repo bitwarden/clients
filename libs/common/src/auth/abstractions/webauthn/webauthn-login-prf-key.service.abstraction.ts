@@ -11,7 +11,7 @@ export abstract class WebAuthnLoginPrfKeyServiceAbstraction {
 
   /**
    * Create a symmetric key from the PRF-output by stretching it.
-   * This should be used as `ExternalKey` with `RotateableKeySet`.
+   * This should be used as `UpstreamKey` with `RotateableKeySet`.
    */
   abstract createSymmetricKeyFromPrf(prf: ArrayBuffer): Promise<PrfKey>;
 }

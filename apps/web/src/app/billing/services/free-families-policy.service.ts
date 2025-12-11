@@ -8,8 +8,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 interface EnterpriseOrgStatus {
   isFreeFamilyPolicyEnabled: boolean;
@@ -23,7 +21,6 @@ export class FreeFamiliesPolicyService {
     private policyService: PolicyService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
-    private configService: ConfigService,
   ) {}
 
   organizations$ = this.accountService.activeAccount$.pipe(
@@ -58,20 +55,14 @@ export class FreeFamiliesPolicyService {
           userId,
         );
 
-        return combineLatest([
-          enterpriseOrganization$,
-          this.configService.getFeatureFlag$(FeatureFlag.PM17772_AdminInitiatedSponsorships),
-          organization,
-          policies$,
-        ]).pipe(
-          map(([isEnterprise, featureFlagEnabled, org, policies]) => {
+        return combineLatest([enterpriseOrganization$, organization, policies$]).pipe(
+          map(([isEnterprise, org, policies]) => {
             const familiesFeatureDisabled = policies.some(
               (policy) => policy.organizationId === org.id && policy.enabled,
             );
 
             return (
               isEnterprise &&
-              featureFlagEnabled &&
               !familiesFeatureDisabled &&
               org.useAdminSponsoredFamilies &&
               (org.isAdmin || org.isOwner || org.canManageUsers)

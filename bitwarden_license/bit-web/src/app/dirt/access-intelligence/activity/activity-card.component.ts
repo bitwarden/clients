@@ -39,11 +39,15 @@ export class ActivityCardComponent {
   /**
    * The text to display for the action link
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() actionText: string = "";
 
   /**
    * Show action link
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showActionLink: boolean = false;
 
   /**
@@ -53,6 +57,14 @@ export class ActivityCardComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() iconClass: string | null = null;
+
+  /**
+   * CSS class for icon color (e.g., "tw-text-success", "tw-text-muted").
+   * Defaults to "tw-text-muted" if not provided.
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() iconColorClass: string = "tw-text-muted";
 
   /**
    * Button text. If provided, a button will be displayed instead of a navigation link.
@@ -78,6 +90,8 @@ export class ActivityCardComponent {
   /**
    * Event emitted when action link is clicked
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() actionClick = new EventEmitter<void>();
 
   constructor(private router: Router) {}

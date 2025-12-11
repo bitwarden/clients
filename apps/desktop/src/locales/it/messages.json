@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Non hai i permessi per modificare questo elemento"
+  },
   "welcomeBack": {
     "message": "Bentornato"
   },
@@ -771,6 +774,9 @@
   "useSingleSignOn": {
     "message": "Usa il Single Sign-On"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "La tua organizzazione richiede un accesso Single Sign-On (SSO)."
+  },
   "submit": {
     "message": "Invia"
   },
@@ -1032,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Devi aggiungere lo URL del server di base o almeno un ambiente personalizzato."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Gli indirizzi devono usare il protocollo HTTPS."
+  },
   "customEnvironment": {
     "message": "Ambiente personalizzato"
   },
@@ -1083,6 +1092,24 @@
   },
   "learnMore": {
     "message": "Ulteriori informazioni"
+  },
+  "migrationsFailed": {
+    "message": "Si è verificato un errore durante l'aggiornamento delle impostazioni di cifratura."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aggiorna le impostazioni di crittografia"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Le nuove impostazioni di crittografia consigliate miglioreranno la sicurezza del tuo account. Inserisci la tua password principale per aggiornare."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Conferma la tua identità per continuare"
+  },
+  "enterYourMasterPassword": {
+    "message": "Inserisci la tua password principale"
+  },
+  "updateSettings": {
+    "message": "Aggiorna impostazioni"
   },
   "featureUnavailable": {
     "message": "Funzionalità non disponibile"
@@ -1223,7 +1250,7 @@
     "message": "Password principale errata"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Password principale errata. Verifica che l'email sia corretta e che l'account sia stato creato su $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1312,7 +1339,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Mostra le icone dei siti e recupera gli URL di cambio password"
   },
   "enableMinToTray": {
     "message": "Minimizza nell'area di notifica"
@@ -1480,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB di spazio di archiviazione crittografato per gli allegati."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "Archivio crittografato di $SIZE$ per allegati.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opzioni di verifica in due passaggi proprietarie come YubiKey e Duo."
@@ -1853,10 +1889,10 @@
     "message": "Blocca con password principale al riavvio"
   },
   "requireMasterPasswordOrPinOnAppRestart": {
-    "message": "Require master password or PIN on app restart"
+    "message": "Richiedi la password principale dopo il riavvio"
   },
   "requireMasterPasswordOnAppRestart": {
-    "message": "Require master password on app restart"
+    "message": "Richiedi la password principale dopo il riavvio"
   },
   "deleteAccount": {
     "message": "Elimina account"
@@ -2141,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Si è verificato un errore durante l'attivazione dell'integrazione del browser."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Purtroppo l'integrazione del browser è supportata solo nella versione nell'App Store per ora."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Purtroppo l'integrazione del browser non è supportata nella versione del Microsoft Store per ora."
   },
@@ -2221,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Informazioni di contatto"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Tutti i Send",
@@ -2556,7 +2593,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimum custom timeout is 1 minute."
+    "message": "Il timeout personalizzato minimo è di 1 minuto."
   },
   "inviteAccepted": {
     "message": "Invito accettato"
@@ -2673,7 +2710,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Solo la cassaforte dell'organizzazione associata a $ORGANIZATION$ sarà esportata.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2682,7 +2719,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Solo la cassaforte dell'organizzazione associata a $ORGANIZATION$ sarà esportata. Eventuali raccolte di elementi non saranno incluse.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2985,7 +3022,8 @@
     "message": "Sei sicuro di voler usare l'opzione \"Mai\"? Impostare le opzioni di blocco su \"Mai\" salverà la chiave di crittografia della cassaforte sul tuo dispositivo. Se usi questa opzione, assicurati di mantenere il tuo dispositivo adeguatamente protetto."
   },
   "vault": {
-    "message": "Cassaforte"
+    "message": "Cassaforte",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Accedi con password principale"
@@ -3622,10 +3660,10 @@
     "message": "Continua ad accedere utilizzando le tue credenziali aziendali."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Importa direttamente dal browser"
   },
   "browserProfile": {
-    "message": "Browser Profile"
+    "message": "Profilo Browser"
   },
   "seeDetailedInstructions": {
     "message": "Consulta le istruzioni dettagliate sul nostro sito di assistenza su",
@@ -3870,10 +3908,10 @@
     "message": "Modifica la password non sicura o esposta"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Sito Web mancante"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Non puoi rimuovere raccolte con i soli permessi di visualizzazione: $COLLECTIONS$",
@@ -3971,10 +4009,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Informazioni su questa opzione"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden userà gli URL memorizzati in ogni login per mostrare, se possibile, l'icona del sito Web e l'URL di modifica password per facilitare la modifica delle credenziali. Nessuna informazione è raccolta o archiviata per il funzionamento di questo servizio."
   },
   "assignToCollections": {
     "message": "Assegna a una raccolta"
@@ -4120,13 +4158,13 @@
     "message": "Bitwarden non convalida i campi di input: assicurati di essere nella finestra e nel campo di testo corretti prima di usare la scorciatoia."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Premi i tasti da impostare per la scorciatoia"
   },
   "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+    "message": "Includi uno o due dei seguenti modificatori: Ctrl, Alt, Win, o Shift, più una lettera."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Scorciatoia non valida"
   },
   "moreBreadcrumbs": {
     "message": "Ulteriori segmenti",
@@ -4142,44 +4180,80 @@
     "message": "Conferma"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Enable autotype shortcut (Feature Preview)"
+    "message": "Abilita la scorciatoia automatica (beta)"
   },
   "enableAutotypeShortcutDescription": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Assicurati di essere nel campo corretto prima di usare la scorciatoia."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Modifica scorciatoia"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archivio",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archivia",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Rimuovi dall'Archivio"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Elementi archiviati"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Nessun elemento nell'archivio"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Gli elementi archiviati appariranno qui e saranno esclusi dai risultati di ricerca e dall'auto-riempimento."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Elemento archiviato"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Elemento rimosso dall'archivio"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Archivia elemento"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "Gli elementi archiviati sono esclusi dai risultati di ricerca e dall'auto-riempimento. Vuoi davvero archiviare questo elemento?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "CAP / codice postale"
+  },
+  "cardNumberLabel": {
+    "message": "Numero carta"
+  },
+  "upgradeNow": {
+    "message": "Aggiorna ora"
+  },
+  "builtInAuthenticator": {
+    "message": "App di autenticazione integrata"
+  },
+  "secureFileStorage": {
+    "message": "Archiviazione sicura di file"
+  },
+  "emergencyAccess": {
+    "message": "Accesso di emergenza"
+  },
+  "breachMonitoring": {
+    "message": "Monitoraggio delle violazioni"
+  },
+  "andMoreFeatures": {
+    "message": "E molto altro!"
+  },
+  "planDescPremium": {
+    "message": "Sicurezza online completa"
+  },
+  "upgradeToPremium": {
+    "message": "Aggiorna a Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Azione al timeout"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Timeout della sessione"
   }
 }

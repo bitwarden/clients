@@ -17,8 +17,8 @@ export enum BiometricAction {
   EnrollPersistent = "enrollPersistent",
   HasPersistentKey = "hasPersistentKey",
 
-  EnableWindowsV2 = "enableWindowsV2",
-  IsWindowsV2Enabled = "isWindowsV2Enabled",
+  EnableLinuxV2 = "enableLinuxV2",
+  IsLinuxV2Enabled = "isLinuxV2Enabled",
 }
 
 export type BiometricMessage =

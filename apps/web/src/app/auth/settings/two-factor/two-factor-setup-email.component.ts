@@ -9,7 +9,7 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/update-two-factor-email.request";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -70,7 +70,7 @@ export class TwoFactorSetupEmailComponent
 
   constructor(
     @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorEmailResponse>,
-    twoFactorApiService: TwoFactorApiService,
+    twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
@@ -82,7 +82,7 @@ export class TwoFactorSetupEmailComponent
     protected toastService: ToastService,
   ) {
     super(
-      twoFactorApiService,
+      twoFactorService,
       i18nService,
       platformUtilsService,
       logService,
@@ -135,7 +135,7 @@ export class TwoFactorSetupEmailComponent
   sendEmail = async () => {
     const request = await this.buildRequestModel(TwoFactorEmailRequest);
     request.email = this.email;
-    this.emailPromise = this.twoFactorApiService.postTwoFactorEmailSetup(request);
+    this.emailPromise = this.twoFactorService.postTwoFactorEmailSetup(request);
     await this.emailPromise;
     this.sentEmail = this.email;
   };
@@ -145,7 +145,7 @@ export class TwoFactorSetupEmailComponent
     request.email = this.email;
     request.token = this.token;
 
-    const response = await this.twoFactorApiService.putTwoFactorEmail(request);
+    const response = await this.twoFactorService.putTwoFactorEmail(request);
     await this.processResponse(response);
     this.onUpdated.emit(true);
   }

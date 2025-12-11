@@ -1,6 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+import { newGuid } from "@bitwarden/guid";
+
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
 import {
@@ -22,15 +24,15 @@ import { DefaultPolicyService, getFirstPolicy } from "./default-policy.service";
 import { POLICIES } from "./policy-state";
 
 describe("PolicyService", () => {
-  const userId = "userId" as UserId;
+  const userId = newGuid() as UserId;
   let stateProvider: FakeStateProvider;
   let organizationService: MockProxy<OrganizationService>;
   let singleUserState: FakeSingleUserState<Record<PolicyId, PolicyData>>;
+  const accountService = mockAccountServiceWith(userId);
 
   let policyService: DefaultPolicyService;
 
   beforeEach(() => {
-    const accountService = mockAccountServiceWith(userId);
     stateProvider = new FakeStateProvider(accountService);
     organizationService = mock<OrganizationService>();
     singleUserState = stateProvider.singleUser.getFake(userId, POLICIES);
@@ -59,7 +61,7 @@ describe("PolicyService", () => {
 
     organizationService.organizations$.calledWith(userId).mockReturnValue(organizations$);
 
-    policyService = new DefaultPolicyService(stateProvider, organizationService);
+    policyService = new DefaultPolicyService(stateProvider, organizationService, accountService);
   });
 
   it("upsert", async () => {
@@ -81,12 +83,15 @@ describe("PolicyService", () => {
         type: PolicyType.MaximumVaultTimeout,
         enabled: true,
         data: { minutes: 14 },
+        revisionDate: expect.any(Date),
       },
       {
         id: "99",
         organizationId: "test-organization",
         type: PolicyType.DisableSend,
         enabled: true,
+        data: undefined,
+        revisionDate: expect.any(Date),
       },
     ]);
   });
@@ -111,6 +116,8 @@ describe("PolicyService", () => {
         organizationId: "test-organization",
         type: PolicyType.DisableSend,
         enabled: true,
+        data: undefined,
+        revisionDate: expect.any(Date),
       },
     ]);
   });
@@ -240,6 +247,8 @@ describe("PolicyService", () => {
         organizationId: "org1",
         type: PolicyType.DisablePersonalVaultExport,
         enabled: true,
+        data: undefined,
+        revisionDate: expect.any(Date),
       });
     });
 
@@ -329,24 +338,32 @@ describe("PolicyService", () => {
           organizationId: "org4",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy2",
           organizationId: "org1",
           type: PolicyType.ActivateAutofill,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy3",
           organizationId: "org5",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy4",
           organizationId: "org1",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
       ]);
     });
@@ -369,24 +386,32 @@ describe("PolicyService", () => {
           organizationId: "org4",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy2",
           organizationId: "org1",
           type: PolicyType.ActivateAutofill,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy3",
           organizationId: "org5",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: false,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy4",
           organizationId: "org1",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
       ]);
     });
@@ -409,24 +434,32 @@ describe("PolicyService", () => {
           organizationId: "org4",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy2",
           organizationId: "org1",
           type: PolicyType.ActivateAutofill,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy3",
           organizationId: "org5",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy4",
           organizationId: "org2",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
       ]);
     });
@@ -449,24 +482,32 @@ describe("PolicyService", () => {
           organizationId: "org4",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy2",
           organizationId: "org1",
           type: PolicyType.ActivateAutofill,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy3",
           organizationId: "org3",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
         {
           id: "policy4",
           organizationId: "org1",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
+          data: undefined,
+          revisionDate: expect.any(Date),
         },
       ]);
     });
@@ -554,6 +595,77 @@ describe("PolicyService", () => {
 
       expect(result).toBe(false);
     });
+
+    describe("SingleOrg policy exemptions", () => {
+      it("returns true for SingleOrg policy when AutoConfirm is enabled, even for users who can manage policies", async () => {
+        singleUserState.nextState(
+          arrayToRecord([
+            policyData("policy1", "org6", PolicyType.SingleOrg, true),
+            policyData("policy2", "org6", PolicyType.AutoConfirm, true),
+          ]),
+        );
+
+        const result = await firstValueFrom(
+          policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it("returns false for SingleOrg policy when user can manage policies and AutoConfirm is not enabled", async () => {
+        singleUserState.nextState(
+          arrayToRecord([policyData("policy1", "org6", PolicyType.SingleOrg, true)]),
+        );
+
+        const result = await firstValueFrom(
+          policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("returns false for SingleOrg policy when user can manage policies and AutoConfirm is disabled", async () => {
+        singleUserState.nextState(
+          arrayToRecord([
+            policyData("policy1", "org6", PolicyType.SingleOrg, true),
+            policyData("policy2", "org6", PolicyType.AutoConfirm, false),
+          ]),
+        );
+
+        const result = await firstValueFrom(
+          policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("returns true for SingleOrg policy for regular users when AutoConfirm is not enabled", async () => {
+        singleUserState.nextState(
+          arrayToRecord([policyData("policy1", "org1", PolicyType.SingleOrg, true)]),
+        );
+
+        const result = await firstValueFrom(
+          policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it("returns true for SingleOrg policy when AutoConfirm is enabled in a different organization", async () => {
+        singleUserState.nextState(
+          arrayToRecord([
+            policyData("policy1", "org6", PolicyType.SingleOrg, true),
+            policyData("policy2", "org1", PolicyType.AutoConfirm, true),
+          ]),
+        );
+
+        const result = await firstValueFrom(
+          policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        );
+
+        expect(result).toBe(false);
+      });
+    });
   });
 
   describe("combinePoliciesIntoMasterPasswordPolicyOptions", () => {
@@ -564,7 +676,7 @@ describe("PolicyService", () => {
     beforeEach(() => {
       stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
       organizationService = mock<OrganizationService>();
-      policyService = new DefaultPolicyService(stateProvider, organizationService);
+      policyService = new DefaultPolicyService(stateProvider, organizationService, accountService);
     });
 
     it("returns undefined when there are no policies", () => {
@@ -715,6 +827,7 @@ describe("PolicyService", () => {
     policyData.type = type;
     policyData.enabled = enabled;
     policyData.data = data;
+    policyData.revisionDate = new Date().toISOString();
 
     return policyData;
   }

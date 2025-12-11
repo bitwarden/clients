@@ -1,18 +1,18 @@
 use std::str::FromStr;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use base64::Engine;
 use rand::RngCore;
 use sha2::{Digest, Sha256};
 use tracing::error;
-
-use crate::biometric::{base64_engine, KeyMaterial, OsDerivedKey};
 use zbus::Connection;
 use zbus_polkit::policykit1::*;
 
 use super::{decrypt, encrypt};
-use crate::crypto::CipherString;
-use anyhow::anyhow;
+use crate::{
+    biometric::{base64_engine, KeyMaterial, OsDerivedKey},
+    crypto::CipherString,
+};
 
 /// The Unix implementation of the biometric trait.
 pub struct Biometric {}

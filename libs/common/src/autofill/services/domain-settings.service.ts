@@ -166,7 +166,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
         if (!policy?.enabled || policy?.data == null) {
           return null;
         }
-        const data = policy.data?.defaultUriMatchStrategy;
+        const data = policy.data?.uriMatchDetection;
         // Validate that data is a valid UriMatchStrategy value
         return Object.values(UriMatchStrategy).includes(data) ? data : null;
       }),

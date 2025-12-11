@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Käytä kertakirjautumista"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Tervetuloa takaisin"
   },
@@ -551,21 +554,21 @@
     "message": "Nollaa haku"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arkistoi",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arkistoi",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Poista arkistosta"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Arkistossa olevat kohteet"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Arkistossa ei ole kohteita"
   },
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
@@ -577,16 +580,28 @@
     "message": "Item was unarchived"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Arkistoi kohde"
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
   },
   "edit": {
     "message": "Muokkaa"
   },
   "view": {
     "message": "Näytä"
+  },
+  "viewAll": {
+    "message": "Näytä kaikki"
+  },
+  "showAll": {
+    "message": "Show all"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "View login"
@@ -789,6 +804,12 @@
   },
   "onLocked": {
     "message": "Kun järjestelmä lukitaan"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "Kun selain käynnistetään uudelleen"
@@ -1027,6 +1048,18 @@
   },
   "editedItem": {
     "message": "Kohde tallennettiin"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Haluatko varmasti siirtää roskakoriin?"
@@ -1373,6 +1406,27 @@
   "learnMore": {
     "message": "Lue lisää"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "Todennusavain (TOTP)"
   },
@@ -1442,6 +1496,15 @@
   "ppremiumSignUpStorage": {
     "message": "1 Gt salattua tallennustilaa tiedostoliitteille."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "Varmuuskäyttö"
   },
@@ -1504,12 +1567,6 @@
   },
   "enableAutoBiometricsPrompt": {
     "message": "Pyydä Biometristä todennusta käynnistettäessä"
-  },
-  "premiumRequired": {
-    "message": "Premium vaaditaan"
-  },
-  "premiumRequiredDesc": {
-    "message": "Tämä ominaisuus edellyttää Premium-jäsenyyttä."
   },
   "authenticationTimeout": {
     "message": "Todennuksen aikakatkaisu"
@@ -1623,6 +1680,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Sinun on lisättävä joko palvelimen perusosoite tai ainakin yksi mukautettu palvelinympäristö."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Mukautettu palvelinympäristö"
   },
@@ -1676,8 +1736,29 @@
   "turnOffAutofill": {
     "message": "Poista automaattitäyttö käytöstä"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Näytä automaattitäytön ehdotukset lomakekentissä"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Näytä identiteetit ehdotuksina"
@@ -1821,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Erääntymisvuosi"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "Voimassaolo päättyy"
@@ -1970,11 +2054,11 @@
     "message": "Muistiinpano"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Uusi kirjautumistieto",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Uusi kortti",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
@@ -1986,23 +2070,23 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Uusi SSH-avain",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Uusi teksti-Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Uusi tiedosto-Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Muokkaa kirjautumistietoa",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Muokkaa korttia",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
@@ -2014,23 +2098,23 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Muokkaa SSH avainta",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Muokkaa teksti-Sendiä",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Muokkaa tiedosto-Sendiä",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Näytä kirjautumistieto",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Näytä kortti",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
@@ -2042,7 +2126,7 @@
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Näytä SSH-avain",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -2390,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Aseta pääsalasana"
@@ -3240,6 +3327,9 @@
   "decryptionError": {
     "message": "Salauksen purkuvirhe"
   },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden ei pystynyt purkamaan alla lueteltuja holvin kohteita."
   },
@@ -4010,6 +4100,15 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automaattitäyttö sivun avautuessa käyttää oletusasetusta.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Näytä/piilota sivuvalikko"
@@ -4842,6 +4941,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Ilmaiset organisaatiot eivät voi käyttää liitteitä"
   },
@@ -4918,6 +5020,16 @@
   },
   "defaultLabel": {
     "message": "Oletus ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Oletus  ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5589,7 +5701,7 @@
     "message": "Close this tab"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Jatka tälle sivustolle (ei suositeltavaa)"
   },
   "phishingPageExplanation1": {
     "message": "This site was found in ",
@@ -5706,7 +5818,7 @@
     "message": "Show less"
   },
   "next": {
-    "message": "Next"
+    "message": "Seuraava"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -5718,8 +5830,56 @@
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
   },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Ladataan holvia"
+  },
+  "vaultLoaded": {
+    "message": "Holvi ladattu"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Postinumero"
+  },
+  "cardNumberLabel": {
+    "message": "Kortin numero"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
   }
 }

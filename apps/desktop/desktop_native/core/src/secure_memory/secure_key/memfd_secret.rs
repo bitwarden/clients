@@ -1,8 +1,9 @@
 use std::{ptr::NonNull, sync::LazyLock};
 
-use super::crypto::MemoryEncryptionKey;
-use super::crypto::KEY_SIZE;
-use super::SecureKeyContainer;
+use super::{
+    crypto::{MemoryEncryptionKey, KEY_SIZE},
+    SecureKeyContainer,
+};
 
 /// https://man.archlinux.org/man/memfd_secret.2.en
 /// The memfd_secret store protects the data using the `memfd_secret` syscall. The
@@ -15,8 +16,8 @@ pub(super) struct MemfdSecretSecureKeyContainer {
 // SAFETY: The pointers in this struct are allocated by `memfd_secret`, and we have full ownership.
 // They are never exposed outside or cloned, and are cleaned up by drop.
 unsafe impl Send for MemfdSecretSecureKeyContainer {}
-// SAFETY: The container is non-mutable and thus safe to share between threads. Further, memfd-secret
-// is accessible across threads within the same process bound.
+// SAFETY: The container is non-mutable and thus safe to share between threads. Further,
+// memfd-secret is accessible across threads within the same process bound.
 unsafe impl Sync for MemfdSecretSecureKeyContainer {}
 
 impl SecureKeyContainer for MemfdSecretSecureKeyContainer {

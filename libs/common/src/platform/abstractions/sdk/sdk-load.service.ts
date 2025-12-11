@@ -1,4 +1,4 @@
-import { init_sdk } from "@bitwarden/sdk-internal";
+import { init_sdk, LogLevel } from "@bitwarden/sdk-internal";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used in docs
 import type { SdkService } from "./sdk.service";
@@ -10,6 +10,7 @@ export class SdkLoadFailedError extends Error {
 }
 
 export abstract class SdkLoadService {
+  protected static logLevel: LogLevel = LogLevel.Info;
   private static markAsReady: () => void;
   private static markAsFailed: (error: unknown) => void;
 
@@ -41,7 +42,7 @@ export abstract class SdkLoadService {
   async loadAndInit(): Promise<void> {
     try {
       await this.load();
-      init_sdk();
+      init_sdk(SdkLoadService.logLevel);
       SdkLoadService.markAsReady();
     } catch (error) {
       SdkLoadService.markAsFailed(error);
