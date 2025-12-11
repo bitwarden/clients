@@ -214,6 +214,8 @@
         "simplelog",
         "style-loader",
         "sysinfo",
+        "tokio",
+        "tokio-util",
         "tracing",
         "tracing-subscriber",
         "ts-node",
@@ -259,6 +261,11 @@
       // We need to group all windows-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "windows",
       matchPackageNames: ["windows", "windows-core", "windows-future", "windows-registry"],
+    },
+    {
+      // We need to group all tokio-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "tokio",
+      matchPackageNames: ["bytes", "tokio", "tokio-util"],
     },
     {
       // We group all webpack build-related minor and patch updates together to reduce PR noise.
