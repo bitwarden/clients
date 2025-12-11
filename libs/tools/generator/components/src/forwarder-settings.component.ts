@@ -8,16 +8,24 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map, ReplaySubject, skip, Subject, switchAll, takeUntil, withLatestFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { VendorId } from "@bitwarden/common/tools/extension";
+import {
+  FormFieldModule,
+  AriaDisableDirective,
+  TooltipDirective,
+  BitIconButtonComponent,
+} from "@bitwarden/components";
 import {
   CredentialGeneratorService,
   ForwarderOptions,
   GeneratorMetadata,
 } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 const Controls = Object.freeze({
   domain: "domain",
@@ -31,7 +39,15 @@ const Controls = Object.freeze({
 @Component({
   selector: "tools-forwarder-settings",
   templateUrl: "forwarder-settings.component.html",
-  standalone: false,
+  imports: [
+    ReactiveFormsModule,
+    FormFieldModule,
+    AriaDisableDirective,
+    TooltipDirective,
+    BitIconButtonComponent,
+    JslibModule,
+    I18nPipe,
+  ],
 })
 export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
