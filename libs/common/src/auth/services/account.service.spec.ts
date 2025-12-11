@@ -68,7 +68,7 @@ describe("accountInfoEqual", () => {
 
   it("compares creationDate", () => {
     const same = { ...accountInfo };
-    const different = { ...accountInfo, creationDate: "2024-12-31T00:00:00.000Z" };
+    const different = { ...accountInfo, creationDate: new Date("2024-12-31T00:00:00.000Z") };
 
     expect(accountInfoEqual(accountInfo, same)).toBe(true);
     expect(accountInfoEqual(accountInfo, different)).toBe(false);
@@ -77,7 +77,10 @@ describe("accountInfoEqual", () => {
   it("compares undefined creationDate", () => {
     const accountWithoutCreationDate = mockAccountInfoWith({ creationDate: undefined });
     const same = { ...accountWithoutCreationDate };
-    const different = { ...accountWithoutCreationDate, creationDate: "2024-01-01T00:00:00.000Z" };
+    const different = {
+      ...accountWithoutCreationDate,
+      creationDate: new Date("2024-01-01T00:00:00.000Z"),
+    };
 
     expect(accountInfoEqual(accountWithoutCreationDate, same)).toBe(true);
     expect(accountInfoEqual(accountWithoutCreationDate, different)).toBe(false);
@@ -281,7 +284,7 @@ describe("accountService", () => {
     });
 
     it("should update the account with a new creation date", async () => {
-      const newCreationDate = "2024-12-31T00:00:00.000Z";
+      const newCreationDate = new Date("2024-12-31T00:00:00.000Z");
       await sut.setAccountCreationDate(userId, newCreationDate);
       const currentState = await firstValueFrom(accountsState.state$);
 
@@ -304,22 +307,12 @@ describe("accountService", () => {
       });
       accountsState.stateSubject.next({ [userId]: accountWithoutCreationDate });
 
-      const newCreationDate = "2024-06-15T12:30:00.000Z";
+      const newCreationDate = new Date("2024-06-15T12:30:00.000Z");
       await sut.setAccountCreationDate(userId, newCreationDate);
       const currentState = await firstValueFrom(accountsState.state$);
 
       expect(currentState).toEqual({
         [userId]: { ...accountWithoutCreationDate, creationDate: newCreationDate },
-      });
-    });
-
-    it("should update to a different creation date string format", async () => {
-      const newCreationDate = "2023-03-15T08:45:30.123Z";
-      await sut.setAccountCreationDate(userId, newCreationDate);
-      const currentState = await firstValueFrom(accountsState.state$);
-
-      expect(currentState).toEqual({
-        [userId]: { ...userInfo, creationDate: newCreationDate },
       });
     });
   });
