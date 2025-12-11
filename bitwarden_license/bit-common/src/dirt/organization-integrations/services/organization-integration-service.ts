@@ -200,7 +200,7 @@ export class OrganizationIntegrationService {
     integrationId: OrganizationIntegrationId,
     configurationId: OrganizationIntegrationConfigurationId,
   ): Promise<IntegrationModificationResult> {
-    if (organizationId != this.organizationId$.getValue()) {
+    if (organizationId !== this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
@@ -266,7 +266,7 @@ export class OrganizationIntegrationService {
     return new OrganizationIntegration(
       integrationResponse.id,
       integrationResponse.type,
-      (config as OrgIntegrationConfiguration).service,
+      config.service,
       config,
       [integrationConfig],
     );
