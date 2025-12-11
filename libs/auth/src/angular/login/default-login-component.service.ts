@@ -33,17 +33,25 @@ export class DefaultLoginComponentService implements LoginComponentService {
    */
   async redirectToSsoLogin(email: string): Promise<void | null> {
     // Set the state that we'll need to verify the SSO login when we get the code back
-    const [state, codeChallenge] = await this.setSsoPreLoginState();
-
-    // Set the email address in state. This is used in 2 places:
-    // 1. On the web client, on the SSO component we need the email address to look up
-    //    the org SSO identifier. The email address is passed via query param for the other clients.
-    // 2. On all clients, after authentication on the originating client the SSO component
-    //    will need to look up 2FA Remember token by email.
-    await this.ssoLoginService.setSsoEmail(email);
+    const [state, codeChallenge] = await this.setSsoPreLoginState(email);
 
     // Finally, we redirect to the SSO login page. This will be handled by each client implementation of this service.
     await this.redirectToSso(email, state, codeChallenge);
+  }
+
+  /**
+   * Redirects the user to the SSO login page, either via route or in a new browser window.
+   * @param email The email address of the user attempting to log in
+   */
+  async redirectToSsoLoginWithOrganizationSsoIdentifier(
+    email: string,
+    orgSsoIdentifier: string,
+  ): Promise<void | null> {
+    // Set the state that we'll need to verify the SSO login when we get the code back
+    const [state, codeChallenge] = await this.setSsoPreLoginState(email);
+
+    // Finally, we redirect to the SSO login page. This will be handled by each client implementation of this service.
+    await this.redirectToSso(email, state, codeChallenge, orgSsoIdentifier);
   }
 
   /**
@@ -53,6 +61,7 @@ export class DefaultLoginComponentService implements LoginComponentService {
     email: string,
     state: string,
     codeChallenge: string,
+    orgSsoIdentifier?: string,
   ): Promise<void> {
     return;
   }
@@ -65,9 +74,9 @@ export class DefaultLoginComponentService implements LoginComponentService {
   }
 
   /**
-   * Sets the state required for verifying SSO login after completion
+   * Set the state that we'll need to verify the SSO login when we get the authorization code back
    */
-  private async setSsoPreLoginState(): Promise<[string, string]> {
+  private async setSsoPreLoginState(email: string): Promise<[string, string]> {
     // Generate SSO params
     const passwordOptions: any = {
       type: "password",
@@ -92,6 +101,13 @@ export class DefaultLoginComponentService implements LoginComponentService {
     // Save SSO params
     await this.ssoLoginService.setSsoState(state);
     await this.ssoLoginService.setCodeVerifier(codeVerifier);
+
+    // Set the email address in state. This is used in 2 places:
+    // 1. On the web client, on the SSO component we need the email address to look up
+    //    the org SSO identifier. The email address is passed via query param for the other clients.
+    // 2. On all clients, after authentication on the originating client the SSO component
+    //    will need to look up 2FA Remember token by email.
+    await this.ssoLoginService.setSsoEmail(email);
 
     return [state, codeChallenge];
   }

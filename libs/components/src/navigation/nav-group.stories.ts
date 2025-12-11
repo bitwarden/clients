@@ -91,6 +91,11 @@ export const Default: StoryObj<NavGroupComponent> = {
           <bit-nav-item text="Child B"></bit-nav-item>
           <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
         </bit-nav-group>
+        <bit-nav-group open="true" text="Lorem Ipsum (Button)" icon="bwi-filter">
+          <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-item text="Child B"></bit-nav-item>
+          <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
+        </bit-nav-group>
       </bit-side-nav>
     `,
   }),
