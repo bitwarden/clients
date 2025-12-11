@@ -19,6 +19,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -67,6 +69,8 @@ describe("MembersComponent", () => {
   let mockPolicyService: MockProxy<PolicyService>;
   let mockPolicyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let mockOrganizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
+  let mockConfigService: MockProxy<ConfigService>;
+  let mockEnvironmentService: MockProxy<EnvironmentService>;
 
   let routeParamsSubject: BehaviorSubject<any>;
   let queryParamsSubject: BehaviorSubject<any>;
@@ -150,6 +154,14 @@ describe("MembersComponent", () => {
       of(mockBillingMetadata),
     );
 
+    mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+
+    mockEnvironmentService = mock<EnvironmentService>();
+    mockEnvironmentService.environment$ = of({
+      isCloud: () => false,
+    } as any);
+
     await TestBed.configureTestingModule({
       declarations: [MembersComponent],
       providers: [
@@ -183,6 +195,8 @@ describe("MembersComponent", () => {
           provide: OrganizationMetadataServiceAbstraction,
           useValue: mockOrganizationMetadataService,
         },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: EnvironmentService, useValue: mockEnvironmentService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
