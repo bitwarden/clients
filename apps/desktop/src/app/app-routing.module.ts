@@ -42,14 +42,17 @@ import {
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
+import {
+  LockComponent,
+  ConfirmKeyConnectorDomainComponent,
+  RemovePasswordComponent,
+} from "@bitwarden/key-management-ui";
 
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
-import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
@@ -115,11 +118,6 @@ const routes: Routes = [
   {
     path: "send",
     component: SendComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: "remove-password",
-    component: RemovePasswordComponent,
     canActivate: [authGuard],
   },
   {
@@ -328,12 +326,23 @@ const routes: Routes = [
         } satisfies AnonLayoutWrapperData,
       },
       {
+        path: "remove-password",
+        component: RemovePasswordComponent,
+        canActivate: [authGuard],
+        data: {
+          pageTitle: {
+            key: "verifyYourOrganization",
+          },
+          pageIcon: LockIcon,
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
+      {
         path: "confirm-key-connector-domain",
         component: ConfirmKeyConnectorDomainComponent,
         canActivate: [],
         data: {
           pageTitle: {
-            key: "confirmKeyConnectorDomain",
+            key: "verifyYourOrganization",
           },
           pageIcon: DomainIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
