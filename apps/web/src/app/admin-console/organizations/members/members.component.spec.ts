@@ -18,7 +18,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -301,22 +300,25 @@ describe("MembersComponent", () => {
   });
 
   describe("confirm", () => {
-    const mockPublicKeyResponse = {
-      publicKey: "AQIDBA==",
-    } as UserKeyResponse;
-
-    beforeEach(() => {
-      mockApiService.getUserPublicKey.mockResolvedValue(mockPublicKeyResponse);
-      mockKeyService.getFingerprint.mockResolvedValue(["fingerprint"]);
-    });
-
     it("should confirm user with auto-confirm enabled", async () => {
       mockOrganizationManagementPreferencesService.autoConfirmFingerPrints.state$ = of(true);
       mockMemberActionsService.confirmUser.mockResolvedValue({ success: true });
 
+      // Mock confirmUserWorkflow to call the callback with a mock public key
+      mockMemberActionsService.confirmUserWorkflow.mockImplementation(
+        async (user, userNamePipe, orgManagementPrefs, callback) => {
+          await callback(new Uint8Array([1, 2, 3, 4]));
+        },
+      );
+
       await component.confirm(mockUser, mockOrg);
 
-      expect(mockApiService.getUserPublicKey).toHaveBeenCalledWith(mockUser.userId);
+      expect(mockMemberActionsService.confirmUserWorkflow).toHaveBeenCalledWith(
+        mockUser,
+        mockUserNamePipe,
+        mockOrganizationManagementPreferencesService,
+        expect.any(Function),
+      );
       expect(mockMemberActionsService.confirmUser).toHaveBeenCalledWith(
         mockUser,
         expect.any(Uint8Array),
@@ -328,18 +330,22 @@ describe("MembersComponent", () => {
     it("should handle null user", async () => {
       mockOrganizationManagementPreferencesService.autoConfirmFingerPrints.state$ = of(true);
 
+      // Mock confirmUserWorkflow to handle null user (it logs error internally)
+      mockMemberActionsService.confirmUserWorkflow.mockResolvedValue(undefined);
+
       await component.confirm(null as any, mockOrg);
 
+      expect(mockMemberActionsService.confirmUserWorkflow).toHaveBeenCalled();
       expect(mockMemberActionsService.confirmUser).not.toHaveBeenCalled();
     });
 
     it("should handle API errors gracefully", async () => {
-      const error = new Error("API error");
-      mockApiService.getUserPublicKey.mockRejectedValue(error);
+      // Mock confirmUserWorkflow to simulate an error (it logs error internally)
+      mockMemberActionsService.confirmUserWorkflow.mockResolvedValue(undefined);
 
       await component.confirm(mockUser, mockOrg);
 
-      expect(mockLogService.error).toHaveBeenCalled();
+      expect(mockMemberActionsService.confirmUserWorkflow).toHaveBeenCalled();
     });
   });
 

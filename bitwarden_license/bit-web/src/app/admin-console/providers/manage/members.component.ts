@@ -35,26 +35,24 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ProviderId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import {
-  configureProviderMemberFlags,
-  ProviderUser,
-  ProvidersTableDataSource,
-} from "@bitwarden/web-vault/app/admin-console/common/member-component-utils";
-import {
   CloudBulkReinviteLimit,
+  configureProviderMemberFlags,
   MaxCheckedCount,
   peopleFilter,
+  ProviderUser,
+  ProvidersTableDataSource,
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
-import { UserConfirmComponent } from "@bitwarden/web-vault/app/admin-console/organizations/manage/user-confirm.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
-import { MemberActionResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
+import {
+  MemberActionResult,
+  MemberActionsService,
+} from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
 
 import {
   AddEditMemberDialogComponent,
@@ -71,10 +69,8 @@ import { BulkRemoveDialogComponent } from "./dialogs/bulk-remove-dialog.componen
 })
 export class MembersComponent {
   protected apiService = inject(ApiService);
-  protected keyService = inject(KeyService);
   protected dialogService = inject(DialogService);
   protected i18nService = inject(I18nService);
-  protected logService = inject(LogService);
   protected organizationManagementPreferencesService = inject(
     OrganizationManagementPreferencesService,
   );
@@ -82,6 +78,7 @@ export class MembersComponent {
   protected validationService = inject(ValidationService);
   protected toastService = inject(ToastService);
   private encryptService = inject(EncryptService);
+  private keyService = inject(KeyService);
   private activatedRoute = inject(ActivatedRoute);
   private providerService = inject(ProviderService);
   private router = inject(Router);
@@ -89,6 +86,7 @@ export class MembersComponent {
   private configService = inject(ConfigService);
   private environmentService = inject(EnvironmentService);
   private changeDetectorRef = inject(ChangeDetectorRef);
+  private memberActionsService = inject(MemberActionsService);
 
   protected accessEvents = false;
   protected dataSource = new ProvidersTableDataSource(this.configService, this.environmentService);
@@ -342,40 +340,12 @@ export class MembersComponent {
       }
     };
 
-    try {
-      const publicKeyResponse = await this.apiService.getUserPublicKey(user.userId);
-      const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-
-      const autoConfirm = await firstValueFrom(
-        this.organizationManagementPreferencesService.autoConfirmFingerPrints.state$,
-      );
-      if (user == null) {
-        throw new Error("Cannot confirm null user.");
-      }
-      if (autoConfirm == null || !autoConfirm) {
-        const dialogRef = UserConfirmComponent.open(this.dialogService, {
-          data: {
-            name: this.userNamePipe.transform(user),
-            userId: user.userId,
-            publicKey: publicKey,
-            confirmUser: () => confirmUser(publicKey),
-          },
-        });
-        await lastValueFrom(dialogRef.closed);
-
-        return;
-      }
-
-      try {
-        const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
-        this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
-      } catch (e) {
-        this.logService.error(e);
-      }
-      await confirmUser(publicKey);
-    } catch (e) {
-      this.logService.error(`Handled exception: ${e}`);
-    }
+    await this.memberActionsService.confirmUserWorkflow(
+      user,
+      this.userNamePipe,
+      this.organizationManagementPreferencesService,
+      confirmUser,
+    );
   }
 
   private async confirmUserInternal(

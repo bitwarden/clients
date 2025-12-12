@@ -18,7 +18,6 @@ import {
   filter,
   firstValueFrom,
   from,
-  lastValueFrom,
   map,
   merge,
   Observable,
@@ -29,7 +28,6 @@ import {
 
 import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -51,21 +49,19 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
-import { configureMemberFlags, MembersTableDataSource } from "../../common/member-component-utils";
 import {
   CloudBulkReinviteLimit,
+  configureMemberFlags,
   MaxCheckedCount,
+  MembersTableDataSource,
   peopleFilter,
 } from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
-import { UserConfirmComponent } from "../manage/user-confirm.component";
 
 import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
 import { MemberDialogResult, MemberDialogTab } from "./components/member-dialog";
@@ -82,12 +78,10 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MembersComponent {
-  protected apiService = inject(ApiService);
   protected i18nService = inject(I18nService);
   protected organizationManagementPreferencesService = inject(
     OrganizationManagementPreferencesService,
   );
-  protected keyService = inject(KeyService);
   protected validationService = inject(ValidationService);
   protected logService = inject(LogService);
   protected userNamePipe = inject(UserNamePipe);
@@ -153,8 +147,6 @@ export class MembersComponent {
       .subscribe(
         ([searchText, status]) => (this.dataSource.filter = peopleFilter(searchText, status)),
       );
-
-    this.dataSource = new MembersTableDataSource(this.configService, this.environmentService);
 
     const organization$ = this.route.params.pipe(
       concatMap((params) =>
@@ -265,40 +257,12 @@ export class MembersComponent {
       await this.handleMemberActionResult(result, "hasBeenConfirmed", user, confirmUserSideEffect);
     };
 
-    try {
-      const publicKeyResponse = await this.apiService.getUserPublicKey(user.userId);
-      const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-
-      const autoConfirmFingerPrint = await firstValueFrom(
-        this.organizationManagementPreferencesService.autoConfirmFingerPrints.state$,
-      );
-      if (user == null) {
-        throw new Error("Cannot confirm null user.");
-      }
-      if (autoConfirmFingerPrint == null || !autoConfirmFingerPrint) {
-        const dialogRef = UserConfirmComponent.open(this.dialogService, {
-          data: {
-            name: this.userNamePipe.transform(user),
-            userId: user.userId,
-            publicKey: publicKey,
-            confirmUser: () => confirmUser(publicKey),
-          },
-        });
-        await lastValueFrom(dialogRef.closed);
-
-        return;
-      }
-
-      try {
-        const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
-        this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
-      } catch (e) {
-        this.logService.error(e);
-      }
-      await confirmUser(publicKey);
-    } catch (e) {
-      this.logService.error(`Handled exception: ${e}`);
-    }
+    await this.memberActionsService.confirmUserWorkflow(
+      user,
+      this.userNamePipe,
+      this.organizationManagementPreferencesService,
+      confirmUser,
+    );
   }
 
   async revoke(user: OrganizationUserView, organization: Organization) {
