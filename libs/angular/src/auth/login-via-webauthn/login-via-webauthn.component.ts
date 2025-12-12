@@ -81,7 +81,7 @@ export class LoginViaWebAuthnComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private messagingService: MessagingService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Check if we should auto-close the popout after successful authentication
@@ -129,8 +129,6 @@ export class LoginViaWebAuthnComponent implements OnInit {
       const userKey = await firstValueFrom(this.keyService.userKey$(authResult.userId));
       if (userKey) {
         await this.loginSuccessHandlerService.run(authResult.userId, null);
-<<<<<<< HEAD
-=======
       }
 
       // If autoClosePopout is enabled and we're in a browser extension,
@@ -142,7 +140,6 @@ export class LoginViaWebAuthnComponent implements OnInit {
         this.messagingService.send("openPopup");
         window.close();
         return;
->>>>>>> main
       }
 
       await this.router.navigate([this.successRoute]);
