@@ -10,8 +10,8 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY, firstValueFrom } from "rxjs";
-import { distinctUntilChanged, map, tap } from "rxjs/operators";
+import { BehaviorSubject, EMPTY, firstValueFrom, of } from "rxjs";
+import { delay, distinctUntilChanged, map, switchMap, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -95,6 +95,13 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected IMPORT_ICON = "bwi bwi-download";
   protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | null = null;
 
+  // Controls loading component visibility with delayed hiding to allow progress animations to complete
+  private showLoadingSubject = new BehaviorSubject<boolean>(false);
+  protected showLoading$ = this.showLoadingSubject.asObservable();
+
+  // Minimum time to display loading progress (in milliseconds)
+  private readonly LOADING_DISPLAY_DELAY_MS = 1000;
+
   // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
   constructor(
@@ -170,6 +177,24 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     // this happens when navigating between orgs
     // or just navigating away from the page and back
     this.currentDialogRef?.close();
+
+    // Subscribe to report status to control loading component visibility
+    // Show loading immediately when generation starts, delay hiding to allow progress animations
+    // Using switchMap to cancel pending "hide" if a new report starts before delay completes
+    this.dataService.isGeneratingReport$
+      .pipe(
+        distinctUntilChanged(),
+        switchMap(
+          (isGenerating) =>
+            isGenerating
+              ? of(true) // Emit true immediately when generation starts
+              : of(false).pipe(delay(this.LOADING_DISPLAY_DELAY_MS)), // Delay hiding
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((showLoading) => {
+        this.showLoadingSubject.next(showLoading);
+      });
   }
 
   ngOnDestroy(): void {
