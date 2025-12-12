@@ -314,7 +314,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
    * @param message - The message to send to the notification bar iframe.
    */
   private sendMessageToNotificationBarIframe(message: Record<string, any>) {
-    if (this.notificationBarIframeElement) {
+    if (this.notificationBarIframeElement?.contentWindow) {
       this.notificationBarIframeElement.contentWindow.postMessage(message, this.extensionOrigin);
     }
   }
