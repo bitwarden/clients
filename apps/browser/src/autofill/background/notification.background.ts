@@ -79,6 +79,30 @@ import {
 } from "./abstractions/overlay-notifications.background";
 import { OverlayBackgroundExtensionMessage } from "./abstractions/overlay.background";
 
+const inputScenarios = {
+  usernamePasswordNewPassword: "usernamePasswordNewPassword",
+  usernameNewPassword: "usernameNewPassword",
+  usernamePassword: "usernamePassword",
+  username: "username",
+  passwordNewPassword: "passwordNewPassword",
+  newPassword: "newPassword",
+  password: "password",
+} as const;
+
+type InputScenarioKey = keyof typeof inputScenarios;
+type InputScenario = (typeof inputScenarios)[InputScenarioKey];
+
+type CiphersByInputMatchCategory = {
+  allFieldMatches: CipherView["id"][];
+  newPasswordOnlyMatches: CipherView["id"][];
+  noFieldMatches: CipherView["id"][];
+  passwordNewPasswordMatches: CipherView["id"][];
+  passwordOnlyMatches: CipherView["id"][];
+  usernameNewPasswordMatches: CipherView["id"][];
+  usernameOnlyMatches: CipherView["id"][];
+  usernamePasswordMatches: CipherView["id"][];
+};
+
 export default class NotificationBackground {
   private openUnlockPopout = openUnlockPopout;
   private openAddEditVaultItemPopout = openAddEditVaultItemPopout;
@@ -514,6 +538,7 @@ export default class NotificationBackground {
     return true;
   }
 
+  // @TODO we should probably roll this into `triggerChangedPasswordNotification` and handle the prequalified scenarios for locked vaults there; we're likely going to have to call new logic notifications from `triggerChangedPasswordNotification` anyway
   /**
    * Adds a login message to the notification queue, prompting the user to save
    * the login if it does not already exist in the vault. If the cipher exists
@@ -603,144 +628,418 @@ export default class NotificationBackground {
    * Returns `true` or `false` to indicate if such an update notification was
    * triggered or not.
    *
+   * For the purposes of this function, form field inputs should be assumed to be qualified accurately.
+   *
    * @param message - The message to add to the queue
    * @param sender - The contextual sender of the message
    */
+  // @TODO Merge to triggerLoginCipherNotification
   async triggerChangedPasswordNotification(
     data: ModifyLoginCipherFormData,
     tab: chrome.tabs.Tab,
   ): Promise<boolean> {
-    const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
-    if (!changePasswordIsEnabled) {
+    const usernameFieldValue: string | null = data.username || null;
+    const currentPasswordFieldValue = data.password || null;
+    const newPasswordFieldValue = data.newPassword || null;
+
+    // If no values were entered, exit early
+    if (!usernameFieldValue && !currentPasswordFieldValue && !newPasswordFieldValue) {
       return false;
     }
+
+    // If the entered data doesn't have an associated URI, exit early
+    const loginDomain = Utils.getDomain(data.uri);
+    if (loginDomain === null) {
+      return false;
+    }
+
+    // If no cipher add/update notifications are enabled, we can exit early
+    const changePasswordNotificationIsEnabled = await this.getEnableChangedPasswordPrompt();
+    const newLoginNotificationIsEnabled = await this.getEnableAddedLoginPrompt();
+    if (!changePasswordNotificationIsEnabled && !newLoginNotificationIsEnabled) {
+      return false;
+    }
+
+    // If there is no account logged in (as opposed to only being locked), exit early
     const authStatus = await this.getAuthStatus();
     if (authStatus === AuthenticationStatus.LoggedOut) {
       return false;
     }
+
+    // If there is no active user, exit early
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (activeUserId === null) {
       return false;
     }
-    const loginDomain = Utils.getDomain(data.uri);
-    if (loginDomain === null) {
-      return false;
-    }
-
-    const usernameFieldValue: string | null = data.username || null;
-    const currentPasswordFieldValue = data.password || null;
-    const newPasswordFieldValue = data.newPassword || null;
-
-    /*
-     * We only show the unlock notification if a new password field was filled, since
-     * it's very likely to represent an updated cipher value and the other
-     * scenarios below require the vault to be unlocked in order to determine
-     * if an update has been made.
-     */
-    if (authStatus === AuthenticationStatus.Locked) {
-      if (newPasswordFieldValue !== null) {
-        await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
-        return true;
-      }
-
-      return false;
-    }
-
-    let updateCandidateCiphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
-      data.uri,
-      activeUserId,
-    );
 
     const normalizedUsername: string = usernameFieldValue ? usernameFieldValue.toLowerCase() : "";
     const currentPasswordFieldHasValue =
       typeof currentPasswordFieldValue === "string" && currentPasswordFieldValue.length > 0;
     const newPasswordFieldHasValue =
       typeof newPasswordFieldValue === "string" && newPasswordFieldValue.length > 0;
-
-    const checkForUsernameMatch =
+    const usernameFieldHasValue =
       typeof usernameFieldValue === "string" && usernameFieldValue.length > 0;
-    const checkForPasswordMatch = newPasswordFieldHasValue && currentPasswordFieldHasValue;
 
-    // If a username was entered, use that value as the basis for finding stored cipher to update
-    if (checkForUsernameMatch) {
-      updateCandidateCiphers = updateCandidateCiphers.filter(
-        (cipher) =>
-          // Presence of a stored username should filter ciphers further.
-          cipher.login.username !== null &&
-          cipher.login.username.toLowerCase() === normalizedUsername,
-      );
-
-      /*
-       * Because we have stored ciphers with username values matching the entered
-       * username value, we can now further filter ciphers on the basis of password
-       * matches (do not offer to update ciphers that already match the username and
-       * password of what was entered).
-       */
-
-      /*
-       * If a new password value was entered (ignore current password value, assume
-       * password update), filter out stored ciphers that have a password matching the
-       * new password value entered (because there's no change for those).
-       */
-      if (newPasswordFieldHasValue) {
-        updateCandidateCiphers = updateCandidateCiphers.filter(
-          (cipher) =>
-            // include ciphers without passwords as update candidates
-            !cipher.login.password || cipher.login.password !== newPasswordFieldValue,
-        );
-      } else if (currentPasswordFieldHasValue) {
-        /*
-         * Otherwise, if a _current_ password value was entered, and _no_ new password
-         * value was entered (account creation or login with non-stored credentials),
-         * filter out ciphers that have a password matching the current password value
-         * entered (because there's no change for those).
-         */
-        updateCandidateCiphers = updateCandidateCiphers.filter(
-          (cipher) =>
-            // include ciphers without passwords as update candidates
-            !cipher.login.password || cipher.login.password !== currentPasswordFieldValue,
-        );
-      }
-    } else if (checkForPasswordMatch) {
-      /*
-       * Since no username was provided, use the password field entries to filter
-       * matching cipher update candidates. Both current and new values are needed.
-       */
-      updateCandidateCiphers = updateCandidateCiphers.filter(
-        (cipher) =>
-          cipher.login.password &&
-          cipher.login.password === currentPasswordFieldValue &&
-          // If the new password value also matches a stored cipher password,
-          // there is no change, and we should filter out that cipher
-          // from update candidates
-          cipher.login.password !== newPasswordFieldValue,
-      );
-    }
-    // Insufficient field changes were given (e.g. new password only,
-    // no field values at all, etc); no update to make, may be a new cipher case
-    // (handled by `triggerAddLoginNotification`)
-    else {
+    // If the current and new password inputs both have values and those values
+    // match, return early, since no change was made
+    if (
+      currentPasswordFieldHasValue &&
+      newPasswordFieldHasValue &&
+      currentPasswordFieldValue === newPasswordFieldValue
+    ) {
       return false;
     }
 
-    // If any ciphers remain after filtering, trigger an update notification
-    // with those ciphers
-    const resolvedPasswordUpdateValue = newPasswordFieldHasValue
-      ? newPasswordFieldValue
-      : currentPasswordFieldHasValue
-        ? currentPasswordFieldValue
-        : null;
-    if (updateCandidateCiphers.length && resolvedPasswordUpdateValue) {
-      await this.pushChangePasswordToQueue(
-        updateCandidateCiphers.map((cipher) => cipher.id),
-        loginDomain,
-        resolvedPasswordUpdateValue,
-        tab,
-      );
+    /*
+     * We only show the unlock notification if a new password field was filled, since
+     * it's very likely to blindly represent an updated cipher value whereas other
+     * scenarios below require the vault to be unlocked in order to determine
+     * if an update has been made.
+     */
+    if (authStatus === AuthenticationStatus.Locked) {
+      if (!newPasswordFieldHasValue) {
+        return false;
+      }
+      // This needs to be the call that includes the full form data
+      await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
 
       return true;
+    }
+
+    const ciphersForURL: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      data.uri,
+      activeUserId,
+    );
+
+    // Reducer structured to avoid subsequent array iterations
+    const ciphersByInputMatchCategory = ciphersForURL.reduce(
+      (acc, { id, login }) => {
+        const usernameInputMatchesCipher =
+          usernameFieldHasValue && login.username.toLowerCase() === normalizedUsername;
+        const passwordInputMatchesCipher =
+          currentPasswordFieldHasValue && login.password === currentPasswordFieldValue;
+        const newPasswordInputMatchesCipher =
+          newPasswordFieldHasValue && login.password === newPasswordFieldValue;
+
+        if (
+          !newPasswordInputMatchesCipher &&
+          !usernameInputMatchesCipher &&
+          !passwordInputMatchesCipher
+        ) {
+          return { ...acc, noFieldMatches: [...acc.noFieldMatches, id] };
+        } else if (
+          newPasswordInputMatchesCipher &&
+          usernameInputMatchesCipher &&
+          passwordInputMatchesCipher
+        ) {
+          // Note: this case should be unreachable due to the early exit comparing
+          // the password input values against each other, but leaving this bit here
+          // as a defense against future changes to the pre-match checks.
+          return { ...acc, allFieldMatches: [...acc.allFieldMatches, id] };
+        } else if (
+          newPasswordInputMatchesCipher &&
+          !usernameInputMatchesCipher &&
+          !passwordInputMatchesCipher
+        ) {
+          return { ...acc, newPasswordOnlyMatches: [...acc.newPasswordOnlyMatches, id] };
+        } else if (
+          passwordInputMatchesCipher &&
+          !usernameInputMatchesCipher &&
+          !newPasswordInputMatchesCipher
+        ) {
+          return { ...acc, passwordOnlyMatches: [...acc.passwordOnlyMatches, id] };
+        } else if (
+          passwordInputMatchesCipher &&
+          newPasswordInputMatchesCipher &&
+          !usernameInputMatchesCipher
+        ) {
+          // Note: this case should be unreachable due to the early exit comparing
+          // the password input values against each other, but leaving this bit here
+          // as a defense against future changes to the pre-match checks.
+          return { ...acc, passwordNewPasswordMatches: [...acc.passwordNewPasswordMatches, id] };
+        } else if (
+          usernameInputMatchesCipher &&
+          !passwordInputMatchesCipher &&
+          !newPasswordInputMatchesCipher
+        ) {
+          return { ...acc, usernameOnlyMatches: [...acc.usernameOnlyMatches, id] };
+        } else if (
+          usernameInputMatchesCipher &&
+          passwordInputMatchesCipher &&
+          !newPasswordInputMatchesCipher
+        ) {
+          return { ...acc, usernamePasswordMatches: [...acc.usernamePasswordMatches, id] };
+        } else if (
+          usernameInputMatchesCipher &&
+          newPasswordInputMatchesCipher &&
+          !passwordInputMatchesCipher
+        ) {
+          return { ...acc, usernameNewPasswordMatches: [...acc.usernameNewPasswordMatches, id] };
+        }
+
+        return acc;
+      },
+      {
+        allFieldMatches: [],
+        newPasswordOnlyMatches: [],
+        noFieldMatches: [],
+        passwordNewPasswordMatches: [],
+        passwordOnlyMatches: [],
+        usernameNewPasswordMatches: [],
+        usernameOnlyMatches: [],
+        usernamePasswordMatches: [],
+      },
+    );
+
+    let inputScenario = null;
+
+    // Handle different field fill combinations
+    if (currentPasswordFieldHasValue && newPasswordFieldHasValue && usernameFieldHasValue) {
+      inputScenario = inputScenarios.usernamePasswordNewPassword;
+    } else if (newPasswordFieldHasValue && usernameFieldHasValue && !currentPasswordFieldHasValue) {
+      inputScenario = inputScenarios.usernameNewPassword;
+    } else if (
+      usernameFieldHasValue &&
+      !currentPasswordFieldHasValue &&
+      !newPasswordFieldHasValue
+    ) {
+      inputScenario = inputScenarios.username;
+    } else if (currentPasswordFieldHasValue && newPasswordFieldHasValue && !usernameFieldHasValue) {
+      inputScenario = inputScenarios.passwordNewPassword;
+    } else if (
+      currentPasswordFieldHasValue &&
+      !newPasswordFieldHasValue &&
+      !usernameFieldHasValue
+    ) {
+      inputScenario = inputScenarios.password;
+    } else if (currentPasswordFieldHasValue && usernameFieldHasValue && !newPasswordFieldHasValue) {
+      inputScenario = inputScenarios.usernamePassword;
+    } else if (
+      newPasswordFieldHasValue &&
+      !currentPasswordFieldHasValue &&
+      !usernameFieldHasValue
+    ) {
+      inputScenario = inputScenarios.newPassword;
+    }
+
+    if (inputScenario) {
+      return await this.handleInputMatchScenario({
+        ciphersByInputMatchCategory,
+        ciphersForURL,
+        loginDomain,
+        tab,
+        data,
+        inputScenario,
+        changePasswordNotificationIsEnabled,
+        newLoginNotificationIsEnabled,
+      });
+    }
+
+    return false;
+  }
+
+  // Order of conditionals matters, here; later evaluations depend on the early exits of preceding logic
+  private async handleInputMatchScenario({
+    inputScenario,
+    ciphersByInputMatchCategory,
+    ciphersForURL,
+    loginDomain,
+    tab,
+    data,
+    changePasswordNotificationIsEnabled,
+    newLoginNotificationIsEnabled,
+  }: {
+    ciphersByInputMatchCategory: CiphersByInputMatchCategory;
+    ciphersForURL: CipherView[];
+    loginDomain: string;
+    tab: chrome.tabs.Tab;
+    data: ModifyLoginCipherFormData;
+    inputScenario: InputScenario;
+    changePasswordNotificationIsEnabled: boolean;
+    newLoginNotificationIsEnabled: boolean;
+  }): Promise<boolean> {
+    const {
+      newPasswordOnlyMatches,
+      noFieldMatches,
+      passwordOnlyMatches,
+      usernameNewPasswordMatches,
+      usernameOnlyMatches,
+      usernamePasswordMatches,
+    } = ciphersByInputMatchCategory;
+
+    // If no ciphers match any filled input values
+    // Note, this block may uniquely exit early since this match scenario
+    // involves all ciphers, making it mutually exclusive from any other scenario
+    if (noFieldMatches.length === ciphersForURL.length) {
+      // trigger a new cipher notification in these input scenarios
+      if (
+        (
+          [
+            inputScenarios.usernamePasswordNewPassword,
+            inputScenarios.usernameNewPassword,
+            inputScenarios.usernamePassword,
+            inputScenarios.username,
+          ] as InputScenario[]
+        ).includes(inputScenario) &&
+        newLoginNotificationIsEnabled
+      ) {
+        await this.pushAddLoginToQueue(
+          loginDomain,
+          { username: data.username, url: data.uri, password: data.newPassword || data.password },
+          tab,
+        );
+
+        return true;
+      }
+
+      // Trigger an update cipher notification with all URI ciphers
+      // in these input scenarios
+      if (
+        ([inputScenarios.password, inputScenarios.newPassword] as InputScenario[]).includes(
+          inputScenario,
+        ) &&
+        changePasswordNotificationIsEnabled
+      ) {
+        await this.pushChangePasswordToQueue(
+          ciphersForURL.map((c) => c.id),
+          loginDomain,
+          // @TODO handle empty strings / incomplete data structure
+          data.newPassword || data.password,
+          tab,
+        );
+
+        return true;
+      }
+
+      return false;
+    }
+
+    // If ciphers match entered username and new password values
+    if (usernameNewPasswordMatches.length) {
+      // Early exit in these scenarios as they represent "no change"
+      if (
+        (
+          [
+            inputScenarios.usernamePasswordNewPassword,
+            inputScenarios.usernameNewPassword,
+          ] as InputScenario[]
+        ).includes(inputScenario)
+      ) {
+        return false;
+      }
+    }
+
+    // If ciphers match entered username and password values
+    if (usernamePasswordMatches.length) {
+      // and username, password, and new password values were entered
+      if (
+        inputScenario === inputScenarios.usernamePasswordNewPassword &&
+        changePasswordNotificationIsEnabled
+      ) {
+        await this.pushChangePasswordToQueue(
+          usernamePasswordMatches,
+          loginDomain,
+          // @TODO handle empty strings / incomplete data structure
+          data.newPassword || data.password,
+          tab,
+        );
+
+        return true;
+      }
+
+      if (inputScenario === inputScenarios.usernamePassword) {
+        return false;
+      }
+    }
+
+    // If ciphers match entered username value (only)
+    if (usernameOnlyMatches.length) {
+      if (
+        (
+          [
+            inputScenarios.usernamePasswordNewPassword,
+            inputScenarios.usernameNewPassword,
+            inputScenarios.usernamePassword,
+          ] as InputScenario[]
+        ).includes(inputScenario) &&
+        changePasswordNotificationIsEnabled
+      ) {
+        await this.pushChangePasswordToQueue(
+          usernameOnlyMatches,
+          loginDomain,
+          // @TODO handle empty strings / incomplete data structure
+          data.newPassword || data.password,
+          tab,
+        );
+
+        return true;
+      }
+
+      // Early exit in this scenario as it represents "no change"
+      if (inputScenario === inputScenarios.username) {
+        return false;
+      }
+    }
+
+    // If ciphers match entered new password value (only)
+    if (newPasswordOnlyMatches.length) {
+      // Early exit in these scenarios
+      if (
+        (
+          [
+            inputScenarios.usernameNewPassword, // unclear user expectation
+            inputScenarios.password, // likely nothing to change
+            inputScenarios.newPassword, // nothing to change
+          ] as InputScenario[]
+        ).includes(inputScenario)
+      ) {
+        return false;
+      }
+
+      // and username, password, and new password values were entered
+      if (
+        inputScenario === inputScenarios.usernamePasswordNewPassword &&
+        newLoginNotificationIsEnabled
+      ) {
+        await this.pushAddLoginToQueue(
+          loginDomain,
+          { username: data.username, url: data.uri, password: data.newPassword || data.password },
+          tab,
+        );
+
+        return true;
+      }
+    }
+
+    // If ciphers match entered password value (only)
+    if (passwordOnlyMatches.length) {
+      if (
+        (
+          [
+            inputScenarios.usernamePasswordNewPassword,
+            inputScenarios.usernamePassword,
+            inputScenarios.passwordNewPassword,
+          ] as InputScenario[]
+        ).includes(inputScenario) &&
+        changePasswordNotificationIsEnabled
+      ) {
+        await this.pushChangePasswordToQueue(
+          passwordOnlyMatches,
+          loginDomain,
+          // @TODO handle empty strings / incomplete data structure
+          data.newPassword || data.password,
+          tab,
+        );
+
+        return true;
+      }
+
+      // Early exit in this scenario as it represents "no change"
+      if (inputScenario === inputScenarios.password) {
+        return false;
+      }
     }
 
     return false;
@@ -766,6 +1065,7 @@ export default class NotificationBackground {
     });
   }
 
+  // @TODO this needs the whole input record, and not just newPassword
   private async pushChangePasswordToQueue(
     cipherIds: CipherView["id"][],
     loginDomain: string,

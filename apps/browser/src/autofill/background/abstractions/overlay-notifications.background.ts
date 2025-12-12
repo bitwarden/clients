@@ -21,6 +21,7 @@ export type WebsiteOriginsWithFields = Map<chrome.tabs.Tab["id"], Set<string>>;
 
 export type ActiveFormSubmissionRequests = Set<chrome.webRequest.WebRequestDetails["requestId"]>;
 
+/** This type represents an expectation of nullish values being represented as empty strings */
 export type ModifyLoginCipherFormData = {
   uri: string;
   username: string;
