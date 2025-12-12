@@ -12,7 +12,7 @@ const routes: Routes = [
     component: SecretsManagerImportComponent,
     canActivate: [organizationPermissionsGuard((org) => org.isAdmin)],
     data: {
-      titleId: "import",
+      titleId: "importData",
     },
   },
   {
@@ -20,7 +20,7 @@ const routes: Routes = [
     component: SecretsManagerExportComponent,
     canActivate: [organizationPermissionsGuard((org) => org.isAdmin)],
     data: {
-      titleId: "export",
+      titleId: "exportData",
     },
   },
 ];

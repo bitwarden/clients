@@ -1198,8 +1198,8 @@
   "followUs": {
     "message": "Follow us"
   },
-  "syncNow": {
-    "message": "Sync now"
+  "syncVault": {
+    "message": "Sync vault"
   },
   "changeMasterPass": {
     "message": "Change master password"
@@ -1775,11 +1775,8 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "export": {
-    "message": "Export"
-  },
-  "import": {
-    "message": "Import"
+  "exportVault": {
+    "message": "Export vault"
   },
   "fileFormat": {
     "message": "File format"
@@ -3494,6 +3491,10 @@
   },
   "aliasDomain": {
     "message": "Alias domain"
+  },
+  "importData": {
+    "message": "Import data",
+    "description": "Used for the desktop menu item and the header of the import dialog"
   },
   "importError": {
     "message": "Import error"
