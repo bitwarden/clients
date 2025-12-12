@@ -3,12 +3,12 @@ import { mock, MockProxy } from "jest-mock-extended";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
-import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 import { RotateableKeySet } from "../models/rotateable-key-set";
 
 import { DefaultRotateableKeySetService } from "./default-rotateable-key-set.service";
