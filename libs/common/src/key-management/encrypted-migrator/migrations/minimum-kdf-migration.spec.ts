@@ -71,7 +71,7 @@ describe("MinimumKdfMigration", () => {
     it("should return 'noMigrationNeeded' when PBKDF2 iterations equal minimum", async () => {
       const mockKdfConfig = {
         kdfType: KdfType.PBKDF2_SHA256,
-        iterations: PBKDF2KdfConfig.ITERATIONS.min,
+        iterations: 600000,
       };
       mockKdfConfigService.getKdfConfig.mockResolvedValue(mockKdfConfig as any);
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
@@ -140,7 +140,7 @@ describe("MinimumKdfMigration", () => {
 
       // Verify the PBKDF2KdfConfig has the correct iteration count
       const kdfConfigArg = (mockChangeKdfService.updateUserKdfParams as jest.Mock).mock.calls[0][1];
-      expect(kdfConfigArg.iterations).toBe(PBKDF2KdfConfig.ITERATIONS.defaultValue);
+      expect(kdfConfigArg.iterations).toBe(600000);
     });
 
     it("should throw error when userId is null", async () => {
