@@ -954,6 +954,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.mutationObserver.observe(document.documentElement, {
       attributes: true,
+      /** Mutations to node attributes NOT on this list will not be observed! */
       attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
       childList: true,
       subtree: true,
