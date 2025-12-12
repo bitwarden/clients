@@ -134,7 +134,7 @@ export class OrganizationData {
     this.userIsManagedByOrganization = response.userIsManagedByOrganization;
     this.useAccessIntelligence = response.useAccessIntelligence;
     this.useAdminSponsoredFamilies = response.useAdminSponsoredFamilies;
-    this.useDisableSMAdsForUsers = response.useDisableSMAdsForUsers;
+    this.useDisableSMAdsForUsers = response.useDisableSMAdsForUsers ?? false;
     this.isAdminInitiated = response.isAdminInitiated;
     this.ssoEnabled = response.ssoEnabled;
     this.ssoMemberDecryptionType = response.ssoMemberDecryptionType;

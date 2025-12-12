@@ -134,7 +134,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     // Map from backend API property (UseRiskInsights) to domain model property (useAccessIntelligence)
     this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
     this.useAdminSponsoredFamilies = this.getResponseProperty("UseAdminSponsoredFamilies");
-    this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers");
+    this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers") ?? false;
     this.isAdminInitiated = this.getResponseProperty("IsAdminInitiated");
     this.ssoEnabled = this.getResponseProperty("SsoEnabled") ?? false;
     this.ssoMemberDecryptionType = this.getResponseProperty("SsoMemberDecryptionType");

@@ -216,7 +216,7 @@ export class ProductSwitcherService {
         // SM ads are only disabled if the user is a regular User (not Admin or Owner)
         // in an organization that has useDisableSMAdsForUsers enabled
         const shouldDisableSMAds = orgs.some(
-          (org) => org.useDisableSMAdsForUsers && org.type === OrganizationUserType.User,
+          (org) => org.useDisableSMAdsForUsers === true && org.type === OrganizationUserType.User,
         );
 
         const products = {

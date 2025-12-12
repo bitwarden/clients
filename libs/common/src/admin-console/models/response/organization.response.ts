@@ -82,8 +82,7 @@ export class OrganizationResponse extends BaseResponse {
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );
-    this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers");
-    this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers");
+    this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers") ?? false;
     // Map from backend API property (UseRiskInsights) to domain model property (useAccessIntelligence)
     this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
     this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
