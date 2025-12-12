@@ -10,6 +10,7 @@ import eslintPluginTailwindCSS from "eslint-plugin-tailwindcss";
 import rxjs from "eslint-plugin-rxjs";
 import angularRxjs from "eslint-plugin-rxjs-angular";
 import storybook from "eslint-plugin-storybook";
+import oxlint from "eslint-plugin-oxlint";
 
 import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
@@ -29,7 +30,7 @@ export default tseslint.config(
       eslintConfigPrettier, // Disables rules that conflict with Prettier
     ],
     linterOptions: {
-      reportUnusedDisableDirectives: "error",
+      reportUnusedDisableDirectives: "off", // TODO: Re-enable after cleaning up unused directives from oxlint migration
     },
     plugins: {
       rxjs: fixupPluginRules(rxjs),
@@ -684,6 +685,9 @@ export default tseslint.config(
       "jest.preset.js",
     ],
   },
+
+  // Disable ESLint rules that are already covered by oxlint
+  ...oxlint.buildFromOxlintConfigFile("./.oxlintrc.json"),
 );
 
 /**
