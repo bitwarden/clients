@@ -14,6 +14,11 @@ import { SshKeyApi } from "../api/ssh-key.api";
 import { AttachmentResponse } from "./attachment.response";
 import { PasswordHistoryResponse } from "./password-history.response";
 
+export type CipherMiniResponse = Omit<
+  CipherResponse,
+  "edit" | "viewPassword" | "folderId" | "favorite" | "permissions"
+>;
+
 export class CipherResponse extends BaseResponse {
   id: string;
   organizationId: string;

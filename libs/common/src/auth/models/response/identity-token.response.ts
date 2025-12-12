@@ -11,11 +11,13 @@ import { MasterPasswordPolicyResponse } from "./master-password-policy.response"
 import { UserDecryptionOptionsResponse } from "./user-decryption-options/user-decryption-options.response";
 
 export class IdentityTokenResponse extends BaseResponse {
+  // Authentication Information
   accessToken: string;
   expiresIn?: number;
   refreshToken?: string;
   tokenType: string;
 
+  // Decryption Information
   resetMasterPassword: boolean;
   privateKey: string; // userKeyEncryptedPrivateKey
   key?: EncString; // masterKeyEncryptedUserKey
@@ -24,7 +26,6 @@ export class IdentityTokenResponse extends BaseResponse {
   forcePasswordReset: boolean;
   masterPasswordPolicy: MasterPasswordPolicyResponse;
   apiUseKeyConnector: boolean;
-  keyConnectorUrl: string;
 
   userDecryptionOptions?: UserDecryptionOptionsResponse;
 
@@ -68,7 +69,7 @@ export class IdentityTokenResponse extends BaseResponse {
         : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
     this.forcePasswordReset = this.getResponseProperty("ForcePasswordReset");
     this.apiUseKeyConnector = this.getResponseProperty("ApiUseKeyConnector");
-    this.keyConnectorUrl = this.getResponseProperty("KeyConnectorUrl");
+
     this.masterPasswordPolicy = new MasterPasswordPolicyResponse(
       this.getResponseProperty("MasterPasswordPolicy"),
     );

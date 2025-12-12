@@ -9,7 +9,7 @@
     <div>
       <span class="tw-sr-only">{{ variant() | i18n }}</span>
       @if (title(); as title) {
-        <p data-testid="toast-title" class="tw-font-semibold tw-mb-0">{{ title }}</p>
+        <p data-testid="toast-title" class="tw-font-medium tw-mb-0">{{ title }}</p>
       }
       @for (m of messageArray; track m) {
         <p bitTypography="body2" data-testid="toast-message" class="tw-mb-2 last:tw-mb-0">

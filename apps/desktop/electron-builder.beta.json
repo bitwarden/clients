@@ -36,6 +36,10 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
         "to": "desktop_proxy.exe"
+      },
+      {
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.${platform}-${arch}.exe",
+        "to": "bitwarden_chromium_import_helper.exe"
       }
     ]
   },

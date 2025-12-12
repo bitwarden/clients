@@ -14,7 +14,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
   standalone: false,
 })
 export class TrueFalseValueDirective implements ControlValueAccessor {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() trueValue: boolean | string = true;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() falseValue: boolean | string = false;
 
   constructor(

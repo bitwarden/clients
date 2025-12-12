@@ -61,8 +61,11 @@ export class WebLoginComponentService
     email: string,
     state: string,
     codeChallenge: string,
+    orgSsoIdentifier?: string,
   ): Promise<void> {
-    await this.router.navigate(["/sso"]);
+    await this.router.navigate(["/sso"], {
+      queryParams: { identifier: orgSsoIdentifier },
+    });
     return;
   }
 

@@ -18,6 +18,8 @@ import {
 import { SecretsManagerImportError } from "../models/error/sm-import-error";
 import { SecretsManagerPortingApiService } from "../services/sm-porting-api.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-import",
   templateUrl: "./sm-import.component.html",

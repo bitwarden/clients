@@ -1,7 +1,7 @@
 import { Opaque } from "type-fest";
 
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { OrganizationReportId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
 
@@ -15,7 +15,7 @@ import { ExposedPasswordDetail, WeakPasswordDetail } from "./password-health";
  */
 export type MemberDetails = {
   userGuid: string;
-  userName: string;
+  userName: string | null;
   email: string;
   cipherId: string;
 };
@@ -55,7 +55,6 @@ export type OrganizationReportSummary = {
   totalCriticalMemberCount: number;
   totalCriticalAtRiskMemberCount: number;
   totalCriticalAtRiskApplicationCount: number;
-  newApplications: string[];
 };
 
 /**
@@ -80,12 +79,12 @@ export type ApplicationHealthReportDetail = {
   applicationName: string;
   passwordCount: number;
   atRiskPasswordCount: number;
-  atRiskCipherIds: string[];
+  atRiskCipherIds: CipherId[];
   memberCount: number;
   atRiskMemberCount: number;
   memberDetails: MemberDetails[];
   atRiskMemberDetails: MemberDetails[];
-  cipherIds: string[];
+  cipherIds: CipherId[];
 };
 
 // -------------------- Password Health Report Models --------------------
@@ -99,6 +98,26 @@ export type ReportResult = CipherView & {
   scoreKey: number;
 };
 
+export const ReportStatus = Object.freeze({
+  Initializing: 1,
+  Loading: 2,
+  Complete: 3,
+  Error: 4,
+} as const);
+
+export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus];
+
+export const ReportProgress = Object.freeze({
+  FetchingMembers: 1,
+  AnalyzingPasswords: 2,
+  CalculatingRisks: 3,
+  GeneratingReport: 4,
+  Saving: 5,
+  Complete: 6,
+} as const);
+
+export type ReportProgress = (typeof ReportProgress)[keyof typeof ReportProgress];
+
 export interface RiskInsightsData {
   id: OrganizationReportId;
   creationDate: Date;
@@ -109,7 +128,7 @@ export interface RiskInsightsData {
 }
 
 export interface ReportState {
-  loading: boolean;
+  status: ReportStatus;
   error: string | null;
   data: RiskInsightsData | null;
 }

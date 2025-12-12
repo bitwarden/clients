@@ -38,8 +38,9 @@ export class OrganizationResponse extends BaseResponse {
   limitCollectionDeletion: boolean;
   limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
-  useRiskInsights: boolean;
+  useAccessIntelligence: boolean;
   useDisableSMAdsForUsers: boolean;
+  usePhishingBlocker: boolean;
 
   constructor(response: any) {
     super(response);
@@ -81,7 +82,9 @@ export class OrganizationResponse extends BaseResponse {
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );
-    this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
+    // Map from backend API property (UseRiskInsights) to domain model property (useAccessIntelligence)
+    this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
     this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers");
+    this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
   }
 }

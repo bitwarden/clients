@@ -10,6 +10,7 @@ export { RestrictedItemTypesPolicy } from "./restricted-item-types.component";
 export { SendOptionsPolicy } from "./send-options.component";
 export { SingleOrgPolicy } from "./single-org.component";
 export { TwoFactorAuthenticationPolicy } from "./two-factor-authentication.component";
+export { UriMatchDefaultPolicy } from "./uri-match-default.component";
 export {
   vNextOrganizationDataOwnershipPolicy,
   vNextOrganizationDataOwnershipPolicyComponent,
