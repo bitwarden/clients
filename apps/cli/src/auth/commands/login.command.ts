@@ -845,7 +845,7 @@ export class LoginCommand {
    * Validate that a user logging in with SSO that is in an org using MP encryption
    * has a MP set. If not, they cannot set a MP in the CLI and must use another client.
    * @param userId
-   * @returns
+   * @returns void
    */
   private async validateSsoUserInMpEncryptionOrgHasMp(userId: UserId): Promise<void> {
     const userDecryptionOptions = await firstValueFrom(
