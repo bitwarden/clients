@@ -10,6 +10,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -18,9 +19,10 @@ import { unauthGuardFn } from "./unauth.guard";
 describe("UnauthGuard", () => {
   const activeUser: Account = {
     id: "fake_user_id" as UserId,
-    email: "test@email.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@email.com",
+      name: "Test User",
+    }),
   };
 
   const setup = (

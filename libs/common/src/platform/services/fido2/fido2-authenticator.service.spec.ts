@@ -3,7 +3,7 @@ import { TextEncoder } from "util";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { mockAccountServiceWith } from "../../../../spec";
+import { mockAccountServiceWith, mockAccountInfoWith } from "../../../../spec";
 import { Account } from "../../../auth/abstractions/account.service";
 import { CipherId, UserId } from "../../../types/guid";
 import { CipherService, EncryptionContext } from "../../../vault/abstractions/cipher.service";
@@ -40,9 +40,10 @@ describe("FidoAuthenticatorService", () => {
   const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject<Account | null>({
     id: userId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
   });
 
   let cipherService!: MockProxy<CipherService>;
