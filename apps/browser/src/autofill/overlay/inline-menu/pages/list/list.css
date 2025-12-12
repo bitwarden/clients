@@ -62,7 +62,7 @@ body * {
   transition: background-color 0.2s ease-in-out;
   border-top-width: 0.1rem;
   border-top-style: solid;
-  background: rgb(var(--color-background-alt2));
+  background: rgb(var(--color-background));
   border-top-color: rgb(var(--color-secondary-300));
 }
 
