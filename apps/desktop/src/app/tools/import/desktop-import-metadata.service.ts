@@ -20,7 +20,8 @@ export class DesktopImportMetadataService
   }
 
   async init(): Promise<void> {
-    const metadata = await ipc.tools.chromiumImporter.getMetadata();
+    const isMas = ipc.platform.isMacAppStore;
+    const metadata = await ipc.tools.chromiumImporter.getMetadata(isMas);
     await this.parseNativeMetaData(metadata);
     await super.init();
   }
