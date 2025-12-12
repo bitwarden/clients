@@ -1,8 +1,9 @@
 import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Router, RouterLink } from "@angular/router";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   LoginStrategyServiceAbstraction,
   PasswordLoginCredentials,
@@ -14,14 +15,32 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  FormFieldModule,
+  LinkModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-recover-two-factor",
   templateUrl: "recover-two-factor.component.html",
-  standalone: false,
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    JslibModule,
+    AsyncActionsModule,
+    ButtonModule,
+    FormFieldModule,
+    I18nPipe,
+    LinkModule,
+    TypographyModule,
+  ],
 })
 export class RecoverTwoFactorComponent implements OnInit {
   formGroup = new FormGroup({
