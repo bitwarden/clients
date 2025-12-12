@@ -111,9 +111,9 @@ export class PhishingDetectionService {
       .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
       .pipe(switchMap((message) => BrowserApi.closeTab(message.tabId)));
 
-    const activeAccountHasAccess$ = phishingDetectionSettingsService.on$;
+    const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
-    const initSub = activeAccountHasAccess$
+    const initSub = phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
