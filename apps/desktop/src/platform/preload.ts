@@ -142,6 +142,7 @@ export default {
   reloadProcess: () => ipcRenderer.send("reload-process"),
   focusWindow: () => ipcRenderer.send("window-focus"),
   hideWindow: () => ipcRenderer.send("window-hide"),
+  minimizeWindow: () => ipcRenderer.send("window-minimize"),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
 
