@@ -1,15 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ViewChild,
+  computed,
+  effect,
   inject,
+  signal,
+  viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormsModule } from "@angular/forms";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -24,16 +25,14 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, DialogService, ToastService } from "@bitwarden/components";
-import {
-  SendItemsService,
-  SendListComponent,
-  SendListFiltersService,
-  SendListState,
-} from "@bitwarden/send-ui";
+import { SendItemsService, SendListComponent, SendListState } from "@bitwarden/send-ui";
 
+import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { AddEditComponent } from "../send/add-edit.component";
+
+import { NewSendDropdownComponent } from "./new-send-dropdown.component";
 
 const Action = Object.freeze({
   /** No action is currently active. */
@@ -49,31 +48,29 @@ type Action = (typeof Action)[keyof typeof Action];
 @Component({
   selector: "app-send-v2",
   imports: [
-    CommonModule,
     JslibModule,
-    FormsModule,
     ButtonModule,
     AddEditComponent,
     SendListComponent,
+    NewSendDropdownComponent,
+  ],
+  providers: [
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: DesktopPremiumUpgradePromptService,
+    },
   ],
   templateUrl: "./send-v2.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendV2Component {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
+  protected readonly addEditComponent = viewChild(AddEditComponent);
 
-  // The ID of the currently selected Send item being viewed or edited
-  protected sendId: string;
+  protected readonly sendId = signal<string | null>(null);
+  protected readonly action = signal<Action>(Action.None);
+  private readonly selectedSendTypeOverride = signal<SendType | undefined>(undefined);
 
-  // Tracks the current UI state: viewing list (None), adding new Send (Add), or editing existing Send (Edit)
-  protected action: Action = Action.None;
-
-  // Services injected using inject() pattern
   private sendItemsService = inject(SendItemsService);
-  private sendListFiltersService = inject(SendListFiltersService);
-  private sendService = inject(SendService);
   private policyService = inject(PolicyService);
   private accountService = inject(AccountService);
   private i18nService = inject(I18nService);
@@ -85,7 +82,6 @@ export class SendV2Component {
   private toastService = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
 
-  // Convert Observables to Signals
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
   });
@@ -121,51 +117,62 @@ export class SendV2Component {
   );
 
   constructor() {
-    // Subscribe to send changes and manually trigger change detection
-    // This is necessary because SendService updates might not automatically trigger OnPush
-    this.sendService.sendViews$.pipe(takeUntilDestroyed()).subscribe(() => {
+    // WORKAROUND: Force change detection when data updates
+    // This is needed because SendSearchComponent (shared lib) hasn't migrated to OnPush yet
+    // and doesn't trigger CD properly when search/add operations complete
+    // TODO: Remove this once SendSearchComponent migrates to OnPush (tracked in CL-764)
+    effect(() => {
+      this.filteredSends();
       this.cdr.markForCheck();
     });
   }
 
-  // Open the add Send form to create a new Send item
-  protected async addSend(): Promise<void> {
-    this.action = Action.Add;
-    if (this.addEditComponent != null) {
-      await this.addEditComponent.resetAndLoad();
+  protected async addSend(type: SendType): Promise<void> {
+    this.action.set(Action.Add);
+    this.sendId.set(null);
+    this.selectedSendTypeOverride.set(type);
+
+    const component = this.addEditComponent();
+    if (component) {
+      await component.resetAndLoad();
     }
   }
 
-  // Close the add/edit form and return to the list view
   protected closeEditPanel(): void {
-    this.action = Action.None;
-    this.sendId = null;
+    this.action.set(Action.None);
+    this.sendId.set(null);
+    this.selectedSendTypeOverride.set(undefined);
   }
 
-  // Handle when a Send is saved: re-select the saved Send
-  protected async savedSend(s: SendView): Promise<void> {
-    await this.selectSend(s.id);
+  protected async savedSend(send: SendView): Promise<void> {
+    await this.selectSend(send.id);
   }
 
-  // Select a Send from the list and open it in the edit form
   protected async selectSend(sendId: string): Promise<void> {
-    if (sendId === this.sendId && this.action === Action.Edit) {
+    if (sendId === this.sendId() && this.action() === Action.Edit) {
       return;
     }
-    this.action = Action.Edit;
-    this.sendId = sendId;
-    if (this.addEditComponent != null) {
-      this.addEditComponent.sendId = sendId;
-      await this.addEditComponent.refresh();
+    this.action.set(Action.Edit);
+    this.sendId.set(sendId);
+    const component = this.addEditComponent();
+    if (component) {
+      component.sendId = sendId;
+      await component.refresh();
     }
   }
 
-  // Get the type (text or file) of the currently selected Send for the edit form
-  protected get selectedSendType(): SendType {
-    return this.filteredSends().find((s) => s.id === this.sendId)?.type;
-  }
+  protected readonly selectedSendType = computed(() => {
+    const action = this.action();
+    const typeOverride = this.selectedSendTypeOverride();
 
-  // Event handlers from SendListComponent
+    if (action === Action.Add && typeOverride !== undefined) {
+      return typeOverride;
+    }
+
+    const sendId = this.sendId();
+    return this.filteredSends().find((s) => s.id === sendId)?.type;
+  });
+
   protected async onEditSend(send: SendView): Promise<void> {
     await this.selectSend(send.id);
   }
@@ -204,9 +211,8 @@ export class SendV2Component {
         message: this.i18nService.t("removedPassword"),
       });
 
-      // If this is the currently selected send, refresh it
-      if (this.sendId === send.id) {
-        this.sendId = null;
+      if (this.sendId() === send.id) {
+        this.sendId.set(null);
         await this.selectSend(send.id);
       }
     } catch (e) {

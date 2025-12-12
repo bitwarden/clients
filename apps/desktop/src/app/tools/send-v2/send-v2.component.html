@@ -1,13 +1,25 @@
 <div id="sends" class="vault">
   <div id="items" class="items">
     <div class="content">
+      <!-- Header with Send title and New button -->
+      <div
+        class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-border-b tw-border-secondary-300"
+      >
+        <h1 class="tw-text-base tw-font-semibold tw-m-0">{{ "send" | i18n }}</h1>
+        @if (!disableSend()) {
+          <app-new-send-dropdown
+            [buttonType]="'primary'"
+            (addSend)="addSend($event)"
+          ></app-new-send-dropdown>
+        }
+      </div>
+
       <!-- Send List Component -->
       <tools-send-list
         [sends]="filteredSends()"
         [loading]="loading()"
         [disableSend]="disableSend()"
         [listState]="listState()"
-        (addSend)="addSend()"
         (editSend)="onEditSend($event)"
         (copySend)="onCopySend($event)"
         (deleteSend)="onDeleteSend($event)"
@@ -17,23 +29,26 @@
   </div>
 
   <!-- Edit/Add panel (right side) -->
-  <app-send-add-edit
-    id="addEdit"
-    class="details"
-    *ngIf="action == 'add' || action == 'edit'"
-    [sendId]="sendId"
-    [type]="selectedSendType"
-    (onSavedSend)="savedSend($event)"
-    (onCancelled)="closeEditPanel()"
-    (onDeletedSend)="closeEditPanel()"
-  ></app-send-add-edit>
+  @if (action() == "add" || action() == "edit") {
+    <app-send-add-edit
+      id="addEdit"
+      class="details"
+      [sendId]="sendId()"
+      [type]="selectedSendType()"
+      (onSavedSend)="savedSend($event)"
+      (onCancelled)="closeEditPanel()"
+      (onDeletedSend)="closeEditPanel()"
+    ></app-send-add-edit>
+  }
 
   <!-- Bitwarden logo (shown when no send is selected) -->
-  <div class="logo" *ngIf="!action">
-    <div class="content">
-      <div class="inner-content">
-        <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+  @if (!action()) {
+    <div class="logo tw-w-1/2">
+      <div class="content">
+        <div class="inner-content">
+          <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+        </div>
       </div>
     </div>
-  </div>
+  }
 </div>

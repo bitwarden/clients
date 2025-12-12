@@ -1,21 +1,6 @@
-<!-- Header with New Send button -->
-<div class="tw-flex tw-items-center tw-justify-between tw-mb-4">
-  <h1 class="tw-text-xl tw-font-bold tw-m-0">{{ "send" | i18n }}</h1>
-  <button
-    bitButton
-    buttonType="primary"
-    type="button"
-    (click)="onAddSend()"
-    [disabled]="disableSend()"
-  >
-    <i class="bwi bwi-plus" aria-hidden="true"></i>
-    {{ "new" | i18n }}
-  </button>
-</div>
-
 <!-- Loading state -->
 @if (loading()) {
-  <div class="tw-mb-4">
+  <div class="tw-my-4 tw-px-4">
     <i
       class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
@@ -27,35 +12,41 @@
 
 <!-- Search bar - always visible when not loading -->
 @if (!loading()) {
-  <div class="tw-mb-4">
+  <div class="tw-my-4 tw-px-4">
     <tools-send-search></tools-send-search>
   </div>
 }
 
 <!-- Empty state: No sends exist -->
 @if (!loading() && listState() === sendListState.Empty) {
-  <bit-no-items [icon]="noItemIcon" class="tw-text-main">
-    <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
-    <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
-  </bit-no-items>
+  <div class="tw-px-4">
+    <bit-no-items [icon]="noItemIcon" class="tw-text-main">
+      <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
+      <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
+    </bit-no-items>
+  </div>
 }
 
 <!-- No results state: Filter/search returned nothing -->
 @if (!loading() && listState() === sendListState.NoResults) {
-  <bit-no-items [icon]="noResultsIcon">
-    <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
-    <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
-  </bit-no-items>
+  <div class="tw-px-4">
+    <bit-no-items [icon]="noResultsIcon">
+      <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
+      <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
+    </bit-no-items>
+  </div>
 }
 
 <!-- Normal state: Display table -->
 @if (!loading() && listState() === null) {
-  <tools-send-table
-    [dataSource]="dataSource()"
-    [disableSend]="disableSend()"
-    (editSend)="onEditSend($event)"
-    (copySend)="onCopySend($event)"
-    (removePassword)="onRemovePassword($event)"
-    (deleteSend)="onDeleteSend($event)"
-  />
+  <div class="tw-px-4">
+    <tools-send-table
+      [dataSource]="dataSource()"
+      [disableSend]="disableSend()"
+      (editSend)="onEditSend($event)"
+      (copySend)="onCopySend($event)"
+      (removePassword)="onRemovePassword($event)"
+      (deleteSend)="onDeleteSend($event)"
+    />
+  </div>
 }

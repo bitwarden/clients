@@ -50,22 +50,20 @@ export class SendListComponent {
   readonly disableSend = input<boolean>(false);
   readonly listState = input<SendListState | null>(null);
 
-  // Computed data source for the table component.
+  // Reusable data source instance - updated reactively when sends change
+  private readonly _dataSource = new TableDataSource<SendView>();
+
+  // Computed signal that updates the existing data source with new data
+  // Returns the same reference so bit-table doesn't need to reconnect
   protected readonly dataSource = computed(() => {
-    const source = new TableDataSource<SendView>();
-    source.data = this.sends();
-    return source;
+    this._dataSource.data = this.sends();
+    return this._dataSource;
   });
 
-  readonly addSend = output<void>();
   readonly editSend = output<SendView>();
   readonly copySend = output<SendView>();
   readonly removePassword = output<SendView>();
   readonly deleteSend = output<SendView>();
-
-  protected onAddSend(): void {
-    this.addSend.emit();
-  }
 
   protected onEditSend(send: SendView): void {
     this.editSend.emit(send);
