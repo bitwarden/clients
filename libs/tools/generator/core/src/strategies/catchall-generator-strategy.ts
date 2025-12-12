@@ -13,9 +13,10 @@ import { observe$PerUserId, sharedStateByUserId } from "../util";
 import { CATCHALL_SETTINGS } from "./storage";
 
 /** Strategy for creating usernames using a catchall email address */
-export class CatchallGeneratorStrategy
-  implements GeneratorStrategy<CatchallGenerationOptions, NoPolicy>
-{
+export class CatchallGeneratorStrategy implements GeneratorStrategy<
+  CatchallGenerationOptions,
+  NoPolicy
+> {
   /** Instantiates the generation strategy
    *  @param usernameService generates a catchall address for a domain
    */
