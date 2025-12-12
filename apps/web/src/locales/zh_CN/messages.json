@@ -3010,7 +3010,7 @@
     "message": "泄漏报告于"
   },
   "reportError": {
-    "message": "加载报告时发生错误。请重试"
+    "message": "尝试加载报告时发生错误。请重试"
   },
   "billing": {
     "message": "计费"
@@ -3134,13 +3134,13 @@
     }
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "您的高级版订阅已结束"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "要重新获取存档的访问权限，请重启您的高级版订阅。如果您在重启前编辑了存档项目的详细信息，它将被移回您的密码库中。"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "重启高级版"
   },
   "additionalStorageGb": {
     "message": "附加存储 (GB)"
@@ -4627,19 +4627,19 @@
     "message": "进一步了解"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "更新加密设置时发生错误。"
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "更新您的加密设置"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "新推荐的加密设置将提高您的账户安全性。输入您的主密码以立即更新。"
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "确认您的身份后继续"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "输入您的主密码"
   },
   "updateSettings": {
     "message": "更新设置"
@@ -5163,14 +5163,26 @@
     "message": "此项目有需要修复的旧文件附件。"
   },
   "attachmentFixDescription": {
-    "message": "此附件使用了过时的加密方式。请选择「修复」以下载、重新加密并重新上传附件。"
+    "message": "此附件使用了过时的加密方式。选择「修复」以下载、重新加密然后重新上传此附件。"
   },
   "fix": {
     "message": "修复",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "修复加密"
+  },
+  "fixEncryptionTooltip": {
+    "message": "此文件正在使用过时的加密方式。"
+  },
+  "attachmentUpdated": {
+    "message": "附件已更新"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "需要先修复您的密码库中的旧文件附件，然后才能轮换您账户的加密密钥。"
+  },
+  "itemsTransferred": {
+    "message": "项目已传输"
   },
   "yourAccountsFingerprint": {
     "message": "您的账户指纹短语",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "重新邀请成功"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "已重新邀请 $COUNT$ 位用户",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "选中了 $SELECTEDCOUNT$ 位用户，已经重新邀请了 $LIMIT$ 位。由于邀请限制 $LIMIT$ 人，$EXCLUDEDCOUNT$ 位用户没有被邀请。",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "移除成功"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "密码库超时不在允许的范围内。"
   },
-  "disablePersonalVaultExport": {
-    "message": "禁用个人密码库导出"
+  "disableExport": {
+    "message": "移除导出"
   },
   "disablePersonalVaultExportDescription": {
     "message": "不允许成员从个人密码库导出数据。"
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "无效的验证码"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。"
-  },
   "keyConnectorDomain": {
     "message": "Key Connector 域名"
   },
@@ -7154,8 +7189,8 @@
   "enabledSso": {
     "message": "SSO 已启用"
   },
-  "disabledSso": {
-    "message": "SSO 已关闭"
+  "ssoTurnedOff": {
+    "message": "SSO 已停用"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ 必须使用单点登录",
@@ -8870,7 +8905,7 @@
     "message": "描述"
   },
   "errorReadingImportFile": {
-    "message": "尝试读取导入的文件时出错"
+    "message": "尝试读取导入的文件时发生错误"
   },
   "accessedSecretWithId": {
     "message": "访问了标识符为 $SECRET_ID$ 的机密",
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "要求 SSO 登录"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Email is required for SSO"
   },
   "selectedRegionFlag": {
     "message": "选择的区域旗帜"
@@ -10579,7 +10617,7 @@
     "message": "无效的税务 ID，如有疑问，请联系支持。"
   },
   "billingPreviewInvoiceError": {
-    "message": "预览账单时出错。请稍后再试。"
+    "message": "预览账单时发生错误。请稍后再试。"
   },
   "unverified": {
     "message": "未验证"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "家庭成员"
   },
-  "planDescPremium": {
-    "message": "全面的在线安全防护"
+  "advancedOnlineSecurity": {
+    "message": "高级在线安全防护"
   },
   "planDescFamiliesV2": {
     "message": "为您的家庭提供高级安全防护"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "未选择任何关键应用程序"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "用户验证失败。"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "删除无法恢复的密码库项目"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "您的部分密码库项目无法恢复。要从您的密码库中删除这些无法恢复的项目吗？"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "删除无法恢复的文件夹"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "您的部分文件夹无法恢复。要从您的密码库中删除这些无法恢复的文件夹吗？"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "替换加密密钥"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "您的公钥加密密钥对无法恢复。要使用新的密钥对替换您的加密密钥吗？这将要求您重新设置现有的紧急访问和组织成员资格。"
+  },
+  "recoveryStepSyncTitle": {
+    "message": "正在同步数据"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "正在验证加密密钥的完整性"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "正在验证用户信息"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "正在验证密码库项目的完整性"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "正在验证文件夹的完整性"
+  },
+  "dataRecoveryTitle": {
+    "message": "数据恢复和诊断"
+  },
+  "dataRecoveryDescription": {
+    "message": "使用数据恢复工具诊断并修复您的账户问题。运行诊断程序后，您可以选择保存诊断日志以供支持使用，也可以选择修复任何检测到的问题。"
+  },
+  "runDiagnostics": {
+    "message": "运行诊断程序"
+  },
+  "repairIssues": {
+    "message": "修复问题"
+  },
+  "saveDiagnosticLogs": {
+    "message": "保存诊断日志"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "此设置由您的组织管理。"
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "您的组织已将最大会话超时设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "您的组织已将默认会话超时设置为「浏览器刷新时」。"
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "最大超时时间不能超过 $HOURS$ 小时 $MINUTES$ 分钟",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "浏览器刷新时"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "设置一个解锁方式以更改您的超时动作"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "确定要离开吗？"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "拒绝后，您的个人项目将保留在您的账户中，但您将失去对共享项目和组织功能的访问权限。"
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "联系您的管理员以重新获取访问权限。"
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "离开 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "我如何管理我的密码库？"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "传输项目到 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目的所有权均归组织所有。点击「接受」以传输您的项目的所有权。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "接受传输"
+  },
+  "declineAndLeave": {
+    "message": "拒绝并离开"
+  },
+  "whyAmISeeingThis": {
+    "message": "为什么我会看到这个？"
   }
 }
