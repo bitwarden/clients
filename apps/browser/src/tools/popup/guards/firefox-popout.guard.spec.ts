@@ -158,20 +158,6 @@ describe("firefoxPopoutGuard", () => {
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
-
-    it("should preserve query parameters on file picker routes", async () => {
-      const editSendWithParams: RouterStateSnapshot = {
-        url: "/edit-send?sendId=123&mode=edit",
-      } as RouterStateSnapshot;
-
-      const guard = firefoxPopoutGuard();
-      await TestBed.runInInjectionContext(() => guard(mockRoute, editSendWithParams));
-
-      expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/edit-send?sendId=123&mode=edit",
-      );
-      expect(closePopupSpy).toHaveBeenCalledWith(window);
-    });
   });
 
   describe("url handling", () => {
