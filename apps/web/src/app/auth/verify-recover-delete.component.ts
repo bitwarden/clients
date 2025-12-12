@@ -12,6 +12,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   AsyncActionsModule,
   ButtonModule,
+  CalloutComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -25,9 +26,10 @@ import {
     ReactiveFormsModule,
     RouterLink,
     JslibModule,
-    ButtonModule,
-    TypographyModule,
     AsyncActionsModule,
+    ButtonModule,
+    CalloutComponent,
+    TypographyModule,
   ],
 })
 export class VerifyRecoverDeleteComponent implements OnInit {
