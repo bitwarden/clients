@@ -4,7 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationId, OrganizationIntegrationId } from "@bitwarden/common/types/guid";
 
 import { OrganizationIntegrationRequest } from "../models/organization-integration-request";
-import { OrganizationIntegrationServiceType } from "../models/organization-integration-service-type";
+import { OrganizationIntegrationServiceName } from "../models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "../models/organization-integration-type";
 
 import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
@@ -56,7 +56,7 @@ describe("OrganizationIntegrationApiService", () => {
   it("should call apiService.send with correct parameters for createOrganizationIntegration", async () => {
     const request = new OrganizationIntegrationRequest(
       OrganizationIntegrationType.Hec,
-      `{ 'uri:' 'test.com', 'scheme:' 'bearer', 'token:' '123456789', 'service:' '${OrganizationIntegrationServiceType.CrowdStrike}' }`,
+      `{ 'uri:' 'test.com', 'scheme:' 'bearer', 'token:' '123456789', 'service:' '${OrganizationIntegrationServiceName.CrowdStrike}' }`,
     );
     const orgId = "org1" as OrganizationId;
 
@@ -76,7 +76,7 @@ describe("OrganizationIntegrationApiService", () => {
   it("should call apiService.send with the correct parameters for updateOrganizationIntegration", async () => {
     const request = new OrganizationIntegrationRequest(
       OrganizationIntegrationType.Hec,
-      `{ 'uri:' 'test.com', 'scheme:' 'bearer', 'token:' '123456789', 'service:' '${OrganizationIntegrationServiceType.CrowdStrike}' }`,
+      `{ 'uri:' 'test.com', 'scheme:' 'bearer', 'token:' '123456789', 'service:' '${OrganizationIntegrationServiceName.CrowdStrike}' }`,
     );
     const orgId = "org1" as OrganizationId;
     const integrationId = "integration1" as OrganizationIntegrationId;

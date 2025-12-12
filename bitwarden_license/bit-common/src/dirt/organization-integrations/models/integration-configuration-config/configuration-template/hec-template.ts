@@ -1,14 +1,15 @@
-import { OrganizationIntegrationServiceType } from "../../organization-integration-service-type";
+import { OrgIntegrationTemplate } from "../../integration-builder";
+import { OrganizationIntegrationServiceName } from "../../organization-integration-service-type";
 
-export class HecTemplate {
+export class HecTemplate implements OrgIntegrationTemplate {
   event = "#EventMessage#";
   source = "Bitwarden";
   index: string;
-  service: OrganizationIntegrationServiceType;
+  service: OrganizationIntegrationServiceName;
 
-  constructor(index: string, service: string) {
+  constructor(index: string, service: OrganizationIntegrationServiceName) {
     this.index = index;
-    this.service = service as OrganizationIntegrationServiceType;
+    this.service = service;
   }
 
   toString(): string {

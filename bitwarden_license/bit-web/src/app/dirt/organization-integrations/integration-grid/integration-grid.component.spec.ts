@@ -6,8 +6,7 @@ import { of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
-import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
-import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
+import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -24,8 +23,7 @@ describe("IntegrationGridComponent", () => {
   let component: IntegrationGridComponent;
   let fixture: ComponentFixture<IntegrationGridComponent>;
   const mockActivatedRoute = mock<ActivatedRoute>();
-  const mockIntegrationService = mock<HecOrganizationIntegrationService>();
-  const mockDatadogIntegrationService = mock<DatadogOrganizationIntegrationService>();
+  const mockIntegrationService = mock<OrganizationIntegrationService>();
   const integrations: Integration[] = [
     {
       name: "Integration 1",
@@ -71,8 +69,7 @@ describe("IntegrationGridComponent", () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
-        { provide: HecOrganizationIntegrationService, useValue: mockIntegrationService },
-        { provide: DatadogOrganizationIntegrationService, useValue: mockDatadogIntegrationService },
+        { provide: OrganizationIntegrationService, useValue: mockIntegrationService },
         {
           provide: ToastService,
           useValue: mock<ToastService>(),
