@@ -48,7 +48,7 @@
     "@electron/notarize": "3.0.1",
     "@electron/rebuild": "4.0.1",
     "@eslint/compat": "2.0.0",
-    "@lit-labs/signals": "0.1.2",
+    "@lit-labs/signals": "0.1.3",
     "@ngtools/webpack": "20.3.12",
     "@storybook/addon-a11y": "9.1.16",
     "@storybook/addon-designs": "9.0.0-next.3",
@@ -217,7 +217,6 @@
       "eslint": "$eslint"
     },
     "tailwindcss": "$tailwindcss",
-    "parse5": "7.3.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "@types/react": "18.3.27"
