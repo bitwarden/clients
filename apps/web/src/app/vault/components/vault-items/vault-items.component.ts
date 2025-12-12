@@ -3,7 +3,15 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
+import {
+  Observable,
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  of,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -20,7 +28,6 @@ import {
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
 import { RoutedVaultFilterService } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/services/routed-vault-filter.service";
-import { RoutedVaultFilterModel } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -150,8 +157,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
-  private activeFilter: RoutedVaultFilterModel | undefined;
-
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
@@ -225,12 +230,20 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       }),
     );
 
-    this.routedVaultFilterService.filter$.pipe(takeUntilDestroyed()).subscribe((activeFilter) => {
-      if (this.activeFilter !== activeFilter) {
-        this.activeFilter = activeFilter;
+    this.routedVaultFilterService.filter$
+      .pipe(
+        distinctUntilChanged(
+          (prev, curr) =>
+            prev?.organizationId === curr?.organizationId &&
+            prev?.collectionId === curr?.collectionId &&
+            prev?.folderId === curr?.folderId &&
+            prev?.type === curr?.type,
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
         this.clearSelection();
-      }
-    });
+      });
   }
 
   clearSelection() {
