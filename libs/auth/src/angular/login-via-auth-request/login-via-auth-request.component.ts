@@ -679,27 +679,12 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     privateKey: ArrayBuffer,
     userId: UserId,
   ): Promise<void> {
-    /**
-     * [Flow Type Detection]
-     * We determine the type of `key` based on the presence or absence of `masterPasswordHash`:
-     *  - If `masterPasswordHash` exists: Standard Flow 1 or 3 (device has masterKey)
-     *  - If no `masterPasswordHash`: Standard Flow 2, 4, or Admin Flow (device sends userKey)
-     */
-    if (authRequestResponse.masterPasswordHash) {
-      // [Standard Flow 1 or 3] Device has masterKey
-      await this.authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash(
-        authRequestResponse,
-        privateKey,
-        userId,
-      );
-    } else {
-      // [Standard Flow 2, 4, or Admin Flow] Device sends userKey
-      await this.authRequestService.setUserKeyAfterDecryptingSharedUserKey(
-        authRequestResponse,
-        privateKey,
-        userId,
-      );
-    }
+    // [Standard Flow 2, 4, or Admin Flow] Device sends userKey
+    await this.authRequestService.setUserKeyAfterDecryptingSharedUserKey(
+      authRequestResponse,
+      privateKey,
+      userId,
+    );
 
     // [Admin Flow Cleanup] Clear one-time use admin auth request
     // clear the admin auth request from state so it cannot be used again (it's a one time use)
