@@ -295,7 +295,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
           i.organizationIntegration = null;
         });
 
-        integrations.map((integration) => {
+        integrations.forEach((integration) => {
           const item = this.integrationsList.find((i) => i.name === integration.serviceName);
           if (item) {
             item.organizationIntegration = integration;
