@@ -60,21 +60,19 @@
       </button>
     }
 
-    @if (cipherIsArchived && !(userHasPremium$ | async) && !showCipherView && !showRestore) {
-      <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
-        {{ "unArchiveAndSave" | i18n }}
-      </button>
-    }
-
     <button
       bitButton
       type="submit"
       form="cipherForm"
       buttonType="primary"
       #submitBtn
-      [hidden]="showCipherView || showRestore || (cipherIsArchived && !(userHasPremium$ | async))"
+      [hidden]="showCipherView || showRestore"
     >
-      {{ "save" | i18n }}
+      @if (cipherIsArchived && !(userHasPremium$ | async)) {
+        {{ "unArchiveAndSave" | i18n }}
+      } @else {
+        {{ "save" | i18n }}
+      }
     </button>
 
     @if (showCancel) {
