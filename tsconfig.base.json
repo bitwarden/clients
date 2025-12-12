@@ -34,6 +34,7 @@
       "@bitwarden/common/*": ["./libs/common/src/*"],
       "@bitwarden/components": ["./libs/components/src"],
       "@bitwarden/core-test-utils": ["./libs/core-test-utils/src/index.ts"],
+      "@bitwarden/desktop/*": ["./apps/desktop/src/*"],
       "@bitwarden/dirt-card": ["./libs/dirt/card/src"],
       "@bitwarden/generator-components": ["./libs/tools/generator/components/src"],
       "@bitwarden/generator-core": ["./libs/tools/generator/core/src"],
