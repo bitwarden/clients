@@ -5,7 +5,17 @@ import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
-import { catchError, defer, firstValueFrom, from, map, of, switchMap, throwError } from "rxjs";
+import {
+  catchError,
+  concatMap,
+  defer,
+  firstValueFrom,
+  from,
+  map,
+  of,
+  switchMap,
+  throwError,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -20,13 +30,21 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import { SignedSecurityState } from "@bitwarden/common/key-management/types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
+import { DeviceKey, UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -112,6 +130,10 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private validationService: ValidationService,
     private logoutService: LogoutService,
+    private registerSdkService: RegisterSdkService,
+    private securityStateService: SecurityStateService,
+    private appIdService: AppIdService,
+    private configService: ConfigService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -251,21 +273,86 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     }
 
     try {
-      const { publicKey, privateKey } = await this.keyService.initAccount(this.activeAccountId);
-      const keysRequest = new KeysRequest(publicKey, privateKey.encryptedString);
-      await this.apiService.postAccountKeys(keysRequest);
+      const useSdkV2Creation = await this.configService.getFeatureFlag(
+        FeatureFlag.PM27279_V2RegistrationTdeJit,
+      );
+      if (useSdkV2Creation) {
+        const deviceIdentifier = await this.appIdService.getAppId();
+        const userId = this.activeAccountId;
+        const organizationId = this.newUserOrgId;
+
+        const orgKeyResponse = await this.organizationApiService.getKeys(organizationId);
+        const register_result = await firstValueFrom(
+          this.registerSdkService.registerClient$(userId).pipe(
+            concatMap(async (sdk) => {
+              if (!sdk) {
+                throw new Error("SDK not available");
+              }
+
+              using ref = sdk.take();
+              return await ref.value
+                .auth()
+                .registration()
+                .post_keys_for_tde_registration(
+                  organizationId,
+                  orgKeyResponse.publicKey,
+                  userId,
+                  deviceIdentifier,
+                  this.formGroup.value.rememberDevice,
+                );
+            }),
+          ),
+        );
+        // The keys returned here can only be v2 keys, since the SDK only implements returning V2 keys.
+        if ("V1" in register_result.account_cryptographic_state) {
+          throw new Error("Unexpected V1 account cryptographic state");
+        }
+
+        // Note: When SDK state management matures, these should be moved into post_keys_for_tde_registration
+        // Set account cryptography state
+        await this.keyService.setPrivateKey(
+          register_result.account_cryptographic_state.V2.private_key,
+          userId,
+        );
+        await this.keyService.setSignedPublicKey(
+          register_result.account_cryptographic_state.V2.signed_public_key,
+          userId,
+        );
+        await this.keyService.setUserSigningKey(
+          register_result.account_cryptographic_state.V2.signing_key,
+          userId,
+        );
+        await this.securityStateService.setAccountSecurityState(
+          register_result.account_cryptographic_state.V2.security_state as SignedSecurityState,
+          userId,
+        );
+
+        // TDE unlock
+        await this.deviceTrustService.setDeviceKey(
+          userId,
+          SymmetricCryptoKey.fromString(register_result.device_key) as DeviceKey,
+        );
+
+        // Set user key - user is now unlocked
+        await this.keyService.setUserKey(
+          new SymmetricCryptoKey(new Uint8Array(register_result.user_key)) as UserKey,
+          userId,
+        );
+      } else {
+        const { publicKey, privateKey } = await this.keyService.initAccount(this.activeAccountId);
+        const keysRequest = new KeysRequest(publicKey, privateKey.encryptedString);
+        await this.apiService.postAccountKeys(keysRequest);
+        await this.passwordResetEnrollmentService.enroll(this.newUserOrgId);
+        if (this.formGroup.value.rememberDevice) {
+          await this.deviceTrustService.trustDevice(this.activeAccountId);
+        }
+      }
 
       this.toastService.showToast({
         variant: "success",
         title: null,
         message: this.i18nService.t("accountSuccessfullyCreated"),
       });
-
-      await this.passwordResetEnrollmentService.enroll(this.newUserOrgId);
-
-      if (this.formGroup.value.rememberDevice) {
-        await this.deviceTrustService.trustDevice(this.activeAccountId);
-      }
 
       await this.loginDecryptionOptionsService.handleCreateUserSuccess();
 
