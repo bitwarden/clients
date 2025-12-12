@@ -7,9 +7,9 @@ pub struct NativeImporterMetadata {
     /// Identifies the importer
     pub id: String,
     /// Describes the strategies used to obtain imported data
-    pub loaders: Vec<&'static str>,
+    pub loaders: Vec<String>,
     /// Identifies the instructions for the importer
-    pub instructions: &'static str,
+    pub instructions: String,
 }
 
 /// Returns a map of supported importers based on the current platform.
@@ -37,9 +37,9 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>(
         PLATFORM_SUPPORTED_BROWSERS.iter().map(|b| b.name).collect();
 
     for (id, browser_name) in IMPORTERS {
-        let mut loaders: Vec<&'static str> = vec!["file"];
+        let mut loaders: Vec<String> = vec!["file".to_string()];
         if supported.contains(browser_name) {
-            loaders.push("chromium");
+            loaders.push("chromium".to_string());
         }
 
         if installed_browsers.contains(&browser_name.to_string()) {
@@ -48,7 +48,7 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>(
                 NativeImporterMetadata {
                     id: id.to_string(),
                     loaders,
-                    instructions: "chromium",
+                    instructions: "chromium".to_string(),
                 },
             );
         }
@@ -80,12 +80,9 @@ mod tests {
         map.keys().cloned().collect()
     }
 
-    fn get_loaders(
-        map: &HashMap<String, NativeImporterMetadata>,
-        id: &str,
-    ) -> HashSet<&'static str> {
+    fn get_loaders(map: &HashMap<String, NativeImporterMetadata>, id: &str) -> HashSet<String> {
         map.get(id)
-            .map(|m| m.loaders.iter().copied().collect::<HashSet<_>>())
+            .map(|m| m.loaders.iter().cloned().collect::<HashSet<_>>())
             .unwrap_or_default()
     }
 
@@ -108,7 +105,7 @@ mod tests {
         for (key, meta) in map.iter() {
             assert_eq!(&meta.id, key);
             assert_eq!(meta.instructions, "chromium");
-            assert!(meta.loaders.contains(&"file"));
+            assert!(meta.loaders.contains(&"file".to_owned()));
         }
     }
 
@@ -148,7 +145,7 @@ mod tests {
         for (key, meta) in map.iter() {
             assert_eq!(&meta.id, key);
             assert_eq!(meta.instructions, "chromium");
-            assert!(meta.loaders.contains(&"file"));
+            assert!(meta.loaders.contains(&"file".to_owned()));
         }
     }
 
@@ -184,7 +181,7 @@ mod tests {
         for (key, meta) in map.iter() {
             assert_eq!(&meta.id, key);
             assert_eq!(meta.instructions, "chromium");
-            assert!(meta.loaders.contains(&"file"));
+            assert!(meta.loaders.contains(&"file".to_owned()));
         }
     }
 

@@ -17,6 +17,7 @@ function createPolicy(
     data,
     enabled,
     type,
+    revisionDate: new Date().toISOString(),
   });
 }
 
