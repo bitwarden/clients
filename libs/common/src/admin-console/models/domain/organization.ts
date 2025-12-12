@@ -161,7 +161,7 @@ export class Organization {
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
     this.useAccessIntelligence = obj.useAccessIntelligence;
     this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
-    this.useDisableSMAdsForUsers = obj.useDisableSMAdsForUsers;
+    this.useDisableSMAdsForUsers = obj.useDisableSMAdsForUsers ?? false;
     this.isAdminInitiated = obj.isAdminInitiated;
     this.ssoEnabled = obj.ssoEnabled;
     this.ssoMemberDecryptionType = obj.ssoMemberDecryptionType;
