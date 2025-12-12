@@ -5169,8 +5169,20 @@
     "message": "Исправить",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Исправить шифрование"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Этот файл использует устаревший метод шифрования."
+  },
+  "attachmentUpdated": {
+    "message": "Вложение обновлено"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "В вашем хранилище есть старые вложения файлов, которые необходимо исправить, прежде чем вы сможете сменить ключ шифрования вашего аккаунта."
+  },
+  "itemsTransferred": {
+    "message": "Элементы переданы"
   },
   "yourAccountsFingerprint": {
     "message": "Фраза отпечатка вашего аккаунта",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Повторно приглашен успешно"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ users re-invited",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Удален(-о) успешно"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "Тайм-аут хранилища находится за пределами допустимого диапазона."
   },
-  "disablePersonalVaultExport": {
-    "message": "Удалить экспорт личного хранилища"
+  "disableExport": {
+    "message": "Удалить экспорт"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Запретить пользователям экспортировать данные из их собственного хранилища."
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Неверный код подтверждения"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Мастер-пароль больше не требуется для членов следующей организации. Пожалуйста, подтвердите указанный ниже домен у администратора вашей организации."
-  },
   "keyConnectorDomain": {
     "message": "Домен соединителя ключей"
   },
@@ -7154,7 +7189,7 @@
   "enabledSso": {
     "message": "SSO включен"
   },
-  "disabledSso": {
+  "ssoTurnedOff": {
     "message": "SSO отключен"
   },
   "emailMustLoginWithSso": {
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "Требуется логин SSO"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Для SSO необходим email"
   },
   "selectedRegionFlag": {
     "message": "Флаг выбранного региона"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Членство Families"
   },
-  "planDescPremium": {
-    "message": "Полная онлайн-защищенность"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "planDescFamiliesV2": {
     "message": "Премиальная защищенность \n для вашей семьи"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Ваша организация больше не использует мастер-пароли для входа в Bitwarden. Чтобы продолжить, подтвердите организацию и домен."
+  },
+  "continueWithLogIn": {
+    "message": "Продолжить с логином"
+  },
+  "doNotContinue": {
+    "message": "Не продолжать"
+  },
+  "domain": {
+    "message": "Домен"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "В этом домене будут храниться ключи шифрования вашего аккаунта, поэтому убедитесь, что вы ему доверяете. Если вы не уверены, обратитесь к своему администратору."
+  },
+  "verifyYourOrganization": {
+    "message": "Подтвердите свою организацию для входа"
+  },
+  "organizationVerified": {
+    "message": "Организация подтверждена"
+  },
+  "domainVerified": {
+    "message": "Домен верифицирован"
+  },
+  "leaveOrganizationContent": {
+    "message": "Если вы не подтвердите свою организацию, ваш доступ к ней будет аннулирован."
+  },
+  "leaveNow": {
+    "message": "Покинуть"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Подтвердите свой домен для входа"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Чтобы продолжить с логином, подтвердите этот домен."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Чтобы продолжить с логином, подтвердите организацию и домен."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Критичные приложения не выбраны"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Удалить невосстановимые элементы хранилища"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Некоторые элементы вашего хранилища восстановить не удалось. Вы хотите удалить элементы, которые невозможно восстановить из вашего хранилища?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Удалить невосстановимые папки"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Некоторые папки вашего хранилища восстановить не удалось. Вы хотите удалить папки, которые невозможно восстановить из вашего хранилища?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Сменить ключ шифрования"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Не удалось восстановить вашу пару ключей шифрования с публичным ключом. Вы хотите заменить свой ключ шифрования на новую пару ключей? Для этого вам потребуется заново настроить существующий экстренный доступ и членство в организации."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Синхронизация данных"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Проверка целостности ключа шифрования"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Проверка информации о пользователе"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Проверка целостности хранилища"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Проверка целостности папки"
+  },
+  "dataRecoveryTitle": {
+    "message": "Восстановление и диагностика данных"
+  },
+  "dataRecoveryDescription": {
+    "message": "Используйте инструмент восстановления данных для диагностики и устранения неполадок с вашим аккаунтом. После запуска диагностики у вас будет возможность сохранить журналы диагностики для поддержки и устранить любые обнаруженные неполадки."
+  },
+  "runDiagnostics": {
+    "message": "Запустить диагностику"
+  },
+  "repairIssues": {
+    "message": "Решить проблемы"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Сохранить журналы диагностики"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser refresh."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser refresh"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Вы уверены, что хотите покинуть?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "В случае отказа ваши личные данные останутся в вашем аккаунте, но вы потеряете доступ к общим элементам и возможностям организации."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Свяжитесь с вашим администратором для восстановления доступа."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Покинуть $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Как я могу управлять своим хранилищем?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Перенести элементы в $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Принять передачу"
+  },
+  "declineAndLeave": {
+    "message": "Отклонить и покинуть"
+  },
+  "whyAmISeeingThis": {
+    "message": "Почему я это вижу?"
   }
 }

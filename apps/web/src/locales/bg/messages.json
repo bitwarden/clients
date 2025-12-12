@@ -5169,8 +5169,20 @@
     "message": "Поправяне",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Поправяне на шифроването"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Този файл използва остарял метод на шифроване."
+  },
+  "attachmentUpdated": {
+    "message": "Прикаченият файл е актуализиран"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "В трезора ви има стари прикачени файлове. Те трябва да бъдат поправени, за да можете да смените ключа за шифриране на абонамента."
+  },
+  "itemsTransferred": {
+    "message": "Елементите са прехвърлени"
   },
   "yourAccountsFingerprint": {
     "message": "Уникална фраза, идентифицираща абонамента ви",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Успешно изпратени наново покани."
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ повторно поканени потребители",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ от $SELECTEDCOUNT$ повторно поканени потребители. $EXCLUDEDCOUNT$ не бяха поканени, поради ограничението от $LIMIT$.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Успешно премахване"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "Времето за изчакване на трезора не е в позволения интервал."
   },
-  "disablePersonalVaultExport": {
-    "message": "Забраняване на изнасянето на личния трезор"
+  "disableExport": {
+    "message": "Премахване на изнесеното"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Да не се разрешава на членовете да изнасят данните от собствените си трезори."
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Грешен код за потвърждаване"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "За членовете на следната организация вече не се изисква главна парола. Потвърдете домейна по-долу с администратора на организацията си."
-  },
   "keyConnectorDomain": {
     "message": "Домейн на конектора за ключове"
   },
@@ -7154,7 +7189,7 @@
   "enabledSso": {
     "message": "Еднократното удостоверяване е включено"
   },
-  "disabledSso": {
+  "ssoTurnedOff": {
     "message": "Еднократното удостоверяване е изключено"
   },
   "emailMustLoginWithSso": {
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "Необходимо е вписване чрез еднократно удостоверяване"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "За еднократно удостоверяване е необходима е-поща"
   },
   "selectedRegionFlag": {
     "message": "Знаме на избрания регион"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Членство за семейства"
   },
-  "planDescPremium": {
-    "message": "Пълна сигурност в Интернет"
+  "advancedOnlineSecurity": {
+    "message": "Разширена сигурност в Интернет"
   },
   "planDescFamiliesV2": {
     "message": "Допълнителна защита за Вашето семейство"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Вашата организация вече не използва главни пароли за вписване в Битуорден. За да продължите, потвърдете организацията и домейна."
+  },
+  "continueWithLogIn": {
+    "message": "Продължаване с вписването"
+  },
+  "doNotContinue": {
+    "message": "Не продължавам"
+  },
+  "domain": {
+    "message": "Домейн"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Този домейн ще съхранява ключовете за шифроване на акаунта Ви, така че се уверете, че му имате доверие. Ако имате съмнения, свържете се с администратора си."
+  },
+  "verifyYourOrganization": {
+    "message": "Потвърдете организацията си, за да се впишете"
+  },
+  "organizationVerified": {
+    "message": "Организацията е потвърдена"
+  },
+  "domainVerified": {
+    "message": "Домейнът е потвърден"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ако не потвърдите организацията, достъпът Ви до нея ще бъде преустановен."
+  },
+  "leaveNow": {
+    "message": "Напускане сега"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Потвърдете домейна си, за да се впишете"
+  },
+  "verifyYourDomainDescription": {
+    "message": "За да продължите с вписването, потвърдете този домейн."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "За да продължите с вписването, потвърдете организацията и домейна."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Няма избрани важни приложения"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Изтриване на невъзстановимите елементи от трезора"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Някои от елементите в трезора не могат да бъдат възстановени. Искате ли да ги изтриете от трезора си?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Изтриване на невъзстановимите папки"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Някои от папките не могат да бъдат възстановени. Искате ли да ги изтриете от трезора си?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Подмяна на ключа за шифроване"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Вашата двойка ключове за шифроване не може да бъде възстановена. Искате ли да замените ключа си за шифроване с нова двойка? Ще трябва да настроите аварийния достъп отново, както и членствата си в организации."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Синхронизиране на данните…"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Потвърждаване на целостта на ключа за шифроване"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Потвърждаване на информацията за потребителя"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Потвърждаване на целостта на данните в трезора"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Потвърждаване на целостта на папките"
+  },
+  "dataRecoveryTitle": {
+    "message": "Възстановяване и диагностика на данните"
+  },
+  "dataRecoveryDescription": {
+    "message": "Използвайте инструмента за възстановяване на данните, за да направите проверка и поправка, ако има проблеми с акаунта Ви. След изпълнението на диагностиката ще имате възможност да запазите нейния журнал, в случай, че са нужни на поддръжката, както и ще можете да опитате да поправите откритите проблеми."
+  },
+  "runDiagnostics": {
+    "message": "Стартиране на диагностиката"
+  },
+  "repairIssues": {
+    "message": "Поправяне на проблемите"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Запазване на журнала от диагностиката"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Тази настройка се управлява от организацията Ви."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Организацията Ви е настроила максималното разрешено време за достъп на [%1$i] час(а) и [%2$i] минути.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Организацията Ви е настроила стандартното разрешено време за достъп да бъде до презареждане на страницата в браузъра."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Максималното време на достъп не може да превишава $HOURS$ час(а) и $MINUTES$ минути",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "При презареждане на страницата в браузъра"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Наистина ли искате да напуснете?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Ако откажете, Вашите собствени елементи ще останат в акаунта Ви, но ще загубите достъп до споделените елементи и функционалностите на организацията."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Свържете се с администратор, за да получите достъп отново."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Напускане на $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Как да управлявам трезора си?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Прехвърляне на елементи към $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ изисква всички елементи да станат притежание на организацията, за по-добра сигурност и съвместимост. Изберете, че приемате, за да прехвърлите собствеността на елементите си към организацията.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Приемане на прехвърлянето"
+  },
+  "declineAndLeave": {
+    "message": "Отказване и напускане"
+  },
+  "whyAmISeeingThis": {
+    "message": "Защо виждам това?"
   }
 }

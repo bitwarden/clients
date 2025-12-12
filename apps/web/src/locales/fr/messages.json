@@ -5075,7 +5075,7 @@
     "message": "4 heures"
   },
   "onRefresh": {
-    "message": "Au rechargement de la page"
+    "message": "À l'actualisation du navigateur"
   },
   "dateUpdated": {
     "message": "Mis à jour",
@@ -5169,8 +5169,20 @@
     "message": "Réparer",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Corriger le chiffrement"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Ce fichier utilise une méthode de chiffrement obsolète."
+  },
+  "attachmentUpdated": {
+    "message": "Pièce jointe mise à jour"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Il y a d'anciennes pièces jointes dans votre coffre qui doivent être réparées avant que vous ne puissiez régénérer la clé de chiffrement de votre compte."
+  },
+  "itemsTransferred": {
+    "message": "Éléments transférés"
   },
   "yourAccountsFingerprint": {
     "message": "Phrase d'empreinte de votre compte",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Réinvité avec succès."
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ ont été réinvités",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ des utilisateurs de $SELECTEDCOUNT$ ont été ré-invités. $EXCLUDEDCOUNT$ n'ont pas été invités en raison de la limite d'invitation de $LIMIT$.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Supprimé avec succès"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "Le délai de mise en veille du coffre n'est pas dans l'intervalle de temps autorisé."
   },
-  "disablePersonalVaultExport": {
-    "message": "Supprimer l'exportation individuelle du coffre"
+  "disableExport": {
+    "message": "Supprimer l'exportation"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Ne pas autoriser les membres à exporter des données de leur coffre individuel."
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Code de vérification invalide"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Un mot de passe maître n'est plus requis pour les membres de l'organisation suivante. Veuillez confirmer le domaine ci-dessous avec l'administrateur de votre organisation."
-  },
   "keyConnectorDomain": {
     "message": "Domaine Key Connector"
   },
@@ -7154,8 +7189,8 @@
   "enabledSso": {
     "message": "SSO activé"
   },
-  "disabledSso": {
-    "message": "SSO désactivé"
+  "ssoTurnedOff": {
+    "message": "SSO éteint"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ doit se connecter avec une Authentification Unique (SSO)",
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "La connexion SSO est requise"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Le courriel est requis pour le SSO"
   },
   "selectedRegionFlag": {
     "message": "Drapeau de la région sélectionnée"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Abonnement à Familles"
   },
-  "planDescPremium": {
-    "message": "Sécurité en ligne complète"
+  "advancedOnlineSecurity": {
+    "message": "Sécurité en ligne avancée"
   },
   "planDescFamiliesV2": {
     "message": "Sécurité Premium pour votre famille"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Votre organisation n'utilise plus les mots de passe principaux pour se connecter à Bitwarden. Pour continuer, vérifiez l'organisation et le domaine."
+  },
+  "continueWithLogIn": {
+    "message": "Continuer avec la connexion"
+  },
+  "doNotContinue": {
+    "message": "Ne pas continuer"
+  },
+  "domain": {
+    "message": "Domaine"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Ce domaine stockera les clés de chiffrement de votre compte, alors assurez-vous que vous lui faites confiance. Si vous n'êtes pas sûr, vérifiez auprès de votre administrateur."
+  },
+  "verifyYourOrganization": {
+    "message": "Vérifiez votre organisation pour vous connecter"
+  },
+  "organizationVerified": {
+    "message": "Organisation vérifiée"
+  },
+  "domainVerified": {
+    "message": "Domaine vérifié"
+  },
+  "leaveOrganizationContent": {
+    "message": "Si vous ne vérifiez pas votre organisation, votre accès à l'organisation sera révoqué."
+  },
+  "leaveNow": {
+    "message": "Quitter maintenant"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Vérifiez votre domaine pour vous connecter"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Pour continuer à vous connecter, vérifiez ce domaine."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Pour continuer à vous connecter, vérifiez l'organisation et le domaine."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Aucune application critique n'est sélectionnée"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "La vérification de l'utilisateur a échoué."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Supprimer les éléments non récupérables du coffre"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Certains éléments de votre coffre n'ont pu être récupérés. Voulez-vous supprimer ces éléments non récupérables de votre coffre ?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Supprimer les dossiers non récupérables"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Certains de vos dossiers n'ont pu être récupérés. Voulez-vous supprimer ces dossiers irrécupérables de votre coffre ?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Remplacer la clé de chiffrement"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Votre paire de clés de chiffrement à clé publique n'a pu être récupérée. Voulez-vous remplacer votre clé de chiffrement par une nouvelle paire de clés ? Cela vous demandera de reconfigurer les accès d'urgence existants et les adhésions à l'organisation."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Synchronisation des données"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Vérification de l'intégrité de la clé de chiffrement"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Vérification des informations de l'utilisateur"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Vérification de l'intégrité de l'élément du coffre"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Vérification de l'intégrité du dossier"
+  },
+  "dataRecoveryTitle": {
+    "message": "Récupération des données et Diagnostics"
+  },
+  "dataRecoveryDescription": {
+    "message": "Utilisez l'outil de récupération de données pour diagnostiquer et réparer les problèmes avec votre compte. Après avoir exécuté les diagnostics, vous avez la possibilité d'enregistrer les journaux de diagnostic pour la prise en charge et l'option de réparer tous les problèmes détectés."
+  },
+  "runDiagnostics": {
+    "message": "Lancer le diagnostique"
+  },
+  "repairIssues": {
+    "message": "Réparer les problèmes"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Enregistrer les journaux de diagnostic"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Ce paramètre est géré par votre organisation."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Votre organisation a réglé le délai d'expiration de session maximal à $HOURS$ heure(s) et $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Votre organisation a défini le délai d'expiration de session par défaut sur À l'actualisation du navigateur."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Le délai d'expiration de session maximal ne peut pas dépasser $HOURS$ heure(s) et $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "À l'actualisation du navigateur"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Êtes-vous sûr de vouloir quitter ?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "En refusant, vos éléments personnels resteront dans votre compte, mais vous perdrez l'accès aux éléments partagés et aux fonctionnalités de l'organisation."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contactez votre administrateur pour regagner l'accès."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Quitter $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Comment gérer mon coffre ?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transférer les éléments vers $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ exige que tous les éléments soient détenus par l’organisation pour des raisons de sécurité et de conformité. Cliquez sur Accepter pour transférer la propriété de vos éléments.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accepter le transfert"
+  },
+  "declineAndLeave": {
+    "message": "Refuser et quitter"
+  },
+  "whyAmISeeingThis": {
+    "message": "Pourquoi est-ce que je vois ça ?"
   }
 }

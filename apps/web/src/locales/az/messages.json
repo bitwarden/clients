@@ -3063,7 +3063,7 @@
     "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş saxlama sahəsi."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "Fayl qoşmaları üçün $SIZE$ şifrələnmiş anbar sahəsi.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -3134,13 +3134,13 @@
     }
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Premium abunəliyiniz bitdi"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "\"Premium\"u yenidən başlat"
   },
   "additionalStorageGb": {
     "message": "Əlavə saxlama sahəsi (GB)"
@@ -4627,19 +4627,19 @@
     "message": "Daha ətraflı"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Şifrələmə ayarlarını güncəlləyərkən bir xəta baş verdi."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Şifrələmə ayarlarınızı güncəlləyin"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Tövsiyə edilən yeni şifrələmə ayarları, hesabınızın təhlükəsizliyini artıracaq. İndi güncəlləmək üçün ana parolunuzu daxil edin."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Davam etmək üçün kimliyinizi təsdiqləyin"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Ana parolunuzu daxil edin"
   },
   "updateSettings": {
     "message": "Güncəlləmə ayarları"
@@ -5169,8 +5169,20 @@
     "message": "Düzəlt",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Şifrələməni düzəlt"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Bu fayl, köhnə bir şifrələmə üsulunu istifadə edir."
+  },
+  "attachmentUpdated": {
+    "message": "Qoşma güncəllənib"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Hesabınızın şifrələmə açarını döndərməzdən əvvəl, seyfinizdəki köhnə fayl qoşmalarını düzəltməlisiniz."
+  },
+  "itemsTransferred": {
+    "message": "Elementlər köçürüldü"
   },
   "yourAccountsFingerprint": {
     "message": "Hesabınızın barmaq izi ifadəsi",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Uğurla yenidən dəvət edildi."
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ istifadəçi təkrar dəvət edildi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$/$SELECTEDCOUNT$ istifadəçi təkrar dəvət edildi. $LIMIT$ dəvət limitinə görə $EXCLUDEDCOUNT$ dəvət edilmədi.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Uğurla çıxarıldı"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "Seyf bitmə vaxtı, icazə verilən aralıqda deyil."
   },
-  "disablePersonalVaultExport": {
-    "message": "Fərdi seyfi xaricə köçürməni ləğv et"
+  "disableExport": {
+    "message": "Xaricə köçürməni sil"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Üzvlərin fərdi seyflərindən veriləri xaricə köçürməsinə icazə verilməsin."
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Yararsız doğrulama kodu"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Aşağıdakı təşkilatların üzvləri üçün artıq ana parol tələb olunmur. Lütfən aşağıdakı domeni təşkilatınızın inzibatçısı ilə təsdiqləyin."
-  },
   "keyConnectorDomain": {
     "message": "Key Connector domeni"
   },
@@ -7154,8 +7189,8 @@
   "enabledSso": {
     "message": "SSO fəaldır"
   },
-  "disabledSso": {
-    "message": "SSO sıradan çıxarılıb"
+  "ssoTurnedOff": {
+    "message": "SSO söndürüldü"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$, Vahid Daxil olma üsulu ilə giriş etməlidir",
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "SSO girişi tələb olunur"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "SSO üçün e-poçt tələb olunur"
   },
   "selectedRegionFlag": {
     "message": "Seçilmiş bölgə bayrağı"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Ailə üzvlüyü"
   },
-  "planDescPremium": {
-    "message": "Tam onlayn təhlükəsizlik"
+  "advancedOnlineSecurity": {
+    "message": "Qabaqcıl onlayn təhlükəsizlik"
   },
   "planDescFamiliesV2": {
     "message": "Ailəniz üçün Premium təhlükəsizlik"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Heç bir kritik tətbiq seçilməyib"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "İstifadəçi doğrulaması uğursuz oldu."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Geri qaytarıla bilməyən seyf elementlərini sil"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Seyfinizdəki bəzi elementlər geri qaytarıla bilmədi. Bu geri qaytarıla bilməyən elementləri seyfinizdən silmək istəyirsiniz?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Geri qaytarıla bilməyən qovluqları sil"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Qovluqlarınızdan bəziləri geri qaytarıla bilmədi. Bu geri qaytarıla bilməyən qovluqları seyfinizdən silmək istəyirsiniz?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Şifrələmə açarını əvəz et"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Public-key şifrələmə açar cütü geri qaytarıla bilmədi. Şifrələmə açarınızı yeni bir açar cütü ilə əvəz etmək istəyirsiniz? Bu proses, mövcud fövqəladə hal və təşkilat üzvlüyünüzü yenidən qurmağınızı tələb edir."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Verilər sinxronlaşdırılır"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Şifrələmə açarı tamlığı doğrulanır"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "İstifadəçi məlumatı doğrulanır"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Seyf elementinin tamlığı doğrulanır"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Qovluq tamlığı doğrulanır"
+  },
+  "dataRecoveryTitle": {
+    "message": "Veri geri qaytarma və diaqnostika"
+  },
+  "dataRecoveryDescription": {
+    "message": "Hesabınızla bağlı problemləri diaqnostika etmək və bərpa etmək üçün veri geri qaytarma alətini istifadə edin. Diaqnostika prosesini işə saldıqdan sonra, dəstək üçün diaqnostika log-larını saxlama və aşkarlanan problemləri həll etmə seçimləriniz olacaq."
+  },
+  "runDiagnostics": {
+    "message": "Diaqnostikanı işə sal"
+  },
+  "repairIssues": {
+    "message": "Problemləri həll et"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Diaqnostika log-larını saxla"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Bu ayar, təşkilatınız tərəfindən idarə olunur."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Təşkilatınız, maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Təşkilatınız, seansın ilkin bitmə vaxtını Brauzer təzələnəndə olaraq təyin etdi."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maksimum bitmə vaxtı $HOURS$ saat $MINUTES$ dəqiqə dəyərini aşa bilməz",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Brauzer təzələnəndə"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun."
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Tərk etmək istədiyinizə əminsiniz?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Rədd cavabı versəniz, fərdi elementləriniz hesabınızda qalacaq, paylaşılan elementlərə və təşkilat özəlliklərinə erişimi itirəcəksiniz."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Erişimi təkrar qazanmaq üçün admininizlə əlaqə saxlayın."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Tərk et: $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Seyfimi necə idarə edim?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Elementləri bura köçür: $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata aid olmasını tələb edir. Elementlərinizin sahibliyini transfer etmək üçün qəbul edin.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Transferi qəbul et"
+  },
+  "declineAndLeave": {
+    "message": "Rədd et və tərk et"
+  },
+  "whyAmISeeingThis": {
+    "message": "Bunu niyə görürəm?"
   }
 }

@@ -1958,10 +1958,10 @@
     "message": "Confirmar exportação de segredos"
   },
   "exportWarningDesc": {
-    "message": "Esta exportação contém os dados do seu cofre em um formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo."
+    "message": "Esta exportação contém os dados do seu cofre em um formato sem criptografia. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo."
   },
   "exportSecretsWarningDesc": {
-    "message": "Esta exportação contém seus dados de segredos em um formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague-o imediatamente após terminar de usá-lo."
+    "message": "Esta exportação contém seus dados de segredos em um formato sem criptografia. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague-o imediatamente após terminar de usá-lo."
   },
   "encExportKeyWarningDesc": {
     "message": "Esta exportação criptografa seus dados usando a chave de criptografia da sua conta. Se você rotacionar a chave de criptografia da sua conta, você deve exportar novamente, já que você não será capaz de descriptografar este arquivo de exportação."
@@ -4331,7 +4331,7 @@
     "message": "Esta solicitação não é mais válida."
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Solicitação de autenticação aprovada para $EMAIL$ em $DEVICE$",
+    "message": "Solicitação de acesso aprovada para $EMAIL$ em $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4344,10 +4344,10 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "Você negou uma tentativa de autenticação de outro dispositivo. Se era você, tente se conectar com o dispositivo novamente."
+    "message": "Você negou uma tentativa de acesso de outro dispositivo. Se era você, tente se conectar com o dispositivo novamente."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "A solicitação de autenticação já expirou."
+    "message": "A solicitação de acesso já expirou."
   },
   "justNow": {
     "message": "Agora há pouco"
@@ -4512,13 +4512,13 @@
     "message": "Você está usando um navegador da web não suportado. O cofre web pode não funcionar corretamente."
   },
   "youHaveAPendingLoginRequest": {
-    "message": "Você tem uma solicitação de autenticação pendente de outro dispositivo."
+    "message": "Você tem uma solicitação de acesso pendente de outro dispositivo."
   },
   "reviewLoginRequest": {
-    "message": "Revisar solicitação de autenticação"
+    "message": "Revisar solicitação de acesso"
   },
   "loginRequest": {
-    "message": "Solicitação de autenticação"
+    "message": "Solicitação de acesso"
   },
   "freeTrialEndPromptCount": {
     "message": "Seu teste grátis termina em $COUNT$ dias.",
@@ -5169,8 +5169,20 @@
     "message": "Corrigir",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Corrigir criptografia"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Este arquivo está usando um método de criptografia desatualizado."
+  },
+  "attachmentUpdated": {
+    "message": "Anexo atualizado"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Há anexos de arquivos antigos no seu cofre que precisam ser corrigidos antes que você possa rotacionar a chave de criptografia da sua conta."
+  },
+  "itemsTransferred": {
+    "message": "Itens transferidos"
   },
   "yourAccountsFingerprint": {
     "message": "A frase biométrica da sua conta",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Re-convidado com sucesso"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ usuários re-convidados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ dos $SELECTEDCOUNT$ usuários foram re-convidados. $EXCLUDEDCOUNT$ não foram convidados devido ao limite de convite de $LIMIT$.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Removido com sucesso"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "Tempo limite do cofre não está dentro do intervalo permitido."
   },
-  "disablePersonalVaultExport": {
-    "message": "Remover exportação do cofre individual"
+  "disableExport": {
+    "message": "Remover exportação"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Não permita que os membros exportem dados do seu cofre individual."
@@ -6840,7 +6878,7 @@
     "message": "Escopos personalizados"
   },
   "additionalUserIdClaimTypes": {
-    "message": "Tipos de reivindicação de ID de usuário personalizado"
+    "message": "Tipos personalizados de reivindicação de ID de usuário"
   },
   "additionalEmailClaimTypes": {
     "message": "Tipos de reivindicação de e-mail"
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Uma senha principal não é mais necessária para membros da seguinte organização. Confirme o domínio abaixo com o administrador da sua organização."
-  },
   "keyConnectorDomain": {
     "message": "Domínio do Key Connector"
   },
@@ -7154,8 +7189,8 @@
   "enabledSso": {
     "message": "SSO foi ativado"
   },
-  "disabledSso": {
-    "message": "SSO foi desativado"
+  "ssoTurnedOff": {
+    "message": "SSO desativado"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ deve se conectar com a autenticação única",
@@ -9095,7 +9130,7 @@
     "message": "Importar segredos"
   },
   "getStarted": {
-    "message": "Vamos começar"
+    "message": "Introdução"
   },
   "complete": {
     "message": "$COMPLETED$ concluídos dos $TOTAL$",
@@ -9377,7 +9412,7 @@
     "message": "Solicitação de acesso negada"
   },
   "allLoginRequestsDenied": {
-    "message": "Todas as solicitações de autenticação foram negadas"
+    "message": "Todas as solicitações de acesso foram negadas"
   },
   "loginRequestApproved": {
     "message": "Solicitação de acesso aprovada"
@@ -9448,6 +9483,9 @@
   "ssoLoginIsRequired": {
     "message": "Autenticação com SSO é necessário"
   },
+  "emailRequiredForSsoLogin": {
+    "message": "O e-mail é necessário para o SSO"
+  },
   "selectedRegionFlag": {
     "message": "Bandeira da região selecionada"
   },
@@ -9464,7 +9502,7 @@
     "message": "Problemas para acessar?"
   },
   "loginApproved": {
-    "message": "Autenticação aprovada"
+    "message": "Acesso aprovado"
   },
   "userEmailMissing": {
     "message": "E-mail do usuário ausente"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Assinatura do Famílias"
   },
-  "planDescPremium": {
-    "message": "Segurança on-line completa"
+  "advancedOnlineSecurity": {
+    "message": "Segurança on-line avançada"
   },
   "planDescFamiliesV2": {
     "message": "Segurança Premium para a sua família"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "A sua organização não está mais usando senhas principais para se conectar ao Bitwarden. Para continuar, verifique a organização e o domínio."
+  },
+  "continueWithLogIn": {
+    "message": "Continuar acessando"
+  },
+  "doNotContinue": {
+    "message": "Não continuar"
+  },
+  "domain": {
+    "message": "Domínio"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Este domínio armazenará as chaves de criptografia da sua conta, então certifique-se que confia nele. Se não tiver certeza, verifique com o seu administrador."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifique sua organização para se conectar"
+  },
+  "organizationVerified": {
+    "message": "Organização verificada"
+  },
+  "domainVerified": {
+    "message": "Domínio verificado"
+  },
+  "leaveOrganizationContent": {
+    "message": "Se você não verificar a sua organização, o seu acesso à organização será revogado."
+  },
+  "leaveNow": {
+    "message": "Sair agora"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifique seu domínio para se conectar"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Para continuar se conectando, verifique este domínio."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Para continuar se conectando, verifique a organização e o domínio."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Nenhum aplicativo crítico foi selecionado"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "Falha na verificação do usuário."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Apagar itens não recuperáveis do cofre"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Alguns dos itens do seu cofre não puderam ser recuperados. Gostaria de apagar estes itens não recuperáveis do seu cofre?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Apagar pastas não recuperáveis"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Algumas das suas pastas não puderam ser recuperadas. Gostaria de apagar estas pastas não recuperáveis do seu cofre?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Substituir chave de criptografia"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "O seu par de chaves de criptografia de chave pública não pôde ser recuperado. Gostaria de substituir sua chave de criptografia com um novo par? Ao fazer isso, será necessário reconfigurar o acesso de emergência existente e participações de organizações."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Sincronizando dados"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Verificando integridade da chave de criptografia"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Verificando informações do usuário"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Verificando integridade do item do cofre"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Verificando integridade da pasta"
+  },
+  "dataRecoveryTitle": {
+    "message": "Diagnósticos e recuperação de dados"
+  },
+  "dataRecoveryDescription": {
+    "message": "Use a ferramenta de recuperação de dados para diagnosticar e resolver problemas com a sua conta. Ao executar os diagnósticos, você tem a opção de salvar os registros de diagnóstico para suporte, e a opção de resolver quaisquer problemas detectados."
+  },
+  "runDiagnostics": {
+    "message": "Executar diagnósticos"
+  },
+  "repairIssues": {
+    "message": "Resolver problemas"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Salvar registros de diagnóstico"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Esta configuração é gerenciada pela sua organização."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "A sua organização configurou o tempo de limite máximo da sessão para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "A sua organização configurou o tempo de limite máximo padrão da sessão para ser no recarregar do navegador."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "O tempo limite máximo não pode exceder $HOURS$ hora(s) e $MINUTES$ minuto(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "No recarregar do navegador"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Configure um método de desbloqueio para alterar a ação do tempo limite"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Tem certeza de que quer sair?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Se recusar, seus itens pessoais continuarão na sua conta, mas você perderá o acesso aos itens compartilhados e os recursos de organização."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Entre em contato com o seu administrador para recuperar o acesso."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Sair de $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Como gerencio meu cofre?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transferir itens para $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por segurança e conformidade. Clique em aceitar para transferir a propriedade dos seus itens.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Aceitar transferência"
+  },
+  "declineAndLeave": {
+    "message": "Recusar e sair"
+  },
+  "whyAmISeeingThis": {
+    "message": "Por que estou vendo isso?"
   }
 }
