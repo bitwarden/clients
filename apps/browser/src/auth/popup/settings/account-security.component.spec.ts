@@ -291,6 +291,9 @@ describe("AccountSecurityComponent", () => {
 
       // Change the form value to false
       component.form.controls.enablePhishingDetection.setValue(false);
+      fixture.detectChanges();
+      // Wait briefly to allow any debounced or async valueChanges handlers to run
+      // fixture.whenStable() does not work here
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(phishingDetectionSettingsService.setEnabled).toHaveBeenCalledWith(mockUserId, false);
@@ -305,7 +308,7 @@ describe("AccountSecurityComponent", () => {
       fixture.detectChanges();
 
       const phishingDetectionElement = fixture.debugElement.query(
-        By.css("#enablePhishingDetection"),
+        By.css("#phishingDetectionAction"),
       );
       expect(phishingDetectionElement).not.toBeNull();
     });
@@ -319,7 +322,7 @@ describe("AccountSecurityComponent", () => {
       fixture.detectChanges();
 
       const phishingDetectionElement = fixture.debugElement.query(
-        By.css("#enablePhishingDetection"),
+        By.css("#phishingDetectionAction"),
       );
       expect(phishingDetectionElement).toBeNull();
     });
