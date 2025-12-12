@@ -118,7 +118,9 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
     const closedByUser =
       typeof message.data?.closedByUser === "boolean" ? message.data.closedByUser : true;
     if (message.data?.fadeOutNotification) {
-      setElementStyles(this.notificationBarIframeElement, { opacity: "0" }, true);
+      if (this.notificationBarIframeElement) {
+        setElementStyles(this.notificationBarIframeElement, { opacity: "0" }, true);
+      }
       globalThis.setTimeout(() => this.closeNotificationBar(closedByUser), 150);
       return;
     }
@@ -210,11 +212,13 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
    * This will animate the notification bar into view.
    */
   private handleNotificationBarIframeOnLoad = () => {
-    setElementStyles(
-      this.notificationBarIframeElement,
-      { transform: "translateX(0)", opacity: "1" },
-      true,
-    );
+    if (this.notificationBarIframeElement) {
+      setElementStyles(
+        this.notificationBarIframeElement,
+        { transform: "translateX(0)", opacity: "1" },
+        true,
+      );
+    }
 
     this.notificationBarIframeElement?.removeEventListener(
       EVENTS.LOAD,
