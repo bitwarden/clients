@@ -75,7 +75,6 @@ export default {
     disableAnimations: {
       control: { type: "boolean" },
     },
-    headerEndContent: { control: { type: "text" } },
   },
   parameters: {
     design: {
@@ -85,7 +84,7 @@ export default {
   },
 } as Meta;
 
-type Story = StoryObj<DialogComponent & { title: string; headerEndContent?: string }>;
+type Story = StoryObj<DialogComponent & { title: string }>;
 
 export const Default: Story = {
   render: (args) => ({
@@ -94,10 +93,6 @@ export const Default: Story = {
       <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <ng-container bitDialogTitle>
           <span bitBadge variant="success">Foobar</span>
-        </ng-container>
-
-        <ng-container bitDialogHeaderEnd>
-          <span bitBadge>{{ headerEndContent }}</span>
         </ng-container>
 
         <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
@@ -120,7 +115,6 @@ export const Default: Story = {
     dialogSize: "default",
     title: "Default",
     subtitle: "Subtitle",
-    headerEndContent: "header end",
   },
 };
 
@@ -162,13 +156,6 @@ export const Loading: Story = {
     dialogSize: "large",
     loading: true,
     title: "Loading",
-  },
-};
-
-export const LongHeaderEnd: Story = {
-  ...Default,
-  args: {
-    headerEndContent: "this is a very long header end content",
   },
 };
 
@@ -304,5 +291,44 @@ export const WithCards: Story = {
     subtitle: "Subtitle",
     background: "alt",
     disableAnimations: true,
+  },
+};
+
+export const HeaderEnd: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-dialog
+        [dialogSize]="dialogSize"
+        [title]="title"
+        [subtitle]="subtitle"
+        [loading]="loading"
+        [disablePadding]="disablePadding"
+        [disableAnimations]="disableAnimations">
+
+        <ng-container bitDialogHeaderEnd>
+          <span bitBadge>Archived</span>
+        </ng-container>
+
+        <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
+        <ng-container bitDialogFooter>
+          <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
+          <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
+          <button
+            type="button"
+            [disabled]="loading"
+            class="tw-ms-auto"
+            bitIconButton="bwi-trash"
+            buttonType="danger"
+            size="default"
+            label="Delete"></button>
+        </ng-container>
+      </bit-dialog>
+    `,
+  }),
+  args: {
+    dialogSize: "small",
+    title: "Very Long Title That Should Be Truncated After Two Lines To Test Header End Slot",
+    subtitle: "Subtitle",
   },
 };
