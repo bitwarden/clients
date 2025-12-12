@@ -762,6 +762,14 @@ const routes: Routes = [
             } satisfies RouteDataProperties,
           },
           {
+            path: "de-duplicate",
+            loadComponent: () =>
+              import("./tools/de-duplicate/de-duplicate.component").then(
+                (m) => m.DeDuplicateComponent,
+              ),
+            data: { titleId: "duplicateItemsFound" } satisfies RouteDataProperties,
+          },
+          {
             path: "generator",
             component: CredentialGeneratorComponent,
             data: { titleId: "generator" } satisfies RouteDataProperties,

@@ -751,6 +751,10 @@
     "message": "Domain name",
     "description": "Domain name. Example: website.com"
   },
+  "hostName" : {
+    "message": "Hostname (include subdomain)",
+    "description": "Host name includes subdomain but excludes port. Example: subdomain.website.com"
+  },
   "host": {
     "message": "Host",
     "description": "A URL's host value. For example, the host of https://sub.domain.com:443 is 'sub.domain.com:443'."
@@ -11919,6 +11923,148 @@
   },
   "showLess": {
     "message": "Show less"
+  }, 
+  "duplicatesFound": {
+    "message": "duplicates found.",
+    "description": "A string shown after a numeric value, indicating the numeric values corresponds to the number of duplicate login items present in their vault."
+  }, 
+  "found": {
+    "message": "Found",
+    "description": "A single word translation used to convey the meaning of the English words found, encountered, or discovered. Capitalized as it is used in the beginning of a sentence."
+  }, 
+  "duplicateItemsIn": {
+    "message": "duplicate logins in",
+    "description": "A string used to convey context regarding the results of querying a vault for duplicate login items."
+  },
+  "sets": {
+    "message": "sets",
+    "description": "A single word translation used to convey the meaning of the English word set, group, or cluster (plural)."
+  },
+  "itemInTrash": {
+    "message": "in trash",
+    "description": "A string used to indicate that a login item displayed in a duplicate review dialog has been moved to the trash, lower case as it is used to add context outside of a complete sentence."
+  }, 
+  "noDuplicatesFound": {
+    "message": "No duplicates found.",
+    "description": "A message shown to users indicating that no duplicate logins were discovered in their vault."
+  },
+  "duplicateError": {
+    "message": "An error occurred while finding duplicates",
+    "description": "Displayed using ToastService to indicate an error occurred while finding duplicates."
+  }, 
+  "deDuplicateVault": {
+    "message": "De-duplicate vault", 
+    "description": "Displayed in a header element and bit-callout to convey the purpose of the de-duplication tool."
+  },
+  "deDuplicationToolDescription": {
+    "message": "This tool searches your vault and will present any logins with matching usernames, URIs (websites), and names. Duplicate items will be presented for review and optional deletion. Items selected for deletion will be moved to the vault trash; duplicates already in the trash will be permanently deleted.",
+    "description": "A message explaining what the de-duplication tool will do."
+  }, 
+  "uriMatchingStrategy": {
+    "message": "URI matching strategy",
+    "description": "Label for the selector controlling how URIs are compared when finding duplicates."
+  },
+  "uriMatchingStrategyHelp": {
+    "message": "Choose how URIs are compared when finding duplicates.",
+    "description": "Helper text explaining the URI matching strategy selector."
+  },
+  "findDuplicates": {
+    "message": "Find duplicates", 
+    "description": "Displayed inside of a button to indicate that clicking the button will initiate a search for duplicate login items."
+  }, 
+  "itemsTrashed": {
+    "message": "items moved to trash",
+    "description": "A string indicating that the preceding numeric value corresponds to a quantity of items moved to the vault trash."
+  }, 
+  "itemsPermanentlyDeleted": {
+    "message": "items permanently deleted", 
+    "description": "A string indicating that the preceding numeric value corresponds to the quantity of items permanently deleted."
+  }, 
+  "deDuplicationComplete": {
+    "message": "De-duplication complete",
+    "description": "A message indicating that the de-duplication tool completed any requested deletions."
+  }, 
+  "deDuplicationInProgress": {
+    "message": "Searching for duplicates…", 
+    "description": "A message informing users that their vault is being searched for duplicate logins."
+  }, 
+  "noValue": {
+    "message": "-",
+    "description": "Indicates that no value is present for a given item. First implemented when displaying a list of ciphers that may not belong to folders or organizations."
+  },
+  "duplicateWarningsTitle": {
+    "message": "Some items were skipped or handled differently",
+    "description": "Title for a warning callout summarizing non-fatal issues encountered during de-duplication."
+  },
+  "duplicateExactFallback": {
+    "message": "Exact matching failed for $COUNT$ URI.",
+    "placeholders": {
+      "count": { "content": "$1", "example": "3" }
+    },
+    "description": "Warning indicating that due to parsing limitations, exact URI matching could not be guaranteed for some items."
+  },
+  "duplicateExactFallbackPlural": {
+    "message": "Exact matching failed for $COUNT$ URIs.",
+      "placeholders": {
+        "count": { "content": "$1", "example": "3" }
+    },
+    "description": "Plural form of duplicateExactFallback."
+  },
+  "duplicateUnparseableUris": {
+    "message": "$COUNT$ URI could not be parsed and was ignored.",
+    "placeholders": {
+      "count": { "content": "$1", "example": "5" }
+    },
+    "description": "Warning indicating that some URIs could not be parsed and were excluded from duplicate detection."
+  },
+  "duplicateUnparseableUrisPlural": {
+    "message": "$COUNT$ URIs could not be parsed and were ignored.",
+    "placeholders": {
+      "count": { "content": "$1", "example": "5" }
+    },
+    "description": "Plural form of duplicateUnparseableUris."
+  },
+  "duplicatePermissionDenied": {
+    "message": "$COUNT$ selected item could not be deleted due to permissions.",
+    "placeholders": {
+      "count": { "content": "$1", "example": "2" }
+    },
+    "description": "Warning indicating that the user lacked permission to delete some of the selected duplicate items."
+  },
+  "duplicatePermissionDeniedPlural": {
+    "message": "$COUNT$ selected items could not be deleted due to permissions.",
+    "placeholders": {
+      "count": { "content": "$1", "example": "2" }
+    },
+    "description": "Plural form of duplicatePermissionDenied."
+  },
+  "duplicateWarningsDialogTitle": {
+    "message": "De-duplication warnings",
+    "description": "Title of the dialog showing details for de-duplication warnings."
+  },
+  "duplicateWarningsDialogExactHelp": {
+    "message": "Fix invalid URIs or try a less strict match strategy (Base/Hostname/Host).",
+    "description": "Helper sentence shown in the warnings details dialog to guide users about URI-related issues."
+  },
+  "duplicateWarningsDialogPermHelp": {
+    "message": "Some items may be organization-owned or read-only. Contact an admin or adjust collection permissions.",
+    "description": "Helper sentence shown in the warnings details dialog to explain permission-denied deletions."
+  },
+  "duplicateWarningsDetailsButton": {
+    "message": "View details",
+    "description": "Label for a button that opens a dialog with more information about de-duplication warnings."
+  },
+  "duplicateWarningsDialogUnparseableTitle": {
+    "message": "Unparseable URIs (limit ten)",
+    "description": "Section title above the list of unparseable URIs."
+  },
+  "duplicateWarningsDialogExactSamplesTitle": {
+    "message": "Exact matching fallbacks (limit ten)",
+    "description": "Section title above the sample of URIs where exact matching could not be guaranteed."
+  },
+  "duplicateWarningsDialogPermissionDeniedTitle": {
+    "message": "Items not deleted (permission denied - limit ten)",
+    "description": "Section title above the list of cipher names that could not be deleted due to permissions."
   },
   "missingTaxId": {
     "message": "Missing Tax ID"
