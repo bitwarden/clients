@@ -387,6 +387,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.focusedIndex = this.selectableProducts.length - 1;
     if (!this.isSubscriptionCanceled) {
       await this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    } else {
+      await this.selectPlan(this.reSubscribablePlan);
     }
   }
 
@@ -547,10 +549,21 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return this.selectedPlan.isAnnual ? "year" : "month";
   }
 
+  get reSubscribablePlan() {
+    if (!this.currentPlan.disabled) {
+      return this.currentPlan;
+    }
+    return this.passwordManagerPlans.find(
+      (plan) =>
+        plan.productTier == this.currentPlan.productTier &&
+        plan.isAnnual == this.currentPlan.isAnnual &&
+        !plan.disabled,
+    );
+  }
+
   get selectableProducts() {
     if (this.isSubscriptionCanceled) {
-      // Return only the current plan if the subscription is canceled
-      return [this.currentPlan];
+      return [this.reSubscribablePlan];
     }
 
     if (this.acceptingSponsorship) {
