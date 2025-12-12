@@ -588,7 +588,9 @@ jobs:
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
-        run: npm run build
+        env:
+          BUILD_MODE: ${{ github.event_name == 'workflow_call' && 'build' || 'build:dev' }}
+        run: npm run "$env:BUILD_MODE"
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -853,7 +855,9 @@ jobs:
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
-        run: npm run build
+        env:
+          BUILD_MODE: ${{ github.event_name == 'workflow_call' && 'build' || 'build:dev' }}
+        run: npm run "$env:BUILD_MODE"
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -1211,7 +1215,9 @@ jobs:
         run: node build.js cross-platform "$MODE"
 
       - name: Build application (dev)
-        run: npm run build
+        env:
+          BUILD_MODE: ${{ github.event_name == 'workflow_call' && 'build' || 'build:dev' }}
+        run: npm run "$BUILD_MODE"
 
   browser-build:
     name: Browser Build
@@ -1436,7 +1442,9 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
+        env:
+          BUILD_MODE: ${{ github.event_name == 'workflow_call' && 'build' || 'build:dev' }}
+        run: npm run "$BUILD_MODE"
 
       - name: Download Browser artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
@@ -1719,7 +1727,9 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
+        env:
+          BUILD_MODE: ${{ github.event_name == 'workflow_call' && 'build' || 'build:dev' }}
+        run: npm run "$BUILD_MODE"
 
       - name: Download Browser artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
