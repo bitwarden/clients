@@ -10,6 +10,7 @@ import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import AutofillService from "@bitwarden/browser/autofill/services/autofill.service";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
@@ -213,6 +214,13 @@ describe("VaultV2Component", () => {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
   };
 
+  const autoConfirmSvc = {
+    configuration$: jest.fn().mockReturnValue(of({})),
+    canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
+    upsert: jest.fn().mockResolvedValue(undefined),
+    autoConfirmUser: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
     await TestBed.configureTestingModule({
@@ -265,6 +273,10 @@ describe("VaultV2Component", () => {
         {
           provide: SearchService,
           useValue: { isCipherSearching$: of(false) },
+        },
+        {
+          provide: AutomaticUserConfirmationService,
+          useValue: autoConfirmSvc,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
