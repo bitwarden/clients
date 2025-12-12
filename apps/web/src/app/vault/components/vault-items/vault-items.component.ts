@@ -20,6 +20,7 @@ import {
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
 import { RoutedVaultFilterService } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/services/routed-vault-filter.service";
+import { RoutedVaultFilterModel } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -149,7 +150,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
-  private activeFilter: any;
+  private activeFilter: RoutedVaultFilterModel | undefined;
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
