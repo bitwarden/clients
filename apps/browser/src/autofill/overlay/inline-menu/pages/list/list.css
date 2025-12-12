@@ -1,5 +1,13 @@
 @import "../../../../../../../../libs/components/src/tw-theme-variables.css";
 
+:root {
+  --inline-menu-scrollbar-track: #fcfcfc;
+}
+
+.theme_dark {
+  --inline-menu-scrollbar-track: #2d323a;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -21,7 +29,7 @@ body {
   font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
   color: rgb(var(--color-text-main));
-  background-color: rgb(var(--color-background));
+  background-color: rgb(var(--color-background-alt2));
 }
 
 body * {
@@ -54,7 +62,7 @@ body * {
   transition: background-color 0.2s ease-in-out;
   border-top-width: 0.1rem;
   border-top-style: solid;
-  background: rgb(var(--color-background));
+  background: rgb(var(--color-background-alt2));
   border-top-color: rgb(var(--color-secondary-300));
 }
 
@@ -114,7 +122,7 @@ body * {
   max-height: 18rem;
   -ms-overflow-style: none;
   scrollbar-width: thin;
-  scrollbar-color: rgb(var(--color-secondary-300)) rgb(var(--color-background-alt));
+  scrollbar-color: rgb(var(--color-secondary-300)) var(--inline-menu-scrollbar-track);
   border-right-color: rgb(var(--color-secondary-300));
 }
 
@@ -165,8 +173,8 @@ body * {
   will-change: transform;
   border-bottom: 0.1rem solid;
   color: rgb(var(--color-text-main));
-  background-color: rgb(var(--color-background));
-  border-bottom-color: rgb(var(--color-background));
+  background-color: rgb(var(--color-background-alt2));
+  border-bottom-color: rgb(var(--color-background-alt2));
 }
 
 .inline-menu-list-heading--bordered {
