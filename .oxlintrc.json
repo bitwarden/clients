@@ -12,7 +12,7 @@
     // Disabled: ESLint uses allowTernary option which oxlint doesn't support
     "no-unused-expressions": "allow",
     // Disabled: use typescript/no-unused-vars for .ts files instead
-    "no-unused-vars": 0,
+    "no-unused-vars": "allow",
     // Disabled: not enabled in ESLint config
     "no-useless-rename": "allow",
     // Disabled: not enabled in ESLint config
@@ -25,11 +25,10 @@
     "typescript/no-explicit-any": "allow",
     // Disabled: oxlint doesn't support allowedNames option, ESLint allows "self"
     "typescript/no-this-alias": "allow",
-    // Matches ESLint: don't check unused function arguments
-    "typescript/no-unused-vars": [
-      "error",
-      { "args": "none", "caughtErrors": "none", "varsIgnorePattern": "^_" }
-    ],
+    // Disabled: oxlint's args:"none" doesn't work for rest parameters (...args)
+    // See: https://github.com/oxc-project/oxc/issues/11147
+    // Let ESLint's @typescript-eslint/no-unused-vars handle this instead
+    "typescript/no-unused-vars": "allow",
     // Requires --type-aware flag to work
     "typescript/no-misused-promises": "error",
     "no-restricted-imports": [
@@ -61,6 +60,7 @@
     "jest.preset.js",
     "tailwind.config.js",
     "libs/components/tailwind.config.*.js",
-    "libs/nx-plugin/**"
+    "libs/nx-plugin/**",
+    "**/*.mjs"
   ]
 }
