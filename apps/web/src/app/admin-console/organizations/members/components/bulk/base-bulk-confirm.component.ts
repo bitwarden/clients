@@ -74,7 +74,7 @@ export abstract class BaseBulkConfirmComponent implements OnInit {
         const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(key, publicKey);
         userIdsWithKeys.push({
           id: user.id,
-          key: encryptedKey.encryptedString,
+          key: encryptedKey,
         });
       }
 

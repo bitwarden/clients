@@ -34,10 +34,7 @@ export class WebauthnLoginCredentialResponse extends BaseResponse {
       throw new Error("Invalid encrypted public key");
     }
 
-    return new RotateableKeySet(
-      new EncString(this.encryptedUserKey),
-      new EncString(this.encryptedPublicKey),
-    );
+    return new RotateableKeySet(this.encryptedUserKey, new EncString(this.encryptedPublicKey));
   }
 
   hasPrfKeyset(): boolean {
