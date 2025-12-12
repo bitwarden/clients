@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
@@ -12,6 +14,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -24,6 +27,7 @@ import {
   SearchModule,
   TableDataSource,
   ToastService,
+  ToggleGroupModule,
 } from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
@@ -43,13 +47,21 @@ const BroadcasterSubscriptionId = "SendComponent";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send",
-  imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule, NewSendDropdownComponent],
+  imports: [
+    SharedModule,
+    SearchModule,
+    NoItemsModule,
+    HeaderModule,
+    NewSendDropdownComponent,
+    ToggleGroupModule,
+  ],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],
 })
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
   private sendItemDialogRef?: DialogRef<SendItemDialogResult> | undefined;
   noItemIcon = NoSendsIcon;
+  selectedToggleValue: "all" | "text" | "file" = "all";
 
   override set filteredSends(filteredSends: SendView[]) {
     super.filteredSends = filteredSends;
@@ -77,6 +89,8 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     toastService: ToastService,
     private addEditFormConfigService: DefaultSendFormConfigService,
     accountService: AccountService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     super(
       sendService,
@@ -92,11 +106,28 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       toastService,
       accountService,
     );
+
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const typeParam = params.get("type");
+      const value = (typeParam === "text" || typeParam === "file" ? typeParam : "all") as
+        | "all"
+        | "text"
+        | "file";
+      this.selectedToggleValue = value;
+
+      if (this.loaded) {
+        this.applyTypeFilter(value);
+      }
+    });
   }
 
   async ngOnInit() {
     await super.ngOnInit();
+
+    this.filteredSends = [];
     await this.load();
+
+    this.applyTypeFilter(this.selectedToggleValue);
 
     // Broadcaster subscription - load if sync completes in the background
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -107,6 +138,8 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
           case "syncCompleted":
             if (message.successfully) {
               await this.load();
+
+              this.applyTypeFilter(this.selectedToggleValue);
             }
             break;
         }
@@ -160,5 +193,27 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     if (result === SendItemDialogResult.Deleted || result === SendItemDialogResult.Saved) {
       await this.load();
     }
+  }
+
+  private applyTypeFilter(value: "all" | "text" | "file") {
+    if (value === "all") {
+      this.selectAll();
+    } else if (value === "text") {
+      this.selectType(SendType.Text);
+    } else if (value === "file") {
+      this.selectType(SendType.File);
+    }
+  }
+
+  onToggleChange(value: "all" | "text" | "file") {
+    const queryParams = value === "all" ? { type: null } : { type: value };
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: "merge",
+    });
+
+    this.applyTypeFilter(value);
   }
 }
