@@ -1137,6 +1137,9 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       LOGOUT_CALLBACK,
       StateProvider,
+      ConfigService,
+      RegisterSdkService,
+      SecurityStateService,
     ],
   }),
   safeProvider({
