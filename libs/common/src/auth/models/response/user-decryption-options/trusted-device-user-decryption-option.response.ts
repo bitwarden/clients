@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { BaseResponse } from "../../../../models/response/base.response";
 
@@ -18,7 +20,7 @@ export class TrustedDeviceUserDecryptionOptionResponse extends BaseResponse {
   hasManageResetPasswordPermission: boolean;
   isTdeOffboarding: boolean;
   encryptedPrivateKey: EncString;
-  encryptedUserKey: EncString;
+  encryptedUserKey: UnsignedSharedKey;
 
   constructor(response: any) {
     super(response);
@@ -35,7 +37,7 @@ export class TrustedDeviceUserDecryptionOptionResponse extends BaseResponse {
       this.encryptedPrivateKey = new EncString(this.getResponseProperty("EncryptedPrivateKey"));
     }
     if (response.EncryptedUserKey) {
-      this.encryptedUserKey = new EncString(this.getResponseProperty("EncryptedUserKey"));
+      this.encryptedUserKey = this.getResponseProperty("EncryptedUserKey");
     }
   }
 }

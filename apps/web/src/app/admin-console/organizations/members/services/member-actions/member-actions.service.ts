@@ -144,7 +144,7 @@ export class MemberActionsService {
             switchMap((orgKey) => this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey)),
             map((encKey) => {
               const req = new OrganizationUserConfirmRequest();
-              req.key = encKey.encryptedString;
+              req.key = encKey;
               return req;
             }),
           ),

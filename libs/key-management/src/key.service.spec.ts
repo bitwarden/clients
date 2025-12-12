@@ -47,6 +47,7 @@ import {
   OrgKey,
   ProviderKey,
 } from "@bitwarden/common/types/key";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { UserPrivateKeyDecryptionFailedError } from "./abstractions/key.service";
@@ -516,13 +517,12 @@ describe("keyService", () => {
       return output;
     }
 
-    function fakeOrgKeyDecryption(encryptedString: EncString, userPrivateKey: Uint8Array) {
+    function fakeOrgKeyDecryption(encryptedString: UnsignedSharedKey, userPrivateKey: Uint8Array) {
       const output = new Uint8Array(64);
-      output.set(encryptedString.dataBytes);
-      output.set(
-        userPrivateKey.subarray(0, 64 - encryptedString.dataBytes.length),
-        encryptedString.dataBytes.length,
-      );
+      const dataBytes = encryptedString.split(".")[1];
+      const dataBytesArray = Uint8Array.from(atob(dataBytes), (c) => c.charCodeAt(0));
+      output.set(dataBytesArray);
+      output.set(userPrivateKey.subarray(0, 64 - dataBytes.length), dataBytes.length);
       return output;
     }
 
@@ -532,7 +532,7 @@ describe("keyService", () => {
       userKey: UserKey;
       encryptedPrivateKey: EncString;
       orgKeys: Record<string, EncryptedOrganizationKeyData>;
-      providerKeys: Record<string, EncryptedString>;
+      providerKeys: Record<string, UnsignedSharedKey>;
     };
 
     function updateKeys(keys: Partial<UpdateKeysParams> = {}) {
@@ -595,7 +595,7 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+          [org1Id]: { type: "organization", key: "org1Key" as UnsignedSharedKey },
         },
       });
 
@@ -615,7 +615,7 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+          [org1Id]: { type: "organization", key: "org1Key" as UnsignedSharedKey },
         },
         providerKeys: {},
       });
@@ -637,7 +637,7 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+          [org1Id]: { type: "organization", key: "org1Key" as UnsignedSharedKey },
           [org2Id]: {
             type: "provider",
             key: makeEncString("provider1Key").encryptedString!,
@@ -645,7 +645,7 @@ describe("keyService", () => {
           },
         },
         providerKeys: {
-          provider1: makeEncString("provider1Key").encryptedString!,
+          provider1: "provider1Key" as UnsignedSharedKey,
         },
       });
 
@@ -700,7 +700,7 @@ describe("keyService", () => {
       // User has their org keys set
       updateKeys({
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+          [org1Id]: { type: "organization", key: "org1Key" as UnsignedSharedKey },
         },
       });
 
@@ -1003,7 +1003,7 @@ describe("keyService", () => {
   describe("makeOrgKey", () => {
     const mockUserPublicKey = new Uint8Array(64) as UserPublicKey;
     const shareKey = new SymmetricCryptoKey(new Uint8Array(64));
-    const mockEncapsulatedKey = new EncString("mockEncapsulatedKey");
+    const mockEncapsulatedKey = "mockEncapsulatedKey" as UnsignedSharedKey;
 
     beforeEach(() => {
       keyService.userPublicKey$ = jest

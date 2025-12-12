@@ -8,7 +8,7 @@ import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { makeStaticByteArray } from "../../../../spec";
 
@@ -357,7 +357,7 @@ describe("EncryptService", () => {
 
       it("encrypts data with provided key", async () => {
         const actual = await encryptService.encapsulateKeyUnsigned(testKey, publicKey);
-        expect(actual).toEqual(new EncString("encapsulated_key_unsigned"));
+        expect(actual).toEqual("encapsulated_key_unsigned");
       });
     });
 
@@ -369,13 +369,16 @@ describe("EncryptService", () => {
       });
 
       it("throws if no private key is provided", () => {
-        return expect(encryptService.decapsulateKeyUnsigned(encString, null)).rejects.toThrow(
-          "No decapsulationKey provided for decapsulation",
-        );
+        const unsignedSharedKey = encString.encryptedString as unknown as UnsignedSharedKey;
+        return expect(
+          encryptService.decapsulateKeyUnsigned(unsignedSharedKey, null),
+        ).rejects.toThrow("No decapsulationKey provided for decapsulation");
       });
 
       it("decrypts data with provided key", async () => {
-        const actual = await encryptService.decapsulateKeyUnsigned(makeEncString(data), privateKey);
+        const unsignedSharedKey = makeEncString(data)
+          .encryptedString as unknown as UnsignedSharedKey;
+        const actual = await encryptService.decapsulateKeyUnsigned(unsignedSharedKey, privateKey);
         expect(actual.toEncoded()).toEqualBuffer(new Uint8Array(64));
       });
     });

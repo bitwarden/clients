@@ -63,7 +63,7 @@ export class PasswordResetEnrollmentServiceImplementation
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, orgPublicKey);
 
     const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
-    resetRequest.resetPasswordKey = encryptedKey.encryptedString;
+    resetRequest.resetPasswordKey = encryptedKey;
 
     await this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
       organizationId,

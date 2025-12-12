@@ -10,7 +10,7 @@ import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { EncryptService } from "../abstractions/encrypt.service";
 
@@ -215,7 +215,7 @@ export class EncryptServiceImplementation implements EncryptService {
   async encapsulateKeyUnsigned(
     sharedKey: SymmetricCryptoKey,
     encapsulationKey: Uint8Array,
-  ): Promise<EncString> {
+  ): Promise<UnsignedSharedKey> {
     if (sharedKey == null) {
       throw new Error("No sharedKey provided for encapsulation");
     }
@@ -223,13 +223,14 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No encapsulationKey provided for encapsulation");
     }
     await SdkLoadService.Ready;
-    return new EncString(
-      PureCrypto.encapsulate_key_unsigned(sharedKey.toEncoded(), encapsulationKey),
-    );
+    return PureCrypto.encapsulate_key_unsigned(
+      sharedKey.toEncoded(),
+      encapsulationKey,
+    ) as UnsignedSharedKey;
   }
 
   async decapsulateKeyUnsigned(
-    encryptedSharedKey: EncString,
+    encryptedSharedKey: UnsignedSharedKey,
     decapsulationKey: Uint8Array,
   ): Promise<SymmetricCryptoKey> {
     if (encryptedSharedKey == null) {
@@ -240,10 +241,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     await SdkLoadService.Ready;
-    const keyBytes = PureCrypto.decapsulate_key_unsigned(
-      encryptedSharedKey.encryptedString,
-      decapsulationKey,
-    );
+    const keyBytes = PureCrypto.decapsulate_key_unsigned(encryptedSharedKey, decapsulationKey);
     return new SymmetricCryptoKey(keyBytes);
   }
 

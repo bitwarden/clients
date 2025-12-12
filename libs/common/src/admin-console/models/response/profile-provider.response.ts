@@ -1,3 +1,5 @@
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 import { BaseResponse } from "../../../models/response/base.response";
 import {
   ProviderStatusType,
@@ -10,7 +12,7 @@ import { PermissionsApi } from "../api/permissions.api";
 export class ProfileProviderResponse extends BaseResponse {
   id: string;
   name: string;
-  key: string;
+  key: UnsignedSharedKey;
   status: ProviderUserStatusType;
   type: ProviderUserType;
   enabled: boolean;

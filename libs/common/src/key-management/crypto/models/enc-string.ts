@@ -101,15 +101,6 @@ export class EncString {
         this.iv = encPieces[0];
         this.data = encPieces[1];
         break;
-      case EncryptionType.Rsa2048_OaepSha256_B64:
-      case EncryptionType.Rsa2048_OaepSha1_B64:
-        this.data = encPieces[0];
-        break;
-      case EncryptionType.Rsa2048_OaepSha256_HmacSha256_B64:
-      case EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64:
-        this.data = encPieces[0];
-        this.mac = encPieces[1];
-        break;
       default:
         return;
     }

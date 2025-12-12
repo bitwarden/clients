@@ -1,8 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -27,7 +29,7 @@ import { PlanType } from "../enums";
 import { OrganizationNoPaymentMethodCreateRequest } from "../models/request/organization-no-payment-method-create-request";
 
 interface OrganizationKeys {
-  encryptedKey: EncString;
+  encryptedKey: UnsignedSharedKey;
   publicKey: string;
   encryptedPrivateKey: EncString;
   encryptedCollectionName: EncString;
@@ -158,7 +160,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     request: OrganizationCreateRequest | OrganizationNoPaymentMethodCreateRequest,
     keys: OrganizationKeys,
   ): void {
-    request.key = keys.encryptedKey.encryptedString;
+    request.key = keys.encryptedKey;
     request.keys = new OrganizationKeysRequest(
       keys.publicKey,
       keys.encryptedPrivateKey.encryptedString,

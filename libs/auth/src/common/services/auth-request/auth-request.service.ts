@@ -25,6 +25,7 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { AuthRequestApiServiceAbstraction } from "../../abstractions/auth-request-api.service";
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
@@ -143,7 +144,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(keyToEncrypt, pubKey);
 
     const response = new PasswordlessAuthRequest(
-      encryptedKey.encryptedString,
+      encryptedKey,
       undefined,
       await this.appIdService.getAppId(),
       approve,
@@ -186,11 +187,11 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
 
   // Decryption helpers
   async decryptPubKeyEncryptedUserKey(
-    pubKeyEncryptedUserKey: string,
+    pubKeyEncryptedUserKey: UnsignedSharedKey,
     privateKey: Uint8Array,
   ): Promise<UserKey> {
     const decryptedUserKey = await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(pubKeyEncryptedUserKey),
+      pubKeyEncryptedUserKey,
       privateKey,
     );
 

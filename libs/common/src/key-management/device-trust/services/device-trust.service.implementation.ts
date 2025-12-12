@@ -8,6 +8,7 @@ import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common"
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
@@ -188,7 +189,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     const deviceIdentifier = await this.appIdService.getAppId();
     const deviceResponse = await this.devicesApiService.updateTrustedDeviceKeys(
       deviceIdentifier,
-      devicePublicKeyEncryptedUserKey.encryptedString,
+      devicePublicKeyEncryptedUserKey,
       userKeyEncryptedDevicePublicKey.encryptedString,
       deviceKeyEncryptedDevicePrivateKey.encryptedString,
     );
@@ -250,7 +251,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
           const request = new OtherDeviceKeysUpdateRequest();
           request.encryptedPublicKey = newRotateableKeySet.encryptedPublicKey.encryptedString;
-          request.encryptedUserKey = newRotateableKeySet.encapsulatedDownstreamKey.encryptedString;
+          request.encryptedUserKey = newRotateableKeySet.encapsulatedDownstreamKey;
           request.deviceId = device.id;
           return request;
         })
@@ -313,7 +314,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     );
 
     const currentDeviceUpdateRequest = new DeviceKeysUpdateRequest();
-    currentDeviceUpdateRequest.encryptedUserKey = encryptedNewUserKey.encryptedString;
+    currentDeviceUpdateRequest.encryptedUserKey = encryptedNewUserKey;
     currentDeviceUpdateRequest.encryptedPublicKey = encryptedDevicePublicKey.encryptedString;
 
     // TODO: For device management, allow this method to take an array of device ids that can be looped over and individually rotated
@@ -387,7 +388,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   async decryptUserKeyWithDeviceKey(
     userId: UserId,
     encryptedDevicePrivateKey: EncString,
-    encryptedUserKey: EncString,
+    encryptedUserKey: UnsignedSharedKey,
     deviceKey: DeviceKey,
   ): Promise<UserKey | null> {
     if (!userId) {
@@ -418,7 +419,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
       // Attempt to decrypt encryptedUserDataKey with devicePrivateKey
       const userKey = await this.encryptService.decapsulateKeyUnsigned(
-        new EncString(encryptedUserKey.encryptedString),
+        encryptedUserKey,
         devicePrivateKey,
       );
 

@@ -18,6 +18,7 @@ import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { DefaultOrganizationUserService } from "./default-organization-user.service";
 
@@ -36,7 +37,7 @@ describe("DefaultOrganizationUserService", () => {
   const mockPublicKey = new Uint8Array(64) as CsprngArray;
   const mockRandomBytes = new Uint8Array(64) as CsprngArray;
   const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
-  const mockEncryptedKey = { encryptedString: "encrypted-key" } as EncString;
+  const mockEncryptedKey = "encrypted-key" as UnsignedSharedKey;
   const mockEncryptedCollectionName = { encryptedString: "encrypted-collection-name" } as EncString;
   const mockDefaultCollectionName = "My Items";
 
@@ -116,7 +117,7 @@ describe("DefaultOrganizationUserService", () => {
             mockOrganization.id,
             mockUserId,
             {
-              key: mockEncryptedKey.encryptedString,
+              key: mockEncryptedKey,
               defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
             } as OrganizationUserConfirmRequest,
           );

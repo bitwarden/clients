@@ -8,6 +8,7 @@ import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 import { RotateableKeySet } from "../models/rotateable-key-set";
 
 import { DefaultRotateableKeySetService } from "./default-rotateable-key-set.service";
@@ -47,7 +48,7 @@ describe("DefaultRotateableKeySetService", () => {
     it("should create a new key set", async () => {
       const externalKey = createSymmetricKey();
       const userKey = createSymmetricKey();
-      const encryptedUserKey = new EncString("encryptedUserKey");
+      const encryptedUserKey = "encryptedUserKey" as UnsignedSharedKey;
       const encryptedPublicKey = new EncString("encryptedPublicKey");
       const encryptedPrivateKey = new EncString("encryptedPrivateKey");
       keyService.makeKeyPair.mockResolvedValue(["publicKey", encryptedPrivateKey]);
@@ -73,7 +74,7 @@ describe("DefaultRotateableKeySetService", () => {
 
   describe("rotateKeySet", () => {
     const keySet = new RotateableKeySet(
-      new EncString("encUserKey"),
+      "encUserKey" as UnsignedSharedKey,
       new EncString("encPublicKey"),
       new EncString("encPrivateKey"),
     );
@@ -149,7 +150,7 @@ describe("DefaultRotateableKeySetService", () => {
       const newDownstreamKey = new SymmetricCryptoKey(new Uint8Array(64));
       const publicKey = Utils.fromB64ToArray("decryptedPublicKey");
       const newEncryptedPublicKey = new EncString("newEncPublicKey");
-      const newEncryptedRotateableKey = new EncString("newEncUserKey");
+      const newEncryptedRotateableKey = "newEncUserKey" as UnsignedSharedKey;
 
       encryptService.unwrapEncapsulationKey.mockResolvedValue(publicKey);
       encryptService.wrapEncapsulationKey.mockResolvedValue(newEncryptedPublicKey);

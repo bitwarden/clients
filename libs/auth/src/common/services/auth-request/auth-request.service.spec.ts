@@ -16,6 +16,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { DefaultAuthRequestApiService } from "./auth-request-api.service";
 import { AuthRequestService } from "./auth-request.service";
@@ -89,9 +90,9 @@ describe("AuthRequestService", () => {
 
   describe("approveOrDenyAuthRequest", () => {
     beforeEach(() => {
-      encryptService.encapsulateKeyUnsigned.mockResolvedValue({
-        encryptedString: "ENCRYPTED_STRING",
-      } as EncString);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(
+        "ENCRYPTED_STRING" as UnsignedSharedKey,
+      );
       appIdService.getAppId.mockResolvedValue("APP_ID");
     });
     it("should throw if auth request is missing id or key", async () => {
@@ -221,7 +222,7 @@ describe("AuthRequestService", () => {
 
       // Act
       const result = await sut.decryptPubKeyEncryptedUserKey(
-        mockPubKeyEncryptedUserKey,
+        mockPubKeyEncryptedUserKey as UnsignedSharedKey,
         mockPrivateKey,
       );
 
