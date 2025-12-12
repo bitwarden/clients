@@ -16,7 +16,9 @@ import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/compon
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -82,6 +84,12 @@ export class SettingsV2Component {
     ),
   );
 
+  showAdminBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+    switchMap((account) =>
+      this.nudgesService.showNudgeBadge$(NudgeType.AutoConfirmNudge, account.id),
+    ),
+  );
+
   showAutofillBadge$: Observable<boolean> = combineLatest([
     this.autofillBrowserSettingsService.defaultBrowserAutofillDisabled$,
     this.authenticatedAccount$,
@@ -95,10 +103,16 @@ export class SettingsV2Component {
     ),
   );
 
+  showAdminSettingsLink$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.autoConfirmService.canManageAutoConfirm$(userId)),
+  );
+
   constructor(
     private readonly nudgesService: NudgesService,
     private readonly accountService: AccountService,
     private readonly autofillBrowserSettingsService: AutofillBrowserSettingsService,
+    private readonly autoConfirmService: AutomaticUserConfirmationService,
     private readonly accountProfileStateService: BillingAccountProfileStateService,
     private readonly dialogService: DialogService,
   ) {}
