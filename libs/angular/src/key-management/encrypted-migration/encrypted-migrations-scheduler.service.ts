@@ -38,16 +38,24 @@ export const ENCRYPTED_MIGRATION_DISMISSED = new UserKeyDefinition<Date>(
   },
 );
 const DISMISS_TIME_HOURS = 24;
+<<<<<<< HEAD
 const VAULT_ROUTE = "/vault";
+=======
+const VAULT_ROUTES = ["/vault", "/tabs/vault", "/tabs/current"];
+>>>>>>> main
 
 /**
  * This services schedules encrypted migrations for users on clients that are interactive (non-cli), and handles manual interaction,
  * if it is required by showing a UI prompt. It is only one means of triggering migrations, in case the user stays unlocked for a while,
  * or regularly logs in without a master-password, when the migrations do require a master-password to run.
  */
+<<<<<<< HEAD
 export class DefaultEncryptedMigrationsSchedulerService
   implements EncryptedMigrationsSchedulerService
 {
+=======
+export class DefaultEncryptedMigrationsSchedulerService implements EncryptedMigrationsSchedulerService {
+>>>>>>> main
   isMigrating = false;
   url$: Observable<string>;
 
@@ -87,7 +95,11 @@ export class DefaultEncryptedMigrationsSchedulerService
               ]).pipe(
                 filter(
                   ([authStatus, _date, url]) =>
+<<<<<<< HEAD
                     authStatus === AuthenticationStatus.Unlocked && url === VAULT_ROUTE,
+=======
+                    authStatus === AuthenticationStatus.Unlocked && VAULT_ROUTES.includes(url),
+>>>>>>> main
                 ),
                 concatMap(() => this.runMigrationsIfNeeded(userId)),
               ),

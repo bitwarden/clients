@@ -75,7 +75,7 @@ describe("DefaultLoginSuccessHandlerService", () => {
       it("should not check SSO requirements", async () => {
         await service.run(userId, null);
 
-        expect(logService.error).toHaveBeenCalledWith("SSO login email not found.");
+        expect(logService.debug).toHaveBeenCalledWith("SSO login email not found.");
         expect(ssoLoginService.updateSsoRequiredCache).not.toHaveBeenCalled();
       });
     });
