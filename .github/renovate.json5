@@ -66,6 +66,7 @@
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
         "eslint-plugin-import",
+        "eslint-plugin-oxlint",
         "eslint-plugin-rxjs-angular",
         "eslint-plugin-rxjs",
         "eslint-plugin-storybook",
