@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "Добавить вложение"
   },
+  "itemsTransferred": {
+    "message": "Items transferred"
+  },
+  "fixEncryption": {
+    "message": "Исправить шифрование"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Этот файл использует устаревший метод шифрования."
+  },
+  "attachmentUpdated": {
+    "message": "Вложение обновлено"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Максимальный размер файла 500 МБ"
   },
@@ -907,6 +919,12 @@
   },
   "unexpectedError": {
     "message": "Произошла непредвиденная ошибка."
+  },
+  "unexpectedErrorShort": {
+    "message": "Unexpected error"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Close this Bitwarden window and try again."
   },
   "itemInformation": {
     "message": "Информация об элементе"
@@ -2619,9 +2637,6 @@
   "removedMasterPassword": {
     "message": "Мастер-пароль удален."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Мастер-пароль больше не требуется для членов следующей организации. Пожалуйста, подтвердите указанный ниже домен у администратора вашей организации."
-  },
   "organizationName": {
     "message": "Название организации"
   },
@@ -3886,6 +3901,75 @@
   "fileSavedToDevice": {
     "message": "Файл сохранен на устройстве. Управляйте им из загрузок устройства."
   },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
+  },
+  "passkeyLogin": {
+    "message": "Log in with passkey?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Save passkey?"
+  },
+  "saveNewPasskey": {
+    "message": "Save as new login"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Save passkey as new login"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "No matching logins for this site"
+  },
+  "overwritePasskey": {
+    "message": "Overwrite passkey?"
+  },
+  "unableToSavePasskey": {
+    "message": "Unable to save passkey"
+  },
+  "alreadyContainsPasskey": {
+    "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "A passkey already exists for this application."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "This application does not support duplicates."
+  },
+  "closeThisWindow": {
+    "message": "Close this window"
+  },
   "allowScreenshots": {
     "message": "Разрешить захват экрана"
   },
@@ -4244,16 +4328,147 @@
   "andMoreFeatures": {
     "message": "И многое другое!"
   },
-  "planDescPremium": {
-    "message": "Полная онлайн-защищенность"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "upgradeToPremium": {
     "message": "Обновить до Премиум"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Ваша организация больше не использует мастер-пароли для входа в Bitwarden. Чтобы продолжить, подтвердите организацию и домен."
+  },
+  "continueWithLogIn": {
+    "message": "Продолжить с логином"
+  },
+  "doNotContinue": {
+    "message": "Не продолжать"
+  },
+  "domain": {
+    "message": "Домен"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "В этом домене будут храниться ключи шифрования вашего аккаунта, поэтому убедитесь, что вы ему доверяете. Если вы не уверены, обратитесь к своему администратору."
+  },
+  "verifyYourOrganization": {
+    "message": "Подтвердите свою организацию для входа"
+  },
+  "organizationVerified": {
+    "message": "Организация подтверждена"
+  },
+  "domainVerified": {
+    "message": "Домен верифицирован"
+  },
+  "leaveOrganizationContent": {
+    "message": "Если вы не подтвердите свою организацию, ваш доступ к ней будет аннулирован."
+  },
+  "leaveNow": {
+    "message": "Покинуть"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Подтвердите свой домен для входа"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Чтобы продолжить с логином, подтвердите этот домен."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Чтобы продолжить с логином, подтвердите организацию и домен."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Тайм-аут действия"
   },
   "sessionTimeoutHeader": {
     "message": "Тайм-аут сеанса"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Перейти"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Вы уверены, что хотите покинуть?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "В случае отказа ваши личные данные останутся в вашем аккаунте, но вы потеряете доступ к общим элементам и возможностям организации."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Свяжитесь с вашим администратором для восстановления доступа."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Покинуть $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Как я могу управлять своим хранилищем?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Перенести элементы в $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Принять передачу"
+  },
+  "declineAndLeave": {
+    "message": "Отклонить и покинуть"
+  },
+  "whyAmISeeingThis": {
+    "message": "Почему я это вижу?"
   }
 }
