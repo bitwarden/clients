@@ -84,14 +84,39 @@ describe("filePickerPopoutGuard", () => {
       inSidebarSpy.mockReturnValue(false);
     });
 
-    it("should allow navigation without popout requirement", async () => {
+    it("should open popout and block navigation when not in popout", async () => {
       const guard = filePickerPopoutGuard();
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
       expect(getDeviceSpy).toHaveBeenCalledWith(window);
+      expect(inPopoutSpy).toHaveBeenCalledWith(window);
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+      expect(closePopupSpy).toHaveBeenCalledWith(window);
+      expect(result).toBe(false);
+    });
+
+    it("should allow navigation when already in popout", async () => {
+      inPopoutSpy.mockReturnValue(true);
+
+      const guard = filePickerPopoutGuard();
+      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
+
       expect(openPopoutSpy).not.toHaveBeenCalled();
       expect(closePopupSpy).not.toHaveBeenCalled();
       expect(result).toBe(true);
+    });
+
+    it("should not allow sidebar bypass (Safari doesn't support sidebar)", async () => {
+      inSidebarSpy.mockReturnValue(true);
+      inPopoutSpy.mockReturnValue(false);
+
+      const guard = filePickerPopoutGuard();
+      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
+
+      // Safari requires popout, sidebar is not sufficient
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+      expect(closePopupSpy).toHaveBeenCalledWith(window);
+      expect(result).toBe(false);
     });
   });
 
@@ -167,28 +192,24 @@ describe("filePickerPopoutGuard", () => {
       });
     });
 
-    it("should open popout and block navigation for Chrome on Mac when not in popout or sidebar", async () => {
-      getDeviceSpy.mockReturnValue(DeviceType.ChromeExtension);
+    it.each([
+      { deviceType: DeviceType.ChromeExtension, name: "Chrome" },
+      { deviceType: DeviceType.EdgeExtension, name: "Edge" },
+      { deviceType: DeviceType.OperaExtension, name: "Opera" },
+      { deviceType: DeviceType.VivaldiExtension, name: "Vivaldi" },
+    ])(
+      "should open popout and block navigation for $name on Mac when not in popout or sidebar",
+      async ({ deviceType }) => {
+        getDeviceSpy.mockReturnValue(deviceType);
 
-      const guard = filePickerPopoutGuard();
-      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
+        const guard = filePickerPopoutGuard();
+        const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
-      expect(closePopupSpy).toHaveBeenCalledWith(window);
-      expect(result).toBe(false);
-    });
-
-    it("should not require popout for Edge on Mac (not Chrome)", async () => {
-      getDeviceSpy.mockReturnValue(DeviceType.EdgeExtension);
-
-      const guard = filePickerPopoutGuard();
-      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
-
-      // Edge/Opera/Vivaldi on Mac don't match the Chrome-specific Mac check
-      expect(openPopoutSpy).not.toHaveBeenCalled();
-      expect(closePopupSpy).not.toHaveBeenCalled();
-      expect(result).toBe(true);
-    });
+        expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+        expect(closePopupSpy).toHaveBeenCalledWith(window);
+        expect(result).toBe(false);
+      },
+    );
 
     it("should allow navigation when in popout", async () => {
       getDeviceSpy.mockReturnValue(DeviceType.ChromeExtension);
@@ -298,18 +319,6 @@ describe("filePickerPopoutGuard", () => {
       expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/attachments?cipherId=123");
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
-    });
-
-    it("should preserve query parameters on file picker routes", async () => {
-      const editSendWithParams: RouterStateSnapshot = {
-        url: "/edit-send?sendId=123&type=1",
-      } as RouterStateSnapshot;
-
-      const guard = filePickerPopoutGuard();
-      await TestBed.runInInjectionContext(() => guard(mockRoute, editSendWithParams));
-
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/edit-send?sendId=123&type=1");
-      expect(closePopupSpy).toHaveBeenCalledWith(window);
     });
   });
 

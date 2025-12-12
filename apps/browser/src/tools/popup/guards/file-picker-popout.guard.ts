@@ -11,9 +11,9 @@ import { DeviceType } from "@bitwarden/common/enums";
  *
  * Browser-specific requirements:
  * - Firefox: Requires sidebar OR popout (crashes with file picker in popup: https://bugzilla.mozilla.org/show_bug.cgi?id=1292701)
- * - Chromium on Linux/Mac: Requires sidebar OR popout
+ * - Safari: Requires popout only
+ * - All Chromium browsers (Chrome, Edge, Opera, Vivaldi) on Linux/Mac: Requires sidebar OR popout
  * - Chromium on Windows: No special requirement
- * - Safari: No special requirement
  *
  * @returns CanActivateFn that opens popout and blocks navigation when file picker access is needed
  */
@@ -33,8 +33,14 @@ export function filePickerPopoutGuard(): CanActivateFn {
       needsPopout = true;
     }
 
-    // Chromium on Linux: needs sidebar OR popout for file picker access
-    // All Chromium-based browsers (Chrome, Edge, Opera, Vivaldi) on Linux
+    // Safari: needs popout only (sidebar not available)
+    if (deviceType === DeviceType.SafariExtension && !inPopout) {
+      needsPopout = true;
+    }
+
+    // Chromium on Linux/Mac: needs sidebar OR popout for file picker access
+    // All Chromium-based browsers (Chrome, Edge, Opera, Vivaldi)
+    // Brave intentionally reports itself as Chrome for compatibility
     const isChromiumBased = [
       DeviceType.ChromeExtension,
       DeviceType.EdgeExtension,
@@ -43,17 +49,9 @@ export function filePickerPopoutGuard(): CanActivateFn {
     ].includes(deviceType);
 
     const isLinux = window?.navigator?.userAgent?.indexOf("Linux") !== -1;
+    const isMac = window?.navigator?.appVersion?.includes("Mac OS X");
 
-    if (isChromiumBased && isLinux && !inPopout && !inSidebar) {
-      needsPopout = true;
-    }
-
-    // Chrome (specifically) on Mac: needs sidebar OR popout for file picker access
-    const isMac =
-      deviceType === DeviceType.ChromeExtension &&
-      window?.navigator?.appVersion.includes("Mac OS X");
-
-    if (isMac && !inPopout && !inSidebar) {
+    if (isChromiumBased && (isLinux || isMac) && !inPopout && !inSidebar) {
       needsPopout = true;
     }
 
