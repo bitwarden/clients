@@ -168,7 +168,9 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       this.createNotificationBarElement();
 
       this.setupInitNotificationBarMessageListener(initData);
-      globalThis.document.body.appendChild(this.notificationBarRootElement);
+      if (this.notificationBarRootElement) {
+        globalThis.document.body.appendChild(this.notificationBarRootElement);
+      }
     }
   }
 
