@@ -16,6 +16,7 @@ import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
@@ -80,7 +81,7 @@ describe("OrganizationBillingService", () => {
       } as OrganizationResponse;
 
       organizationApiService.create.mockResolvedValue(organizationResponse);
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
+      keyService.makeOrgKey.mockResolvedValue(["encrypted-key" as UnsignedSharedKey, {} as OrgKey]);
       keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
@@ -104,7 +105,7 @@ describe("OrganizationBillingService", () => {
       } as SubscriptionInformation;
 
       organizationApiService.create.mockRejectedValue(new Error("Failed to create organization"));
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
+      keyService.makeOrgKey.mockResolvedValue(["encrypted-key" as UnsignedSharedKey, {} as OrgKey]);
       keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
@@ -164,7 +165,7 @@ describe("OrganizationBillingService", () => {
       } as OrganizationResponse;
 
       organizationApiService.createWithoutPayment.mockResolvedValue(organizationResponse);
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
+      keyService.makeOrgKey.mockResolvedValue(["encrypted-key" as UnsignedSharedKey, {} as OrgKey]);
       keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
@@ -186,7 +187,7 @@ describe("OrganizationBillingService", () => {
       } as SubscriptionInformation;
 
       organizationApiService.createWithoutPayment.mockRejectedValue(new Error("Creation failed"));
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
+      keyService.makeOrgKey.mockResolvedValue(["encrypted-key" as UnsignedSharedKey, {} as OrgKey]);
       keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
@@ -224,7 +225,7 @@ describe("OrganizationBillingService", () => {
       } as OrganizationResponse;
 
       organizationApiService.create.mockResolvedValue(organizationResponse);
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
+      keyService.makeOrgKey.mockResolvedValue(["encrypted-key" as UnsignedSharedKey, {} as OrgKey]);
       keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
@@ -258,7 +259,7 @@ describe("OrganizationBillingService", () => {
       } as SubscriptionInformation;
 
       organizationApiService.create.mockRejectedValue(new Error("Failed to create organization"));
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
+      keyService.makeOrgKey.mockResolvedValue(["encrypted-key" as UnsignedSharedKey, {} as OrgKey]);
       keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
       // Act & Assert
@@ -271,7 +272,7 @@ describe("OrganizationBillingService", () => {
   describe("organization key creation methods", () => {
     const organizationKeys = {
       orgKey: new SymmetricCryptoKey(new Uint8Array(64)) as OrgKey,
-      publicKeyEncapsulatedOrgKey: new EncString("encryptedOrgKey"),
+      publicKeyEncapsulatedOrgKey: "encryptedOrgKey" as UnsignedSharedKey,
       publicKey: "public-key",
       encryptedPrivateKey: new EncString("encryptedPrivateKey"),
     };
@@ -298,7 +299,7 @@ describe("OrganizationBillingService", () => {
       billingEmail: "test@example.com",
       initiationPath: "Registration form",
       planType: 0,
-      key: organizationKeys.publicKeyEncapsulatedOrgKey.encryptedString,
+      key: organizationKeys.publicKeyEncapsulatedOrgKey,
       keys: new OrganizationKeysRequest(
         organizationKeys.publicKey,
         organizationKeys.encryptedPrivateKey.encryptedString!,

@@ -5,6 +5,7 @@ import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 export abstract class AuthRequestServiceAbstraction {
   /** Emits an auth request id when an auth request has been approved. */
@@ -93,7 +94,7 @@ export abstract class AuthRequestServiceAbstraction {
    * @returns The decrypted `UserKey`.
    */
   abstract decryptPubKeyEncryptedUserKey(
-    pubKeyEncryptedUserKey: string,
+    pubKeyEncryptedUserKey: UnsignedSharedKey,
     privateKey: ArrayBuffer,
   ): Promise<UserKey>;
   /**

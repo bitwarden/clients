@@ -277,7 +277,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
 
       const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
       const request = new ProviderUserConfirmRequest();
-      request.key = key.encryptedString;
+      request.key = key;
       await this.apiService.postProviderUserConfirm(this.providerId, user.id, request);
       return { success: true };
     } catch (error) {

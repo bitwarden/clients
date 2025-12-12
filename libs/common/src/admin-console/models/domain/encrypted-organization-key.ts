@@ -1,3 +1,5 @@
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -5,15 +7,15 @@ import { OrgKey, UserPrivateKey } from "../../../types/key";
 import { EncryptedOrganizationKeyData } from "../data/encrypted-organization-key.data";
 
 export abstract class BaseEncryptedOrganizationKey {
-  abstract get encryptedOrganizationKey(): EncString;
+  abstract get encryptedOrganizationKey(): UnsignedSharedKey;
 
   static fromData(data: EncryptedOrganizationKeyData) {
     switch (data.type) {
       case "organization":
-        return new EncryptedOrganizationKey(data.key);
+        return new EncryptedOrganizationKey(data.key as UnsignedSharedKey);
 
       case "provider":
-        return new ProviderEncryptedOrganizationKey(data.key, data.providerId);
+        return new ProviderEncryptedOrganizationKey(data.key as UnsignedSharedKey, data.providerId);
 
       default:
         return null;
@@ -28,7 +30,7 @@ export abstract class BaseEncryptedOrganizationKey {
 }
 
 export class EncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
-  constructor(private key: string) {}
+  constructor(private key: UnsignedSharedKey) {}
 
   async decrypt(encryptService: EncryptService, privateKey: UserPrivateKey) {
     return (await encryptService.decapsulateKeyUnsigned(
@@ -38,7 +40,7 @@ export class EncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
   }
 
   get encryptedOrganizationKey() {
-    return new EncString(this.key);
+    return this.key;
   }
 
   toData(): EncryptedOrganizationKeyData {
@@ -51,7 +53,7 @@ export class EncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
 
 export class ProviderEncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
   constructor(
-    private key: string,
+    private key: UnsignedSharedKey,
     private providerId: string,
   ) {}
 
@@ -67,7 +69,7 @@ export class ProviderEncryptedOrganizationKey implements BaseEncryptedOrganizati
   }
 
   get encryptedOrganizationKey() {
-    return new EncString(this.key);
+    return this.key;
   }
 
   toData(): EncryptedOrganizationKeyData {

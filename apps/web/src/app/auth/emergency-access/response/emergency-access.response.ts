@@ -1,6 +1,7 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 import { KdfType } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -56,7 +57,7 @@ export class EmergencyAccessGrantorDetailsResponse extends BaseResponse {
 }
 
 export class EmergencyAccessTakeoverResponse extends BaseResponse {
-  keyEncrypted: string;
+  keyEncrypted: UnsignedSharedKey;
   kdf: KdfType;
   kdfIterations: number;
   kdfMemory?: number;
@@ -74,7 +75,7 @@ export class EmergencyAccessTakeoverResponse extends BaseResponse {
 }
 
 export class EmergencyAccessViewResponse extends BaseResponse {
-  keyEncrypted: string;
+  keyEncrypted: UnsignedSharedKey;
   ciphers: CipherResponse[] = [];
 
   constructor(response: any) {
