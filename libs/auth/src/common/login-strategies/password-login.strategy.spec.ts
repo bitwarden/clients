@@ -12,6 +12,7 @@ import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/respons
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
@@ -28,7 +29,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
   PasswordStrengthServiceAbstraction,
   PasswordStrengthService,
@@ -85,6 +86,7 @@ describe("PasswordLoginStrategy", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -113,6 +115,7 @@ describe("PasswordLoginStrategy", () => {
     kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.mockResolvedValue({
@@ -153,6 +156,7 @@ describe("PasswordLoginStrategy", () => {
       kdfConfigService,
       environmentService,
       configService,
+      accountCryptographicStateService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
     tokenResponse = identityTokenResponseFactory(masterPasswordPolicyResponse);
@@ -392,5 +396,44 @@ describe("PasswordLoginStrategy", () => {
     );
     expect(result.resetMasterPassword).toBe(false);
     expect(result.userId).toBe(userId);
+  });
+
+  it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+    const accountKeysData = {
+      publicKeyEncryptionKeyPair: {
+        publicKey: "testPublicKey",
+        wrappedPrivateKey: "testPrivateKey",
+      },
+    };
+
+    tokenResponse = identityTokenResponseFactory();
+    tokenResponse.key = makeEncString("mockEncryptedUserKey");
+    // Add accountKeysResponseModel to the response
+    (tokenResponse as any).accountKeysResponseModel = {
+      publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+      toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      }),
+    };
+
+    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+    masterPasswordService.masterKeySubject.next(masterKey);
+    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(
+      new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey,
+    );
+
+    await passwordLoginStrategy.logIn(credentials);
+
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(1);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      {
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      },
+      userId,
+    );
   });
 });
