@@ -3,7 +3,9 @@ import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/
 /**
  * Browser extension implementation of the device management component service
  */
-export class ExtensionDeviceManagementComponentService implements DeviceManagementComponentServiceAbstraction {
+export class ExtensionDeviceManagementComponentService
+  implements DeviceManagementComponentServiceAbstraction
+{
   /**
    * Don't show header information in browser extension client
    */
