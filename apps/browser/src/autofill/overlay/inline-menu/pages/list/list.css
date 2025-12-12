@@ -29,7 +29,7 @@ body {
   font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
   color: rgb(var(--color-text-main));
-  background-color: rgb(var(--color-background));
+  background-color: rgb(var(--color-background-alt2));
 }
 
 body * {
@@ -62,7 +62,7 @@ body * {
   transition: background-color 0.2s ease-in-out;
   border-top-width: 0.1rem;
   border-top-style: solid;
-  background: rgb(var(--color-background-alt2));
+  background: rgb(var(--color-background));
   border-top-color: rgb(var(--color-secondary-300));
 }
 
