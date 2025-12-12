@@ -35,6 +35,10 @@ export function isSnapStore() {
   return isLinux() && process.env.SNAP_USER_DATA != null;
 }
 
+export function isWayland() {
+  return isLinux() && (process.env.XDG_SESSION_TYPE === "wayland" || process.env.WAYLAND_DISPLAY);
+}
+
 export function isMac() {
   return process.platform === "darwin";
 }
