@@ -147,7 +147,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
   protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
-  protected readonly phishingDetectionFeatureEnabled$: Observable<boolean>;
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
