@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "למידע נוסף"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "יכולת זו לא זמינה"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 ג'יגה של מקום אחסון מוצפן עבור קבצים מצורפים."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "אפשרויות כניסה דו־שלבית קנייניות כגון YubiKey ו־Duo."
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "אירעה שגיאה בעת אפשור שילוב דפדפן."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "למרבה הצער שילוב דפדפן נתמך רק בגרסת Mac App Store לעת עתה."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "למרבה הצער שילוב דפדפן אינו נתמך כרגע בגרסת ה־Microsoft Store."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "פרטי איש קשר"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "כל הסֵנְדים",
@@ -2994,7 +3022,8 @@
     "message": "האם אתה בטוח שברצונך להשתמש באפשרות \"לעולם לא\"? הגדרת אפשרויות הנעילה שלך ל\"לעולם לא\" מאחסנת את מפתח ההצפנה של הכספת שלך במכשיר שלך. אם אתה משתמש באפשרות זו עליך לוודא שאתה שומר על המכשיר שלך מוגן כראוי."
   },
   "vault": {
-    "message": "כספת"
+    "message": "כספת",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "כניסה עם סיסמה ראשית"
@@ -4198,27 +4227,33 @@
     "message": "מספר כרטיס"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "שדרג עכשיו"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "מאמת מובנה"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "אחסון קבצים מאובטח"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "גישת חירום"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "ניטור פרצות"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "ועוד!"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "השלם אבטחה מקוונת"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "שדרג לפרימיום"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "פעולת פסק זמן"
+  },
+  "sessionTimeoutHeader": {
+    "message": "פסק זמן להפעלה"
   }
 }

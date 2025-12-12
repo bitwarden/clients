@@ -25,18 +25,16 @@ export class AutoConfirmNudgeService extends DefaultSingleNudgeService {
           };
         }
 
-        const dismissed = autoConfirmState.showBrowserNotification === false;
-
-        const status: NudgeStatus = {
-          hasBadgeDismissed: dismissed,
-          hasSpotlightDismissed: dismissed,
-        };
-
         if (nudgeStatus.hasBadgeDismissed || nudgeStatus.hasSpotlightDismissed) {
           return nudgeStatus;
         }
 
-        return status;
+        const dismissed = autoConfirmState.showBrowserNotification === false;
+
+        return {
+          hasBadgeDismissed: dismissed,
+          hasSpotlightDismissed: dismissed,
+        };
       }),
     );
   }

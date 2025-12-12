@@ -63,6 +63,7 @@ import { UpdateProfileRequest } from "../auth/models/request/update-profile.requ
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
@@ -165,7 +166,10 @@ export class ApiService implements ApiServiceAbstraction {
       | SsoTokenRequest
       | WebAuthnLoginTokenRequest,
   ): Promise<
-    IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
+    | IdentityTokenResponse
+    | IdentityTwoFactorResponse
+    | IdentityDeviceVerificationResponse
+    | IdentitySsoRequiredResponse
   > {
     const headers = new Headers({
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
@@ -212,6 +216,8 @@ export class ApiService implements ApiServiceAbstraction {
         responseJson?.ErrorModel?.Message === ApiService.NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE
       ) {
         return new IdentityDeviceVerificationResponse(responseJson);
+      } else if (response.status === 400 && responseJson?.SsoOrganizationIdentifier) {
+        return new IdentitySsoRequiredResponse(responseJson);
       }
     }
 
@@ -1325,6 +1331,11 @@ export class ApiService implements ApiServiceAbstraction {
       "Bitwarden-Client-Version",
       await this.platformUtilsService.getApplicationVersionNumber(),
     );
+
+    const packageType = await this.platformUtilsService.packageType();
+    if (packageType != null) {
+      request.headers.set("Bitwarden-Package-Type", packageType);
+    }
     return this.nativeFetch(request);
   }
 
@@ -1588,8 +1599,16 @@ export class ApiService implements ApiServiceAbstraction {
     );
     apiUrl = Utils.isNullOrWhitespace(apiUrl) ? env.getApiUrl() : apiUrl;
 
-    // Prevent directory traversal from malicious paths
     const pathParts = path.split("?");
+    // Check for path traversal patterns from any URL.
+    const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+
+    const isInvalidUrl = Utils.invalidUrlPatterns(fullUrlPath);
+    if (isInvalidUrl) {
+      throw new Error("The request URL contains dangerous patterns.");
+    }
+
+    // Prevent directory traversal from malicious paths
     const requestUrl =
       apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
 

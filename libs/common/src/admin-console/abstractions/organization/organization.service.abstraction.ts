@@ -41,6 +41,18 @@ export function canAccessBillingTab(org: Organization): boolean {
   return org.isOwner;
 }
 
+/**
+ * Access Intelligence is only available to:
+ * - Enterprise organizations
+ * - Users in those organizations with report access
+ *
+ * @param org The organization to verify access
+ * @returns If true can access the Access Intelligence feature
+ */
+export function canAccessAccessIntelligence(org: Organization): boolean {
+  return org.canUseAccessIntelligence && org.canAccessReports;
+}
+
 export function canAccessOrgAdmin(org: Organization): boolean {
   // Admin console can only be accessed by Owners for disabled organizations
   if (!org.enabled && !org.isOwner) {
@@ -56,25 +68,15 @@ export function canAccessOrgAdmin(org: Organization): boolean {
   );
 }
 
-export function canAccessAutoConfirm(
+export function canAccessEmergencyAccess(
   userId: UserId,
   configService: ConfigService,
   policyService: PolicyService,
 ) {
   return combineLatest([
     configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
-    policyService.policiesByType$(PolicyType.AutoConfirm, userId),
-  ]).pipe(map(([enabled, policies]) => enabled && policies.some((p) => p.enabled)));
-}
-
-export function canAccessEmergencyAccess(
-  userId: UserId,
-  configService: ConfigService,
-  policyService: PolicyService,
-) {
-  return canAccessAutoConfirm(userId, configService, policyService).pipe(
-    map((canAccess) => !canAccess),
-  );
+    policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
+  ]).pipe(map(([enabled, policyAppliesToUser]) => !(enabled && policyAppliesToUser)));
 }
 
 /**

@@ -98,6 +98,7 @@ export class Organization {
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
+  usePhishingBlocker: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -162,6 +163,7 @@ export class Organization {
     this.isAdminInitiated = obj.isAdminInitiated;
     this.ssoEnabled = obj.ssoEnabled;
     this.ssoMemberDecryptionType = obj.ssoMemberDecryptionType;
+    this.usePhishingBlocker = obj.usePhishingBlocker;
   }
 
   get canAccess() {
@@ -310,6 +312,14 @@ export class Organization {
     return this.isAdmin || this.permissions.manageResetPassword;
   }
 
+  get canEnableAutoConfirmPolicy() {
+    return (
+      (this.canManageUsers || this.canManagePolicies) &&
+      this.useAutomaticUserConfirmation &&
+      !this.isProviderUser
+    );
+  }
+
   get canManageDeviceApprovals() {
     return (
       (this.isAdmin || this.permissions.manageResetPassword) &&
@@ -371,8 +381,11 @@ export class Organization {
     return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== null;
   }
 
+  /**
+   * Do not call this function to perform business logic, consider using the function in @link AutomaticUserConfirmationService instead.
+   **/
   get canManageAutoConfirm() {
-    return this.canManageUsers && this.useAutomaticUserConfirmation;
+    return this.isMember && this.canManageUsers && this.useAutomaticUserConfirmation;
   }
 
   static fromJSON(json: Jsonify<Organization>) {
@@ -395,5 +408,9 @@ export class Organization {
         this.permissions.manageGroups ||
         this.permissions.accessEventLogs)
     );
+  }
+
+  get canUseAccessIntelligence() {
+    return this.productTierType === ProductTierType.Enterprise;
   }
 }

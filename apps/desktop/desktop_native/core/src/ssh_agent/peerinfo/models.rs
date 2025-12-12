@@ -1,9 +1,10 @@
 use std::sync::{atomic::AtomicBool, Arc, Mutex};
 
 /**
-* Peerinfo represents the information of a peer process connecting over a socket.
-* This can be later extended to include more information (icon, app name) for the corresponding application.
-*/
+ * Peerinfo represents the information of a peer process connecting over a socket.
+ * This can be later extended to include more information (icon, app name) for the corresponding
+ * application.
+ */
 #[derive(Debug, Clone)]
 pub struct PeerInfo {
     uid: u32,

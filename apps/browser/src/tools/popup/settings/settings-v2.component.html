@@ -1,4 +1,19 @@
 <popup-page>
+  <bit-spotlight *ngIf="!(hasPremium$ | async)" persistent>
+    <span class="tw-text-xs"
+      >{{ "unlockFeaturesWithPremium" | i18n }}
+      <button
+        bitLink
+        buttonType="primary"
+        class="tw-text-xs"
+        type="button"
+        (click)="openUpgradeDialog()"
+        [title]="'upgradeNow' | i18n"
+      >
+        {{ "upgradeNow" | i18n }}
+      </button>
+    </span>
+  </bit-spotlight>
   <popup-header slot="header" pageTitle="{{ 'settings' | i18n }}">
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
@@ -20,7 +35,7 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "autofill" | i18n }}</p>
           <span
-            *ngIf="!isBrowserAutofillSettingOverridden && (showAutofillBadge$ | async)"
+            *ngIf="!(isBrowserAutofillSettingOverridden$ | async) && (showAutofillBadge$ | async)"
             bitBadge
             variant="notification"
             [attr.aria-label]="'nudgeBadgeAria' | i18n"
@@ -70,7 +85,7 @@
       </a>
     </bit-item>
 
-    @if (!!showAdminSettingsLink$ && showAdminSettingsLink$ | async) {
+    @if (showAdminSettingsLink$ | async) {
       <bit-item>
         <a bit-item-content routerLink="/admin">
           <i slot="start" class="bwi bwi-business" aria-hidden="true"></i>

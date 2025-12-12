@@ -8,6 +8,8 @@
   }
 
   const script = globalContext.document.createElement("script");
+  // We're removing stack trace information in the page script instead
+  // eslint-disable-next-line @bitwarden/platform/no-page-script-url-leakage
   script.src = chrome.runtime.getURL("content/fido2-page-script.js");
   script.async = false;
 

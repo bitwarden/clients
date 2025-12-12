@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Läs mer"
   },
+  "migrationsFailed": {
+    "message": "Ett fel inträffade när krypteringsinställningarna skulle uppdateras."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Uppdatera dina krypteringsinställningar"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "De nya rekommenderade krypteringsinställningarna kommer att förbättra säkerheten för ditt konto. Ange ditt huvudlösenord för att uppdatera nu."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bekräfta din identitet för att fortsätta"
+  },
+  "enterYourMasterPassword": {
+    "message": "Ange ditt huvudlösenord"
+  },
+  "updateSettings": {
+    "message": "Uppdatera inställningar"
+  },
   "featureUnavailable": {
     "message": "Funktion ej tillgänglig"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB krypterad lagring."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ krypterad lagring för filbilagor.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Premium-alternativ för tvåstegsverifiering, såsom YubiKey och Duo."
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Ett fel uppstod vid aktivering av webbläsarintegration."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Tyvärr stöds webbläsarintegration för tillfället endast i versionen från Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Tyvärr stöds webbläsarintegration för tillfället inte i versionen från Windows Store."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Kontaktinformation"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Alla Sends",
@@ -2994,7 +3022,8 @@
     "message": "Är du säker på att du vill använda alternativet ”Aldrig”? Att ställa in låsnings-alternativet till ”Aldrig” lagrar valvets krypteringsnyckel på datorn. Om du använder det här alternativet bör du se till att du håller datorn ordentligt skyddad."
   },
   "vault": {
-    "message": "Valv"
+    "message": "Valv",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Logga in med huvudlösenord"
@@ -4220,5 +4249,11 @@
   },
   "upgradeToPremium": {
     "message": "Uppgradera till Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Tidsgränsåtgärd"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessionstidsgräns"
   }
 }

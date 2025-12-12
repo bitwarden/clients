@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Meer informatie"
   },
+  "migrationsFailed": {
+    "message": "Er is een fout opgetreden bij het bijwerken van de versleutelingsinstellingen."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Je versleutelingsinstellingen bijwerken"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "De nieuwe aanbevolen versleutelingsinstellingen verbeteren de beveiliging van je account. Voer je hoofdwachtwoord in om nu bij te werken."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bevestig je identiteit om door te gaan"
+  },
+  "enterYourMasterPassword": {
+    "message": "Voer je hoofdwachtwoord in"
+  },
+  "updateSettings": {
+    "message": "Instellingen bijwerken"
+  },
   "featureUnavailable": {
     "message": "Functionaliteit niet beschikbaar"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB versleutelde opslag voor bijlagen."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ versleutelde opslag voor bijlagen.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Eigen opties voor tweestapsaanmelding zoals YubiKey en Duo."
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Er is iets misgegaan bij het tijdens het inschakelen van de browserintegratie."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Helaas wordt browserintegratie momenteel alleen ondersteund in de Mac App Store-versie."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Helaas wordt browserintegratie momenteel niet ondersteund in de Windows Store-versie."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Contact informatie"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Alle Sends",
@@ -2994,7 +3022,8 @@
     "message": "Weet je zeker dat je de optie \"Nooit\" wilt gebruiken? De vergrendelingsoptie \"Nooit\" bewaart de sleutel van je kluis op je apparaat. Als je deze optie gebruikt, moet je ervoor zorgen dat je je apparaat naar behoren beschermt."
   },
   "vault": {
-    "message": "Kluis"
+    "message": "Kluis",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Inloggen met je hoofdwachtwoord"
@@ -3634,7 +3663,7 @@
     "message": "Import directly from browser"
   },
   "browserProfile": {
-    "message": "Browser Profile"
+    "message": "Browserprofiel"
   },
   "seeDetailedInstructions": {
     "message": "Zie gedetailleerde instructies op onze helpsite op",
@@ -4220,5 +4249,11 @@
   },
   "upgradeToPremium": {
     "message": "Opwaarderen naar Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Time-out actie"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessietime-out"
   }
 }

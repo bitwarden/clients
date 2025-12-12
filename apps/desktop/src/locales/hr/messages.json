@@ -1093,6 +1093,24 @@
   "learnMore": {
     "message": "Saznaj više"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "Značajka nije dostupna"
   },
@@ -1489,6 +1507,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB šifriranog prostora za pohranu podataka."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Mogućnosti za prijavu u dva koraka kao što su YubiKey i Duo."
@@ -2150,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Pogreška prillikom integracije s preglednikom."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Nažalost, za sada je integracija s preglednikom podržana samo u Mac App Store verziji aplikacije."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Nažalost, integracija s preglednikom trenutno nije podržana u Windows Store verziji aplikacije."
   },
@@ -2230,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "Kontaktne informacije"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Svi Sendovi",
@@ -2994,7 +3022,8 @@
     "message": "Sigurno želiš koristiti opciju „Nikada”? Postavljanje opcija zaključavanja na „Nikada” pohranjuje šifru tvojeg trezora na tvom uređaju. Ako koristiš ovu opciju, trebalo bi osigurati da je uređaj pravilno zaštićen."
   },
   "vault": {
-    "message": "Trezor"
+    "message": "Trezor",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Prijava glavnom lozinkom"
@@ -4220,5 +4249,11 @@
   },
   "upgradeToPremium": {
     "message": " Nadogradi na Premium"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Radnja nakon isteka"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Istek sesije"
   }
 }

@@ -4,8 +4,8 @@ import { provideRouter, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 
 import { LoginStrategyServiceAbstraction } from "../../common";
 
