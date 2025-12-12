@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, switchMap, map } from "rxjs";
+import { lastValueFrom, firstValueFrom, switchMap, map, Observable } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -7,6 +7,7 @@ import {
   OrganizationUserConfirmRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   OrganizationUserType,
   OrganizationUserStatusType,
@@ -19,10 +20,15 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
+import { UserConfirmComponent } from "../../../manage/user-confirm.component";
 
 export const REQUESTS_PER_BATCH = 500;
 
@@ -34,6 +40,23 @@ export interface MemberActionResult {
 export interface BulkActionResult {
   successful?: ListResponse<OrganizationUserBulkResponse>;
   failed: { id: string; error: string }[];
+}
+
+/**
+ * Interface for user objects that can be confirmed (Organization or Provider users)
+ */
+export interface ConfirmableUser {
+  id: string;
+  userId: string;
+  name?: string;
+  email: string;
+}
+
+/**
+ * Interface for services that provide organization management preferences
+ */
+export interface OrganizationManagementPreferences {
+  autoConfirmFingerPrints: { state$: Observable<boolean> };
 }
 
 @Injectable()
@@ -48,6 +71,10 @@ export class MemberActionsService {
     private configService: ConfigService,
     private accountService: AccountService,
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
+    private apiService: ApiService,
+    private dialogService: DialogService,
+    private i18nService: I18nService,
+    private logService: LogService,
   ) {}
 
   async inviteUser(
@@ -273,5 +300,59 @@ export class MemberActionsService {
       successful,
       failed: allFailed,
     };
+  }
+
+  /**
+   * Shared user confirmation workflow that handles the common logic for confirming users.
+   * This method orchestrates the public key retrieval, fingerprint display, and confirmation dialog.
+   *
+   * @param user - The user to confirm (must implement ConfirmableUser interface)
+   * @param userNamePipe - Pipe to transform user names for display
+   * @param orgManagementPrefs - Service providing organization management preferences
+   * @param confirmCallback - Async callback that performs the actual confirmation with the public key
+   * @returns Promise that resolves when confirmation workflow completes
+   */
+  async confirmUserWorkflow<T extends ConfirmableUser>(
+    user: T,
+    userNamePipe: { transform: (user: T) => string },
+    orgManagementPrefs: OrganizationManagementPreferences,
+    confirmCallback: (publicKey: Uint8Array) => Promise<void>,
+  ): Promise<void> {
+    try {
+      const publicKeyResponse = await this.apiService.getUserPublicKey(user.userId);
+      const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
+
+      const autoConfirmFingerPrint = await firstValueFrom(
+        orgManagementPrefs.autoConfirmFingerPrints.state$,
+      );
+
+      if (user == null) {
+        throw new Error("Cannot confirm null user.");
+      }
+
+      if (autoConfirmFingerPrint == null || !autoConfirmFingerPrint) {
+        const dialogRef = UserConfirmComponent.open(this.dialogService, {
+          data: {
+            name: userNamePipe.transform(user),
+            userId: user.userId,
+            publicKey: publicKey,
+            confirmUser: () => confirmCallback(publicKey),
+          },
+        });
+        await lastValueFrom(dialogRef.closed);
+
+        return;
+      }
+
+      try {
+        const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
+        this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
+      } catch (e) {
+        this.logService.error(e);
+      }
+      await confirmCallback(publicKey);
+    } catch (e) {
+      this.logService.error(`Handled exception: ${e}`);
+    }
   }
 }
