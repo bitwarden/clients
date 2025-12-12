@@ -301,7 +301,11 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       NotificationTypes.AtRiskPassword,
     ] as NotificationType[]);
 
-    if (closedByUserAction && removableNotificationTypes.has(this.currentNotificationBarType)) {
+    if (
+      closedByUserAction &&
+      this.currentNotificationBarType &&
+      removableNotificationTypes.has(this.currentNotificationBarType)
+    ) {
       void sendExtensionMessage("bgRemoveTabFromNotificationQueue");
     }
 
