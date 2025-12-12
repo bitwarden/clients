@@ -64,7 +64,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     "url",
     "date",
     "time",
-    "datetime",
+    "datetime", // Note: datetime is deprecated in HTML5; keeping here for backwards compatibility
     "datetime-local",
     "week",
     "color",
