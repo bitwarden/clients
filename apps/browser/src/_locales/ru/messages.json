@@ -1457,6 +1457,15 @@
   "attachmentSaved": {
     "message": "Вложение сохранено."
   },
+  "fixEncryption": {
+    "message": "Исправить шифрование"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Этот файл использует устаревший метод шифрования."
+  },
+  "attachmentUpdated": {
+    "message": "Вложение обновлено"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1465,6 +1474,9 @@
   },
   "selectFile": {
     "message": "Выбрать файл"
+  },
+  "itemsTransferred": {
+    "message": "Элементы переданы"
   },
   "maxFileSize": {
     "message": "Максимальный размер файла 500 МБ."
@@ -3239,9 +3251,6 @@
   },
   "copyCustomFieldNameNotUnique": {
     "message": "Уникальный идентификатор не найден."
-  },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Мастер-пароль больше не требуется для членов следующей организации. Пожалуйста, подтвердите указанный ниже домен у администратора вашей организации."
   },
   "organizationName": {
     "message": "Название организации"
@@ -5848,8 +5857,8 @@
   "andMoreFeatures": {
     "message": "И многое другое!"
   },
-  "planDescPremium": {
-    "message": "Полная онлайн-защищенность"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "upgradeToPremium": {
     "message": "Обновить до Премиум"
@@ -5879,7 +5888,141 @@
   "cardNumberLabel": {
     "message": "Номер карты"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Ваша организация больше не использует мастер-пароли для входа в Bitwarden. Чтобы продолжить, подтвердите организацию и домен."
+  },
+  "continueWithLogIn": {
+    "message": "Продолжить с логином"
+  },
+  "doNotContinue": {
+    "message": "Не продолжать"
+  },
+  "domain": {
+    "message": "Домен"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "В этом домене будут храниться ключи шифрования вашего аккаунта, поэтому убедитесь, что вы ему доверяете. Если вы не уверены, обратитесь к своему администратору."
+  },
+  "verifyYourOrganization": {
+    "message": "Подтвердите свою организацию для входа"
+  },
+  "organizationVerified": {
+    "message": "Организация подтверждена"
+  },
+  "domainVerified": {
+    "message": "Домен верифицирован"
+  },
+  "leaveOrganizationContent": {
+    "message": "Если вы не подтвердите свою организацию, ваш доступ к ней будет аннулирован."
+  },
+  "leaveNow": {
+    "message": "Покинуть"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Подтвердите свой домен для входа"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Чтобы продолжить с логином, подтвердите этот домен."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Чтобы продолжить с логином, подтвердите организацию и домен."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Тайм-аут действия"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Эта настройка управляется вашей организацией."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "В вашей организации максимальный тайм-аут сеанса установлен равным $HOURS$ час. и $MINUTES$ мин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Your organization has set the default session timeout to Immediately."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Перейти"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Вы уверены, что хотите покинуть?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "В случае отказа ваши личные данные останутся в вашем аккаунте, но вы потеряете доступ к общим элементам и возможностям организации."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Свяжитесь с вашим администратором для восстановления доступа."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Покинуть $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Как я могу управлять своим хранилищем?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Перенести элементы в $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Принять передачу"
+  },
+  "declineAndLeave": {
+    "message": "Отклонить и покинуть"
+  },
+  "whyAmISeeingThis": {
+    "message": "Почему я это вижу?"
   }
 }
