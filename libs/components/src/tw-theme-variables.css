@@ -128,8 +128,8 @@
   --color-text-alt2: 255 255 255;
   --color-text-code: 255 143 208;
 
-  --color-hover-default: rgb(170 195 239 / 0.1);
-  --color-hover-contrast: rgb(0 0 0 / 0.15);
+  --color-hover-default: rgb(0 0 0 / 0.15);
+  --color-hover-contrast: rgb(170 195 239 / 0.1);
 
   --color-marketing-logo: 255 255 255;
   --color-bw-blue: 23 93 220;
