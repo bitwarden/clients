@@ -69,10 +69,12 @@ describe("keyService", () => {
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     accountService = mockAccountServiceWith(mockUserId);
     masterPasswordService = new FakeMasterPasswordService();
     stateProvider = new FakeStateProvider(accountService);
+
+    await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
 
     keyService = new DefaultKeyService(
       masterPasswordService,
