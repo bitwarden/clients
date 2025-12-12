@@ -14,10 +14,14 @@ export abstract class PhishingDetectionSettingsServiceAbstraction {
    * - the user has a personal premium subscription
    * - the user is a member of a Family org (ProductTierType.Families)
    * - the user is a member of an Enterprise org with `usePhishingBlocker` enabled
+   *
+   * Note: Non-specified organization types (e.g., Team orgs) do not grant access.
    */
   abstract readonly available$: Observable<boolean>;
   /**
-   * An observable for whether phishing detection is available and enabled for the active user account
+   * An observable for whether phishing detection is on for the active user account
+   *
+   * This is true when {@link available$} is true and when {@link enabled$} is true
    */
   abstract readonly on$: Observable<boolean>;
   /**
