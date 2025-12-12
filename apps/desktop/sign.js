@@ -18,5 +18,24 @@ exports.default = async function (configuration) {
         stdio: "inherit",
       },
     );
+  } else if (process.env.ELECTRON_BUILDER_SIGN_CERT) {
+    const certFile = process.env.ELECTRON_BUILDER_SIGN_CERT;
+    const certPw = process.env.ELECTRON_BUILDER_SIGN_CERT_PW;
+    console.log(`[*] Signing file: ${configuration.path} with ${certFile}`);
+    if (process.platform === "win32") {
+      require("child_process").execSync(
+        "signtool.exe sign" +
+          " /fd SHA256" +
+          " /a" +
+          ` /f "${certFile}"` +
+          ` /p "${certPw}"` +
+          ` "${configuration.path}"`,
+        {
+          stdio: "inherit",
+        },
+      );
+    } else {
+      console.warn("Signing Windows executables on non-Windows platforms is not supported.");
+    }
   }
 };
