@@ -29,7 +29,7 @@ body {
   font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
   color: rgb(var(--color-text-main));
-  background-color: rgb(var(--color-background-alt2));
+  background-color: rgb(var(--color-background));
 }
 
 body * {
@@ -173,8 +173,8 @@ body * {
   will-change: transform;
   border-bottom: 0.1rem solid;
   color: rgb(var(--color-text-main));
-  background-color: rgb(var(--color-background-alt2));
-  border-bottom-color: rgb(var(--color-background-alt2));
+  background-color: rgb(var(--color-background));
+  border-bottom-color: rgb(var(--color-background));
 }
 
 .inline-menu-list-heading--bordered {
