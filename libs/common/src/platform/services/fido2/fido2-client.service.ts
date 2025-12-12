@@ -47,9 +47,9 @@ import { guidToRawFormat } from "./guid-utils";
  *
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
-export class Fido2ClientService<ParentWindowReference>
-  implements Fido2ClientServiceAbstraction<ParentWindowReference>
-{
+export class Fido2ClientService<
+  ParentWindowReference,
+> implements Fido2ClientServiceAbstraction<ParentWindowReference> {
   private timeoutAbortController: AbortController;
   private readonly TIMEOUTS = {
     NO_VERIFICATION: {
