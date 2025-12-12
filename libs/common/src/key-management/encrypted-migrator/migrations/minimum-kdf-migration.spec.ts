@@ -58,7 +58,7 @@ describe("MinimumKdfMigration", () => {
     it("should return 'noMigrationNeeded' when PBKDF2 iterations are already above minimum", async () => {
       const mockKdfConfig = {
         kdfType: KdfType.PBKDF2_SHA256,
-        iterations: PBKDF2KdfConfig.ITERATIONS.min + 1000,
+        iterations: 600000 + 1000,
       };
       mockKdfConfigService.getKdfConfig.mockResolvedValue(mockKdfConfig as any);
 
