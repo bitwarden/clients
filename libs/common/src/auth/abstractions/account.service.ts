@@ -2,11 +2,20 @@ import { Observable } from "rxjs";
 
 import { UserId } from "../../types/guid";
 
+/**
+ * Holds state that represents a user's account with Bitwarden.
+ *
+ * @property email - User's email address
+ * @property emailVerified - Whether the email has been verified
+ * @property name - User's display name (optional)
+ * @property creationDate - ISO 8601 string of when the account was created.
+ *   Will be undefined immediately after login until the first sync completes.
+ */
 export type AccountInfo = {
   email: string;
   emailVerified: boolean;
   name: string | undefined;
-  creationDate: string | undefined;
+  creationDate: Date | undefined;
 };
 
 export type Account = { id: UserId } & AccountInfo;
@@ -77,7 +86,7 @@ export abstract class AccountService {
    * @param userId
    * @param creationDate
    */
-  abstract setAccountCreationDate(userId: UserId, creationDate: string): Promise<void>;
+  abstract setAccountCreationDate(userId: UserId, creationDate: Date): Promise<void>;
   /**
    * updates the `accounts$` observable with the new VerifyNewDeviceLogin property for the account.
    * @param userId

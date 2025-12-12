@@ -37,7 +37,10 @@ export const ACCOUNT_ACCOUNTS = KeyDefinition.record<AccountInfo, UserId>(
   ACCOUNT_DISK,
   "accounts",
   {
-    deserializer: (accountInfo) => accountInfo,
+    deserializer: (accountInfo) => ({
+      ...accountInfo,
+      creationDate: accountInfo.creationDate ? new Date(accountInfo.creationDate) : undefined,
+    }),
   },
 );
 
@@ -168,7 +171,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     await this.setAccountInfo(userId, { emailVerified });
   }
 
-  async setAccountCreationDate(userId: UserId, creationDate: string): Promise<void> {
+  async setAccountCreationDate(userId: UserId, creationDate: Date): Promise<void> {
     await this.setAccountInfo(userId, { creationDate });
   }
 
