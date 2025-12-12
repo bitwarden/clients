@@ -4,6 +4,7 @@ import { Component } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { DeleteRecoverRequest } from "@bitwarden/common/models/request/delete-recover.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,6 +25,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [
     ReactiveFormsModule,
     RouterLink,
+    JslibModule,
     AsyncActionsModule,
     ButtonModule,
     FormFieldModule,
