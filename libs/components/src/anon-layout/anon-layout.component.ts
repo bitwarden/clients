@@ -11,18 +11,14 @@ import {
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import {
-  BackgroundLeftIllustration,
-  BackgroundRightIllustration,
-  BitwardenLogo,
-  Icon,
-} from "@bitwarden/assets/svg";
+import { BitwardenLogo, Icon } from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { BaseCardComponent } from "../card";
 import { IconModule } from "../icon";
+import { LandingLayoutModule } from "../landing-layout/landing-layout.module";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
@@ -40,6 +36,7 @@ export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
     SharedModule,
     RouterModule,
     BaseCardComponent,
+    LandingLayoutModule,
   ],
 })
 export class AnonLayoutComponent implements OnInit, OnChanges {
@@ -48,9 +45,6 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     // AnonLayout should take up full height of parent container for proper footer placement.
     return ["tw-h-full"];
   }
-
-  readonly leftIllustration = BackgroundLeftIllustration;
-  readonly rightIllustration = BackgroundRightIllustration;
 
   readonly title = input<string>();
   readonly subtitle = input<string>();
