@@ -269,54 +269,20 @@ describe("filePickerPopoutGuard", () => {
       inSidebarSpy.mockReturnValue(false);
     });
 
-    it("should open popout for /import route", async () => {
+    it.each([
+      { route: "/import" },
+      { route: "/add-send" },
+      { route: "/edit-send" },
+      { route: "/attachments" },
+    ])("should open popout for $route route", async ({ route }) => {
       const importState: RouterStateSnapshot = {
-        url: "/import",
+        url: route,
       } as RouterStateSnapshot;
 
       const guard = filePickerPopoutGuard();
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/import");
-      expect(closePopupSpy).toHaveBeenCalledWith(window);
-      expect(result).toBe(false);
-    });
-
-    it("should open popout for /add-send route", async () => {
-      const addSendState: RouterStateSnapshot = {
-        url: "/add-send",
-      } as RouterStateSnapshot;
-
-      const guard = filePickerPopoutGuard();
-      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, addSendState));
-
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send");
-      expect(closePopupSpy).toHaveBeenCalledWith(window);
-      expect(result).toBe(false);
-    });
-
-    it("should open popout for /edit-send route", async () => {
-      const editSendState: RouterStateSnapshot = {
-        url: "/edit-send",
-      } as RouterStateSnapshot;
-
-      const guard = filePickerPopoutGuard();
-      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, editSendState));
-
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/edit-send");
-      expect(closePopupSpy).toHaveBeenCalledWith(window);
-      expect(result).toBe(false);
-    });
-
-    it("should open popout for /attachments route", async () => {
-      const attachmentsState: RouterStateSnapshot = {
-        url: "/attachments?cipherId=123",
-      } as RouterStateSnapshot;
-
-      const guard = filePickerPopoutGuard();
-      const result = await TestBed.runInInjectionContext(() => guard(mockRoute, attachmentsState));
-
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/attachments?cipherId=123");
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#" + route);
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
