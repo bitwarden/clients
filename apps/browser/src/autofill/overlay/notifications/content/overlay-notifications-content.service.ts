@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -83,6 +81,10 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       return;
     }
     const { type, typeData, params } = message.data;
+
+    if (!typeData) {
+      return;
+    }
 
     if (this.currentNotificationBarType && type !== this.currentNotificationBarType) {
       this.closeNotificationBar();
