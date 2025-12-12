@@ -12,7 +12,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject, switchMap } from "rxjs";
+import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
@@ -222,10 +222,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected collections?: CollectionView[];
 
   /**
-   * Flag to indicate if the user has access to attachments via a premium subscription.
+   * Flag to indicate if the user has a premium subscription. Using for access to attachments, and archives
    * @protected
    */
-  protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
+  protected userHasPremium$ = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
     ),
@@ -253,6 +253,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected showRestore: boolean;
 
+  protected cipherIsArchived: boolean;
+
   protected get loadingForm() {
     return this.loadForm && !this.formReady;
   }
@@ -276,6 +278,16 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected get showCipherView() {
     return this.cipher != undefined && (this.params.mode === "view" || this.loadingForm);
+  }
+
+  protected get submitButtonText$(): Observable<string> {
+    return this.userHasPremium$.pipe(
+      map((hasPremium) =>
+        this.cipherIsArchived && !hasPremium
+          ? this.i18nService.t("unArchiveAndSave")
+          : this.i18nService.t("save"),
+      ),
+    );
   }
 
   /**
@@ -363,6 +375,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.filter = await firstValueFrom(this.routedVaultFilterService.filter$);
 
     this.showRestore = await this.canUserRestore();
+    this.cipherIsArchived = this.cipher.isArchived;
     this.performingInitialLoad = false;
   }
 
@@ -391,6 +404,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.collections = this.formConfig.collections.filter((c) =>
       cipherView.collectionIds?.includes(c.id),
     );
+
+    // Track cipher archive state for btn text and badge updates
+    this.cipherIsArchived = this.cipher.isArchived;
 
     // If the cipher was newly created (via add/clone), switch the form to edit for subsequent edits.
     if (this._originalFormMode === "add" || this._originalFormMode === "clone") {
@@ -468,7 +484,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   };
 
   openAttachmentsDialog = async () => {
-    const canAccessAttachments = await firstValueFrom(this.canAccessAttachments$);
+    const canAccessAttachments = await firstValueFrom(this.userHasPremium$);
 
     if (!canAccessAttachments) {
       await this.premiumUpgradeService.promptForPremium(this.cipher?.organizationId);

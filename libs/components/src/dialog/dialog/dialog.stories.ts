@@ -94,6 +94,7 @@ export const Default: Story = {
         <ng-container bitDialogTitle>
           <span bitBadge variant="success">Foobar</span>
         </ng-container>
+
         <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
         <ng-container bitDialogFooter>
           <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
@@ -290,5 +291,44 @@ export const WithCards: Story = {
     subtitle: "Subtitle",
     background: "alt",
     disableAnimations: true,
+  },
+};
+
+export const HeaderEnd: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-dialog
+        [dialogSize]="dialogSize"
+        [title]="title"
+        [subtitle]="subtitle"
+        [loading]="loading"
+        [disablePadding]="disablePadding"
+        [disableAnimations]="disableAnimations">
+
+        <ng-container bitDialogHeaderEnd>
+          <span bitBadge>Archived</span>
+        </ng-container>
+
+        <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
+        <ng-container bitDialogFooter>
+          <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
+          <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
+          <button
+            type="button"
+            [disabled]="loading"
+            class="tw-ms-auto"
+            bitIconButton="bwi-trash"
+            buttonType="danger"
+            size="default"
+            label="Delete"></button>
+        </ng-container>
+      </bit-dialog>
+    `,
+  }),
+  args: {
+    dialogSize: "small",
+    title: "Very Long Title That Should Be Truncated After Two Lines To Test Header End Slot",
+    subtitle: "Subtitle",
   },
 };
