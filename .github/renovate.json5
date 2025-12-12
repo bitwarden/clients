@@ -183,6 +183,7 @@
         "html-webpack-injector",
         "html-webpack-plugin",
         "interprocess",
+        "itertools",
         "json5",
         "keytar",
         "libc",
