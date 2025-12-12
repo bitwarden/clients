@@ -154,7 +154,6 @@
         "@types/glob",
         "@types/lowdb",
         "@types/node",
-        "@types/node-forge",
         "@types/node-ipc",
         "@yao-pkg/pkg",
         "anyhow",
@@ -192,7 +191,6 @@
         "napi",
         "napi-build",
         "napi-derive",
-        "node-forge",
         "node-ipc",
         "nx",
         "oo7",
@@ -415,9 +413,11 @@
     },
     {
       matchPackageNames: [
+        "@types/node-forge",
         "aes",
         "big-integer",
         "cbc",
+        "node-forge",
         "rsa",
         "russh-cryptovec",
         "sha2",
