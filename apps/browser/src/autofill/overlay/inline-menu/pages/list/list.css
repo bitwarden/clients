@@ -1,3 +1,5 @@
+@import "../../../../../../../../libs/components/src/tw-theme-variables.css";
+
 * {
   box-sizing: border-box;
 }
@@ -18,16 +20,8 @@ body {
   margin: 0;
   font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
-}
-
-.theme_light body {
-  color: #212529;
-  background-color: #ffffff;
-}
-
-.theme_dark body {
-  color: #ffffff;
-  background-color: #2f343d;
+  color: rgb(var(--color-text-main));
+  background-color: rgb(var(--color-background));
 }
 
 body * {
@@ -39,14 +33,7 @@ body * {
   line-height: 1.5;
   width: 100%;
   padding: 0.8rem;
-}
-
-.theme_light .inline-menu-list-message {
-  color: #212529;
-}
-
-.theme_dark .inline-menu-list-message {
-  color: #ffffff;
+  color: rgb(var(--color-text-main));
 }
 
 .inline-menu-list-message.no-items,
@@ -58,16 +45,7 @@ body * {
 .inline-menu-list-message.save-login:has(:focus-visible) {
   outline-width: 0.2rem;
   outline-style: solid;
-}
-
-.theme_light .inline-menu-list-message.no-items:has(:focus-visible),
-.theme_light .inline-menu-list-message.save-login:has(:focus-visible) {
-  outline-color: #1252a3;
-}
-
-.theme_dark .inline-menu-list-message.no-items:has(:focus-visible),
-.theme_dark .inline-menu-list-message.save-login:has(:focus-visible) {
-  outline-color: #5c9fee;
+  outline-color: rgb(var(--color-primary-700));
 }
 
 .inline-menu-list-button-container {
@@ -76,24 +54,12 @@ body * {
   transition: background-color 0.2s ease-in-out;
   border-top-width: 0.1rem;
   border-top-style: solid;
+  background: rgb(var(--color-background));
+  border-top-color: rgb(var(--color-secondary-300));
 }
 
-.theme_light .inline-menu-list-button-container {
-  background: #ffffff;
-  border-top-color: #ced4dc;
-}
-
-.theme_dark .inline-menu-list-button-container {
-  background: #2f343d;
-  border-top-color: #4c525f;
-}
-
-.theme_light .inline-menu-list-button-container:hover {
-  background: #f0f0f0;
-}
-
-.theme_dark .inline-menu-list-button-container:hover {
-  background: #292d35;
+.inline-menu-list-button-container:hover {
+  background: var(--color-hover-default);
 }
 
 .inline-menu-list-button {
@@ -111,27 +77,13 @@ body * {
   margin: 0;
   cursor: pointer;
   border-radius: 0.4rem;
-}
-
-.theme_light .inline-menu-list-button {
-  color: #175ddc;
-}
-
-.theme_dark .inline-menu-list-button {
-  color: #6f9df1;
+  color: rgb(var(--color-primary-600));
 }
 
 .inline-menu-list-button:focus:focus-visible {
   outline-width: 0.2rem;
   outline-style: solid;
-}
-
-.theme_light .inline-menu-list-button:focus:focus-visible {
-  outline-color: #1252a3;
-}
-
-.theme_dark .inline-menu-list-button:focus:focus-visible {
-  outline-color: #5c9fee;
+  outline-color: rgb(var(--color-primary-700));
 }
 
 .inline-menu-list-button svg {
@@ -140,12 +92,8 @@ body * {
   margin-right: 0.8rem;
 }
 
-.theme_light .inline-menu-list-button svg path {
-  fill: #175ddc !important;
-}
-
-.theme_dark .inline-menu-list-button svg path {
-  fill: #6f9df1 !important;
+.inline-menu-list-button svg path {
+  fill: rgb(var(--color-primary-600)) !important;
 }
 
 .unlock-button svg {
@@ -166,20 +114,12 @@ body * {
   max-height: 18rem;
   -ms-overflow-style: none;
   scrollbar-width: thin;
+  scrollbar-color: rgb(var(--color-secondary-300)) rgb(var(--color-background-alt));
+  border-right-color: rgb(var(--color-secondary-300));
 }
 
 .inline-menu-list-actions--scrollbar {
   overflow-y: scroll;
-}
-
-.theme_light .inline-menu-list-actions {
-  scrollbar-color: #ced4da #ededed;
-  border-right-color: #ced4dc;
-}
-
-.theme_dark .inline-menu-list-actions {
-  scrollbar-color: #4c525f #2d323a;
-  border-right-color: #4c525f;
 }
 
 .inline-menu-list-actions::-webkit-scrollbar {
@@ -208,14 +148,7 @@ body * {
 
 .inline-menu-list-actions::-webkit-scrollbar-thumb {
   border-radius: 1rem;
-}
-
-.theme_light .inline-menu-list-actions::-webkit-scrollbar-thumb {
-  background-color: #ced4dc;
-}
-
-.theme_dark .inline-menu-list-actions::-webkit-scrollbar-thumb {
-  background-color: #4c525f;
+  background-color: rgb(var(--color-secondary-300));
 }
 
 .inline-menu-list-heading {
@@ -231,30 +164,14 @@ body * {
   padding: 0.6rem 0.8rem;
   will-change: transform;
   border-bottom: 0.1rem solid;
-}
-
-.theme_light .inline-menu-list-heading {
-  color: #212529;
-  background-color: #ffffff;
-  border-bottom-color: #ffffff;
-}
-
-.theme_dark .inline-menu-list-heading {
-  color: #ffffff;
-  background-color: #2f343d;
-  border-bottom-color: #2f343d;
+  color: rgb(var(--color-text-main));
+  background-color: rgb(var(--color-background));
+  border-bottom-color: rgb(var(--color-background));
 }
 
 .inline-menu-list-heading--bordered {
   transition: border-bottom-color 0.15s ease;
-}
-
-.theme_light .inline-menu-list-heading--bordered {
-  border-bottom-color: #ced4dc;
-}
-
-.theme_dark .inline-menu-list-heading--bordered {
-  border-bottom-color: #4c525f;
+  border-bottom-color: rgb(var(--color-secondary-300));
 }
 
 .inline-menu-list-container--with-new-item-button .inline-menu-list-actions {
@@ -270,22 +187,11 @@ body * {
 .inline-menu-list-actions-item:not(:last-child) {
   border-bottom-width: 0.1rem;
   border-bottom-style: solid;
+  border-bottom-color: rgb(var(--color-secondary-300));
 }
 
-.theme_light .inline-menu-list-actions-item:not(:last-child) {
-  border-bottom-color: #ced4dc;
-}
-
-.theme_dark .inline-menu-list-actions-item:not(:last-child) {
-  border-bottom-color: #4c525f;
-}
-
-.theme_light .inline-menu-list-actions-item:hover {
-  background: #f0f0f0;
-}
-
-.theme_dark .inline-menu-list-actions-item:hover {
-  background: #292d35;
+.inline-menu-list-actions-item:hover {
+  background: var(--color-hover-default);
 }
 
 .inline-menu-list-actions-item .cipher-container {
@@ -300,18 +206,7 @@ body * {
 .inline-menu-list-actions-item .cipher-container:has(:focus-visible):not(.remove-outline) {
   outline-width: 0.2rem;
   outline-style: solid;
-}
-
-.theme_light
-  .inline-menu-list-actions-item
-  .cipher-container:has(:focus-visible):not(.remove-outline) {
-  outline-color: #1252a3;
-}
-
-.theme_dark
-  .inline-menu-list-actions-item
-  .cipher-container:has(:focus-visible):not(.remove-outline) {
-  outline-color: #5c9fee;
+  outline-color: rgb(var(--color-primary-700));
 }
 
 .inline-menu-list-actions-item .fill-cipher-button,
@@ -346,22 +241,11 @@ body * {
 .inline-menu-list-actions-item .view-cipher-button:focus:focus-visible {
   outline-width: 0.2rem;
   outline-style: solid;
+  outline-color: rgb(var(--color-primary-700));
 }
 
-.theme_light .inline-menu-list-actions-item .view-cipher-button:focus:focus-visible {
-  outline-color: #1252a3;
-}
-
-.theme_dark .inline-menu-list-actions-item .view-cipher-button:focus:focus-visible {
-  outline-color: #5c9fee;
-}
-
-.theme_light .inline-menu-list-actions-item .view-cipher-button svg path {
-  fill: #175ddc !important;
-}
-
-.theme_dark .inline-menu-list-actions-item .view-cipher-button svg path {
-  fill: #6f9df1 !important;
+.inline-menu-list-actions-item .view-cipher-button svg path {
+  fill: rgb(var(--color-primary-600)) !important;
 }
 
 .inline-menu-list-actions-item .cipher-icon {
@@ -377,14 +261,7 @@ body * {
   background-size: 2.6rem;
   background-position: center;
   background-repeat: no-repeat;
-}
-
-.theme_light .inline-menu-list-actions-item .cipher-icon {
-  color: #175ddc;
-}
-
-.theme_dark .inline-menu-list-actions-item .cipher-icon {
-  color: #6f9df1;
+  color: rgb(var(--color-primary-600));
 }
 
 .inline-menu-list-actions-item .cipher-icon svg {
@@ -393,12 +270,8 @@ body * {
   flex-shrink: 0;
 }
 
-.theme_light .inline-menu-list-actions-item .cipher-icon svg path {
-  fill: #175ddc !important;
-}
-
-.theme_dark .inline-menu-list-actions-item .cipher-icon svg path {
-  fill: #6f9df1 !important;
+.inline-menu-list-actions-item .cipher-icon svg path {
+  fill: rgb(var(--color-primary-600)) !important;
 }
 
 .inline-menu-list-actions-item .cipher-icon.bwi {
@@ -418,38 +291,19 @@ body * {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  color: rgb(var(--color-text-main));
 }
 
-.theme_light .inline-menu-list-actions-item .totp-sec-span {
-  color: #212529;
+.inline-menu-list-actions-item .totp-sec-span-danger {
+  color: rgb(var(--color-danger-600));
 }
 
-.theme_dark .inline-menu-list-actions-item .totp-sec-span {
-  color: #ffffff;
+.inline-menu-list-actions-item .circle-color {
+  stroke: rgb(var(--color-primary-600));
 }
 
-.theme_light .inline-menu-list-actions-item .totp-sec-span-danger {
-  color: #b80017;
-}
-
-.theme_dark .inline-menu-list-actions-item .totp-sec-span-danger {
-  color: #ff8d85;
-}
-
-.theme_light .inline-menu-list-actions-item .circle-color {
-  stroke: #175ddc;
-}
-
-.theme_dark .inline-menu-list-actions-item .circle-color {
-  stroke: #6f9df1;
-}
-
-.theme_light .inline-menu-list-actions-item .circle-danger-color {
-  stroke: #b80017;
-}
-
-.theme_dark .inline-menu-list-actions-item .circle-danger-color {
-  stroke: #ff8d85;
+.inline-menu-list-actions-item .circle-danger-color {
+  stroke: rgb(var(--color-danger-600));
 }
 
 .inline-menu-list-actions-item .cipher-name,
@@ -467,26 +321,12 @@ body * {
 
 .inline-menu-list-actions-item .cipher-name {
   font-size: 1.6rem;
-}
-
-.theme_light .inline-menu-list-actions-item .cipher-name {
-  color: #212529;
-}
-
-.theme_dark .inline-menu-list-actions-item .cipher-name {
-  color: #ffffff;
+  color: rgb(var(--color-text-main));
 }
 
 .inline-menu-list-actions-item .cipher-subtitle {
   font-size: 1.4rem;
-}
-
-.theme_light .inline-menu-list-actions-item .cipher-subtitle {
-  color: #6c747c;
-}
-
-.theme_dark .inline-menu-list-actions-item .cipher-subtitle {
-  color: #bac0ce;
+  color: rgb(var(--color-text-muted));
 }
 
 .inline-menu-list-actions-item .cipher-subtitle.masked-totp {
@@ -505,22 +345,11 @@ body * {
   width: 1.5rem;
   height: 1.5rem;
   margin-right: 0.2rem;
+  fill: rgb(var(--color-text-muted)) !important;
 }
 
-.theme_light .inline-menu-list-actions-item .cipher-subtitle--passkey svg {
-  fill: #6c747c !important;
-}
-
-.theme_dark .inline-menu-list-actions-item .cipher-subtitle--passkey svg {
-  fill: #bac0ce !important;
-}
-
-.theme_light .inline-menu-list-actions-item .cipher-subtitle--passkey svg path {
-  fill: #6c747c !important;
-}
-
-.theme_dark .inline-menu-list-actions-item .cipher-subtitle--passkey svg path {
-  fill: #bac0ce !important;
+.inline-menu-list-actions-item .cipher-subtitle--passkey svg path {
+  fill: rgb(var(--color-text-muted)) !important;
 }
 
 @keyframes bwi-spin {
@@ -541,14 +370,7 @@ body * {
   padding: 1rem 0.8rem;
   font-size: 1.4rem;
   font-weight: 400;
-}
-
-.theme_light .passkey-authenticating-loader {
-  color: #5a6d91;
-}
-
-.theme_dark .passkey-authenticating-loader {
-  color: #bac0ce;
+  color: rgb(var(--color-secondary-500));
 }
 
 .passkey-authenticating-loader svg {
@@ -556,12 +378,8 @@ body * {
   margin-left: 1rem;
 }
 
-.theme_light .passkey-authenticating-loader svg path {
-  fill: #5a6d91 !important;
-}
-
-.theme_dark .passkey-authenticating-loader svg path {
-  fill: #bac0ce !important;
+.passkey-authenticating-loader svg path {
+  fill: rgb(var(--color-secondary-500)) !important;
 }
 
 /* Password generator styles */
@@ -579,25 +397,14 @@ body * {
   transition: background-color 0.2s ease-in-out;
 }
 
-.theme_light .password-generator-actions:hover {
-  background: #f0f0f0;
-}
-
-.theme_dark .password-generator-actions:hover {
-  background: #292d35;
+.password-generator-actions:hover {
+  background: var(--color-hover-default);
 }
 
 .password-generator-actions:has(:focus-visible):not(.remove-outline) {
   outline-width: 0.2rem;
   outline-style: solid;
-}
-
-.theme_light .password-generator-actions:has(:focus-visible):not(.remove-outline) {
-  outline-color: #1252a3;
-}
-
-.theme_dark .password-generator-actions:has(:focus-visible):not(.remove-outline) {
-  outline-color: #5c9fee;
+  outline-color: rgb(var(--color-primary-700));
 }
 
 .password-generator-actions .inline-menu-list-action {
@@ -606,22 +413,11 @@ body * {
   border: none;
   background-color: transparent;
   cursor: pointer;
+  color: rgb(var(--color-text-main));
 }
 
-.theme_light .password-generator-actions .inline-menu-list-action {
-  color: #212529;
-}
-
-.theme_dark .password-generator-actions .inline-menu-list-action {
-  color: #ffffff;
-}
-
-.theme_light .password-generator-actions .inline-menu-list-action svg path {
-  fill: #175ddc !important;
-}
-
-.theme_dark .password-generator-actions .inline-menu-list-action svg path {
-  fill: #6f9df1 !important;
+.password-generator-actions .inline-menu-list-action svg path {
+  fill: rgb(var(--color-primary-600)) !important;
 }
 
 .password-generator-actions .fill-generated-password-button {
@@ -654,26 +450,15 @@ body * {
 .password-generator-actions .refresh-generated-password-button:focus:focus-visible {
   outline-width: 0.2rem;
   outline-style: solid;
-}
-
-.theme_light .password-generator-actions .refresh-generated-password-button:focus:focus-visible {
-  outline-color: #1252a3;
-}
-
-.theme_dark .password-generator-actions .refresh-generated-password-button:focus:focus-visible {
-  outline-color: #5c9fee;
+  outline-color: rgb(var(--color-primary-700));
 }
 
 .password-generator-actions .refresh-generated-password-button svg {
   margin-top: 0.2rem;
 }
 
-.theme_light .password-generator-actions .refresh-generated-password-button svg path {
-  fill: #175ddc !important;
-}
-
-.theme_dark .password-generator-actions .refresh-generated-password-button svg path {
-  fill: #6f9df1 !important;
+.password-generator-actions .refresh-generated-password-button svg path {
+  fill: rgb(var(--color-primary-600)) !important;
 }
 
 .password-generator-actions .password-generator-content {
@@ -701,18 +486,10 @@ body * {
   width: 100%;
 }
 
-.theme_light .password-generator-actions .colorized-password .password-special {
-  color: #b80017 !important;
+.password-generator-actions .colorized-password .password-special {
+  color: rgb(var(--color-danger-600)) !important;
 }
 
-.theme_dark .password-generator-actions .colorized-password .password-special {
-  color: #ff8d85 !important;
-}
-
-.theme_light .password-generator-actions .colorized-password .password-number {
-  color: #1452c1 !important;
-}
-
-.theme_dark .password-generator-actions .colorized-password .password-number {
-  color: #6f9df1 !important;
+.password-generator-actions .colorized-password .password-number {
+  color: rgb(var(--color-primary-700)) !important;
 }
