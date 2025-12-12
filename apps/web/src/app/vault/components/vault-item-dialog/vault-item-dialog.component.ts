@@ -12,7 +12,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject, switchMap } from "rxjs";
+import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
@@ -280,6 +280,16 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.cipher != undefined && (this.params.mode === "view" || this.loadingForm);
   }
 
+  protected get submitButtonText$(): Observable<string> {
+    return this.userHasPremium$.pipe(
+      map((hasPremium) =>
+        this.cipherIsArchived && !hasPremium
+          ? this.i18nService.t("unArchiveAndSave")
+          : this.i18nService.t("save"),
+      ),
+    );
+  }
+
   /**
    * Flag to initialize/attach the form component.
    */
@@ -394,6 +404,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.collections = this.formConfig.collections.filter((c) =>
       cipherView.collectionIds?.includes(c.id),
     );
+
+    // Track cipher archive state for btn text and badge updates
+    this.cipherIsArchived = this.cipher.isArchived;
 
     // If the cipher was newly created (via add/clone), switch the form to edit for subsequent edits.
     if (this._originalFormMode === "add" || this._originalFormMode === "clone") {

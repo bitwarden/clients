@@ -68,11 +68,7 @@
       #submitBtn
       [hidden]="showCipherView || showRestore"
     >
-      @if (cipherIsArchived && !(userHasPremium$ | async)) {
-        {{ "unArchiveAndSave" | i18n }}
-      } @else {
-        {{ "save" | i18n }}
-      }
+      {{ submitButtonText$ | async }}
     </button>
 
     @if (showCancel) {
