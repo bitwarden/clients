@@ -143,16 +143,14 @@ export class AllApplicationsComponent implements OnInit {
 
   onCheckboxChange = (applicationName: string, event: Event) => {
     const isChecked = (event.target as HTMLInputElement).checked;
-    if (isChecked) {
-      this.selectedUrls.update((selectedUrls) => {
-        selectedUrls.add(applicationName);
-        return selectedUrls;
-      });
-    } else {
-      this.selectedUrls.update((selectedUrls) => {
-        selectedUrls.delete(applicationName);
-        return selectedUrls;
-      });
-    }
+    this.selectedUrls.update((selectedUrls) => {
+      const nextSelected = new Set(selectedUrls);
+      if (isChecked) {
+        nextSelected.add(applicationName);
+      } else {
+        nextSelected.delete(applicationName);
+      }
+      return nextSelected;
+    });
   };
 }
