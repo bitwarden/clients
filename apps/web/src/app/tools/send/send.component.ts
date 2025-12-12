@@ -36,6 +36,7 @@ import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 import { NewSendDropdownComponent } from "./new-send/new-send-dropdown.component";
+import { SendSuccessDrawerDialogComponent } from "./shared";
 
 const BroadcasterSubscriptionId = "SendComponent";
 
@@ -159,6 +160,12 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     // If the dialog was closed by deleting the cipher, refresh the vault.
     if (result === SendItemDialogResult.Deleted || result === SendItemDialogResult.Saved) {
       await this.load();
+    }
+
+    if (typeof result === "object" && result.result === SendItemDialogResult.Saved && result.send) {
+      this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
+        data: result.send,
+      });
     }
   }
 }
