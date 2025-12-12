@@ -17,9 +17,10 @@ import { SUBADDRESS_SETTINGS } from "./storage";
  *  For example, if the email address is `jd+xyz@domain.io`,
  *  the subaddress is `xyz`.
  */
-export class SubaddressGeneratorStrategy
-  implements GeneratorStrategy<SubaddressGenerationOptions, NoPolicy>
-{
+export class SubaddressGeneratorStrategy implements GeneratorStrategy<
+  SubaddressGenerationOptions,
+  NoPolicy
+> {
   /** Instantiates the generation strategy
    *  @param usernameService generates an email subaddress from an email address
    */
