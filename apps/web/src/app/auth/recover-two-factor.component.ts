@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   LoginStrategyServiceAbstraction,
   PasswordLoginCredentials,
@@ -32,6 +33,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [
     ReactiveFormsModule,
     RouterLink,
+    JslibModule,
     AsyncActionsModule,
     ButtonModule,
     FormFieldModule,
