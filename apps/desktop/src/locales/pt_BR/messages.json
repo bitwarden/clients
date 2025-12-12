@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "Adicionar anexo"
   },
+  "itemsTransferred": {
+    "message": "Itens transferidos"
+  },
+  "fixEncryption": {
+    "message": "Corrigir criptografia"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Este arquivo está usando um método de criptografia desatualizado."
+  },
+  "attachmentUpdated": {
+    "message": "Anexo atualizado"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "O tamanho máximo do arquivo é de 500 MB"
   },
@@ -907,6 +919,12 @@
   },
   "unexpectedError": {
     "message": "Ocorreu um erro inesperado."
+  },
+  "unexpectedErrorShort": {
+    "message": "Erro inesperado"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Feche esta janela do Bitwarden e tente novamente."
   },
   "itemInformation": {
     "message": "Informações do item"
@@ -1807,7 +1825,7 @@
     "message": "Confirmar exportação do cofre"
   },
   "exportWarningDesc": {
-    "message": "Esta exportação contém os dados do seu cofre em um formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo."
+    "message": "Esta exportação contém os dados do seu cofre em um formato sem criptografia. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo."
   },
   "encExportKeyWarningDesc": {
     "message": "Esta exportação criptografa seus dados usando a chave de criptografia da sua conta. Se você rotacionar a chave de criptografia da sua conta, você deve exportar novamente, já que você não será capaz de descriptografar este arquivo de exportação."
@@ -2619,9 +2637,6 @@
   "removedMasterPassword": {
     "message": "Senha principal removida"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Uma senha principal não é mais necessária para membros da seguinte organização. Confirme o domínio abaixo com o administrador da sua organização."
-  },
   "organizationName": {
     "message": "Nome da organização"
   },
@@ -3105,7 +3120,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Solicitação de autenticação aprovada para $EMAIL$ em $DEVICE$",
+    "message": "Solicitação de acesso aprovada para $EMAIL$ em $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3118,7 +3133,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "Você negou uma tentativa de autenticação por outro dispositivo. Se foi você, tente conectar-se com o dispositivo novamente."
+    "message": "Você negou uma tentativa de acesso de outro dispositivo. Se era você, tente se conectar com o dispositivo novamente."
   },
   "webApp": {
     "message": "Aplicativo web"
@@ -3146,7 +3161,7 @@
     "message": "Servidor"
   },
   "loginRequest": {
-    "message": "Solicitação de autenticação"
+    "message": "Solicitação de acesso"
   },
   "deviceType": {
     "message": "Tipo do dispositivo"
@@ -3324,7 +3339,7 @@
     "message": "Problemas para acessar?"
   },
   "loginApproved": {
-    "message": "Autenticação aprovada"
+    "message": "Acesso aprovado"
   },
   "userEmailMissing": {
     "message": "E-mail do usuário ausente"
@@ -3886,6 +3901,75 @@
   "fileSavedToDevice": {
     "message": "Arquivo salvo no dispositivo. Gerencie a partir das transferências do seu dispositivo."
   },
+  "importantNotice": {
+    "message": "Aviso importante"
+  },
+  "setupTwoStepLogin": {
+    "message": "Configurar autenticação em duas etapas"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "O Bitwarden enviará um código no e-mail da sua conta para verificar o acesso de novos dispositivos começando em fevereiro de 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Você pode configurar a autenticação em duas etapas como um método alternativo de proteção da sua conta, ou você pode alterar o seu e-mail para um que possa acessar."
+  },
+  "remindMeLater": {
+    "message": "Lembre-me depois"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Você tem acesso adequado ao seu e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Não tenho"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Sim, consigo acessar meu e-mail adequadamente"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ativar autenticação em duas etapas"
+  },
+  "changeAcctEmail": {
+    "message": "Alterar e-mail da conta"
+  },
+  "passkeyLogin": {
+    "message": "Conectar-se com chave de acesso?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Salvar chave de acesso?"
+  },
+  "saveNewPasskey": {
+    "message": "Salvar como nova credencial"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Salvar chave de acesso como nova credencial"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Nenhuma credencial correspondente para este site"
+  },
+  "overwritePasskey": {
+    "message": "Substituir chave de acesso?"
+  },
+  "unableToSavePasskey": {
+    "message": "Não é possível salvar a chave de acesso"
+  },
+  "alreadyContainsPasskey": {
+    "message": "Este item já contém uma chave de acesso. Tem certeza que deseja substituir a atual?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Uma chave de acesso já existe para este aplicativo."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "Este aplicativo não suporta duplicatas."
+  },
+  "closeThisWindow": {
+    "message": "Fechar esta janela"
+  },
   "allowScreenshots": {
     "message": "Permitir captura de tela"
   },
@@ -4244,16 +4328,147 @@
   "andMoreFeatures": {
     "message": "E mais!"
   },
-  "planDescPremium": {
-    "message": "Segurança on-line completa"
+  "advancedOnlineSecurity": {
+    "message": "Segurança on-line avançada"
   },
   "upgradeToPremium": {
     "message": "Faça upgrade para o Premium"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "A sua organização não está mais usando senhas principais para se conectar ao Bitwarden. Para continuar, verifique a organização e o domínio."
+  },
+  "continueWithLogIn": {
+    "message": "Continuar acessando"
+  },
+  "doNotContinue": {
+    "message": "Não continuar"
+  },
+  "domain": {
+    "message": "Domínio"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Este domínio armazenará as chaves de criptografia da sua conta, então certifique-se que confia nele. Se não tiver certeza, verifique com o seu administrador."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifique sua organização para se conectar"
+  },
+  "organizationVerified": {
+    "message": "Organização verificada"
+  },
+  "domainVerified": {
+    "message": "Domínio verificado"
+  },
+  "leaveOrganizationContent": {
+    "message": "Se você não verificar a sua organização, o seu acesso à organização será revogado."
+  },
+  "leaveNow": {
+    "message": "Sair agora"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifique seu domínio para se conectar"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Para continuar se conectando, verifique este domínio."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Para continuar se conectando, verifique a organização e o domínio."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Ação do tempo limite"
   },
   "sessionTimeoutHeader": {
     "message": "Tempo limite da sessão"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Esta configuração é gerenciada pela sua organização."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "A sua organização configurou o tempo de limite máximo da sessão para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "A sua organização configurou o tempo de limite máximo padrão da sessão para ser no bloqueio do sistema."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "A sua organização configurou o tempo de limite máximo padrão da sessão para ser no reinício."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "O tempo limite máximo não pode exceder $HOURS$ hora(s) e $MINUTES$ minuto(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "No reinício"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Configure um método de desbloqueio para alterar a ação do tempo limite"
+  },
+  "upgrade": {
+    "message": "Fazer upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Tem certeza de que quer sair?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Se recusar, seus itens pessoais continuarão na sua conta, mas você perderá o acesso aos itens compartilhados e os recursos de organização."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Entre em contato com o seu administrador para recuperar o acesso."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Sair de $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Como gerencio meu cofre?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transferir itens para $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por segurança e conformidade. Clique em aceitar para transferir a propriedade dos seus itens.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Aceitar transferência"
+  },
+  "declineAndLeave": {
+    "message": "Recusar e sair"
+  },
+  "whyAmISeeingThis": {
+    "message": "Por que estou vendo isso?"
   }
 }
