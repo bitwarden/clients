@@ -3,6 +3,7 @@
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { RotateableKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { WebauthnLoginCredentialPrfStatus } from "../../../enums/webauthn-login-credential-prf-status.enum";
 
@@ -14,7 +15,7 @@ export class WebauthnLoginCredentialResponse extends BaseResponse {
   name: string;
   prfStatus: WebauthnLoginCredentialPrfStatus;
   encryptedPublicKey?: string;
-  encryptedUserKey?: string;
+  encryptedUserKey?: UnsignedSharedKey;
 
   constructor(response: unknown) {
     super(response);

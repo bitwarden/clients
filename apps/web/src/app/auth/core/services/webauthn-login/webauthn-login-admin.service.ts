@@ -204,7 +204,7 @@ export class WebauthnLoginAdminService
     request.token = credential.createOptions.token;
     request.name = name;
     request.supportsPrf = credential.supportsPrf;
-    request.encryptedUserKey = prfKeySet?.encapsulatedDownstreamKey.encryptedString;
+    request.encryptedUserKey = prfKeySet?.encapsulatedDownstreamKey;
     request.encryptedPublicKey = prfKeySet?.encryptedPublicKey.encryptedString;
     request.encryptedPrivateKey = prfKeySet?.encryptedPrivateKey.encryptedString;
     await this.apiService.saveCredential(request);
@@ -242,7 +242,7 @@ export class WebauthnLoginAdminService
     const request = new EnableCredentialEncryptionRequest();
     request.token = assertionOptions.token;
     request.deviceResponse = assertionOptions.deviceResponse;
-    request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey.encryptedString;
+    request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey;
     request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
     request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
     await this.apiService.updateCredential(request);
