@@ -4814,9 +4814,6 @@
   "enablePhishingDetectionDesc": {
     "message": "Display warning before accessing suspected phishing sites"
   },
-  "on": {
-    "message": "On"
-  },
   "notifications": {
     "message": "Notifications"
   },
