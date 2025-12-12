@@ -5,7 +5,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
@@ -228,7 +227,7 @@ describe("AuthRequestService", () => {
 
       // Assert
       expect(encryptService.decapsulateKeyUnsigned).toBeCalledWith(
-        new EncString(mockPubKeyEncryptedUserKey),
+        mockPubKeyEncryptedUserKey,
         mockPrivateKey,
       );
       expect(result).toEqual(mockDecryptedUserKey);

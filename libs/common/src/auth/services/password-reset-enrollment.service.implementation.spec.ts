@@ -93,7 +93,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
         publicKey: "publicKey",
         privateKey: "privateKey",
       };
-      const encryptedKey = { encryptedString: "encryptedString" };
+      const encryptedKey = "encryptedString";
       organizationApiService.getKeys.mockResolvedValue(orgKeyResponse as any);
 
       const user1AccountInfo: AccountInfo = {
@@ -114,7 +114,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
         "orgId",
         "userId",
         expect.objectContaining({
-          resetPasswordKey: encryptedKey.encryptedString,
+          resetPasswordKey: encryptedKey,
         }),
       );
     });
@@ -124,7 +124,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
         publicKey: "publicKey",
         privateKey: "privateKey",
       };
-      const encryptedKey = { encryptedString: "encryptedString" };
+      const encryptedKey = "encryptedString";
       organizationApiService.getKeys.mockResolvedValue(orgKeyResponse as any);
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedKey as any);
 
@@ -136,7 +136,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
         "orgId",
         "userId",
         expect.objectContaining({
-          resetPasswordKey: encryptedKey.encryptedString,
+          resetPasswordKey: encryptedKey,
         }),
       );
     });

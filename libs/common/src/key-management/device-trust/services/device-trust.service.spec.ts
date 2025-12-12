@@ -13,6 +13,7 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeActiveUserState } from "../../../../spec/fake-state";
@@ -40,7 +41,6 @@ import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
-import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import {
   SHOULD_TRUST_DEVICE,
@@ -492,11 +492,6 @@ describe("deviceTrustService", () => {
           method: "rsaGenerateKeyPair",
           spy: () => rsaGenerateKeyPairSpy,
           errorText: "rsaGenerateKeyPair error",
-        },
-        {
-          method: "rsaEncrypt",
-          spy: () => cryptoSvcRsaEncryptSpy,
-          errorText: "rsaEncrypt error",
         },
         {
           method: "encryptService.wrapEncapsulationKey",

@@ -19,6 +19,7 @@ import { UserKey, MasterKey, UserPrivateKey } from "@bitwarden/common/types/key"
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { newGuid } from "@bitwarden/guid";
 import { Argon2KdfConfig, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -122,10 +123,8 @@ describe("EmergencyAccessService", () => {
 
         const publicKey = new Uint8Array(64);
 
-        const mockUserPublicKeyEncryptedUserKey = new EncString(
-          EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockUserPublicKeyEncryptedUserKey",
-        );
+        const mockUserPublicKeyEncryptedUserKey =
+          "2.mockUserPublicKeyEncryptedUserKey" as UnsignedSharedKey;
 
         keyService.userKey$.mockReturnValue(of(mockUserKey));
 
@@ -140,7 +139,7 @@ describe("EmergencyAccessService", () => {
 
         // Assert
         expect(emergencyAccessApiService.postEmergencyAccessConfirm).toHaveBeenCalledWith(id, {
-          key: mockUserPublicKeyEncryptedUserKey.encryptedString,
+          key: mockUserPublicKeyEncryptedUserKey,
         });
       });
     });
@@ -208,7 +207,7 @@ describe("EmergencyAccessService", () => {
       expect(emergencyAccessApiService.postEmergencyAccessView).toHaveBeenCalledWith(params.id);
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new EncString(emergencyAccessViewResponse.keyEncrypted),
+        emergencyAccessViewResponse.keyEncrypted,
         mockPrivateKey,
       );
       expect(cipherService.getLocaleSortingFunction).toHaveBeenCalled();
@@ -276,7 +275,7 @@ describe("EmergencyAccessService", () => {
       // Assert
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new EncString(takeoverResponse.keyEncrypted),
+        takeoverResponse.keyEncrypted,
         userPrivateKey,
       );
       expect(keyService.makeMasterKey).toHaveBeenCalledWith(
@@ -327,7 +326,7 @@ describe("EmergencyAccessService", () => {
 
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new EncString(argon2TakeoverResponse.keyEncrypted),
+        argon2TakeoverResponse.keyEncrypted,
         userPrivateKey,
       );
       expect(keyService.makeMasterKey).toHaveBeenCalledWith(
@@ -362,7 +361,7 @@ describe("EmergencyAccessService", () => {
 
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new EncString(takeoverResponse.keyEncrypted),
+        takeoverResponse.keyEncrypted,
         userPrivateKey,
       );
       expect(keyService.makeMasterKey).toHaveBeenCalledWith(
@@ -394,7 +393,7 @@ describe("EmergencyAccessService", () => {
 
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new EncString(takeoverResponse.keyEncrypted),
+        takeoverResponse.keyEncrypted,
         userPrivateKey,
       );
       expect(keyService.makeMasterKey).not.toHaveBeenCalled();
@@ -420,7 +419,7 @@ describe("EmergencyAccessService", () => {
 
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new EncString(takeoverResponse.keyEncrypted),
+        takeoverResponse.keyEncrypted,
         userPrivateKey,
       );
       expect(keyService.makeMasterKey).not.toHaveBeenCalled();
@@ -483,9 +482,7 @@ describe("EmergencyAccessService", () => {
       } as UserKeyResponse);
 
       encryptService.encapsulateKeyUnsigned.mockImplementation((plainValue, publicKey) => {
-        return Promise.resolve(
-          new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "Encrypted: " + plainValue),
-        );
+        return Promise.resolve(("4.Encrypted: " + plainValue) as UnsignedSharedKey);
       });
     });
 
