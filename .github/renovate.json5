@@ -74,6 +74,8 @@
         "husky",
         "lint-staged",
         "typescript-eslint",
+        "oxlint",
+        "oxlint-tsgolint",
       ],
       description: "Architecture owned dependencies",
       commitMessagePrefix: "[deps] Architecture:",
