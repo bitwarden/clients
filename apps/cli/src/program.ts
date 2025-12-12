@@ -524,6 +524,7 @@ export class Program extends BaseProgram {
           this.serviceContainer.syncService,
           this.serviceContainer.accountService,
           this.serviceContainer.authService,
+          this.serviceContainer.userAutoUnlockKeyService,
         );
         const response = await command.run();
         this.processResponse(response);
