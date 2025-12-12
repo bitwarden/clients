@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { computed, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { Observable, Subject, map, startWith } from "rxjs";
+import { Observable, Subject, map } from "rxjs";
 
 import {
   OrganizationUserStatusType,
@@ -106,6 +106,8 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
       this.data?.filter((u) => u.status === this.statusType.Confirmed).length ?? 0;
     this.revokedUserCount =
       this.data?.filter((u) => u.status === this.statusType.Revoked).length ?? 0;
+
+    this.checkedUsersUpdated$.next();
   }
 
   override get data() {
@@ -118,8 +120,16 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
    * @param select check the user (true), uncheck the user (false), or toggle the current state (null)
    */
   checkUser(user: T, select?: boolean) {
-    (user as any).checked = select == null ? !(user as any).checked : select;
+    this.setUserChecked(user, select);
     this.checkedUsersUpdated$.next();
+  }
+
+  /**
+   * Internal method to set checked state without triggering emissions.
+   * Use this in bulk operations to avoid excessive emissions.
+   */
+  private setUserChecked(user: T, select?: boolean) {
+    (user as any).checked = select == null ? !(user as any).checked : select;
   }
 
   getCheckedUsers() {
@@ -160,8 +170,10 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
       : Math.min(filteredUsers.length, MaxCheckedCount);
 
     for (let i = 0; i < selectCount; i++) {
-      this.checkUser(filteredUsers[i], select);
+      this.setUserChecked(filteredUsers[i], select);
     }
+
+    this.checkedUsersUpdated$.next();
   }
 
   uncheckAllUsers() {
@@ -203,7 +215,10 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
     }
 
     // Uncheck users beyond the limit
-    users.slice(limit).forEach((user) => this.checkUser(user, false));
+    users.slice(limit).forEach((user) => this.setUserChecked(user, false));
+
+    // Emit once after all unchecking is done
+    this.checkedUsersUpdated$.next();
 
     return users.slice(0, limit);
   }
@@ -272,7 +287,6 @@ export function configureMemberFlags(
   dataSource: MembersTableDataSource,
 ): Observable<BulkMemberFlags> {
   return dataSource.usersUpdated().pipe(
-    startWith(null), // initial emission to kick off reactive member options menu actions
     map(() => {
       const checkedUsers = dataSource.getCheckedUsers();
       const result = {
@@ -332,7 +346,6 @@ export function configureProviderMemberFlags(
   dataSource: ProvidersTableDataSource,
 ): Observable<BulkFlags> {
   return dataSource.usersUpdated().pipe(
-    startWith(null), // initial emission to kick off reactive member options menu actions
     map(() => {
       const result: BulkFlags = {
         showConfirmUsers: showConfirm(dataSource),
