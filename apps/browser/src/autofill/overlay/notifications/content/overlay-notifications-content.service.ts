@@ -254,6 +254,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
     const handleInitNotificationBarMessage = (event: MessageEvent) => {
       const { source, data } = event;
       if (
+        !this.notificationBarIframeElement?.contentWindow ||
         source !== this.notificationBarIframeElement.contentWindow ||
         data?.command !== "initNotificationBar"
       ) {
@@ -284,13 +285,14 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       return;
     }
 
-    this.notificationBarIframeElement.remove();
+    this.notificationBarIframeElement?.remove();
     this.notificationBarIframeElement = null;
 
-    this.notificationBarElement.remove();
+    this.notificationBarElement?.remove();
     this.notificationBarElement = null;
     this.notificationBarShadowRoot = null;
-    this.notificationBarRootElement.remove();
+
+    this.notificationBarRootElement?.remove();
     this.notificationBarRootElement = null;
 
     const removableNotificationTypes = new Set([
