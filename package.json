@@ -122,7 +122,7 @@
     "mini-css-extract-plugin": "2.9.4",
     "nx": "21.6.10",
     "oxlint": "1.32.0",
-    "oxlint-tsgolint": "0.8.5",
+    "oxlint-tsgolint": "0.8.6",
     "path-browserify": "1.0.1",
     "postcss": "8.5.6",
     "postcss-loader": "8.2.0",
