@@ -4,7 +4,9 @@ import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { NavigationModule } from "@bitwarden/components";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
 
@@ -36,6 +38,8 @@ describe("DesktopLayoutComponent", () => {
   let component: DesktopLayoutComponent;
   let fixture: ComponentFixture<DesktopLayoutComponent>;
 
+  const fakeGlobalStateProvider = new FakeGlobalStateProvider();
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DesktopLayoutComponent, RouterModule.forRoot([]), NavigationModule],
@@ -43,6 +47,10 @@ describe("DesktopLayoutComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: GlobalStateProvider,
+          useValue: fakeGlobalStateProvider,
         },
       ],
     })
