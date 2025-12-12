@@ -175,6 +175,7 @@ export function createInitAutofillInlineMenuButtonMessageMock(
     styleSheetUrl: "https://jest-testing-website.com",
     authStatus: AuthenticationStatus.Unlocked,
     portKey: "portKey",
+    token: "test-token",
     ...customFields,
   };
 }
@@ -212,6 +213,7 @@ export function createInitAutofillInlineMenuListMessageMock(
     theme: ThemeTypes.Light,
     authStatus: AuthenticationStatus.Unlocked,
     portKey: "portKey",
+    token: "test-token",
     inlineMenuFillType: CipherType.Login,
     ciphers: [
       createAutofillOverlayCipherDataMock(1, {

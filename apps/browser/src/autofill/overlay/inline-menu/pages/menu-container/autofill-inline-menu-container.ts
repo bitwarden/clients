@@ -1,5 +1,6 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
+import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { generateRandomChars, setElementStyles } from "../../../../utils";
 import {
   InitAutofillInlineMenuElementMessage,
@@ -73,7 +74,7 @@ export class AutofillInlineMenuContainer {
 
   constructor() {
     this.token = generateRandomChars(32);
-    this.extensionOrigin = chrome.runtime.getURL("").slice(0, -1);
+    this.extensionOrigin = BrowserApi.getRuntimeURL("")?.slice(0, -1);
     globalThis.addEventListener("message", this.handleWindowMessage);
   }
 
@@ -128,7 +129,12 @@ export class AutofillInlineMenuContainer {
     }
     try {
       const urlObj = new URL(url);
-      const isExtensionProtocol = /^[a-z]+(-[a-z]+)?-extension:$/i.test(urlObj.protocol);
+      const extensionProtocols = new Set([
+        "chrome-extension:",
+        "moz-extension:",
+        "safari-web-extension:",
+      ]);
+      const isExtensionProtocol = extensionProtocols.has(urlObj.protocol);
 
       if (!isExtensionProtocol) {
         return false;
@@ -203,6 +209,9 @@ export class AutofillInlineMenuContainer {
    */
   private handleWindowMessage = (event: MessageEvent<AutofillInlineMenuContainerWindowMessage>) => {
     const message = event.data;
+    if (!message?.command) {
+      return;
+    }
     if (this.isForeignWindowMessage(event)) {
       return;
     }
@@ -287,7 +296,10 @@ export class AutofillInlineMenuContainer {
    * every time the inline menu container is recreated.
    *
    */
-  private isValidSessionToken(message: { token?: string }): boolean {
+  private isValidSessionToken(message: { token: string }): boolean {
+    if (!this.token || !message?.token || !message?.token.length) {
+      return false;
+    }
     return message.token === this.token;
   }
 

@@ -1,4 +1,4 @@
-import { mockEnc } from "../../../../spec";
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc } from "../../../../spec";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { EncryptionType } from "../../../platform/enums";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
@@ -103,7 +103,10 @@ describe("Fido2Credential", () => {
       credential.discoverable = mockEnc("true");
       credential.creationDate = mockDate;
 
-      const credentialView = await credential.decrypt(null);
+      mockContainerService();
+
+      const cipherKey = makeSymmetricCryptoKey(64);
+      const credentialView = await credential.decrypt(cipherKey);
 
       expect(credentialView).toEqual({
         credentialId: "credentialId",

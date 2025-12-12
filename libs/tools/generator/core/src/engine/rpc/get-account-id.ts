@@ -9,8 +9,7 @@ import { ForwarderContext } from "../forwarder-context";
 export class GetAccountIdRpc<
   Settings extends ApiSettings,
   Req extends IntegrationRequest = IntegrationRequest,
-> implements JsonRpc<Req, string>
-{
+> implements JsonRpc<Req, string> {
   constructor(
     readonly requestor: ForwarderConfiguration<Settings>,
     readonly context: ForwarderContext<Settings>,

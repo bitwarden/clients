@@ -37,7 +37,7 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
-import { SendV2Component, SendState } from "./send-v2.component";
+import { SendState, SendV2Component } from "./send-v2.component";
 
 describe("SendV2Component", () => {
   let component: SendV2Component;

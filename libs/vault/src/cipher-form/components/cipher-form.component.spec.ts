@@ -42,9 +42,18 @@ describe("CipherFormComponent", () => {
         { provide: CipherFormService, useValue: mockAddEditFormService },
         {
           provide: CipherFormCacheService,
-          useValue: { init: jest.fn(), getCachedCipherView: jest.fn() },
+          useValue: { init: jest.fn(), getCachedCipherView: jest.fn(), clearCache: jest.fn() },
         },
-        { provide: ViewCacheService, useValue: { signal: jest.fn(() => (): any => null) } },
+        {
+          provide: ViewCacheService,
+          useValue: {
+            signal: jest.fn(() => {
+              const signalFn = (): any => null;
+              signalFn.set = jest.fn();
+              return signalFn;
+            }),
+          },
+        },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: AccountService, useValue: mockAccountService },
         { provide: CipherArchiveService, useValue: mockCipherArchiveService },

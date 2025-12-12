@@ -1072,6 +1072,7 @@ export class RiskInsightsOrchestratorService {
           this.logService.debug("[RiskInsightsOrchestratorService] Fetching organization ciphers");
           const ciphers = await this.cipherService.getAllFromApiForOrganization(
             orgDetails.organizationId,
+            true,
           );
           this._ciphersSubject.next(ciphers);
           this._hasCiphersSubject$.next(ciphers.length > 0);
