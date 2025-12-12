@@ -45,13 +45,13 @@
       </div>
       <div class="tw-flex tw-flex-col">
         <div class="tw-font-semibold tw-mb-2">{{ "status" | i18n }}</div>
-        <div>
+        <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
           <span class="tw-capitalize">{{ (subscription && subscriptionStatus) || "-" }}</span>
           <span
             bitBadge
             variant="warning"
             *ngIf="subscriptionMarkedForCancel"
-            class="tw-mt-2 tw-block"
+            class="tw-inline-flex"
             >{{ "pendingCancellation" | i18n }}</span
           >
         </div>
