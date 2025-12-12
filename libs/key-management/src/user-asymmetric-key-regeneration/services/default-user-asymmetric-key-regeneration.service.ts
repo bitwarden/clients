@@ -15,7 +15,9 @@ import { KeyService } from "../../abstractions/key.service";
 import { UserAsymmetricKeysRegenerationApiService } from "../abstractions/user-asymmetric-key-regeneration-api.service";
 import { UserAsymmetricKeysRegenerationService } from "../abstractions/user-asymmetric-key-regeneration.service";
 
-export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmetricKeysRegenerationService {
+export class DefaultUserAsymmetricKeysRegenerationService
+  implements UserAsymmetricKeysRegenerationService
+{
   constructor(
     private keyService: KeyService,
     private cipherService: CipherService,

@@ -11,9 +11,7 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-
-import { VaultFilterService as BaseVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/vault-filter.service";
-import { CollectionFilter } from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter.type";
+import { VaultFilterService as BaseVaultFilterService, CollectionFilter } from "@bitwarden/vault";
 
 @Injectable()
 export class VaultFilterService extends BaseVaultFilterService implements OnDestroy {

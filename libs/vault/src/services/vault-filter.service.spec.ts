@@ -7,6 +7,7 @@ import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of, ReplaySubject } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
 import {
   CollectionService,
   CollectionType,

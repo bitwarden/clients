@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 
