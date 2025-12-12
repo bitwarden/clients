@@ -42,7 +42,7 @@ export class UserLayoutComponent implements OnInit {
   protected hasFamilySponsorshipAvailable$: Observable<boolean>;
   protected showSponsoredFamilies$: Observable<boolean>;
   protected showSubscription$: Observable<boolean>;
-  protected disableSendPolicy$: Observable<boolean>;
+  protected sendEnabled$: Observable<boolean>;
   protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
 
   constructor(
@@ -85,11 +85,12 @@ export class UserLayoutComponent implements OnInit {
   async ngOnInit() {
     document.body.classList.remove("layout_frontend");
     await this.syncService.fullSync(false);
-    this.disableSendPolicy$ = this.accountService.activeAccount$.pipe(
+    this.sendEnabled$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
         this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
       ),
+      map((isDisabled) => !isDisabled),
     );
   }
 }
