@@ -48,8 +48,8 @@ export function filePickerPopoutGuard(): CanActivateFn {
       DeviceType.VivaldiExtension,
     ].includes(deviceType);
 
-    const isLinux = window?.navigator?.userAgent?.indexOf("Linux") !== -1;
-    const isMac = window?.navigator?.appVersion?.includes("Mac OS X");
+    const isLinux = window?.navigator?.userAgent?.includes("Linux");
+    const isMac = window?.navigator?.userAgent?.includes("Mac OS X");
 
     if (isChromiumBased && (isLinux || isMac) && !inPopout && !inSidebar) {
       needsPopout = true;
