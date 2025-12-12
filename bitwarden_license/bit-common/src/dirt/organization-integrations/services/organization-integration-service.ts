@@ -141,7 +141,7 @@ export class OrganizationIntegrationService {
     config: OrgIntegrationConfiguration,
     template: OrgIntegrationTemplate,
   ): Promise<IntegrationModificationResult> {
-    if (organizationId != this.organizationId$.getValue()) {
+    if (organizationId !== this.organizationId$.getValue()) {
       throw new Error("Organization ID mismatch");
     }
 
