@@ -90,7 +90,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       this.closeNotificationBar();
     }
 
-    const initData = {
+    const initData: NotificationBarIframeInitData = {
       type: type as NotificationType,
       isVaultLocked: typeData.isVaultLocked,
       theme: typeData.theme,
@@ -181,7 +181,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
     const isNotificationFresh =
       initData.launchTimestamp && Date.now() - initData.launchTimestamp < 250;
 
-    this.currentNotificationBarType = initData.type;
+    this.currentNotificationBarType = initData.type ?? null;
     this.notificationBarIframeElement = globalThis.document.createElement("iframe");
     this.notificationBarIframeElement.id = "bit-notification-bar-iframe";
     const parentOrigin = globalThis.location.origin;
