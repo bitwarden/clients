@@ -79,7 +79,7 @@ export class ConfirmCommand {
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
       const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
       const req = new OrganizationUserConfirmRequest();
-      req.key = key.encryptedString;
+      req.key = key;
       if (
         await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
       ) {
