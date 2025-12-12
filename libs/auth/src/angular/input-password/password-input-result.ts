@@ -10,6 +10,8 @@ export interface PasswordInputResult {
   newPasswordHint?: string;
   rotateUserKey?: boolean;
 
+  // The deprecated properties below will be removed in PM-28143: https://bitwarden.atlassian.net/browse/PM-28143
+
   /** @deprecated This low-level cryptographic state will be removed. It will be replaced by high level calls to masterpassword service, in the consumers of this interface. */
   currentMasterKey?: MasterKey;
   /** @deprecated */
