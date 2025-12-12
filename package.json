@@ -17,7 +17,7 @@
     "oxlint": "oxlint",
     "oxlint:types": "oxlint --type-aware",
     "lint": "oxlint && eslint . --cache --cache-strategy content && prettier --check .",
-    "lint:fix": "oxlint --fix && eslint . --cache --cache-strategy content --fix",
+    "lint:fix": "eslint . --cache --cache-strategy content --fix",
     "lint:clear": "rimraf .eslintcache",
     "prettier": "prettier --cache --write .",
     "test": "jest",
