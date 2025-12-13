@@ -1602,6 +1602,7 @@ export class ApiService implements ApiServiceAbstraction {
       throw new Error("The request URL contains dangerous patterns.");
     }
 
+    // Prevent directory traversal from malicious paths
     const requestUrl =
       apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
 
