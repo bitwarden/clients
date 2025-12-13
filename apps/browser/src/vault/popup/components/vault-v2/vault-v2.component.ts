@@ -12,11 +12,11 @@ import {
   from,
   map,
   Observable,
-  of,
   shareReplay,
   switchMap,
   take,
   tap,
+  BehaviorSubject,
 } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
@@ -131,7 +131,22 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   activeUserId: UserId | null = null;
 
-  private loading$ = this.vaultPopupLoadingService.loading$.pipe(
+  /**
+   * Subject that indicates whether the vault is ready to render
+   * and that all initialization tasks have been completed (ngOnInit).
+   * @private
+   */
+  private readySubject = new BehaviorSubject(false);
+
+  /**
+   * Indicates whether the vault is loading and not yet ready to be displayed.
+   * @protected
+   */
+  protected loading$ = combineLatest([
+    this.vaultPopupLoadingService.loading$,
+    this.readySubject.asObservable(),
+  ]).pipe(
+    map(([loading, ready]) => loading || !ready),
     distinctUntilChanged(),
     tap((loading) => {
       const key = loading ? "loadingVault" : "vaultLoaded";
@@ -209,15 +224,12 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     this.vaultItemsTransferService.transferInProgress$,
     this.skeletonFeatureFlag$,
   ]).pipe(
-    switchMap(([loading, cipherSearching, transferInProgress, skeletonsEnabled]) => {
-      const shouldShow = (loading || cipherSearching || transferInProgress) && skeletonsEnabled;
-
-      // Skip delay when transfer is in progress (show immediately)
-      const delay = transferInProgress ? 0 : 1000;
-
-      return of(shouldShow).pipe(skeletonLoadingDelay(delay));
+    map(([loading, cipherSearching, transferInProgress, skeletonsEnabled]) => {
+      return (loading || cipherSearching || transferInProgress) && skeletonsEnabled;
     }),
     distinctUntilChanged(),
+    skeletonLoadingDelay(),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
@@ -317,7 +329,9 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
         });
       });
 
-    void this.vaultItemsTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+    await this.vaultItemsTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+
+    this.readySubject.next(true);
   }
 
   ngOnDestroy() {
