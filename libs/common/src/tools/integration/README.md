@@ -1,4 +1,4 @@
-# Tools vendor integration
+# Tools Vendor Integration
 
 This module defines interfaces and helpers for creating vendor integration sites.
 
