@@ -1,3 +1,5 @@
+# Tools vendor integration
+
 This module defines interfaces and helpers for creating vendor integration sites.
 
 ## RPC
