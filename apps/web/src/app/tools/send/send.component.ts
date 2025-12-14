@@ -3,13 +3,15 @@
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom } from "rxjs";
+import { lastValueFrom, Observable } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -62,6 +64,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
   private sendItemDialogRef?: DialogRef<SendItemDialogResult> | undefined;
   noItemIcon = NoSendsIcon;
   selectedToggleValue: "all" | "text" | "file" = "all";
+  desktopSendUIRefresh$: Observable<boolean>;
 
   override set filteredSends(filteredSends: SendView[]) {
     super.filteredSends = filteredSends;
@@ -91,6 +94,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     accountService: AccountService,
     private route: ActivatedRoute,
     private router: Router,
+    private configService: ConfigService,
   ) {
     super(
       sendService,
@@ -105,6 +109,10 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       dialogService,
       toastService,
       accountService,
+    );
+
+    this.desktopSendUIRefresh$ = this.configService.getFeatureFlag$(
+      FeatureFlag.DesktopSendUIRefresh,
     );
 
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
