@@ -8,6 +8,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   DefaultSendFormConfigService,
   SendAddEditDialogComponent,
@@ -44,6 +46,7 @@ export class NewSendDropdownComponent {
     private accountService: AccountService,
     private dialogService: DialogService,
     private addEditFormConfigService: DefaultSendFormConfigService,
+    private configService: ConfigService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -68,7 +71,12 @@ export class NewSendDropdownComponent {
     const dialogRef = SendAddEditDialogComponent.open(this.dialogService, { formConfig });
     const result = await lastValueFrom(dialogRef.closed);
 
-    if (typeof result === "object" && result.result === SendItemDialogResult.Saved && result.send) {
+    if (
+      typeof result === "object" &&
+      result.result === SendItemDialogResult.Saved &&
+      result.send &&
+      (await this.configService.getFeatureFlag(FeatureFlag.DesktopSendUIRefresh))
+    ) {
       this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
         data: result.send,
       });
