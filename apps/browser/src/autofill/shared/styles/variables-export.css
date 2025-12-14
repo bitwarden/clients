@@ -1,0 +1,67 @@
+:root {
+  --autofill-font-family-sans-serif: Inter, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --autofill-font-family-source-code-pro: Source Code Pro, monospace;
+  --autofill-font-size-base: 14px;
+  --autofill-text-color-light: #212529;
+  --autofill-muted-text-color-light: #6c747c;
+  --autofill-background-color-light: #ffffff;
+  --autofill-background-offset-color-light: #f0f0f0;
+  --autofill-body-color-light: #cfd4db;
+  --autofill-border-color-light: #ced4dc;
+  --autofill-brand-primary-light: #175ddc;
+  --autofill-input-border-color-light: #d6d6d6;
+  --autofill-password-special-color-light: #b80017;
+  --autofill-password-number-color-light: #1452c1;
+  --autofill-success-color-light: #017e45;
+  --autofill-error-color-light: #c83522;
+  --autofill-focus-outline-color-light: #1252a3;
+  --autofill-scrollbar-track-light: #fcfcfc;
+  --autofill-text-color-dark: #ffffff;
+  --autofill-muted-text-color-dark: #bac0ce;
+  --autofill-background-color-dark: #2f343d;
+  --autofill-background-offset-color-dark: #29252e;
+  --autofill-body-color-dark: #4d525e;
+  --autofill-border-color-dark: #4c525f;
+  --autofill-brand-primary-dark: #6f9df1;
+  --autofill-input-border-color-dark: #4c525f;
+  --autofill-password-special-color-dark: #ff8d85;
+  --autofill-password-number-color-dark: #6f9df1;
+  --autofill-success-color-dark: #8db89b;
+  --autofill-error-color-dark: #ee9792;
+  --autofill-focus-outline-color-dark: #4d8fe6;
+  --autofill-scrollbar-track-dark: #2d323a;
+  --autofill-muted-blue: #5a6d91;
+  --autofill-muted-grey: #bac0ce;
+  --autofill-border-radius: 3px;
+  --autofill-text-color: var(--autofill-text-color-light);
+  --autofill-muted-text-color: var(--autofill-muted-text-color-light);
+  --autofill-background-color: var(--autofill-background-color-light);
+  --autofill-background-offset-color: var(--autofill-background-offset-color-light);
+  --autofill-body-color: var(--autofill-body-color-light);
+  --autofill-border-color: var(--autofill-border-color-light);
+  --autofill-brand-primary: var(--autofill-brand-primary-light);
+  --autofill-input-border-color: var(--autofill-input-border-color-light);
+  --autofill-password-special-color: var(--autofill-password-special-color-light);
+  --autofill-password-number-color: var(--autofill-password-number-color-light);
+  --autofill-success-color: var(--autofill-success-color-light);
+  --autofill-error-color: var(--autofill-error-color-light);
+  --autofill-focus-outline-color: var(--autofill-focus-outline-color-light);
+  --autofill-scrollbar-track: var(--autofill-scrollbar-track-light);
+}
+
+.theme_dark {
+  --autofill-text-color: var(--autofill-text-color-dark);
+  --autofill-muted-text-color: var(--autofill-muted-text-color-dark);
+  --autofill-background-color: var(--autofill-background-color-dark);
+  --autofill-background-offset-color: var(--autofill-background-offset-color-dark);
+  --autofill-body-color: var(--autofill-body-color-dark);
+  --autofill-border-color: var(--autofill-border-color-dark);
+  --autofill-brand-primary: var(--autofill-brand-primary-dark);
+  --autofill-input-border-color: var(--autofill-input-border-color-dark);
+  --autofill-password-special-color: var(--autofill-password-special-color-dark);
+  --autofill-password-number-color: var(--autofill-password-number-color-dark);
+  --autofill-success-color: var(--autofill-success-color-dark);
+  --autofill-error-color: var(--autofill-error-color-dark);
+  --autofill-focus-outline-color: var(--autofill-focus-outline-color-dark);
+  --autofill-scrollbar-track: var(--autofill-scrollbar-track-dark);
+}
