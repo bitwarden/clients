@@ -2,7 +2,7 @@
   @if (!hideArchive()) {
     <bit-nav-item
       [icon]="archiveFilter.icon"
-      [class.active]="activeFilter()?.isArchived"
+      [forceActiveStyles]="activeFilter()?.isArchived"
       (click)="handleArchiveFilter($event)"
       [text]="archiveFilter.name | i18n"
       [attr.aria-pressed]="activeFilter()?.isArchived"
@@ -15,7 +15,7 @@
   @if (!hideTrash()) {
     <bit-nav-item
       [icon]="trashFilter.icon"
-      [class.active]="activeFilter()?.isDeleted"
+      [forceActiveStyles]="activeFilter()?.isDeleted"
       (click)="applyFilter('trash')"
       [text]="trashFilter.name | i18n"
       [attr.aria-pressed]="activeFilter()?.isDeleted"

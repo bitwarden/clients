@@ -1,7 +1,7 @@
 @for (typeFilter of typeFilters$ | async; track typeFilter) {
   <bit-nav-item
     [icon]="typeFilter.node.icon"
-    [class.active]="activeFilter()?.cipherType === typeFilter.node.type"
+    [forceActiveStyles]="activeFilter()?.cipherType === typeFilter.node.type"
     (click)="applyFilter(typeFilter)"
     [text]="typeFilter.node.name"
     [attr.aria-pressed]="activeFilter()?.cipherType === typeFilter.node.type"

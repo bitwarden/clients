@@ -18,7 +18,7 @@
     } @else {
       <bit-nav-item
         [icon]="organization.node.icon"
-        [class.active]="organization.node.id === activeFilter()?.organizationId"
+        [forceActiveStyles]="organization.node.id === activeFilter()?.organizationId"
         [text]="organization.node.name"
         variant="tree"
         [appA11yTitle]="organization.node.name"
