@@ -20,10 +20,10 @@ export class MainDesktopAutotypeService {
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
 
-    this.registerHandlers();
+    this.registerIpcListeners();
   }
 
-  registerHandlers() {
+  registerIpcListeners() {
     ipcMain.on(AUTOTYPE_IPC_CHANNELS.TOGGLE, (_event, enable: boolean) => {
       if (enable) {
         this.enableAutotype();
