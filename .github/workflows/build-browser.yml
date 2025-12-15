@@ -151,18 +151,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
-      - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-          node-version: ${{ env._NODE_VERSION }}
-
-      - name: Print environment
-        run: |
-          node --version
-          npm --version
-
       - name: Build sources for reviewers
         run: |
           # Include hidden files in glob copy
@@ -259,17 +247,21 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Print environment
         run: |
           node --version
-          npm --version
+          pnpm --version
 
       - name: Download browser source
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
@@ -281,8 +273,8 @@ jobs:
           unzip browser-source.zip
           rm browser-source.zip
 
-      - name: NPM setup
-        run: npm ci
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
         working-directory: browser-source/
 
       - name: Remove commercial packages
@@ -306,7 +298,7 @@ jobs:
       - name: Override SDK
         if: ${{ inputs.sdk_branch != '' }}
         working-directory: browser-source/
-        run: npm link ../sdk-internal
+        run: pnpm link ../sdk-internal
 
       - name: Check source file size
         if: ${{ startsWith(matrix.browser.name, 'firefox') }}
@@ -332,7 +324,7 @@ jobs:
           fi
 
       - name: Build extension
-        run: npm run ${{matrix.license_type.npm_command_prefix}}${{ matrix.browser.npm_command_suffix }}
+        run: pnpm run ${{matrix.license_type.npm_command_prefix}}${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
       - name: Upload extension artifact
@@ -344,7 +336,7 @@ jobs:
 
       - name: Package dev extension
         if: ${{ matrix.browser.archive_name_dev != '' }}
-        run: npm run ${{ matrix.license_type.npm_package_dev_prefix }}${{ matrix.browser.npm_command_suffix }}
+        run: pnpm run ${{ matrix.license_type.npm_package_dev_prefix }}${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
       - name: Upload dev extension artifact
@@ -391,17 +383,21 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Print environment
         run: |
           node --version
-          npm --version
+          pnpm --version
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -483,8 +479,8 @@ jobs:
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
-      - name: NPM setup
-        run: npm ci
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
         working-directory: ./
 
       - name: Remove commercial packages
@@ -508,11 +504,10 @@ jobs:
       - name: Override SDK
         if: ${{ inputs.sdk_branch != '' }}
         working-directory: ./
-        run: |
-          npm link ../sdk-internal
+        run: pnpm link ../sdk-internal
 
       - name: Build Safari extension
-        run: npm run ${{matrix.license_type.npm_command_prefix}}safari
+        run: pnpm run ${{matrix.license_type.npm_command_prefix}}safari
         working-directory: apps/browser
 
       - name: Zip Safari build artifact
