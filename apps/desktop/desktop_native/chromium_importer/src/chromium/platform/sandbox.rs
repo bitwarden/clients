@@ -1,9 +1,8 @@
 /// Sandbox specific (for Mac App Store Builds)
-
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 
-// Bundle IDs of supported Chromium browsers - used to determine if browser is installed 
+// Bundle IDs of supported Chromium browsers - used to determine if browser is installed
 const BROWSER_BUNDLE_IDS: &[(&str, &str)] = &[
     ("Chrome", "com.google.Chrome"),
     ("Chromium", "org.chromium.Chromium"),
@@ -15,12 +14,16 @@ const BROWSER_BUNDLE_IDS: &[(&str, &str)] = &[
 ];
 
 #[derive(Debug, Deserialize)]
-#[serde(tag = "type")]
+#[serde(rename_all = "camelCase")]
+struct CheckBrowserInstalledResponse {
+    is_installed: bool,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase", tag = "type")]
 enum CommandResult<T> {
     // rename = "camelCase" was a review suggestion with breaking changes
-    #[serde(rename = "success")]
     Success { value: T },
-    #[serde(rename = "error")]
     Error { error: String },
 }
 
@@ -201,10 +204,4 @@ async fn is_browser_installed(browser_name: &str) -> Result<bool> {
         CommandResult::Success { value } => Ok(value.is_installed),
         CommandResult::Error { error } => Err(anyhow!("{}", error)),
     }
-}
-
-#[derive(Debug, Deserialize)]
-struct CheckBrowserInstalledResponse {
-    #[serde(rename = "isInstalled")]
-    is_installed: bool,
 }

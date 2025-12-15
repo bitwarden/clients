@@ -51,9 +51,34 @@
         return nil;
     }
 
+    // Compare the selected path against the expected browser directory
+    NSString *expectedPath = browserPath.path;
+    NSString *selectedPath = selectedURL.path;
+    if (![selectedPath isEqualToString:expectedPath]) {
+        return nil;
+    }
+
+    // Validate the selected directory contains a Local State file
     NSURL *localStatePath = [selectedURL URLByAppendingPathComponent:@"Local State"];
     if (![[NSFileManager defaultManager] fileExistsAtPath:localStatePath.path]) {
-        // Invalid directory selected caller will handle
+        return nil;
+    }
+
+    // Validate Local State contains expected Chromium structure
+    NSData *localStateData = [NSData dataWithContentsOfURL:localStatePath];
+    if (!localStateData) {
+        return nil;
+    }
+    NSError *jsonError = nil;
+    id jsonObject = [NSJSONSerialization JSONObjectWithData:localStateData options:0 error:&jsonError];
+    if (!jsonObject || ![jsonObject isKindOfClass:[NSDictionary class]]) {
+        return nil;
+    }
+
+    NSDictionary *localState = (NSDictionary *)jsonObject;
+
+    // Verify essential Chromium/Chrome keys exist to confirm this is actually a browser data directory
+    if (!localState[@"profile"] && !localState[@"browser"]) {
         return nil;
     }
 
@@ -145,7 +170,6 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *key = [self bookmarkKeyFor:browserName];
     [defaults setObject:data forKey:key];
-    [defaults synchronize];
 }
 
 - (NSData *)loadBookmarkForBrowser:(NSString *)browserName {
