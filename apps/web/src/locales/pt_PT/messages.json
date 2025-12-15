@@ -5169,8 +5169,20 @@
     "message": "Corrigir",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Corrigir encriptação"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Este ficheiro está a utilizar um método de encriptação desatualizado."
+  },
+  "attachmentUpdated": {
+    "message": "Anexo atualizado"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Existem anexos de ficheiros antigos no seu cofre que têm de ser corrigidos antes de poder regenerar a chave de encriptação da sua conta."
+  },
+  "itemsTransferred": {
+    "message": "Itens transferidos"
   },
   "yourAccountsFingerprint": {
     "message": "Frase de impressão digital da sua conta",
@@ -5854,7 +5866,7 @@
     "description": "This will be used as a hyperlink"
   },
   "organizationDataOwnershipWarningTitle": {
-    "message": "Tens a certeza de que queres continuar?"
+    "message": "Tem a certeza de que pretende continuar?"
   },
   "organizationDataOwnershipWarning1": {
     "message": "continuará a ser acessível aos membros"
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Convidado novamente com sucesso"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ utilizadores convidados novamente",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ de $SELECTEDCOUNT$ utilizadores convidados novamente. $EXCLUDEDCOUNT$ não foram convidados devido ao limite de $LIMIT$ convites.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Removido com sucesso"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "O tempo limite do cofre não está dentro do intervalo permitido."
   },
-  "disablePersonalVaultExport": {
-    "message": "Remover a exportação do cofre individual"
+  "disableExport": {
+    "message": "Remover exportação"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Não permitir que os membros exportem dados do seu cofre individual."
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Já não é necessária uma palavra-passe mestra para os membros da seguinte organização. Por favor, confirme o domínio abaixo com o administrador da sua organização."
-  },
   "keyConnectorDomain": {
     "message": "Domínio do Key Connector"
   },
@@ -7154,7 +7189,7 @@
   "enabledSso": {
     "message": "SSO ativado"
   },
-  "disabledSso": {
+  "ssoTurnedOff": {
     "message": "SSO desativado"
   },
   "emailMustLoginWithSso": {
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "É necessário um início de sessão SSO"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "O e-mail é necessário para o SSO"
   },
   "selectedRegionFlag": {
     "message": "Bandeira da região selecionada"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Adesão familiar"
   },
-  "planDescPremium": {
-    "message": "Segurança total online"
+  "advancedOnlineSecurity": {
+    "message": "Segurança online avançada"
   },
   "planDescFamiliesV2": {
     "message": "Segurança de topo para a sua família"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Não foram selecionadas aplicações críticas"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Eliminar itens irrecuperáveis do cofre"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Alguns dos seus itens do cofre não puderam ser recuperados. Pretende eliminar esses itens irrecuperáveis do seu cofre?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Eliminar pastas irrecuperáveis"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Alguns das suas pastas não puderam ser recuperados. Pretende eliminar essas pastas irrecuperáveis do seu cofre?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Substituir chave de encriptação"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Não foi possível recuperar o seu par de chaves de encriptação de chave pública. Pretende substituir a sua chave de encriptação por um novo par de chaves? Isto exigirá que configure novamente os acessos de emergência existentes e as associações à organização."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "A sincronizar dados"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "A verificar a integridade da chave de encriptação"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "A verificar informações do utilizador"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "A verificar a integridade dos itens do cofre"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "A verificar a integridade da pasta"
+  },
+  "dataRecoveryTitle": {
+    "message": "Recuperação de Dados e Diagnóstico"
+  },
+  "dataRecoveryDescription": {
+    "message": "Utilize a ferramenta de recuperação de dados para diagnosticar e resolver problemas na sua conta. Após executar os diagnósticos, terá a opção de guardar os registos de diagnóstico para suporte e a opção de reparar quaisquer problemas detetados."
+  },
+  "runDiagnostics": {
+    "message": "Executar diagnóstico"
+  },
+  "repairIssues": {
+    "message": "Resolver problemas"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Guardar registos de diagnóstico"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Esta configuração é gerida pela sua organização."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "A sua organização definiu o tempo limite máximo da sessão para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "A sua organização definiu o tempo limite de sessão predefinido para Ao atualizar o navegador."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "O tempo limite máximo não pode ser superior a $HOURS$ hora(s) e $MINUTES$ minuto(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Ao atualizar o navegador"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Configure um método de desbloqueio para alterar a sua ação de tempo limite"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Tem a certeza de que pretende sair?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Ao recusar, os seus itens pessoais permanecerão na sua conta, mas perderá o acesso aos itens partilhados e às funcionalidades da organização."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Entre em contacto com o seu administrador para recuperar o acesso."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Sair de $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Como posso gerir o meu cofre?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transferir itens para $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por motivos de segurança e conformidade. Clique em Aceitar para transferir a propriedade dos seus itens.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Aceitar transferência"
+  },
+  "declineAndLeave": {
+    "message": "Recusar e sair"
+  },
+  "whyAmISeeingThis": {
+    "message": "Porque é que estou a ver isto?"
   }
 }
