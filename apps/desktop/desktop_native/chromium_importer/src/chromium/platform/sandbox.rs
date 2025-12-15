@@ -1,11 +1,9 @@
-//
-// Sandbox specific (for Mac App Store Builds)
-//
+/// Sandbox specific (for Mac App Store Builds)
 
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 
-// Before requesting access outside of sandbox, determine if browser is actually installed
+// Bundle IDs of supported Chromium browsers - used to determine if browser is installed 
 const BROWSER_BUNDLE_IDS: &[(&str, &str)] = &[
     ("Chrome", "com.google.Chrome"),
     ("Chromium", "org.chromium.Chromium"),
