@@ -191,6 +191,7 @@ export abstract class LoginStrategy {
       name: accountInformation.name,
       email: accountInformation.email ?? "",
       emailVerified: accountInformation.email_verified ?? false,
+      creationDate: undefined, // We don't get a creation date in the token. See https://bitwarden.atlassian.net/browse/PM-29551 for consolidation plans.
     });
 
     // User env must be seeded from currently set env before switching to the account
