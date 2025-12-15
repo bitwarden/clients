@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { concatMap, delay, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -31,13 +32,21 @@ export class ApplicationsLoadingComponent implements OnInit {
   private dataService = inject(RiskInsightsDataService);
   private destroyRef = inject(DestroyRef);
 
+  // Minimum time to display each progress step (in milliseconds)
+  private readonly STEP_DISPLAY_DELAY_MS = 250;
+
   readonly currentMessage = signal<LoadingMessage>(PROGRESS_STEPS[0].message);
   readonly progress = signal<number>(PROGRESS_STEPS[0].progress);
 
   ngOnInit(): void {
     // Subscribe to actual progress events from the orchestrator
+    // Use concatMap with delay to ensure each step is displayed for a minimum time
+    // This prevents jarring visual jumps when steps complete quickly
     this.dataService.reportProgress$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        concatMap((progressStep) => of(progressStep).pipe(delay(this.STEP_DISPLAY_DELAY_MS))),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((progressStep) => {
         if (progressStep === null) {
           // Reset to initial state

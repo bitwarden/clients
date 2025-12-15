@@ -101,8 +101,9 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     .asObservable()
     .pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
-  // Minimum time to display loading progress (in milliseconds)
-  private readonly LOADING_DISPLAY_DELAY_MS = 1000;
+  // Minimum time to display loading progress after report completes (in milliseconds)
+  // Must be >= STEP_DISPLAY_DELAY_MS × number of steps (250ms × 6 = 1500ms) to allow all animations to complete
+  private readonly LOADING_DISPLAY_DELAY_MS = 1800;
 
   // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
