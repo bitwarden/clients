@@ -59,10 +59,8 @@ export const AUTOFILL_ATTRIBUTES = {
   READONLY: "readonly",
   REL: "rel",
   TABINDEX: "tabindex",
-  TAGNAME: "tagname",
   TITLE: "title",
   TYPE: "type",
-  VALUE: "value",
 } as const;
 
 export const ClearClipboardDelay = {
