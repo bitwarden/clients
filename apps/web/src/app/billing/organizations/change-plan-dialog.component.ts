@@ -550,14 +550,21 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get reSubscribablePlan() {
+    if (!this.currentPlan) {
+      throw new Error(
+        "Current plan must be set to find the re-subscribable plan for a cancelled subscription.",
+      );
+    }
     if (!this.currentPlan.disabled) {
       return this.currentPlan;
     }
-    return this.passwordManagerPlans.find(
-      (plan) =>
-        plan.productTier == this.currentPlan.productTier &&
-        plan.isAnnual == this.currentPlan.isAnnual &&
-        !plan.disabled,
+    return (
+      this.passwordManagerPlans.find(
+        (plan) =>
+          plan.productTier === this.currentPlan.productTier &&
+          plan.isAnnual === this.currentPlan.isAnnual &&
+          !plan.disabled,
+      ) ?? this.currentPlan
     );
   }
 
