@@ -220,7 +220,7 @@ describe("MainDesktopAutotypeService", () => {
       configureHandler({}, config);
 
       expect(mockLogService.debug).toHaveBeenCalledWith(
-        "configureAutotype called but keyboard shortcut is not different from current.",
+        "setKeyboardShortcut() called but shortcut is not different from current.",
       );
     });
   });
@@ -369,7 +369,7 @@ describe("MainDesktopAutotypeService", () => {
 
       expect(globalShortcut.register).not.toHaveBeenCalled();
       expect(mockLogService.debug).toHaveBeenCalledWith(
-        "Autotype is already enabled with the keyboard shortcut.",
+        "Autotype is already enabled with this keyboard shortcut: Control+Alt+B",
       );
     });
 
