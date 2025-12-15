@@ -12,7 +12,6 @@ import { VAULT_FILTER_IMPORTS } from "../shared-filter-imports";
 @Component({
   selector: "app-type-filter",
   templateUrl: "type-filter.component.html",
-  standalone: true,
   imports: [...VAULT_FILTER_IMPORTS],
 })
 export class TypeFilterComponent {

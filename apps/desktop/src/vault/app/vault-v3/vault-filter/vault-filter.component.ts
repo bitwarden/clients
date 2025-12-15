@@ -36,7 +36,6 @@ import { TypeFilterComponent } from "./filters/type-filter.component";
 @Component({
   selector: "app-vault-filter",
   templateUrl: "vault-filter.component.html",
-  standalone: true,
   imports: [
     I18nPipe,
     NavigationModule,

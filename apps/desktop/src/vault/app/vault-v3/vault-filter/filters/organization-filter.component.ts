@@ -16,7 +16,6 @@ import { CollectionFilterComponent } from "./collection-filter.component";
 @Component({
   selector: "app-organization-filter",
   templateUrl: "organization-filter.component.html",
-  standalone: true,
   imports: [...VAULT_FILTER_IMPORTS, CollectionFilterComponent],
 })
 export class OrganizationFilterComponent {

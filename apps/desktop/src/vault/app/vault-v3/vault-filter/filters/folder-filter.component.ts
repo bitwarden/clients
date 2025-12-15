@@ -11,7 +11,6 @@ import { VAULT_FILTER_IMPORTS } from "../shared-filter-imports";
 @Component({
   selector: "app-folder-filter",
   templateUrl: "folder-filter.component.html",
-  standalone: true,
   imports: [...VAULT_FILTER_IMPORTS, IconButtonModule],
 })
 export class FolderFilterComponent {

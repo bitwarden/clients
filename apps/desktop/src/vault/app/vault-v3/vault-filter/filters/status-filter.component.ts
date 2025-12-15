@@ -15,7 +15,6 @@ import { VAULT_FILTER_IMPORTS } from "../shared-filter-imports";
 @Component({
   selector: "app-status-filter",
   templateUrl: "status-filter.component.html",
-  standalone: true,
   imports: [...VAULT_FILTER_IMPORTS, PremiumBadgeComponent],
 })
 export class StatusFilterComponent {
