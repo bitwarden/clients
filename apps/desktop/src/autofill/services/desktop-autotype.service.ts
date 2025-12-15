@@ -31,7 +31,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
-import { AutotypeConfig } from "../models/autotype-configure";
+import { AutotypeConfig } from "../models/autotype-config";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";

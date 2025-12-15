@@ -5,7 +5,7 @@ import type { autofill } from "@bitwarden/desktop-napi";
 import { Command } from "../platform/main/autofill/command";
 import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
 
-import { AutotypeConfig } from "./models/autotype-configure";
+import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
 import { AUTOTYPE_IPC_CHANNELS } from "./models/ipc-channels";
