@@ -11,7 +11,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, EMPTY, firstValueFrom, of } from "rxjs";
-import { delay, distinctUntilChanged, map, switchMap, tap } from "rxjs/operators";
+import { delay, distinctUntilChanged, map, shareReplay, switchMap, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -97,7 +97,9 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   // Controls loading component visibility with delayed hiding to allow progress animations to complete
   private showLoadingSubject = new BehaviorSubject<boolean>(false);
-  protected showLoading$ = this.showLoadingSubject.asObservable();
+  protected showLoading$ = this.showLoadingSubject
+    .asObservable()
+    .pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
   // Minimum time to display loading progress (in milliseconds)
   private readonly LOADING_DISPLAY_DELAY_MS = 1000;
