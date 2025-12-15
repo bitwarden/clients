@@ -41,26 +41,18 @@ import {
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
-import {
-  VaultFilterServiceAbstraction,
-  VaultFilterService,
-  RoutedVaultFilterBridgeService,
-  RoutedVaultFilterService,
-} from "@bitwarden/vault";
 
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
-import { DesktopPremiumUpgradePromptService } from "../services/desktop-premium-upgrade-prompt.service";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
@@ -361,18 +353,6 @@ const routes: Routes = [
     path: "",
     component: DesktopLayoutComponent,
     canActivate: [authGuard],
-    providers: [
-      RoutedVaultFilterService,
-      RoutedVaultFilterBridgeService,
-      {
-        provide: VaultFilterServiceAbstraction,
-        useClass: VaultFilterService,
-      },
-      {
-        provide: PremiumUpgradePromptService,
-        useClass: DesktopPremiumUpgradePromptService,
-      },
-    ],
     children: [
       {
         path: "new-vault",
