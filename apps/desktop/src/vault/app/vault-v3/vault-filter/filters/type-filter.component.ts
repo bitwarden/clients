@@ -1,18 +1,19 @@
+import { CommonModule } from "@angular/common";
 import { Component, input, inject } from "@angular/core";
 import { map, shareReplay } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { NavigationModule } from "@bitwarden/components";
 import { VaultFilter, CipherTypeFilter } from "@bitwarden/vault";
-
-import { VAULT_FILTER_IMPORTS } from "../shared-filter-imports";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-type-filter",
   templateUrl: "type-filter.component.html",
-  imports: [...VAULT_FILTER_IMPORTS],
+  imports: [CommonModule, JslibModule, NavigationModule],
 })
 export class TypeFilterComponent {
   private restrictedItemTypesService: RestrictedItemTypesService = inject(

@@ -1,17 +1,16 @@
 import { Component, input, computed, output } from "@angular/core";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { IconButtonModule } from "@bitwarden/components";
+import { IconButtonModule, NavigationModule } from "@bitwarden/components";
 import { VaultFilter, FolderFilter } from "@bitwarden/vault";
-
-import { VAULT_FILTER_IMPORTS } from "../shared-filter-imports";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-folder-filter",
   templateUrl: "folder-filter.component.html",
-  imports: [...VAULT_FILTER_IMPORTS, IconButtonModule],
+  imports: [JslibModule, NavigationModule, IconButtonModule],
 })
 export class FolderFilterComponent {
   protected readonly folder = input<TreeNode<FolderFilter>>();
