@@ -1,7 +1,9 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
 import { BehaviorSubject, filter, merge, Observable, shareReplay, switchMap, tap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -32,7 +34,7 @@ type View = {
   ],
   providers: [SubscriberBillingClient],
 })
-export class AccountPaymentDetailsComponent {
+export class AccountPaymentDetailsComponent implements OnInit {
   private viewState$ = new BehaviorSubject<View | null>(null);
 
   private load$: Observable<View> = this.accountService.activeAccount$.pipe(
@@ -59,8 +61,19 @@ export class AccountPaymentDetailsComponent {
 
   constructor(
     private accountService: AccountService,
+    private platformUtilsService: PlatformUtilsService,
+    private router: Router,
     private subscriberBillingClient: SubscriberBillingClient,
   ) {}
+
+  async ngOnInit() {
+    if (this.platformUtilsService.isSelfHost()) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.router.navigate(["/settings/subscription"]);
+      return;
+    }
+  }
 
   setPaymentMethod = (paymentMethod: MaskedPaymentMethod) => {
     if (this.viewState$.value) {
