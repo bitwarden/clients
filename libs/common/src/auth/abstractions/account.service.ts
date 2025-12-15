@@ -4,6 +4,8 @@ import { UserId } from "../../types/guid";
 
 /**
  * Holds state that represents a user's account with Bitwarden.
+ * Any additions here should be added to the equality check in the AccountService
+ * to ensure that emissions are done on every change.
  *
  * @property email - User's email address
  * @property emailVerified - Whether the email has been verified
