@@ -3063,7 +3063,7 @@
     "message": "1 GB di spazio di archiviazione crittografato per gli allegati."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "Archivio crittografato di $SIZE$ per allegati.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -3134,13 +3134,13 @@
     }
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Il tuo abbonamento Premium è scaduto"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Per recuperare l'accesso al tuo archivio, riavvia il tuo abbonamento Premium. Se modifichi i dettagli di un elemento archiviato prima del riavvio, sarà spostato nella tua cassaforte."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Riavvia Premium"
   },
   "additionalStorageGb": {
     "message": "Spazio di archiviazione aggiuntivo (GB)"
@@ -4627,19 +4627,19 @@
     "message": "Ulteriori informazioni"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "S'è verificato un errore durante l'aggiornamento delle impostazioni di crittografia."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Aggiorna le impostazioni di crittografia"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Le impostazioni di crittografia consigliate miglioreranno la sicurezza del tuo account. Inserisci la password principale per aggiornare."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Conferma la tua identità per continuare"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Inserisci la password principale"
   },
   "updateSettings": {
     "message": "Aggiorna le impostazioni"
@@ -5169,8 +5169,20 @@
     "message": "Correggi",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Correggi la crittografia"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Questo file usa un metodo di crittografia obsoleto."
+  },
+  "attachmentUpdated": {
+    "message": "Allegato aggiornato"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Ci sono vecchi file allegati nella tua cassaforte che devono essere corretti prima di poter ruotare la chiave di crittografia del tuo account."
+  },
+  "itemsTransferred": {
+    "message": "Elementi trasferiti"
   },
   "yourAccountsFingerprint": {
     "message": "Frase impronta del tuo account",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Invitato di nuovo"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ utente/i ri-invitato/i",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ utenti su $SELECTEDCOUNT$ ri-invitati. $EXCLUDEDCOUNT$ non hanno ricevuto l'invito a causa del limite di $LIMIT$ inviti.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Rimosso"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "Il timeout della cassaforte non è all'interno dell'intervallo consentito."
   },
-  "disablePersonalVaultExport": {
-    "message": "Rimuovi esportazione cassaforte individuale"
+  "disableExport": {
+    "message": "Rimuovi esportazione"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Non consentire ai membri di esportare i dati dalla loro cassaforte individuale."
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Codice di verifica non valido"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "La password principale non è più richiesta per i membri dell'organizzazione. Per favore, conferma il dominio qui sotto con l'amministratore."
-  },
   "keyConnectorDomain": {
     "message": "Dominio Key Connector"
   },
@@ -7154,8 +7189,8 @@
   "enabledSso": {
     "message": "SSO attivato"
   },
-  "disabledSso": {
-    "message": "SSO disattivato"
+  "ssoTurnedOff": {
+    "message": "Single Sign-On (SSO) disattivato"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ deve accedere con Single Sign-on",
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "Il login SSO è obbligatorio"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "L'email è richiesta per SSO (Single Sign-On)"
   },
   "selectedRegionFlag": {
     "message": "Bandiera della regione selezionata"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Abbonamento famiglie"
   },
-  "planDescPremium": {
-    "message": "Sicurezza online completa"
+  "advancedOnlineSecurity": {
+    "message": "Sicurezza online avanzata"
   },
   "planDescFamiliesV2": {
     "message": "Sicurezza Premium per la tua famiglia"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Non ci sono applicazioni contrassegnate come critiche"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "Verifica dell'utente non riuscita."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Elimina gli oggetti della cassaforte non recuperabili"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Alcuni oggetti della tua cassaforte non possono essere recuperati. Vuoi eliminarli?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Elimina le cartelle non recuperabili"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Alcune cartelle della tua cassaforte non possono essere recuperate. Vuoi eliminarle?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Cambia chiave crittografica"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "La tua coppia di chiavi crittografiche non può essere recuperata. Vuoi sostituirla con una nuova coppia di chiavi? Attenzione: dovrai impostare nuovamente i membri abilitati all'accesso d'emergenza."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Sincronizzazione dati…"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Verifica integrità della chiave crittografica"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Verifica delle informazioni dell'utente"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Verifica integrità dell'oggetto…"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Verifica integrità della cartella…"
+  },
+  "dataRecoveryTitle": {
+    "message": "Recupero dati e diagnostica"
+  },
+  "dataRecoveryDescription": {
+    "message": "Usa lo strumento di recupero dati per diagnosticare e riparare i problemi dell'account. Dopo la scansione della diagnostica, potrai salvare i registri diagnostici per il supporto e avrai la possibilità di riparare eventuali problemi rilevati."
+  },
+  "runDiagnostics": {
+    "message": "Esegui la diagnostica"
+  },
+  "repairIssues": {
+    "message": "Ripara i problemi rilevati"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Salva registri diagnostici"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Questa impostazione è gestita dalla tua organizzazione."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "La tua organizzazione ha impostato $HOURS$ ora/e e $MINUTES$ minuto/i come durata massima della sessione.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "In base alle impostazioni della tua organizzazione, la sessione terminerà ogni volta che la pagina sarà chiusa o ricaricata."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "La durata della sessione non può superare $HOURS$ ora/e e $MINUTES$ minuto/i",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Al refresh o riavvio del browser"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Imposta un metodo di sblocco per modificare l'azione al timeout"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Vuoi davvero abbandonare?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Se rifiuti, tutti gli elementi esistenti resteranno nel tuo account, ma perderai l'accesso agli oggetti condivisi e alle funzioni organizzative."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contatta il tuo amministratore per recuperare l'accesso."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Abbandona $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Come si gestisce la cassaforte?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Trasferisci gli elementi in $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ richiede che tutti gli elementi siano di proprietà dell'organizzazione per motivi di conformità e sicurezza. Clicca su 'Accetta' per trasferire la proprietà.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accetta il trasferimento"
+  },
+  "declineAndLeave": {
+    "message": "Rifiuta e abbandona"
+  },
+  "whyAmISeeingThis": {
+    "message": "Perché vedo questo avviso?"
   }
 }

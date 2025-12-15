@@ -94,7 +94,7 @@
     "message": "Tilldela medlemmar uppgifter för att övervaka framsteg"
   },
   "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
+    "message": "När du granskar applikationer och markerar dem som kritiska, tilldela uppgifter till dina medlemmar att ändra sina lösenord."
   },
   "sendReminders": {
     "message": "Skicka påminnelser"
@@ -182,31 +182,31 @@
     "message": "Ingen data hittades"
   },
   "noDataInOrgDescription": {
-    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+    "message": "Importera din organisations inloggningsdata för att komma igång med Access Intelligence. När du gör det kommer du att:"
   },
   "feature1Title": {
     "message": "Markera applikationer som kritiska"
   },
   "feature1Description": {
-    "message": "This will help you remove risks to your most important applications first."
+    "message": "Detta kommer att hjälpa dig att minska risken för dina viktigaste applikationer först."
   },
   "feature2Title": {
     "message": "Hjälp medlemmar att förbättra sin säkerhet"
   },
   "feature2Description": {
-    "message": "Assign at-risk members guided security tasks to update credentials."
+    "message": "Tilldela medlemmar i riskzonen tydliga säkerhetsuppgifter för att uppdatera inloggningsuppgifter."
   },
   "feature3Title": {
     "message": "Övervaka framsteg"
   },
   "feature3Description": {
-    "message": "Track changes over time to show security improvements."
+    "message": "Spåra förändringar över tid för att visa säkerhetsförbättringar."
   },
   "noReportsRunTitle": {
     "message": "Generera rapport"
   },
   "noReportsRunDescription": {
-    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
+    "message": "Du är redo att börja generera rapporter. När du genererar dem kommer du att kunna:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Du har inte markerat några applikationer som kritiska"
@@ -266,13 +266,13 @@
     "message": "Riskutsatta medlemmar"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
-    "message": "These members have access to vulnerable items for critical applications."
+    "message": "Dessa medlemmar har tillgång till sårbara objekt för kritiska applikationer."
   },
   "membersWithAtRiskPasswords": {
     "message": "Medlemmar med lösenord i riskzonen"
   },
   "membersWillReceiveSecurityTask": {
-    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
+    "message": "Medlemmar i din organisation kommer att tilldelas en uppgift att ändra sårbara lösenord. De kommer att få ett meddelande i deras Bitwarden-webbläsartillägg."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ medlemmar i riskzonen",
@@ -302,7 +302,7 @@
     }
   },
   "atRiskMemberDescription": {
-    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
+    "message": "Dessa medlemmar loggar in i kritiska applikationer med svaga, exponerade eller återanvända lösenord."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Det finns inga medlemmar som loggar in i applikationer med svaga, exponerade eller återanvända lösenord."
@@ -362,13 +362,13 @@
     "message": "Granska nu"
   },
   "allCaughtUp": {
-    "message": "All caught up!"
+    "message": "Inget mer att göra!"
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "Inga nya applikationer att granska just nu"
   },
   "organizationHasItemsSavedForApplications": {
-    "message": "Your organization has items saved for $COUNT$ applications",
+    "message": "Din organisation har sparade objekt för $COUNT$ applikationer",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -377,7 +377,7 @@
     }
   },
   "reviewApplicationsToSecureItems": {
-    "message": "Review applications to secure the items most critical to your organization's security"
+    "message": "Granska applikationer för att säkra de objekt som är mest kritiska för din organisations säkerhet"
   },
   "reviewApplications": {
     "message": "Granska applikationer"
@@ -386,22 +386,22 @@
     "message": "Prioritera kritiska applikationer"
   },
   "selectCriticalAppsDescription": {
-    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "Välj vilka applikationer som är mest kritiska för din organisation. Då kommer du att kunna tilldela säkerhetsuppgifter till medlemmar för att ta bort risker."
   },
   "reviewNewApplications": {
     "message": "Granska nya applikationer"
   },
   "reviewNewAppsDescription": {
-    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "Granska nya applikationer med sårbara objekt och markera dem som du vill övervaka noga som kritiska. Då kommer du att kunna tilldela säkerhetsuppgifter till medlemmar för att ta bort risker."
   },
   "clickIconToMarkAppAsCritical": {
-    "message": "Click the star icon to mark an app as critical"
+    "message": "Klicka på stjärnikonen för att markera en app som kritisk"
   },
   "markAsCriticalPlaceholder": {
     "message": "Markera som kritisk funktionalitet kommer att implementeras i en framtida uppdatering"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
+    "message": "Applikationsgranskning sparad"
   },
   "newApplicationsReviewed": {
     "message": "Nya applikationer granskade"
@@ -875,7 +875,7 @@
     "message": "Favoriter"
   },
   "taskSummary": {
-    "message": "Task summary"
+    "message": "Uppgiftssammandrag"
   },
   "types": {
     "message": "Typer"
@@ -1717,7 +1717,7 @@
     "message": "Inga objekt i valvet"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Valvet skyddar mer än bara dina lösenord. Förvara säkra inloggningar, ID-handlingar, kort och anteckningar säkert här."
   },
   "emptyFavorites": {
     "message": "Du har inga favoritobjekt"
@@ -3044,7 +3044,7 @@
     "message": "Se till att ditt konto har tillräckligt mycket tillgänglig kredit för detta köp. Om ditt konto inte har tillräckligt med tillgänglig kredit, kommer din sparade standardbetalningsmetod användas för skillnaden. Du kan lägga till kredit till ditt konto från faktureringssidan."
   },
   "notEnoughAccountCredit": {
-    "message": "You do not have enough account credit for this purchase. You can add credit to your account from the Billing page."
+    "message": "Du har inte tillräckligt med kontokredit för detta köp. Du kan lägga till kredit till ditt konto från faktureringssidan."
   },
   "creditAppliedDesc": {
     "message": "Kontots kredit kan användas för att göra köp. Tillgänglig kredit kommer automatiskt tillämpas mot fakturor som genereras för detta konto."
@@ -3063,7 +3063,7 @@
     "message": "1 GB krypterad lagring."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ krypterad lagring för filbilagor.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -3134,10 +3134,10 @@
     }
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Din Premium-prenumeration avslutades"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "För att återfå åtkomst till ditt arkiv, starta om Premium-prenumerationen. Om du redigerar detaljer för ett arkiverat objekt innan du startar om kommer det att flyttas tillbaka till ditt valv."
   },
   "restartPremium": {
     "message": "Starta om Premium"
@@ -4479,7 +4479,7 @@
     "message": "Uppdatera webbläsare"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
+    "message": "Genererar din Access Intelligence..."
   },
   "fetchingMemberData": {
     "message": "Hämtar medlemsdata..."
@@ -5096,7 +5096,7 @@
     "message": "Organisationen är avstängd"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Objekt i inaktiverade organisationer är inte åtkomliga. Kontakta organisationens ägare för att få hjälp."
   },
   "secretsAccessSuspended": {
     "message": "Avstängda organisationer kan inte nås. Kontakta din organisationsägare för hjälp."
@@ -5169,8 +5169,20 @@
     "message": "Åtgärda",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Fixa kryptering"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Denna fil använder en föråldrad krypteringsmetod."
+  },
+  "attachmentUpdated": {
+    "message": "Bilaga uppdaterad"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Det finns gamla bilagor i ditt valv som behöver åtgärdas innan du kan rotera ditt kontos krypteringsnyckel."
+  },
+  "itemsTransferred": {
+    "message": "Objekt överförda"
   },
   "yourAccountsFingerprint": {
     "message": "Ditt kontos fingeravtrycksfras",
@@ -5484,7 +5496,7 @@
     "message": "SSO-identifierare"
   },
   "ssoIdentifierHint": {
-    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "message": "Ange detta id till dina medlemmar för att logga in med SSO. Medlemmar kan hoppa över att ange denna identifierare under SSO om en domän som gjorts anspråk på är inställd. ",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "claimedDomainsLearnMore": {
@@ -5846,7 +5858,7 @@
     "description": "This is the policy description shown in the policy list."
   },
   "organizationDataOwnershipDescContent": {
-    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "message": "Alla objekt kommer att ägas och sparas till organisationen, vilket möjliggör organisationsövergripande kontroller, synlighet och rapportering. När den är aktiverad kommer en standardsamling att finnas tillgänglig för varje medlem att lagra objekt. Läs mer om hur du hanterar ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
@@ -5897,7 +5909,7 @@
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
-    "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
+    "message": "Lyckades öppna Bitwarden-webbläsartillägg. Du kan nu aktivera inställningen för automatisk bekräftelse av användaren."
   },
   "autoConfirmPolicyEditDescription": {
     "message": "Nya användare som bjuds in till organisationen kommer automatiskt att bekräftas när en administratörs enhet är upplåst. Innan du aktiverar denna policy, granska och godkänn följande: ",
@@ -5907,7 +5919,7 @@
     "message": "Potentiell säkerhetsrisk. "
   },
   "autoConfirmAcceptSecurityRiskDescription": {
-    "message": "Automatic user confirmation could pose a security risk to your organization’s data."
+    "message": "Automatisk användarbekräftelse kan innebära en säkerhetsrisk för din organisations data."
   },
   "autoConfirmAcceptSecurityRiskLearnMore": {
     "message": "Läs mer om riskerna",
@@ -5917,10 +5929,10 @@
     "message": "En organisationspolicy krävs. "
   },
   "autoConfirmSingleOrgRequiredDesc": {
-    "message": "All members must only belong to this organization to activate this automation."
+    "message": "Alla medlemmar får bara tillhöra denna organisation för att aktivera denna automatisering."
   },
   "autoConfirmSingleOrgExemption": {
-    "message": "Single organization policy will extend to all roles. "
+    "message": "En gemensam organisation policy kommer att utvidgas till alla roller. "
   },
   "autoConfirmNoEmergencyAccess": {
     "message": "Ingen nödåtkomst. "
@@ -5993,7 +6005,7 @@
     "message": "Standardmatchning för URI"
   },
   "invalidUriMatchDefaultPolicySetting": {
-    "message": "Please select a valid URI match detection option.",
+    "message": "Välj ett giltigt upptäcktsalternativ för URI-matchning.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Bjöd in igen"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ användare återinbjudna",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ av $SELECTEDCOUNT$ användare återinbjudna. $EXCLUDEDCOUNT$ blev inte inbjudna på grund av gränsen på $LIMIT$ inbjudningar.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Tog bort"
   },
@@ -6653,7 +6691,7 @@
     "message": "Automatisk inloggning med SSO"
   },
   "automaticAppLoginWithSSODesc": {
-    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
+    "message": "Utöka SSO-säkerhet och bekvämlighet till ohanterade appar. När användare startar en app från din identitetsleverantör fylls deras inloggningsuppgifter automatiskt i och skickas in, skapa ett enda klick, säkert flöde från identitetsleverantör till appen."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identitetsleverantörens värd"
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "Vault timeout ligger inte inom tillåtet intervall."
   },
-  "disablePersonalVaultExport": {
-    "message": "Ta bort export av enskilda valv"
+  "disableExport": {
+    "message": "Ta bort export"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Tillåt inte medlemmar att exportera data från sina individuella valv."
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Ogiltig verifieringskod"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Ett huvudlösenord krävs inte längre för medlemmar i följande organisation. Vänligen bekräfta domänen nedan med din organisationsadministratör."
-  },
   "keyConnectorDomain": {
     "message": "Key Connector-domän"
   },
@@ -7154,8 +7189,8 @@
   "enabledSso": {
     "message": "SSO aktiverad"
   },
-  "disabledSso": {
-    "message": "SSO inaktiverad"
+  "ssoTurnedOff": {
+    "message": "SSO avstängd"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ måste logga in med Single Sign-on",
@@ -7408,7 +7443,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Endast organisationsvalvet som är associerat med $ORGANIZATION$ kommer att exporteras.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7417,7 +7452,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Endast organisationsvalvet som är associerat med $ORGANIZATION$ kommer att exporteras. Mina objektsamlingar kommer inte att inkluderas.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8936,7 +8971,7 @@
     }
   },
   "accessedProjectWithIdentifier": {
-    "message": "Accessed a project with identifier: $PROJECT_ID$.",
+    "message": "Kom åt ett projekt med identifierare: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8963,7 +8998,7 @@
     }
   },
   "nameUnavailableServiceAccountDeleted": {
-    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "message": "Tog bort maskinkonto med id: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "service_account_id": {
         "content": "$1",
@@ -8981,7 +9016,7 @@
     }
   },
   "addedUserToServiceAccountWithId": {
-    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Lade till användare: $USER_ID$ till maskinkonto med identifierare: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "user_id": {
         "content": "$1",
@@ -8994,7 +9029,7 @@
     }
   },
   "removedUserToServiceAccountWithId": {
-    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Tog bort användare: $USER_ID$ från maskinkonto med identifierare: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "user_id": {
         "content": "$1",
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "SSO-inloggning krävs"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "E-postadress krävs för SSO"
   },
   "selectedRegionFlag": {
     "message": "Flagga för vald region"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Familjemedlemskap"
   },
-  "planDescPremium": {
-    "message": "Komplett säkerhet online"
+  "advancedOnlineSecurity": {
+    "message": "Avancerad säkerhet online"
   },
   "planDescFamiliesV2": {
     "message": "Premiumsäkerhet för din familj"
@@ -12157,13 +12195,13 @@
     "message": "Starta gratis testperiod för Families"
   },
   "blockClaimedDomainAccountCreation": {
-    "message": "Block account creation for claimed domains"
+    "message": "Blockera kontoskapande för domäner som gjorts anspråk på"
   },
   "blockClaimedDomainAccountCreationDesc": {
-    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+    "message": "Förhindra användare från att skapa konton utanför din organisation med hjälp av e-postadresser från domäner som gjorts anspråk på."
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "A domain must be claimed before activating this policy."
+    "message": "En domän måste göras anspråk på först innan denna policy aktiveras."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Konfigurera en upplåsningsmetod för att ändra tidsgränsåtgärden för valvet."
@@ -12199,13 +12237,186 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Din organisation använder inte längre huvudlösenord för att logga in på Bitwarden. För att fortsätta, verifiera organisationen och domänen."
+  },
+  "continueWithLogIn": {
+    "message": "Fortsätt med inloggning"
+  },
+  "doNotContinue": {
+    "message": "Fortsätt inte"
+  },
+  "domain": {
+    "message": "Domän"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Denna domän kommer att lagra dina krypteringsnycklar, så se till att du litar på den. Om du inte är säker, kontrollera med din administratör."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifiera din organisation för att logga in"
+  },
+  "organizationVerified": {
+    "message": "Organisation verifierad"
+  },
+  "domainVerified": {
+    "message": "Domän verifierad"
+  },
+  "leaveOrganizationContent": {
+    "message": "Om du inte verifierar din organisation kommer din åtkomst till organisationen att återkallas."
+  },
+  "leaveNow": {
+    "message": "Lämna nu"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifiera din domän för att logga in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "För att fortsätta med inloggning, verifiera denna domän."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "För att fortsätta logga in, verifiera organisationen och domänen."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
-    "message": "No critical applications are selected"
+    "message": "Inga kritiska applikationer är valda"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Är du säker på att du vill fortsätta?"
   },
   "userVerificationFailed": {
     "message": "Verifiering av användare misslyckades."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Ta bort oåterkalleliga valvobjekt"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Några av dina valvobjekt kunde inte återställas. Vill du ta bort dessa oåterkalleliga objekt från ditt valv?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Ta bort oåterkalleliga mappar"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Några av dina mappar kunde inte återställas. Vill du ta bort dessa oåterkalleliga mappar från ditt valv?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Ersätt krypteringsnyckel"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Ditt publika nyckelpar för kryptering kunde inte återställas. Vill du ersätta din krypteringsnyckel med ett nytt nyckelpar? Detta kommer att kräva att du konfigurerar befintlig nödåtkomst och organisationsmedlemskap igen."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Synkroniserar data"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Verifierar integritet för krypteringsnyckeln"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Verifierar användarinformation"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Verifierar integritet för valvobjekt"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Verifierar mappintegritet"
+  },
+  "dataRecoveryTitle": {
+    "message": "Dataåterställning och diagnostik"
+  },
+  "dataRecoveryDescription": {
+    "message": "Använd verktyget för dataåterställning för att diagnostisera och reparera problem med ditt konto. Efter att ha kört diagnostik har du möjlighet att spara diagnostikloggar för support och möjlighet att reparera eventuella upptäckta problem."
+  },
+  "runDiagnostics": {
+    "message": "Kör diagnostik"
+  },
+  "repairIssues": {
+    "message": "Reparera problem"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Spara diagnostikloggar"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Den här inställningen hanteras av din organisation."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Din organisation har ställt in maximal sessionstidsgräns till $HOURS$ timmar och $MINUTES$ minut(er).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Din organisation har ställt in tidsgränsen för standardsession till Vid webbläsaruppdatering."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximal tidsgräns får inte överstiga $HOURS$ timmar och $MINUTES$ minut(er)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Vid webbläsaruppdatering"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Ställ in en upplåsningsmetod för att ändra din tidsgränsåtgärd"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Är du säker på att du vill lämna?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Genom att avböja kommer dina personliga objekt att stanna på ditt konto, men du kommer att förlora åtkomst till delade objekt och organisationsfunktioner."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Kontakta administratören för att återfå åtkomst."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Lämna $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Hur hanterar jag mitt valv?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Överför objekt till $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ kräver att alla objekt ägs av organisationen för säkerhet och efterlevnad. Klicka på godkänn för att överföra ägarskapet för dina objekt.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Godkänn överföring"
+  },
+  "declineAndLeave": {
+    "message": "Avböj och lämna"
+  },
+  "whyAmISeeingThis": {
+    "message": "Varför ser jag det här?"
   }
 }

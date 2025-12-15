@@ -5169,8 +5169,20 @@
     "message": "Javítás",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Titkosítás javítása"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Ez a fájl elavult titkosítási módszert használ."
+  },
+  "attachmentUpdated": {
+    "message": "A melléklet frissítésre került."
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "A széfben régi mellékletek vannak, amelyeket javítani kell a fiók titkosító kulcsának fordítása előtt."
+  },
+  "itemsTransferred": {
+    "message": "Az elemek átvitelre kerültek."
   },
   "yourAccountsFingerprint": {
     "message": "Fiók ujjlenyomat kifejezés",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Az ismételt meghívás sikeres volt."
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ felhasználó ismételten meghívásra került.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ / $SELECTEDCOUNT$ felhasználó ismételten meghívásra került. $EXCLUDEDCOUNT$ nem kapott meghívást $LIMIT$ meghívási korlát miatt.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Az eltávolítás sikeres volt."
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "A széf időkifutás nincs az engedélyezett intervallunban."
   },
-  "disablePersonalVaultExport": {
-    "message": "A személyes széf exportálás eltávolítása"
+  "disableExport": {
+    "message": "Exportálás eltávolítása"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Ne engedjük meg a tagoknak, hogy adatokat exportáljanak a saját széfből."
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával."
-  },
   "keyConnectorDomain": {
     "message": "Key Connector tartomány"
   },
@@ -7154,8 +7189,8 @@
   "enabledSso": {
     "message": "Az SSO bekapcsolásra került."
   },
-  "disabledSso": {
-    "message": "Az SSO bekapcsolásra került."
+  "ssoTurnedOff": {
+    "message": "Az SSO kikapcsolásra került."
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ segítségével be kell jelentkezni egyszeri bejelentkezéssel.",
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "SSO bejelentkezés szükséges"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Email cím szükséges az SSO esetén."
   },
   "selectedRegionFlag": {
     "message": "Kiválasztott régió zászló"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Családi tagság"
   },
-  "planDescPremium": {
-    "message": "Teljes körű online biztonság"
+  "advancedOnlineSecurity": {
+    "message": "Bővített online biztonság"
   },
   "planDescFamiliesV2": {
     "message": "Prémium biztonság a család számára"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "A szervezet már nem használ mesterjelszavakat a Bitwardenbe bejelentkezéshez. A folytatáshoz ellenőrizzük a szervezetet és a tartományt."
+  },
+  "continueWithLogIn": {
+    "message": "Folytatás bejelentkezéssel"
+  },
+  "doNotContinue": {
+    "message": "Nincs folytatás"
+  },
+  "domain": {
+    "message": "Tartomány"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Ez a tartomány tárolja a fiók titkosítási kulcsait, ezért győződjünk meg róla, hogy megbízunk-e benne. Ha nem vagyunk biztos benne, érdeklődjünk adminisztrátornál."
+  },
+  "verifyYourOrganization": {
+    "message": "Szervezet ellenőrzése a bejelentkezéshez"
+  },
+  "organizationVerified": {
+    "message": "A szervezet ellenőrzésre került."
+  },
+  "domainVerified": {
+    "message": "A tartomány ellenőrzésre került."
+  },
+  "leaveOrganizationContent": {
+    "message": "Ha nem ellenőrizzük a szervezetet, a szervezethez hozzáférés visszavonásra kerül."
+  },
+  "leaveNow": {
+    "message": "Elhagyás most"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Tartomány ellenőrzése a bejelentkezéshez"
+  },
+  "verifyYourDomainDescription": {
+    "message": "A bejelentkezés folytatásához ellenőrizzük ezt a tartományt."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "A bejelentkezés folytatásához ellenőrizzük a szervezetet és a tartományt."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Nincsenek veszélyben levő kritikus alkalmazások."
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Helyreállíthatatlan széf elemek törlése"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Néhány széf elemet nem sikerült helyreállítani. Törölni szeretnénk ezeket a helyreállíthatatlan elemeket a széfből?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Helyreállíthatatlan mappák törlése"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Néhány mappát nem sikerült helyreállítani. Törölni szeretnénk ezeket a helyreállíthatatlan nappákat a széfből?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Titkosító kulcs cseréje"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "A nyilvános kulcsú titkosítás kulcspárját nem sikerült helyreállítani. Szeretnénk lecserélni a titkosítási kulcsot egy új kulcspárra? Ehhez újra be kell üzemelni a meglévő vészhelyzeti hozzáférési és szervezeti tagságokat."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Adatok szinkronizálása"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Titkosítási kulcs integritás ellenőrzése"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Felhasználói információk ellenőrzése"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Széf elem integritás ellenőrzése"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Mappa integritás ellenőrzése"
+  },
+  "dataRecoveryTitle": {
+    "message": "Adat helyreállítás és diagnosztika"
+  },
+  "dataRecoveryDescription": {
+    "message": "Használjuk az adat helyreállítási eszközt a fiókkal kapcsolatos problémák diagnosztizálásához és javításához. A diagnosztika futtatása után lehetőség van a diagnosztikai naplók mentésére támogatáshoz, valamint az észlelt problémák kijavításához."
+  },
+  "runDiagnostics": {
+    "message": "Diagnosztika futtatása"
+  },
+  "repairIssues": {
+    "message": "Hibák javítása"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Diagnosztikai naplók mentése"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Ezt a beállítást a szervezet lezeli."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "A szervezet a munkamenet maximális munkamenet időkifutását $HOURS$ órára és $MINUTES$ percre állította be.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "A szervezet az alapértelmezett munkamenet időkifutást a Böngésző frissítésekor értékre állította."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "A maximális időtúllépés nem haladhatja meg a $HOURS$ óra és $MINUTES$ perc értéket.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Böngésző frissítésekor"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Biztosan szeretnénk kilépni?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Az elutasítással a személyes elemek a fiókban maradnak, de elveszítjük hozzáférést a megosztott elemekhez és a szervezeti funkciókhoz."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Lépjünk kapcsolatba az adminisztrátorral a hozzáférés visszaszerzéséért."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "$ORGANIZATION$ elhagyása",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Hogyan kezeljem a széfet?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Elemek átvitele $ORGANIZATION$ szervezethez",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében. Kattintás az elfogadásra az elemek tulajdonjogának átruházásához.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Átvitel elfogadása"
+  },
+  "declineAndLeave": {
+    "message": "Elutasítás és kilépés"
+  },
+  "whyAmISeeingThis": {
+    "message": "Miért látható ez?"
   }
 }

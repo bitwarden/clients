@@ -3063,7 +3063,7 @@
     "message": "用於檔案附件的 1 GB 的加密檔案儲存空間。"
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "用於檔案附件的 $SIZE$ 加密儲存空間。",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -3134,13 +3134,13 @@
     }
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "您的進階版訂閱已到期"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "重新啟用進階版"
   },
   "additionalStorageGb": {
     "message": "額外儲存空間 (GB)"
@@ -4627,19 +4627,19 @@
     "message": "深入了解"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "更新加密設定時發生錯誤。"
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "更新您的加密設定"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "新的建議加密設定將提升您的帳戶安全性。請輸入主密碼以立即更新。"
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "請先確認身分後再繼續"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "輸入您的主密碼"
   },
   "updateSettings": {
     "message": "更新設定"
@@ -5169,8 +5169,20 @@
     "message": "修正",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "修正加密"
+  },
+  "fixEncryptionTooltip": {
+    "message": "此檔案使用了過時的加密方式。"
+  },
+  "attachmentUpdated": {
+    "message": "附件已更新"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "需要先修正密碼庫中舊的檔案附件，然後才能輪換帳戶的加密金鑰。"
+  },
+  "itemsTransferred": {
+    "message": "Items transferred"
   },
   "yourAccountsFingerprint": {
     "message": "您帳戶的指紋短語",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "已成功重新邀請。"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "已重新邀請 $COUNT$ 位使用者",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "已重新邀請 $SELECTEDCOUNT$ 位使用者中的 $LIMIT$ 位。有 $EXCLUDEDCOUNT$ 位因達到 $LIMIT$ 的邀請上限而未被邀請。",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "已成功移除。"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "密碼庫逾時時間不在允許的範圍內。"
   },
-  "disablePersonalVaultExport": {
-    "message": "停用個人密碼庫匯出"
+  "disableExport": {
+    "message": "Remove export"
   },
   "disablePersonalVaultExportDescription": {
     "message": "不允許成員從其個人密碼庫匯出資料。"
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "無效的驗證碼"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "以下組織的成員已不再需要主密碼。請與你的組織管理員確認下方的網域。"
-  },
   "keyConnectorDomain": {
     "message": "Key Connector 網域"
   },
@@ -7154,8 +7189,8 @@
   "enabledSso": {
     "message": "已啟用 SSO"
   },
-  "disabledSso": {
-    "message": "已停用 SSO"
+  "ssoTurnedOff": {
+    "message": "SSO 已關閉"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ 必須使用單一登入 (SSO) 登入",
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "需要登入 SSO"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Email is required for SSO"
   },
   "selectedRegionFlag": {
     "message": "選定的區域標記"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "家庭會員"
   },
-  "planDescPremium": {
-    "message": "完整的線上安全"
+  "advancedOnlineSecurity": {
+    "message": "進階線上安全防護"
   },
   "planDescFamiliesV2": {
     "message": "為你的家人提供進階安全"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "未選取任何關鍵應用程式"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Delete unrecoverable vault items"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Some of your vault items could not be recovered. Do you want to delete these unrecoverable items from your vault?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Delete unrecoverable folders"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Some of your folders could not be recovered. Do you want to delete these unrecoverable folders from your vault?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Replace encryption key"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Synchronizing data"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Verifying encryption key integrity"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Verifying user information"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Verifying vault item integrity"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Verifying folder integrity"
+  },
+  "dataRecoveryTitle": {
+    "message": "Data Recovery and Diagnostics"
+  },
+  "dataRecoveryDescription": {
+    "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
+  },
+  "runDiagnostics": {
+    "message": "Run Diagnostics"
+  },
+  "repairIssues": {
+    "message": "Repair Issues"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Save Diagnostic Logs"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "此設定由您的組織管理。"
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "您的組織已將最長工作階段逾時設為 $HOURS$ 小時與 $MINUTES$ 分鐘。",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "您的組織已將預設工作階段逾時設定為「在瀏覽器重新整理時」。"
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "最長逾時時間不可超過 $HOURS$ 小時 $MINUTES$ 分鐘",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "於瀏覽器重新整理時"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
   }
 }
