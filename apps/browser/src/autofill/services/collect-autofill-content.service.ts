@@ -1362,12 +1362,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       readonly: () =>
         (dataTarget.readonly = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.READONLY)),
       autocomplete: () => (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
-      autocompletetype: () => updateAttribute(AUTOFILL_ATTRIBUTES.AUTOCOMPLETE_TYPE),
-      "x-autocompletetype": () => updateAttribute(AUTOFILL_ATTRIBUTES.X_AUTOCOMPLETE_TYPE),
+      autocompletetype: () =>
+        (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
+      "x-autocompletetype": () =>
+        (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
       "data-label": () => updateAttribute("label-data"),
       "aria-describedby": () => updateAttribute(AUTOFILL_ATTRIBUTES.ARIA_DESCRIBEDBY),
       "aria-label": () => updateAttribute("label-aria"),
-      "aria-labeledby": () => updateAttribute(AUTOFILL_ATTRIBUTES.ARIA_LABELLEDBY),
+      "aria-labelledby": () => updateAttribute(AUTOFILL_ATTRIBUTES.ARIA_LABELLEDBY),
       "aria-hidden": () =>
         (dataTarget["aria-hidden"] = this.getAttributeBoolean(
           element,
