@@ -215,6 +215,12 @@
       reviewers: ["team:team-platform-dev"],
     },
     {
+      matchUpdateTypes: ["lockFileMaintenance"],
+      description: "Platform owns lock file maintenance",
+      commitMessagePrefix: "[deps] Platform:",
+      reviewers: ["team:team-platform-dev"],
+    },
+    {
       matchPackageNames: [
         "@angular-devkit/build-angular",
         "@angular/animations",
