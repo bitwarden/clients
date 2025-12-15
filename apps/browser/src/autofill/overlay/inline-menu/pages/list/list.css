@@ -20,7 +20,7 @@ body {
   margin: 0;
   font-family: var(--autofill-font-family-sans-serif);
   font-weight: 400;
-  color: var(--autofill-body-color);
+  color: var(--autofill-text-color);
   background-color: var(--autofill-background-color);
 }
 
@@ -304,7 +304,7 @@ body * {
 }
 
 .inline-menu-list-actions-item .circle-danger-color {
-  stroke: rgb(var(--color-danger-600));
+  stroke: var(--autofill-password-special-color);
 }
 
 .inline-menu-list-actions-item .cipher-name,
@@ -371,7 +371,7 @@ body * {
   padding: 1rem 0.8rem;
   font-size: 1.4rem;
   font-weight: 400;
-  color: var(--autofill-muted-blue);
+  color: var(--autofill-passkey-authenticating-color);
 }
 
 .passkey-authenticating-loader svg {
@@ -380,7 +380,7 @@ body * {
 }
 
 .passkey-authenticating-loader svg path {
-  fill: var(--autofill-muted-blue) !important;
+  fill: var(--autofill-passkey-authenticating-color) !important;
 }
 
 /* Password generator styles */
@@ -405,7 +405,7 @@ body * {
 .password-generator-actions:has(:focus-visible):not(.remove-outline) {
   outline-width: 0.2rem;
   outline-style: solid;
-  outline-color: rgb(var(--autofill-focus-outline-color));
+  outline-color: var(--autofill-focus-outline-color);
 }
 
 .password-generator-actions .inline-menu-list-action {

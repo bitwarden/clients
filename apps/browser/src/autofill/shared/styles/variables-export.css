@@ -15,7 +15,7 @@
   --autofill-success-color-light: #017e45;
   --autofill-error-color-light: #c83522;
   --autofill-focus-outline-color-light: #1252a3;
-  --autofill-scrollbar-track-light: #fcfcfc;
+  --autofill-scrollbar-track-color-light: #fcfcfc;
   --autofill-text-color-dark: #ffffff;
   --autofill-muted-text-color-dark: #bac0ce;
   --autofill-background-color-dark: #2f343d;
@@ -29,7 +29,7 @@
   --autofill-success-color-dark: #8db89b;
   --autofill-error-color-dark: #ee9792;
   --autofill-focus-outline-color-dark: #4d8fe6;
-  --autofill-scrollbar-track-dark: #2d323a;
+  --autofill-scrollbar-track-color-dark: #2d323a;
   --autofill-muted-blue: #5a6d91;
   --autofill-muted-grey: #bac0ce;
   --autofill-border-radius: 3px;
@@ -41,12 +41,13 @@
   --autofill-border-color: var(--autofill-border-color-light);
   --autofill-brand-primary: var(--autofill-brand-primary-light);
   --autofill-input-border-color: var(--autofill-input-border-color-light);
+  --autofill-passkey-authenticating-color: var(--autofill-muted-blue);
   --autofill-password-special-color: var(--autofill-password-special-color-light);
   --autofill-password-number-color: var(--autofill-password-number-color-light);
   --autofill-success-color: var(--autofill-success-color-light);
   --autofill-error-color: var(--autofill-error-color-light);
   --autofill-focus-outline-color: var(--autofill-focus-outline-color-light);
-  --autofill-scrollbar-track: var(--autofill-scrollbar-track-light);
+  --autofill-scrollbar-track-color: var(--autofill-scrollbar-track-color-light);
 }
 
 .theme_dark {
@@ -58,10 +59,11 @@
   --autofill-border-color: var(--autofill-border-color-dark);
   --autofill-brand-primary: var(--autofill-brand-primary-dark);
   --autofill-input-border-color: var(--autofill-input-border-color-dark);
+  --autofill-passkey-authenticating-color: var(--autofill-muted-grey);
   --autofill-password-special-color: var(--autofill-password-special-color-dark);
   --autofill-password-number-color: var(--autofill-password-number-color-dark);
   --autofill-success-color: var(--autofill-success-color-dark);
   --autofill-error-color: var(--autofill-error-color-dark);
   --autofill-focus-outline-color: var(--autofill-focus-outline-color-dark);
-  --autofill-scrollbar-track: var(--autofill-scrollbar-track-dark);
+  --autofill-scrollbar-track-color: var(--autofill-scrollbar-track-color-dark);
 }
