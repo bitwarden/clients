@@ -1,9 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { Observable, of } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/messaging";
 
@@ -11,17 +9,12 @@ import { PhishingDataService } from "./phishing-data.service";
 import { PhishingDetectionService } from "./phishing-detection.service";
 
 describe("PhishingDetectionService", () => {
-  let accountService: AccountService;
-  let billingAccountProfileStateService: BillingAccountProfileStateService;
-  let configService: ConfigService;
   let logService: LogService;
   let phishingDataService: MockProxy<PhishingDataService>;
   let messageListener: MockProxy<MessageListener>;
+  let phishingDetectionSettingsService: MockProxy<PhishingDetectionSettingsServiceAbstraction>;
 
   beforeEach(() => {
-    accountService = { getAccount$: jest.fn(() => of(null)) } as any;
-    billingAccountProfileStateService = {} as any;
-    configService = { getFeatureFlag$: jest.fn(() => of(false)) } as any;
     logService = { info: jest.fn(), debug: jest.fn(), warning: jest.fn(), error: jest.fn() } as any;
     phishingDataService = mock();
     messageListener = mock<MessageListener>({
@@ -29,16 +22,17 @@ describe("PhishingDetectionService", () => {
         return new Observable();
       },
     });
+    phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>({
+      on$: of(true),
+    });
   });
 
   it("should initialize without errors", () => {
     expect(() => {
       PhishingDetectionService.initialize(
-        accountService,
-        billingAccountProfileStateService,
-        configService,
         logService,
         phishingDataService,
+        phishingDetectionSettingsService,
         messageListener,
       );
     }).not.toThrow();
@@ -61,6 +55,7 @@ describe("PhishingDetectionService", () => {
   //     logService,
   //     phishingDataService,
   //     messageListener,
+  //     phishingDetectionSettingsService,
   //   );
   // });
 
@@ -81,6 +76,7 @@ describe("PhishingDetectionService", () => {
   //     logService,
   //     phishingDataService,
   //     messageListener,
+  //     phishingDetectionSettingsService,
   //   );
   // });
 });
