@@ -18,7 +18,6 @@ import {
   Account,
   AccountInfo,
   InternalAccountService,
-  accountInfoEqual,
 } from "../../auth/abstractions/account.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
@@ -114,7 +113,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     this.activeAccount$ = this.activeAccountIdState.state$.pipe(
       combineLatestWith(this.accounts$),
       map(([id, accounts]) => (id ? ({ id, ...(accounts[id] as AccountInfo) } as Account) : null)),
-      distinctUntilChanged((a, b) => a?.id === b?.id && accountInfoEqual(a, b)),
+      distinctUntilChanged((a, b) => a?.id === b?.id && this.accountInfoEqual(a, b)),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
     this.accountActivity$ = this.globalStateProvider
@@ -277,6 +276,33 @@ export class AccountServiceImplementation implements InternalAccountService {
     this._showHeader$.next(visible);
   }
 
+  private accountInfoEqual(a: AccountInfo, b: AccountInfo) {
+    if (a == null && b == null) {
+      return true;
+    }
+
+    if (a == null || b == null) {
+      return false;
+    }
+
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof AccountInfo>;
+    for (const key of keys) {
+      // Special handling for creationDate since it's a Date object
+      if (key === "creationDate") {
+        const aTime = a[key]?.getTime();
+        const bTime = b[key]?.getTime();
+        // Handles: both undefined (undefined === undefined), one undefined (undefined !== number),
+        // or both dates (number === number)
+        if (aTime !== bTime) {
+          return false;
+        }
+      } else if (a[key] !== b[key]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private async setAccountInfo(userId: UserId, update: Partial<AccountInfo>): Promise<void> {
     function newAccountInfo(oldAccountInfo: AccountInfo): AccountInfo {
       return { ...oldAccountInfo, ...update };
@@ -294,7 +320,7 @@ export class AccountServiceImplementation implements InternalAccountService {
             throw new Error("Account does not exist");
           }
 
-          return !accountInfoEqual(accounts[userId], newAccountInfo(accounts[userId]));
+          return !this.accountInfoEqual(accounts[userId], newAccountInfo(accounts[userId]));
         },
       },
     );

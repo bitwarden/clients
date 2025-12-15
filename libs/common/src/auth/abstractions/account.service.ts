@@ -19,25 +19,6 @@ export type AccountInfo = {
 };
 
 export type Account = { id: UserId } & AccountInfo;
-
-export function accountInfoEqual(a: AccountInfo, b: AccountInfo) {
-  if (a == null && b == null) {
-    return true;
-  }
-
-  if (a == null || b == null) {
-    return false;
-  }
-
-  const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof AccountInfo>;
-  for (const key of keys) {
-    if (a[key] !== b[key]) {
-      return false;
-    }
-  }
-  return true;
-}
-
 export abstract class AccountService {
   abstract accounts$: Observable<Record<UserId, AccountInfo>>;
 
