@@ -12,13 +12,14 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { MenuModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { RoutedVaultFilterService } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/services/routed-vault-filter.service";
+import { RoutedVaultFilterModel } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import { VaultItem } from "./vault-item";
 import { VaultItemsComponent } from "./vault-items.component";
 
 describe("VaultItemsComponent", () => {
   let component: VaultItemsComponent<CipherViewLike>;
-  let filterSelect: Subject<any>;
+  let filterSelect: Subject<RoutedVaultFilterModel>;
 
   const cipher1: Partial<CipherView> = {
     id: "cipher-1",
@@ -33,7 +34,7 @@ describe("VaultItemsComponent", () => {
   };
 
   beforeEach(async () => {
-    filterSelect = new Subject<any>();
+    filterSelect = new Subject<RoutedVaultFilterModel>();
 
     await TestBed.configureTestingModule({
       declarations: [VaultItemsComponent],
@@ -164,7 +165,9 @@ describe("VaultItemsComponent", () => {
       component["selection"].select(...items);
       expect(component["selection"].selected.length).toBeGreaterThan(0);
 
-      filterSelect.next("new-filter");
+      filterSelect.next({
+        folderId: "folderId",
+      });
 
       expect(component["selection"].selected.length).toBe(0);
     });
