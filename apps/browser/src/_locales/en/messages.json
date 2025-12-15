@@ -436,8 +436,8 @@
   "sync": {
     "message": "Sync"
   },
-  "syncVaultNow": {
-    "message": "Sync vault now"
+  "syncNow": {
+    "message": "Sync now"
   },
   "lastSync": {
     "message": "Last sync:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden web app"
-  },
-  "importItems": {
-    "message": "Import items"
   },
   "select": {
     "message": "Select"
@@ -1325,8 +1322,11 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Export vault"
+  "export": {
+    "message": "Export"
+  },
+  "import": {
+    "message": "Import"
   },
   "fileFormat": {
     "message": "File format"
@@ -4214,10 +4214,6 @@
   },
   "ignore": {
     "message": "Ignore"
-  },
-  "importData": {
-    "message": "Import data",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Import error"

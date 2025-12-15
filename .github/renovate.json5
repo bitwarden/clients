@@ -154,7 +154,6 @@
         "@types/glob",
         "@types/lowdb",
         "@types/node",
-        "@types/node-forge",
         "@types/node-ipc",
         "@yao-pkg/pkg",
         "anyhow",
@@ -192,7 +191,6 @@
         "napi",
         "napi-build",
         "napi-derive",
-        "node-forge",
         "node-ipc",
         "nx",
         "oo7",
@@ -214,6 +212,8 @@
         "simplelog",
         "style-loader",
         "sysinfo",
+        "tokio",
+        "tokio-util",
         "tracing",
         "tracing-subscriber",
         "ts-node",
@@ -259,6 +259,11 @@
       // We need to group all windows-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "windows",
       matchPackageNames: ["windows", "windows-core", "windows-future", "windows-registry"],
+    },
+    {
+      // We need to group all tokio-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "tokio",
+      matchPackageNames: ["bytes", "tokio", "tokio-util"],
     },
     {
       // We group all webpack build-related minor and patch updates together to reduce PR noise.
@@ -408,14 +413,16 @@
     },
     {
       matchPackageNames: [
+        "@types/node-forge",
         "aes",
         "big-integer",
         "cbc",
+        "linux-keyutils",
+        "memsec",
+        "node-forge",
         "rsa",
         "russh-cryptovec",
         "sha2",
-        "memsec",
-        "linux-keyutils",
       ],
       description: "Key Management owned dependencies",
       commitMessagePrefix: "[deps] KM:",
