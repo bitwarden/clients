@@ -234,10 +234,10 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       .pipe(
         distinctUntilChanged(
           (prev, curr) =>
-            prev?.organizationId === curr?.organizationId &&
-            prev?.collectionId === curr?.collectionId &&
-            prev?.folderId === curr?.folderId &&
-            prev?.type === curr?.type,
+            prev.organizationId === curr.organizationId &&
+            prev.collectionId === curr.collectionId &&
+            prev.folderId === curr.folderId &&
+            prev.type === curr.type,
         ),
         takeUntilDestroyed(),
       )
