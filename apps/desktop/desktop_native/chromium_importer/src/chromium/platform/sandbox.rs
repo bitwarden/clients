@@ -19,9 +19,10 @@ const BROWSER_BUNDLE_IDS: &[(&str, &str)] = &[
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type")]
 enum CommandResult<T> {
-    #[serde(rename_all = "camelCase")]
+    // rename = "camelCase" was a review suggestion with breaking changes
+    #[serde(rename = "success")]
     Success { value: T },
-    #[serde(rename_all = "camelCase")]
+    #[serde(rename = "error")]
     Error { error: String },
 }
 
@@ -175,8 +176,11 @@ async fn is_browser_installed(browser_name: &str) -> Result<bool> {
     let bundle_id = BROWSER_BUNDLE_IDS
         .iter()
         .find(|(name, _)| *name == browser_name)
-        .map(|(_, id)| *id)
-        .ok_or(true);
+        .map(|(_, id)| *id);
+
+    let Some(bundle_id) = bundle_id else {
+        return Ok(true); // ok_or(true) was a review suggestion with breaking changes 
+        // Avoid ok_or(true): serializes Result as {"Ok": "..."} instead of string value
 
     let input = CommandInput {
         namespace: "chromium_importer".to_string(),
@@ -195,7 +199,7 @@ async fn is_browser_installed(browser_name: &str) -> Result<bool> {
 
     match result {
         CommandResult::Success { value } => Ok(value.is_installed),
-        CommandResult::Error { error } => Err(anyhow!("{}", error)),
+        CommandResult::Error { error} => Err(anyhow!("{}", error)),
     }
 }
 
