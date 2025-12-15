@@ -4,10 +4,13 @@
 ARG NODE_VERSION=20
 FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine AS node-build
 
+# Enable pnpm via corepack
+RUN corepack enable pnpm
+
 WORKDIR /source
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY . .
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # Remove commercial packages if LICENSE_TYPE is not 'commercial'
 ARG LICENSE_TYPE=oss
@@ -17,7 +20,7 @@ RUN if [ "${LICENSE_TYPE}" != "commercial" ] ; then \
 
 WORKDIR /source/apps/web
 ARG NPM_COMMAND=dist:bit:selfhost
-RUN npm run ${NPM_COMMAND}
+RUN pnpm run ${NPM_COMMAND}
 
 ###############################################
 #                Build stage 2                #
