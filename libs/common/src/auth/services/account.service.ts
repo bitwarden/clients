@@ -285,23 +285,12 @@ export class AccountServiceImplementation implements InternalAccountService {
       return false;
     }
 
-    const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof AccountInfo>;
-    for (const key of keys) {
-      const aValue = a[key];
-      const bValue = b[key];
-
-      // Special handling for Date objects - compare by timestamp
-      if (aValue instanceof Date || bValue instanceof Date) {
-        const aTime = aValue instanceof Date ? aValue.getTime() : undefined;
-        const bTime = bValue instanceof Date ? bValue.getTime() : undefined;
-        if (aTime !== bTime) {
-          return false;
-        }
-      } else if (aValue !== bValue) {
-        return false;
-      }
-    }
-    return true;
+    return (
+      a.email === b.email &&
+      a.emailVerified === b.emailVerified &&
+      a.name === b.name &&
+      a.creationDate?.getTime() === b.creationDate?.getTime()
+    );
   }
 
   private async setAccountInfo(userId: UserId, update: Partial<AccountInfo>): Promise<void> {
