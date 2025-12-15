@@ -74,7 +74,7 @@ jobs:
         run: npm ci
       
       - name: Run oxlint
-        run: npm oxlint:types
+        run: npm run oxlint:types
 
       - name: Lint unowned dependencies
         run: npm run lint:dep-ownership
