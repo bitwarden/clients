@@ -31,19 +31,23 @@
     ></app-vault-filter>
   </div>
   <div class="tw-basis-3/4 tw-max-w-3/4 tw-px-2.5">
-    <bit-callout type="warning" *ngIf="activeFilter.isDeleted">
-      {{ trashCleanupWarning }}
-    </bit-callout>
-    <bit-callout
-      type="info"
-      [title]="'premiumSubscriptionEnded' | i18n"
-      *ngIf="showSubscriptionEndedMessaging$ | async"
-    >
-      <p>{{ "premiumSubscriptionEndedDesc" | i18n }}</p>
-      <a routerLink="/settings/subscription/premium" bitButton buttonType="primary">{{
-        "restartPremium" | i18n
-      }}</a>
-    </bit-callout>
+    @if (activeFilter.isDeleted) {
+      <bit-callout type="warning">
+        {{ trashCleanupWarning }}
+      </bit-callout>
+    }
+
+    @if (showSubscriptionEndedMessaging$ | async) {
+      <bit-callout type="default" [title]="'premiumSubscriptionEnded' | i18n">
+        <ng-container>
+          <div>
+            {{ "premiumSubscriptionEndedDesc" | i18n }}
+          </div>
+          <a bitLink (click)="navigateToGetPremium()"> {{ "restartPremium" | i18n }} </a>
+        </ng-container>
+      </bit-callout>
+    }
+
     <app-vault-items
       #vaultItems
       [ciphers]="ciphers"

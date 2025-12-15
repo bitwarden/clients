@@ -34,16 +34,21 @@
       }
       <ng-content select="[bitDialogTitle]"></ng-content>
     </h2>
-    @if (!this.dialogRef?.disableClose) {
-      <button
-        type="button"
-        bitIconButton="bwi-close"
-        buttonType="main"
-        size="default"
-        bitDialogClose
-        [label]="'close' | i18n"
-      ></button>
-    }
+
+    <div class="tw-flex tw-items-center tw-justify-center">
+      <ng-content select="[bitDialogHeaderEnd]"></ng-content>
+
+      @if (!this.dialogRef?.disableClose) {
+        <button
+          type="button"
+          bitIconButton="bwi-close"
+          buttonType="main"
+          size="default"
+          bitDialogClose
+          [label]="'close' | i18n"
+        ></button>
+      }
+    </div>
   </header>
 
   <div
