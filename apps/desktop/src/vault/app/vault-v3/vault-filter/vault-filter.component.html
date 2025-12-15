@@ -1,0 +1,34 @@
+@if (!isLoaded) {
+  <div class="container loading-spinner">
+    <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+  </div>
+} @else {
+  <bit-nav-group icon="bwi-vault" [text]="'vault' | i18n" route="new-vault">
+    <app-organization-filter
+      [hide]="hideOrganizations()"
+      [activeFilter]="activeFilter"
+      [organizations]="organizations$ | async"
+      [activeOrganizationDataOwnership]="activeOrganizationDataOwnershipPolicy"
+      [activeSingleOrganizationPolicy]="activeSingleOrganizationPolicy"
+      [hideCollections]="hideCollections()"
+      [collections]="collections$ | async"
+    />
+    <app-type-filter [activeFilter]="activeFilter" [cipherTypes]="cipherTypes$ | async" />
+    <app-status-filter
+      [hideTrash]="hideTrash()"
+      [hideArchive]="!showArchiveVaultFilter"
+      [activeFilter]="activeFilter"
+    />
+    @if (!hideFolders()) {
+      <bit-nav-group icon="bwi-folder" [text]="'folders' | i18n" variant="tree">
+        @for (folder of (folders$ | async)?.children ?? []; track folder.node.id) {
+          <app-folder-filter
+            [activeFilter]="activeFilter"
+            [folder]="folder"
+            (onEditFolder)="editFolder($event)"
+          />
+        }
+      </bit-nav-group>
+    }
+  </bit-nav-group>
+}

@@ -4,7 +4,14 @@ import { RouterModule } from "@angular/router";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { LayoutComponent, NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import {
+  RoutedVaultFilterBridgeService,
+  VaultFilterServiceAbstraction,
+  VaultFilterService,
+  RoutedVaultFilterService,
+} from "@bitwarden/vault";
 
+import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
 
 import { DesktopSideNavComponent } from "./desktop-side-nav.component";
@@ -19,7 +26,16 @@ import { DesktopSideNavComponent } from "./desktop-side-nav.component";
     LayoutComponent,
     NavigationModule,
     DesktopSideNavComponent,
+    VaultFilterComponent,
     SendFiltersNavComponent,
+  ],
+  providers: [
+    RoutedVaultFilterService,
+    RoutedVaultFilterBridgeService,
+    {
+      provide: VaultFilterServiceAbstraction,
+      useClass: VaultFilterService,
+    },
   ],
   templateUrl: "./desktop-layout.component.html",
 })

@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherType } from "@bitwarden/common/vault/enums";

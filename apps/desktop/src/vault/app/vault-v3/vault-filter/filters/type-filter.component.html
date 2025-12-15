@@ -1,0 +1,10 @@
+@for (typeFilter of typeFilters$ | async; track typeFilter) {
+  <bit-nav-item
+    [icon]="typeFilter.node.icon"
+    [forceActiveStyles]="activeFilter()?.cipherType === typeFilter.node.type"
+    (click)="applyFilter(typeFilter)"
+    [text]="typeFilter.node.name"
+    [attr.aria-pressed]="activeFilter()?.cipherType === typeFilter.node.type"
+    [appA11yTitle]="typeFilter.node.name"
+  />
+}
