@@ -87,7 +87,9 @@ export class MainDesktopAutotypeService {
   private enableAutotype() {
     const formattedKeyboardShortcut = this.autotypeKeyboardShortcut.getElectronFormat();
     if (globalShortcut.isRegistered(formattedKeyboardShortcut)) {
-      this.logService.debug("Autotype is already enabled with the keyboard shortcut.");
+      this.logService.debug(
+        "Autotype is already enabled with this keyboard shortcut: " + formattedKeyboardShortcut,
+      );
       return;
     }
 
