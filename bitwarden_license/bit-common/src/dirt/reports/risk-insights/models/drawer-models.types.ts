@@ -15,10 +15,6 @@ export type DrawerDetails = {
   open: boolean;
   invokerId: string;
   activeDrawerType: DrawerType;
-  /**
-   * Explicit drawer width variant. Default to "small" to preserve current layout.
-   */
-  size?: "small" | "default" | "large";
   atRiskMemberDetails?: AtRiskMemberDetail[];
   appAtRiskMembers?: AppAtRiskMembersDialogParams | null;
   atRiskAppDetails?: AtRiskApplicationDetail[] | null;
