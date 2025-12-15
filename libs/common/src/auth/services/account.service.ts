@@ -287,16 +287,17 @@ export class AccountServiceImplementation implements InternalAccountService {
 
     const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof AccountInfo>;
     for (const key of keys) {
-      // Special handling for creationDate since it's a Date object
-      if (key === "creationDate") {
-        const aTime = a[key]?.getTime();
-        const bTime = b[key]?.getTime();
-        // Handles: both undefined (undefined === undefined), one undefined (undefined !== number),
-        // or both dates (number === number)
+      const aValue = a[key];
+      const bValue = b[key];
+
+      // Special handling for Date objects - compare by timestamp
+      if (aValue instanceof Date || bValue instanceof Date) {
+        const aTime = aValue instanceof Date ? aValue.getTime() : undefined;
+        const bTime = bValue instanceof Date ? bValue.getTime() : undefined;
         if (aTime !== bTime) {
           return false;
         }
-      } else if (a[key] !== b[key]) {
+      } else if (aValue !== bValue) {
         return false;
       }
     }
