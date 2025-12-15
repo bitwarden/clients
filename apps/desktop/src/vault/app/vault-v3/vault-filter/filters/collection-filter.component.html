@@ -3,7 +3,7 @@
     [icon]="collection().node.icon"
     [class.active]="isActive()"
     [text]="displayName()"
-    [variant]="'tree'"
+    variant="tree"
     [appA11yTitle]="displayName()"
     (click)="applyFilter($event)"
   >
@@ -14,9 +14,9 @@
 } @else {
   <bit-nav-item
     [icon]="collection().node.icon"
-    [class.active]="isActive()"
+    [forceActiveStyles]="isActive()"
     [text]="collection().node.name"
-    [variant]="'tree'"
+    variant="tree"
     [appA11yTitle]="collection().node.name"
     (click)="applyFilter($event)"
   />

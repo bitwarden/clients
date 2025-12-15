@@ -5,7 +5,7 @@
         [icon]="organization.node.icon"
         [class.active]="organization.node.id === activeFilter()?.organizationId"
         [text]="organization.node.name"
-        [variant]="'tree'"
+        variant="tree"
         [appA11yTitle]="organization.node.name"
         (click)="applyFilter(organization)"
       >
@@ -20,7 +20,7 @@
         [icon]="organization.node.icon"
         [class.active]="organization.node.id === activeFilter()?.organizationId"
         [text]="organization.node.name"
-        [variant]="'tree'"
+        variant="tree"
         [appA11yTitle]="organization.node.name"
         (click)="applyFilter(organization)"
       />

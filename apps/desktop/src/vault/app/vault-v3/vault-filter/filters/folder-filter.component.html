@@ -3,7 +3,7 @@
     [icon]="folder().node.icon"
     [class.active]="isActive()"
     [text]="displayName()"
-    [variant]="'tree'"
+    variant="tree"
     [appA11yTitle]="displayName()"
     (click)="applyFilter($event)"
   >
@@ -12,10 +12,10 @@
         type="button"
         slot="end"
         class="edit-button"
-        [bitIconButton]="'bwi-pencil'"
-        [buttonType]="'nav-contrast'"
+        bitIconButton="bwi-pencil"
+        buttonType="nav-contrast"
         size="small"
-        label="'editFolder' | i18n"
+        [label]="'editFolder' | i18n"
         (click)="editFolder(folder().node)"
       ></button>
     }
@@ -28,7 +28,7 @@
     [icon]="folder().node.icon"
     [class.active]="isActive()"
     [text]="displayName()"
-    [variant]="'tree'"
+    variant="tree"
     [appA11yTitle]="displayName()"
     (click)="applyFilter($event)"
   >
@@ -37,10 +37,10 @@
         type="button"
         slot="end"
         class="edit-button"
-        [bitIconButton]="'bwi-pencil'"
-        [buttonType]="'nav-contrast'"
+        bitIconButton="bwi-pencil"
+        buttonType="nav-contrast"
         size="small"
-        label="'editFolder' | i18n"
+        [label]="'editFolder' | i18n"
         (click)="editFolder(folder().node)"
       ></button>
     }

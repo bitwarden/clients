@@ -20,7 +20,7 @@
       [activeFilter]="activeFilter"
     />
     @if (!hideFolders()) {
-      <bit-nav-group [icon]="'bwi-folder'" [text]="'folders' | i18n" [variant]="'tree'">
+      <bit-nav-group icon="bwi-folder" [text]="'folders' | i18n" variant="tree">
         @for (folder of (folders$ | async)?.children ?? []; track folder.node.id) {
           <app-folder-filter
             [activeFilter]="activeFilter"
