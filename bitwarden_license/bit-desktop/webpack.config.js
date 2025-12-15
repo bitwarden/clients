@@ -8,6 +8,11 @@ module.exports = (webpackConfig, context) => {
   if (isNxBuild) {
     return buildConfig({
       configName: "Commercial",
+      renderer: {
+        entry: "",
+        entryModule: "",
+        tsConfig: "",
+      },
       main: {
         entry: path.resolve(__dirname, "src/entry.ts"),
         tsConfig: path.resolve(context.context.root, "bitwarden_license/bit-desktop/tsconfig.json"),
@@ -17,9 +22,18 @@ module.exports = (webpackConfig, context) => {
   } else {
     return buildConfig({
       configName: "Commercial",
+      renderer: {
+        entry: "",
+        entryModule: "",
+        tsConfig: "",
+      },
       main: {
         entry: path.resolve(__dirname, "src/entry.ts"),
         tsConfig: path.resolve(__dirname, "tsconfig.json"),
+      },
+      preload: {
+        entry: "",
+        tsConfig: "",
       },
     });
   }
