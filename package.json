@@ -221,6 +221,22 @@
     "react-dom": "18.3.1",
     "@types/react": "18.3.27"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@compodoc/compodoc",
+      "@parcel/watcher",
+      "@swc/core",
+      "bufferutil",
+      "esbuild",
+      "electron",
+      "electron-winstaller",
+      "lmdb",
+      "msgpackr-extract",
+      "nx",
+      "unrs-resolver",
+      "utf-8-validate"
+    ]
+  },
   "lint-staged": {
     "*": "prettier --cache --ignore-unknown --write",
     "*.ts": "eslint --cache --cache-strategy content --fix"
