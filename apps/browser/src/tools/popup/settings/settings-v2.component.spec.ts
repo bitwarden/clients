@@ -6,6 +6,7 @@ import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { AutofillBrowserSettingsService } from "@bitwarden/browser/autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -42,6 +43,9 @@ describe("SettingsV2Component", () => {
     defaultBrowserAutofillDisabled$: Subject<boolean>;
     isBrowserAutofillSettingOverridden: jest.Mock<Promise<boolean>>;
   };
+  let mockAutoConfirmService: {
+    canManageAutoConfirm$: jest.Mock;
+  };
   let dialogService: MockProxy<DialogService>;
   let openSpy: jest.SpyInstance;
 
@@ -66,6 +70,10 @@ describe("SettingsV2Component", () => {
       isBrowserAutofillSettingOverridden: jest.fn().mockResolvedValue(false),
     };
 
+    mockAutoConfirmService = {
+      canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
+    };
+
     jest.spyOn(BrowserApi, "getBrowserClientVendor").mockReturnValue("Chrome");
 
     const cfg = TestBed.configureTestingModule({
@@ -75,6 +83,7 @@ describe("SettingsV2Component", () => {
         { provide: BillingAccountProfileStateService, useValue: mockBillingState },
         { provide: NudgesService, useValue: mockNudges },
         { provide: AutofillBrowserSettingsService, useValue: mockAutofillSettings },
+        { provide: AutomaticUserConfirmationService, useValue: mockAutoConfirmService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: { t: jest.fn((key: string) => key) } },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
