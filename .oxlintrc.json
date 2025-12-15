@@ -1,57 +1,15 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["eslint", "typescript", "import"],
-  "jsPlugins": [
-    "eslint-plugin-storybook",
-    "eslint-plugin-rxjs",
-    "eslint-plugin-rxjs-angular",
-    "eslint-plugin-tailwindcss",
-    "@angular-eslint/eslint-plugin",
-    "@angular-eslint/eslint-plugin-template",
-    "./libs/eslint/platform/index.mjs",
-    "./libs/eslint/components/index.mjs"
-  ],
+  "plugins": [],
   "categories": {
-    "correctness": "error"
+    "correctness": "off"
   },
   "rules": {
-    "curly": ["error", "all"],
-    "no-console": "error",
-    // Disabled: false positives on test variables assigned in beforeEach
-    "no-unassigned-vars": "allow",
-    // Disabled: ESLint uses allowTernary option which oxlint doesn't support
-    "no-unused-expressions": "allow",
-    // Disabled: use typescript/no-unused-vars for .ts files instead
-    "no-unused-vars": "allow",
-    // Disabled: not enabled in ESLint config
-    "no-useless-rename": "allow",
-    // Disabled: not enabled in ESLint config
     "no-useless-catch": "allow",
-    // Disabled: not enabled in ESLint config
-    "no-unnecessary-parameter-property-assignment": "allow",
-    // Disabled: BOM characters slip through ESLint
-    "no-irregular-whitespace": "allow",
-    // Disabled: matches ESLint config (rule is off)
-    "typescript/no-explicit-any": "allow",
-    // Disabled: oxlint doesn't support allowedNames option, ESLint allows "self"
-    "typescript/no-this-alias": "allow",
-    // Disabled: oxlint's args:"none" doesn't work for rest parameters (...args)
-    // See: https://github.com/oxc-project/oxc/issues/11147
-    // Let ESLint's @typescript-eslint/no-unused-vars handle this instead
-    "typescript/no-unused-vars": "allow",
-    // Requires --type-aware flag to work
-    "typescript/no-misused-promises": "error",
-    "no-restricted-imports": [
-      "error",
-      {
-        "paths": [
-          {
-            "name": "@bitwarden/commercial-sdk-internal",
-            "message": "Use @bitwarden/sdk-internal instead."
-          }
-        ]
-      }
-    ]
+    "no-useless-rename": "allow"
+  },
+  "env": {
+    "builtin": true
   },
   "ignorePatterns": [
     "**/build/",
@@ -62,15 +20,914 @@
     "**/node_modules/",
     "**/webpack.*.js",
     "**/jest.config.js",
-    "**/config/*.js",
-    "apps/*/config.js",
+    "apps/browser/config/config.js",
+    "apps/browser/src/auth/scripts/duo.js",
+    "apps/browser/webpack/manifest.js",
     "apps/desktop/desktop_native",
-    "apps/desktop/src/auth/scripts/*.js",
+    "apps/desktop/src/auth/scripts/duo.js",
+    "apps/web/config.js",
+    "apps/web/scripts/*.js",
+    "apps/web/tailwind.config.js",
+    "apps/cli/config/config.js",
+    "tailwind.config.js",
+    "libs/components/tailwind.config.base.js",
+    "libs/components/tailwind.config.js",
     "scripts/**",
     "jest.preset.js",
-    "tailwind.config.js",
-    "libs/components/tailwind.config.*.js",
-    "libs/nx-plugin/**",
-    "**/*.mjs"
+    "**/spec-data/**"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.stories.@(ts|tsx|js|jsx|mjs|cjs)", "**/*.story.@(ts|tsx|js|jsx|mjs|cjs)"],
+      "rules": {
+        "react-hooks/rules-of-hooks": "off",
+        "import/no-anonymous-default-export": "off",
+        "storybook/await-interactions": "error",
+        "storybook/context-in-play-function": "error",
+        "storybook/default-exports": "error",
+        "storybook/hierarchy-separator": "warn",
+        "storybook/no-redundant-story-name": "warn",
+        "storybook/no-renderer-packages": "error",
+        "storybook/prefer-pascal-case": "warn",
+        "storybook/story-exports": "error",
+        "storybook/use-storybook-expect": "error",
+        "storybook/use-storybook-testing-library": "error"
+      },
+      "jsPlugins": ["eslint-plugin-storybook"],
+      "plugins": ["react", "import"]
+    },
+    {
+      "files": [".storybook/main.@(js|cjs|mjs|ts)"],
+      "rules": {
+        "storybook/no-uninstalled-addons": "error"
+      },
+      "jsPlugins": ["eslint-plugin-storybook"]
+    },
+    {
+      "files": ["**/*.ts", "**/*.js"],
+      "rules": {
+        "for-direction": "error",
+        "no-async-promise-executor": "error",
+        "no-case-declarations": "error",
+        "no-class-assign": "error",
+        "no-compare-neg-zero": "error",
+        "no-cond-assign": "error",
+        "no-const-assign": "error",
+        "no-constant-binary-expression": "error",
+        "no-constant-condition": "error",
+        "no-control-regex": "error",
+        "no-debugger": "error",
+        "no-delete-var": "error",
+        "no-dupe-class-members": "error",
+        "no-dupe-else-if": "error",
+        "no-dupe-keys": "error",
+        "no-duplicate-case": "error",
+        "no-empty": "error",
+        "no-empty-character-class": "error",
+        "no-empty-pattern": "error",
+        "no-empty-static-block": "error",
+        "no-ex-assign": "error",
+        "no-extra-boolean-cast": "error",
+        "no-fallthrough": "error",
+        "no-func-assign": "error",
+        "no-global-assign": "error",
+        "no-import-assign": "error",
+        "no-invalid-regexp": "error",
+        "no-irregular-whitespace": "error",
+        "no-loss-of-precision": "error",
+        "no-new-native-nonconstructor": "error",
+        "no-nonoctal-decimal-escape": "error",
+        "no-obj-calls": "error",
+        "no-prototype-builtins": "error",
+        "no-redeclare": "error",
+        "no-regex-spaces": "error",
+        "no-self-assign": "error",
+        "no-setter-return": "error",
+        "no-shadow-restricted-names": "error",
+        "no-sparse-arrays": "error",
+        "no-this-before-super": "error",
+        "no-unexpected-multiline": "error",
+        "no-unsafe-finally": "error",
+        "no-unsafe-negation": "error",
+        "no-unsafe-optional-chaining": "error",
+        "no-unused-labels": "error",
+        "no-unused-private-class-members": "error",
+        "no-unused-vars": "off",
+        "no-useless-backreference": "error",
+        "no-useless-escape": "error",
+        "no-with": "error",
+        "require-yield": "error",
+        "use-isnan": "error",
+        "valid-typeof": "error"
+      }
+    },
+    {
+      "files": ["**/*.ts", "**/*.js"],
+      "rules": {
+        "no-class-assign": "off",
+        "no-const-assign": "off",
+        "no-dupe-class-members": "off",
+        "no-dupe-keys": "off",
+        "no-func-assign": "off",
+        "no-import-assign": "off",
+        "no-new-native-nonconstructor": "off",
+        "no-obj-calls": "off",
+        "no-redeclare": "off",
+        "no-setter-return": "off",
+        "no-this-before-super": "off",
+        "no-unsafe-negation": "off",
+        "no-var": "error",
+        "no-with": "off",
+        "prefer-rest-params": "error",
+        "prefer-spread": "error"
+      }
+    },
+    {
+      "files": ["**/*.ts", "**/*.js"],
+      "rules": {
+        "@typescript-eslint/ban-ts-comment": "error",
+        "no-array-constructor": "error",
+        "@typescript-eslint/no-duplicate-enum-values": "error",
+        "@typescript-eslint/no-empty-object-type": "error",
+        "@typescript-eslint/no-explicit-any": "error",
+        "@typescript-eslint/no-extra-non-null-assertion": "error",
+        "@typescript-eslint/no-misused-new": "error",
+        "@typescript-eslint/no-namespace": "error",
+        "@typescript-eslint/no-non-null-asserted-optional-chain": "error",
+        "@typescript-eslint/no-require-imports": "error",
+        "@typescript-eslint/no-this-alias": "off",
+        "@typescript-eslint/no-unnecessary-type-constraint": "error",
+        "@typescript-eslint/no-unsafe-declaration-merging": "error",
+        "@typescript-eslint/no-unsafe-function-type": "error",
+        "no-unused-expressions": "error",
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-wrapper-object-types": "error",
+        "@typescript-eslint/prefer-as-const": "error",
+        "@typescript-eslint/prefer-namespace-keyword": "error",
+        "@typescript-eslint/triple-slash-reference": "error",
+        "@typescript-eslint/no-unnecessary-parameter-property-assignment": "off" // Not enabled in ESLint config
+      },
+      "plugins": ["typescript"]
+    },
+    {
+      "files": ["**/*.ts", "**/*.js"],
+      "rules": {
+        "@angular-eslint/contextual-lifecycle": "error",
+        "@angular-eslint/no-empty-lifecycle-method": "off",
+        "@angular-eslint/no-input-rename": "off",
+        "@angular-eslint/no-inputs-metadata-property": "error",
+        "@angular-eslint/no-output-native": "off",
+        "@angular-eslint/no-output-on-prefix": "off",
+        "@angular-eslint/no-output-rename": "error",
+        "@angular-eslint/no-outputs-metadata-property": "error",
+        "@angular-eslint/prefer-inject": "off",
+        "@angular-eslint/prefer-standalone": "off",
+        "@angular-eslint/use-pipe-transform-interface": "off",
+        "@angular-eslint/use-lifecycle-interface": "error"
+      },
+      "jsPlugins": ["@angular-eslint/eslint-plugin"]
+    },
+    {
+      "files": ["**/*.ts", "**/*.js"],
+      "rules": {
+        "import/namespace": "error",
+        "import/default": "error",
+        "import/no-named-as-default": "warn",
+        "import/no-named-as-default-member": "warn",
+        "import/no-duplicates": "warn"
+      },
+      "env": {
+        "es2018": true
+      },
+      "plugins": ["import"]
+    },
+    {
+      "files": ["**/*.ts", "**/*.js"],
+      "rules": {
+        "@angular-eslint/component-class-suffix": "error",
+        "@angular-eslint/contextual-lifecycle": "error",
+        "@angular-eslint/directive-class-suffix": "error",
+        "@angular-eslint/no-inputs-metadata-property": "error",
+        "@angular-eslint/no-output-rename": "error",
+        "@angular-eslint/no-outputs-metadata-property": "error",
+        "@angular-eslint/prefer-on-push-component-change-detection": "error",
+        "@angular-eslint/prefer-output-emitter-ref": "error",
+        "@angular-eslint/prefer-signals": "error",
+        "@angular-eslint/use-lifecycle-interface": "error",
+        "bitwarden-platform/required-using": "off", // Requires type-aware linting, let ESLint handle
+        "bitwarden-platform/no-enums": "off", // JS plugins don't respect eslint-disable, let ESLint handle
+        "bitwarden-platform/no-page-script-url-leakage": "off", // JS plugins don't respect eslint-disable, let ESLint handle
+        "bitwarden-components/require-theme-colors-in-svg": "off", // Bug in rule's location reporting with oxlint
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-floating-promises": "error",
+        "@typescript-eslint/no-misused-promises": [
+          "error",
+          {
+            "checksVoidReturn": false
+          }
+        ],
+        "@typescript-eslint/no-this-alias": "off", // oxlint doesn't support allowedNames option
+        "curly": ["error", "all"],
+        "no-console": "error",
+        "import/namespace": ["off"],
+        "no-unused-expressions": [
+          "error",
+          {
+            "allowTernary": true
+          }
+        ],
+        "no-unused-vars": "off",
+        "no-unassigned-vars": "off" // False positives in test files where vars are assigned in beforeEach
+      },
+      "jsPlugins": [
+        "@angular-eslint/eslint-plugin",
+        "./libs/eslint/platform/index.mjs",
+        "./libs/eslint/components/index.mjs"
+      ],
+      "plugins": ["typescript", "import"]
+    },
+    {
+      "files": ["**/*.html"],
+      "rules": {
+        "button-has-type": "error",
+        "tailwindcss/no-custom-classname": [
+          "error",
+          {
+            "whitelist": ["(?!(tw)\\-).*", "tw-app-region-drag", "tw-app-region-no-drag"]
+          }
+        ],
+        "tailwindcss/enforces-negative-arbitrary-values": "error",
+        "tailwindcss/enforces-shorthand": "error",
+        "tailwindcss/no-contradicting-classname": "error",
+        "bitwarden-components/require-label-on-biticonbutton": [
+          "error",
+          {
+            "ignoreIfHas": ["bitPasswordInputToggle"]
+          }
+        ]
+      },
+      "jsPlugins": [
+        "@angular-eslint/eslint-plugin-template",
+        "eslint-plugin-tailwindcss",
+        "./libs/eslint/components/index.mjs"
+      ]
+    },
+    {
+      "files": ["**/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": ["**/platform/**/internal", "**/platform/messaging/**", "**/src/**/*"]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["apps/browser/src/**/*.ts"],
+      "ignorePatterns": [
+        "apps/browser/src/**/{content,popup,spec}/**/*.ts",
+        "apps/browser/src/**/autofill/{notification,overlay}/**/*.ts",
+        "apps/browser/src/**/*.spec.ts"
+      ],
+      "rules": {
+        "no-restricted-globals": "off"
+      }
+    },
+    {
+      "files": ["bitwarden_license/bit-common/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/bit-common/*"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["apps/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "bitwarden_license/**",
+              "@bitwarden/bit-common/*",
+              "@bitwarden/bit-web/*"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["apps/web/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "bitwarden_license/**",
+              "@bitwarden/bit-common/*",
+              "@bitwarden/bit-web/*",
+              "**/app/core/*",
+              "**/reports/*",
+              "**/app/shared/*",
+              "**/organizations/settings/*",
+              "**/organizations/policies/*"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["apps/browser/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@angular",
+              "bitwarden_license/**",
+              "@bitwarden/bit-common/*",
+              "@bitwarden/bit-web/*",
+              "**/popup/*"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["apps/browser/src/**/popup/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "bitwarden_license/**",
+              "@bitwarden/bit-common/*",
+              "@bitwarden/bit-web/*"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/nx-plugin/**/*.ts", "libs/nx-plugin/**/*.js"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": [
+        "apps/web/**/*.html",
+        "apps/browser/**/*.html",
+        "bitwarden_license/bit-web/**/*.html",
+        "libs/**/*.html"
+      ],
+      "rules": {
+        "tailwindcss/no-custom-classname": [
+          "error",
+          {
+            "whitelist": [
+              "((bwi)\\-?).*",
+              "logo",
+              "logo-themed",
+              "file-selector",
+              "mfaType.*",
+              "filter.*",
+              "tw-app-region*",
+              "tw-@container"
+            ]
+          }
+        ]
+      },
+      "jsPlugins": ["eslint-plugin-tailwindcss"]
+    },
+    {
+      "files": ["libs/common/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/angular",
+              "@bitwarden/auth",
+              "@bitwarden/billing",
+              "@bitwarden/components",
+              "@bitwarden/importer",
+              "@bitwarden/key-management",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/node",
+              "@bitwarden/platform",
+              "@bitwarden/tools",
+              "@bitwarden/ui",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/shared/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/angular",
+              "@bitwarden/auth",
+              "@bitwarden/billing",
+              "@bitwarden/common",
+              "@bitwarden/components",
+              "@bitwarden/importer",
+              "@bitwarden/key-management",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/node",
+              "@bitwarden/platform",
+              "@bitwarden/tools",
+              "@bitwarden/ui",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/auth/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/billing",
+              "@bitwarden/components",
+              "@bitwarden/importer",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/tools",
+              "@bitwarden/ui",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/key-management/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/auth",
+              "@bitwarden/admin-console",
+              "@bitwarden/billing",
+              "@bitwarden/importer",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/tools",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/billing/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/importer",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/tools",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/components/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/auth",
+              "@bitwarden/billing",
+              "@bitwarden/eslint",
+              "@bitwarden/importer",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/node",
+              "@bitwarden/tools",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/ui/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/billing",
+              "@bitwarden/importer",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/node",
+              "@bitwarden/platform",
+              "@bitwarden/tools",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/key-management-ui/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/billing",
+              "@bitwarden/importer",
+              "@bitwarden/node",
+              "@bitwarden/platform",
+              "@bitwarden/tools",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/angular/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/auth",
+              "@bitwarden/billing",
+              "@bitwarden/importer",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/node",
+              "@bitwarden/platform",
+              "@bitwarden/tools",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/vault/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/importer",
+              "@bitwarden/tools"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/admin-console/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": ["**/platform/**/internal", "**/platform/messaging/**", "**/src/**/*"]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/tools/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/platform/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/auth",
+              "@bitwarden/billing",
+              "@bitwarden/importer",
+              "@bitwarden/key-management",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/tools",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/importer/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/tools"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/eslint/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/angular",
+              "@bitwarden/auth",
+              "@bitwarden/billing",
+              "@bitwarden/components",
+              "@bitwarden/importer",
+              "@bitwarden/key-management",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/node",
+              "@bitwarden/platform",
+              "@bitwarden/tools",
+              "@bitwarden/ui",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["libs/node/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@bitwarden/commercial-sdk-internal",
+                "message": "Use @bitwarden/sdk-internal instead."
+              }
+            ],
+            "patterns": [
+              "**/platform/**/internal",
+              "**/platform/messaging/**",
+              "**/src/**/*",
+              "@bitwarden/admin-console",
+              "@bitwarden/angular",
+              "@bitwarden/components",
+              "@bitwarden/importer",
+              "@bitwarden/key-management-ui",
+              "@bitwarden/platform",
+              "@bitwarden/tools",
+              "@bitwarden/ui",
+              "@bitwarden/vault"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "apps/cli/src/admin-console/**/*.ts",
+        "apps/web/src/app/admin-console/**/*.ts",
+        "bitwarden_license/bit-cli/src/admin-console/**/*.ts",
+        "bitwarden_license/bit-web/src/app/admin-console/**/*.ts",
+        "libs/admin-console/src/**/*.ts"
+      ],
+      "rules": {
+        "@angular-eslint/component-class-suffix": "error",
+        "@angular-eslint/contextual-lifecycle": "error",
+        "@angular-eslint/directive-class-suffix": "error",
+        "@angular-eslint/no-empty-lifecycle-method": "error",
+        "@angular-eslint/no-input-rename": "error",
+        "@angular-eslint/no-inputs-metadata-property": "error",
+        "@angular-eslint/no-output-native": "error",
+        "@angular-eslint/no-output-on-prefix": "error",
+        "@angular-eslint/no-output-rename": "error",
+        "@angular-eslint/no-outputs-metadata-property": "error",
+        "@angular-eslint/use-lifecycle-interface": "error",
+        "@angular-eslint/use-pipe-transform-interface": "error"
+      },
+      "jsPlugins": ["@angular-eslint/eslint-plugin"]
+    }
   ]
 }
