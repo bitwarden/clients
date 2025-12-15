@@ -5169,8 +5169,20 @@
     "message": "Oplossen",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Versleuteling repareren"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Dit bestand gebruikt een verouderde versleutelingsmethode."
+  },
+  "attachmentUpdated": {
+    "message": "Bijlagen bijgewerkt"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Er zijn oude bestandsbijlagen in je kluis die aangepast moeten worden voordat je je encryptiesleutels kunt roteren."
+  },
+  "itemsTransferred": {
+    "message": "Items overgedragen"
   },
   "yourAccountsFingerprint": {
     "message": "Vingerafdrukzin van je account",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Succesvol opnieuw uitgenodigd"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ gebruikers opnieuw uitgenodigd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ van $SELECTEDCOUNT$ gebruikers opnieuw uitgenodigd. $EXCLUDEDCOUNT$ werden niet uitgenodigd vanwege de $LIMIT$ uitnodigingslimiet.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Succesvol verwijderd"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "Kluis time-out ligt niet binnen het toegestane bereik."
   },
-  "disablePersonalVaultExport": {
-    "message": "Persoonlijke kluis exporteren uitschakelen"
+  "disableExport": {
+    "message": "Export verwijderen"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Exporteren van gegevens uit hun individuele kluis niet toestaan."
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Ongeldige verificatiecode"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Voor leden van de volgende organisatie is een hoofdwachtwoord niet langer nodig. Bevestig het domein hieronder met de beheerder van je organisatie."
-  },
   "keyConnectorDomain": {
     "message": "Key Connector-domein"
   },
@@ -7154,8 +7189,8 @@
   "enabledSso": {
     "message": "SSO ingeschakeld"
   },
-  "disabledSso": {
-    "message": "SSO uitgeschakeld"
+  "ssoTurnedOff": {
+    "message": "SSO turned off"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ moet met Single Sign-on inloggen",
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "SSO login is vereist"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Email is required for SSO"
   },
   "selectedRegionFlag": {
     "message": "Geselecteerde regionale vlag"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Lidmaatschap families"
   },
-  "planDescPremium": {
-    "message": "Online beveiliging voltooien"
+  "advancedOnlineSecurity": {
+    "message": "Geavanceerde online beveiliging"
   },
   "planDescFamiliesV2": {
     "message": "Premium beveiliging voor je familie"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Je organisatie maakt niet langer gebruik van hoofdwachtwoorden om in te loggen op Bitwarden. Controleer de organisatie en het domein om door te gaan."
+  },
+  "continueWithLogIn": {
+    "message": "Doorgaan met inloggen"
+  },
+  "doNotContinue": {
+    "message": "Niet verder gaan"
+  },
+  "domain": {
+    "message": "Domein"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Dit domein zal de encryptiesleutels van je account opslaan, dus zorg ervoor dat je het vertrouwt. Als je het niet zeker weet, controleer dan bij je beheerder."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifieer je organisatie om in te loggen"
+  },
+  "organizationVerified": {
+    "message": "Organisatie geverifieerd"
+  },
+  "domainVerified": {
+    "message": "Domein geverifieerd"
+  },
+  "leaveOrganizationContent": {
+    "message": "Als je je organisatie niet verifieert, wordt je toegang tot de organisatie ingetrokken."
+  },
+  "leaveNow": {
+    "message": "Nu verlaten"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifieer je domein om in te loggen"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Bevestig dit domein om verder te gaan met inloggen."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Bevestig organisatie en domein om verder te gaan met inloggen."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Geen belangrijke applicaties geselecteerd"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Onherstelbare kluisitems verwijderen"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Sommige kluisitems konden niet worden hersteld. Wilt je deze onherstelbare items uit je kluis verwijderen?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Onherstelbare mappen verwijderen"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Sommige mappen konden niet worden hersteld. Wilt je deze onherstelbare mappen uit je kluis verwijderen?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Encryptiesleutel vervangen"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Je sleutelpaar voor versleuteling met publieke sleutel kon niet worden hersteld. Wilt je je encryptiesleutel vervangen door een nieuwe sleutel? Hiervoor zal je bestaande noodtoegang en organisatielidmaatschappen opnieuw moeten instellen."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Data synchroniseren"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Integriteit encryptiesleutel verifiëren"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Gebruikersinformatie verifiëren"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Integriteit kluisitem verifiëren"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Integriteit map verifiëren"
+  },
+  "dataRecoveryTitle": {
+    "message": "Gegevensherstel en diagnostiek"
+  },
+  "dataRecoveryDescription": {
+    "message": "Gebruik het hulpmiddelen voor gegevensherstel om problemen met je account te diagnosticeren en repareren. Na het uitvoeren van de diagnose heb je de optie om diagnostische logboeken op te slaan voor ondersteuning en de optie om gedetecteerde problemen op te lossen."
+  },
+  "runDiagnostics": {
+    "message": "Diagnose uitvoeren"
+  },
+  "repairIssues": {
+    "message": "Problemen oplossen"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Diagnostische logs opslaan"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Deze instelling wordt beheerd door je organisatie."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Je organisatie heeft de maximale sessietime-out ingesteld op $HOURS$ uur en $MINUTES$ minuten.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Je organisatie heeft de standaard sessietime-out ingesteld op Browser verversen."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximale time-out kan niet langer zijn dan $HOURS$ uur en $MINUTES$ minu(u) t(en)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Browser verversen"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
   }
 }
