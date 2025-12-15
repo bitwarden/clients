@@ -74,6 +74,13 @@ jobs:
           cache: 'pnpm'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
+      - name: Print environment
+        run: |
+          node --version
+          pnpm --version
+          echo "pnpm store path: $(pnpm store path)"
+          echo "PNPM_HOME: $PNPM_HOME"
+
       - name: Install Node dependencies
         run: pnpm install --frozen-lockfile
 
