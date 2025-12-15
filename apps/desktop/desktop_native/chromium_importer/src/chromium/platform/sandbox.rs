@@ -180,7 +180,8 @@ async fn is_browser_installed(browser_name: &str) -> Result<bool> {
 
     let Some(bundle_id) = bundle_id else {
         return Ok(true); // ok_or(true) was a review suggestion with breaking changes
-        // Avoid ok_or(true): serializes Result as {"Ok": "..."} instead of string value
+                         // Avoid ok_or(true): serializes Result as {"Ok": "..."} instead of string
+                         // value
     };
 
     let input = CommandInput {
@@ -200,7 +201,7 @@ async fn is_browser_installed(browser_name: &str) -> Result<bool> {
 
     match result {
         CommandResult::Success { value } => Ok(value.is_installed),
-        CommandResult::Error { error} => Err(anyhow!("{}", error)),
+        CommandResult::Error { error } => Err(anyhow!("{}", error)),
     }
 }
 
