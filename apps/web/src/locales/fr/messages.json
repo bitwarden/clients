@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Exporter à partir de"
   },
-  "exportVault": {
-    "message": "Exporter le coffre"
-  },
-  "exportSecrets": {
-    "message": "Exporter les secrets"
-  },
   "fileFormat": {
     "message": "Format de fichier"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirmer le mot de passe principal"
-  },
-  "confirmFormat": {
-    "message": "Confirmer le format"
   },
   "filePassword": {
     "message": "Mot de Passe du Fichier"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Outils"
+  },
+  "import": {
+    "message": "Importer"
   },
   "importData": {
     "message": "Importer des données"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Serveur"
-  },
-  "exportData": {
-    "message": "Exporter les données"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exportation des Données Secrètes de l'Organisation"

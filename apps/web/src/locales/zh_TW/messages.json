@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "匯出自"
   },
-  "exportVault": {
-    "message": "匯出密碼庫"
-  },
-  "exportSecrets": {
-    "message": "匯出機密"
-  },
   "fileFormat": {
     "message": "檔案格式"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "確認主密碼"
-  },
-  "confirmFormat": {
-    "message": "確認格式"
   },
   "filePassword": {
     "message": "檔案密碼"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "工具"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "匯入資料"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "伺服器"
-  },
-  "exportData": {
-    "message": "匯出資料"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "匯出組織機密資料"

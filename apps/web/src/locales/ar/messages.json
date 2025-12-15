@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "التصدير من"
   },
-  "exportVault": {
-    "message": "تصدير الخزانة"
-  },
-  "exportSecrets": {
-    "message": "Export secrets"
-  },
   "fileFormat": {
     "message": "صيغة الملف"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "تأكيد كلمة المرور الرئيسية"
-  },
-  "confirmFormat": {
-    "message": "تأكيد التنسيق"
   },
   "filePassword": {
     "message": "كلمة مرور الملف"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "الأدوات"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "استيراد البيانات"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Export data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"

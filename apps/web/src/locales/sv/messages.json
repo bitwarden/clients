@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Exportera från"
   },
-  "exportVault": {
-    "message": "Exportera valv"
-  },
-  "exportSecrets": {
-    "message": "Exportera hemligheter"
-  },
   "fileFormat": {
     "message": "Filformat"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Bekräfta huvudlösenord"
-  },
-  "confirmFormat": {
-    "message": "Bekräfta format"
   },
   "filePassword": {
     "message": "Fillösenord"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Verktyg"
+  },
+  "import": {
+    "message": "Importera"
   },
   "importData": {
     "message": "Importera data"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Exportera data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Export av hemliga organisationsdata"

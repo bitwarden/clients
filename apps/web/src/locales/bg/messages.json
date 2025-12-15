@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Изнасяне от"
   },
-  "exportVault": {
-    "message": "Изнасяне на трезора"
-  },
-  "exportSecrets": {
-    "message": "Изнасяне на тайните"
-  },
   "fileFormat": {
     "message": "Формат на файла"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Потвърждаване на главната парола"
-  },
-  "confirmFormat": {
-    "message": "Потвърждаване на формата"
   },
   "filePassword": {
     "message": "Парола на файла"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Инструменти"
+  },
+  "import": {
+    "message": "Внасяне"
   },
   "importData": {
     "message": "Внасяне на данни"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Сървър"
-  },
-  "exportData": {
-    "message": "Изнасяне на данни"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Изнасяне на тайните данни на организацията"

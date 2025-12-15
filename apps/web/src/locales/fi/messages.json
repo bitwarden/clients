@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Vie lähteestä"
   },
-  "exportVault": {
-    "message": "Vie holvi"
-  },
-  "exportSecrets": {
-    "message": "Vie salaisuudet"
-  },
   "fileFormat": {
     "message": "Tiedostomuoto"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Vahvista pääsalasana"
-  },
-  "confirmFormat": {
-    "message": "Vahvista muoto"
   },
   "filePassword": {
     "message": "Tiedoston salasana"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Työkalut"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Tuo tietoja"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Palvelin"
-  },
-  "exportData": {
-    "message": "Vie tietoja"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Organisaation salaisten tietojen vienti"

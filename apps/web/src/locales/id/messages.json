@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Ekspor dari"
   },
-  "exportVault": {
-    "message": "Ekspor Brankas"
-  },
-  "exportSecrets": {
-    "message": "Ekspor rahasia"
-  },
   "fileFormat": {
     "message": "Format Berkas"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Konfirmasi sandi utama"
-  },
-  "confirmFormat": {
-    "message": "Konfirmasi format"
   },
   "filePassword": {
     "message": "Sandi berkas"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Alat"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Impor Data"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Export data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"

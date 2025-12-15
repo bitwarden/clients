@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "برون ریزی از"
   },
-  "exportVault": {
-    "message": "برون ریزی گاوصندوق"
-  },
-  "exportSecrets": {
-    "message": "برون ریزی رازها"
-  },
   "fileFormat": {
     "message": "فرمت پرونده"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "تأیید کلمه عبور اصلی"
-  },
-  "confirmFormat": {
-    "message": "فرمت را تأیید کنید"
   },
   "filePassword": {
     "message": "کلمه عبور پرونده"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "ابزار"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "درون ریزی داده"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "سرور"
-  },
-  "exportData": {
-    "message": "برون ریزی داده"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "برون ریزی داده‌های مخفی سازمان"
