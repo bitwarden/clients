@@ -237,7 +237,21 @@
           }
         ],
         "no-unused-vars": "off",
-        "no-unassigned-vars": "off" // False positives in test files where vars are assigned in beforeEach
+        "no-unassigned-vars": "off", // False positives in test files where vars are assigned in beforeEach
+
+        // Type-aware rules not enabled in ESLint - disable to match ESLint behavior
+        "@typescript-eslint/no-redundant-type-constituents": "off",
+        "@typescript-eslint/unbound-method": "off",
+        "@typescript-eslint/no-duplicate-type-constituents": "off",
+        "@typescript-eslint/restrict-template-expressions": "off",
+        "@typescript-eslint/await-thenable": "off",
+        "@typescript-eslint/no-misused-spread": "off",
+        "@typescript-eslint/no-meaningless-void-operator": "off",
+        "@typescript-eslint/no-base-to-string": "off",
+        "@typescript-eslint/no-for-in-array": "off",
+        "@typescript-eslint/require-array-sort-compare": "off",
+        "@typescript-eslint/no-array-delete": "off",
+        "@typescript-eslint/no-implied-eval": "off"
       },
       "jsPlugins": [
         "@angular-eslint/eslint-plugin",
