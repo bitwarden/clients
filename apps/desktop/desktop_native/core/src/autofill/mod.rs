@@ -1,3 +1,5 @@
+#![deny(clippy::pedantic, warnings)]
+
 #[allow(clippy::module_inception)]
 #[cfg_attr(target_os = "linux", path = "unix.rs")]
 #[cfg_attr(target_os = "windows", path = "windows.rs")]

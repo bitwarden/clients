@@ -419,14 +419,13 @@ pub mod sshagent {
         agent_state: &mut SshAgentState,
         new_keys: Vec<PrivateKey>,
     ) -> napi::Result<()> {
+        let keys: Vec<_> = new_keys
+            .iter()
+            .map(|k| (&k.private_key, &k.name, &k.cipher_id))
+            .collect();
         let bitwarden_agent_state = &mut agent_state.state;
         bitwarden_agent_state
-            .set_keys(
-                new_keys
-                    .iter()
-                    .map(|k| (k.private_key.clone(), k.name.clone(), k.cipher_id.clone()))
-                    .collect(),
-            )
+            .set_keys(&keys)
             .map_err(|e| napi::Error::from_reason(e.to_string()))?;
         Ok(())
     }
@@ -440,11 +439,9 @@ pub mod sshagent {
     }
 
     #[napi]
-    pub fn clear_keys(agent_state: &mut SshAgentState) -> napi::Result<()> {
+    pub fn clear_keys(agent_state: &mut SshAgentState) {
         let bitwarden_agent_state = &mut agent_state.state;
-        bitwarden_agent_state
-            .clear_keys()
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        bitwarden_agent_state.clear_keys();
     }
 }
 
