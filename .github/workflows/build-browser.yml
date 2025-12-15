@@ -262,6 +262,8 @@ jobs:
         run: |
           node --version
           pnpm --version
+          echo "pnpm store path: $(pnpm store path)"
+          echo "PNPM_HOME: $PNPM_HOME"
 
       - name: Download browser source
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
@@ -398,6 +400,8 @@ jobs:
         run: |
           node --version
           pnpm --version
+          echo "pnpm store path: $(pnpm store path)"
+          echo "PNPM_HOME: $PNPM_HOME"
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
