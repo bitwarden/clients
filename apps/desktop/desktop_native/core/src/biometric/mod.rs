@@ -3,16 +3,12 @@ use anyhow::{anyhow, Result};
 
 #[allow(clippy::module_inception)]
 #[cfg_attr(target_os = "linux", path = "unix.rs")]
-#[cfg_attr(target_os = "macos", path = "macos.rs")]
-#[cfg_attr(target_os = "windows", path = "windows.rs")]
+#[cfg_attr(target_os = "macos", path = "unimplemented.rs")]
+#[cfg_attr(target_os = "windows", path = "unimplemented.rs")]
 mod biometric;
 
-pub use biometric::Biometric;
-
-#[cfg(target_os = "windows")]
-pub mod windows_focus;
-
 use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
+pub use biometric::Biometric;
 use sha2::{Digest, Sha256};
 
 use crate::crypto::{self, CipherString};
@@ -86,10 +82,14 @@ impl KeyMaterial {
 
 #[cfg(test)]
 mod tests {
-    use crate::biometric::{decrypt, encrypt, KeyMaterial};
-    use crate::crypto::CipherString;
-    use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
     use std::str::FromStr;
+
+    use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
+
+    use crate::{
+        biometric::{decrypt, encrypt, KeyMaterial},
+        crypto::CipherString,
+    };
 
     fn key_material() -> KeyMaterial {
         KeyMaterial {

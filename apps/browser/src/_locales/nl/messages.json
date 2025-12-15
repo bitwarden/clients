@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
   },
+  "upgradeToUseArchive": {
+    "message": "Je hebt een Premium-abonnement nodig om te kunnen archiveren."
+  },
   "edit": {
     "message": "Bewerken"
   },
@@ -592,6 +595,9 @@
     "message": "Weergeven"
   },
   "viewAll": {
+    "message": "Alles weergeven"
+  },
+  "showAll": {
     "message": "Alles weergeven"
   },
   "viewLess": {
@@ -1400,6 +1406,27 @@
   "learnMore": {
     "message": "Meer informatie"
   },
+  "migrationsFailed": {
+    "message": "Er is een fout opgetreden bij het bijwerken van de versleutelingsinstellingen."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Je versleutelingsinstellingen bijwerken"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "De nieuwe aanbevolen versleutelingsinstellingen verbeteren de beveiliging van je account. Voer je hoofdwachtwoord in om nu bij te werken."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bevestig je identiteit om door te gaan"
+  },
+  "enterYourMasterPassword": {
+    "message": "Voer je hoofdwachtwoord in"
+  },
+  "updateSettings": {
+    "message": "Instellingen bijwerken"
+  },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "Authenticatiecode (TOTP)"
   },
@@ -1468,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB versleutelde opslag voor bijlagen."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ versleutelde opslag voor bijlagen.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Noodtoegang."
@@ -1866,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Vervaljaar"
+  },
+  "monthly": {
+    "message": "maand"
   },
   "expiration": {
     "message": "Vervaldatum"
@@ -2435,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Deze pagina verstoort de Bitwarden-ervaring. Het inline-menu van Bitwarden is tijdelijk uitgeschakeld als veiligheidsmaatregel."
   },
   "setMasterPassword": {
     "message": "Hoofdwachtwoord instellen"
@@ -4899,6 +4941,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Ontgrendel tapporteren, noodtoegang en meer beveiligingsfuncties met Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Gratis organisaties kunnen geen bijlagen gebruiken"
   },
@@ -5808,6 +5853,15 @@
   },
   "upgradeToPremium": {
     "message": "Opwaarderen naar Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Geavanceerde beveiligingsfuncties ontgrendelen"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Een Premium-abonnement geeft je meer tools om veilig en in controle te blijven"
+  },
+  "explorePremium": {
+    "message": "Premium verkennen"
   },
   "loadingVault": {
     "message": "Kluis laden"

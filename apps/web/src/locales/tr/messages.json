@@ -93,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Assign members tasks to monitor progress"
   },
-  "onceYouReviewApps": {
-    "message": "Once you review applications and mark them as critical, you can assign tasks to members to resolve at-risk items and monitor progress here"
+  "onceYouReviewApplications": {
+    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
   },
   "sendReminders": {
     "message": "Send reminders"
@@ -178,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "$ORG NAME$ kuruluşu için hiçbir uygulama bulunmadı",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "No data found"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  "noDataInOrgDescription": {
+    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
-  "benefit1Title": {
-    "message": "Prioritize risks"
+  "feature1Title": {
+    "message": "Mark applications as critical"
   },
-  "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+  "feature1Description": {
+    "message": "This will help you remove risks to your most important applications first."
   },
-  "benefit2Title": {
-    "message": "Guide remediation"
+  "feature2Title": {
+    "message": "Help members improve their security"
   },
-  "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  "feature2Description": {
+    "message": "Assign at-risk members guided security tasks to update credentials."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Monitor progress"
   },
-  "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+  "feature3Description": {
+    "message": "Track changes over time to show security improvements."
   },
-  "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+  "noReportsRunTitle": {
+    "message": "Generate report"
   },
-  "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+  "noReportsRunDescription": {
+    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Hiçbir uygulamayı kritik olarak işaretlemediniz"
@@ -271,14 +265,14 @@
   "atRiskMembers": {
     "message": "Riskli üyeler"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Kritik uygulamalar için risk altındaki kayıtlara erişimi olan üyeler"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
     "message": "Members with at-risk passwords"
   },
-  "membersWillReceiveNotification": {
-    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
+  "membersWillReceiveSecurityTask": {
+    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ üye risk altında",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Bu üyeler uygulamalara zayıf, ele geçirilmiş veya tekrar kullanılan parolalarla giriş yapmaktadır."
+  "atRiskMemberDescription": {
+    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Zayıf, ele geçirilmiş veya tekrar kullanılan parolayla uygulamalara giriş yapan üye yok."
@@ -391,14 +385,14 @@
   "prioritizeCriticalApplications": {
     "message": "Prioritize critical applications"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Review new applications"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Click the star icon to mark an app as critical"
@@ -3068,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "Dosya ekleri için 1 GB şifrelenmiş depolama."
   },
+  "premiumSignUpStorageV2": {
+    "message": "Dosya ekleri için $SIZE$ şifrelenmiş depolama.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey ve Duo gibi marka bazlı iki aşamalı giriş seçenekleri."
   },
@@ -3129,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "Ek depolama alanı (GB)"
@@ -4614,6 +4626,24 @@
   "learnMore": {
     "message": "Daha fazla bilgi al"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Ayarları güncelle"
+  },
   "deleteRecoverDesc": {
     "message": "Hesabınızı kurtarmak ve silmek için e-posta adresinizi yazın."
   },
@@ -5815,9 +5845,9 @@
     "message": "Tüm kayıtların bir kuruluşa ait olmasını zorunlu kılın ve kayıtları hesap düzeyinde depolama seçeneğini kaldırın.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Tüm kayıtlar kuruluşun mülkiyetinde olacak ve kuruluşta saklanacak, böylece kuruluş genelinde kontrol, görünürlük ve raporlama sağlanacaktır. Etkinleştirildiğinde, her üyenin kayıtları depolaması için varsayılan bir koleksiyon kullanılabilir hale gelir. Yönetme hakkında daha fazla bilgi edinin ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "kimlik bilgisi yaşam döngüsü",
@@ -9826,6 +9856,14 @@
     "message": "Çok pahalı",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Switching to free plan",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Switching to free organization",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "1 yıl boyunca ücretsiz"
   },
@@ -9856,8 +9894,8 @@
   "assignTasks": {
     "message": "Assign tasks"
   },
-  "assignTasksToMembers": {
-    "message": "Assign tasks to members for guided resolution"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "Koleksiyonlara ata"
@@ -11345,14 +11383,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Bitwarden tarayıcı uzantısı başarıyla açıldı. Artık risk altındaki parolalarınızı gözden geçirebilirsiniz."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Bitwarden tarayıcı uzantısını açarken sorun yaşadık. Araç çubuğundan Bitwarden simgesini",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "açın.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Aboneliğiniz yakında yenilenecektir. Kesintisiz hizmet için, $RENEWAL_DATE$ tarihinden önce $RESELLER$ ile iletişime geçerek yenileme işleminizi onaylayın.",
     "placeholders": {
@@ -11673,11 +11703,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden uzantısı yüklendi!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Bitwarden uzantısını aç"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Bitwarden uzantısı yüklendi!"
   },
   "openExtensionToAutofill": {
     "message": "Otomatik doldurmaya başlamak için uzantıyı açıp giriş yapın."
@@ -11692,6 +11719,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Öğrenim Merkezi",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Uzantı açılmadıysa araç çubuğundaki simgeye ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " tıklayarak Bitwarden'ı açmanız gerekebilir.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Yardım Merkezi",
@@ -12094,9 +12129,6 @@
   "updateYourEncryptionSettings": {
     "message": "Şifreleme ayarlarınızı güncelleyin"
   },
-  "updateSettings": {
-    "message": "Ayarları güncelle"
-  },
   "algorithm": {
     "message": "Algoritma"
   },
@@ -12123,6 +12155,15 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Start free Families trial"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Kasa zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın."
@@ -12162,6 +12203,9 @@
     "message": "No critical applications are selected"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "Devam etmek istediğinizden emin misiniz?"
+  },
+  "userVerificationFailed": {
+    "message": "Kullanıcı doğrulaması başarısız oldu."
   }
 }

@@ -309,7 +309,7 @@
     "message": "前往浏览器扩展商店吗？"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "帮助别人了解 Bitwarden 是否适合他们。立即访问浏览器的扩展程序商店并留下评分。"
+    "message": "帮助别人了解 Bitwarden 是否适合他们。立即访问浏览器扩展商店并留下评分。"
   },
   "changeMasterPasswordOnWebConfirmation": {
     "message": "您可以在 Bitwarden 网页 App 上更改您的主密码。"
@@ -362,10 +362,10 @@
     "message": "使用 Passwordless.dev 摆脱传统密码束缚，打造流畅且安全的登录体验。访问 bitwarden.com 网站了解更多信息。"
   },
   "freeBitwardenFamilies": {
-    "message": "免费 Bitwarden 家庭"
+    "message": "免费的 Bitwarden 家庭版"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "您有资格获得免费的 Bitwarden 家庭。立即在网页 App 中兑换此优惠。"
+    "message": "您有资格获得免费的 Bitwarden 家庭版。立即在网页 App 中兑换此优惠。"
   },
   "version": {
     "message": "版本"
@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
   },
+  "upgradeToUseArchive": {
+    "message": "需要高级会员才能使用归档。"
+  },
   "edit": {
     "message": "编辑"
   },
@@ -594,8 +597,11 @@
   "viewAll": {
     "message": "查看全部"
   },
+  "showAll": {
+    "message": "显示全部"
+  },
   "viewLess": {
-    "message": "View less"
+    "message": "查看更少"
   },
   "viewLogin": {
     "message": "查看登录"
@@ -1400,6 +1406,27 @@
   "learnMore": {
     "message": "进一步了解"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "验证器密钥 (TOTP)"
   },
@@ -1467,7 +1494,16 @@
     "message": "注册高级会员将获得："
   },
   "ppremiumSignUpStorage": {
-    "message": "1 GB 文件附件加密存储。"
+    "message": "1 GB 文件附件加密存储空间。"
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ 文件附件加密存储空间。",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "紧急访问。"
@@ -1485,7 +1521,7 @@
     "message": "优先客户支持。"
   },
   "ppremiumSignUpFuture": {
-    "message": "未来的更多高级功能。敬请期待！"
+    "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPurchase": {
     "message": "购买高级版"
@@ -1866,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "过期年份"
+  },
+  "monthly": {
+    "message": "月"
   },
   "expiration": {
     "message": "有效期"
@@ -2436,6 +2475,9 @@
       }
     }
   },
+  "topLayerHijackWarning": {
+    "message": "此页面正在干扰 Bitwarden 的使用体验。出于安全考虑，Bitwarden 内嵌菜单已被暂时禁用。"
+  },
   "setMasterPassword": {
     "message": "设置主密码"
   },
@@ -2999,7 +3041,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogText": {
-    "message": "弹出扩展？",
+    "message": "弹出扩展吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogDesc": {
@@ -4882,7 +4924,7 @@
     "message": "获取桌面 App"
   },
   "getTheDesktopAppDesc": {
-    "message": "无需使用浏览器访问您的密码库，然后在桌面 App 和浏览器扩展中同时设置生物识别解锁，即可实现快速解锁。"
+    "message": "无需使用浏览器访问您的密码库。在桌面 App 和浏览器扩展中同时设置生物识别解锁，即可实现快速解锁。"
   },
   "downloadFromBitwardenNow": {
     "message": "立即从 bitwarden.com 下载"
@@ -4897,7 +4939,10 @@
     "message": "确定要永久删除此附件吗？"
   },
   "premium": {
-    "message": "高级会员"
+    "message": "高级版"
+  },
+  "unlockFeaturesWithPremium": {
+    "message": "使用高级版解锁报告、紧急访问以及更多安全功能。"
   },
   "freeOrgsCannotUseAttachments": {
     "message": "免费组织无法使用附件"
@@ -5757,7 +5802,7 @@
     "message": "关于此设置"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL 来改善您的体验。当您使用此服务时，不会收集或保存任何信息。"
+    "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
   "noPermissionsViewPage": {
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
@@ -5808,6 +5853,15 @@
   },
   "upgradeToPremium": {
     "message": "升级为高级版"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "解锁高级安全功能"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "高级版订阅为您提供更多工具，助您保持安全并掌控一切"
+  },
+  "explorePremium": {
+    "message": "探索高级版"
   },
   "loadingVault": {
     "message": "正在加载密码库"

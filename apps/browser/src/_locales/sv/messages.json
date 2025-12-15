@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Arkiverade objekt är exkluderade från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
   },
+  "upgradeToUseArchive": {
+    "message": "Ett premium-medlemskap krävs för att använda Arkiv."
+  },
   "edit": {
     "message": "Redigera"
   },
@@ -594,8 +597,11 @@
   "viewAll": {
     "message": "Visa alla"
   },
+  "showAll": {
+    "message": "Visa alla"
+  },
   "viewLess": {
-    "message": "View less"
+    "message": "Visa mindre"
   },
   "viewLogin": {
     "message": "Visa inloggning"
@@ -1400,6 +1406,27 @@
   "learnMore": {
     "message": "Läs mer"
   },
+  "migrationsFailed": {
+    "message": "Ett fel inträffade när krypteringsinställningarna skulle uppdateras."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Uppdatera dina krypteringsinställningar"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "De nya rekommenderade krypteringsinställningarna kommer att förbättra säkerheten för ditt konto. Ange ditt huvudlösenord för att uppdatera nu."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bekräfta din identitet för att fortsätta"
+  },
+  "enterYourMasterPassword": {
+    "message": "Ange ditt huvudlösenord"
+  },
+  "updateSettings": {
+    "message": "Uppdatera inställningar"
+  },
+  "later": {
+    "message": "Senare"
+  },
   "authenticatorKeyTotp": {
     "message": "Autentiseringsnyckel (TOTP)"
   },
@@ -1468,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB lagring av krypterade filer."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ krypterad lagring för filbilagor.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Nödåtkomst."
@@ -1866,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Utgångsår"
+  },
+  "monthly": {
+    "message": "månad"
   },
   "expiration": {
     "message": "Utgång"
@@ -2435,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Denna sida stör Bitwarden-upplevelsen. Bitwardens inbyggda meny har tillfälligt inaktiverats som en säkerhetsåtgärd."
   },
   "setMasterPassword": {
     "message": "Ange huvudlösenord"
@@ -4899,6 +4941,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Lås upp rapportering, nödåtkomst och fler säkerhetsfunktioner med Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Fria organisationer kan inte använda bilagor"
   },
@@ -5808,6 +5853,15 @@
   },
   "upgradeToPremium": {
     "message": "Uppgradera till Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Lås upp avancerade säkerhetsfunktioner"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "En Premium-prenumeration ger dig fler verktyg för att hålla dig säker och ha kontroll"
+  },
+  "explorePremium": {
+    "message": "Utforska Premium"
   },
   "loadingVault": {
     "message": "Läser in valv"

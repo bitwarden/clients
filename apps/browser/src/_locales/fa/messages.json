@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "ویرایش"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "View all"
+  },
+  "showAll": {
+    "message": "Show all"
   },
   "viewLess": {
     "message": "View less"
@@ -1400,6 +1406,27 @@
   "learnMore": {
     "message": "بیشتر بدانید"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "کلید احراز هویت (TOTP)"
   },
@@ -1468,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "۱ گیگابایت فضای ذخیره‌سازی رمزگذاری شده برای پیوست‌های پرونده."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "دسترسی اضطراری."
@@ -1866,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "سال انقضاء"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "انقضاء"
@@ -2435,6 +2474,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "تنظیم کلمه عبور اصلی"
@@ -4899,6 +4941,9 @@
   "premium": {
     "message": "پرمیوم"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "سازمان‌های رایگان نمی‌توانند از پرونده‌های پیوست استفاده کنند"
   },
@@ -5808,6 +5853,15 @@
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
   },
   "loadingVault": {
     "message": "Loading vault"
