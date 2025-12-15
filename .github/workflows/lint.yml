@@ -72,6 +72,9 @@ jobs:
 
       - name: Install Node dependencies
         run: npm ci
+      
+      - name: Run oxlint
+        run: npm oxlint:types
 
       - name: Lint unowned dependencies
         run: npm run lint:dep-ownership
