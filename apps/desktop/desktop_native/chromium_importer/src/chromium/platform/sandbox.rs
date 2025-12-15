@@ -179,8 +179,9 @@ async fn is_browser_installed(browser_name: &str) -> Result<bool> {
         .map(|(_, id)| *id);
 
     let Some(bundle_id) = bundle_id else {
-        return Ok(true); // ok_or(true) was a review suggestion with breaking changes 
+        return Ok(true); // ok_or(true) was a review suggestion with breaking changes
         // Avoid ok_or(true): serializes Result as {"Ok": "..."} instead of string value
+    };
 
     let input = CommandInput {
         namespace: "chromium_importer".to_string(),
