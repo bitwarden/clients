@@ -127,7 +127,7 @@ export class MainDesktopAutotypeService {
       }
     } else {
       this.logService.debug(
-        "configureAutotype called but keyboard shortcut is not different from current.",
+        "setKeyboardShortcut() called but shortcut is not different from current.",
       );
     }
   }
