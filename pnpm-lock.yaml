@@ -152,6 +152,9 @@ importers:
       papaparse:
         specifier: 5.5.3
         version: 5.5.3
+      powershell-utils:
+        specifier: 0.1.0
+        version: 0.1.0
       proper-lockfile:
         specifier: 4.1.2
         version: 4.1.2
@@ -182,6 +185,9 @@ importers:
       vite-tsconfig-paths:
         specifier: 5.1.4
         version: 5.1.4(typescript@5.8.3)(vite@7.1.11(@types/node@22.19.2)(jiti@1.21.7)(less@4.5.1)(sass-embedded@1.96.0)(sass@1.95.1)(terser@5.43.1)(yaml@2.8.2))
+      wsl-utils:
+        specifier: 0.3.0
+        version: 0.3.0
       zone.js:
         specifier: 0.15.1
         version: 0.15.1
