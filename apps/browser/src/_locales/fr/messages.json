@@ -585,6 +585,9 @@
   "archiveItemConfirmDesc": {
     "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "Modifier"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Tout afficher"
+  },
+  "showAll": {
+    "message": "Show all"
   },
   "viewLess": {
     "message": "Afficher moins"
@@ -1400,6 +1406,27 @@
   "learnMore": {
     "message": "En savoir plus"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "Clé Authenticator (TOTP)"
   },
@@ -1468,6 +1495,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 Go de stockage chiffré pour les fichiers joints."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Accès d'urgence."
@@ -1866,6 +1902,9 @@
   },
   "expirationYear": {
     "message": "Année d'expiration"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "Expiration"
@@ -2437,7 +2476,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+    "message": "Cette page interfère avec l'expérience Bitwarden. Le menu en ligne de Bitwarden a été temporairement désactivé en tant que mesure de sécurité."
   },
   "setMasterPassword": {
     "message": "Définir le mot de passe principal"
@@ -4902,6 +4941,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Déverrouillez la journalisation, l'accès d'urgence et plus de fonctionnalités de sécurité avec Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Les organisations gratuites ne peuvent pas utiliser de pièces jointes"
   },
@@ -5812,11 +5854,11 @@
   "upgradeToPremium": {
     "message": "Mettre à niveau vers Premium"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Mettre à niveau pour une sécurité complète"
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
   },
-  "premiumGivesMoreTools": {
-    "message": "Premium vous donne plus d'outils pour rester en sécurité, travailler efficacement et garder le contrôle."
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
   },
   "explorePremium": {
     "message": "Explorer Premium"

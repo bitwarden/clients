@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованного хранилища для вложенных файлов."
   },
+  "premiumSignUpStorageV2": {
+    "message": "Зашифрованного хранилища для вложенных файлов: $SIZE$",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ваша подписка Премиум закончилась"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
+  },
+  "restartPremium": {
+    "message": "Переподключить Премиум"
   },
   "additionalStorageGb": {
     "message": "Дополнительное место (ГБ)"
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Подробнее"
+  },
+  "migrationsFailed": {
+    "message": "Произошла ошибка при обновлении настроек шифрования."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Обновите настройки шифрования"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Новые рекомендуемые настройки шифрования повысят безопасность вашего аккаунта. Введите мастер-пароль, чтобы обновить сейчас."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Подтвердите вашу личность, чтобы продолжить"
+  },
+  "enterYourMasterPassword": {
+    "message": "Введите ваш мастер-пароль"
+  },
+  "updateSettings": {
+    "message": "Обновить настройки"
   },
   "deleteRecoverDesc": {
     "message": "Введите свой адрес email, чтобы восстановить и удалить ваш аккаунт."
@@ -9820,6 +9856,14 @@
     "message": "Слишком дорого",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Переход на бесплатный план",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Переключение на бесплатную организацию",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Бесплатно на 1 год"
   },
@@ -11339,14 +11383,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Расширение для браузера Bitwarden успешно открыто. Теперь вы можете просмотреть свои пароли, подверженные риску."
   },
-  "openExtensionManuallyPart1": {
-    "message": "У нас возникли проблемы с открытием расширения для браузера Bitwarden. Нажмите на значок Bitwarden",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "на панели инструментов.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Ваша подписка скоро будет продлена. Чтобы обеспечить непрерывность сервиса, свяжитесь с $RESELLER$ для подтверждения продления до $RENEWAL_DATE$.",
     "placeholders": {
@@ -11667,11 +11703,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Расширение Bitwarden установлено!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Открыть расширение Bitwarden"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "Расширение Bitwarden установлено! Откройте расширение, чтобы авторизоваться и начать автозаполнение."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Расширение Bitwarden установлено!"
   },
   "openExtensionToAutofill": {
     "message": "Откройте расширение, чтобы авторизоваться и начать использовать автозаполнение."
@@ -11686,6 +11719,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "База знаний",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Если расширение не открылось, возможно, вам потребуется открыть Bitwarden с помощью значка ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " на панели инструментов.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Центр поддержки",
@@ -12088,9 +12129,6 @@
   "updateYourEncryptionSettings": {
     "message": "Обновите настройки шифрования"
   },
-  "updateSettings": {
-    "message": "Обновить настройки"
-  },
   "algorithm": {
     "message": "Алгоритм"
   },
@@ -12166,5 +12204,8 @@
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Вы действительно хотите продолжить?"
+  },
+  "userVerificationFailed": {
+    "message": "Проверка пользователя не удалась."
   }
 }

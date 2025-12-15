@@ -175,8 +175,22 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
+          fetch-depth: 1
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
+
+      - name: Free disk space for build
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/local/.ghcup
+          sudo rm -rf /usr/share/miniconda
+          sudo rm -rf /usr/share/az_*
+          sudo rm -rf /usr/local/julia*
+          sudo rm -rf /usr/lib/mono
+          sudo rm -rf /usr/lib/heroku
+          sudo rm -rf /usr/local/aws-cli
+          sudo rm -rf /usr/local/aws-sam-cli
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -186,7 +200,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -195,7 +209,7 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
+          sudo apt-get -y install pkg-config libxss-dev rpm flatpak flatpak-builder
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
@@ -248,10 +262,10 @@ jobs:
         env:
           PKG_CONFIG_ALLOW_CROSS: true
           PKG_CONFIG_ALL_STATIC: true
-          TARGET: musl
+        # Note: It is important that we use the release build because some compute heavy
+        # operations such as key derivation for oo7 on linux are too slow in debug mode
         run: |
-          rustup target add x86_64-unknown-linux-musl
-          node build.js --target=x86_64-unknown-linux-musl
+          node build.js --release
 
       - name: Build application
         run: npm run dist:lin
@@ -342,7 +356,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -351,7 +365,7 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder squashfs-tools ruby ruby-dev rubygems build-essential
+          sudo apt-get -y install pkg-config libxss-dev rpm flatpak flatpak-builder squashfs-tools ruby ruby-dev rubygems build-essential
           sudo gem install --no-document fpm
 
       - name: Set up Snap
@@ -411,10 +425,10 @@ jobs:
         env:
           PKG_CONFIG_ALLOW_CROSS: true
           PKG_CONFIG_ALL_STATIC: true
-          TARGET: musl
+        # Note: It is important that we use the release build because some compute heavy
+        # operations such as key derivation for oo7 on linux are too slow in debug mode
         run: |
-          rustup target add aarch64-unknown-linux-musl
-          node build.js --target=aarch64-unknown-linux-musl
+          node build.js --release
 
       - name: Check index.d.ts generated
         if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
@@ -490,7 +504,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -569,7 +583,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$env:MODE"
 
       - name: Build
         run: npm run build
@@ -756,7 +772,7 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -832,7 +848,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$env:MODE"
 
       - name: Build
         run: npm run build
@@ -1001,13 +1019,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
-          python-version: '3.14'
+          python-version: '3.14.2'
 
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python -m pip install setuptools
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -1020,6 +1038,7 @@ jobs:
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
+          xcodebuild -showsdks
 
       - name: Cache Build
         id: build-cache
@@ -1187,7 +1206,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build application (dev)
         run: npm run build
@@ -1238,13 +1259,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
-          python-version: '3.14'
+          python-version: '3.14.2'
 
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python -m pip install setuptools
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -1257,6 +1278,7 @@ jobs:
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
+          xcodebuild -showsdks
 
       - name: Get Build Cache
         id: build-cache
@@ -1408,7 +1430,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -1510,13 +1534,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
-          python-version: '3.14'
+          python-version: '3.14.2'
 
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python -m pip install setuptools
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
         with:
           workspaces: |
             apps/desktop/desktop_native -> target
@@ -1529,6 +1553,7 @@ jobs:
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
+          xcodebuild -showsdks
 
       - name: Get Build Cache
         id: build-cache
@@ -1688,7 +1713,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'

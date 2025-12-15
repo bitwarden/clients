@@ -82,7 +82,9 @@ import {
 import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
+import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import {
@@ -297,6 +299,7 @@ import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
@@ -496,6 +499,7 @@ export default class MainBackground {
 
   // DIRT
   private phishingDataService: PhishingDataService;
+  private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
 
   constructor() {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
@@ -732,7 +736,15 @@ export default class MainBackground {
       this.singleUserStateProvider,
     );
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
-    this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
+    this.policyService = new DefaultPolicyService(
+      this.stateProvider,
+      this.organizationService,
+      this.accountService,
+    );
+
+    const sessionTimeoutTypeService = new BrowserSessionTimeoutTypeService(
+      this.platformUtilsService,
+    );
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
@@ -745,6 +757,7 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.OnRestart, // default vault timeout
+      sessionTimeoutTypeService,
     );
 
     this.apiService = new ApiService(
@@ -831,10 +844,7 @@ export default class MainBackground {
     );
 
     this.pinService = new PinService(
-      this.accountService,
       this.encryptService,
-      this.kdfConfigService,
-      this.keyGenerationService,
       this.logService,
       this.keyService,
       this.sdkService,
@@ -1102,7 +1112,7 @@ export default class MainBackground {
       this.collectionService,
       this.keyService,
       this.encryptService,
-      this.pinService,
+      this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
     );
@@ -1110,7 +1120,7 @@ export default class MainBackground {
     this.individualVaultExportService = new IndividualVaultExportService(
       this.folderService,
       this.cipherService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -1124,7 +1134,7 @@ export default class MainBackground {
     this.organizationVaultExportService = new OrganizationVaultExportService(
       this.cipherService,
       this.exportApiService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -1196,6 +1206,7 @@ export default class MainBackground {
       this.webPushConnectionService,
       this.authRequestAnsweringService,
       this.configService,
+      this.policyService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -1467,12 +1478,18 @@ export default class MainBackground {
       this.platformUtilsService,
     );
 
-    PhishingDetectionService.initialize(
+    this.phishingDetectionSettingsService = new PhishingDetectionSettingsService(
       this.accountService,
       this.billingAccountProfileStateService,
       this.configService,
+      this.organizationService,
+      this.stateProvider,
+    );
+
+    PhishingDetectionService.initialize(
       this.logService,
       this.phishingDataService,
+      this.phishingDetectionSettingsService,
       messageListener,
     );
 
