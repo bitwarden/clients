@@ -43,11 +43,16 @@ import {
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
+import {
+  LockComponent,
+  ConfirmKeyConnectorDomainComponent,
+  RemovePasswordComponent,
+} from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
+import { platformPopoutGuard } from "../auth/popup/guards/platform-popout.guard";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
@@ -58,7 +63,6 @@ import { NotificationsSettingsComponent } from "../autofill/popup/settings/notif
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
 import { PhishingWarning } from "../dirt/phishing-detection/popup/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
-import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { RouteCacheOptions } from "../platform/services/popup-view-cache-background.service";
@@ -187,9 +191,22 @@ const routes: Routes = [
   },
   {
     path: "remove-password",
-    component: RemovePasswordComponent,
+    component: ExtensionAnonLayoutWrapperComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
+    children: [
+      {
+        path: "",
+        component: RemovePasswordComponent,
+        data: {
+          pageTitle: {
+            key: "verifyYourOrganization",
+          },
+          showBackButton: false,
+          pageIcon: LockIcon,
+        } satisfies ExtensionAnonLayoutWrapperData,
+      },
+    ],
   },
   {
     path: "view-cipher",
@@ -414,7 +431,7 @@ const routes: Routes = [
       },
       {
         path: AuthRoute.LoginWithPasskey,
-        canActivate: [unauthGuardFn(unauthRouteOverrides)],
+        canActivate: [unauthGuardFn(unauthRouteOverrides), platformPopoutGuard(["linux"])],
         data: {
           pageIcon: TwoFactorAuthSecurityKeyIcon,
           pageTitle: {
@@ -645,7 +662,7 @@ const routes: Routes = [
         component: ConfirmKeyConnectorDomainComponent,
         data: {
           pageTitle: {
-            key: "confirmKeyConnectorDomain",
+            key: "verifyYourOrganization",
           },
           showBackButton: true,
           pageIcon: DomainIcon,

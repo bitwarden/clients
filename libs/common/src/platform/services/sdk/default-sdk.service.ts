@@ -16,30 +16,33 @@ import {
 } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
 import {
   PasswordManagerClient,
   ClientSettings,
-  DeviceType as SdkDeviceType,
   TokenProvider,
   UnsignedSharedKey,
+  WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
-import { DeviceType } from "../../../enums/device-type.enum";
-import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { SecurityStateService } from "../../../key-management/security-state/abstractions/security-state.service";
-import { SignedSecurityState, WrappedSigningKey } from "../../../key-management/types";
 import { OrganizationId, UserId } from "../../../types/guid";
-import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
-import { asUuid, SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
+import {
+  asUuid,
+  SdkService,
+  toSdkDevice,
+  UserNotLoggedInError,
+} from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
@@ -171,6 +174,9 @@ export class DefaultSdkService implements SdkService {
     const securityState$ = this.securityStateService
       .accountSecurityState$(userId)
       .pipe(distinctUntilChanged(compareValues));
+    const signedPublicKey$ = this.keyService
+      .userSignedPublicKey$(userId)
+      .pipe(distinctUntilChanged(compareValues));
 
     const client$ = combineLatest([
       this.environmentService.getEnvironment$(userId),
@@ -181,11 +187,22 @@ export class DefaultSdkService implements SdkService {
       signingKey$,
       orgKeys$,
       securityState$,
+      signedPublicKey$,
       SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
       switchMap(
-        ([env, account, kdfParams, privateKey, userKey, signingKey, orgKeys, securityState]) => {
+        ([
+          env,
+          account,
+          kdfParams,
+          privateKey,
+          userKey,
+          signingKey,
+          orgKeys,
+          securityState,
+          signedPublicKey,
+        ]) => {
           // Create our own observable to be able to implement clean-up logic
           return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
             const createAndInitializeClient = async () => {
@@ -199,15 +216,31 @@ export class DefaultSdkService implements SdkService {
                 settings,
               );
 
+              let accountCryptographicState: WrappedAccountCryptographicState;
+              if (signingKey != null && securityState != null && signedPublicKey != null) {
+                accountCryptographicState = {
+                  V2: {
+                    private_key: privateKey,
+                    signing_key: signingKey,
+                    security_state: securityState,
+                    signed_public_key: signedPublicKey,
+                  },
+                };
+              } else {
+                accountCryptographicState = {
+                  V1: {
+                    private_key: privateKey,
+                  },
+                };
+              }
+
               await this.initializeClient(
                 userId,
                 client,
                 account,
                 kdfParams,
-                privateKey,
                 userKey,
-                signingKey,
-                securityState,
+                accountCryptographicState,
                 orgKeys,
               );
 
@@ -242,10 +275,8 @@ export class DefaultSdkService implements SdkService {
     client: PasswordManagerClient,
     account: AccountInfo,
     kdfParams: KdfConfig,
-    privateKey: EncryptedString,
     userKey: UserKey,
-    signingKey: WrappedSigningKey | null,
-    securityState: SignedSecurityState | null,
+    accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
     await client.crypto().initialize_user_crypto({
@@ -262,9 +293,7 @@ export class DefaultSdkService implements SdkService {
                 parallelism: kdfParams.parallelism,
               },
             },
-      privateKey,
-      signingKey: signingKey || undefined,
-      securityState: securityState || undefined,
+      accountCryptographicState: accountCryptographicState,
     });
 
     // We initialize the org crypto even if the org_keys are
@@ -297,65 +326,8 @@ export class DefaultSdkService implements SdkService {
     return {
       apiUrl: env.getApiUrl(),
       identityUrl: env.getIdentityUrl(),
-      deviceType: this.toDevice(this.platformUtilsService.getDevice()),
+      deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
       userAgent: this.userAgent ?? navigator.userAgent,
     };
-  }
-
-  private toDevice(device: DeviceType): SdkDeviceType {
-    switch (device) {
-      case DeviceType.Android:
-        return "Android";
-      case DeviceType.iOS:
-        return "iOS";
-      case DeviceType.ChromeExtension:
-        return "ChromeExtension";
-      case DeviceType.FirefoxExtension:
-        return "FirefoxExtension";
-      case DeviceType.OperaExtension:
-        return "OperaExtension";
-      case DeviceType.EdgeExtension:
-        return "EdgeExtension";
-      case DeviceType.WindowsDesktop:
-        return "WindowsDesktop";
-      case DeviceType.MacOsDesktop:
-        return "MacOsDesktop";
-      case DeviceType.LinuxDesktop:
-        return "LinuxDesktop";
-      case DeviceType.ChromeBrowser:
-        return "ChromeBrowser";
-      case DeviceType.FirefoxBrowser:
-        return "FirefoxBrowser";
-      case DeviceType.OperaBrowser:
-        return "OperaBrowser";
-      case DeviceType.EdgeBrowser:
-        return "EdgeBrowser";
-      case DeviceType.IEBrowser:
-        return "IEBrowser";
-      case DeviceType.UnknownBrowser:
-        return "UnknownBrowser";
-      case DeviceType.AndroidAmazon:
-        return "AndroidAmazon";
-      case DeviceType.UWP:
-        return "UWP";
-      case DeviceType.SafariBrowser:
-        return "SafariBrowser";
-      case DeviceType.VivaldiBrowser:
-        return "VivaldiBrowser";
-      case DeviceType.VivaldiExtension:
-        return "VivaldiExtension";
-      case DeviceType.SafariExtension:
-        return "SafariExtension";
-      case DeviceType.Server:
-        return "Server";
-      case DeviceType.WindowsCLI:
-        return "WindowsCLI";
-      case DeviceType.MacOsCLI:
-        return "MacOsCLI";
-      case DeviceType.LinuxCLI:
-        return "LinuxCLI";
-      default:
-        return "SDK";
-    }
   }
 }
