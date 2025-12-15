@@ -147,12 +147,12 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
    * @param formConfig The form configuration.
    * */
   async openSendItemDialog(formConfig: SendFormConfig) {
-    // Prevent multiple dialogs from being opened.
-    if (this.sendItemDialogRef) {
+    const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
+    // Prevent multiple dialogs from being opened but allow drawers since they will prevent multiple being open themselves
+    if (this.sendItemDialogRef && !useRefresh) {
       return;
     }
 
-    const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
     if (useRefresh) {
       this.sendItemDialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
