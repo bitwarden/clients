@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 import {
   firstValueFrom,
@@ -56,6 +56,7 @@ import {
     BadgeModule,
   ],
   templateUrl: "fido2-vault.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fido2VaultComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
@@ -153,10 +154,10 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   private async validateCipherAccess(cipher: CipherView): Promise<boolean> {
     if (cipher.reprompt !== CipherRepromptType.None) {
       return this.passwordRepromptService.showPasswordPrompt();
-    } else {
-      let cred = cipher.login.fido2Credentials[0];
-      const username = cred.userName ?? cred.userDisplayName
-      return this.session.promptForUserVerification(username, "Verify it's you to log in")
     }
+
+    let cred = cipher.login.fido2Credentials[0];
+    const username = cred.userName ?? cred.userDisplayName
+    return this.session.promptForUserVerification(username, "Verify it's you to log in")
   }
 }

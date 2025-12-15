@@ -11,8 +11,8 @@ const rustTargetsMap = {
     "aarch64-pc-windows-msvc":    { nodeArch: 'arm64', platform: 'win32'  },
     "x86_64-apple-darwin":        { nodeArch: 'x64',   platform: 'darwin' },
     "aarch64-apple-darwin":       { nodeArch: 'arm64', platform: 'darwin' },
-    'x86_64-unknown-linux-musl':  { nodeArch: 'x64',   platform: 'linux'  },
-    'aarch64-unknown-linux-musl': { nodeArch: 'arm64', platform: 'linux'  },
+    'x86_64-unknown-linux-gnu':   { nodeArch: 'x64',   platform: 'linux'  },
+    'aarch64-unknown-linux-gnu':  { nodeArch: 'arm64', platform: 'linux'  },
 }
 
 // Ensure the dist directory exists
@@ -20,6 +20,7 @@ fs.mkdirSync(path.join(__dirname, "dist"), { recursive: true });
 
 const args = process.argv.slice(2); // Get arguments passed to the script
 const mode = args.includes("--release") ? "release" : "debug";
+const isRelease = mode === "release";
 const targetArg = args.find(arg => arg.startsWith("--target="));
 const target = targetArg ? targetArg.split("=")[1] : null;
 
@@ -28,7 +29,8 @@ let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platfo
 function buildNapiModule(target, release = true) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
-    child_process.execSync(`npm run build -- ${releaseArg} ${targetArg}`, { stdio: 'inherit', cwd: path.join(__dirname, "napi") });
+    const crossCompileArg = target ? "--cross-compile" : "";
+    child_process.execSync(`npm run build -- ${crossCompileArg} ${releaseArg} ${targetArg}`, { stdio: 'inherit', cwd: path.join(__dirname, "napi") });
 }
 
 function buildProxyBin(target, release = true) {
@@ -138,7 +140,7 @@ if (process.platform === "linux") {
 platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target);
-    buildWindowsPluginBin(target, isRelease);
+    buildWindowsPluginBin(target);
     buildProxyBin(target);
     buildImporterBinaries(target);
     buildProcessIsolation();

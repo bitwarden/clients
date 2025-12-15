@@ -3,19 +3,20 @@ const { execSync } = require('child_process');
 
 const args = process.argv.slice(2);
 
-console.log(args);
-const releaseFlag = args.find(arg => arg === "--release") ?? ""
-const isRelease = releaseFlag != "";
+const isRelease = args.includes('--release');
 
-const target = args.find(arg => arg.startsWith("--target")) ?? ""
+const argsString = args.join(' ');
 
 if (isRelease) {
   console.log('Building release mode.');
+
+  execSync(`napi build --platform --no-js ${argsString}`, { stdio: 'inherit'});
+
 } else {
   console.log('Building debug mode.');
-  process.env.RUST_LOG = 'debug';
-}
 
-const cmd = `napi build --platform --js false ${target} ${releaseFlag}`
-console.log(`Executing: ${cmd}`);
-execSync(cmd, { stdio: 'inherit', env: process.env });
+  execSync(`napi build --platform --no-js ${argsString}`, {
+    stdio: 'inherit',
+    env: { ...process.env, RUST_LOG: 'debug' }
+  });
+}

@@ -17,6 +17,7 @@ import {
   isFlatpak,
   isMacAppStore,
   isSnapStore,
+  isWindowsPortable,
   isWindowsStore,
 } from "../utils";
 
@@ -109,8 +110,13 @@ const ephemeralStore = {
 };
 
 const localhostCallbackService = {
-  openSsoPrompt: (codeChallenge: string, state: string, email: string): Promise<void> => {
-    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state, email });
+  openSsoPrompt: (
+    codeChallenge: string,
+    state: string,
+    email: string,
+    orgSsoIdentifier?: string,
+  ): Promise<void> => {
+    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state, email, orgSsoIdentifier });
   },
 };
 
@@ -129,6 +135,7 @@ export default {
   isDev: isDev(),
   isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
+  isWindowsPortable: isWindowsPortable(),
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),

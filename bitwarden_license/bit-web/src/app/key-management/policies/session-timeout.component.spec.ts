@@ -7,16 +7,16 @@ import { mock } from "jest-mock-extended";
 import { Observable, of } from "rxjs";
 
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import {
+  SessionTimeoutAction,
+  SessionTimeoutType,
+} from "@bitwarden/common/key-management/session-timeout";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { SessionTimeoutConfirmationNeverComponent } from "./session-timeout-confirmation-never.component";
-import {
-  SessionTimeoutAction,
-  SessionTimeoutPolicyComponent,
-  SessionTimeoutType,
-} from "./session-timeout.component";
+import { SessionTimeoutPolicyComponent } from "./session-timeout.component";
 
 // Mock DialogRef, so we can mock "readonly closed" property.
 class MockDialogRef extends DialogRef {

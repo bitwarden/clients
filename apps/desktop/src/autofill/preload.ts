@@ -12,8 +12,6 @@ export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
 
-  transferFocus: (handle: Uint8Array) => ipcRenderer.invoke("autofill.transferFocus", handle),
-
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
   listenPasskeyRegistration: (

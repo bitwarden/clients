@@ -93,7 +93,7 @@ export class DesktopAutofillService implements OnDestroy {
         }),
         // No filter for empty arrays here - we want to sync even if there are 0 items
         filter((cipherViewMap) => cipherViewMap !== null),
-        debounceTime(100), // just a precaution to not spam the sync if there are multiple changes
+        debounceTime(100), // just a precaution to not spam the sync if there are multiple changes (we typically observe a null change)
 
         mergeMap((cipherViewMap) => this.sync(Object.values(cipherViewMap ?? []))),
         takeUntil(this.destroy$),

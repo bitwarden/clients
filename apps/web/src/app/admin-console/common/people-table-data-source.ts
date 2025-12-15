@@ -1,14 +1,30 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { computed, Signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
+
 import {
   OrganizationUserStatusType,
   ProviderUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { TableDataSource } from "@bitwarden/components";
 
 import { StatusType, UserViewTypes } from "./base-members.component";
 
-const MaxCheckedCount = 500;
+/**
+ * Default maximum for most bulk operations (confirm, remove, delete, etc.)
+ */
+export const MaxCheckedCount = 500;
+
+/**
+ * Maximum for bulk reinvite operations when the IncreaseBulkReinviteLimitForCloud
+ * feature flag is enabled on cloud environments.
+ */
+export const CloudBulkReinviteLimit = 8000;
 
 /**
  * Returns true if the user matches the status, or where the status is `null`, if the user is active (not revoked).
@@ -56,6 +72,20 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   confirmedUserCount: number;
   revokedUserCount: number;
 
+  /** True when increased bulk limit feature is enabled (feature flag + cloud environment) */
+  readonly isIncreasedBulkLimitEnabled: Signal<boolean>;
+
+  constructor(configService: ConfigService, environmentService: EnvironmentService) {
+    super();
+
+    const featureFlagEnabled = toSignal(
+      configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
+    );
+    const isCloud = toSignal(environmentService.environment$.pipe(map((env) => env.isCloud())));
+
+    this.isIncreasedBulkLimitEnabled = computed(() => featureFlagEnabled() && isCloud());
+  }
+
   override set data(data: T[]) {
     super.data = data;
 
@@ -90,6 +120,14 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   }
 
   /**
+   * Gets checked users in the order they appear in the filtered/sorted table view.
+   * Use this when enforcing limits to ensure visual consistency (top N visible rows stay checked).
+   */
+  getCheckedUsersInVisibleOrder() {
+    return this.filteredData.filter((u) => (u as any).checked);
+  }
+
+  /**
    * Check all filtered users (i.e. those rows that are currently visible)
    * @param select check the filtered users (true) or uncheck the filtered users (false)
    */
@@ -101,8 +139,13 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
 
     const filteredUsers = this.filteredData;
 
-    const selectCount =
-      filteredUsers.length > MaxCheckedCount ? MaxCheckedCount : filteredUsers.length;
+    // When the increased bulk limit feature is enabled, allow checking all users.
+    // Individual bulk operations will enforce their specific limits.
+    // When disabled, enforce the legacy limit at check time.
+    const selectCount = this.isIncreasedBulkLimitEnabled()
+      ? filteredUsers.length
+      : Math.min(filteredUsers.length, MaxCheckedCount);
+
     for (let i = 0; i < selectCount; i++) {
       this.checkUser(filteredUsers[i], select);
     }
@@ -130,6 +173,43 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
       const updatedData = this.data.slice();
       updatedData[index] = user;
       this.data = updatedData;
+    }
+  }
+
+  /**
+   * Limits an array of users and unchecks those beyond the limit.
+   * Returns the limited array.
+   *
+   * @param users The array of users to limit
+   * @param limit The maximum number of users to keep
+   * @returns The users array limited to the specified count
+   */
+  limitAndUncheckExcess(users: T[], limit: number): T[] {
+    if (users.length <= limit) {
+      return users;
+    }
+
+    // Uncheck users beyond the limit
+    users.slice(limit).forEach((user) => this.checkUser(user, false));
+
+    return users.slice(0, limit);
+  }
+
+  /**
+   * Gets checked users with optional limiting based on the IncreaseBulkReinviteLimitForCloud feature flag.
+   *
+   * When the feature flag is enabled: Returns checked users in visible order, limited to the specified count.
+   * When the feature flag is disabled: Returns all checked users without applying any limit.
+   *
+   * @param limit The maximum number of users to return (only applied when feature flag is enabled)
+   * @returns The checked users array
+   */
+  getCheckedUsersWithLimit(limit: number): T[] {
+    if (this.isIncreasedBulkLimitEnabled()) {
+      const allUsers = this.getCheckedUsersInVisibleOrder();
+      return this.limitAndUncheckExcess(allUsers, limit);
+    } else {
+      return this.getCheckedUsers();
     }
   }
 }

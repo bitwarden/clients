@@ -141,6 +141,8 @@ export class CipherService implements CipherServiceAbstraction {
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
   cipherListViews$ = perUserCache$((userId: UserId) => {
+    let decryptStartTime: number;
+
     return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
       switchMap((useSdk) => {
         if (!useSdk) {
@@ -158,10 +160,24 @@ export class CipherService implements CipherServiceAbstraction {
               (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
             ),
           ),
+          tap(() => {
+            decryptStartTime = performance.now();
+          }),
           switchMap(async (ciphers) => {
             const [decrypted, failures] = await this.decryptCiphersWithSdk(ciphers, userId, false);
-            await this.setFailedDecryptedCiphers(failures, userId);
+            void this.setFailedDecryptedCiphers(failures, userId);
+            // Trigger full decryption and indexing in background
+            void this.getAllDecrypted(userId);
             return decrypted;
+          }),
+          tap((decrypted) => {
+            this.logService.measure(
+              decryptStartTime,
+              "Vault",
+              "CipherService",
+              "listView decrypt complete",
+              [["Items", decrypted.length]],
+            );
           }),
         );
       }),
@@ -1548,10 +1564,15 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<UserKey | OrgKey> {
-    return (
-      (await this.keyService.getOrgKey(cipher.organizationId)) ||
-      ((await this.keyService.getUserKey(userId)) as UserKey)
-    );
+    if (cipher.organizationId == null) {
+      return await firstValueFrom(this.keyService.userKey$(userId));
+    } else {
+      return await firstValueFrom(
+        this.keyService
+          .orgKeys$(userId)
+          .pipe(map((orgKeys) => orgKeys[cipher.organizationId as OrganizationId] as OrgKey)),
+      );
+    }
   }
 
   async setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId) {
@@ -1635,12 +1656,14 @@ export class CipherService implements CipherServiceAbstraction {
     const key =
       attachment.key != null
         ? attachment.key
-        : await firstValueFrom(
-            this.keyService.orgKeys$(userId).pipe(
-              filterOutNullish(),
-              map((orgKeys) => orgKeys[cipherDomain.organizationId as OrganizationId] as OrgKey),
-            ),
-          );
+        : cipherDomain.organizationId
+          ? await firstValueFrom(
+              this.keyService.orgKeys$(userId).pipe(
+                filterOutNullish(),
+                map((orgKeys) => orgKeys[cipherDomain.organizationId as OrganizationId] as OrgKey),
+              ),
+            )
+          : await firstValueFrom(this.keyService.userKey$(userId).pipe(filterOutNullish()));
     return await this.encryptService.decryptFileData(encBuf, key);
   }
 
@@ -1805,6 +1828,95 @@ export class CipherService implements CipherServiceAbstraction {
       );
     } catch (e) {
       throw new Error((e as ErrorResponse).getSingleMessage());
+    }
+  }
+
+  /**
+   * Upgrade all old attachments for a cipher by downloading, decrypting, re-uploading with new key, and deleting old.
+   * @param cipher
+   * @param userId
+   * @param attachmentId Optional specific attachment ID to upgrade. If not provided, all old attachments will be upgraded.
+   */
+  async upgradeOldCipherAttachments(
+    cipher: CipherView,
+    userId: UserId,
+    attachmentId?: string,
+  ): Promise<CipherView> {
+    if (!cipher.hasOldAttachments) {
+      return cipher;
+    }
+
+    let cipherDomain = await this.get(cipher.id, userId);
+
+    for (const attachmentView of cipher.attachments) {
+      if (
+        attachmentView.key != null ||
+        (attachmentId != null && attachmentView.id !== attachmentId)
+      ) {
+        continue;
+      }
+
+      try {
+        // 1. Get download URL
+        const downloadUrl = await this.getAttachmentDownloadUrl(cipher.id, attachmentView);
+
+        // 2. Download attachment data
+        const dataResponse = await this.apiService.nativeFetch(
+          new Request(downloadUrl, { cache: "no-store" }),
+        );
+
+        if (dataResponse.status !== 200) {
+          throw new Error(`Failed to download attachment. Status: ${dataResponse.status}`);
+        }
+
+        // 3. Decrypt the attachment
+        const decryptedBuffer = await this.getDecryptedAttachmentBuffer(
+          cipher.id as CipherId,
+          attachmentView,
+          dataResponse,
+          userId,
+        );
+
+        // 4. Re-upload with attachment key
+        cipherDomain = await this.saveAttachmentRawWithServer(
+          cipherDomain,
+          attachmentView.fileName,
+          decryptedBuffer,
+          userId,
+        );
+
+        // 5. Delete the old attachment
+        const cipherData = await this.deleteAttachmentWithServer(
+          cipher.id,
+          attachmentView.id,
+          userId,
+        );
+        cipherDomain = new Cipher(cipherData);
+      } catch (e) {
+        this.logService.error(`Failed to upgrade attachment ${attachmentView.id}`, e);
+        throw e;
+      }
+    }
+
+    return await this.decrypt(cipherDomain, userId);
+  }
+
+  private async getAttachmentDownloadUrl(
+    cipherId: string,
+    attachmentView: AttachmentView,
+  ): Promise<string> {
+    try {
+      const attachmentResponse = await this.apiService.getAttachmentData(
+        cipherId,
+        attachmentView.id,
+      );
+      return attachmentResponse.url;
+    } catch (e) {
+      // Fall back to the attachment's stored URL
+      if (e instanceof ErrorResponse && e.statusCode === 404 && attachmentView.url) {
+        return attachmentView.url;
+      }
+      throw new Error(`Failed to get download URL for attachment ${attachmentView.id}`);
     }
   }
 
@@ -2138,14 +2250,18 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     fullDecryption: boolean = true,
   ): Promise<[CipherViewLike[], CipherView[]]> {
+    if (fullDecryption) {
+      const [decryptedViews, failedViews] = await this.cipherEncryptionService.decryptManyLegacy(
+        ciphers,
+        userId,
+      );
+      return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
+    }
+
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
       ciphers,
       userId,
     );
-
-    const decryptedViews = fullDecryption
-      ? await Promise.all(decrypted.map((c) => this.getFullCipherView(c)))
-      : decrypted;
 
     const failedViews = failures.map((c) => {
       const cipher_view = new CipherView(c);
@@ -2154,7 +2270,7 @@ export class CipherService implements CipherServiceAbstraction {
       return cipher_view;
     });
 
-    return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
+    return [decrypted.sort(this.getLocaleSortingFunction()), failedViews];
   }
 
   /** Fetches the full `CipherView` when a `CipherListView` is passed. */

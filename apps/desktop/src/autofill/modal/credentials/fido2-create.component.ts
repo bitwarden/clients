@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 
@@ -50,6 +50,7 @@ import {
     BadgeModule,
   ],
   templateUrl: "fido2-create.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fido2CreateComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
@@ -120,7 +121,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       if (!this.session) {
         throw new Error("Missing session");
       }
-
       this.session.notifyConfirmCreateCredential(isConfirmed, cipher);
     } catch {
       await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
@@ -142,6 +142,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       this.session.notifyConfirmCreateCredential(isConfirmed);
     } catch {
       await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
+      return;
     }
 
     await this.closeModal();

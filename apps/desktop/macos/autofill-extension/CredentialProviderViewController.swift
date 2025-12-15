@@ -151,7 +151,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     
     deinit {
         logger.log("[autofill-extension] deinitializing extension")
-        
+
         // Stop the connection monitor timer
         connectionMonitorTimer?.invalidate()
         connectionMonitorTimer = nil
@@ -186,11 +186,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             attempts += 1
         }
         
+        let x, y: Int32
         let finalWindowFrame = self.view.window?.frame ?? .zero
         logger.log("[autofill-extension] position: Final window frame: \(NSStringFromRect(finalWindowFrame))")
         
         // Use stabilized window frame if available, otherwise fallback to mouse position
-        let x, y: Int32
         if finalWindowFrame.origin.x != 0 || finalWindowFrame.origin.y != 0 {
             let centerX = Int32(round(finalWindowFrame.origin.x))
             let centerY = Int32(round(screenHeight - finalWindowFrame.origin.y))
@@ -203,6 +203,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             let mouseX = Int32(round(mouseLocation.x))
             let mouseY = Int32(round(screenHeight - mouseLocation.y))
             logger.log("[autofill-extension] position: Using mouse position fallback: x=\(mouseX), y=\(mouseY)")
+            return Position(x: mouseX, y: mouseY)
             x = mouseX
             y = mouseY
         }

@@ -15,7 +15,7 @@
     "message": "Keine kritischen Anwendungen gefährdet"
   },
   "accessIntelligence": {
-    "message": "Zugriff auf Informationen"
+    "message": "Access Intelligence"
   },
   "passwordRisk": {
     "message": "Passwort-Risiko"
@@ -27,7 +27,7 @@
     "message": "Überprüfe gefährdete Passwörter (schwach, kompromittiert oder wiederverwendet) in allen Anwendungen. Wähle deine kritischsten Anwendungen aus, um die Sicherheitsmaßnahmen für deine Benutzer zu priorisieren, um gefährdete Passwörter zu beseitigen."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Überprüfung gefährdeter Zugangsdaten"
+    "message": "Gefährdete Zugangsdaten überprüfen"
   },
   "dataLastUpdated": {
     "message": "Daten zuletzt aktualisiert: $DATE$",
@@ -94,7 +94,7 @@
     "message": "Mitglieder Aufgaben zuweisen, um den Fortschritt zu überwachen"
   },
   "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
+    "message": "Sobald du Anwendungen überprüft und als kritisch markiert hast, weise deinen Mitgliedern Aufgaben zu, um sie für das automatische Ausfüllen von Passwörtern zu aktivieren."
   },
   "sendReminders": {
     "message": "Erinnerungen senden"
@@ -179,34 +179,34 @@
     }
   },
   "noDataInOrgTitle": {
-    "message": "No data found"
+    "message": "Keine Daten gefunden"
   },
   "noDataInOrgDescription": {
-    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+    "message": "Importiere die Zugangsdaten deiner Organisation, um mit Access Intelligence zu beginnen. Sobald du dies getan hast, kannst du:"
   },
   "feature1Title": {
-    "message": "Mark applications as critical"
+    "message": "Anwendungen als kritisch markieren"
   },
   "feature1Description": {
-    "message": "This will help you remove risks to your most important applications first."
+    "message": "Dadurch kannst du Risiken für deine wichtigsten Anwendungen zuerst beseitigen."
   },
   "feature2Title": {
-    "message": "Help members improve their security"
+    "message": "Helfe Mitgliedern, ihre Sicherheit zu verbessern"
   },
   "feature2Description": {
-    "message": "Assign at-risk members guided security tasks to update credentials."
+    "message": "Weise gefährdeten Mitgliedern gezielte Sicherheitsaufgaben zu, um Zugangsdaten zu aktualisieren."
   },
   "feature3Title": {
     "message": "Fortschritt überwachen"
   },
   "feature3Description": {
-    "message": "Track changes over time to show security improvements."
+    "message": "Änderungen im Laufe der Zeit verfolgen, um Sicherheitsverbesserungen anzuzeigen."
   },
   "noReportsRunTitle": {
-    "message": "Generate report"
+    "message": "Bericht generieren"
   },
   "noReportsRunDescription": {
-    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
+    "message": "Du bist so weit, Berichte zu generieren. Sobald du sie generierst, kannst du folgendes tun:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Du hast keine Anwendung als kritisch markiert"
@@ -266,13 +266,13 @@
     "message": "Gefährdete Mitglieder"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
-    "message": "These members have access to vulnerable items for critical applications."
+    "message": "Diese Mitglieder haben Zugriff auf sensible Einträge für kritische Anwendungen."
   },
   "membersWithAtRiskPasswords": {
     "message": "Mitglieder mit gefährdeten Passwörtern"
   },
   "membersWillReceiveSecurityTask": {
-    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
+    "message": "Den Mitgliedern deiner Organisation wird die Aufgabe zugewiesen, sensible Passwörter zu ändern. Sie erhalten eine Benachrichtigung innerhalb ihrer Bitwarden Browser-Erweiterung."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ gefährdete Mitglieder",
@@ -302,7 +302,7 @@
     }
   },
   "atRiskMemberDescription": {
-    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
+    "message": "Diese Mitglieder melden sich bei kritischen Anwendungen mit schwachen, kompromittierten oder wiederverwendeten Passwörtern an."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Dies sind keine Mitglieder, die sich in Anwendungen mit schwachen, kompromittierten oder wiederverwendeten Passwörtern anmelden."
@@ -386,13 +386,13 @@
     "message": "Kritische Anwendungen priorisieren"
   },
   "selectCriticalAppsDescription": {
-    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "Wähle die für deine Organisation kritischsten Anwendungen aus. Danach kannst du Mitgliedern Sicherheitsaufgaben zuweisen, um Risiken zu beseitigen."
   },
   "reviewNewApplications": {
     "message": "Neue Anwendungen überprüfen"
   },
   "reviewNewAppsDescription": {
-    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "Überprüfe neue Anwendungen mit sensiblen Einträgen und kennzeichne diejenigen, die du genau überwachen möchtest, als kritisch. Anschließend kannst du Mitgliedern Sicherheitsaufgaben zuweisen, um Risiken zu beseitigen."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Klicke auf das Sternsymbol, um eine App als kritisch zu markieren"
@@ -3062,6 +3062,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB verschlüsselter Speicherplatz für Dateianhänge."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ verschlüsselter Speicher für Dateianhänge.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
   },
@@ -3123,6 +3132,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Dein Premium-Abonnement ist abgelaufen"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
+  },
+  "restartPremium": {
+    "message": "Premium neu starten"
   },
   "additionalStorageGb": {
     "message": "Zusätzlicher Speicher (GB)"
@@ -4461,7 +4479,7 @@
     "message": "Browser aktualisieren"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Deine Zugangsintelligenz wird generiert..."
+    "message": "Deine Access Intelligence wird generiert..."
   },
   "fetchingMemberData": {
     "message": "Mitgliedsdaten werden abgerufen..."
@@ -4607,6 +4625,24 @@
   },
   "learnMore": {
     "message": "Erfahre mehr"
+  },
+  "migrationsFailed": {
+    "message": "Beim Aktualisieren der Verschlüsselungseinstellungen ist ein Fehler aufgetreten."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aktualisiere deine Verschlüsselungseinstellungen"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Die neuen empfohlenen Verschlüsselungseinstellungen verbessern deine Kontosicherheit. Gib dein Master-Passwort ein, um sie zu aktualisieren."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bestätige deine Identität, um fortzufahren"
+  },
+  "enterYourMasterPassword": {
+    "message": "Gib dein Master-Passwort ein"
+  },
+  "updateSettings": {
+    "message": "Einstellungen aktualisieren"
   },
   "deleteRecoverDesc": {
     "message": "Geben Sie hier Ihre E-Mail-Adresse ein, um Ihr Konto wiederherzustellen und zu löschen."
@@ -5133,8 +5169,20 @@
     "message": "Reparieren",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Verschlüsselung reparieren"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Diese Datei verwendet eine veraltete Verschlüsselungsmethode."
+  },
+  "attachmentUpdated": {
+    "message": "Anhang aktualisiert"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Es gibt alte Dateianhänge in deinem Tresor, die repariert werden müssen, bevor du deinen Verschlüsselungsschlüssel erneuern kannst."
+  },
+  "itemsTransferred": {
+    "message": "Einträge übertragen"
   },
   "yourAccountsFingerprint": {
     "message": "Fingerabdruck-Phrase deines Kontos",
@@ -5810,7 +5858,7 @@
     "description": "This is the policy description shown in the policy list."
   },
   "organizationDataOwnershipDescContent": {
-    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "message": "Alle Einträge sind Eigentum der Organisation und werden dort gespeichert, was organisationsweite Kontrollen, Transparenz und Berichterstellung ermöglicht. Wenn diese Funktion aktiviert ist, steht jedem Mitglied eine Standard-Sammlung zur Speicherung von Einträgen zur Verfügung. Erfahre mehr über die Verwaltung des ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
@@ -6417,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Erfolgreich erneut eingeladen"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ users re-invited",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Erfolgreich entfernt"
   },
@@ -6737,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "Tresor-Timeout ist außerhalb des zulässigen Bereichs."
   },
-  "disablePersonalVaultExport": {
-    "message": "Persönlichen Tresor-Export deaktivieren"
+  "disableExport": {
+    "message": "Export entfernen"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Mitgliedern nicht erlauben, Daten aus ihrem persönlichen Tresor zu exportieren."
@@ -7058,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Für Mitglieder der folgenden Organisation ist kein Master-Passwort mehr erforderlich. Bitte bestätige die folgende Domain bei deinem Organisations-Administrator."
-  },
   "keyConnectorDomain": {
     "message": "Key Connector-Domain"
   },
@@ -7118,7 +7189,7 @@
   "enabledSso": {
     "message": "SSO aktiviert"
   },
-  "disabledSso": {
+  "ssoTurnedOff": {
     "message": "SSO deaktiviert"
   },
   "emailMustLoginWithSso": {
@@ -9412,6 +9483,9 @@
   "ssoLoginIsRequired": {
     "message": "SSO-Anmeldung ist erforderlich"
   },
+  "emailRequiredForSsoLogin": {
+    "message": "Für SSO ist eine E-Mail-Adresse erforderlich"
+  },
   "selectedRegionFlag": {
     "message": "Flagge der ausgewählten Region"
   },
@@ -9820,6 +9894,14 @@
     "message": "Zu teuer",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Wechseln zum kostenlosen Tarif",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Wechseln zur kostenlosen Organisation",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Kostenlos für 1 Jahr"
   },
@@ -9851,7 +9933,7 @@
     "message": "Aufgaben zuweisen"
   },
   "assignSecurityTasksToMembers": {
-    "message": "Sende Benachrichtigungen, um Passwörter zu ändern"
+    "message": "Benachrichtigungen zum Ändern von Passwörtern senden"
   },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
@@ -11339,14 +11421,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Die Bitwarden Browser-Erweiterung wurde erfolgreich geöffnet. Du kannst jetzt deine gefährdeten Passwörter überprüfen."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Öffne das Bitwarden-Symbol",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "in der Symbolleiste.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Dein Abonnement wird bald verlängert. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$ um deine Verlängerung vor dem $RENEWAL_DATE$ zu bestätigen.",
     "placeholders": {
@@ -11667,11 +11741,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Bitwarden-Erweiterung installiert!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Die Bitwarden-Erweiterung öffnen"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "Die Bitwarden-Erweiterung ist installiert! Öffne die Erweiterung, um dich anzumelden und das automatische Ausfüllen zu starten."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Bitwarden-Erweiterung wurde installiert!"
   },
   "openExtensionToAutofill": {
     "message": "Öffne die Erweiterung, um dich anzumelden und Auto-Ausfüllen zu nutzen."
@@ -11686,6 +11757,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Lernzentrum",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Falls sich die Erweiterung nicht geöffnet hat, musst du möglicherweise Bitwarden über das Symbol ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " in der Symbolleiste öffnen.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Hilfezentrum",
@@ -11920,8 +11999,8 @@
   "familiesMembership": {
     "message": "Families-Mitgliedschaft"
   },
-  "planDescPremium": {
-    "message": "Umfassende Online-Sicherheit"
+  "advancedOnlineSecurity": {
+    "message": "Erweiterte Online-Sicherheit"
   },
   "planDescFamiliesV2": {
     "message": "Premium-Sicherheit für deine Familie"
@@ -12088,9 +12167,6 @@
   "updateYourEncryptionSettings": {
     "message": "Aktualisiere deine Verschlüsselungseinstellungen"
   },
-  "updateSettings": {
-    "message": "Einstellungen aktualisieren"
-  },
   "algorithm": {
     "message": "Algorithmus"
   },
@@ -12119,13 +12195,13 @@
     "message": "Kostenlose Families-Testversion starten"
   },
   "blockClaimedDomainAccountCreation": {
-    "message": "Block account creation for claimed domains"
+    "message": "Erstellung von Konten für beanspruchte Domains blockieren"
   },
   "blockClaimedDomainAccountCreationDesc": {
-    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+    "message": "Verhindere, dass Benutzer außerhalb deiner Organisation Konten mit E-Mail-Adressen aus beanspruchten Domains erstellen."
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "A domain must be claimed before activating this policy."
+    "message": "Vor der Aktivierung dieser Richtlinie muss eine Domain beansprucht werden."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Richte eine Entsperrmethode ein, um deine Aktion bei Tresor-Timeout zu ändern."
@@ -12149,7 +12225,7 @@
     "message": "Aussehen"
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Das Timeout überschreitet die von deiner Organisation festgelegte Beschränkung: Maximal $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
+    "message": "Das maximale Sitzungs-Timeout, das durch die Richtlinie deiner Organisation erlaubt ist, beträgt $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -12161,10 +12237,186 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Deine Organisation verwendet keine Master-Passwörter mehr, um sich bei Bitwarden anzumelden. Verifiziere die Organisation und Domain, um fortzufahren."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organisation verifiziert"
+  },
+  "domainVerified": {
+    "message": "Domain verifiziert"
+  },
+  "leaveOrganizationContent": {
+    "message": "Wenn du deine Organisation nicht verifizierst, wird dein Zugriff auf die Organisation widerrufen."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Es sind keine kritischen Anwendungen ausgewählt"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Bist du sicher, dass du fortfahren möchtest?"
+  },
+  "userVerificationFailed": {
+    "message": "Benutzerverifizierung fehlgeschlagen."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Delete unrecoverable vault items"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Some of your vault items could not be recovered. Do you want to delete these unrecoverable items from your vault?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Delete unrecoverable folders"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Some of your folders could not be recovered. Do you want to delete these unrecoverable folders from your vault?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Verschlüsselungsschlüssel ersetzen"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Synchronizing data"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Verifying encryption key integrity"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Verifying user information"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Verifying vault item integrity"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Verifying folder integrity"
+  },
+  "dataRecoveryTitle": {
+    "message": "Data Recovery and Diagnostics"
+  },
+  "dataRecoveryDescription": {
+    "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
+  },
+  "runDiagnostics": {
+    "message": "Run Diagnostics"
+  },
+  "repairIssues": {
+    "message": "Repair Issues"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Save Diagnostic Logs"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Diese Einstellung wird von deiner Organisation verwaltet."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Deine Organisation hat das maximale Sitzungs-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Deine Organisation hat das Standard-Sitzungs-Timeout auf \"Bei Browser-Aktualisierung\" gesetzt."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Das maximale Timeout darf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) nicht überschreiten",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Bei Browser-Aktualisierung"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Stell eine Entsperrmethode ein, um deine Timeout-Aktion zu ändern"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Wenn du ablehnst, bleiben deine persönlichen Einträge in deinem Konto erhalten, aber du wirst den Zugriff auf geteilte Einträge und Organisationsfunktionen verlieren."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Übertragung annehmen"
+  },
+  "declineAndLeave": {
+    "message": "Ablehnen und verlassen"
+  },
+  "whyAmISeeingThis": {
+    "message": "Warum wird mir das angezeigt?"
   }
 }

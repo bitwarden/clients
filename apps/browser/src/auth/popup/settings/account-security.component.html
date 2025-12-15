@@ -86,12 +86,12 @@
         </bit-section-header>
 
         <bit-card>
-          <bit-session-timeout-input
+          <bit-session-timeout-input-legacy
             [vaultTimeoutOptions]="vaultTimeoutOptions"
             [formControl]="form.controls.vaultTimeout"
             ngDefaultControl
           >
-          </bit-session-timeout-input>
+          </bit-session-timeout-input-legacy>
 
           <bit-form-field disableMargin>
             <bit-label for="vaultTimeoutAction">{{ "vaultTimeoutAction1" | i18n }}</bit-label>
@@ -126,6 +126,20 @@
           <i slot="end" class="bwi bwi-chevron-right" aria-hidden="true"></i>
         </button>
       </bit-item>
+    </bit-section>
+
+    <bit-section *ngIf="phishingDetectionAvailable$ | async">
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "phishingBlocker" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-switch formControlName="enablePhishingDetection" id="phishingDetectionAction">
+          <bit-label for="phishingDetectionAction">{{
+            "enablePhishingDetection" | i18n
+          }}</bit-label>
+          <bit-hint>{{ "enablePhishingDetectionDesc" | i18n }}</bit-hint>
+        </bit-switch>
+      </bit-card>
     </bit-section>
 
     <bit-section disableMargin>

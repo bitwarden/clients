@@ -87,7 +87,8 @@ pub struct NativeStatus {
     value: String,
 }
 
-// In our callback management, 0 is a reserved sequence number indicating that a message does not have a callback.
+// In our callback management, 0 is a reserved sequence number indicating that a message does not
+// have a callback.
 const NO_CALLBACK_INDICATOR: u32 = 0;
 
 #[uniffi::export]
@@ -116,7 +117,8 @@ impl MacOSProviderClient {
 
         let client = MacOSProviderClient {
             to_server_send,
-            response_callbacks_counter: AtomicU32::new(1), // Start at 1 since 0 is reserved for "no callback" scenarios
+            response_callbacks_counter: AtomicU32::new(1), /* Start at 1 since 0 is reserved for
+                                                            * "no callback" scenarios */
             response_callbacks_queue: Arc::new(Mutex::new(HashMap::new())),
             connection_status: Arc::new(std::sync::atomic::AtomicBool::new(false)),
         };
