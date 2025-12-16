@@ -34,4 +34,4 @@ Code contributions are welcome! Please commit any pull requests against the `mai
 
 Security audits and feedback are welcome. Please open an issue or email us privately if the report is sensitive in nature. You can read our security policy in the [`SECURITY.md`](SECURITY.md) file.
 
-Trigger
+Trigger.
