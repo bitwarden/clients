@@ -3,7 +3,6 @@ import { BitwardenClient } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { PolicyService } from "../admin-console/abstractions/policy/policy.service.abstraction";
-import { ConfigService } from "../platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 
 import { LegacyEncryptorProvider } from "./cryptography/legacy-encryptor-provider";
@@ -22,9 +21,6 @@ export type SystemServiceProvider = {
   /** Event monitoring and diagnostic interfaces */
   readonly log: LogProvider;
 
-  /** Config Service to determine flag features */
-  readonly configService: ConfigService;
-
   /** Platform Service to inspect runtime environment */
   readonly environment: PlatformUtilsService;
 
@@ -40,7 +36,6 @@ export function createSystemServiceProvider(
   registry: ExtensionRegistry,
   logger: LogService,
   environment: PlatformUtilsService,
-  configService: ConfigService,
 ): SystemServiceProvider {
   let log: LogProvider;
   if (environment.isDev()) {
@@ -60,7 +55,6 @@ export function createSystemServiceProvider(
     policy,
     extension,
     log,
-    configService,
     environment,
   };
 }
