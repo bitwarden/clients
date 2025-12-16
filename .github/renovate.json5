@@ -235,6 +235,8 @@
         "windows-registry",
         "zbus",
         "zbus_polkit",
+        "powershell-utils",
+        "wsl-utils",
       ],
       description: "Platform owned dependencies",
       commitMessagePrefix: "[deps] Platform:",
