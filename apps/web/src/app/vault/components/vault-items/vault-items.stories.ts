@@ -40,6 +40,7 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LayoutComponent } from "@bitwarden/components";
+import { RoutedVaultFilterService } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/services/routed-vault-filter.service";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -148,6 +149,17 @@ export default {
           provide: CipherArchiveService,
           useValue: {
             hasArchiveFlagEnabled$: of(true),
+          },
+        },
+        {
+          provide: RoutedVaultFilterService,
+          useValue: {
+            filter$: of({
+              organizationId: null,
+              collectionId: null,
+              folderId: null,
+              type: null,
+            }),
           },
         },
       ],
