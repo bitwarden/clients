@@ -67,12 +67,12 @@ export class DefaultChangeKdfService implements ChangeKdfService {
       unlockData.salt,
       unlockData.kdf,
     );
-    const serverMasterKeyHash = await this.keyService.hashMasterKey(
+    const localMasterKeyHash = await this.keyService.hashMasterKey(
       masterPassword,
       masterKey,
       HashPurpose.LocalAuthorization,
     );
-    await this.masterPasswordService.setMasterKeyHash(serverMasterKeyHash, userId);
+    await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
   }
 }
