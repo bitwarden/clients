@@ -6,10 +6,10 @@ import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/pre
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   DefaultSendFormConfigService,
   SendAddEditDialogComponent,
