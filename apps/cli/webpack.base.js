@@ -108,7 +108,22 @@ module.exports.buildConfig = function buildConfig(params) {
     externals: [
       nodeExternals({
         modulesDir: params.externalsModulesDir,
-        allowlist: [/@bitwarden/],
+        allowlist: [
+          /@bitwarden/,
+          // Bundle 'open' and its dependencies to avoid pnpm symlink issues with pkg
+          /^open$/,
+          /^wsl-utils$/,
+          /^powershell-utils$/,
+          /^define-lazy-prop$/,
+          /^default-browser$/,
+          /^default-browser-id$/,
+          /^bundle-name$/,
+          /^run-applescript$/,
+          /^is-inside-container$/,
+          /^is-in-ssh$/,
+          /^is-docker$/,
+          /^is-wsl$/,
+        ],
       }),
     ],
     experiments: {
