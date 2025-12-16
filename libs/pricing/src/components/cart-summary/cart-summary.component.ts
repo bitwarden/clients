@@ -1,8 +1,8 @@
 import { CurrencyPipe } from "@angular/common";
-import { Component, computed, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 
-import { TypographyModule, IconButtonModule } from "@bitwarden/components";
+import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 export type LineItem = {
@@ -17,10 +17,9 @@ export type LineItem = {
  * This component has no external dependencies and performs minimal logic -
  * it only displays data and allows expanding/collapsing of line items.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "billing-cart-summary",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./cart-summary.component.html",
   imports: [TypographyModule, IconButtonModule, CurrencyPipe, I18nPipe],
 })
