@@ -16,7 +16,7 @@
   },
   "license": "GPL-3.0",
   "scripts": {
-    "postinstall": "../../node_modules/.bin/electron-rebuild",
+    "postinstall": "pnpm exec electron-rebuild",
     "start": "cross-env ELECTRON_IS_DEV=0 ELECTRON_NO_UPDATER=1 electron ./build",
     "build-native-macos": "cd desktop_native && ./macos_provider/build.sh && node build.js cross-platform",
     "build-native": "cd desktop_native && node build.js",
