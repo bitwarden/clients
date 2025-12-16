@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "Priložiť prílohu"
   },
+  "itemsTransferred": {
+    "message": "Items transferred"
+  },
+  "fixEncryption": {
+    "message": "Opraviť šifrovanie"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Tento súbor používa zastaranú metódu šifrovania."
+  },
+  "attachmentUpdated": {
+    "message": "Príloha bola aktualizovaná"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Maximálna veľkosť súboru je 500 MB"
   },
@@ -907,6 +919,12 @@
   },
   "unexpectedError": {
     "message": "Vyskytla sa neočakávaná chyba."
+  },
+  "unexpectedErrorShort": {
+    "message": "Neočakávaná chyba"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Zatvorte toto okno Bitwardenu a skúste to znova."
   },
   "itemInformation": {
     "message": "Informácie o položke"
@@ -1180,8 +1198,8 @@
   "followUs": {
     "message": "Sledujte nás"
   },
-  "syncVault": {
-    "message": "Synchronizovať trezor"
+  "syncNow": {
+    "message": "Synchronizovať teraz"
   },
   "changeMasterPass": {
     "message": "Zmeniť hlavné heslo"
@@ -1319,7 +1337,7 @@
     "message": "Keď je systém v režime spánku"
   },
   "onLocked": {
-    "message": "Keď je systém uzamknutý"
+    "message": "Pri uzamknutí systému"
   },
   "onRestart": {
     "message": "Pri reštarte"
@@ -1757,8 +1775,11 @@
   "exportFrom": {
     "message": "Exportovať z"
   },
-  "exportVault": {
-    "message": "Export trezoru"
+  "export": {
+    "message": "Exportovať"
+  },
+  "import": {
+    "message": "Importovať"
   },
   "fileFormat": {
     "message": "Formát súboru"
@@ -2619,9 +2640,6 @@
   "removedMasterPassword": {
     "message": "Hlavné heslo bolo odstránené."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Hlavné heslo sa už nevyžaduje pre členov tejto organizácie. Nižšie uvedenú doménu potvrďte u správcu organizácie."
-  },
   "organizationName": {
     "message": "Názov organizácie"
   },
@@ -3477,10 +3495,6 @@
   "aliasDomain": {
     "message": "Alias doména"
   },
-  "importData": {
-    "message": "Import údajov",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Chyba importu"
   },
@@ -3886,6 +3900,75 @@
   "fileSavedToDevice": {
     "message": "Súbor sa uložil do zariadenia. Spravujte stiahnuté súbory zo zariadenia."
   },
+  "importantNotice": {
+    "message": "Dôležité upozornenie"
+  },
+  "setupTwoStepLogin": {
+    "message": "Nastaviť dvojstupňové prihlásenie"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
+  },
+  "remindMeLater": {
+    "message": "Pripomenúť neskôr"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Máte zaručený prístup k e-mailu $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nie, nemám"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Áno, mám zaručený prístup k e-mailu"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zapnúť dvojstupňové prihlásenie"
+  },
+  "changeAcctEmail": {
+    "message": "Zmeniť e-mail účtu"
+  },
+  "passkeyLogin": {
+    "message": "Prihlásiť sa s prístupovým kľúčom?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Uložiť prístupový kľúč?"
+  },
+  "saveNewPasskey": {
+    "message": "Uložiť ako nové prihlasovacie údaje"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Uložiť prístupový kľúč ako nové prihlásenie"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Pre túto stránku sa nenašli prihlasovacie údaje"
+  },
+  "overwritePasskey": {
+    "message": "Prepísať prístupový kľúč?"
+  },
+  "unableToSavePasskey": {
+    "message": "Prístupový kľúč sa nepodarilo uložiť"
+  },
+  "alreadyContainsPasskey": {
+    "message": "Táto položka už obsahuje prístupový kľúč. Naozaj chcete prepísať aktuálny prístupový kľúč?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Pre túto aplikáciu už existuje prístupový kľúč."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "Táto aplikácia nepodporuje duplikáty."
+  },
+  "closeThisWindow": {
+    "message": "Zatvoriť toto okno"
+  },
   "allowScreenshots": {
     "message": "Povoliť snímanie obrazovky"
   },
@@ -4244,16 +4327,147 @@
   "andMoreFeatures": {
     "message": "A ešte viac!"
   },
-  "planDescPremium": {
-    "message": "Úplné online zabezpečenie"
+  "advancedOnlineSecurity": {
+    "message": "Pokročilá online ochrana"
   },
   "upgradeToPremium": {
     "message": "Upgradovať na Prémium"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Vaša organizácia už nepoužíva hlavné heslá na prihlásenie do Bitwardenu. Ak chcete pokračovať, overte organizáciu a doménu."
+  },
+  "continueWithLogIn": {
+    "message": "Pokračujte prihlásením"
+  },
+  "doNotContinue": {
+    "message": "Nepokračovať"
+  },
+  "domain": {
+    "message": "Doména"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Táto doména bude ukladať šifrovacie kľúče vášho účtu, takže sa uistite, že jej dôverujete. Ak si nie ste istí, overte si to u správcu."
+  },
+  "verifyYourOrganization": {
+    "message": "Na prihlásenie overte organizáciu"
+  },
+  "organizationVerified": {
+    "message": "Organizácia je overená"
+  },
+  "domainVerified": {
+    "message": "Doména je overená"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ak organizáciu neoveríte, váš prístup k nej bude zrušený."
+  },
+  "leaveNow": {
+    "message": "Opustiť teraz"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Na prihlásenie overte doménu"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Na pokračovanie prihlásením, overte túto doménu."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Na pokračovanie prihlásením, overte organizáciu a doménu."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Akcia pri vypršaní časového limitu"
   },
   "sessionTimeoutHeader": {
     "message": "Časový limit relácie"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Toto nastavenie spravuje vaša organizácia."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Vaša organizácia nastavila maximálny časový limit relácie na $HOURS$ hod. a $MINUTES$ min.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Vaša organizácia nastavila predvolený časový limit relácie na Pri uzamknutí systému."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Vaša organizácia nastavila predvolený časový limit relácie na Pri reštarte prehliadača."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximálny časový limit nesmie prekročiť $HOURS$ hod. a $MINUTES$ min.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Pri reštarte"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
+  },
+  "upgrade": {
+    "message": "Upgradovať"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Naozaj chcete odísť?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Ak odmietnete, vaše osobné položky zostanú vo vašom účte, ale stratíte prístup k zdieľaným položkám a funkciám organizácie."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Ak chcete obnoviť prístup, obráťte sa na správcu."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Opustiť $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Ako môžem spravovať svoj trezor?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Prenos položiek do $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov. Ak chcete previesť vlastníctvo položiek, kliknite na tlačidlo Prijať.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Prijať prevody"
+  },
+  "declineAndLeave": {
+    "message": "Zamietnuť a odísť"
+  },
+  "whyAmISeeingThis": {
+    "message": "Prečo to vidím?"
   }
 }
