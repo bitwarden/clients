@@ -17,7 +17,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { DiscountInfo } from "@bitwarden/pricing";
+import { Discount } from "@bitwarden/pricing";
 
 import {
   AdjustStorageDialogComponent,
@@ -251,15 +251,24 @@ export class UserSubscriptionComponent implements OnInit {
     }
   }
 
-  getDiscountInfo(discount: BillingCustomerDiscount | null): DiscountInfo | null {
-    if (!discount) {
+  getDiscount(discount: BillingCustomerDiscount | null): Discount | null {
+    if (!discount || (!discount.amountOff && !discount.percentOff)) {
       return null;
     }
-    return {
-      active: discount.active,
-      percentOff: discount.percentOff,
-      amountOff: discount.amountOff,
-    };
+
+    if (discount.amountOff) {
+      return {
+        _tag: "amount-off",
+        active: discount.active,
+        value: discount.amountOff,
+      };
+    } else {
+      return {
+        _tag: "percent-off",
+        active: discount.active,
+        value: discount.percentOff,
+      };
+    }
   }
 
   get isSubscriptionActive(): boolean {
