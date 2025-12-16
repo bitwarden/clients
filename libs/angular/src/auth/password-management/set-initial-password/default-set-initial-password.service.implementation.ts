@@ -39,6 +39,7 @@ import {
   SetInitialPasswordCredentials,
   SetInitialPasswordUserType,
   SetInitialPasswordTdeOffboardingCredentials,
+  SetInitialPasswordCredentialsV2,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
@@ -210,7 +211,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   async setInitialPasswordV2(
-    credentials: SetInitialPasswordCredentials,
+    credentials: SetInitialPasswordCredentialsV2,
     userType: SetInitialPasswordUserType,
     userId: UserId,
   ): Promise<void> {
@@ -256,10 +257,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         salt,
         userKey,
       );
-
-    if (unlockData.masterKeyWrappedUserKey == null) {
-      throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
-    }
 
     let keyPair: [string, EncString] | null = null;
     let keysRequest: KeysRequest | null = null;
@@ -366,6 +363,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     return masterKeyEncryptedUserKey;
   }
 
+  /**
+   * @deprecated To be removed in PM-28143
+   */
   private async updateAccountDecryptionProperties(
     masterKey: MasterKey,
     kdfConfig: KdfConfig,

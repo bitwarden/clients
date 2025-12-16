@@ -42,6 +42,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   SetInitialPasswordCredentials,
+  SetInitialPasswordCredentialsV2,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordUserType,
@@ -284,7 +285,7 @@ export class SetInitialPasswordComponent implements OnInit {
     assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
 
     try {
-      const credentials: SetInitialPasswordCredentials = {
+      const credentials: SetInitialPasswordCredentialsV2 = {
         newPassword: passwordInputResult.newPassword,
         newPasswordHint: passwordInputResult.newPasswordHint,
         kdfConfig: passwordInputResult.kdfConfig,

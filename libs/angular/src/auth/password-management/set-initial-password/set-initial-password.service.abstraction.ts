@@ -42,22 +42,28 @@ export const SetInitialPasswordUserType: Readonly<{
   [K in keyof typeof _SetInitialPasswordUserType]: SetInitialPasswordUserType;
 }> = Object.freeze(_SetInitialPasswordUserType);
 
+/**
+ * @deprecated To be removed in PM-28143
+ */
 export interface SetInitialPasswordCredentials {
-  newPassword?: string; // Make required in PM-28143 (remove `?`)
+  newMasterKey: MasterKey;
+  newServerMasterKeyHash: string;
+  newLocalMasterKeyHash: string;
   newPasswordHint: string;
   kdfConfig: KdfConfig;
-  salt?: MasterPasswordSalt; // Make required in PM-28143 (remove `?`)
   orgSsoIdentifier: string;
   orgId: string;
   resetPasswordAutoEnroll: boolean;
+}
 
-  // The deprecated properties below will be removed in PM-28143
-  /** @deprecated */
-  newMasterKey?: MasterKey;
-  /** @deprecated */
-  newServerMasterKeyHash?: string;
-  /** @deprecated */
-  newLocalMasterKeyHash?: string;
+export interface SetInitialPasswordCredentialsV2 {
+  newPassword: string;
+  newPasswordHint: string;
+  kdfConfig: KdfConfig;
+  salt: MasterPasswordSalt;
+  orgSsoIdentifier: string;
+  orgId: string;
+  resetPasswordAutoEnroll: boolean;
 }
 
 export interface SetInitialPasswordTdeOffboardingCredentials {
@@ -113,7 +119,7 @@ export abstract class SetInitialPasswordService {
    *         masterKeyEncryptedUserKey or newKeyPair could not be created.
    */
   abstract setInitialPasswordV2: (
-    credentials: SetInitialPasswordCredentials,
+    credentials: SetInitialPasswordCredentialsV2,
     userType: SetInitialPasswordUserType,
     userId: UserId,
   ) => Promise<void>;
