@@ -5169,8 +5169,20 @@
     "message": "Salabot",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Salabot šifrēšanu"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Šī datne izmanto novecojušu šifrēšanas veidu."
+  },
+  "attachmentUpdated": {
+    "message": "Pielikums atjaunināts"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Glabātavā atrodas veci datņu pielikumi, kas ir jāsalabo, pirms tiek veikta konta šifrēšanas atslēgu maiņa."
+  },
+  "itemsTransferred": {
+    "message": "Vienumi pārcelti"
   },
   "yourAccountsFingerprint": {
     "message": "Konta atpazīšanas vārdkopa",
@@ -6453,6 +6465,32 @@
   "bulkReinviteMessage": {
     "message": "Uzaicinājums veiksmīgi nosūtīts atkārtoti."
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ lietotāji uzaicināti atkārtoti",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "Atkārtoti uzaicināti $LIMIT$ no $SELECTEDCOUNT$ lieotājiem. $EXCLUDEDCOUNT$ netika uzaicināt uzaicinājumu ierobežojuma ($LIMIT$) dēļ.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Veiksmīgi noņemts"
   },
@@ -6773,8 +6811,8 @@
   "vaultTimeoutRangeError": {
     "message": "Glabātavas noildze nav pieļaujamajās robežvērtībās."
   },
-  "disablePersonalVaultExport": {
-    "message": "Atspējot personīgās glabātavas izgūšanu"
+  "disableExport": {
+    "message": "Noņemt izguvi"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Neļaut dalībniekiem izgūt datus no viņu glabātavas."
@@ -7094,9 +7132,6 @@
   "invalidVerificationCode": {
     "message": "Nederīgs apliecinājuma kods"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Galvenā parole vairs nav nepieciešama turpmāk minētās apvienības dalībniekiem. Lūgums saskaņot zemāk esošo domēnu ar savas apvienības pārvaldītāju."
-  },
   "keyConnectorDomain": {
     "message": "Key Connector domēns"
   },
@@ -7154,8 +7189,8 @@
   "enabledSso": {
     "message": "Iespējota vienotā pieteikšanās"
   },
-  "disabledSso": {
-    "message": "Atspējota vienotā pieteikšanās"
+  "ssoTurnedOff": {
+    "message": "Vienotā pieteikšanās izslēgta"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ jāpiesakās ar vienoto pieteikšanos",
@@ -9447,6 +9482,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "Vienotā pieteikšanās ir nepieciešama"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "SSO ir nepieciešama e-pasta adrese"
   },
   "selectedRegionFlag": {
     "message": "Atlasītā apgabala karogs"
@@ -11961,8 +11999,8 @@
   "familiesMembership": {
     "message": "Dalība ģimeņu plānā"
   },
-  "planDescPremium": {
-    "message": "Pilnīga drošība tiešsaistē"
+  "advancedOnlineSecurity": {
+    "message": "Izvērsta tiešsaistes drošība"
   },
   "planDescFamiliesV2": {
     "message": "Augstākā labuma drošība ģimenei"
@@ -12199,6 +12237,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Apvienība vairs neizmanto galvenās paroles, lai pieteiktos Bitwarden. Lai turpinātu, jāapliecina apvienība un domēns."
+  },
+  "continueWithLogIn": {
+    "message": "Turpināt ar pieteikšanos"
+  },
+  "doNotContinue": {
+    "message": "Neturpināt"
+  },
+  "domain": {
+    "message": "Domēns"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Šajā domēnā tiks glabātas konta šifrēšanas atslēgas, tādēļ jāpārliecinās par uzticamību. Ja nav pārliecības, jāsazinās ar savu pārvaldītāju."
+  },
+  "verifyYourOrganization": {
+    "message": "Jāapliecina apvienība, lai pieteiktos"
+  },
+  "organizationVerified": {
+    "message": "Apvienība apliecināta"
+  },
+  "domainVerified": {
+    "message": "Domēns ir apliecināts"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ja neapliecināsi apvienību, tiks atsaukta piekļuve tai."
+  },
+  "leaveNow": {
+    "message": "Pamest tagad"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Jāapliecina domēns, lai pieteiktos"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Lai turpinātu pieteikšanos, jāapliecina šis domēns."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Lai turpinātu pieteikšanos, jāapliecina apvienība un domēns."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Neviena būtiska lietotne nav atlasīta"
   },
@@ -12207,5 +12284,139 @@
   },
   "userVerificationFailed": {
     "message": "Lietotāja apliecināšana neizdevās."
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Izdzēst neatkopjamos glabātavas vienumus"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Dažus no glabātavas vienumiem nevarēja atkopt. Vai izdzēst tos?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Izdzēst neatkopjamās mapes"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Dažus no mapēm nevarēja atkopt. Vai izdzēst neatkopjamās mapes no glabātavas?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Aizvietot šifrēšanas atslēgu"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Synchronizing data"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Verifying encryption key integrity"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Verifying user information"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Verifying vault item integrity"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Verifying folder integrity"
+  },
+  "dataRecoveryTitle": {
+    "message": "Data Recovery and Diagnostics"
+  },
+  "dataRecoveryDescription": {
+    "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
+  },
+  "runDiagnostics": {
+    "message": "Run Diagnostics"
+  },
+  "repairIssues": {
+    "message": "Repair Issues"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Save Diagnostic Logs"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser refresh."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser refresh"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Vai tiešām pamest?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Pēc noraidīšanas personīgie vienumi paliks Tavā kontā, bet Tu zaudēsi piekļvuvi kopīgotajiem vienumiem un apvienību iespējām."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Jāsazinās ar savu pārvaldītāju, lai atgūtu piekļuvi."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Pamest $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Kā es varu pārvaldīt savu glabātavu?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Pārcelt vienumus uz $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
   }
 }
