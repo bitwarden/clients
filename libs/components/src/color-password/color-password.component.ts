@@ -1,4 +1,4 @@
-import { Component, computed, HostBinding, input } from "@angular/core";
+import { Component, computed, HostBinding, HostListener, input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -77,5 +77,18 @@ export class ColorPasswordComponent {
     }
 
     return "letter";
+  }
+
+  @HostListener("copy", ["$event"])
+  onCopy(event: ClipboardEvent) {
+    event.preventDefault();
+    const selection = window.getSelection();
+    if (!selection) {
+      return;
+    }
+
+    const text = selection.toString();
+    const cleanedText = text.replace(/[\n\r]+/g, "").trim();
+    event.clipboardData?.setData("text/plain", cleanedText);
   }
 }
