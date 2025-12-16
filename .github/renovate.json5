@@ -171,6 +171,7 @@
         "dirs",
         "electron",
         "electron-builder",
+        "electron-builder-squirrel-windows",
         "electron-log",
         "electron-reload",
         "electron-store",
@@ -266,6 +267,11 @@
       // We need to group all tokio-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "tokio",
       matchPackageNames: ["bytes", "tokio", "tokio-util"],
+    },
+    {
+      // We need to group all electron-builder packages together to avoid peer dependency mismatches.
+      groupName: "electron-builder",
+      matchPackageNames: ["electron-builder", "electron-builder-squirrel-windows"],
     },
     {
       // We group all webpack build-related minor and patch updates together to reduce PR noise.
