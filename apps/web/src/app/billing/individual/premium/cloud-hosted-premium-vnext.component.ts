@@ -11,6 +11,7 @@ import {
   of,
   shareReplay,
   switchMap,
+  take,
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -156,7 +157,7 @@ export class CloudHostedPremiumVNextComponent {
         return {
           tier,
           price:
-            tier?.passwordManager.type === "standalone"
+            tier?.passwordManager.type === "standalone" && tier.passwordManager.annualPrice
               ? Number((tier.passwordManager.annualPrice / 12).toFixed(2))
               : 0,
           features: tier?.passwordManager.features.map((f) => f.value) || [],
@@ -171,7 +172,7 @@ export class CloudHostedPremiumVNextComponent {
         return {
           tier,
           price:
-            tier?.passwordManager.type === "packaged"
+            tier?.passwordManager.type === "packaged" && tier.passwordManager.annualPrice
               ? Number((tier.passwordManager.annualPrice / 12).toFixed(2))
               : 0,
           features: tier?.passwordManager.features.map((f) => f.value) || [],
@@ -182,6 +183,7 @@ export class CloudHostedPremiumVNextComponent {
 
     this.shouldShowUpgradeDialogOnInit$
       .pipe(
+        take(1),
         switchMap((shouldShowUpgradeDialogOnInit) => {
           if (shouldShowUpgradeDialogOnInit) {
             return from(this.openUpgradeDialog("Premium"));

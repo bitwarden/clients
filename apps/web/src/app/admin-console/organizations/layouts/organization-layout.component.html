@@ -2,17 +2,15 @@
   <app-side-nav variant="secondary" *ngIf="organization$ | async as organization">
     <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
-    <bit-nav-group
-      icon="bwi-dashboard"
-      *ngIf="organization.useRiskInsights && organization.canAccessReports"
-      [text]="'accessIntelligence' | i18n"
-      route="access-intelligence"
-    >
+
+    @if (canShowAccessIntelligenceTab(organization)) {
       <bit-nav-item
-        [text]="'riskInsights' | i18n"
-        route="access-intelligence/risk-insights"
+        icon="bwi-dashboard"
+        [text]="'accessIntelligence' | i18n"
+        route="access-intelligence"
       ></bit-nav-item>
-    </bit-nav-group>
+    }
+
     <bit-nav-item
       icon="bwi-collection-shared"
       [text]="'collections' | i18n"
@@ -106,12 +104,12 @@
         *ngIf="organization.use2fa && organization.isOwner"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="'importData' | i18n"
+        [text]="'import' | i18n"
         route="settings/tools/import"
         *ngIf="organization.canAccessImport"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="'exportVault' | i18n"
+        [text]="'export' | i18n"
         route="settings/tools/export"
         *ngIf="canAccessExport$ | async"
       ></bit-nav-item>

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
 import { FillableFormFieldElement, FormFieldElement } from "../types";
 
@@ -202,7 +200,7 @@ class DomElementVisibilityService implements DomElementVisibilityServiceInterfac
 
     const closestParentLabel = elementAtCenterPoint?.parentElement?.closest("label");
 
-    return targetElementLabelsSet.has(closestParentLabel);
+    return closestParentLabel ? targetElementLabelsSet.has(closestParentLabel) : false;
   }
 }
 

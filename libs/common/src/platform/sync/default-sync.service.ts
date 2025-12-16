@@ -253,6 +253,10 @@ export class DefaultSyncService extends CoreSyncService {
           response.accountKeys.securityState.securityState,
           response.id,
         );
+        await this.keyService.setSignedPublicKey(
+          response.accountKeys.publicKeyEncryptionKeyPair.signedPublicKey,
+          response.id,
+        );
       }
     } else {
       await this.keyService.setPrivateKey(response.privateKey, response.id);
@@ -268,6 +272,7 @@ export class DefaultSyncService extends CoreSyncService {
     await this.tokenService.setSecurityStamp(response.securityStamp, response.id);
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
     await this.accountService.setAccountVerifyNewDeviceLogin(response.id, response.verifyDevices);
+    await this.accountService.setAccountCreationDate(response.id, response.creationDate);
 
     await this.billingAccountProfileStateService.setHasPremium(
       response.premiumPersonally,

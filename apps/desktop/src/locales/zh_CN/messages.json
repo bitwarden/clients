@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "您没有编辑此项目的权限"
+  },
   "welcomeBack": {
     "message": "欢迎回来"
   },
@@ -265,7 +268,7 @@
     "message": "需要高级版"
   },
   "premiumRequiredDesc": {
-    "message": "使用此功能需要高级会员资格。"
+    "message": "需要高级会员才能使用此功能。"
   },
   "errorOccurred": {
     "message": "发生错误。"
@@ -772,7 +775,7 @@
     "message": "使用单点登录"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "您的组织要求单点登录。"
   },
   "submit": {
     "message": "提交"
@@ -1035,6 +1038,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "您必须添加基础服务器 URL 或至少添加一个自定义环境。"
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL 必须使用 HTTPS。"
+  },
   "customEnvironment": {
     "message": "自定义环境"
   },
@@ -1086,6 +1092,24 @@
   },
   "learnMore": {
     "message": "进一步了解"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "featureUnavailable": {
     "message": "功能不可用"
@@ -1292,7 +1316,7 @@
     "message": "系统空闲时"
   },
   "onSleep": {
-    "message": "系统休眠时"
+    "message": "系统睡眠时"
   },
   "onLocked": {
     "message": "系统锁定时"
@@ -1381,7 +1405,7 @@
     "message": "语言"
   },
   "languageDesc": {
-    "message": "更改应用程序所使用的语言。重启后生效。"
+    "message": "更改应用程序所使用的语言。需要重启。"
   },
   "theme": {
     "message": "主题"
@@ -1482,7 +1506,16 @@
     "message": "注册高级会员将获得："
   },
   "premiumSignUpStorage": {
-    "message": "1 GB 文件附件加密存储。"
+    "message": "1 GB 文件附件加密存储空间。"
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ 文件附件加密存储空间。",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "专有的两步登录选项，如 YubiKey 和 Duo。"
@@ -1497,7 +1530,7 @@
     "message": "优先客户支持。"
   },
   "premiumSignUpFuture": {
-    "message": "所有未来的高级功能。即将推出！"
+    "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPurchase": {
     "message": "购买高级版"
@@ -1898,7 +1931,7 @@
     "message": "您必须至少选择一个集合。"
   },
   "premiumUpdated": {
-    "message": "您已升级到高级会员。"
+    "message": "您已升级为高级版。"
   },
   "restore": {
     "message": "恢复"
@@ -2023,7 +2056,7 @@
     "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或将密钥复制并粘贴到此字段。"
   },
   "premium": {
-    "message": "高级会员",
+    "message": "高级版",
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
@@ -2144,9 +2177,6 @@
   "browserIntegrationErrorDesc": {
     "message": "启用浏览器集成时出错。"
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "很遗憾，目前仅 Mac App Store 版本支持浏览器集成。"
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "很遗憾，Microsoft Store 版本目前不支持浏览器集成。"
   },
@@ -2224,6 +2254,10 @@
   },
   "contactInfo": {
     "message": "联系信息"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "所有的 Send",
@@ -2988,7 +3022,8 @@
     "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您必须确保您的设备安全。"
   },
   "vault": {
-    "message": "密码库"
+    "message": "密码库",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "使用主密码登录"
@@ -3977,7 +4012,7 @@
     "message": "关于此设置"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL 来改善您的体验。当您使用此服务时，不会收集或保存任何信息。"
+    "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
   "assignToCollections": {
     "message": "分配到集合"
@@ -4190,5 +4225,35 @@
   },
   "cardNumberLabel": {
     "message": "卡号"
+  },
+  "upgradeNow": {
+    "message": "立即升级"
+  },
+  "builtInAuthenticator": {
+    "message": "内置身份验证器"
+  },
+  "secureFileStorage": {
+    "message": "安全文件存储"
+  },
+  "emergencyAccess": {
+    "message": "紧急访问"
+  },
+  "breachMonitoring": {
+    "message": "数据泄露监测"
+  },
+  "andMoreFeatures": {
+    "message": "以及更多！"
+  },
+  "planDescPremium": {
+    "message": "全面的在线安全防护"
+  },
+  "upgradeToPremium": {
+    "message": "升级为高级版"
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "超时动作"
+  },
+  "sessionTimeoutHeader": {
+    "message": "会话超时"
   }
 }

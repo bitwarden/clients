@@ -12,7 +12,7 @@ import { hasScrolledFrom } from "../utils/has-scrolled-from";
   imports: [],
   host: {
     class:
-      "tw-p-4 tw-pt-0 tw-block tw-overflow-auto tw-border-solid tw-border tw-border-transparent tw-transition-colors tw-duration-200",
+      "tw-p-4 tw-pt-0 tw-flex-1 tw-overflow-auto tw-border-solid tw-border tw-border-transparent tw-transition-colors tw-duration-200",
     "[class.tw-border-t-secondary-300]": "this.hasScrolledFrom().top",
   },
   hostDirectives: [

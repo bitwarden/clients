@@ -1,0 +1,28 @@
+<div [formGroup]="formGroup">
+  @if (availableTimeoutOptions$ | async; as options) {
+    <bit-session-timeout-input
+      [availableTimeoutOptions]="options"
+      [formControl]="formGroup.controls.timeout"
+    >
+    </bit-session-timeout-input>
+  }
+
+  <bit-form-field [disableMargin]="true">
+    <bit-label>{{ "sessionTimeoutSettingsAction" | i18n }}</bit-label>
+    <bit-select
+      id="timeoutAction"
+      [formControl]="formGroup.controls.timeoutAction"
+      [required]="false"
+    >
+      @for (action of availableTimeoutActions(); track action) {
+        <bit-option [value]="action" [label]="action | i18n"></bit-option>
+      }
+    </bit-select>
+
+    @if (!canLock && supportsLock) {
+      <bit-hint>{{ "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction" | i18n }}</bit-hint>
+    } @else if ((sessionTimeoutActionFromPolicy$ | async) != null) {
+      <bit-hint>{{ "sessionTimeoutSettingsManagedByOrganization" | i18n }}</bit-hint>
+    }
+  </bit-form-field>
+</div>

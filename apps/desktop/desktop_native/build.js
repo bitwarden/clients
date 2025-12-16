@@ -11,8 +11,8 @@ const rustTargetsMap = {
     "aarch64-pc-windows-msvc":    { nodeArch: 'arm64', platform: 'win32'  },
     "x86_64-apple-darwin":        { nodeArch: 'x64',   platform: 'darwin' },
     "aarch64-apple-darwin":       { nodeArch: 'arm64', platform: 'darwin' },
-    'x86_64-unknown-linux-musl':  { nodeArch: 'x64',   platform: 'linux'  },
-    'aarch64-unknown-linux-musl': { nodeArch: 'arm64', platform: 'linux'  },
+    'x86_64-unknown-linux-gnu':   { nodeArch: 'x64',   platform: 'linux'  },
+    'aarch64-unknown-linux-gnu':  { nodeArch: 'arm64', platform: 'linux'  },
 }
 
 // Ensure the dist directory exists
@@ -113,8 +113,8 @@ if (process.platform === "linux") {
 
 platformTargets.forEach(([target, _]) => {
     installTarget(target);
-    buildNapiModule(target);
-    buildProxyBin(target);
-    buildImporterBinaries(target);
+    buildNapiModule(target, mode === "release");
+    buildProxyBin(target, mode === "release");
+    buildImporterBinaries(target, mode === "release");
     buildProcessIsolation();
 });
