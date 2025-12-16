@@ -1499,7 +1499,7 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
-          CSC_NAME: "Developer ID Application: 8bit Solutions LLC"
+          CSC_NAME: "8bit Solutions LLC"
         run: pnpm run pack:mac
 
       - name: Upload .zip artifact
@@ -1788,7 +1788,7 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
-          CSC_NAME: "3rd Party Mac Developer Application: Bitwarden Inc"
+          CSC_NAME: "Bitwarden Inc"
         run: pnpm run pack:mac:mas
 
       - name: Create MacOS App Store build number artifact
