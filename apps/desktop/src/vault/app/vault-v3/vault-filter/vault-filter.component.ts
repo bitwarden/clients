@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit, input, output } from "@angular/core";
+import { Component, inject, OnInit, output } from "@angular/core";
 import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -63,11 +63,6 @@ export class VaultFilterComponent implements OnInit {
   private componentIsDestroyed$ = new Subject<boolean>();
 
   protected activeFilter: VaultFilter;
-  protected readonly hideFolders = input(false);
-  protected readonly hideCollections = input(false);
-  protected readonly hideFavorites = input(false);
-  protected readonly hideTrash = input(false);
-  protected readonly hideOrganizations = input(false);
   protected onFilterChange = output<VaultFilter>();
 
   private activeUserId: UserId;
