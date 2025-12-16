@@ -7,10 +7,10 @@ import { UserId } from "../../types/guid";
  * Any additions here should be added to the equality check in the AccountService
  * to ensure that emissions are done on every change.
  *
- * @property email - User's email address
- * @property emailVerified - Whether the email has been verified
- * @property name - User's display name (optional)
- * @property creationDate - ISO 8601 string of when the account was created.
+ * @property email - User's email address.
+ * @property emailVerified - Whether the email has been verified.
+ * @property name - User's display name (optional).
+ * @property creationDate - Date when the account was created.
  *   Will be undefined immediately after login until the first sync completes.
  */
 export type AccountInfo = {
