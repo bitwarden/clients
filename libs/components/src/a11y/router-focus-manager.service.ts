@@ -19,8 +19,9 @@ export class RouterFocusManagerService {
    *
    * By default, we focus the `main` after an internal route navigation.
    *
-   * Consumers can opt out of the passing the following to the `info` input:
-   * `<a [routerLink]="route()" [info]="{ focusMainAfterNav: false }"></a>`
+   * Consumers can opt out of the passing the following to the `state` input. Using `state`
+   * allows us to access the value between browser back/forward arrows.
+   * `<a [routerLink]="route()" [state]="{ focusMainAfterNav: false }"></a>`
    *
    * Or, consumers can use the autofocus directive on an applicable interactive element.
    * The autofocus directive will take precedence over this route focus pipeline.
@@ -45,14 +46,14 @@ export class RouterFocusManagerService {
     combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.RouterFocusManagement)),
     filter(([_navEvent, flagEnabled]) => flagEnabled),
     map(() => {
-      const currentNavData = this.router.getCurrentNavigation()?.extras;
+      const currentNavExtras = this.router.currentNavigation()?.extras;
 
-      const info = currentNavData?.info as { focusMainAfterNav?: boolean } | undefined;
+      const focusMainAfterNav: boolean | undefined = currentNavExtras?.state?.focusMainAfterNav;
 
-      return info;
+      return focusMainAfterNav;
     }),
-    filter((currentNavInfo) => {
-      return currentNavInfo === undefined ? true : currentNavInfo?.focusMainAfterNav !== false;
+    filter((focusMainAfterNav) => {
+      return focusMainAfterNav !== false;
     }),
     tap(() => {
       const mainEl = document.querySelector<HTMLElement>("main");
