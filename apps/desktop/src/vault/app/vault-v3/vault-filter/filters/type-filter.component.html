@@ -1,8 +1,16 @@
+<bit-nav-item
+  icon="bwi-filter"
+  [forceActiveStyles]="activeFilter()?.selectedCipherTypeNode?.node?.id === 'AllItems'"
+  (click)="applyAllItemsFilter()"
+  [text]="'allItems' | i18n"
+  [attr.aria-pressed]="activeFilter()?.selectedCipherTypeNode?.node?.id === 'AllItems'"
+  [appA11yTitle]="'allItems' | i18n"
+/>
 @for (typeFilter of typeFilters$ | async; track typeFilter) {
   <bit-nav-item
     [icon]="typeFilter.node.icon"
     [forceActiveStyles]="activeFilter()?.selectedCipherTypeNode.node.type === typeFilter.node.type"
-    (click)="applyFilter(typeFilter)"
+    (click)="applyTypeFilter(typeFilter)"
     [text]="typeFilter.node.name"
     [attr.aria-pressed]="activeFilter()?.selectedCipherTypeNode.node.type === typeFilter.node.type"
     [appA11yTitle]="typeFilter.node.name"
