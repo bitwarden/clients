@@ -1,5 +1,4 @@
 import {
-  combineLatest,
   concatMap,
   distinctUntilChanged,
   EMPTY,
@@ -12,10 +11,7 @@ import {
   tap,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 
@@ -50,11 +46,9 @@ export class PhishingDetectionService {
   private static _didInit = false;
 
   static initialize(
-    accountService: AccountService,
-    billingAccountProfileStateService: BillingAccountProfileStateService,
-    configService: ConfigService,
     logService: LogService,
     phishingDataService: PhishingDataService,
+    phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     messageListener: MessageListener,
   ) {
     if (this._didInit) {
@@ -118,30 +112,19 @@ export class PhishingDetectionService {
       .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
       .pipe(switchMap((message) => BrowserApi.closeTab(message.tabId)));
 
-    const activeAccountHasAccess$ = combineLatest([
-      accountService.activeAccount$,
-      configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
-    ]).pipe(
-      switchMap(([account, featureEnabled]) => {
-        if (BrowserApi.isSafariApi) {
-          logService.debug(
-            "[PhishingDetectionService] Disabling phishing detection service for Safari.",
-          );
-          return of(false);
-        }
+    // Phishing detection is unavailable on Safari due to platform limitations
+    if (BrowserApi.isSafariApi) {
+      logService.debug(
+        "[PhishingDetectionService] Disabling phishing detection service for Safari.",
+      );
+    }
 
-        if (!account) {
-          logService.debug("[PhishingDetectionService] No active account.");
-          return of(false);
-        }
+    // Watching for settings changes to enable/disable phishing detection
+    const phishingDetectionActive$ = BrowserApi.isSafariApi
+      ? of(false)
+      : phishingDetectionSettingsService.on$;
 
-        return billingAccountProfileStateService
-          .hasPremiumFromAnySource$(account.id)
-          .pipe(map((hasPremium) => hasPremium && featureEnabled));
-      }),
-    );
-
-    const initSub = activeAccountHasAccess$
+    const initSub = phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
