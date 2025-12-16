@@ -6,6 +6,7 @@ import { ObservedValueOf, of } from "rxjs";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { UserId } from "@bitwarden/user-core";
 
+import { mockAccountInfoWith } from "../../spec";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
 import { DeviceType } from "../enums";
@@ -55,9 +56,10 @@ describe("ApiService", () => {
 
     accountService.activeAccount$ = of({
       id: testActiveUser,
-      email: "user1@example.com",
-      emailVerified: true,
-      name: "Test Name",
+      ...mockAccountInfoWith({
+        email: "user1@example.com",
+        name: "Test Name",
+      }),
     } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
 
     httpOperations = mock();
