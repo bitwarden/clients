@@ -223,7 +223,7 @@ export class SendV2Component {
   protected async onDeleteSend(send: SendView): Promise<void> {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "deleteSend" },
-      content: { key: "deleteSendPermanentConfirmation" },
+      content: { key: "deleteSendConfirmation" },
       type: "warning",
     });
 

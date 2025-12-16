@@ -24,7 +24,14 @@
         (copySend)="onCopySend($event)"
         (deleteSend)="onDeleteSend($event)"
         (removePassword)="onRemovePassword($event)"
-      />
+      >
+        <app-new-send-dropdown
+          slot="empty-button"
+          [hideIcon]="true"
+          [buttonType]="'primary'"
+          (addSend)="addSend($event)"
+        />
+      </tools-send-list>
     </div>
   </div>
 

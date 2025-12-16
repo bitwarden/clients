@@ -9,9 +9,12 @@ import { of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
@@ -74,6 +77,12 @@ describe("SendV2Component", () => {
         { provide: AccountService, useValue: accountService },
         { provide: SendListFiltersService, useValue: sendListFiltersService },
         { provide: ChangeDetectorRef, useValue: changeDetectorRef },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: mock<BillingAccountProfileStateService>(),
+        },
+        { provide: MessagingService, useValue: mock<MessagingService>() },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     }).compileComponents();
 

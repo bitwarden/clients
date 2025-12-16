@@ -18,21 +18,14 @@
 }
 
 <!-- Empty state: No sends exist -->
-@if (!loading() && listState() === sendListState.Empty) {
+@if (
+  !loading() && (listState() === sendListState.Empty || listState() === sendListState.NoResults)
+) {
   <div class="tw-px-4">
     <bit-no-items [icon]="noItemIcon" class="tw-text-main">
       <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
       <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
-    </bit-no-items>
-  </div>
-}
-
-<!-- No results state: Filter/search returned nothing -->
-@if (!loading() && listState() === sendListState.NoResults) {
-  <div class="tw-px-4">
-    <bit-no-items [icon]="noResultsIcon">
-      <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
-      <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
+      <ng-content select="[slot='empty-button']" slot="button" />
     </bit-no-items>
   </div>
 }
