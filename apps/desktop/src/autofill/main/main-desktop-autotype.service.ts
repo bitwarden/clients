@@ -12,7 +12,7 @@ import { AUTOTYPE_IPC_CHANNELS } from "../models/ipc-channels";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 export class MainDesktopAutotypeService {
-  autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
+  private autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
 
   constructor(
     private logService: LogService,
