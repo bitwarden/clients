@@ -436,8 +436,8 @@
   "sync": {
     "message": "Sync"
   },
-  "syncVaultNow": {
-    "message": "Sync vault now"
+  "syncNow": {
+    "message": "Sync now"
   },
   "lastSync": {
     "message": "Last sync:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden web app"
-  },
-  "importItems": {
-    "message": "Import items"
   },
   "select": {
     "message": "Select"
@@ -1325,8 +1322,11 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Export vault"
+  "export": {
+    "message": "Export"
+  },
+  "import": {
+    "message": "Import"
   },
   "fileFormat": {
     "message": "File format"
@@ -3252,9 +3252,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "No unique identifier found."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
-  },
   "organizationName": {
     "message": "Organization name"
   },
@@ -4218,10 +4215,6 @@
   "ignore": {
     "message": "Ignore"
   },
-  "importData": {
-    "message": "Import data",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Import error"
   },
@@ -4807,6 +4800,15 @@
   },
   "accountSecurity": {
     "message": "Account security"
+  },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
     "message": "Notifications"
@@ -5890,6 +5892,45 @@
   },
   "cardNumberLabel": {
     "message": "Card number"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector":{
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified":{
+    "message": "Organization verified"
+  },
+  "domainVerified":{
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Timeout action"

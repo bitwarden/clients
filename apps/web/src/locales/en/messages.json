@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Export vault"
-  },
-  "exportSecrets": {
-    "message": "Export secrets"
-  },
   "fileFormat": {
     "message": "File format"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirm master password"
-  },
-  "confirmFormat": {
-    "message": "Confirm format"
   },
   "filePassword": {
     "message": "File password"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Tools"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Import data"
@@ -7136,9 +7130,6 @@
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
-  },
   "keyConnectorDomain": {
     "message": "Key Connector domain"
   },
@@ -8760,9 +8751,6 @@
   "server": {
     "message": "Server"
   },
-  "exportData": {
-    "message": "Export data"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"
   },
@@ -9489,6 +9477,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "SSO login is required"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Email is required for SSO"
   },
   "selectedRegionFlag": {
     "message": "Selected region flag"
@@ -11600,6 +11591,9 @@
   "unArchive": {
     "message": "Unarchive"
   },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "Items in archive"
   },
@@ -12243,6 +12237,45 @@
         "example": "5"
       }
     }
+  },
+  "removeMasterPasswordForOrgUserKeyConnector":{
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified":{
+    "message": "Organization verified"
+  },
+  "domainVerified":{
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "No critical applications are selected"
