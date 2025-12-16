@@ -75,7 +75,7 @@ export class NewSendDropdownComponent {
       typeof result === "object" &&
       result.result === SendItemDialogResult.Saved &&
       result.send &&
-      (await this.configService.getFeatureFlag(FeatureFlag.DesktopSendUIRefresh))
+      (await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh))
     ) {
       this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
         data: result.send,
