@@ -20,6 +20,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { LogService } from "@bitwarden/logging";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 
 import {
   AccountBillingClient,
@@ -35,7 +36,6 @@ import {
   tokenizablePaymentMethodToLegacyEnum,
   TokenizedPaymentMethod,
 } from "../../../../payment/types";
-import { mapAccountToSubscriber } from "../../../../types";
 
 export type PlanDetails = {
   tier: PersonalSubscriptionPricingTierId;
@@ -87,7 +87,7 @@ export class UpgradePaymentService {
 
   // Fetch account credit
   accountCredit$: Observable<number | null> = this.accountService.activeAccount$.pipe(
-    mapAccountToSubscriber,
+    SubscriptionLibraryMapper.mapAccount$,
     switchMap((account) => this.subscriberBillingClient.getCredit(account)),
   );
 

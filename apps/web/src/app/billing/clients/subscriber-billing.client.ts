@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 
 import {
   BillingAddress,
@@ -10,7 +11,6 @@ import {
   MaskedPaymentMethodResponse,
   TokenizedPaymentMethod,
 } from "../payment/types";
-import { BitwardenSubscriber } from "../types";
 
 type Result<T> =
   | {

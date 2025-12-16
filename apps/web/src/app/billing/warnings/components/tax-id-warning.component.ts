@@ -17,9 +17,9 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BannerModule, DialogService } from "@bitwarden/components";
 import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
+import { NonIndividualBitwardenSubscriber } from "@bitwarden/subscription";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { EditBillingAddressDialogComponent } from "@bitwarden/web-vault/app/billing/payment/components";
-import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import {
   TaxIdWarningType,
   TaxIdWarningTypes,
@@ -112,7 +112,7 @@ type GetWarning$ = () => Observable<TaxIdWarningType | null>;
 export class TaxIdWarningComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) subscriber!: NonIndividualSubscriber;
+  @Input({ required: true }) subscriber!: NonIndividualBitwardenSubscriber;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) getWarning$!: GetWarning$;

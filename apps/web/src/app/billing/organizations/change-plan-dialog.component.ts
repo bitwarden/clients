@@ -63,7 +63,7 @@ import {
   getCardBrandIcon,
   MaskedPaymentMethod,
 } from "@bitwarden/web-vault/app/billing/payment/types";
-import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 
 import { BillingNotificationService } from "../services/billing-notification.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
@@ -273,7 +273,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       );
       if (this.sub?.subscription?.status !== "canceled") {
         try {
-          const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization };
+          const subscriber = SubscriptionLibraryMapper.mapOrganization(this.organization);
           const [paymentMethod, billingAddress] = await Promise.all([
             this.subscriberBillingClient.getPaymentMethod(subscriber),
             this.subscriberBillingClient.getBillingAddress(subscriber),
@@ -830,7 +830,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
     const billingAddress = getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress);
     await this.subscriberBillingClient.restartSubscription(
-      { type: "organization", data: this.organization },
+      SubscriptionLibraryMapper.mapOrganization(this.organization),
       paymentMethod,
       billingAddress,
     );
@@ -865,7 +865,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         this.billingFormGroup.controls.billingAddress,
       );
 
-      const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization };
+      const subscriber = SubscriptionLibraryMapper.mapOrganization(this.organization);
       // These need to be synchronous so one of them can create the Customer in the case we're upgrading from Free.
       await this.subscriberBillingClient.updateBillingAddress(subscriber, billingAddress);
       await this.subscriberBillingClient.updatePaymentMethod(subscriber, paymentMethod, null);

@@ -2,9 +2,9 @@ import { Component, ViewChild } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, ToastService } from "@bitwarden/components";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
-import { BitwardenSubscriber } from "../../types";
 import { MaskedPaymentMethod } from "../types";
 
 import { EnterPaymentMethodComponent } from "./enter-payment-method.component";

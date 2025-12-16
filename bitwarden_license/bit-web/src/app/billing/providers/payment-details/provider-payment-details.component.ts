@@ -24,6 +24,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 import { UserId } from "@bitwarden/user-core";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
@@ -35,10 +36,7 @@ import {
   BillingAddress,
   MaskedPaymentMethod,
 } from "@bitwarden/web-vault/app/billing/payment/types";
-import {
-  BitwardenSubscriber,
-  mapProviderToSubscriber,
-} from "@bitwarden/web-vault/app/billing/types";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -83,7 +81,7 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
   );
 
   private load$: Observable<View> = this.provider$.pipe(
-    mapProviderToSubscriber,
+    SubscriptionLibraryMapper.mapProvider$,
     switchMap(async (provider) => {
       const getTaxIdWarning = firstValueFrom(
         this.providerWarningsService.getTaxIdWarning$(provider.data as Provider),
@@ -144,7 +142,7 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
             combineLatest([
               of(warning),
               this.provider$.pipe(take(1)).pipe(
-                mapProviderToSubscriber,
+                SubscriptionLibraryMapper.mapProvider$,
                 switchMap((provider) => this.subscriberBillingClient.getBillingAddress(provider)),
               ),
             ]),

@@ -39,7 +39,7 @@ import {
   NonTokenizablePaymentMethods,
   tokenizablePaymentMethodToLegacyEnum,
 } from "@bitwarden/web-vault/app/billing/payment/types";
-import { mapAccountToSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -146,7 +146,7 @@ export class CloudHostedPremiumComponent {
     );
 
     const accountCredit$ = this.accountService.activeAccount$.pipe(
-      mapAccountToSubscriber,
+      SubscriptionLibraryMapper.mapAccount$,
       switchMap((account) => this.subscriberBillingClient.getCredit(account)),
     );
 

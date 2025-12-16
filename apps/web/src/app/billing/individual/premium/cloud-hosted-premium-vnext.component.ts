@@ -31,9 +31,10 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 
-import { BitwardenSubscriber, mapAccountToSubscriber } from "../../types";
 import {
   UnifiedUpgradeDialogComponent,
   UnifiedUpgradeDialogParams,
@@ -110,7 +111,7 @@ export class CloudHostedPremiumVNextComponent {
     );
 
     this.accountService.activeAccount$
-      .pipe(mapAccountToSubscriber, takeUntilDestroyed(this.destroyRef))
+      .pipe(SubscriptionLibraryMapper.mapAccount$, takeUntilDestroyed(this.destroyRef))
       .subscribe((subscriber) => {
         this.subscriber = subscriber;
       });

@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
 import { DialogService } from "@bitwarden/components";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 
 import { SharedModule } from "../../../shared";
-import { BitwardenSubscriber } from "../../types";
 import { getCardBrandIcon, MaskedPaymentMethod } from "../types";
 
 import { ChangePaymentMethodDialogComponent } from "./change-payment-method-dialog.component";

@@ -14,7 +14,7 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { IconModule } from "@bitwarden/components";
-import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { NonIndividualBitwardenSubscriber } from "@bitwarden/subscription";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.module";
@@ -47,7 +47,7 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
 
   protected clientsTranslationKey$: Observable<string>;
 
-  protected subscriber$: Observable<NonIndividualSubscriber>;
+  protected subscriber$: Observable<NonIndividualBitwardenSubscriber>;
   protected getTaxIdWarning$: () => Observable<TaxIdWarningType>;
 
   constructor(

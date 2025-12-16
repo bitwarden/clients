@@ -27,15 +27,17 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule } from "@bitwarden/components";
+import { NonIndividualBitwardenSubscriber } from "@bitwarden/subscription";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
-import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
+
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -70,7 +72,7 @@ export class OrganizationLayoutComponent implements OnInit {
 
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
 
-  protected subscriber$: Observable<NonIndividualSubscriber>;
+  protected subscriber$: Observable<NonIndividualBitwardenSubscriber>;
   protected getTaxIdWarning$: () => Observable<TaxIdWarningType | null>;
 
   constructor(
@@ -135,10 +137,7 @@ export class OrganizationLayoutComponent implements OnInit {
     this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
 
     this.subscriber$ = this.organization$.pipe(
-      map((organization) => ({
-        type: "organization",
-        data: organization,
-      })),
+      map((organization) => SubscriptionLibraryMapper.mapOrganization(organization)),
     );
 
     this.getTaxIdWarning$ = () =>

@@ -1,0 +1,325 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs/blocks";
+import * as SubscriptionCardStories from "./subscription-card.component.stories";
+
+<Meta of={SubscriptionCardStories} />
+
+# Subscription Card
+
+A reusable UI-only component that displays a subscription membership card with status, billing
+information, and optional upgrade callouts. This component has no external dependencies and performs
+no logic - it only displays data and emits events when buttons are clicked.
+
+<Canvas of={SubscriptionCardStories.PremiumActive} />
+
+## Usage
+
+The subscription card component is designed to be used in billing and subscription management
+interfaces to display the current state of a user's or organization's subscription.
+
+```ts
+import { SubscriptionCardComponent } from "@bitwarden/subscription";
+```
+
+```html
+<billing-subscription-card
+  [title]="'Premium membership'"
+  [subscription]="subscription"
+  (callToActionClicked)="handleAction($event)"
+/>
+```
+
+## API
+
+### Inputs
+
+| Input          | Type                    | Description                                                   |
+| -------------- | ----------------------- | ------------------------------------------------------------- |
+| `title`        | `string`                | **Required.** The title of the subscription card              |
+| `subscription` | `BitwardenSubscription` | **Required.** The subscription data including status and cart |
+
+### Outputs
+
+| Output                | Type                                                     | Description                                                         |
+| --------------------- | -------------------------------------------------------- | ------------------------------------------------------------------- |
+| `callToActionClicked` | `PlanCardAction` (`"contact-support" \| "upgrade-plan"`) | Emitted when a call-to-action button is clicked in a status callout |
+
+## Subscription Object
+
+The `subscription` input expects a `BitwardenSubscription` object with the following structure:
+
+```ts
+type BitwardenSubscription = {
+  subscriber: BitwardenSubscriber; // account, organization, or provider
+  cart: {
+    passwordManager: LineItem;
+    additionalStorage?: LineItem;
+    secretsManager?: { seats: LineItem; additionalServiceAccounts?: LineItem };
+    discount?: Discount;
+    estimatedTax: number;
+  };
+} & (
+  | { status: "active"; nextCharge: Date; cancelAt?: Date }
+  | { status: "trialing"; nextCharge: Date; cancelAt?: Date }
+  | { status: "past_due"; expired: Date; suspension: Date; gracePeriod: number; cancelAt?: Date }
+  | { status: "canceled"; canceled: Date }
+  | { status: "unpaid"; suspension: Date }
+  | { status: "incomplete"; created: Date }
+  | { status: "incomplete_expired"; created: Date }
+);
+```
+
+## Subscription Statuses
+
+The component displays different information and callouts based on the subscription status:
+
+| Status               | Badge Variant | Callout Type | Description                                            |
+| -------------------- | ------------- | ------------ | ------------------------------------------------------ |
+| `active`             | success       | info (opt.)  | Normal active subscription with next charge date       |
+| `trialing`           | success       | info (opt.)  | Trial period with next charge date                     |
+| `past_due`           | warning       | warning      | Payment failed, shows grace period and suspension date |
+| `canceled`           | danger        | none         | Subscription canceled, shows cancellation date         |
+| `unpaid`             | danger        | danger       | Suspended due to non-payment                           |
+| `incomplete`         | warning       | warning      | Payment incomplete, shows suspension warning           |
+| `incomplete_expired` | danger        | warning      | Incomplete payment expired                             |
+
+## Design
+
+The component follows the Bitwarden design system with:
+
+- **Full width/height**: Designed to fill its container (`tw-size-full`)
+- **Status badges**: Color-coded badges indicating subscription status
+- **Dynamic callouts**: Context-aware callouts based on subscription state
+- **Cart summary**: Integrated pricing breakdown using `CartSummaryComponent`
+- **Custom headers**: Custom cart summary headers showing payment/suspension dates
+- **Modern Angular**: Uses signals, computed properties, and `@if`/`@switch` control flow
+- **OnPush**: Optimized change detection strategy
+- **Type-safe**: Uses discriminated union types for subscription states
+
+## Examples
+
+### Active Subscription
+
+Standard active subscription showing next charge date:
+
+<Canvas of={SubscriptionCardStories.PremiumActive} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium membership'"
+  [subscription]="{
+    subscriber: { type: 'account', data: { id: userId, email: userEmail } },
+    cart: { passwordManager: premiumLineItem, estimatedTax: 2.71 },
+    status: 'active',
+    nextCharge: new Date('2026-02-15')
+  }"
+  (callToActionClicked)="handleAction($event)"
+/>
+```
+
+### Active with Upgrade Callout
+
+When the premium-to-organization upgrade feature flag is enabled:
+
+<Canvas of={SubscriptionCardStories.PremiumActiveWithUpgrade} />
+
+```html
+<!-- Upgrade callout shown when feature flag is enabled -->
+<billing-subscription-card
+  [title]="'Premium membership'"
+  [subscription]="activeSubscription"
+  (callToActionClicked)="onUpgrade($event)"
+/>
+```
+
+### Trialing Subscription
+
+Trial period showing when the first charge will occur:
+
+<Canvas of={SubscriptionCardStories.PremiumTrialing} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium membership'"
+  [subscription]="{
+    subscriber: accountSubscriber,
+    cart: premiumCart,
+    status: 'trialing',
+    nextCharge: trialEndDate
+  }"
+/>
+```
+
+### Past Due with Grace Period
+
+Shows payment failure warning with grace period countdown:
+
+<Canvas of={SubscriptionCardStories.PremiumPastDue} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium membership'"
+  [subscription]="{
+    subscriber: accountSubscriber,
+    cart: premiumCart,
+    status: 'past_due',
+    expired: expiredDate,
+    suspension: suspensionDate,
+    gracePeriod: 7
+  }"
+/>
+```
+
+### Canceled Subscription
+
+Shows canceled status with cancellation date:
+
+<Canvas of={SubscriptionCardStories.PremiumCanceled} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium membership'"
+  [subscription]="{
+    subscriber: accountSubscriber,
+    cart: premiumCart,
+    status: 'canceled',
+    canceled: canceledDate
+  }"
+/>
+```
+
+### Unpaid Subscription
+
+Suspended subscription requiring payment:
+
+<Canvas of={SubscriptionCardStories.PremiumUnpaid} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium membership'"
+  [subscription]="{
+    subscriber: accountSubscriber,
+    cart: premiumCart,
+    status: 'unpaid',
+    suspension: suspensionDate
+  }"
+/>
+```
+
+### Incomplete Payment
+
+Payment setup not completed:
+
+<Canvas of={SubscriptionCardStories.PremiumIncomplete} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium membership'"
+  [subscription]="{
+    subscriber: accountSubscriber,
+    cart: premiumCart,
+    status: 'incomplete',
+    created: createdDate
+  }"
+  (callToActionClicked)="contactSupport()"
+/>
+```
+
+### With Additional Storage
+
+Subscription with add-ons:
+
+<Canvas of={SubscriptionCardStories.PremiumAdditionalStorage} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium membership'"
+  [subscription]="{
+    subscriber: accountSubscriber,
+    cart: {
+      passwordManager: premiumLineItem,
+      additionalStorage: storageLineItem,
+      estimatedTax: 3.28
+    },
+    status: 'active',
+    nextCharge: nextChargeDate
+  }"
+/>
+```
+
+### With Discount Applied
+
+Subscription with active discount:
+
+<Canvas of={SubscriptionCardStories.PremiumDiscount} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium membership'"
+  [subscription]="{
+    subscriber: accountSubscriber,
+    cart: {
+      passwordManager: premiumLineItem,
+      additionalStorage: storageLineItem,
+      discount: { _tag: 'percent-off', value: 30, active: true },
+      estimatedTax: 0
+    },
+    status: 'active',
+    nextCharge: nextChargeDate
+  }"
+/>
+```
+
+## Handling Actions
+
+The component emits `callToActionClicked` events for status-specific actions:
+
+```ts
+export type PlanCardAction = "contact-support" | "upgrade-plan";
+
+handleAction(action: PlanCardAction) {
+  switch (action) {
+    case "contact-support":
+      this.openSupportDialog();
+      break;
+    case "upgrade-plan":
+      this.router.navigate(["/upgrade"]);
+      break;
+  }
+}
+```
+
+## Do's and Don'ts
+
+### ✅ Do
+
+- Use clear, descriptive titles (e.g., "Premium membership", "Families organization")
+- Handle all `callToActionClicked` events appropriately
+- Provide accurate subscription data with correct status
+- Show the component in a container that allows it to fill available space
+- Use the component for both individual and organization subscriptions
+
+### ❌ Don't
+
+- Modify the component's internal logic or styling
+- Use the component for subscription selection (use `PricingCardComponent` instead)
+- Display subscriptions without handling action events
+- Provide incomplete subscription data
+- Override the card's dimensions - it's designed to be flexible
+
+## Accessibility
+
+The component includes:
+
+- **Semantic HTML**: Proper heading hierarchy with `h3` and `h4` elements
+- **Status indicators**: Clear visual and textual status indicators
+- **Color contrast**: Meets WCAG AA standards for all text and badges
+- **Keyboard navigation**: All interactive elements are keyboard accessible
+- **Screen reader support**: Descriptive labels and ARIA attributes
+- **Focus management**: Visible focus states for interactive elements
+
+## Related Components
+
+- **`CartSummaryComponent`** - Used internally to display pricing breakdown
+- **`PricingCardComponent`** - For displaying subscription plans during selection
+- **`Badge`** - For status indicators
+- **`Callout`** - For status-based messaging
