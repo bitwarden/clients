@@ -436,8 +436,8 @@
   "sync": {
     "message": "Synkronisera"
   },
-  "syncVaultNow": {
-    "message": "Synkronisera valv nu"
+  "syncNow": {
+    "message": "Synkronisera nu"
   },
   "lastSync": {
     "message": "Senaste synkronisering:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden webbapp"
-  },
-  "importItems": {
-    "message": "Importera objekt"
   },
   "select": {
     "message": "Välj"
@@ -1325,8 +1322,11 @@
   "exportFrom": {
     "message": "Exportera från"
   },
-  "exportVault": {
-    "message": "Exportera valv"
+  "export": {
+    "message": "Exportera"
+  },
+  "import": {
+    "message": "Importera"
   },
   "fileFormat": {
     "message": "Filformat"
@@ -1457,6 +1457,15 @@
   "attachmentSaved": {
     "message": "Bilaga sparad"
   },
+  "fixEncryption": {
+    "message": "Fixa kryptering"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Denna fil använder en föråldrad krypteringsmetod."
+  },
+  "attachmentUpdated": {
+    "message": "Bilaga uppdaterad"
+  },
   "file": {
     "message": "Fil"
   },
@@ -1465,6 +1474,9 @@
   },
   "selectFile": {
     "message": "Välj en fil"
+  },
+  "itemsTransferred": {
+    "message": "Objekt överförda"
   },
   "maxFileSize": {
     "message": "Filen får vara maximalt 500 MB."
@@ -3240,9 +3252,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Ingen unik identifierare hittades."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Ett huvudlösenord krävs inte längre för medlemmar i följande organisation. Vänligen bekräfta domänen nedan med din organisationsadministratör."
-  },
   "organizationName": {
     "message": "Organisationsnamn"
   },
@@ -4206,10 +4215,6 @@
   "ignore": {
     "message": "Ignorera"
   },
-  "importData": {
-    "message": "Importera data",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Fel vid import"
   },
@@ -4795,6 +4800,15 @@
   },
   "accountSecurity": {
     "message": "Kontosäkerhet"
+  },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
     "message": "Aviseringar"
@@ -5848,8 +5862,8 @@
   "andMoreFeatures": {
     "message": "och mer!"
   },
-  "planDescPremium": {
-    "message": "Komplett säkerhet online"
+  "advancedOnlineSecurity": {
+    "message": "Avancerad säkerhet online"
   },
   "upgradeToPremium": {
     "message": "Uppgradera till Premium"
@@ -5879,7 +5893,141 @@
   "cardNumberLabel": {
     "message": "Kortnummer"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Din organisation använder inte längre huvudlösenord för att logga in på Bitwarden. För att fortsätta, verifiera organisationen och domänen."
+  },
+  "continueWithLogIn": {
+    "message": "Fortsätt med inloggning"
+  },
+  "doNotContinue": {
+    "message": "Fortsätt inte"
+  },
+  "domain": {
+    "message": "Domän"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Denna domän kommer att lagra dina krypteringsnycklar, så se till att du litar på den. Om du inte är säker, kontrollera med din administratör."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifiera din organisation för att logga in"
+  },
+  "organizationVerified": {
+    "message": "Organisation verifierad"
+  },
+  "domainVerified": {
+    "message": "Domän verifierad"
+  },
+  "leaveOrganizationContent": {
+    "message": "Om du inte verifierar din organisation kommer din åtkomst till organisationen att återkallas."
+  },
+  "leaveNow": {
+    "message": "Lämna nu"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifiera din domän för att logga in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "För att fortsätta med inloggning, verifiera denna domän."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "För att fortsätta logga in, verifiera organisationen och domänen."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Tidsgränsåtgärd"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Den här inställningen hanteras av din organisation."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Din organisation har ställt in maximal sessionstidsgräns till $HOURS$ timmar och $MINUTES$ minut(er).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Din organisation har ställt in tidsgräns för standardsessionen till Omedelbart."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Din organisation har ställt in tidsgräns för standardsessionen till Vid systemlåsning."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Din organisation har ställt in tidsgräns för standardsessionen till Vid omstart av webbläsaren."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximal tidsgräns får inte överstiga $HOURS$ timmar och $MINUTES$ minut(er)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Vid omstart av webbläsaren"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Ställ in en upplåsningsmetod för att ändra din tidsgränsåtgärd"
+  },
+  "upgrade": {
+    "message": "Uppgradera"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Är du säker på att du vill lämna?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Genom att avböja kommer dina personliga objekt att stanna på ditt konto, men du kommer att förlora åtkomst till delade objekt och organisationsfunktioner."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Kontakta administratören för att återfå åtkomst."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Lämna $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Hur hanterar jag mitt valv?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Överför objekt till $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ kräver att alla objekt ägs av organisationen för säkerhet och efterlevnad. Klicka på godkänn för att överföra ägarskapet för dina objekt.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Godkänn överföring"
+  },
+  "declineAndLeave": {
+    "message": "Avböj och lämna"
+  },
+  "whyAmISeeingThis": {
+    "message": "Varför ser jag det här?"
   }
 }
