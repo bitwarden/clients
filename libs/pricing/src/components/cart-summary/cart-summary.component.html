@@ -6,16 +6,22 @@
 <div class="tw-size-full">
   <div class="tw-flex tw-items-center tw-pb-2">
     <div class="tw-flex tw-items-center">
-      <h2
-        bitTypography="h4"
-        id="purchase-summary-heading"
-        class="!tw-m-0"
-        data-testid="purchase-summary-heading-total"
-      >
-        {{ "total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
-      </h2>
-      <span bitTypography="h3">&nbsp;</span>
-      <span bitTypography="body1" class="tw-text-main">/ {{ passwordManager.cadence | i18n }}</span>
+      @if (headerTemplate(); as template) {
+        <ng-container *ngTemplateOutlet="template; context: { total: total() }" />
+      } @else {
+        <h2
+          bitTypography="h4"
+          id="purchase-summary-heading-total"
+          class="!tw-m-0"
+          data-testid="purchase-summary-heading-total"
+        >
+          {{ "total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
+        </h2>
+        <span bitTypography="h3">&nbsp;</span>
+        <span bitTypography="body1" class="tw-text-main"
+          >/ {{ passwordManager.cadence | i18n }}</span
+        >
+      }
     </div>
     <button
       type="button"

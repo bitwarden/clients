@@ -1,3 +1,5 @@
+import { CurrencyPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
@@ -22,7 +24,7 @@ describe("CartSummaryComponent", () => {
     cadence: "month",
   };
 
-  const mockSecretsManager = {
+  const mockSecretsManager: { seats: LineItem; additionalServiceAccounts?: LineItem } = {
     seats: {
       quantity: 3,
       name: "secretsManagerSeats",
@@ -368,6 +370,193 @@ describe("CartSummaryComponent", () => {
       expect(discountElement).toBeTruthy();
       expect(discountText).toContain("30% Discount");
       expect(discountText).toContain("-$111.60"); // 30% of 372
+    });
+  });
+
+  describe("Header Template Functionality", () => {
+    it("should display default header when no headerTemplate is provided", () => {
+      // Act
+      const heading = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+      const headingText = heading.nativeElement.textContent;
+      const cadenceText = fixture.debugElement.query(
+        By.css("span.tw-text-main[bittypography='body1']"),
+      );
+
+      // Assert
+      expect(heading).toBeTruthy();
+      expect(heading.nativeElement.id).toBe("purchase-summary-heading-total");
+      expect(headingText).toContain("Total:");
+      expect(headingText).toContain("$381.60");
+      expect(headingText).toContain("USD");
+      expect(cadenceText).toBeTruthy();
+      expect(cadenceText.nativeElement.textContent).toContain("/ month");
+    });
+
+    it("should calculate correct total for headerTemplate context", () => {
+      // This test verifies the total calculation that would be passed to headerTemplate
+      // The template receives { total: computed_total_value }
+      const totalValue = component.total();
+      expect(totalValue).toBe(381.6); // 250 + 20 + 90 + 12 + 9.6
+    });
+
+    it("should render custom headerTemplate when provided", () => {
+      // Arrange - Create a test component with a custom template
+      @Component({
+        changeDetection: ChangeDetectionStrategy.OnPush,
+        template: `
+          <ng-template #customHeader let-total="total">
+            <div data-testid="custom-header" class="tw-text-main">
+              Custom Total: {{ total | currency: "USD" }}
+            </div>
+          </ng-template>
+          <billing-cart-summary
+            [passwordManager]="passwordManager"
+            [estimatedTax]="estimatedTax"
+            [headerTemplate]="customHeader"
+          />
+        `,
+        imports: [CartSummaryComponent, CurrencyPipe],
+      })
+      class TestHostComponent {
+        passwordManager = mockPasswordManager;
+        estimatedTax = mockEstimatedTax;
+      }
+
+      const hostFixture = TestBed.createComponent(TestHostComponent);
+      hostFixture.detectChanges();
+
+      // Act
+      const customHeader = hostFixture.debugElement.query(By.css('[data-testid="custom-header"]'));
+      const defaultHeader = hostFixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+
+      // Assert - Custom header should be rendered
+      expect(customHeader).toBeTruthy();
+      expect(customHeader.nativeElement.textContent).toContain("Custom Total:");
+      expect(customHeader.nativeElement.textContent).toContain("$259.60"); // 250 + 9.6
+      expect(customHeader.nativeElement.classList.contains("tw-text-main")).toBe(true);
+
+      // Assert - Default header should NOT be rendered
+      expect(defaultHeader).toBeFalsy();
+    });
+
+    it("should pass correct total value to custom headerTemplate context", () => {
+      // Arrange - Create a test component that captures the context value
+      let capturedTotal: number | undefined;
+
+      @Component({
+        changeDetection: ChangeDetectionStrategy.OnPush,
+        template: `
+          <ng-template #customHeader let-total="total">
+            <div data-testid="custom-header">{{ captureTotal(total) }}</div>
+          </ng-template>
+          <billing-cart-summary
+            [passwordManager]="passwordManager"
+            [additionalStorage]="additionalStorage"
+            [secretsManager]="secretsManager"
+            [estimatedTax]="estimatedTax"
+            [headerTemplate]="customHeader"
+          />
+        `,
+        imports: [CartSummaryComponent],
+      })
+      class TestHostComponent {
+        passwordManager = mockPasswordManager;
+        additionalStorage = mockAdditionalStorage;
+        secretsManager = mockSecretsManager;
+        estimatedTax = mockEstimatedTax;
+
+        captureTotal(total: number): number {
+          capturedTotal = total;
+          return total;
+        }
+      }
+
+      const hostFixture = TestBed.createComponent(TestHostComponent);
+      hostFixture.detectChanges();
+
+      // Assert - Context should contain the correct total value
+      expect(capturedTotal).toBeDefined();
+      expect(capturedTotal).toBe(381.6); // 250 + 20 + 90 + 12 + 9.6
+    });
+
+    it("should update custom headerTemplate when total changes", () => {
+      // Arrange - Create a test component with a custom template using signals
+      @Component({
+        changeDetection: ChangeDetectionStrategy.OnPush,
+        template: `
+          <ng-template #customHeader let-total="total">
+            <div data-testid="custom-header">{{ total }}</div>
+          </ng-template>
+          <billing-cart-summary
+            [passwordManager]="passwordManager"
+            [estimatedTax]="estimatedTax()"
+            [headerTemplate]="customHeader"
+          />
+        `,
+        imports: [CartSummaryComponent],
+      })
+      class TestHostComponent {
+        passwordManager = mockPasswordManager;
+        readonly estimatedTax = signal(mockEstimatedTax);
+      }
+
+      const hostFixture = TestBed.createComponent(TestHostComponent);
+      hostFixture.detectChanges();
+
+      // Act - Verify initial total
+      let customHeader = hostFixture.debugElement.query(By.css('[data-testid="custom-header"]'));
+      expect(customHeader.nativeElement.textContent.trim()).toBe("259.6"); // 250 + 9.6
+
+      // Act - Update the estimated tax signal
+      hostFixture.componentInstance.estimatedTax.set(20);
+      hostFixture.detectChanges();
+
+      // Assert - Custom header should reflect the updated total
+      customHeader = hostFixture.debugElement.query(By.css('[data-testid="custom-header"]'));
+      expect(customHeader.nativeElement.textContent.trim()).toBe("270"); // 250 + 20
+    });
+
+    it("should render custom headerTemplate with discount applied", () => {
+      // Arrange - Create a test component with a discount
+      @Component({
+        changeDetection: ChangeDetectionStrategy.OnPush,
+        template: `
+          <ng-template #customHeader let-total="total">
+            <div data-testid="custom-header">Discounted Total: {{ total }}</div>
+          </ng-template>
+          <billing-cart-summary
+            [passwordManager]="passwordManager"
+            [estimatedTax]="estimatedTax"
+            [discount]="discount"
+            [headerTemplate]="customHeader"
+          />
+        `,
+        imports: [CartSummaryComponent],
+      })
+      class TestHostComponent {
+        passwordManager = mockPasswordManager;
+        estimatedTax = mockEstimatedTax;
+        discount: Discount = {
+          _tag: "amount-off",
+          value: 50,
+          active: true,
+        };
+      }
+
+      const hostFixture = TestBed.createComponent(TestHostComponent);
+      hostFixture.detectChanges();
+
+      // Act
+      const customHeader = hostFixture.debugElement.query(By.css('[data-testid="custom-header"]'));
+
+      // Assert - Custom header should show total with discount applied
+      expect(customHeader).toBeTruthy();
+      expect(customHeader.nativeElement.textContent).toContain("Discounted Total:");
+      expect(customHeader.nativeElement.textContent).toContain("209.6"); // 250 - 50 + 9.6
     });
   });
 });

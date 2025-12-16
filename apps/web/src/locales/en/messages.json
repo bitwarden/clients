@@ -12433,7 +12433,7 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
-   "youHaveBitwardenPremium": {
+  "youHaveBitwardenPremium": {
     "message": "You have Bitwarden Premium"
   },
   "viewAndManagePremiumSubscription": {
@@ -12451,7 +12451,7 @@
       }
     }
   },
-    "uploadLicenseFile": {
+  "uploadLicenseFile": {
     "message": "Upload license file"
   },
   "uploadYourLicenseFile": {
@@ -12469,7 +12469,7 @@
       }
     }
   },
-    "alreadyHaveSubscriptionQuestion": {
+  "alreadyHaveSubscriptionQuestion": {
     "message": "Already have a subscription?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
@@ -12478,7 +12478,19 @@
   "viewAllPlans": {
     "message": "View all plans"
   },
-  "planDescPremium":{
+  "planDescPremium": {
     "message": "Complete online security"
+  },
+  "incomplete": {
+    "message": "Incomplete"
+  },
+  "paused": {
+    "message": "Paused"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Your next charge is for"
+  },
+  "dueOn": {
+    "message": "due on"
   }
 }

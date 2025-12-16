@@ -29,6 +29,8 @@ behavior across Bitwarden applications.
   - [Family Plan](#family-plan)
   - [With Percent-Off Discount](#with-percent-off-discount)
   - [With Amount-Off Discount](#with-amount-off-discount)
+  - [With Custom Header](#with-custom-header)
+  - [With Minimal Custom Header](#with-minimal-custom-header)
 - [Features](#features)
 - [Do's and Don'ts](#dos-and-donts)
 - [Accessibility](#accessibility)
@@ -56,13 +58,14 @@ import { CartSummaryComponent, LineItem } from "@bitwarden/pricing";
 
 ### Inputs
 
-| Input               | Type                                                                     | Description                                                     |
-| ------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| `passwordManager`   | `LineItem`                                                               | **Required.** The Password Manager product line item            |
-| `additionalStorage` | `LineItem \| undefined`                                                  | **Optional.** Additional storage line item, if applicable       |
-| `secretsManager`    | `{ seats: LineItem; additionalServiceAccounts?: LineItem } \| undefined` | **Optional.** Secrets Manager related line items, if applicable |
-| `discount`          | `Discount \| undefined`                                                  | **Optional.** Discount to apply (percent-off or amount-off)     |
-| `estimatedTax`      | `number`                                                                 | **Required.** Estimated tax amount                              |
+| Input               | Type                                                                     | Description                                                                                                 |
+| ------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `passwordManager`   | `LineItem`                                                               | **Required.** The Password Manager product line item                                                        |
+| `additionalStorage` | `LineItem \| undefined`                                                  | **Optional.** Additional storage line item, if applicable                                                   |
+| `secretsManager`    | `{ seats: LineItem; additionalServiceAccounts?: LineItem } \| undefined` | **Optional.** Secrets Manager related line items, if applicable                                             |
+| `discount`          | `Discount \| undefined`                                                  | **Optional.** Discount to apply (percent-off or amount-off)                                                 |
+| `estimatedTax`      | `number`                                                                 | **Required.** Estimated tax amount                                                                          |
+| `headerTemplate`    | `TemplateRef<{ total: number }> \| undefined`                            | **Optional.** Custom template for header content. Receives `total` as context for flexible header rendering |
 
 ### Events
 
@@ -391,6 +394,66 @@ Show cart with a fixed amount discount:
 </billing-cart-summary>
 ```
 
+### With Custom Header
+
+Show cart with a custom header template. The custom header receives the computed `total` value as
+context:
+
+<Canvas of={CartSummaryStories.WithCustomHeader} />
+
+```html
+<ng-template #customHeader let-total="total">
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <span style="font-size: 1.25rem; font-weight: 600; color: #175ddc;">
+      Custom Total: {{ total | currency: 'USD' }}
+    </span>
+    <span style="font-size: 0.875rem; color: #6c757d;">per month</span>
+  </div>
+</ng-template>
+
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 5,
+    name: 'members',
+    cost: 50.00,
+    cadence: 'month'
+  }"
+  [estimatedTax]="9.60"
+  [headerTemplate]="customHeader"
+>
+</billing-cart-summary>
+```
+
+### With Minimal Custom Header
+
+Show cart with a minimal custom header for simpler use cases:
+
+<Canvas of={CartSummaryStories.WithMinimalCustomHeader} />
+
+```html
+<ng-template #customHeader let-total="total">
+  <h3 style="margin: 0; font-size: 1.125rem;">Pay today: {{ total | currency: 'USD' }}</h3>
+</ng-template>
+
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 5,
+    name: 'members',
+    cost: 50.00,
+    cadence: 'month'
+  }"
+  [additionalStorage]="{
+    quantity: 2,
+    name: 'additionalStorageGB',
+    cost: 10.00,
+    cadence: 'month'
+  }"
+  [estimatedTax]="12.00"
+  [headerTemplate]="customHeader"
+>
+</billing-cart-summary>
+```
+
 ## Features
 
 - **Collapsible Interface**: Users can toggle between a summary view showing only the total and a
@@ -400,6 +463,10 @@ Show cart with a fixed amount discount:
   signals and computed values
 - **Discount Support**: Handles both percentage-based and fixed-amount discounts with automatic
   calculation and display in success color styling
+- **Customizable Header**: Supports custom header templates via the `headerTemplate` input, allowing
+  parent components to provide context-specific header content (e.g., subscription status messages,
+  renewal dates). Falls back to standard "Total: $X.XX USD / month" format when no template is
+  provided.
 - **Flexible Structure**: Accommodates different combinations of products and add-ons
 - **Consistent Formatting**: Maintains uniform display of prices, quantities, and cadence
 - **Modern Angular Patterns**: Uses `@let` to efficiently store and reuse signal values in the

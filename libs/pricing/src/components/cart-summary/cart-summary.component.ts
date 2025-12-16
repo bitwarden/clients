@@ -1,5 +1,13 @@
-import { CurrencyPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import { CurrencyPipe, NgTemplateOutlet } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  TemplateRef,
+} from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,21 +32,30 @@ export type LineItem = {
   selector: "billing-cart-summary",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./cart-summary.component.html",
-  imports: [TypographyModule, IconButtonModule, CurrencyPipe, I18nPipe],
+  imports: [TypographyModule, IconButtonModule, CurrencyPipe, I18nPipe, NgTemplateOutlet],
 })
 export class CartSummaryComponent {
-  // Required inputs
+  private i18nService = inject(I18nService);
+
+  // Inputs
+
+  /* The required Password Manager line item */
   readonly passwordManager = input.required<LineItem>();
+  /* The optional Storage line item */
   readonly additionalStorage = input<LineItem>();
+  /* The optional Secrets Manager line item */
   readonly secretsManager = input<{ seats: LineItem; additionalServiceAccounts?: LineItem }>();
+  /* An optionally applied discount */
   readonly discount = input<Discount>();
+  /* The required tax estimated for the cart */
   readonly estimatedTax = input.required<number>();
+  /* An optional template for custom header content. Receives total as context. */
+  readonly headerTemplate = input<TemplateRef<{ total: number }>>();
 
   // UI state
   readonly isExpanded = signal(true);
 
-  private i18nService = inject(I18nService);
-
+  // Computed
   /**
    * Calculates total for password manager line item
    */
@@ -84,6 +101,9 @@ export class CartSummaryComponent {
     );
   });
 
+  /**
+   * Calculates the applied discount if one exists.
+   */
   readonly appliedDiscount = computed<{ text: string; value: number } | null>(() => {
     const discount = this.discount();
     if (!discount || !discount.active || discount.value <= 0) {
