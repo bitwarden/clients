@@ -15,9 +15,9 @@
   <bit-nav-item
     [icon]="collection().node.icon"
     [forceActiveStyles]="isActive()"
-    [text]="collection().node.name"
+    [text]="displayName()"
     variant="tree"
-    [appA11yTitle]="collection().node.name"
+    [appA11yTitle]="displayName()"
     (click)="applyFilter($event)"
   />
 }
