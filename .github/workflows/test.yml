@@ -112,6 +112,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: "apps/desktop/desktop_native -> target"
+
       - name: Build
         working-directory: ./apps/desktop/desktop_native
         run: cargo build
