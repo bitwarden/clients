@@ -113,6 +113,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.ChromiumImporterWithABE]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
+  [FeatureFlag.SendEmailOTP]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
