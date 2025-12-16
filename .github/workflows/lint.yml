@@ -140,6 +140,9 @@ jobs:
       - name: Cache cargo registry
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
 
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+
       - name: Run cargo fmt
         working-directory: ./apps/desktop/desktop_native
         run: cargo +nightly fmt --check
@@ -149,6 +152,7 @@ jobs:
         run: cargo clippy --all-features --tests
         env:
           RUSTFLAGS: "-D warnings"
+          RUSTC_WRAPPER: sccache
 
       - name: Cache cargo-sort
         id: cache-cargo-sort

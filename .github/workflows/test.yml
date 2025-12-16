@@ -117,9 +117,14 @@ jobs:
         with:
           workspaces: "apps/desktop/desktop_native -> target"
 
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+
       - name: Build
         working-directory: ./apps/desktop/desktop_native
         run: cargo build
+        env:
+          RUSTC_WRAPPER: sccache
 
       - name: Test Ubuntu
         if: ${{ matrix.os=='ubuntu-22.04' }}
@@ -131,16 +136,22 @@ jobs:
           eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
           eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
           cargo test -- --test-threads=1
+        env:
+          RUSTC_WRAPPER: sccache
 
       - name: Test macOS
         if: ${{ matrix.os=='macos-14' }}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test -- --test-threads=1
+        env:
+          RUSTC_WRAPPER: sccache
 
       - name: Test Windows
         if: ${{ matrix.os=='windows-2022'}}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --workspace --exclude=desktop_napi -- --test-threads=1
+        env:
+          RUSTC_WRAPPER: sccache
 
   rust-coverage:
     name: Rust Coverage
