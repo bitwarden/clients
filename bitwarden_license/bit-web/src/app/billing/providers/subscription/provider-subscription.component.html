@@ -11,11 +11,14 @@
     <ng-container>
       <div class="tw-flex-col">
         <strong
-          class="tw-block tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
-          >{{ "details" | i18n }} &#160;<span
+          class="tw-flex tw-items-center tw-gap-3 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
+        >
+          {{ "details" | i18n }}
+          <span
+            *ngIf="subscription.discountPercentage"
             bitBadge
             variant="success"
-            *ngIf="subscription.discountPercentage"
+            class="tw-inline-flex tw-items-center"
             >{{ "providerDiscount" | i18n: subscription.discountPercentage }}</span
           >
         </strong>
