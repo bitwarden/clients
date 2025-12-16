@@ -2,8 +2,10 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
   SetInitialPasswordCredentials,
+  SetInitialPasswordCredentialsV2,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
@@ -20,6 +22,7 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -84,6 +87,9 @@ describe("WebSetInitialPasswordService", () => {
     expect(sut).not.toBeFalsy();
   });
 
+  /**
+   * @deprecated To be removed in PM-28143
+   */
   describe("setInitialPassword(...)", () => {
     // Mock function parameters
     let credentials: SetInitialPasswordCredentials;
@@ -204,6 +210,60 @@ describe("WebSetInitialPasswordService", () => {
         // Assert
         await expect(promise).rejects.toThrow();
         expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+        expect(organizationInviteService.clearOrganizationInvitation).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("setInitialPasswordV2(...)", () => {
+    let credentials: SetInitialPasswordCredentialsV2;
+    let userType: SetInitialPasswordUserType;
+    let userId: UserId;
+
+    beforeEach(() => {
+      credentials = {
+        newPassword: "newPassword",
+        newPasswordHint: "newPasswordHint",
+        kdfConfig: DEFAULT_KDF_CONFIG,
+        salt: "salt" as MasterPasswordSalt,
+        orgSsoIdentifier: "orgSsoIdentifier",
+        orgId: "orgId",
+        resetPasswordAutoEnroll: false,
+      };
+      userId = "userId" as UserId;
+      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
+    });
+
+    describe("given the initial password was successfully set", () => {
+      it("should call additional state clearing methods", async () => {
+        // Arrange
+        jest
+          .spyOn(DefaultSetInitialPasswordService.prototype, "setInitialPasswordV2")
+          .mockResolvedValue(undefined);
+
+        // Act
+        await sut.setInitialPasswordV2(credentials, userType, userId);
+
+        // Assert
+        expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+        expect(organizationInviteService.clearOrganizationInvitation).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe("given the initial password was NOT successfully set (due to parent method failure)", () => {
+      it("should NOT call any further methods", async () => {
+        // Arrange
+        const parentError = new Error("Parent setInitialPasswordV2 failed");
+        jest
+          .spyOn(DefaultSetInitialPasswordService.prototype, "setInitialPasswordV2")
+          .mockRejectedValue(parentError);
+
+        // Act
+        const promise = sut.setInitialPasswordV2(credentials, userType, userId);
+
+        // Assert
+        await expect(promise).rejects.toThrow(parentError);
+        expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
         expect(organizationInviteService.clearOrganizationInvitation).not.toHaveBeenCalled();
       });
     });
