@@ -77,13 +77,13 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: .eslintcache
-          key: ${{ runner.os }}-eslint-${{ hashFiles('eslint.config.mjs') }}-${{ hashFiles('pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-eslint-${{ hashFiles('eslint.config.mjs') }}
 
       - name: Cache Prettier
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: node_modules/.cache/prettier
-          key: ${{ runner.os }}-prettier-${{ hashFiles('.prettierrc.json') }}-${{ hashFiles('pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-prettier-${{ hashFiles('.prettierrc.json') }}
 
       - name: Lint unowned dependencies
         run: npm run lint:dep-ownership
