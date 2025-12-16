@@ -21,7 +21,8 @@ export class RouterFocusManagerService {
    *
    * Consumers can opt out of the passing the following to the `state` input. Using `state`
    * allows us to access the value between browser back/forward arrows.
-   * `<a [routerLink]="route()" [state]="{ focusMainAfterNav: false }"></a>`
+   * In template: `<a [routerLink]="route()" [state]="{ focusMainAfterNav: false }"></a>`
+   * In typescript: `this.router.navigate([], { state: { focusMainAfterNav: false }})`
    *
    * Or, consumers can use the autofocus directive on an applicable interactive element.
    * The autofocus directive will take precedence over this route focus pipeline.
