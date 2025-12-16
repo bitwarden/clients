@@ -150,7 +150,15 @@ jobs:
         env:
           RUSTFLAGS: "-D warnings"
 
+      - name: Cache cargo-sort
+        id: cache-cargo-sort
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cargo/bin/cargo-sort
+          key: ${{ runner.os }}-cargo-sort-f5047967021cbb1f822faddc355b3b07674305a1
+
       - name: Install cargo-sort
+        if: steps.cache-cargo-sort.outputs.cache-hit != 'true'
         run: cargo install cargo-sort --locked --git https://github.com/DevinR528/cargo-sort.git --rev f5047967021cbb1f822faddc355b3b07674305a1
 
       - name: Cargo sort
@@ -158,7 +166,9 @@ jobs:
         run: cargo sort --workspace --check
 
       - name: Install cargo-udeps
-        run: cargo install cargo-udeps --version 0.1.57 --locked
+        uses: taiki-e/install-action@81ee1d48d9194cdcab880cbdc7d36e87d39874cb # v2.62.45
+        with:
+          tool: cargo-udeps@0.1.57
 
       - name: Cargo udeps
         working-directory: ./apps/desktop/desktop_native
