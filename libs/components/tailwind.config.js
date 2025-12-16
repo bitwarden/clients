@@ -15,6 +15,12 @@ config.safelist = [
   {
     pattern: /tw-bg-(.*)/,
   },
+  {
+    pattern: /tw-text-(.*)/,
+  },
+  {
+    pattern: /tw-border-(.*)/,
+  },
 ];
 config.corePlugins.preflight = true;
 
