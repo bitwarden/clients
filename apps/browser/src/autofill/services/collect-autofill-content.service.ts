@@ -964,6 +964,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
 
+    if (this.domQueryService.checkPageContainsShadowDom()) {
+      requestIdleCallbackPolyfill(
+        debounce(() => this.requirePageDetailsUpdate(), 100),
+        { timeout: 500 },
+      );
+    }
+
     if (!this.mutationsQueue.length) {
       requestIdleCallbackPolyfill(debounce(this.processMutations, 100), { timeout: 500 });
     }
@@ -997,13 +1004,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * within an idle callback to help with performance and prevent excessive updates.
    */
   private processMutations = () => {
-    // If the page contains shadow DOM, we require a page details update from the autofill service.
-    // Will wait for an idle moment on main thread to execute, unless timeout has passed.
-    requestIdleCallbackPolyfill(
-      () => this.domQueryService.checkPageContainsShadowDom() && this.requirePageDetailsUpdate(),
-      { timeout: 500 },
-    );
-
     const queueLength = this.mutationsQueue.length;
 
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
