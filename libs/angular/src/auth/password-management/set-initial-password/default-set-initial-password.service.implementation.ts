@@ -19,13 +19,20 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import {
+  MasterPasswordSalt,
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
   SetInitialPasswordService,
@@ -49,6 +56,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected accountCryptographicStateService: AccountCryptographicStateService,
   ) {}
 
+  /**
+   * @deprecated To be removed in PM-28143
+   */
   async setInitialPassword(
     credentials: SetInitialPasswordCredentials,
     userType: SetInitialPasswordUserType,
@@ -199,6 +209,145 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
   }
 
+  async setInitialPasswordV2(
+    credentials: SetInitialPasswordCredentials,
+    userType: SetInitialPasswordUserType,
+    userId: UserId,
+  ): Promise<void> {
+    const {
+      newPassword,
+      newPasswordHint,
+      kdfConfig,
+      salt,
+      orgSsoIdentifier,
+      orgId,
+      resetPasswordAutoEnroll,
+    } = credentials;
+
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} not found. Could not set password.`);
+      }
+    }
+    if (userId == null) {
+      throw new Error("userId not found. Could not set password.");
+    }
+    if (userType == null) {
+      throw new Error("userType not found. Could not set password.");
+    }
+
+    let userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+    if (userKey == null) {
+      userKey = new SymmetricCryptoKey(PureCrypto.make_user_key_aes256_cbc_hmac()) as UserKey;
+    }
+
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        newPassword,
+        kdfConfig,
+        salt,
+      );
+
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        newPassword,
+        kdfConfig,
+        salt,
+        userKey,
+      );
+
+    if (unlockData.masterKeyWrappedUserKey == null) {
+      throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
+    }
+
+    let keyPair: [string, EncString] | null = null;
+    let keysRequest: KeysRequest | null = null;
+
+    if (userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
+      /**
+       * A user being JIT provisioned into a MP encryption org does not yet have a user
+       * asymmetric key pair, so we create it for them here.
+       *
+       * Sidenote:
+       *   In the case of a TDE user whose permissions require that they have a MP - that user
+       *   will already have a user asymmetric key pair by this point, so we skip this if-block
+       *   so that we don't create a new key pair for them.
+       */
+
+      // Extra safety check (see description on https://github.com/bitwarden/clients/pull/10180):
+      //   In case we have have a local private key and are not sure whether it has been posted to the server,
+      //   we post the local private key instead of generating a new one
+      const existingUserPrivateKey = (await firstValueFrom(
+        this.keyService.userPrivateKey$(userId),
+      )) as Uint8Array;
+
+      const existingUserPublicKey = await firstValueFrom(this.keyService.userPublicKey$(userId));
+
+      if (existingUserPrivateKey != null && existingUserPublicKey != null) {
+        const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
+
+        // Existing key pair
+        keyPair = [
+          existingUserPublicKeyB64,
+          await this.encryptService.wrapDecapsulationKey(existingUserPrivateKey, userKey),
+        ];
+      } else {
+        // New key pair
+        keyPair = await this.keyService.makeKeyPair(userKey);
+      }
+
+      if (keyPair == null) {
+        throw new Error("keyPair not found. Could not set password.");
+      }
+      if (!keyPair[1].encryptedString) {
+        throw new Error("encrypted private key not found. Could not set password.");
+      }
+
+      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
+    }
+
+    const request = SetPasswordRequest.newConstructor(
+      authenticationData,
+      unlockData,
+      newPasswordHint,
+      orgSsoIdentifier,
+      keysRequest,
+    );
+
+    await this.masterPasswordApiService.setPassword(request);
+
+    // Clear force set password reason to allow navigation back to vault.
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+
+    // User now has a password so update account decryption options in state
+    await this.updateAccountDecryptionPropertiesV2(unlockData, userId);
+
+    /**
+     * Set the private key only for new JIT provisioned users in MP encryption orgs.
+     * (Existing TDE users will have their private key set on sync or on login.)
+     */
+    if (keyPair != null && userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
+      if (!keyPair[1].encryptedString) {
+        throw new Error("encrypted private key not found. Could not set private key in state.");
+      }
+      await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
+    }
+
+    // await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId); // TODO-rr-bw: how to handle local key hash?
+
+    if (resetPasswordAutoEnroll) {
+      await this.handleResetPasswordAutoEnroll(
+        authenticationData.masterPasswordAuthenticationHash,
+        orgId,
+        userId,
+      );
+    }
+  }
+
+  /**
+   * @deprecated To be removed in PM-28143
+   */
   private async makeMasterKeyEncryptedUserKey(
     masterKey: MasterKey,
     userId: UserId,
@@ -244,6 +393,23 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
   }
 
+  private async updateAccountDecryptionPropertiesV2(
+    unlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ) {
+    const userDecryptionOpts = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+    );
+    userDecryptionOpts.hasMasterPassword = true;
+    await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+      userId,
+      userDecryptionOpts,
+    );
+
+    await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
+    // await this.masterPasswordService.setMasterKey(masterKey, userId); // TODO-rr-bw: how to handle this? remove this?
+  }
+
   /**
    * As part of [PM-28494], adding this setting path to accommodate the changes that are
    * emerging with pm-23246-unlock-with-master-password-unlock-data.
@@ -269,7 +435,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   private async handleResetPasswordAutoEnroll(
-    masterKeyHash: string,
+    masterKeyHash: MasterPasswordAuthenticationHash | string, // In PM-28143, remove `| string`; should only accept MasterPasswordAuthenticationHash.
     orgId: string,
     userId: UserId,
   ) {

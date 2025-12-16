@@ -22,7 +22,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { assertTruthy, assertNonNullish } from "@bitwarden/common/auth/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -71,6 +73,7 @@ export class SetInitialPasswordComponent implements OnInit {
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private configService: ConfigService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private logoutService: LogoutService,
@@ -194,9 +197,19 @@ export class SetInitialPasswordComponent implements OnInit {
 
     switch (this.userType) {
       case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER:
-      case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
+      case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP: {
+        const newApisFlagEnabled = await this.configService.getFeatureFlag(
+          FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
+        );
+
+        if (newApisFlagEnabled) {
+          await this.setInitialPasswordV2(passwordInputResult);
+          return;
+        }
+
         await this.setInitialPassword(passwordInputResult);
         break;
+      }
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
         await this.setInitialPasswordTdeOffboarding(passwordInputResult);
         break;
@@ -208,6 +221,9 @@ export class SetInitialPasswordComponent implements OnInit {
     }
   }
 
+  /**
+   * @deprecated To be removed in PM-28143
+   */
   private async setInitialPassword(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
     assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
@@ -238,6 +254,47 @@ export class SetInitialPasswordComponent implements OnInit {
       };
 
       await this.setInitialPasswordService.setInitialPassword(
+        credentials,
+        this.userType,
+        this.userId,
+      );
+
+      this.showSuccessToastByUserType();
+
+      this.submitting = false;
+      await this.router.navigate(["vault"]);
+    } catch (e) {
+      this.logService.error("Error setting initial password", e);
+      this.validationService.showError(e);
+      this.submitting = false;
+    }
+  }
+
+  private async setInitialPasswordV2(passwordInputResult: PasswordInputResult) {
+    const ctx = "Could not set initial password.";
+
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
+    assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
+    assertTruthy(this.orgId, "orgId", ctx);
+    assertTruthy(this.userType, "userType", ctx);
+    assertTruthy(this.userId, "userId", ctx);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
+    assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
+
+    try {
+      const credentials: SetInitialPasswordCredentials = {
+        newPassword: passwordInputResult.newPassword,
+        newPasswordHint: passwordInputResult.newPasswordHint,
+        kdfConfig: passwordInputResult.kdfConfig,
+        salt: passwordInputResult.salt,
+        orgSsoIdentifier: this.orgSsoIdentifier,
+        orgId: this.orgId,
+        resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
+      };
+
+      await this.setInitialPasswordService.setInitialPasswordV2(
         credentials,
         this.userType,
         this.userId,
