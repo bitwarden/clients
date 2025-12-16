@@ -464,9 +464,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private getAutoCompleteAttribute(element: ElementWithOpId<FormFieldElement>): string {
     return (
+      this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.AUTOCOMPLETE) ||
       this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.X_AUTOCOMPLETE_TYPE) ||
-      this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.AUTOCOMPLETE_TYPE) ||
-      this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.AUTOCOMPLETE)
+      this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.AUTOCOMPLETE_TYPE)
     );
   }
 
@@ -1346,27 +1346,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.updateAutofillDataAttribute({ element, attributeName, dataTarget, dataTargetKey });
     };
     const updateActions: Record<string, CallableFunction> = {
-      maxlength: () => (dataTarget.maxLength = this.getAutofillFieldMaxLength(element)),
-      id: () => updateAttribute("htmlID"),
-      name: () => updateAttribute("htmlName"),
-      class: () => updateAttribute("htmlClass"),
-      tabindex: () => updateAttribute(AUTOFILL_ATTRIBUTES.TABINDEX),
-      title: () => updateAttribute(AUTOFILL_ATTRIBUTES.TITLE),
-      rel: () => updateAttribute(AUTOFILL_ATTRIBUTES.REL),
-      type: () => (dataTarget.type = this.getAttributeLowerCase(element, AUTOFILL_ATTRIBUTES.TYPE)),
-      placeholder: () => updateAttribute(AUTOFILL_ATTRIBUTES.PLACEHOLDER),
-      checked: () =>
-        (dataTarget.checked = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.CHECKED)),
-      disabled: () =>
-        (dataTarget.disabled = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.DISABLED)),
-      readonly: () =>
-        (dataTarget.readonly = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.READONLY)),
-      autocomplete: () => (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
-      autocompletetype: () =>
-        (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
-      "x-autocompletetype": () =>
-        (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
-      "data-label": () => updateAttribute("label-data"),
       "aria-describedby": () => updateAttribute(AUTOFILL_ATTRIBUTES.ARIA_DESCRIBEDBY),
       "aria-label": () => updateAttribute("label-aria"),
       "aria-labelledby": () => updateAttribute(AUTOFILL_ATTRIBUTES.ARIA_LABELLEDBY),
@@ -1388,7 +1367,28 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           AUTOFILL_ATTRIBUTES.ARIA_HASPOPUP,
           true,
         )),
+      autocomplete: () => (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
+      autocompletetype: () =>
+        (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
+      "x-autocompletetype": () =>
+        (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
+      class: () => updateAttribute("htmlClass"),
+      checked: () =>
+        (dataTarget.checked = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.CHECKED)),
+      "data-label": () => updateAttribute("label-data"),
       "data-stripe": () => updateAttribute(AUTOFILL_ATTRIBUTES.DATA_STRIPE),
+      disabled: () =>
+        (dataTarget.disabled = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.DISABLED)),
+      id: () => updateAttribute("htmlID"),
+      maxlength: () => (dataTarget.maxLength = this.getAutofillFieldMaxLength(element)),
+      name: () => updateAttribute("htmlName"),
+      placeholder: () => updateAttribute(AUTOFILL_ATTRIBUTES.PLACEHOLDER),
+      readonly: () =>
+        (dataTarget.readonly = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.READONLY)),
+      rel: () => updateAttribute(AUTOFILL_ATTRIBUTES.REL),
+      tabindex: () => updateAttribute(AUTOFILL_ATTRIBUTES.TABINDEX),
+      title: () => updateAttribute(AUTOFILL_ATTRIBUTES.TITLE),
+      type: () => (dataTarget.type = this.getAttributeLowerCase(element, AUTOFILL_ATTRIBUTES.TYPE)),
     };
 
     if (!updateActions[attributeName]) {
