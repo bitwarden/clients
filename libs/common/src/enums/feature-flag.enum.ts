@@ -65,7 +65,7 @@ export enum FeatureFlag {
   RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
   VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
-  SdkCipherOperations = "use_sdk_cipher_operations", // TODO: Create & use a real feature flag.
+  SdkCipherOperations = "use-sdk-cipher-operations", // TODO: Create & use a real feature flag.
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
 
   /* Platform */

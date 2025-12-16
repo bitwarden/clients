@@ -968,8 +968,10 @@ export class CipherService implements CipherServiceAbstraction {
     );
 
     if (sdkCipherEncryptionEnabled) {
+      console.log("USING THE SDK!");
       return await this.updateWithServer_sdk(cipherView, userId, orgAdmin);
     } else {
+      console.log("NOT using the SDK!");
       const encrypted = await this.encrypt(cipherView, userId);
       const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
       const updatedCipherView = this.decrypt(updatedCipher, userId);
@@ -992,8 +994,11 @@ export class CipherService implements CipherServiceAbstraction {
           const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest();
           let result: SdkCipherView;
           if (orgAdmin) {
-            // TODO: Need to expose ciphers admin client in SDK
-            result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
+            result = await ref.value
+              .vault()
+              .ciphers()
+              .admin()
+              .edit(sdkUpdateRequest, cipher.toSdkCipherView());
           } else {
             result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
           }
