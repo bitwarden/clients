@@ -76,6 +76,10 @@ import {
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
+import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
+import { DefaultChangeKdfApiService } from "@bitwarden/common/key-management/kdf/change-kdf-api.service";
+import { DefaultChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -207,6 +211,7 @@ import {
 
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
+import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
@@ -324,6 +329,7 @@ export class ServiceContainer {
   cipherEncryptionService: CipherEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
+  encryptedMigrator: EncryptedMigrator;
   securityStateService: SecurityStateService;
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
@@ -486,10 +492,7 @@ export class ServiceContainer {
 
     const pinStateService = new PinStateService(this.stateProvider);
     this.pinService = new PinService(
-      this.accountService,
       this.encryptService,
-      this.kdfConfigService,
-      this.keyGenerationService,
       this.logService,
       this.keyService,
       this.sdkService,
@@ -524,6 +527,8 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
+
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       pinStateService,
@@ -535,6 +540,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.Never, // default vault timeout
+      sessionTimeoutTypeService,
     );
 
     const refreshAccessTokenErrorCallback = () => {
@@ -899,7 +905,7 @@ export class ServiceContainer {
       this.collectionService,
       this.keyService,
       this.encryptService,
-      this.pinService,
+      this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
     );
@@ -907,7 +913,7 @@ export class ServiceContainer {
     this.individualExportService = new IndividualVaultExportService(
       this.folderService,
       this.cipherService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -921,7 +927,7 @@ export class ServiceContainer {
     this.organizationExportService = new OrganizationVaultExportService(
       this.cipherService,
       this.vaultExportApiService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -975,6 +981,16 @@ export class ServiceContainer {
     );
 
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);
+    const changeKdfApiService = new DefaultChangeKdfApiService(this.apiService);
+    const changeKdfService = new DefaultChangeKdfService(changeKdfApiService, this.sdkService);
+    this.encryptedMigrator = new DefaultEncryptedMigrator(
+      this.kdfConfigService,
+      changeKdfService,
+      this.logService,
+      this.configService,
+      this.masterPasswordService,
+      this.syncService,
+    );
   }
 
   async logout() {

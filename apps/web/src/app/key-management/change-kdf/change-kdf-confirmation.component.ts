@@ -5,7 +5,7 @@ import { firstValueFrom, Observable } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf-service.abstraction";
+import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";

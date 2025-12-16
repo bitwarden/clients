@@ -1,21 +1,16 @@
 import {
-  combineLatest,
   concatMap,
   distinctUntilChanged,
   EMPTY,
   filter,
   map,
   merge,
-  of,
   Subject,
   switchMap,
   tap,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 
@@ -50,11 +45,9 @@ export class PhishingDetectionService {
   private static _didInit = false;
 
   static initialize(
-    accountService: AccountService,
-    billingAccountProfileStateService: BillingAccountProfileStateService,
-    configService: ConfigService,
     logService: LogService,
     phishingDataService: PhishingDataService,
+    phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     messageListener: MessageListener,
   ) {
     if (this._didInit) {
@@ -118,22 +111,9 @@ export class PhishingDetectionService {
       .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
       .pipe(switchMap((message) => BrowserApi.closeTab(message.tabId)));
 
-    const activeAccountHasAccess$ = combineLatest([
-      accountService.activeAccount$,
-      configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
-    ]).pipe(
-      switchMap(([account, featureEnabled]) => {
-        if (!account) {
-          logService.debug("[PhishingDetectionService] No active account.");
-          return of(false);
-        }
-        return billingAccountProfileStateService
-          .hasPremiumFromAnySource$(account.id)
-          .pipe(map((hasPremium) => hasPremium && featureEnabled));
-      }),
-    );
+    const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
-    const initSub = activeAccountHasAccess$
+    const initSub = phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
