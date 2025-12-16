@@ -2,10 +2,9 @@ import { CommonModule } from "@angular/common";
 import { Component, input, inject } from "@angular/core";
 import { map, shareReplay } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { NavigationModule } from "@bitwarden/components";
+import { NavigationModule, A11yTitleDirective } from "@bitwarden/components";
 import { VaultFilter, CipherTypeFilter } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -13,7 +12,7 @@ import { VaultFilter, CipherTypeFilter } from "@bitwarden/vault";
 @Component({
   selector: "app-type-filter",
   templateUrl: "type-filter.component.html",
-  imports: [CommonModule, JslibModule, NavigationModule],
+  imports: [CommonModule, A11yTitleDirective, NavigationModule],
 })
 export class TypeFilterComponent {
   private restrictedItemTypesService: RestrictedItemTypesService = inject(

@@ -1,11 +1,10 @@
 import { Component, computed, input, inject } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DisplayMode } from "@bitwarden/angular/vault/vault-filter/models/display-mode";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { ToastService, NavigationModule } from "@bitwarden/components";
+import { ToastService, NavigationModule, A11yTitleDirective } from "@bitwarden/components";
 import { OrganizationFilter, VaultFilter, CollectionFilter } from "@bitwarden/vault";
 
 import { CollectionFilterComponent } from "./collection-filter.component";
@@ -15,7 +14,7 @@ import { CollectionFilterComponent } from "./collection-filter.component";
 @Component({
   selector: "app-organization-filter",
   templateUrl: "organization-filter.component.html",
-  imports: [JslibModule, NavigationModule, CollectionFilterComponent],
+  imports: [A11yTitleDirective, NavigationModule, CollectionFilterComponent],
 })
 export class OrganizationFilterComponent {
   private toastService: ToastService = inject(ToastService);

@@ -1,8 +1,7 @@
 import { Component, input, computed } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { NavigationModule } from "@bitwarden/components";
+import { NavigationModule, A11yTitleDirective } from "@bitwarden/components";
 import { VaultFilter, CollectionFilter } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -10,7 +9,7 @@ import { VaultFilter, CollectionFilter } from "@bitwarden/vault";
 @Component({
   selector: "app-collection-filter",
   templateUrl: "collection-filter.component.html",
-  imports: [JslibModule, NavigationModule],
+  imports: [A11yTitleDirective, NavigationModule],
 })
 export class CollectionFilterComponent {
   protected readonly collection = input<TreeNode<CollectionFilter>>();

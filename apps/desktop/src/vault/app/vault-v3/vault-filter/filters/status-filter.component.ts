@@ -3,12 +3,11 @@ import { Component, viewChild, input, inject, computed } from "@angular/core";
 import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { NavigationModule } from "@bitwarden/components";
+import { NavigationModule, A11yTitleDirective } from "@bitwarden/components";
 import { VaultFilter, CipherStatus, CipherTypeFilter } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -16,7 +15,7 @@ import { VaultFilter, CipherStatus, CipherTypeFilter } from "@bitwarden/vault";
 @Component({
   selector: "app-status-filter",
   templateUrl: "status-filter.component.html",
-  imports: [CommonModule, JslibModule, NavigationModule, PremiumBadgeComponent],
+  imports: [CommonModule, A11yTitleDirective, NavigationModule, PremiumBadgeComponent],
 })
 export class StatusFilterComponent {
   private accountService: AccountService = inject(AccountService);
