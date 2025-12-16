@@ -1,3 +1,4 @@
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
@@ -42,14 +43,21 @@ export const SetInitialPasswordUserType: Readonly<{
 }> = Object.freeze(_SetInitialPasswordUserType);
 
 export interface SetInitialPasswordCredentials {
-  newMasterKey: MasterKey;
-  newServerMasterKeyHash: string;
-  newLocalMasterKeyHash: string;
+  newPassword?: string; // Make required in PM-28143 (remove `?`)
   newPasswordHint: string;
   kdfConfig: KdfConfig;
+  salt?: MasterPasswordSalt; // Make required in PM-28143 (remove `?`)
   orgSsoIdentifier: string;
   orgId: string;
   resetPasswordAutoEnroll: boolean;
+
+  // The deprecated properties below will be removed in PM-28143
+  /** @deprecated */
+  newMasterKey?: MasterKey;
+  /** @deprecated */
+  newServerMasterKeyHash?: string;
+  /** @deprecated */
+  newLocalMasterKeyHash?: string;
 }
 
 export interface SetInitialPasswordTdeOffboardingCredentials {
@@ -66,6 +74,8 @@ export interface SetInitialPasswordTdeOffboardingCredentials {
  */
 export abstract class SetInitialPasswordService {
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * Sets an initial password for an existing authed user who is either:
    * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
    * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
@@ -90,6 +100,21 @@ export abstract class SetInitialPasswordService {
    */
   abstract setInitialPasswordTdeOffboarding: (
     credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) => Promise<void>;
+
+  /**
+   * Sets an initial password for an existing authed user who is either:
+   * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
+   * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
+   *
+   * @param credentials An object of the credentials needed to set the initial password
+   * @throws If any property on the `credentials` object is null or undefined, or if a
+   *         masterKeyEncryptedUserKey or newKeyPair could not be created.
+   */
+  abstract setInitialPasswordV2: (
+    credentials: SetInitialPasswordCredentials,
+    userType: SetInitialPasswordUserType,
     userId: UserId,
   ) => Promise<void>;
 }
