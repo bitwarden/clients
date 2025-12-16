@@ -1,16 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  effect,
-  EventEmitter,
-  input,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { Component, EventEmitter, input, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import {
   AsyncValidatorFn,
   ControlContainer,
@@ -114,26 +105,22 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
     private controlContainer: ControlContainer,
     private logService: LogService,
     private i18nService: I18nService,
-  ) {
-    effect(async () => {
-      // Callback is set via @Input after constructor, so check it exists
-      if (this.onLoadProfilesFromBrowser) {
-        try {
-          this.profileList = await this.onLoadProfilesFromBrowser(
-            this.getBrowserName(this.format()),
-          );
-        } catch (error) {
-          this.logService.error("Error loading profiles from browser:", error);
-          const translatedMessage = this.translateValidationError(error);
-          this.error.emit(translatedMessage);
-        }
-      }
-    });
-  }
+  ) {}
 
   async ngOnInit(): Promise<void> {
     this._parentFormGroup = this.controlContainer.control as FormGroup;
     this._parentFormGroup.addControl("chromeOptions", this.formGroup);
+
+    // Load profiles from browser on initialization
+    if (this.onLoadProfilesFromBrowser) {
+      try {
+        this.profileList = await this.onLoadProfilesFromBrowser(this.getBrowserName(this.format()));
+      } catch (error) {
+        this.logService.error("Error loading profiles from browser:", error);
+        const translatedMessage = this.translateValidationError(error);
+        this.error.emit(translatedMessage);
+      }
+    }
   }
 
   ngOnDestroy(): void {

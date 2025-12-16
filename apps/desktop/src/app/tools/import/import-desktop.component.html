@@ -1,21 +1,13 @@
-<bit-dialog #dialog dialogSize="large" background="alt">
+<bit-dialog #dialog [loading]="loading" dialogSize="large" background="alt">
   <span bitDialogTitle>{{ "import" | i18n }}</span>
   <ng-container bitDialogContent>
-    <div class="tw-relative">
-      <tools-import
-        (formLoading)="this.loading = $event"
-        (formDisabled)="this.disabled = $event"
-        (onSuccessfulImport)="this.onSuccessfulImport($event)"
-        [onImportFromBrowser]="this.onImportFromBrowser"
-        [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
-        [class.tw-invisible]="loading"
-      ></tools-import>
-      @if (loading) {
-        <div class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
-          <bit-spinner></bit-spinner>
-        </div>
-      }
-    </div>
+    <tools-import
+      (formLoading)="this.loading = $event"
+      (formDisabled)="this.disabled = $event"
+      (onSuccessfulImport)="this.onSuccessfulImport($event)"
+      [onImportFromBrowser]="this.onImportFromBrowser"
+      [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
+    ></tools-import>
   </ng-container>
   <ng-container bitDialogFooter>
     <button

@@ -3,13 +3,7 @@ import { Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import {
-  DialogRef,
-  AsyncActionsModule,
-  ButtonModule,
-  DialogModule,
-  SpinnerComponent,
-} from "@bitwarden/components";
+import { DialogRef, AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
 import type { chromium_importer } from "@bitwarden/desktop-napi";
 import { ImportMetadataServiceAbstraction } from "@bitwarden/importer-core";
 import {
@@ -32,7 +26,6 @@ import { DesktopImportMetadataService } from "./desktop-import-metadata.service"
     AsyncActionsModule,
     ButtonModule,
     ImportComponent,
-    SpinnerComponent,
   ],
   providers: [
     ...ImporterProviders,

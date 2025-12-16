@@ -22,7 +22,6 @@ struct CheckBrowserInstalledResponse {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]
 enum CommandResult<T> {
-    // rename = "camelCase" was a review suggestion with breaking changes
     Success { value: T },
     Error { error: String },
 }
@@ -180,9 +179,7 @@ async fn is_browser_installed(browser_name: &str) -> Result<bool> {
         .map(|(_, id)| *id);
 
     let Some(bundle_id) = bundle_id else {
-        return Ok(true); // ok_or(true) was a review suggestion with breaking changes
-                         // Avoid ok_or(true): serializes Result as {"Ok": "..."} instead of string
-                         // value
+        return Ok(true);
     };
 
     let input = CommandInput {
