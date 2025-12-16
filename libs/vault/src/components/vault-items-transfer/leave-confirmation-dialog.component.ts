@@ -12,6 +12,7 @@ import {
   DialogModule,
   LinkModule,
   TypographyModule,
+  CenterPositionStrategy,
 } from "@bitwarden/components";
 
 export interface LeaveConfirmationDialogParams {
@@ -58,6 +59,8 @@ export class LeaveConfirmationDialogComponent {
 
   static open(dialogService: DialogService, config: DialogConfig<LeaveConfirmationDialogParams>) {
     return dialogService.open<LeaveConfirmationDialogResultType>(LeaveConfirmationDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+      disableClose: true,
       ...config,
     });
   }

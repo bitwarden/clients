@@ -16,6 +16,7 @@ import {
   switchMap,
   take,
   tap,
+  BehaviorSubject,
 } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
@@ -42,7 +43,11 @@ import {
   NoItemsModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
+} from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -105,6 +110,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultFadeInOutSkeletonComponent,
     VaultFadeInOutComponent,
   ],
+  providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -125,7 +131,22 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   activeUserId: UserId | null = null;
 
-  private loading$ = this.vaultPopupLoadingService.loading$.pipe(
+  /**
+   * Subject that indicates whether the vault is ready to render
+   * and that all initialization tasks have been completed (ngOnInit).
+   * @private
+   */
+  private readySubject = new BehaviorSubject(false);
+
+  /**
+   * Indicates whether the vault is loading and not yet ready to be displayed.
+   * @protected
+   */
+  protected loading$ = combineLatest([
+    this.vaultPopupLoadingService.loading$,
+    this.readySubject.asObservable(),
+  ]).pipe(
+    map(([loading, ready]) => loading || !ready),
     distinctUntilChanged(),
     tap((loading) => {
       const key = loading ? "loadingVault" : "vaultLoaded";
@@ -200,14 +221,15 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected showSkeletonsLoaders$ = combineLatest([
     this.loading$,
     this.searchService.isCipherSearching$,
+    this.vaultItemsTransferService.transferInProgress$,
     this.skeletonFeatureFlag$,
   ]).pipe(
-    map(
-      ([loading, cipherSearching, skeletonsEnabled]) =>
-        (loading || cipherSearching) && skeletonsEnabled,
-    ),
+    map(([loading, cipherSearching, transferInProgress, skeletonsEnabled]) => {
+      return (loading || cipherSearching || transferInProgress) && skeletonsEnabled;
+    }),
     distinctUntilChanged(),
     skeletonLoadingDelay(),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
@@ -251,6 +273,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private i18nService: I18nService,
     private configService: ConfigService,
     private searchService: SearchService,
+    private vaultItemsTransferService: VaultItemsTransferService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -305,6 +328,10 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
           cipherIds: ciphers.map((c) => c.id as CipherId),
         });
       });
+
+    await this.vaultItemsTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+
+    this.readySubject.next(true);
   }
 
   ngOnDestroy() {

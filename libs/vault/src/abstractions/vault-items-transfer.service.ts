@@ -32,6 +32,11 @@ export type UserMigrationInfo =
 
 export abstract class VaultItemsTransferService {
   /**
+   * Indicates whether a vault items transfer is currently in progress.
+   */
+  abstract transferInProgress$: Observable<boolean>;
+
+  /**
    * Gets information about whether the given user requires migration of their vault items
    * from My Vault to a My Items collection, and whether they are capable of performing that migration.
    * @param userId

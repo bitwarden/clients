@@ -9,6 +9,14 @@ import { CollectionData, Collection, CollectionView } from "../models";
 export abstract class CollectionService {
   abstract encryptedCollections$(userId: UserId): Observable<Collection[] | null>;
   abstract decryptedCollections$(userId: UserId): Observable<CollectionView[]>;
+
+  /**
+   * Gets the default collection for a user in a given organization, if it exists.
+   */
+  abstract defaultUserCollection$(
+    userId: UserId,
+    orgId: OrganizationId,
+  ): Observable<CollectionView | undefined>;
   abstract upsert(collection: CollectionData, userId: UserId): Promise<any>;
   abstract replace(collections: { [id: string]: CollectionData }, userId: UserId): Promise<any>;
   /**
