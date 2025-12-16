@@ -54,7 +54,7 @@ export class StatusFilterComponent {
     }
   }
 
-  private readonly premiumBadgeComponent = viewChild(PremiumBadgeComponent);
+  private readonly premiumBadgeComponent = viewChild.required(PremiumBadgeComponent);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected canArchive$ = this.userId$.pipe(
