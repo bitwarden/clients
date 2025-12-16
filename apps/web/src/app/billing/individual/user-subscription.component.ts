@@ -263,9 +263,24 @@ export class UserSubscriptionComponent implements OnInit {
   }
 
   get isSubscriptionActive(): boolean {
-    if (!this.sub?.expiration) {
+    if (!this.sub) {
       return false;
     }
-    return new Date(this.sub.expiration) > new Date();
+
+    if (this.selfHosted) {
+      return true;
+    }
+
+    const expiration = this.sub.expiration;
+    if (!expiration || expiration.trim() === "") {
+      return true;
+    }
+
+    const expirationDate = new Date(expiration);
+    if (isNaN(expirationDate.getTime())) {
+      return true;
+    }
+
+    return expirationDate > new Date();
   }
 }
