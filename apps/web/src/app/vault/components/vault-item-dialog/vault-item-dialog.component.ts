@@ -253,7 +253,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected showRestore: boolean;
 
-  protected cipherIsArchived: boolean;
+  protected cipherIsArchived: boolean = false;
 
   protected get loadingForm() {
     return this.loadForm && !this.formReady;
@@ -350,6 +350,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         return;
       }
 
+      this.cipherIsArchived = this.cipher.isArchived;
+
       this.collections = this.formConfig.collections.filter((c) =>
         this.cipher.collectionIds?.includes(c.id),
       );
@@ -375,7 +377,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.filter = await firstValueFrom(this.routedVaultFilterService.filter$);
 
     this.showRestore = await this.canUserRestore();
-    this.cipherIsArchived = this.cipher.isArchived;
     this.performingInitialLoad = false;
   }
 
