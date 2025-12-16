@@ -321,7 +321,7 @@ jobs:
         working-directory: apps/desktop
         run: |
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo pnpm run pack:lin:flatpak
+          sudo env "PATH=$PATH" pnpm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
@@ -474,7 +474,7 @@ jobs:
         working-directory: apps/desktop
         run: |
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo pnpm run pack:lin:flatpak
+          sudo env "PATH=$PATH" pnpm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
