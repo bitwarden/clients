@@ -436,8 +436,8 @@
   "sync": {
     "message": "Synchronizácia"
   },
-  "syncVaultNow": {
-    "message": "Synchronizovať trezor teraz"
+  "syncNow": {
+    "message": "Synchronizovať teraz"
   },
   "lastSync": {
     "message": "Posledná synchronizácia:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Webová aplikácia Bitwarden"
-  },
-  "importItems": {
-    "message": "Importovať položky"
   },
   "select": {
     "message": "Vybrať"
@@ -803,7 +800,7 @@
     "message": "4 hodiny"
   },
   "onLocked": {
-    "message": "Keď je systém uzamknutý"
+    "message": "Pri uzamknutí systému"
   },
   "onIdle": {
     "message": "Pri nečinnosti systému"
@@ -812,7 +809,7 @@
     "message": "V režime spánku"
   },
   "onRestart": {
-    "message": "Po reštarte prehliadača"
+    "message": "Pri reštarte prehliadača"
   },
   "never": {
     "message": "Nikdy"
@@ -1325,8 +1322,11 @@
   "exportFrom": {
     "message": "Exportovať z"
   },
-  "exportVault": {
-    "message": "Export trezoru"
+  "export": {
+    "message": "Exportovať"
+  },
+  "import": {
+    "message": "Importovať"
   },
   "fileFormat": {
     "message": "Formát súboru"
@@ -1457,6 +1457,15 @@
   "attachmentSaved": {
     "message": "Príloha bola uložená"
   },
+  "fixEncryption": {
+    "message": "Opraviť šifrovanie"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Tento súbor používa zastaranú metódu šifrovania."
+  },
+  "attachmentUpdated": {
+    "message": "Príloha bola aktualizovaná"
+  },
   "file": {
     "message": "Súbor"
   },
@@ -1465,6 +1474,9 @@
   },
   "selectFile": {
     "message": "Vyberte súbor"
+  },
+  "itemsTransferred": {
+    "message": "Items transferred"
   },
   "maxFileSize": {
     "message": "Maximálna veľkosť súboru je 500 MB."
@@ -3240,9 +3252,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nenašiel sa žiadny jedinečný identifikátor."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Hlavné heslo sa už nevyžaduje pre členov tejto organizácie. Nižšie uvedenú doménu potvrďte u správcu organizácie."
-  },
   "organizationName": {
     "message": "Názov organizácie"
   },
@@ -4206,10 +4215,6 @@
   "ignore": {
     "message": "Ignorovať"
   },
-  "importData": {
-    "message": "Import údajov",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Chyba importu"
   },
@@ -4795,6 +4800,15 @@
   },
   "accountSecurity": {
     "message": "Zabezpečenie účtu"
+  },
+  "phishingBlocker": {
+    "message": "Blokovač phishingu"
+  },
+  "enablePhishingDetection": {
+    "message": "Detekcia phishingu"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Zobrazí upozornenie pred prístupom na podozrivé phishingové stránky"
   },
   "notifications": {
     "message": "Upozornenia"
@@ -5848,8 +5862,8 @@
   "andMoreFeatures": {
     "message": "A ešte viac!"
   },
-  "planDescPremium": {
-    "message": "Úplné online zabezpečenie"
+  "advancedOnlineSecurity": {
+    "message": "Pokročilá online ochrana"
   },
   "upgradeToPremium": {
     "message": "Upgradovať na Prémium"
@@ -5879,7 +5893,141 @@
   "cardNumberLabel": {
     "message": "Číslo karty"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Vaša organizácia už nepoužíva hlavné heslá na prihlásenie do Bitwardenu. Ak chcete pokračovať, overte organizáciu a doménu."
+  },
+  "continueWithLogIn": {
+    "message": "Pokračujte prihlásením"
+  },
+  "doNotContinue": {
+    "message": "Nepokračovať"
+  },
+  "domain": {
+    "message": "Doména"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Táto doména bude ukladať šifrovacie kľúče vášho účtu, takže sa uistite, že jej dôverujete. Ak si nie ste istí, overte si to u správcu."
+  },
+  "verifyYourOrganization": {
+    "message": "Na prihlásenie overte organizáciu"
+  },
+  "organizationVerified": {
+    "message": "Organizácia je overená"
+  },
+  "domainVerified": {
+    "message": "Doména je overená"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ak organizáciu neoveríte, váš prístup k nej bude zrušený."
+  },
+  "leaveNow": {
+    "message": "Opustiť teraz"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Na prihlásenie overte doménu"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Na pokračovanie prihlásením, overte túto doménu."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Na pokračovanie prihlásením, overte organizáciu a doménu."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Akcia pri vypršaní časového limitu"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Toto nastavenie spravuje vaša organizácia."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Vaša organizácia nastavila maximálny časový limit relácie na $HOURS$ hod. a $MINUTES$ min.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Vaša organizácia nastavila predvolený časový limit relácie na Okamžite."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Vaša organizácia nastavila predvolený časový limit relácie na Pri uzamknutí systému."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Vaša organizácia nastavila predvolený časový limit relácie na Pri reštarte prehliadača."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximálny časový limit nesmie prekročiť $HOURS$ hod. a $MINUTES$ min.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Pri reštarte prehliadača"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
+  },
+  "upgrade": {
+    "message": "Upgradovať"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Naozaj chcete odísť?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Ak odmietnete, vaše osobné položky zostanú vo vašom účte, ale stratíte prístup k zdieľaným položkám a funkciám organizácie."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Ak chcete obnoviť prístup, obráťte sa na správcu."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Opustiť $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Ako môžem spravovať svoj trezor?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Prenos položiek do $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov. Ak chcete previesť vlastníctvo položiek, kliknite na tlačidlo Prijať.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Prijať prenos"
+  },
+  "declineAndLeave": {
+    "message": "Zamietnuť a odísť"
+  },
+  "whyAmISeeingThis": {
+    "message": "Prečo to vidím?"
   }
 }

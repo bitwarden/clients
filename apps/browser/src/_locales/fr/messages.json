@@ -436,8 +436,8 @@
   "sync": {
     "message": "Synchronisation"
   },
-  "syncVaultNow": {
-    "message": "Synchroniser le coffre maintenant"
+  "syncNow": {
+    "message": "Synchroniser maintenant"
   },
   "lastSync": {
     "message": "Dernière synchronisation :"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Application web Bitwarden"
-  },
-  "importItems": {
-    "message": "Importer des éléments"
   },
   "select": {
     "message": "Sélectionner"
@@ -586,7 +583,7 @@
     "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Une adhésion premium est requise pour utiliser Archive."
   },
   "edit": {
     "message": "Modifier"
@@ -598,7 +595,7 @@
     "message": "Tout afficher"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Tout afficher"
   },
   "viewLess": {
     "message": "Afficher moins"
@@ -1325,8 +1322,11 @@
   "exportFrom": {
     "message": "Exporter à partir de"
   },
-  "exportVault": {
-    "message": "Exporter le coffre"
+  "export": {
+    "message": "Exporter"
+  },
+  "import": {
+    "message": "Importer"
   },
   "fileFormat": {
     "message": "Format de fichier"
@@ -1407,25 +1407,25 @@
     "message": "En savoir plus"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Une erreur s'est produite lors de la mise à jour des paramètres de chiffrement."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Mettre à jour vos paramètres de chiffrement"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Les nouveaux paramètres de chiffrement recommandés amélioreront la sécurité de votre compte. Entrez votre mot de passe principal pour faire la mise à jour maintenant."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Confirmez votre identité pour continuer"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Entrez votre mot de passe principal"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Mettre à jour les paramètres"
   },
   "later": {
-    "message": "Later"
+    "message": "Plus tard"
   },
   "authenticatorKeyTotp": {
     "message": "Clé Authenticator (TOTP)"
@@ -1457,6 +1457,15 @@
   "attachmentSaved": {
     "message": "La pièce jointe a été enregistrée."
   },
+  "fixEncryption": {
+    "message": "Corriger le chiffrement"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Ce fichier utilise une méthode de chiffrement obsolète."
+  },
+  "attachmentUpdated": {
+    "message": "Pièce jointe mise à jour"
+  },
   "file": {
     "message": "Fichier"
   },
@@ -1465,6 +1474,9 @@
   },
   "selectFile": {
     "message": "Sélectionnez un fichier."
+  },
+  "itemsTransferred": {
+    "message": "Éléments transférés"
   },
   "maxFileSize": {
     "message": "La taille maximale du fichier est de 500 Mo."
@@ -1497,7 +1509,7 @@
     "message": "1 Go de stockage chiffré pour les fichiers joints."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "Stockage chiffré de $SIZE$ pour les pièces jointes.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1904,7 +1916,7 @@
     "message": "Année d'expiration"
   },
   "monthly": {
-    "message": "month"
+    "message": "mois"
   },
   "expiration": {
     "message": "Expiration"
@@ -3240,9 +3252,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Aucun identifiant unique trouvé."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Un mot de passe principal n’est plus requis pour les membres de l’organisation suivante. Veuillez confirmer le domaine ci-dessous auprès de l'administrateur de votre organisation."
-  },
   "organizationName": {
     "message": "Nom de l'organisation"
   },
@@ -4206,10 +4215,6 @@
   "ignore": {
     "message": "Ignorer"
   },
-  "importData": {
-    "message": "Importer des données",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Erreur lors de l'importation"
   },
@@ -4795,6 +4800,15 @@
   },
   "accountSecurity": {
     "message": "Sécurité du compte"
+  },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
     "message": "Notifications"
@@ -5848,17 +5862,17 @@
   "andMoreFeatures": {
     "message": "Et encore plus !"
   },
-  "planDescPremium": {
-    "message": "Sécurité en ligne complète"
+  "advancedOnlineSecurity": {
+    "message": "Sécurité en ligne avancée"
   },
   "upgradeToPremium": {
     "message": "Mettre à niveau vers Premium"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "Débloquer les fonctionnalités de sécurité avancées"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "Un abonnement Premium vous donne plus d'outils pour rester en sécurité et en contrôle"
   },
   "explorePremium": {
     "message": "Explorer Premium"
@@ -5879,7 +5893,141 @@
   "cardNumberLabel": {
     "message": "Numéro de carte"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Votre organisation n'utilise plus les mots de passe principaux pour se connecter à Bitwarden. Pour continuer, vérifiez l'organisation et le domaine."
+  },
+  "continueWithLogIn": {
+    "message": "Continuer avec la connexion"
+  },
+  "doNotContinue": {
+    "message": "Ne pas continuer"
+  },
+  "domain": {
+    "message": "Domaine"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Ce domaine stockera les clés de chiffrement de votre compte, alors assurez-vous que vous lui faites confiance. Si vous n'êtes pas sûr, vérifiez auprès de votre administrateur."
+  },
+  "verifyYourOrganization": {
+    "message": "Vérifiez votre organisation pour vous connecter"
+  },
+  "organizationVerified": {
+    "message": "Organisation vérifiée"
+  },
+  "domainVerified": {
+    "message": "Domaine vérifié"
+  },
+  "leaveOrganizationContent": {
+    "message": "Si vous ne vérifiez pas votre organisation, votre accès à l'organisation sera révoqué."
+  },
+  "leaveNow": {
+    "message": "Quitter maintenant"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Vérifiez votre domaine pour vous connecter"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Pour continuer à vous connecter, vérifiez ce domaine."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Pour continuer à vous connecter, vérifiez l'organisation et le domaine."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Action à l’expiration"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Ce paramètre est géré par votre organisation."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Votre organisation a réglé le délai d'expiration de session maximal à $HOURS$ heure(s) et $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Votre organisation a défini le délai d'expiration de session par défaut sur Immédiat."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Votre organisation a défini le délai d'expiration de session par défaut sur Au verrouillage du système."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Votre organisation a défini le délai d'expiration de session par défaut sur Au redémarrage du navigateur."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Le délai d'expiration de session maximal ne peut pas dépasser $HOURS$ heure(s) et $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Au redémarrage du navigateur"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre"
+  },
+  "upgrade": {
+    "message": "Mettre à jour"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Êtes-vous sûr de vouloir quitter ?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "En refusant, vos éléments personnels resteront dans votre compte, mais vous perdrez l'accès aux éléments partagés et aux fonctionnalités de l'organisation."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contactez votre administrateur pour regagner l'accès."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Quitter $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Comment gérer mon coffre ?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transférer les éléments vers $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ exige que tous les éléments soient détenus par l’organisation pour des raisons de sécurité et de conformité. Cliquez sur Accepter pour transférer la propriété de vos éléments.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
   }
 }

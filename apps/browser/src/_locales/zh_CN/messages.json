@@ -436,8 +436,8 @@
   "sync": {
     "message": "同步"
   },
-  "syncVaultNow": {
-    "message": "立即同步密码库"
+  "syncNow": {
+    "message": "立即同步"
   },
   "lastSync": {
     "message": "上次同步："
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden 网页 App"
-  },
-  "importItems": {
-    "message": "导入项目"
   },
   "select": {
     "message": "选择"
@@ -601,7 +598,7 @@
     "message": "显示全部"
   },
   "viewLess": {
-    "message": "查看更少"
+    "message": "显示更少"
   },
   "viewLogin": {
     "message": "查看登录"
@@ -991,7 +988,7 @@
     "message": "文件夹已添加"
   },
   "twoStepLoginConfirmation": {
-    "message": "两步登录要求您从其他设备（例如安全密钥、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在访问此网站吗？"
+    "message": "两步登录要求您从其他设备（例如安全密钥、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在要访问此网站吗？"
   },
   "twoStepLoginConfirmationContent": {
     "message": "在 Bitwarden 网页 App 中设置两步登录，让您的账户更加安全。"
@@ -1275,7 +1272,7 @@
     "message": "询问保存新的通行密钥或使用存储在密码库中的通行密钥登录。适用于所有已登录的账户。"
   },
   "notificationChangeDesc": {
-    "message": "是否要在 Bitwarden 中更新此密码？"
+    "message": "要在 Bitwarden 中更新此密码吗？"
   },
   "notificationChangeSave": {
     "message": "更新"
@@ -1325,8 +1322,11 @@
   "exportFrom": {
     "message": "导出自"
   },
-  "exportVault": {
-    "message": "导出密码库"
+  "export": {
+    "message": "导出"
+  },
+  "import": {
+    "message": "导入"
   },
   "fileFormat": {
     "message": "文件格式"
@@ -1407,25 +1407,25 @@
     "message": "进一步了解"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "更新加密设置时发生错误。"
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "更新您的加密设置"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "新推荐的加密设置将提高您的账户安全性。输入您的主密码以立即更新。"
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "确认您的身份以继续"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "输入您的主密码"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "更新设置"
   },
   "later": {
-    "message": "Later"
+    "message": "稍后"
   },
   "authenticatorKeyTotp": {
     "message": "验证器密钥 (TOTP)"
@@ -1457,6 +1457,15 @@
   "attachmentSaved": {
     "message": "附件已保存"
   },
+  "fixEncryption": {
+    "message": "修复加密"
+  },
+  "fixEncryptionTooltip": {
+    "message": "此文件正在使用过时的加密方式。"
+  },
+  "attachmentUpdated": {
+    "message": "附件已更新"
+  },
   "file": {
     "message": "文件"
   },
@@ -1465,6 +1474,9 @@
   },
   "selectFile": {
     "message": "选择一个文件"
+  },
+  "itemsTransferred": {
+    "message": "项目已传输"
   },
   "maxFileSize": {
     "message": "文件最大为 500 MB。"
@@ -1482,7 +1494,7 @@
     "message": "管理会员资格"
   },
   "premiumManageAlert": {
-    "message": "您可以在 bitwarden.com 网页版密码库管理您的会员资格。现在要访问吗？"
+    "message": "您可以在 bitwarden.com 网页版密码库管理您的会员资格。现在要访问此网站吗？"
   },
   "premiumRefresh": {
     "message": "刷新会员资格"
@@ -3240,9 +3252,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "未找到唯一的标识符。"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。"
-  },
   "organizationName": {
     "message": "组织名称"
   },
@@ -3895,10 +3904,10 @@
     "message": "检查您的电子邮箱"
   },
   "followTheLinkInTheEmailSentTo": {
-    "message": "点击发送到电子邮件中的链接"
+    "message": "点击发送到"
   },
   "andContinueCreatingYourAccount": {
-    "message": "然后继续创建您的账户。"
+    "message": "的电子邮件中的链接，然后继续创建您的账户。"
   },
   "noEmail": {
     "message": "没收到电子邮件吗？"
@@ -4206,10 +4215,6 @@
   "ignore": {
     "message": "忽略"
   },
-  "importData": {
-    "message": "导入数据",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "导入出错"
   },
@@ -4395,7 +4400,7 @@
     "message": "此站点没有匹配的登录"
   },
   "searchSavePasskeyNewLogin": {
-    "message": "搜索或将通行密钥保存为一个新的登录"
+    "message": "搜索或将通行密钥保存为新的登录"
   },
   "confirm": {
     "message": "确认"
@@ -4404,7 +4409,7 @@
     "message": "保存通行密钥"
   },
   "savePasskeyNewLogin": {
-    "message": "作为新的登录项目保存通行密钥"
+    "message": "将通行密钥保存为新的登录"
   },
   "chooseCipherForPasskeySave": {
     "message": "选择一个用于保存此通行密钥的登录项目"
@@ -4795,6 +4800,15 @@
   },
   "accountSecurity": {
     "message": "账户安全"
+  },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
     "message": "通知"
@@ -5848,8 +5862,8 @@
   "andMoreFeatures": {
     "message": "以及更多！"
   },
-  "planDescPremium": {
-    "message": "全面的在线安全防护"
+  "advancedOnlineSecurity": {
+    "message": "高级在线安全防护"
   },
   "upgradeToPremium": {
     "message": "升级为高级版"
@@ -5879,7 +5893,141 @@
   "cardNumberLabel": {
     "message": "卡号"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "您的组织已不再使用主密码登录 Bitwarden。要继续，请验证组织和域名。"
+  },
+  "continueWithLogIn": {
+    "message": "继续登录"
+  },
+  "doNotContinue": {
+    "message": "不要继续"
+  },
+  "domain": {
+    "message": "域名"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "此域名将存储您的账户加密密钥，所以请确保您信任它。如果您不确定，请与您的管理员联系。"
+  },
+  "verifyYourOrganization": {
+    "message": "验证您的组织以登录"
+  },
+  "organizationVerified": {
+    "message": "组织已验证"
+  },
+  "domainVerified": {
+    "message": "域名已验证"
+  },
+  "leaveOrganizationContent": {
+    "message": "如果不验证您的组织，您对组织的访问权限将被撤销。"
+  },
+  "leaveNow": {
+    "message": "立即退出"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "验证您的域名以登录"
+  },
+  "verifyYourDomainDescription": {
+    "message": "要继续登录，请验证此域名。"
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "要继续登录，请验证组织和域名。"
+  },
   "sessionTimeoutSettingsAction": {
     "message": "超时动作"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "此设置由您的组织管理。"
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "您的组织已将最大会话超时设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "您的组织已将默认会话超时设置为「立即」。"
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "您的组织已将默认会话超时设置为「系统锁定时」。"
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "您的组织已将默认会话超时设置为「浏览器重启时」。"
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "最大超时不能超过 $HOURS$ 小时 $MINUTES$ 分钟",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "浏览器重启时"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "设置一个解锁方式以更改您的超时动作"
+  },
+  "upgrade": {
+    "message": "升级"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "确定要退出吗？"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "拒绝后，您的个人项目将保留在您的账户中，但您将失去对共享项目和组织功能的访问权限。"
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "联系您的管理员以重新获取访问权限。"
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "退出 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "我该如何管理我的密码库？"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "传输项目到 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以传输您的项目的所有权。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "接受传输"
+  },
+  "declineAndLeave": {
+    "message": "拒绝并退出"
+  },
+  "whyAmISeeingThis": {
+    "message": "为什么我会看到这个？"
   }
 }
