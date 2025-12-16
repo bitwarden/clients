@@ -70,7 +70,7 @@ export class DefaultChangeKdfService implements ChangeKdfService {
     const serverMasterKeyHash = await this.keyService.hashMasterKey(
       masterPassword,
       masterKey,
-      HashPurpose.ServerAuthorization,
+      HashPurpose.LocalAuthorization,
     );
     await this.masterPasswordService.setMasterKeyHash(serverMasterKeyHash, userId);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
