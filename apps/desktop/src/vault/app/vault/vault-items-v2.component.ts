@@ -17,7 +17,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { MenuModule } from "@bitwarden/components";
+import { CalloutComponent, MenuModule } from "@bitwarden/components";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 
@@ -26,7 +26,7 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 @Component({
   selector: "app-vault-items-v2",
   templateUrl: "vault-items-v2.component.html",
-  imports: [MenuModule, CommonModule, JslibModule, ScrollingModule],
+  imports: [MenuModule, CommonModule, JslibModule, ScrollingModule, CalloutComponent],
 })
 export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultItemsComponent<C> {
   protected CipherViewLikeUtils = CipherViewLikeUtils;
