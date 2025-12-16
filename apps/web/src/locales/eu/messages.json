@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Esportatu kutxa gotorra"
-  },
-  "exportSecrets": {
-    "message": "Export secrets"
-  },
   "fileFormat": {
     "message": "Fitxategiaren formatua"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Pasahitz nagusia baieztatu"
-  },
-  "confirmFormat": {
-    "message": "Formatua baieztatu"
   },
   "filePassword": {
     "message": "Fitxategi pasahitza"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Tresnak"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Inportatu datuak"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Export data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"

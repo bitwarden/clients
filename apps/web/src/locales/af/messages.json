@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Stuur kluis uit"
-  },
-  "exportSecrets": {
-    "message": "Export secrets"
-  },
   "fileFormat": {
     "message": "Lêerformaat"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Bevestig hoofwagwoord"
-  },
-  "confirmFormat": {
-    "message": "Bevestig formaat"
   },
   "filePassword": {
     "message": "Lêerwagwoord"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Nutsmiddels"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Voer data in"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Bediener"
-  },
-  "exportData": {
-    "message": "Stuur data uit"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Stuur tans organisasiegeheimdata uit"

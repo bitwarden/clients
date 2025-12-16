@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Εξαγωγή από"
   },
-  "exportVault": {
-    "message": "Εξαγωγή Vault"
-  },
-  "exportSecrets": {
-    "message": "Εξαγωγή μυστικών"
-  },
   "fileFormat": {
     "message": "Μορφή Αρχείου"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Επιβεβαίωση κύριου κωδικού πρόσβασης"
-  },
-  "confirmFormat": {
-    "message": "Επιβεβαίωση μορφής"
   },
   "filePassword": {
     "message": "Κωδικός πρόσβασης αρχείου"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Εργαλεία"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Εισαγωγή Δεδομένων"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Διακομιστής"
-  },
-  "exportData": {
-    "message": "Εξαγωγή δεδομένων"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"

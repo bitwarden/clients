@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Xuất từ"
   },
-  "exportVault": {
-    "message": "Xuất kho"
-  },
-  "exportSecrets": {
-    "message": "Xuất bí mật"
-  },
   "fileFormat": {
     "message": "Định dạng tập tin"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Nhập lại mật khẩu chính"
-  },
-  "confirmFormat": {
-    "message": "Xác nhận định dạng"
   },
   "filePassword": {
     "message": "Mật khẩu tập tin"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Công cụ"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Nhập dữ liệu"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Máy chủ"
-  },
-  "exportData": {
-    "message": "Xuất dữ liệu"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Xuất dữ liệu bí mật của tổ chức"

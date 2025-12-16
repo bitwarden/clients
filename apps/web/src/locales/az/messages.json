@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Buradan xaricə köçür"
   },
-  "exportVault": {
-    "message": "Seyfi xaricə köçür"
-  },
-  "exportSecrets": {
-    "message": "Sirləri xaricə köçür"
-  },
   "fileFormat": {
     "message": "Fayl formatı"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Ana parolu təsdiqlə"
-  },
-  "confirmFormat": {
-    "message": "Formatı təsdiqlə"
   },
   "filePassword": {
     "message": "Fayl parolu"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Alətlər"
+  },
+  "import": {
+    "message": "Daxilə köçür"
   },
   "importData": {
     "message": "Veriləri daxilə köçür"
@@ -8753,9 +8747,6 @@
   "server": {
     "message": "Server"
   },
-  "exportData": {
-    "message": "Veriləri xaricə köçür"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Təşkilatın Sirr Verilərini xaricə köçürmə"
   },
@@ -12238,43 +12229,43 @@
     }
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "Təşkilatınız, artıq Bitwarden-ə giriş etmək üçün ana parol istifadə etmir. Davam etmək üçün təşkilatı və domeni doğrulayın."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Giriş etməyə davam"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Davam etmə"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Domen"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Bu domen, hesabınızın şifrələmə açarlarını saxlayacaq, ona görə də, bu domenə güvəndiyinizə əmin olun. Əmin deyilsinizsə, adminizlə əlaqə saxlayın."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Giriş etmək üçün təşkilatınızı doğrulayın"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Təşkilat doğrulandı"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Domen doğrulandı"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Təşkilatınızı doğrulamasanız, təşkilata erişiminiz ləğv ediləcək."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "İndi tərk et"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Giriş etmək üçün domeninizi doğrulayın"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Giriş prosesini davam etdirmək üçün bu domeni doğrulayın."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Giriş prosesini davam etdirmək üçün bu təşkilatı və domeni doğrulayın."
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Heç bir kritik tətbiq seçilməyib"

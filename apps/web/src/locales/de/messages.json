@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Exportieren ab"
   },
-  "exportVault": {
-    "message": "Tresor exportieren"
-  },
-  "exportSecrets": {
-    "message": "Geheimnisse exportieren"
-  },
   "fileFormat": {
     "message": "Dateiformat"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Master-Passwort bestätigen"
-  },
-  "confirmFormat": {
-    "message": "Format bestätigen"
   },
   "filePassword": {
     "message": "Dateipasswort"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Werkzeuge"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Daten importieren"
@@ -6466,7 +6460,7 @@
     "message": "Erfolgreich erneut eingeladen"
   },
   "bulkReinviteSuccessToast": {
-    "message": "$COUNT$ users re-invited",
+    "message": "$COUNT$ Benutzer erneut eingeladen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6475,7 +6469,7 @@
     }
   },
   "bulkReinviteLimitedSuccessToast": {
-    "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
+    "message": "$LIMIT$ von $SELECTEDCOUNT$ Benutzern erneut eingeladen. $EXCLUDEDCOUNT$ wurden wegen des Einladungslimits von $LIMIT$ nicht eingeladen.",
     "placeholders": {
       "limit": {
         "content": "$1",
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Daten exportieren"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Geheimnisdaten der Organisation exportieren"
@@ -12241,19 +12232,19 @@
     "message": "Deine Organisation verwendet keine Master-Passwörter mehr, um sich bei Bitwarden anzumelden. Verifiziere die Organisation und Domain, um fortzufahren."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Mit der Anmeldung fortfahren"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Nicht fortfahren"
   },
   "domain": {
     "message": "Domain"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Diese Domain speichert die Verschlüsselungsschlüssel deines Kontos. Stelle daher sicher, dass du ihr vertraust. Wenn du dir nicht sicher bist, wende dich an deinen Administrator."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Verifiziere deine Organisation, um dich anzumelden"
   },
   "organizationVerified": {
     "message": "Organisation verifiziert"
@@ -12265,16 +12256,16 @@
     "message": "Wenn du deine Organisation nicht verifizierst, wird dein Zugriff auf die Organisation widerrufen."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Jetzt verlassen"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Verifiziere deine Domain, um dich anzumelden"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Verifiziere diese Domain, um mit der Anmeldung fortzufahren."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Um mit der Anmeldung fortzufahren, verifiziere die Organisation und Domain."
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Es sind keine kritischen Anwendungen ausgewählt"
@@ -12286,52 +12277,52 @@
     "message": "Benutzerverifizierung fehlgeschlagen."
   },
   "recoveryDeleteCiphersTitle": {
-    "message": "Delete unrecoverable vault items"
+    "message": "Nicht-wiederherstellbare Tresor-Einträge löschen"
   },
   "recoveryDeleteCiphersDesc": {
-    "message": "Some of your vault items could not be recovered. Do you want to delete these unrecoverable items from your vault?"
+    "message": "Einige deiner Tresor-Einträge konnten nicht wiederhergestellt werden. Möchtest du diese nicht-wiederherstellbaren Einträge in deinem Tresor löschen?"
   },
   "recoveryDeleteFoldersTitle": {
-    "message": "Delete unrecoverable folders"
+    "message": "Nicht-wiederherstellbare Ordner löschen"
   },
   "recoveryDeleteFoldersDesc": {
-    "message": "Some of your folders could not be recovered. Do you want to delete these unrecoverable folders from your vault?"
+    "message": "Einige deiner Ordner konnten nicht wiederhergestellt werden. Möchtest du diese nicht-wiederherstellbaren Ordner in deinem Tresor löschen?"
   },
   "recoveryReplacePrivateKeyTitle": {
     "message": "Verschlüsselungsschlüssel ersetzen"
   },
   "recoveryReplacePrivateKeyDesc": {
-    "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
+    "message": "Dein öffentliches Verschlüsselungsschlüsselpaar konnte nicht wiederhergestellt werden. Möchtest du deinen Verschlüsselungsschlüssel durch ein neues Schlüsselpaar ersetzen? Dazu musst du bestehenden Notfallzugänge und Organisationsmitgliedschaften erneut einrichten."
   },
   "recoveryStepSyncTitle": {
-    "message": "Synchronizing data"
+    "message": "Daten werden synchronisiert"
   },
   "recoveryStepPrivateKeyTitle": {
-    "message": "Verifying encryption key integrity"
+    "message": "Integrität des Verschlüsselungsschlüssels wird verifiziert"
   },
   "recoveryStepUserInfoTitle": {
-    "message": "Verifying user information"
+    "message": "Benutzerinformationen werden verifiziert"
   },
   "recoveryStepCipherTitle": {
-    "message": "Verifying vault item integrity"
+    "message": "Integrität des Tresoreintrags wird verifiziert"
   },
   "recoveryStepFoldersTitle": {
-    "message": "Verifying folder integrity"
+    "message": "Ordnerintegrität wird verifiziert"
   },
   "dataRecoveryTitle": {
-    "message": "Data Recovery and Diagnostics"
+    "message": "Datenwiederherstellung und Diagnose"
   },
   "dataRecoveryDescription": {
-    "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
+    "message": "Verwende das Werkzeug zur Datenwiederherstellung, um Probleme mit deinem Konto zu diagnostizieren und zu beheben. Nach dem Ausführen der Diagnose hast du die Möglichkeit, die Diagnoseprotokolle für den Support zu speichern und alle erkannten Probleme zu beheben."
   },
   "runDiagnostics": {
-    "message": "Run Diagnostics"
+    "message": "Diagnose ausführen"
   },
   "repairIssues": {
-    "message": "Repair Issues"
+    "message": "Probleme beheben"
   },
   "saveDiagnosticLogs": {
-    "message": "Save Diagnostic Logs"
+    "message": "Diagnoseprotokolle speichern"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Diese Einstellung wird von deiner Organisation verwaltet."
@@ -12372,16 +12363,16 @@
     "message": "Stell eine Entsperrmethode ein, um deine Timeout-Aktion zu ändern"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Bist du sicher, dass du gehen willst?"
   },
   "leaveConfirmationDialogContentOne": {
     "message": "Wenn du ablehnst, bleiben deine persönlichen Einträge in deinem Konto erhalten, aber du wirst den Zugriff auf geteilte Einträge und Organisationsfunktionen verlieren."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Kontaktiere deinen Administrator, um wieder Zugriff zu erhalten."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "$ORGANIZATION$ verlassen",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12390,10 +12381,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Wie kann ich meinen Tresor verwalten?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Einträge zu $ORGANIZATION$ übertragen",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12402,7 +12393,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "message": "$ORGANIZATION$ erfordert zur Sicherheit und Compliance, dass alle Einträge der Organisation gehören. Klicke auf Akzeptieren, um den Besitz deiner Einträge zu übertragen.",
     "placeholders": {
       "organization": {
         "content": "$1",
