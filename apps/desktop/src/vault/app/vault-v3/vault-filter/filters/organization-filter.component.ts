@@ -5,6 +5,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ToastService, NavigationModule, A11yTitleDirective } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { OrganizationFilter, VaultFilter, CollectionFilter } from "@bitwarden/vault";
 
 import { CollectionFilterComponent } from "./collection-filter.component";
@@ -14,7 +15,7 @@ import { CollectionFilterComponent } from "./collection-filter.component";
 @Component({
   selector: "app-organization-filter",
   templateUrl: "organization-filter.component.html",
-  imports: [A11yTitleDirective, NavigationModule, CollectionFilterComponent],
+  imports: [A11yTitleDirective, NavigationModule, CollectionFilterComponent, I18nPipe],
 })
 export class OrganizationFilterComponent {
   private toastService: ToastService = inject(ToastService);
