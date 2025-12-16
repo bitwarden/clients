@@ -321,7 +321,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionPropertiesV2(unlockData, userId);
+    await this.updateAccountDecryptionPropertiesV2(unlockData, userKey, userId);
 
     /**
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
@@ -333,8 +333,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       }
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
     }
-
-    // await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId); // TODO-rr-bw: how to handle local key hash?
 
     if (resetPasswordAutoEnroll) {
       await this.handleResetPasswordAutoEnroll(
@@ -395,19 +393,21 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
   private async updateAccountDecryptionPropertiesV2(
     unlockData: MasterPasswordUnlockData,
+    userKey: UserKey,
     userId: UserId,
   ) {
     const userDecryptionOpts = await firstValueFrom(
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
     userDecryptionOpts.hasMasterPassword = true;
+
     await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
       userId,
       userDecryptionOpts,
     );
-
     await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
-    // await this.masterPasswordService.setMasterKey(masterKey, userId); // TODO-rr-bw: how to handle this? remove this?
+    await this.kdfConfigService.setKdfConfig(userId, unlockData.kdf);
+    await this.keyService.setUserKey(userKey, userId);
   }
 
   /**
