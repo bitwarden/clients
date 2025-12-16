@@ -14,16 +14,18 @@
     ></app-subscription-status>
     <ng-container *ngIf="userOrg.canEditSubscription">
       <div class="tw-flex-col">
-        <strong class="tw-block tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300"
-          >{{ "details" | i18n
-          }}<span
-            class="tw-ml-3"
+        <strong
+          class="tw-flex tw-items-center tw-gap-3 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
+        >
+          {{ "details" | i18n }}
+          <span
             *ngIf="customerDiscount?.percentOff > 0 && !isSecretsManagerTrial()"
             bitBadge
             variant="success"
+            class="tw-inline-flex tw-items-center"
             >{{ "providerDiscount" | i18n: customerDiscount?.percentOff }}</span
-          ></strong
-        >
+          >
+        </strong>
         <bit-table>
           <ng-template body>
             <ng-container *ngIf="subscription && !userOrg.isFreeOrg">
