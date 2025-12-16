@@ -35,31 +35,36 @@ jobs:
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
       - name: Print environment
         run: |
           node --version
-          npm --version
+          pnpm --version
 
       - name: Install Node dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       # We use isolatedModules: true which disables typechecking in tests
       # Tests in apps/ are typechecked when their app is built, so we just do it here for libs/
       # See https://bitwarden.atlassian.net/browse/EC-497
       - name: Run typechecking
-        run: npm run test:types
+        run: pnpm run test:types
 
       - name: Run tests
         # maxWorkers is a workaround for a memory leak that crashes tests in CI:
         # https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
-        run: npm test -- --coverage --maxWorkers=3
+        run: pnpm test --coverage --maxWorkers=3
 
       - name: Report test results
         uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
@@ -107,9 +112,22 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: "apps/desktop/desktop_native -> target"
+
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+        with:
+          version: ${{ runner.os }}
+
       - name: Build
         working-directory: ./apps/desktop/desktop_native
         run: cargo build
+        env:
+          RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
       - name: Test Ubuntu
         if: ${{ matrix.os=='ubuntu-22.04' }}
@@ -121,16 +139,25 @@ jobs:
           eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
           eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
           cargo test -- --test-threads=1
+        env:
+          RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
       - name: Test macOS
         if: ${{ matrix.os=='macos-14' }}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test -- --test-threads=1
+        env:
+          RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
       - name: Test Windows
         if: ${{ matrix.os=='windows-2022'}}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --workspace --exclude=desktop_napi -- --test-threads=1
+        env:
+          RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
   rust-coverage:
     name: Rust Coverage

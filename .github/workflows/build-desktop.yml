@@ -192,11 +192,16 @@ jobs:
           sudo rm -rf /usr/local/aws-cli
           sudo rm -rf /usr/local/aws-sam-cli
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
@@ -217,12 +222,12 @@ jobs:
       - name: Print environment
         run: |
           node --version
-          npm --version
+          pnpm --version
           snap --version
           snapcraft --version || echo 'snapcraft unavailable'
 
       - name: Install Node dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -243,7 +248,7 @@ jobs:
         working-directory: ./
         run: |
           ls -l ../
-          npm link ../sdk-internal
+          pnpm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -268,7 +273,7 @@ jobs:
           node build.js --release
 
       - name: Build application
-        run: npm run dist:lin
+        run: pnpm run dist:lin
 
       - name: Upload tar.gz artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
@@ -316,7 +321,7 @@ jobs:
         working-directory: apps/desktop
         run: |
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo npm run pack:lin:flatpak
+          sudo pnpm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
@@ -348,11 +353,16 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
@@ -380,12 +390,12 @@ jobs:
       - name: Print environment
         run: |
           node --version
-          npm --version
+          pnpm --version
           snap --version
           snapcraft --version
 
       - name: Install Node dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -406,7 +416,7 @@ jobs:
         working-directory: ./
         run: |
           ls -l ../
-          npm link ../sdk-internal
+          pnpm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -444,7 +454,7 @@ jobs:
           # Snapcraft environment variables to bypass LXD requirement on ARM64
           SNAPCRAFT_BUILD_ENVIRONMENT: host
           USE_SYSTEM_FPM: true
-        run: npm run dist:lin:arm64
+        run: pnpm run dist:lin:arm64
 
       - name: Upload .snap artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
@@ -464,7 +474,7 @@ jobs:
         working-directory: apps/desktop
         run: |
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo npm run pack:lin:flatpak
+          sudo pnpm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
@@ -496,11 +506,16 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
@@ -519,7 +534,7 @@ jobs:
       - name: Print environment
         run: |
           node --version
-          npm --version
+          pnpm --version
           choco --version
           rustup show
 
@@ -548,7 +563,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Node dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -569,7 +584,7 @@ jobs:
         working-directory: ./
         run: |
           ls -l ../
-          npm link ../sdk-internal
+          pnpm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -588,12 +603,12 @@ jobs:
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
         run: |
-          npm run pack:win
+          pnpm run pack:win
 
       - name: Pack & Sign
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -605,7 +620,7 @@ jobs:
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
         run: |
-          npm run pack:win
+          pnpm run pack:win
 
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -764,11 +779,16 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Cache Rust dependencies
@@ -784,7 +804,7 @@ jobs:
       - name: Print environment
         run: |
           node --version
-          npm --version
+          pnpm --version
           choco --version
           rustup show
 
@@ -813,7 +833,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Node dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -834,7 +854,7 @@ jobs:
         working-directory: ./
         run: |
           ls -l ../
-          npm link ../sdk-internal
+          pnpm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -853,11 +873,11 @@ jobs:
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
-        run: npm run pack:win:beta
+        run: pnpm run pack:win:beta
 
       - name: Pack & Sign
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -868,7 +888,7 @@ jobs:
           SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
-        run: npm run pack:win:beta
+        run: pnpm run pack:win:beta
 
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -1009,11 +1029,16 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Python
@@ -1034,7 +1059,7 @@ jobs:
       - name: Print environment
         run: |
           node --version
-          npm --version
+          pnpm --version
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
@@ -1171,7 +1196,7 @@ jobs:
           "### MacOS build number: $env:BUILD_NUMBER" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 
       - name: Install Node dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -1192,7 +1217,7 @@ jobs:
         working-directory: ./
         run: |
           ls -l ../
-          npm link ../sdk-internal
+          pnpm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -1211,7 +1236,7 @@ jobs:
         run: node build.js cross-platform "$MODE"
 
       - name: Build application (dev)
-        run: npm run build
+        run: pnpm run build
 
   browser-build:
     name: Browser Build
@@ -1249,11 +1274,16 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Python
@@ -1274,7 +1304,7 @@ jobs:
       - name: Print environment
         run: |
           node --version
-          npm --version
+          pnpm --version
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
@@ -1395,7 +1425,7 @@ jobs:
           Write-Output "### MacOS GitHub build number: $env:BUILD_NUMBER"
 
       - name: Install Node dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -1416,7 +1446,7 @@ jobs:
         working-directory: ./
         run: |
           ls -l ../
-          npm link ../sdk-internal
+          pnpm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -1436,7 +1466,7 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
+        run: pnpm run build
 
       - name: Download Browser artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
@@ -1469,7 +1499,7 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
-        run: npm run pack:mac
+        run: pnpm run pack:mac
 
       - name: Upload .zip artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
@@ -1524,11 +1554,16 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Set up Python
@@ -1549,7 +1584,7 @@ jobs:
       - name: Print environment
         run: |
           node --version
-          npm --version
+          pnpm --version
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
@@ -1678,7 +1713,7 @@ jobs:
           Write-Output "### MacOS App Store build number: $env:BUILD_NUMBER"
 
       - name: Install Node dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./
 
       - name: Download SDK Artifacts
@@ -1699,7 +1734,7 @@ jobs:
         working-directory: ./
         run: |
           ls -l ../
-          npm link ../sdk-internal
+          pnpm link ../sdk-internal
 
       - name: Cache Native Module
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -1719,7 +1754,7 @@ jobs:
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
+        run: pnpm run build
 
       - name: Download Browser artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
@@ -1752,7 +1787,7 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
-        run: npm run pack:mac:mas
+        run: pnpm run pack:mac:mas
 
       - name: Create MacOS App Store build number artifact
         shell: pwsh

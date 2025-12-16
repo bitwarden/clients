@@ -63,24 +63,47 @@ jobs:
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
+      - name: Print environment
+        run: |
+          node --version
+          pnpm --version
+          echo "pnpm store path: $(pnpm store path)"
+          echo "PNPM_HOME: $PNPM_HOME"
+
       - name: Install Node dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache ESLint
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .eslintcache
+          key: ${{ runner.os }}-eslint-${{ hashFiles('eslint.config.mjs') }}
+
+      - name: Cache Prettier
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: node_modules/.cache/prettier
+          key: ${{ runner.os }}-prettier-${{ hashFiles('.prettierrc.json') }}
 
       - name: Lint unowned dependencies
-        run: npm run lint:dep-ownership
+        run: pnpm run lint:dep-ownership
 
       - name: Lint sdk-internal versions
-        run: npm run lint:sdk-internal-versions
+        run: pnpm run lint:sdk-internal-versions
 
       - name: Run linter
-        run: npm run lint
+        run: pnpm run lint
 
   rust:
     name: Run Rust lint on ${{ matrix.os }}
@@ -117,6 +140,11 @@ jobs:
       - name: Cache cargo registry
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
 
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+        with:
+          version: ${{ runner.os }}
+
       - name: Run cargo fmt
         working-directory: ./apps/desktop/desktop_native
         run: cargo +nightly fmt --check
@@ -126,8 +154,18 @@ jobs:
         run: cargo clippy --all-features --tests
         env:
           RUSTFLAGS: "-D warnings"
+          RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
+
+      - name: Cache cargo-sort
+        id: cache-cargo-sort
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cargo/bin/cargo-sort
+          key: ${{ runner.os }}-cargo-sort-f5047967021cbb1f822faddc355b3b07674305a1
 
       - name: Install cargo-sort
+        if: steps.cache-cargo-sort.outputs.cache-hit != 'true'
         run: cargo install cargo-sort --locked --git https://github.com/DevinR528/cargo-sort.git --rev f5047967021cbb1f822faddc355b3b07674305a1
 
       - name: Cargo sort
@@ -135,11 +173,16 @@ jobs:
         run: cargo sort --workspace --check
 
       - name: Install cargo-udeps
-        run: cargo install cargo-udeps --version 0.1.57 --locked
+        uses: taiki-e/install-action@81ee1d48d9194cdcab880cbdc7d36e87d39874cb # v2.62.45
+        with:
+          tool: cargo-udeps@0.1.57
 
       - name: Cargo udeps
         working-directory: ./apps/desktop/desktop_native
         run: cargo +nightly udeps --workspace --all-features --all-targets
+        env:
+          RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
       - name: Install cargo-deny
         uses: taiki-e/install-action@81ee1d48d9194cdcab880cbdc7d36e87d39874cb # v2.62.45
