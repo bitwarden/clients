@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, viewChild, input, inject, computed } from "@angular/core";
+import { Component, viewChild, input, inject } from "@angular/core";
 import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -22,7 +22,6 @@ export class StatusFilterComponent {
   private accountService: AccountService = inject(AccountService);
   private cipherArchiveService: CipherArchiveService = inject(CipherArchiveService);
 
-  protected readonly hideTrash = input(false);
   protected readonly hideArchive = input(false);
   protected readonly activeFilter = input<VaultFilter>();
   protected readonly archiveFilter: CipherTypeFilter = {
@@ -37,10 +36,6 @@ export class StatusFilterComponent {
     type: "trash",
     icon: "bwi-trash",
   };
-
-  protected readonly show = computed(() => {
-    return !(this.hideTrash() && this.hideArchive());
-  });
 
   protected applyFilter(filterType: CipherStatus) {
     let filter: CipherTypeFilter = null;
