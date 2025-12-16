@@ -153,6 +153,7 @@ jobs:
         env:
           RUSTFLAGS: "-D warnings"
           RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
       - name: Cache cargo-sort
         id: cache-cargo-sort
@@ -179,6 +180,7 @@ jobs:
         run: cargo +nightly udeps --workspace --all-features --all-targets
         env:
           RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
       - name: Install cargo-deny
         uses: taiki-e/install-action@81ee1d48d9194cdcab880cbdc7d36e87d39874cb # v2.62.45

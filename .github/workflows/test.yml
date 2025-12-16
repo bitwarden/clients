@@ -125,6 +125,7 @@ jobs:
         run: cargo build
         env:
           RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
       - name: Test Ubuntu
         if: ${{ matrix.os=='ubuntu-22.04' }}
@@ -138,6 +139,7 @@ jobs:
           cargo test -- --test-threads=1
         env:
           RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
       - name: Test macOS
         if: ${{ matrix.os=='macos-14' }}
@@ -145,6 +147,7 @@ jobs:
         run: cargo test -- --test-threads=1
         env:
           RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
       - name: Test Windows
         if: ${{ matrix.os=='windows-2022'}}
@@ -152,6 +155,7 @@ jobs:
         run: cargo test --workspace --exclude=desktop_napi -- --test-threads=1
         env:
           RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
 
   rust-coverage:
     name: Rust Coverage
