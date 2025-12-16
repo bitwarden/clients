@@ -170,8 +170,8 @@ export class DesktopAutotypeService implements OnDestroy {
       .subscribe();
   }
 
+  // Returns an observable that represents whether autotype is enabled for the current user.
   private get autotypeFeatureEnabled$(): Observable<boolean> {
-    // listen for changes in factors that are required for enablement of the feature
     return combineLatest([
       // if the user has enabled the setting
       this.autotypeEnabledUserSetting$,
