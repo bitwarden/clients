@@ -3,6 +3,7 @@
   extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
   enabledManagers: ["cargo", "github-actions", "npm"],
   packageRules: [
+    // ==================== Repo-Wide Update Behavior Rules ====================
     {
       // Group all Github Action minor updates together to reduce PR noise.
       groupName: "Minor github-actions updates",
@@ -15,13 +16,6 @@
       matchManagers: ["custom.regex"],
       matchDepNames: ["rust"],
       commitMessageTopic: "Rust",
-    },
-    {
-      // By default, we send patch updates to the Dependency Dashboard and do not generate a PR.
-      // We want to generate PRs for a select number of dependencies to ensure we stay up to date on these.
-      matchPackageNames: ["browserslist", "electron", "rxjs", "typescript", "webpack", "zone.js"],
-      matchUpdateTypes: ["patch"],
-      dependencyDashboardApproval: false,
     },
     {
       // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular.
@@ -44,6 +38,8 @@
       description: "Manually updated using ng update",
       enabled: false,
     },
+
+    // ==================== Team Ownership Rules ====================
     {
       matchPackageNames: ["buffer", "bufferutil", "core-js", "process", "url", "util"],
       description: "Admin Console owned dependencies",
@@ -78,28 +74,6 @@
       description: "Architecture owned dependencies",
       commitMessagePrefix: "[deps] Architecture:",
       reviewers: ["team:dept-architecture"],
-    },
-    {
-      matchPackageNames: [
-        "@angular-eslint/schematics",
-        "@eslint/compat",
-        "@typescript-eslint/rule-tester",
-        "@typescript-eslint/utils",
-        "angular-eslint",
-        "eslint-config-prettier",
-        "eslint-import-resolver-typescript",
-        "eslint-plugin-import",
-        "eslint-plugin-rxjs-angular",
-        "eslint-plugin-rxjs",
-        "eslint-plugin-storybook",
-        "eslint-plugin-tailwindcss",
-        "eslint",
-        "husky",
-        "lint-staged",
-        "typescript-eslint",
-      ],
-      groupName: "Minor and patch linting updates",
-      matchUpdateTypes: ["minor", "patch"],
     },
     {
       matchPackageNames: [
@@ -241,60 +215,10 @@
       reviewers: ["team:team-platform-dev"],
     },
     {
-      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "napi",
-      matchPackageNames: ["napi", "napi-build", "napi-derive"],
-    },
-    {
-      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "macOS/iOS bindings",
-      matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
-    },
-    {
-      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "zbus",
-      matchPackageNames: ["zbus", "zbus_polkit"],
-    },
-    {
-      // We need to group all windows-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "windows",
-      matchPackageNames: ["windows", "windows-core", "windows-future", "windows-registry"],
-    },
-    {
-      // We need to group all tokio-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "tokio",
-      matchPackageNames: ["bytes", "tokio", "tokio-util"],
-    },
-    {
-      // We group all webpack build-related minor and patch updates together to reduce PR noise.
-      // We include patch updates here because we want PRs for webpack patch updates and it's in this group.
-      matchPackageNames: [
-        "@babel/core",
-        "@babel/preset-env",
-        "babel-loader",
-        "base64-loader",
-        "browserslist",
-        "copy-webpack-plugin",
-        "css-loader",
-        "html-loader",
-        "html-webpack-injector",
-        "html-webpack-plugin",
-        "mini-css-extract-plugin",
-        "postcss-loader",
-        "postcss",
-        "sass-loader",
-        "sass",
-        "style-loader",
-        "ts-loader",
-        "tsconfig-paths-webpack-plugin",
-        "webpack-cli",
-        "webpack-dev-server",
-        "webpack-node-externals",
-        "webpack",
-      ],
-      description: "webpack-related build dependencies",
-      groupName: "Minor and patch webpack updates",
-      matchUpdateTypes: ["minor", "patch"],
+      matchUpdateTypes: ["lockFileMaintenance"],
+      description: "Platform owns lock file maintenance",
+      commitMessagePrefix: "[deps] Platform:",
+      reviewers: ["team:team-platform-dev"],
     },
     {
       matchPackageNames: [
@@ -352,11 +276,6 @@
       description: "Secrets Manager owned dependencies",
       commitMessagePrefix: "[deps] SM:",
       reviewers: ["team:team-secrets-manager-dev"],
-    },
-    {
-      // We need to update several Jest-related packages together, for version compatibility.
-      groupName: "jest",
-      matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
     },
     {
       matchPackageNames: [
@@ -428,6 +347,188 @@
       commitMessagePrefix: "[deps] KM:",
       reviewers: ["team:team-key-management-dev"],
     },
+
+    // ==================== Grouping Rules ====================
+    // These come after any specific team assignment rules to ensure
+    // that grouping is not overridden by subsequent rule definitions.
+    {
+      matchPackageNames: [
+        "@angular-eslint/schematics",
+        "@eslint/compat",
+        "@typescript-eslint/rule-tester",
+        "@typescript-eslint/utils",
+        "angular-eslint",
+        "eslint-config-prettier",
+        "eslint-import-resolver-typescript",
+        "eslint-plugin-import",
+        "eslint-plugin-rxjs-angular",
+        "eslint-plugin-rxjs",
+        "eslint-plugin-storybook",
+        "eslint-plugin-tailwindcss",
+        "eslint",
+        "husky",
+        "lint-staged",
+        "typescript-eslint",
+      ],
+      groupName: "Minor and patch linting updates",
+      matchUpdateTypes: ["minor", "patch"],
+    },
+    {
+      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "napi",
+      matchPackageNames: ["napi", "napi-build", "napi-derive"],
+    },
+    {
+      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "macOS/iOS bindings",
+      matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
+    },
+    {
+      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "zbus",
+      matchPackageNames: ["zbus", "zbus_polkit"],
+    },
+    {
+      // We need to group all windows-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "windows",
+      matchPackageNames: ["windows", "windows-core", "windows-future", "windows-registry"],
+    },
+    {
+      // We need to group all tokio-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "tokio",
+      matchPackageNames: ["bytes", "tokio", "tokio-util"],
+    },
+    {
+      // We group all webpack build-related minor and patch updates together to reduce PR noise.
+      // We include patch updates here because we want PRs for webpack patch updates and it's in this group.
+      matchPackageNames: [
+        "@babel/core",
+        "@babel/preset-env",
+        "babel-loader",
+        "base64-loader",
+        "browserslist",
+        "copy-webpack-plugin",
+        "css-loader",
+        "html-loader",
+        "html-webpack-injector",
+        "html-webpack-plugin",
+        "mini-css-extract-plugin",
+        "postcss-loader",
+        "postcss",
+        "sass-loader",
+        "sass",
+        "style-loader",
+        "ts-loader",
+        "tsconfig-paths-webpack-plugin",
+        "webpack-cli",
+        "webpack-dev-server",
+        "webpack-node-externals",
+        "webpack",
+      ],
+      description: "webpack-related build dependencies",
+      groupName: "Minor and patch webpack updates",
+      matchUpdateTypes: ["minor", "patch"],
+    },
+    {
+      // We need to update several Jest-related packages together, for version compatibility.
+      groupName: "jest",
+      matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
+    },
+
+    // ==================== Dashboard Rules ====================
+    {
+      // For the packages below, we have decided we will only be creating PRs
+      // for major updates, and sending minor (as well as patch) to the dashboard.
+      // This rule comes AFTER grouping rules so that groups are respected while still
+      // sending minor/patch updates to the dependency dashboard for approval.
+      matchPackageNames: [
+        "anyhow",
+        "arboard",
+        "babel-loader",
+        "base64-loader",
+        "base64",
+        "bindgen",
+        "byteorder",
+        "bytes",
+        "core-foundation",
+        "copy-webpack-plugin",
+        "css-loader",
+        "dirs",
+        "electron-builder",
+        "electron-log",
+        "electron-reload",
+        "electron-store",
+        "electron-updater",
+        "embed_plist",
+        "futures",
+        "hex",
+        "homedir",
+        "html-loader",
+        "html-webpack-injector",
+        "html-webpack-plugin",
+        "interprocess",
+        "json5",
+        "keytar",
+        "libc",
+        "lowdb",
+        "mini-css-extract-plugin",
+        "napi",
+        "napi-build",
+        "napi-derive",
+        "node-ipc",
+        "nx",
+        "oo7",
+        "oslog",
+        "pin-project",
+        "pkg",
+        "postcss",
+        "postcss-loader",
+        "rand",
+        "sass",
+        "sass-loader",
+        "scopeguard",
+        "security-framework",
+        "security-framework-sys",
+        "semver",
+        "serde",
+        "serde_json",
+        "simplelog",
+        "style-loader",
+        "sysinfo",
+        "tokio",
+        "tokio-util",
+        "tracing",
+        "tracing-subscriber",
+        "ts-node",
+        "ts-loader",
+        "tsconfig-paths-webpack-plugin",
+        "type-fest",
+        "typenum",
+        "typescript-strict-plugin",
+        "uniffi",
+        "webpack-cli",
+        "webpack-dev-server",
+        "webpack-node-externals",
+        "widestring",
+        "windows",
+        "windows-core",
+        "windows-future",
+        "windows-registry",
+        "zbus",
+        "zbus_polkit",
+      ],
+      matchUpdateTypes: ["minor", "patch"],
+      dependencyDashboardApproval: true,
+    },
+    {
+      // By default, we send patch updates to the Dependency Dashboard and do not generate a PR.
+      // We want to generate PRs for a select number of dependencies to ensure we stay up to date on these.
+      matchPackageNames: ["browserslist", "electron", "rxjs", "typescript", "webpack", "zone.js"],
+      matchUpdateTypes: ["patch"],
+      dependencyDashboardApproval: false,
+    },
+
+    // ==================== Special Version Constraints ====================
     {
       // Any versions of lowdb above 1.0.0 are not compatible with CommonJS.
       matchPackageNames: ["lowdb"],
