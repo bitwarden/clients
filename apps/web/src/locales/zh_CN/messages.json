@@ -1375,7 +1375,7 @@
     "message": "使用设备登录"
   },
   "loginWithDeviceEnabledNote": {
-    "message": "必须在 Bitwarden App 的设置中启用设备登录。需要其他登录选项吗？"
+    "message": "必须在 Bitwarden App 的设置中启用设备登录。需要其他选项吗？"
   },
   "needAnotherOptionV1": {
     "message": "需要其他选项吗？"
@@ -1411,7 +1411,7 @@
     "message": "通行密钥无效。请重试。"
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
-    "message": "不支持通行密钥 2FA。请更新 App 再登录。"
+    "message": "不支持通行密钥 2FA。请更新 App 以登录。"
   },
   "loginWithPasskeyInfo": {
     "message": "使用已生成的通行密钥，无需密码即可自动登录。生物识别（例如面部识别或指纹）或其他 FIDO2 安全方法将用于验证您的身份。"
@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "导出自"
   },
-  "exportVault": {
-    "message": "导出密码库"
-  },
-  "exportSecrets": {
-    "message": "导出机密"
-  },
   "fileFormat": {
     "message": "文件格式"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "确认主密码"
-  },
-  "confirmFormat": {
-    "message": "确认格式"
   },
   "filePassword": {
     "message": "文件密码"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "工具"
+  },
+  "import": {
+    "message": "导入"
   },
   "importData": {
     "message": "导入数据"
@@ -3655,7 +3649,7 @@
     "message": "确定要退出该组织吗？"
   },
   "leftOrganization": {
-    "message": "您已经退出该组织。"
+    "message": "您已退出该组织"
   },
   "defaultCollection": {
     "message": "默认集合"
@@ -3718,7 +3712,7 @@
     "message": "撤销成员后，他们将不再具有对组织数据的访问权限。要快速恢复此成员的访问权限，请转到「已撤销」标签页。"
   },
   "removeUserConfirmationKeyConnector": {
-    "message": "警告！此用户需要 Key Connector 来管理他们的加密。从您的组织中移除此用户将永久停用他们的账户。此操作无法撤消。您要继续吗？"
+    "message": "警告！此用户需要 Key Connector 来管理他们的加密。从您的组织中移除此用户将永久停用他们的账户。此操作无法撤消。要继续吗？"
   },
   "externalId": {
     "message": "外部 ID"
@@ -4636,7 +4630,7 @@
     "message": "新推荐的加密设置将提高您的账户安全性。输入您的主密码以立即更新。"
   },
   "confirmIdentityToContinue": {
-    "message": "确认您的身份后继续"
+    "message": "确认您的身份以继续"
   },
   "enterYourMasterPassword": {
     "message": "输入您的主密码"
@@ -6475,7 +6469,7 @@
     }
   },
   "bulkReinviteLimitedSuccessToast": {
-    "message": "选中了 $SELECTEDCOUNT$ 位用户，已经重新邀请了 $LIMIT$ 位。由于邀请限制 $LIMIT$ 人，$EXCLUDEDCOUNT$ 位用户没有被邀请。",
+    "message": "已重新邀请 $SELECTEDCOUNT$ 位用户中的 $LIMIT$ 位。由于邀请限制为 $LIMIT$ 人，$EXCLUDEDCOUNT$ 位用户没有被邀请。",
     "placeholders": {
       "limit": {
         "content": "$1",
@@ -8580,7 +8574,7 @@
     "message": "您不能两次声明同一个域名。"
   },
   "domainNotAvailable": {
-    "message": "别人正在使用 $DOMAIN$。请使用其他域名。",
+    "message": "别人正在使用 $DOMAIN$。请使用其他域名以继续。",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "服务器"
-  },
-  "exportData": {
-    "message": "导出数据"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "正在导出组织机密数据"
@@ -9484,7 +9475,7 @@
     "message": "要求 SSO 登录"
   },
   "emailRequiredForSsoLogin": {
-    "message": "Email is required for SSO"
+    "message": "SSO 要求使用电子邮箱"
   },
   "selectedRegionFlag": {
     "message": "选择的区域旗帜"
@@ -12238,43 +12229,43 @@
     }
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "您的组织已不再使用主密码登录 Bitwarden。要继续，请验证组织和域名。"
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "继续登录"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "不要继续"
   },
   "domain": {
-    "message": "Domain"
+    "message": "域名"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "此域名将存储您的账户加密密钥，所以请确保您信任它。如果您不确定，请与您的管理员联系。"
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "验证您的组织以登录"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "组织已验证"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "域名已验证"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "如果不验证您的组织，您对组织的访问权限将被撤销。"
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "立即退出"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "验证您的域名以登录"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "要继续登录，请验证此域名。"
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "要继续登录，请验证组织和域名。"
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "未选择任何关键应用程序"
@@ -12353,7 +12344,7 @@
     "message": "您的组织已将默认会话超时设置为「浏览器刷新时」。"
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "最大超时时间不能超过 $HOURS$ 小时 $MINUTES$ 分钟",
+    "message": "最大超时不能超过 $HOURS$ 小时 $MINUTES$ 分钟",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -12372,7 +12363,7 @@
     "message": "设置一个解锁方式以更改您的超时动作"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "确定要离开吗？"
+    "message": "确定要退出吗？"
   },
   "leaveConfirmationDialogContentOne": {
     "message": "拒绝后，您的个人项目将保留在您的账户中，但您将失去对共享项目和组织功能的访问权限。"
@@ -12381,7 +12372,7 @@
     "message": "联系您的管理员以重新获取访问权限。"
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "离开 $ORGANIZATION$",
+    "message": "退出 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12390,7 +12381,7 @@
     }
   },
   "howToManageMyVault": {
-    "message": "我如何管理我的密码库？"
+    "message": "我该如何管理我的密码库？"
   },
   "transferItemsToOrganizationTitle": {
     "message": "传输项目到 $ORGANIZATION$",
@@ -12402,7 +12393,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目的所有权均归组织所有。点击「接受」以传输您的项目的所有权。",
+    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以传输您的项目的所有权。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12414,7 +12405,7 @@
     "message": "接受传输"
   },
   "declineAndLeave": {
-    "message": "拒绝并离开"
+    "message": "拒绝并退出"
   },
   "whyAmISeeingThis": {
     "message": "为什么我会看到这个？"

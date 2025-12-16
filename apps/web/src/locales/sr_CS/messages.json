@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Izvezi trezor"
-  },
-  "exportSecrets": {
-    "message": "Export secrets"
-  },
   "fileFormat": {
     "message": "File format"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirm master password"
-  },
-  "confirmFormat": {
-    "message": "Confirm format"
   },
   "filePassword": {
     "message": "File password"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Alati"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Uvezi podatke"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Export data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"

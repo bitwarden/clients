@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "ರಫ್ತು ವಾಲ್ಟ್"
-  },
-  "exportSecrets": {
-    "message": "Export secrets"
-  },
   "fileFormat": {
     "message": "ಫೈಲ್ ಮಾದರಿ"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirm master password"
-  },
-  "confirmFormat": {
-    "message": "Confirm format"
   },
   "filePassword": {
     "message": "File password"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "ಉಪಕರಣ"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "ಡೇಟಾವನ್ನು ಆಮದು ಮಾಡಿ"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Export data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"
