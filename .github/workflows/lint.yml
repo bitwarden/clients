@@ -177,6 +177,8 @@ jobs:
       - name: Cargo udeps
         working-directory: ./apps/desktop/desktop_native
         run: cargo +nightly udeps --workspace --all-features --all-targets
+        env:
+          RUSTC_WRAPPER: sccache
 
       - name: Install cargo-deny
         uses: taiki-e/install-action@81ee1d48d9194cdcab880cbdc7d36e87d39874cb # v2.62.45
