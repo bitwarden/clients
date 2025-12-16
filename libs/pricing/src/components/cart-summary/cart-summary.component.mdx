@@ -27,6 +27,8 @@ behavior across Bitwarden applications.
   - [All Products](#all-products)
   - [Premium Plan](#premium-plan)
   - [Family Plan](#family-plan)
+  - [With Percent-Off Discount](#with-percent-off-discount)
+  - [With Amount-Off Discount](#with-amount-off-discount)
 - [Features](#features)
 - [Do's and Don'ts](#dos-and-donts)
 - [Accessibility](#accessibility)
@@ -59,6 +61,7 @@ import { CartSummaryComponent, LineItem } from "@bitwarden/pricing";
 | `passwordManager`   | `LineItem`                                                               | **Required.** The Password Manager product line item            |
 | `additionalStorage` | `LineItem \| undefined`                                                  | **Optional.** Additional storage line item, if applicable       |
 | `secretsManager`    | `{ seats: LineItem; additionalServiceAccounts?: LineItem } \| undefined` | **Optional.** Secrets Manager related line items, if applicable |
+| `discount`          | `Discount \| undefined`                                                  | **Optional.** Discount to apply (percent-off or amount-off)     |
 | `estimatedTax`      | `number`                                                                 | **Required.** Estimated tax amount                              |
 
 ### Events
@@ -68,7 +71,9 @@ collapsing and expanding the view.
 
 ## Data Structure
 
-The component uses the following LineItem data structure:
+The component uses the following data structures:
+
+### LineItem
 
 ```typescript
 export type LineItem = {
@@ -77,6 +82,23 @@ export type LineItem = {
   cost: number; // Cost of each item
   cadence: "month" | "year"; // Billing period
 };
+```
+
+### Discount
+
+```typescript
+export type Discount = {
+  active: boolean; // Whether the discount is active
+} & (
+  | {
+      _tag: "percent-off";
+      value: number; // Percentage (e.g., 30 for 30%)
+    }
+  | {
+      _tag: "amount-off";
+      value: number; // Fixed dollar amount
+    }
+);
 ```
 
 ## Flexibility
@@ -309,6 +331,66 @@ Show cart with families plan:
 </billing-cart-summary>
 ```
 
+### With Percent-Off Discount
+
+Show cart with a percentage-based discount:
+
+<Canvas of={CartSummaryStories.WithPercentDiscount} />
+
+```html
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 1,
+    name: 'premiumMembership',
+    cost: 10.00,
+    cadence: 'year'
+  }"
+  [additionalStorage]="{
+    quantity: 2,
+    name: 'additionalStorageGB',
+    cost: 4.00,
+    cadence: 'year'
+  }"
+  [discount]="{
+    _tag: 'percent-off',
+    value: 30,
+    active: true
+  }"
+  [estimatedTax]="0.00"
+>
+</billing-cart-summary>
+```
+
+### With Amount-Off Discount
+
+Show cart with a fixed amount discount:
+
+<Canvas of={CartSummaryStories.WithAmountDiscount} />
+
+```html
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 1,
+    name: 'premiumMembership',
+    cost: 10.00,
+    cadence: 'year'
+  }"
+  [additionalStorage]="{
+    quantity: 2,
+    name: 'additionalStorageGB',
+    cost: 4.00,
+    cadence: 'year'
+  }"
+  [discount]="{
+    _tag: 'amount-off',
+    value: 3.00,
+    active: true
+  }"
+  [estimatedTax]="0.00"
+>
+</billing-cart-summary>
+```
+
 ## Features
 
 - **Collapsible Interface**: Users can toggle between a summary view showing only the total and a
@@ -316,6 +398,8 @@ Show cart with families plan:
 - **Line Item Grouping**: Organizes items by product category (Password Manager, Secrets Manager)
 - **Dynamic Calculations**: Automatically calculates and displays subtotals and totals using Angular
   signals and computed values
+- **Discount Support**: Handles both percentage-based and fixed-amount discounts with automatic
+  calculation and display in success color styling
 - **Flexible Structure**: Accommodates different combinations of products and add-ons
 - **Consistent Formatting**: Maintains uniform display of prices, quantities, and cadence
 - **Modern Angular Patterns**: Uses `@let` to efficiently store and reuse signal values in the

@@ -1,9 +1,12 @@
 import { CurrencyPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { Discount, getDiscountText } from "../../types/discount";
 
 export type LineItem = {
   quantity: number;
@@ -28,10 +31,13 @@ export class CartSummaryComponent {
   readonly passwordManager = input.required<LineItem>();
   readonly additionalStorage = input<LineItem>();
   readonly secretsManager = input<{ seats: LineItem; additionalServiceAccounts?: LineItem }>();
+  readonly discount = input<Discount>();
   readonly estimatedTax = input.required<number>();
 
   // UI state
   readonly isExpanded = signal(true);
+
+  private i18nService = inject(I18nService);
 
   /**
    * Calculates total for password manager line item
@@ -67,9 +73,45 @@ export class CartSummaryComponent {
   });
 
   /**
+   * Calculates subtotal before discount
+   */
+  readonly subtotal = computed<number>(() => {
+    return (
+      this.passwordManagerTotal() +
+      this.additionalStorageTotal() +
+      this.secretsManagerSeatsTotal() +
+      this.additionalServiceAccountsTotal()
+    );
+  });
+
+  readonly appliedDiscount = computed<{ text: string; value: number } | null>(() => {
+    const discount = this.discount();
+    if (!discount || !discount.active || discount.value <= 0) {
+      return null;
+    }
+    const text = getDiscountText(this.i18nService, discount);
+    switch (discount._tag) {
+      case "amount-off":
+        return { text, value: discount.value };
+      case "percent-off": {
+        const percentValue = discount.value < 1 ? discount.value : discount.value / 100;
+        return {
+          text,
+          value: this.subtotal() * percentValue,
+        };
+      }
+    }
+  });
+
+  /**
    * Calculates the total of all line items
    */
-  readonly total = computed<number>(() => this.getTotalCost());
+  readonly total = computed<number>(() => {
+    const appliedDiscount = this.appliedDiscount();
+    return appliedDiscount
+      ? this.subtotal() - appliedDiscount.value + this.estimatedTax()
+      : this.subtotal() + this.estimatedTax();
+  });
 
   /**
    * Observable of computed total value
@@ -81,19 +123,5 @@ export class CartSummaryComponent {
    */
   toggleExpanded(): void {
     this.isExpanded.update((value: boolean) => !value);
-  }
-
-  /**
-   * Gets the total cost of all line items in the cart
-   * @returns The total cost as a number
-   */
-  private getTotalCost(): number {
-    return (
-      this.passwordManagerTotal() +
-      this.additionalStorageTotal() +
-      this.secretsManagerSeatsTotal() +
-      this.additionalServiceAccountsTotal() +
-      this.estimatedTax()
-    );
   }
 }

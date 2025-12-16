@@ -2,8 +2,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
-
-import { CartSummaryComponent } from "./cart-summary.component";
+import { CartSummaryComponent } from "@bitwarden/pricing";
 
 export default {
   title: "Billing/Cart Summary",
@@ -49,6 +48,8 @@ export default {
                   return "Families membership";
                 case "premiumMembership":
                   return "Premium membership";
+                case "discount":
+                  return "Discount";
                 default:
                   return key;
               }
@@ -187,5 +188,51 @@ export const PremiumPlan: Story = {
       cadence: "year",
     },
     estimatedTax: 2.71,
+  },
+};
+
+export const WithPercentDiscount: Story = {
+  args: {
+    passwordManager: {
+      quantity: 1,
+      name: "premiumMembership",
+      cost: 10.0,
+      cadence: "year",
+    },
+    additionalStorage: {
+      quantity: 2,
+      name: "additionalStorageGB",
+      cost: 4.0,
+      cadence: "year",
+    },
+    discount: {
+      _tag: "percent-off",
+      value: 30,
+      active: true,
+    },
+    estimatedTax: 0.0,
+  },
+};
+
+export const WithAmountDiscount: Story = {
+  args: {
+    passwordManager: {
+      quantity: 1,
+      name: "premiumMembership",
+      cost: 10.0,
+      cadence: "year",
+    },
+    additionalStorage: {
+      quantity: 2,
+      name: "additionalStorageGB",
+      cost: 4.0,
+      cadence: "year",
+    },
+    discount: {
+      _tag: "amount-off",
+      value: 3.0,
+      active: true,
+    },
+    estimatedTax: 0.0,
   },
 };

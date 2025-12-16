@@ -2,8 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-
-import { CartSummaryComponent, LineItem } from "./cart-summary.component";
+import { CartSummaryComponent, Discount, LineItem } from "@bitwarden/pricing";
 
 describe("CartSummaryComponent", () => {
   let component: CartSummaryComponent;
@@ -89,6 +88,8 @@ describe("CartSummaryComponent", () => {
                   return "Families membership";
                 case "premiumMembership":
                   return "Premium membership";
+                case "discount":
+                  return "Discount";
                 default:
                   return key;
               }
@@ -223,6 +224,150 @@ describe("CartSummaryComponent", () => {
       expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
 
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+  });
+
+  describe("Discount Functionality", () => {
+    it("should not display discount when not provided", () => {
+      // Act
+      const discountElement = fixture.debugElement.query(By.css('[id="discount"]'));
+
+      // Assert
+      expect(discountElement).toBeFalsy();
+    });
+
+    it("should not display discount when inactive", () => {
+      // Arrange
+      const inactiveDiscount: Discount = {
+        _tag: "percent-off",
+        value: 30,
+        active: false,
+      };
+      fixture.componentRef.setInput("discount", inactiveDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const discountElement = fixture.debugElement.query(By.css('[id="discount"]'));
+
+      // Assert
+      expect(discountElement).toBeFalsy();
+    });
+
+    it("should not display discount when value is 0", () => {
+      // Arrange
+      const zeroDiscount: Discount = {
+        _tag: "percent-off",
+        value: 0,
+        active: true,
+      };
+      fixture.componentRef.setInput("discount", zeroDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const discountElement = fixture.debugElement.query(By.css('[id="discount"]'));
+
+      // Assert
+      expect(discountElement).toBeFalsy();
+    });
+
+    it("should display percent-off discount correctly", () => {
+      // Arrange
+      const percentDiscount: Discount = {
+        _tag: "percent-off",
+        value: 30,
+        active: true,
+      };
+      fixture.componentRef.setInput("discount", percentDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const discountElement = fixture.debugElement.query(By.css('[id="discount"]'));
+      const discountText = discountElement.nativeElement.textContent;
+
+      // Assert
+      expect(discountElement).toBeTruthy();
+      expect(discountText).toContain("30% Discount");
+      expect(discountText).toContain("-$111.60"); // 30% of 372 (250 + 20 + 90 + 12)
+    });
+
+    it("should display amount-off discount correctly", () => {
+      // Arrange
+      const amountDiscount: Discount = {
+        _tag: "amount-off",
+        value: 50,
+        active: true,
+      };
+      fixture.componentRef.setInput("discount", amountDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const discountElement = fixture.debugElement.query(By.css('[id="discount"]'));
+      const discountText = discountElement.nativeElement.textContent;
+
+      // Assert
+      expect(discountElement).toBeTruthy();
+      expect(discountText).toContain("$50.00 Discount");
+      expect(discountText).toContain("-$50.00");
+    });
+
+    it("should calculate total with percent-off discount", () => {
+      // Arrange
+      const percentDiscount: Discount = {
+        _tag: "percent-off",
+        value: 30,
+        active: true,
+      };
+      fixture.componentRef.setInput("discount", percentDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const topTotal = fixture.debugElement.query(By.css("h2"));
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+      const expectedTotal = "$270.00"; // 372 - 111.60 + 9.6
+
+      // Assert
+      expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
+      expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+
+    it("should calculate total with amount-off discount", () => {
+      // Arrange
+      const amountDiscount: Discount = {
+        _tag: "amount-off",
+        value: 50,
+        active: true,
+      };
+      fixture.componentRef.setInput("discount", amountDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const topTotal = fixture.debugElement.query(By.css("h2"));
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+      const expectedTotal = "$331.60"; // 372 - 50 + 9.6
+
+      // Assert
+      expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
+      expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+
+    it("should handle decimal percent-off discount (value < 1)", () => {
+      // Arrange
+      const decimalPercentDiscount: Discount = {
+        _tag: "percent-off",
+        value: 0.3, // 30% as decimal
+        active: true,
+      };
+      fixture.componentRef.setInput("discount", decimalPercentDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const discountElement = fixture.debugElement.query(By.css('[id="discount"]'));
+      const discountText = discountElement.nativeElement.textContent;
+
+      // Assert
+      expect(discountElement).toBeTruthy();
+      expect(discountText).toContain("30% Discount");
+      expect(discountText).toContain("-$111.60"); // 30% of 372
     });
   });
 });

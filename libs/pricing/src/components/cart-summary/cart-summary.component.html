@@ -69,6 +69,19 @@
             </div>
           </div>
         }
+
+        <!-- Discount -->
+        @let discount = appliedDiscount();
+        @if (discount) {
+          <div id="discount" class="tw-flex tw-justify-between">
+            <div bitTypography="body1" class="tw-text-success-600">
+              {{ discount.text }}
+            </div>
+            <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
+              -{{ discount.value | currency: "USD" : "symbol" }}
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Secrets Manager Section -->
