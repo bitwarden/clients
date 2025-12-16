@@ -64,7 +64,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
   private sendItemDialogRef?: DialogRef<SendItemDialogResult> | undefined;
   noItemIcon = NoSendsIcon;
   selectedToggleValue: "all" | "text" | "file" = "all";
-  desktopSendUIRefresh$: Observable<boolean>;
+  SendUIRefresh$: Observable<boolean>;
 
   override set filteredSends(filteredSends: SendView[]) {
     super.filteredSends = filteredSends;
@@ -111,9 +111,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       accountService,
     );
 
-    this.desktopSendUIRefresh$ = this.configService.getFeatureFlag$(
-      FeatureFlag.DesktopSendUIRefresh,
-    );
+    this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
 
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const typeParam = params.get("type");

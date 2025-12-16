@@ -18,7 +18,7 @@
   {{ "sendDisabledWarning" | i18n }}
 </bit-callout>
 
-<ng-container *ngIf="desktopSendUIRefresh$ | async; else oldUi">
+@if (SendUIRefresh$ | async) {
   <div class="tw-mb-4 tw-max-w-md">
     <bit-search
       [(ngModel)]="searchText"
@@ -161,9 +161,7 @@
       </div>
     </div>
   </div>
-</ng-container>
-
-<ng-template #oldUi>
+} @else {
   <div class="tw-grid tw-grid-cols-12 tw-gap-4">
     <div class="tw-col-span-3">
       <div
@@ -364,4 +362,4 @@
       </div>
     </div>
   </div>
-</ng-template>
+}
