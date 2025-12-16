@@ -125,7 +125,6 @@ import {
   VaultFilterServiceAbstraction,
   VaultFilterService,
   RoutedVaultFilterService,
-  RoutedVaultFilterBridgeService,
 } from "@bitwarden/vault";
 
 import { DesktopLoginApprovalDialogComponentService } from "../../auth/login/desktop-login-approval-dialog-component.service";
@@ -161,6 +160,7 @@ import { NativeMessagingService } from "../../services/native-messaging.service"
 import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
+import { DesktopRoutedVaultFilterBridgeService } from "./desktop-routed-vault-filter-bridge.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
@@ -536,8 +536,8 @@ const safeProviders: SafeProvider[] = [
     deps: [ActivatedRoute],
   }),
   safeProvider({
-    provide: RoutedVaultFilterBridgeService,
-    useClass: RoutedVaultFilterBridgeService,
+    provide: DesktopRoutedVaultFilterBridgeService,
+    useClass: DesktopRoutedVaultFilterBridgeService,
     deps: [Router, RoutedVaultFilterService, VaultFilterServiceAbstraction],
   }),
 ];

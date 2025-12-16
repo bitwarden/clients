@@ -82,11 +82,11 @@ import {
   CipherFormComponent,
   ArchiveCipherUtilitiesService,
   VaultFilter,
-  RoutedVaultFilterBridgeService,
   VaultFilterServiceAbstraction as VaultFilterService,
 } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
+import { DesktopRoutedVaultFilterBridgeService } from "../../../app/services/desktop-routed-vault-filter-bridge.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
@@ -221,7 +221,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     private cipherArchiveService: CipherArchiveService,
     private policyService: PolicyService,
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
-    private routedVaultFilterBridgeService: RoutedVaultFilterBridgeService,
+    private routedVaultFilterBridgeService: DesktopRoutedVaultFilterBridgeService,
     private vaultFilterService: VaultFilterService,
   ) {}
 
