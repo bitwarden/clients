@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Exportar de"
   },
-  "exportVault": {
-    "message": "Exportar cofre"
-  },
-  "exportSecrets": {
-    "message": "Exportar segredos"
-  },
   "fileFormat": {
     "message": "Formato do ficheiro"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirmar a palavra-passe mestra"
-  },
-  "confirmFormat": {
-    "message": "Confirmar formato"
   },
   "filePassword": {
     "message": "Palavra-passe do ficheiro"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Ferramentas"
+  },
+  "import": {
+    "message": "Importar"
   },
   "importData": {
     "message": "Importar dados"
@@ -8753,9 +8747,6 @@
   "server": {
     "message": "Servidor"
   },
-  "exportData": {
-    "message": "Exportar dados"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "A exportar dados secretos da organização"
   },
@@ -12238,43 +12229,43 @@
     }
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "A sua organização já não utiliza palavras-passe mestras para iniciar sessão no Bitwarden. Para continuar, verifique a organização e o domínio."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Continuar com o início de sessão"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Não continuar"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Domínio"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Este domínio armazenará as chaves de encriptação da sua conta, portanto certifique-se de que confia nele. Se não tiver a certeza, verifique com o seu administrador."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Verifique a sua organização para iniciar sessão"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organização verificada"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Domínio verificado"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Se não verificar a sua organização, o seu acesso à organização será revogado."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Sair agora"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Verifique o seu domínio para iniciar sessão"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Para continuar com o início de sessão, verifique este domínio."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Para continuar com o início de sessão, verifique a organização e o domínio."
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Não foram selecionadas aplicações críticas"

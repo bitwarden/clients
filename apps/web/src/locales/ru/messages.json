@@ -1522,7 +1522,7 @@
     "message": "Таймаут аутентификации"
   },
   "authenticationSessionTimedOut": {
-    "message": "Сеанс аутентификации завершился по времени. Пожалуйста, попробуйте войти еще раз."
+    "message": "Сессия аутентификации завершилась по времени. Пожалуйста, перезапустите процесс авторизации."
   },
   "verifyYourIdentity": {
     "message": "Подтвердите вашу личность"
@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Экспорт из"
   },
-  "exportVault": {
-    "message": "Экспорт хранилища"
-  },
-  "exportSecrets": {
-    "message": "Экспорт секретов"
-  },
   "fileFormat": {
     "message": "Формат файла"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Подтвердите мастер-пароль"
-  },
-  "confirmFormat": {
-    "message": "Подтвердить формат"
   },
   "filePassword": {
     "message": "Пароль к файлу"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Инструменты"
+  },
+  "import": {
+    "message": "Импорт"
   },
   "importData": {
     "message": "Импорт данных"
@@ -4479,7 +4473,7 @@
     "message": "Обновить браузер"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
+    "message": "Ваша информация о доступе генерируется..."
   },
   "fetchingMemberData": {
     "message": "Получение данных о пользователях..."
@@ -5054,7 +5048,7 @@
     "message": "Выберите тайм-аут для хранилища и действие, которое необходимо предпринять."
   },
   "vaultTimeoutLogoutDesc": {
-    "message": "Выберите, когда сеанс хранилища будет завершен."
+    "message": "Выберите время выхода из хранилища."
   },
   "oneMinute": {
     "message": "1 минута"
@@ -6466,7 +6460,7 @@
     "message": "Повторно приглашен успешно"
   },
   "bulkReinviteSuccessToast": {
-    "message": "$COUNT$ users re-invited",
+    "message": "$COUNT$ пользователей снова приглашены",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6475,7 +6469,7 @@
     }
   },
   "bulkReinviteLimitedSuccessToast": {
-    "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
+    "message": "$LIMIT$ из $SELECTEDCOUNT$ пользователей повторно приглашены. $EXCLUDEDCOUNT$ не был приглашен из-за лимита приглашений $LIMIT$.",
     "placeholders": {
       "limit": {
         "content": "$1",
@@ -6685,7 +6679,7 @@
     "message": "Мастер-пароль не соответствует требованиям политики этой организации. Чтобы присоединиться к организации, нужно обновить мастер-пароль. Текущая сессия будет завершена и потребуется повторная авторизация. Сессии на других устройствах могут оставаться активными в течение часа."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
+    "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущая сессия будет завершена и потребуется повторная авторизация. Сессии на других устройствах могут оставаться активными в течение часа."
   },
   "automaticAppLoginWithSSO": {
     "message": "Автовход с помощью SSO"
@@ -6703,10 +6697,10 @@
     "message": "Ваша организация обновила параметры расшифровки. Пожалуйста, установите мастер-пароль для доступа к вашему хранилищу."
   },
   "sessionTimeoutPolicyTitle": {
-    "message": "Тайм-аут сеанса"
+    "message": "Тайм-аут сессии"
   },
   "sessionTimeoutPolicyDescription": {
-    "message": "Установите максимальный тайм-аут сеанса для всех участников, кроме владельцев."
+    "message": "Установите максимальный тайм-аут сессии для всех участников, кроме владельцев."
   },
   "maximumAllowedTimeout": {
     "message": "Максимально допустимый тайм-аут"
@@ -6718,7 +6712,7 @@
     "message": "Время указано неверно. Измените хотя бы одно значение."
   },
   "sessionTimeoutAction": {
-    "message": "Действие при тайм-ауте сеанса"
+    "message": "Действие при тайм-ауте сессии"
   },
   "immediately": {
     "message": "Немедленно"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Сервер"
-  },
-  "exportData": {
-    "message": "Экспорт данных"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Экспорт секретных данных организации"
@@ -12000,7 +11991,7 @@
     "message": "Членство Families"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Расширенная онлайн-безопасность"
   },
   "planDescFamiliesV2": {
     "message": "Премиальная защищенность \n для вашей семьи"
@@ -12210,22 +12201,22 @@
     "message": "К настройкам тайм-аута были применены требования корпоративной политики"
   },
   "vaultTimeoutTooLarge": {
-    "message": "Your vault timeout exceeds the restrictions set by your organization."
+    "message": "Тайм-аут вашего хранилища превышает ограничения, установленные вашей организацией."
   },
   "neverLockWarning": {
-    "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
+    "message": "Вы действительно хотите отключить блокировку хранилища? В этом случае ключ шифрования вашего хранилища будет сохранен на вашем устройстве. Отключая блокировку, вы должны убедиться, что ваше устройство надежно защищено."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Тайм-аут действия"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Тайм-аут сессии"
   },
   "appearance": {
-    "message": "Appearance"
+    "message": "Внешний вид"
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Время ожидания превышает установленное организацией максимальное ограничение: $HOURS$ час. $MINUTES$ мин.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -12334,10 +12325,10 @@
     "message": "Сохранить журналы диагностики"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "Эта настройка управляется вашей организацией."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "В вашей организации максимальный тайм-аут сессии установлен равным $HOURS$ час. и $MINUTES$ мин.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -12350,10 +12341,10 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to On browser refresh."
+    "message": "Ваша организация установила тайм-аут сессии по умолчанию на При обновлении браузера."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "message": "Максимальный тайм-аут не может превышать $HOURS$ час. и $MINUTES$ мин.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -12366,10 +12357,10 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser refresh"
+    "message": "При обновлении браузера"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "Set an unlock method to change your timeout action"
+    "message": "Установите способ разблокировки для изменения действия при истечении тайм-аута"
   },
   "leaveConfirmationDialogTitle": {
     "message": "Вы уверены, что хотите покинуть?"

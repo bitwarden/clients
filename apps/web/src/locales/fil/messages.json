@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "I-export ang vault"
-  },
-  "exportSecrets": {
-    "message": "Export secrets"
-  },
   "fileFormat": {
     "message": "Format ng file"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Kumpirmahin ang master password"
-  },
-  "confirmFormat": {
-    "message": "Kumpirmahin ang pag-format"
   },
   "filePassword": {
     "message": "Password ng file"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Mga Kagamitan"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Mag-import ng data"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "I-export ang mga datos"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Pag-eexport ng Sekretong Data ng Organisasyon"

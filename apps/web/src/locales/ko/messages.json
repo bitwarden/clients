@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "보관함 내보내기"
-  },
-  "exportSecrets": {
-    "message": "비밀 데이터 내보내기"
-  },
   "fileFormat": {
     "message": "파일 형식"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "마스터 비밀번호 확인"
-  },
-  "confirmFormat": {
-    "message": "형식 확인"
   },
   "filePassword": {
     "message": "파일 암호"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "도구"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "데이터 가져오기"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Export data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"

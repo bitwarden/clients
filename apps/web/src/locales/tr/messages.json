@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Dışa aktarılacak konum"
   },
-  "exportVault": {
-    "message": "Kasayı dışa aktar"
-  },
-  "exportSecrets": {
-    "message": "Sırları dışa aktar"
-  },
   "fileFormat": {
     "message": "Dosya biçimi"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Ana parolayı onaylayın"
-  },
-  "confirmFormat": {
-    "message": "Biçimi onayla"
   },
   "filePassword": {
     "message": "Dosya parolası"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Araçlar"
+  },
+  "import": {
+    "message": "İçe aktar"
   },
   "importData": {
     "message": "Verileri içe aktar"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Sunucu"
-  },
-  "exportData": {
-    "message": "Verileri dışarı aktar"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Kuruluş Gizli Verilerini Dışa Aktarma"

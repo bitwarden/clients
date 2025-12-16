@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Izgūt no"
   },
-  "exportVault": {
-    "message": "Izgūt glabātavas saturu"
-  },
-  "exportSecrets": {
-    "message": "Izgūt noslēpumus"
-  },
   "fileFormat": {
     "message": "Datnes veids"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Apstiprināt galveno paroli"
-  },
-  "confirmFormat": {
-    "message": "Apstiprināt veidolu"
   },
   "filePassword": {
     "message": "Datnes parole"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Rīki"
+  },
+  "import": {
+    "message": "Ievietot"
   },
   "importData": {
     "message": "Ievietot datus"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Serveris"
-  },
-  "exportData": {
-    "message": "Izgūt datus"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Apvienības slepeno datu izgūšana"

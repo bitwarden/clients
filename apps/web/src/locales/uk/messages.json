@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Експортувати з"
   },
-  "exportVault": {
-    "message": "Експортувати сховище"
-  },
-  "exportSecrets": {
-    "message": "Експортувати секрети"
-  },
   "fileFormat": {
     "message": "Формат файлу"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Підтвердьте головний пароль"
-  },
-  "confirmFormat": {
-    "message": "Підтвердити формат"
   },
   "filePassword": {
     "message": "Пароль файлу"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Інструменти"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Імпортувати дані"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Сервер"
-  },
-  "exportData": {
-    "message": "Експортувати дані"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Експорт секретних даних організації"

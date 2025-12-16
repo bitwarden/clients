@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Export seif"
-  },
-  "exportSecrets": {
-    "message": "Export secrets"
-  },
   "fileFormat": {
     "message": "Format fișier"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirmare parolă principală"
-  },
-  "confirmFormat": {
-    "message": "Confirmare format"
   },
   "filePassword": {
     "message": "Parola fișierului"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Unelte"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Importare date"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Export data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"

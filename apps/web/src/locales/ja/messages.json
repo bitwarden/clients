@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "エクスポート元"
   },
-  "exportVault": {
-    "message": "保管庫のエクスポート"
-  },
-  "exportSecrets": {
-    "message": "シークレットのエクスポート"
-  },
   "fileFormat": {
     "message": "ファイル形式"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "マスターパスワードの確認"
-  },
-  "confirmFormat": {
-    "message": "フォーマットの確認"
   },
   "filePassword": {
     "message": "ファイルパスワード"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "ツール"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "データをインポート"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "サーバー"
-  },
-  "exportData": {
-    "message": "データのエクスポート"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "組織のシークレットデータのエクスポート"

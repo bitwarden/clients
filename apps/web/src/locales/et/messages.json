@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Ekspordi asukohast"
   },
-  "exportVault": {
-    "message": "Hoidla sisu eksportimine"
-  },
-  "exportSecrets": {
-    "message": "Ekspordi saladused"
-  },
   "fileFormat": {
     "message": "Failivorming"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Kinnita ülemparool"
-  },
-  "confirmFormat": {
-    "message": "Kinnita formaat"
   },
   "filePassword": {
     "message": "Faili parool"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Tööriistad"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Andmete importimine"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Export data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exporting Organization Secret Data"

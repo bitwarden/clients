@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "ייצא מ־"
   },
-  "exportVault": {
-    "message": "ייצא כספת"
-  },
-  "exportSecrets": {
-    "message": "ייצא סודות"
-  },
   "fileFormat": {
     "message": "פורמט קובץ"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "אמת סיסמה ראשית"
-  },
-  "confirmFormat": {
-    "message": "אשר פורמט"
   },
   "filePassword": {
     "message": "סיסמת קובץ"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "כלים"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "ייבא נתונים"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "שרת"
-  },
-  "exportData": {
-    "message": "ייצא נתונים"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "ייצוא נתונים ארגון סודיים"

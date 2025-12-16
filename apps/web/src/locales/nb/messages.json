@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Eksport fra"
   },
-  "exportVault": {
-    "message": "Eksporter hvelvet"
-  },
-  "exportSecrets": {
-    "message": "Eksporter hemmeligheter"
-  },
   "fileFormat": {
     "message": "Filformat"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Bekreft hovedpassord"
-  },
-  "confirmFormat": {
-    "message": "Bekreft format"
   },
   "filePassword": {
     "message": "Filpassord"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Verktøy"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Importer data"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Eksporter data"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Eksporterer organisasjonens hemmelige data"

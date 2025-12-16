@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Exportálás innen:"
   },
-  "exportVault": {
-    "message": "Széf exportálása"
-  },
-  "exportSecrets": {
-    "message": "Titkos adatok exportálása"
-  },
   "fileFormat": {
     "message": "Fájlformátum"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Mesterjelszó megerősítése"
-  },
-  "confirmFormat": {
-    "message": "Formátum megerősítése"
   },
   "filePassword": {
     "message": "Fájl jelszó"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Eszközök"
+  },
+  "import": {
+    "message": "Importálás"
   },
   "importData": {
     "message": "Adatok importálása"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Szerver"
-  },
-  "exportData": {
-    "message": "Adatok exportálása"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Szervezeti titkos adatok exportálása"

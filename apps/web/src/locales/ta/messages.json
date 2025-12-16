@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "இதிலிருந்து ஏற்றுமதி"
   },
-  "exportVault": {
-    "message": "பெட்டகத்தை ஏற்றுமதி செய்"
-  },
-  "exportSecrets": {
-    "message": "ரகசியங்களை ஏற்றுமதி செய்"
-  },
   "fileFormat": {
     "message": "கோப்பு வடிவம்"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "முதன்மை கடவுச்சொல்லை உறுதிப்படுத்தவும்"
-  },
-  "confirmFormat": {
-    "message": "வடிவத்தை உறுதிப்படுத்தவும்"
   },
   "filePassword": {
     "message": "கோப்பு கடவுச்சொல்"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "கருவிகள்"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "தரவை இம்போர்ட் செய்யவும்"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "சேவையகம்"
-  },
-  "exportData": {
-    "message": "தரவை ஏற்றுமதி செய்"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "நிறுவன இரகசிய தரவை ஏற்றுமதி செய்தல்"

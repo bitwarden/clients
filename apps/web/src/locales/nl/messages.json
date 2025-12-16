@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Exporteren vanuit"
   },
-  "exportVault": {
-    "message": "Kluis exporteren"
-  },
-  "exportSecrets": {
-    "message": "Geheimen exporteren"
-  },
   "fileFormat": {
     "message": "Bestandsindeling"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Nieuw hoofdwachtwoord bevestigen"
-  },
-  "confirmFormat": {
-    "message": "Formaat bevestigen"
   },
   "filePassword": {
     "message": "Bestandswachtwoord"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Hulpmiddelen"
+  },
+  "import": {
+    "message": "Importeren"
   },
   "importData": {
     "message": "Gegevens importeren"
@@ -8752,9 +8746,6 @@
   },
   "server": {
     "message": "Server"
-  },
-  "exportData": {
-    "message": "Gegevens exporteren"
   },
   "exportingOrganizationSecretDataTitle": {
     "message": "Geheime gegevens van de organisatie exporteren"
