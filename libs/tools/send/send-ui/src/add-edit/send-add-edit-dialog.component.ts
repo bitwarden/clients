@@ -174,4 +174,19 @@ export class SendAddEditDialogComponent {
       },
     );
   }
+
+  /**
+   * Opens the send add/edit dialog in a drawer
+   * @param dialogService Instance of the DialogService.
+   * @param params The parameters for the drawer.
+   * @returns The drawer result.
+   */
+  static openDrawer(dialogService: DialogService, params: SendItemDialogParams) {
+    return dialogService.openDrawer<SendItemDialogResult, SendItemDialogParams>(
+      SendAddEditDialogComponent,
+      {
+        data: params,
+      },
+    );
+  }
 }
