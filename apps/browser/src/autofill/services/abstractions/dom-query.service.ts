@@ -6,5 +6,5 @@ export interface DomQueryService {
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
   ): T[];
-  checkPageContainsShadowDom(): void;
+  checkPageContainsShadowDom(): boolean;
 }

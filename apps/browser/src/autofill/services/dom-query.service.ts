@@ -78,8 +78,9 @@ export class DomQueryService implements DomQueryServiceInterface {
   /**
    * Checks if the page contains any shadow DOM elements.
    */
-  checkPageContainsShadowDom = (): void => {
+  checkPageContainsShadowDom = (): boolean => {
     this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
+    return this.pageContainsShadowDom;
   };
 
   /**
@@ -108,7 +109,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   ): T[] {
     let elements = this.queryElements<T>(root, queryString);
 
-    const shadowRoots = this.recursivelyQueryShadowRoots(root);
+    const shadowRoots = this.pageContainsShadowDom ? this.recursivelyQueryShadowRoots(root) : [];
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
       elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
@@ -151,10 +152,6 @@ export class DomQueryService implements DomQueryServiceInterface {
     root: Document | ShadowRoot | Element,
     depth: number = 0,
   ): ShadowRoot[] {
-    if (!this.pageContainsShadowDom) {
-      return [];
-    }
-
     if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
       throw new Error("Max recursion depth reached");
     }
