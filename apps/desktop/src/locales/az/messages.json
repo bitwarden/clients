@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "Qoşma əlavə et"
   },
+  "itemsTransferred": {
+    "message": "Elementlər köçürüldü"
+  },
+  "fixEncryption": {
+    "message": "Şifrələməni düzəlt"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Bu fayl, köhnə bir şifrələmə üsulunu istifadə edir."
+  },
+  "attachmentUpdated": {
+    "message": "Qoşma güncəllənib"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Maksimal fayl həcmi 500 MB-dır"
   },
@@ -908,6 +920,12 @@
   "unexpectedError": {
     "message": "Gözlənilməz bir səhv baş verdi."
   },
+  "unexpectedErrorShort": {
+    "message": "Gözlənilməz xəta"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Bu Bitwarden pəncərəsini bağlayıb yenidən sınayın."
+  },
   "itemInformation": {
     "message": "Element məlumatları"
   },
@@ -1094,22 +1112,22 @@
     "message": "Daha ətraflı"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Şifrələmə ayarlarını güncəlləyərkən bir xəta baş verdi."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Şifrələmə ayarlarınızı güncəlləyin"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Tövsiyə edilən yeni şifrələmə ayarları, hesabınızın təhlükəsizliyini artıracaq. İndi güncəlləmək üçün ana parolunuzu daxil edin."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Davam etmək üçün kimliyinizi təsdiqləyin"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Ana parolunuzu daxil edin"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Ayarları güncəllə"
   },
   "featureUnavailable": {
     "message": "Özəllik əlçatmazdır"
@@ -1180,8 +1198,8 @@
   "followUs": {
     "message": "Bizi izləyin"
   },
-  "syncVault": {
-    "message": "Seyfi sinxronlaşdır"
+  "syncNow": {
+    "message": "İndi sinxr."
   },
   "changeMasterPass": {
     "message": "Ana parolu dəyişdir"
@@ -1509,7 +1527,7 @@
     "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş saxlama sahəsi."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "Fayl qoşmaları üçün $SIZE$ şifrələnmiş anbar sahəsi.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1757,8 +1775,11 @@
   "exportFrom": {
     "message": "Buradan xaricə köçür"
   },
-  "exportVault": {
-    "message": "Seyfi xaricə köçür"
+  "export": {
+    "message": "Xaricə köçür"
+  },
+  "import": {
+    "message": "Daxilə köçür"
   },
   "fileFormat": {
     "message": "Fayl formatı"
@@ -2619,9 +2640,6 @@
   "removedMasterPassword": {
     "message": "Ana parol silindi."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Aşağıdakı təşkilatların üzvləri üçün artıq ana parol tələb olunmur. Lütfən aşağıdakı domeni təşkilatınızın inzibatçısı ilə təsdiqləyin."
-  },
   "organizationName": {
     "message": "Təşkilat adı"
   },
@@ -3477,10 +3495,6 @@
   "aliasDomain": {
     "message": "Domen ləqəbi"
   },
-  "importData": {
-    "message": "Veriləri daxilə köçür",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Daxilə köçürmə xətası"
   },
@@ -3886,6 +3900,75 @@
   "fileSavedToDevice": {
     "message": "Fayl cihazda saxlanıldı. Endirilənləri cihazınızdan idarə edin."
   },
+  "importantNotice": {
+    "message": "Vacib bildiriş"
+  },
+  "setupTwoStepLogin": {
+    "message": "İki addımlı girişi qur"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu erişə biləcəyiniz bir e-poçtla dəyişdirə bilərsiniz."
+  },
+  "remindMeLater": {
+    "message": "Daha sonra xatırlat"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "$EMAIL$ e-poçtunuza güvənli şəkildə erişə bilirsiniz?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Xeyr, bilmirəm"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Bəli, e-poçtuma güvənli şəkildə erişə bilirəm"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "İki addımlı girişi işə sal"
+  },
+  "changeAcctEmail": {
+    "message": "Hesabın e-poçtunu dəyişdir"
+  },
+  "passkeyLogin": {
+    "message": "Keçid açarı ilə giriş edilsin?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Keçid açarı saxlanılsın?"
+  },
+  "saveNewPasskey": {
+    "message": "Yeni giriş kimi saxla"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Keçid açarını yeni bir giriş olaraq saxla"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Bu sayt üçün uyuşan giriş məlumatı yoxdur"
+  },
+  "overwritePasskey": {
+    "message": "Keçid açarının üzərinə yazılsın?"
+  },
+  "unableToSavePasskey": {
+    "message": "Keçid açarı saxlanıla bilmir"
+  },
+  "alreadyContainsPasskey": {
+    "message": "Bu elementdə artıq bir keçid açarı var. Hazırkı keçid açarının üzərinə yazmaq istədiyinizə əminsiniz?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Bu tətbiq üçün bir keçid açarı artıq mövcuddur."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "Bu tətbiq, təkrarları dəstəkləmir."
+  },
+  "closeThisWindow": {
+    "message": "Bu pəncərəni bağla"
+  },
   "allowScreenshots": {
     "message": "Ekranı çəkməyə icazə ver"
   },
@@ -4244,16 +4327,147 @@
   "andMoreFeatures": {
     "message": "Və daha çoxu!"
   },
-  "planDescPremium": {
-    "message": "Tam onlayn təhlükəsizlik"
+  "advancedOnlineSecurity": {
+    "message": "Qabaqcıl onlayn təhlükəsizlik"
   },
   "upgradeToPremium": {
     "message": "\"Premium\"a yüksəlt"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Təşkilatınız, artıq Bitwarden-ə giriş etmək üçün ana parol istifadə etmir. Davam etmək üçün təşkilatı və domeni doğrulayın."
+  },
+  "continueWithLogIn": {
+    "message": "Giriş etməyə davam"
+  },
+  "doNotContinue": {
+    "message": "Davam etmə"
+  },
+  "domain": {
+    "message": "Domen"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Bu domen, hesabınızın şifrələmə açarlarını saxlayacaq, ona görə də, bu domenə güvəndiyinizə əmin olun. Əmin deyilsinizsə, adminizlə əlaqə saxlayın."
+  },
+  "verifyYourOrganization": {
+    "message": "Giriş etmək üçün təşkilatınızı doğrulayın"
+  },
+  "organizationVerified": {
+    "message": "Təşkilat doğrulandı"
+  },
+  "domainVerified": {
+    "message": "Domen doğrulandı"
+  },
+  "leaveOrganizationContent": {
+    "message": "Təşkilatınızı doğrulamasanız, təşkilata erişiminiz ləğv ediləcək."
+  },
+  "leaveNow": {
+    "message": "İndi tərk et"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Giriş etmək üçün domeninizi doğrulayın"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Giriş prosesini davam etdirmək üçün bu domeni doğrulayın."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Giriş prosesini davam etdirmək üçün bu təşkilatı və domeni doğrulayın."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Vaxt bitmə əməliyyatı"
   },
   "sessionTimeoutHeader": {
     "message": "Sessiya vaxt bitməsi"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Bu ayar, təşkilatınız tərəfindən idarə olunur."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Təşkilatınız, maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Təşkilatınız, seansın ilkin bitmə vaxtını Sistem kilidi açılanda olaraq təyin etdi."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Təşkilatınız, seansın ilkin bitmə vaxtını Yenidən başladılanda olaraq təyin etdi."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maksimum bitmə vaxtı $HOURS$ saat $MINUTES$ dəqiqə dəyərini aşa bilməz",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Yenidən başladılanda"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun"
+  },
+  "upgrade": {
+    "message": "Yüksəlt"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Tərk etmək istədiyinizə əminsiniz?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Rədd cavabı versəniz, fərdi elementləriniz hesabınızda qalacaq, paylaşılan elementlərə və təşkilat özəlliklərinə erişimi itirəcəksiniz."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Erişimi təkrar qazanmaq üçün admininizlə əlaqə saxlayın."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Tərk et: $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Seyfimi necə idarə edim?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Elementləri bura köçür: $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata aid olmasını tələb edir. Elementlərinizin sahibliyini transfer etmək üçün qəbul edin.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Transferi qəbul et"
+  },
+  "declineAndLeave": {
+    "message": "Rədd et və tərk et"
+  },
+  "whyAmISeeingThis": {
+    "message": "Bunu niyə görürəm?"
   }
 }

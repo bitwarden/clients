@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "新增附件"
   },
+  "itemsTransferred": {
+    "message": "Items transferred"
+  },
+  "fixEncryption": {
+    "message": "修正加密"
+  },
+  "fixEncryptionTooltip": {
+    "message": "此檔案使用了過時的加密方式。"
+  },
+  "attachmentUpdated": {
+    "message": "附件已更新"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "最大檔案大小為 500MB"
   },
@@ -908,6 +920,12 @@
   "unexpectedError": {
     "message": "發生了未預期的錯誤。"
   },
+  "unexpectedErrorShort": {
+    "message": "未預期的錯誤"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "關閉此 Bitwarden 視窗後再試一次。"
+  },
   "itemInformation": {
     "message": "項目資訊"
   },
@@ -1094,22 +1112,22 @@
     "message": "了解更多"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "更新加密設定時發生錯誤。"
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "更新您的加密設定"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "新的建議加密設定將提升您的帳戶安全性。請輸入主密碼以立即更新。"
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "請先確認身分後再繼續"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "輸入您的主密碼"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "更新設定"
   },
   "featureUnavailable": {
     "message": "功能不可用"
@@ -1180,8 +1198,8 @@
   "followUs": {
     "message": "關注我們"
   },
-  "syncVault": {
-    "message": "同步密碼庫"
+  "syncNow": {
+    "message": "Sync now"
   },
   "changeMasterPass": {
     "message": "變更主密碼"
@@ -1509,7 +1527,7 @@
     "message": "用於檔案附件的 1 GB 的加密檔案儲存空間。"
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "用於檔案附件的 $SIZE$ 加密儲存空間。",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1757,8 +1775,11 @@
   "exportFrom": {
     "message": "匯出自"
   },
-  "exportVault": {
-    "message": "匯出密碼庫"
+  "export": {
+    "message": "Export"
+  },
+  "import": {
+    "message": "Import"
   },
   "fileFormat": {
     "message": "檔案格式"
@@ -2619,9 +2640,6 @@
   "removedMasterPassword": {
     "message": "主密碼已移除"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "以下組織的成員已不再需要主密碼。請與你的組織管理員確認下方的網域。"
-  },
   "organizationName": {
     "message": "機構名稱"
   },
@@ -3477,10 +3495,6 @@
   "aliasDomain": {
     "message": "別名網域"
   },
-  "importData": {
-    "message": "匯入資料",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "匯入時發生錯誤"
   },
@@ -3886,6 +3900,75 @@
   "fileSavedToDevice": {
     "message": "檔案已儲存到裝置。在您的裝置上管理下載檔案。"
   },
+  "importantNotice": {
+    "message": "重要通知"
+  },
+  "setupTwoStepLogin": {
+    "message": "啟動兩階段登入"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "從 2025 年 2 月開始，Bitwarden 會傳送代碼到您的帳號電子郵件中來驗證新裝置的登入。"
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "您可以啟動兩階段認證來保護您的帳號或更改您可以存取的電子郵件位址。"
+  },
+  "remindMeLater": {
+    "message": "稍後再提醒我"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "您可以存取您的電子郵件位址 $EMAIL$ 嗎？",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "不，我不行"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "是，我可以存取我的電子郵件位址"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "啟動兩階段登入"
+  },
+  "changeAcctEmail": {
+    "message": "更改帳號電子郵件位址"
+  },
+  "passkeyLogin": {
+    "message": "使用密碼金鑰登入？"
+  },
+  "savePasskeyQuestion": {
+    "message": "儲存密碼金鑰？"
+  },
+  "saveNewPasskey": {
+    "message": "儲存為新的登入資訊"
+  },
+  "savePasskeyNewLogin": {
+    "message": "將密碼金鑰儲存為新的登入資訊"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "未找到此網站的登入資訊"
+  },
+  "overwritePasskey": {
+    "message": "要覆寫密碼金鑰嗎？"
+  },
+  "unableToSavePasskey": {
+    "message": "無法儲存通行金鑰"
+  },
+  "alreadyContainsPasskey": {
+    "message": "該項目已包含一個密碼金鑰。您確定要覆寫目前的密碼金鑰嗎？"
+  },
+  "passkeyAlreadyExists": {
+    "message": "用於這個應用程式的密碼金鑰已經存在。"
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "此應用程式不支援重複項目。"
+  },
+  "closeThisWindow": {
+    "message": "關閉此視窗"
+  },
   "allowScreenshots": {
     "message": "允許螢幕擷取"
   },
@@ -4244,16 +4327,147 @@
   "andMoreFeatures": {
     "message": "以及其他功能功能！"
   },
-  "planDescPremium": {
-    "message": "完整的線上安全"
+  "advancedOnlineSecurity": {
+    "message": "進階線上安全防護"
   },
   "upgradeToPremium": {
     "message": "升級到 Premium"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
   },
   "sessionTimeoutSettingsAction": {
     "message": "逾時後動作"
   },
   "sessionTimeoutHeader": {
     "message": "工作階段逾時"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "此設定由您的組織管理。"
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "您的組織已將最長工作階段逾時設為 $HOURS$ 小時與 $MINUTES$ 分鐘。",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "您的組織已將預設工作階段逾時設定為「在系統鎖定時」。"
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "您的組織已將預設工作階段逾時設定為「在重新啟動時」。"
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "最長逾時時間不可超過 $HOURS$ 小時 $MINUTES$ 分鐘",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "重新啟動時"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
   }
 }

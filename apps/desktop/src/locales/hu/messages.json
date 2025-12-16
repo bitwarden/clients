@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "Melléklet hozzáadása"
   },
+  "itemsTransferred": {
+    "message": "Az elemek átvitelre kerültek."
+  },
+  "fixEncryption": {
+    "message": "Titkosítás javítása"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Ez a fájl elavult titkosítási módszert használ."
+  },
+  "attachmentUpdated": {
+    "message": "A melléklet frissítésre került."
+  },
   "maxFileSizeSansPunctuation": {
     "message": "A maximális fájlméret 500 MB."
   },
@@ -907,6 +919,12 @@
   },
   "unexpectedError": {
     "message": "Váratlan hiba történt."
+  },
+  "unexpectedErrorShort": {
+    "message": "Váratlan hiba"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Zárjuk be ezt a Bitwarden ablakot és próbáljuk újra."
   },
   "itemInformation": {
     "message": "Elem információ"
@@ -1180,8 +1198,8 @@
   "followUs": {
     "message": "Követés"
   },
-  "syncVault": {
-    "message": "Széf szinkronizálása"
+  "syncNow": {
+    "message": "Szinkronizálás most"
   },
   "changeMasterPass": {
     "message": "Mesterjelszó módosítása"
@@ -1757,8 +1775,11 @@
   "exportFrom": {
     "message": "Exportálás innen:"
   },
-  "exportVault": {
-    "message": "Széf exportálása"
+  "export": {
+    "message": "Exportálás"
+  },
+  "import": {
+    "message": "Importálás"
   },
   "fileFormat": {
     "message": "Fájlformátum"
@@ -2619,9 +2640,6 @@
   "removedMasterPassword": {
     "message": "A mesterjelszó eltávolításra került."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával."
-  },
   "organizationName": {
     "message": "Szervezet neve"
   },
@@ -3477,10 +3495,6 @@
   "aliasDomain": {
     "message": "Áldomain"
   },
-  "importData": {
-    "message": "Adatok importálása",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Importálási hiba"
   },
@@ -3886,6 +3900,75 @@
   "fileSavedToDevice": {
     "message": "A fájl mentésre került az eszközre. Kezeljük az eszközről a letöltéseket."
   },
+  "importantNotice": {
+    "message": "Fontos megjegyzés"
+  },
+  "setupTwoStepLogin": {
+    "message": "Kétlépéses bejelentkezés beüzemelése"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "A fiók védelmének alternatív módjaként beállíthatunk kétlépéses bejelentkezést vagy módosíthatjuk az email címet egy elérhetőre."
+  },
+  "remindMeLater": {
+    "message": "Emlékeztetés később"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Megbízható a hozzáférés $EMAIL$ email címhez?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nem, nem érem el"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Igen, megbízhatóan hozzáférek az email címhez"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Kétlépéses bejelentkezés bekapcsolása"
+  },
+  "changeAcctEmail": {
+    "message": "Fiók email cím megváltoztatása"
+  },
+  "passkeyLogin": {
+    "message": "Bejelentkezés belépőkulccsal?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Belépőkulcs mentése?"
+  },
+  "saveNewPasskey": {
+    "message": "Mentés új bejelentkezésként"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Belépőkulcs mentése új bejelentkezésként"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Nincsenek egyező bejelentkezések ehhez a webhelyhez."
+  },
+  "overwritePasskey": {
+    "message": "Belépőkulcs felülírása?"
+  },
+  "unableToSavePasskey": {
+    "message": "Nem lehet menteni a belépőkulcsot."
+  },
+  "alreadyContainsPasskey": {
+    "message": "Ez az elem már tartalmaz egy belépőkulcsot. Biztosan felülírásra kerüljön az aktuális belépőkulcs?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Ehhez az alkalmazáshoz már létezik belépőkulcs."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "Ez az alkalmazás nem támogatja a másolatokat."
+  },
+  "closeThisWindow": {
+    "message": "Ezen ablak bezárása"
+  },
   "allowScreenshots": {
     "message": "Képernyőrögzítés engedélyezése"
   },
@@ -4244,16 +4327,147 @@
   "andMoreFeatures": {
     "message": "És még több!"
   },
-  "planDescPremium": {
-    "message": "Teljes körű online biztonság"
+  "advancedOnlineSecurity": {
+    "message": "Bővített online biztonság"
   },
   "upgradeToPremium": {
     "message": "Áttérés Prémium csomagra"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "A szervezet már nem használ mesterjelszavakat a Bitwardenbe bejelentkezéshez. A folytatáshoz ellenőrizzük a szervezetet és a tartományt."
+  },
+  "continueWithLogIn": {
+    "message": "Folytatás bejelentkezéssel"
+  },
+  "doNotContinue": {
+    "message": "Nincs folytatás"
+  },
+  "domain": {
+    "message": "Tartomány"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Ez a tartomány tárolja a fiók titkosítási kulcsait, ezért győződjünk meg róla, hogy megbízunk-e benne. Ha nem vagyunk biztos benne, érdeklődjünk adminisztrátornál."
+  },
+  "verifyYourOrganization": {
+    "message": "Szervezet ellenőrzése a bejelentkezéshez"
+  },
+  "organizationVerified": {
+    "message": "A szervezet ellenőrzésre került."
+  },
+  "domainVerified": {
+    "message": "A tartomány ellenőrzésre került."
+  },
+  "leaveOrganizationContent": {
+    "message": "Ha nem ellenőrizzük a szervezetet, a szervezethez hozzáférés visszavonásra kerül."
+  },
+  "leaveNow": {
+    "message": "Elhagyás most"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Tartomány ellenőrzése a bejelentkezéshez"
+  },
+  "verifyYourDomainDescription": {
+    "message": "A bejelentkezés folytatásához ellenőrizzük ezt a tartományt."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "A bejelentkezés folytatásához ellenőrizzük a szervezetet és a tartományt."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Időkifutási művelet"
   },
   "sessionTimeoutHeader": {
     "message": "Munkamenet időkifutás"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Ezt a beállítást a szervezet lezeli."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "A szervezet a munkamenet maximális munkamenet időkifutását $HOURS$ órára és $MINUTES$ percre állította be.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "A szervezet az alapértelmezett munkamenet időkifutástr Rendszerzár be értékre állította."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "A szervezet a maximális munkamenet időkifutást Újraindításkor értékre állította."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "A maximális időtúllépés nem haladhatja meg a $HOURS$ óra és $MINUTES$ perc értéket.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Újraindításkor"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
+  },
+  "upgrade": {
+    "message": "Áttérés"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Biztosan szeretnénk kilépni?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Az elutasítással a személyes elemek a fiókban maradnak, de elveszítjük hozzáférést a megosztott elemekhez és a szervezeti funkciókhoz."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Lépjünk kapcsolatba az adminisztrátorral a hozzáférés visszaszerzéséért."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "$ORGANIZATION$ elhagyása",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Hogyan kezeljem a széfet?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Elemek átvitele $ORGANIZATION$ szervezethez",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében. Kattintás az elfogadásra az elemek tulajdonjogának átruházásához.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Átvitel elfogadása"
+  },
+  "declineAndLeave": {
+    "message": "Elutasítás és kilépés"
+  },
+  "whyAmISeeingThis": {
+    "message": "Miért látható ez?"
   }
 }

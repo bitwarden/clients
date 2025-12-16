@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "Pievienot pielikumu"
   },
+  "itemsTransferred": {
+    "message": "Vienumi pārcelti"
+  },
+  "fixEncryption": {
+    "message": "Salabot šifrēšanu"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Šī datne izmanto novecojušu šifrēšanas veidu."
+  },
+  "attachmentUpdated": {
+    "message": "Pielikums atjaunināts"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Lielākais pieļaujamais datnes izmērs ir 500 MB"
   },
@@ -907,6 +919,12 @@
   },
   "unexpectedError": {
     "message": "Atgadījās neparedzēta kļūda."
+  },
+  "unexpectedErrorShort": {
+    "message": "Neparedzēta kļūda"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Šis Bitwarden logs jāaizver un jāmēģina vēlreiz."
   },
   "itemInformation": {
     "message": "Vienuma informācija"
@@ -1180,8 +1198,8 @@
   "followUs": {
     "message": "Sekot mums"
   },
-  "syncVault": {
-    "message": "Sinhronizēt glabātavu"
+  "syncNow": {
+    "message": "Sinhronizēt tūlīt"
   },
   "changeMasterPass": {
     "message": "Mainīt galveno paroli"
@@ -1757,8 +1775,11 @@
   "exportFrom": {
     "message": "Izgūt no"
   },
-  "exportVault": {
-    "message": "Izgūt glabātavas saturu"
+  "export": {
+    "message": "Izgūt"
+  },
+  "import": {
+    "message": "Ievietot"
   },
   "fileFormat": {
     "message": "Datnes veids"
@@ -2619,9 +2640,6 @@
   "removedMasterPassword": {
     "message": "Galvenā parole tika noņemta."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Galvenā parole vairs nav nepieciešama turpmāk minētās apvienības dalībniekiem. Lūgums saskaņot zemāk esošo domēnu ar savas apvienības pārvaldītāju."
-  },
   "organizationName": {
     "message": "Apvienības nosaukums"
   },
@@ -3477,10 +3495,6 @@
   "aliasDomain": {
     "message": "Aizstājdomēns"
   },
-  "importData": {
-    "message": "Ievietot datus",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Ievietošanas kļūda"
   },
@@ -3886,6 +3900,75 @@
   "fileSavedToDevice": {
     "message": "Datne saglabāta ierīcē. Tā ir atrodama ierīces lejupielāžu mapē."
   },
+  "importantNotice": {
+    "message": "Svarīgs paziņojums"
+  },
+  "setupTwoStepLogin": {
+    "message": "Iestatīt divpakāpju pieteikšanos"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden, sākot ar 2025. gada februāri, nosūtīs kodu uz konta e-pasta adresi, lai apliecinātu pieteikšanos jaunās ierīcēs."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Var iestatīt divpakāpju pieteikšanos kā citu veidu, kā aizsargāt savu kontu, vai iestatīt savu e-pasta adresi uz tādu, kurai ir piekļuve."
+  },
+  "remindMeLater": {
+    "message": "Atgādināt man vēlāk"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Vai ir uzticama piekļuve savai e-pasta adresei $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nē, nav"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Jā, varu uzticami piekļūt savam e-pastam"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ieslēgt divpakāpju pieteikšanos"
+  },
+  "changeAcctEmail": {
+    "message": "Mainīt konta e-pasta adresi"
+  },
+  "passkeyLogin": {
+    "message": "Pieteikties ar piekļuves atslēgu?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Saglabāt piekļuves atslēgu?"
+  },
+  "saveNewPasskey": {
+    "message": "Saglabāt kā jaunu pieteikšanās vienumu"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Saglabāt piekļuves atslēgu kā jaunu pieteikšanās vienumu"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Šai vietnei nav atbilstošu pieteikšanās vietnumu"
+  },
+  "overwritePasskey": {
+    "message": "Pārrakstīt piekļuves atslēgu?"
+  },
+  "unableToSavePasskey": {
+    "message": "Nevar saglabāt piekļuves atslēgu"
+  },
+  "alreadyContainsPasskey": {
+    "message": "Šis vienums jau satur piekļuves atslēgu. Vai tiešām pārrakstīt pašreizējo piekļuves atslēgu?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Šai lietotnei jau pastāv piekļuves atslēga."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "This application does not support duplicates."
+  },
+  "closeThisWindow": {
+    "message": "Aizvērt šo logu"
+  },
   "allowScreenshots": {
     "message": "Atļaut ekrāna tveršanu"
   },
@@ -4244,16 +4327,147 @@
   "andMoreFeatures": {
     "message": "Un vēl!"
   },
-  "planDescPremium": {
-    "message": "Pilnīga drošība tiešsaistē"
+  "advancedOnlineSecurity": {
+    "message": "Izvērsta tiešsaistes drošība"
   },
   "upgradeToPremium": {
     "message": "Uzlabot uz Premium"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Apvienība vairs neizmanto galvenās paroles, lai pieteiktos Bitwarden. Lai turpinātu, jāapliecina apvienība un domēns."
+  },
+  "continueWithLogIn": {
+    "message": "Turpināt ar pieteikšanos"
+  },
+  "doNotContinue": {
+    "message": "Neturpināt"
+  },
+  "domain": {
+    "message": "Domēns"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Šajā domēnā tiks glabātas konta šifrēšanas atslēgas, tādēļ jāpārliecinās par uzticamību. Ja nav pārliecības, jāsazinās ar savu pārvaldītāju."
+  },
+  "verifyYourOrganization": {
+    "message": "Jāapliecina apvienība, lai pieteiktos"
+  },
+  "organizationVerified": {
+    "message": "Apvienība apliecināta"
+  },
+  "domainVerified": {
+    "message": "Domēns ir apliecināts"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ja neapliecināsi apvienību, tiks atsaukta piekļuve tai."
+  },
+  "leaveNow": {
+    "message": "Pamest tagad"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Jāapliecina domēns, lai pieteiktos"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Lai turpinātu pieteikšanos, jāapliecina šis domēns."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Lai turpinātu pieteikšanos, jāapliecina apvienība un domēns."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Noildzes darbība"
   },
   "sessionTimeoutHeader": {
     "message": "Sesijas noildze"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Šo iestatījumu pārvalda apvienība."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Uzlabot"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Vai tiešām pamest?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Pēc noraidīšanas personīgie vienumi paliks Tavā kontā, bet Tu zaudēsi piekļvuvi kopīgotajiem vienumiem un apvienību iespējām."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Jāsazinās ar savu pārvaldītāju, lai atgūtu piekļuvi."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Pamest $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Kā es varu pārvaldīt savu glabātavu?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Pārcelt vienumus uz $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
   }
 }
