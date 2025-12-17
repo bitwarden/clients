@@ -1,4 +1,5 @@
 // Components
+export * from "./components/additional-options-card/additional-options-card.component";
 export * from "./components/storage-card/storage-card.component";
 export * from "./components/subscription-card/subscription-card.component";
 
