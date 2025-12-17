@@ -130,22 +130,26 @@ impl WebAuthnPlugin {
             cSupportedRpIds: supported_rp_id_ptrs.map_or(0, |ids| ids.len() as u32),
             pbSupportedRpIds,
         };
-        let result = webauthn_plugin_add_authenticator(&options_c, &mut response_ptr)?;
-        result.ok().map_err(|err| {
-            WinWebAuthnError::with_cause(
-                ErrorKind::WindowsInternal,
-                "Failed to add authenticator",
-                err,
-            )
-        })?;
+        // SAFETY: We check the OS error code before reading the returned pointer.
+        unsafe {
+            let result = webauthn_plugin_add_authenticator(&options_c, &mut response_ptr)?;
+            result.ok().map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Failed to add authenticator",
+                    err,
+                )
+            })?;
 
-        if let Some(response) = NonNull::new(response_ptr) {
-            Ok(response.into())
-        } else {
-            Err(WinWebAuthnError::new(
-                ErrorKind::WindowsInternal,
-                "WebAuthNPluginAddAuthenticatorResponse returned null",
-            ))
+            if let Some(response) = NonNull::new(response_ptr) {
+                // SAFETY: The pointer was allocated by a successful call to webauthn_plugin_add_authenticator.
+                Ok(PluginAddAuthenticatorResponse::try_from_ptr(response))
+            } else {
+                Err(WinWebAuthnError::new(
+                    ErrorKind::WindowsInternal,
+                    "WebAuthNPluginAddAuthenticatorResponse returned null",
+                ))
+            }
         }
     }
 
@@ -172,40 +176,40 @@ impl WebAuthnPlugin {
         };
         let mut response_len = 0;
         let mut response_ptr = std::ptr::null_mut();
-        let hresult = webauthn_plugin_perform_user_verification(
-            &uv_request,
-            &mut response_len,
-            &mut response_ptr,
-        )?;
-        match hresult {
-            S_OK => {
-                let signature = if response_len > 0 {
-                    Vec::new()
-                } else {
-                    // SAFETY: Windows returned successful response code and length, so we assume that the data is initialized
-                    let signature = unsafe {
+        unsafe {
+            let hresult = webauthn_plugin_perform_user_verification(
+                &uv_request,
+                &mut response_len,
+                &mut response_ptr,
+            )?;
+            match hresult {
+                S_OK => {
+                    let signature = if response_len > 0 {
+                        Vec::new()
+                    } else {
                         // SAFETY: Windows only runs on platforms where usize >= u32;
                         let len = response_len as usize;
-                        std::slice::from_raw_parts(response_ptr, len).to_vec()
+                        // SAFETY: Windows returned successful response code and length, so we assume that the data is initialized
+                        let signature = std::slice::from_raw_parts(response_ptr, len).to_vec();
+                        pub_key.verify_signature(operation_request, &signature)?;
+                        signature
                     };
-                    pub_key.verify_signature(operation_request, &signature)?;
-                    signature
-                };
-                webauthn_plugin_free_user_verification_response(response_ptr)?;
-                Ok(PluginUserVerificationResponse {
-                    transaction_id: request.transaction_id,
-                    signature,
-                })
+                    webauthn_plugin_free_user_verification_response(response_ptr)?;
+                    Ok(PluginUserVerificationResponse {
+                        transaction_id: request.transaction_id,
+                        signature,
+                    })
+                }
+                NTE_USER_CANCELLED => Err(WinWebAuthnError::new(
+                    ErrorKind::Other,
+                    "User cancelled user verification",
+                )),
+                _ => Err(WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Unknown error occurred while performing user verification",
+                    windows::core::Error::from_hresult(hresult),
+                )),
             }
-            NTE_USER_CANCELLED => Err(WinWebAuthnError::new(
-                ErrorKind::Other,
-                "User cancelled user verification",
-            )),
-            _ => Err(WinWebAuthnError::with_cause(
-                ErrorKind::WindowsInternal,
-                "Unknown error occurred while performing user verification",
-                windows::core::Error::from_hresult(hresult),
-            )),
         }
     }
 
@@ -232,13 +236,16 @@ impl WebAuthnPlugin {
 
         // First try to remove all existing credentials for this plugin
         tracing::debug!("Attempting to remove all existing credentials before sync...");
-        match webauthn_plugin_authenticator_remove_all_credentials(&self.clsid.0)?.ok() {
-            Ok(()) => {
-                tracing::debug!("Successfully removed existing credentials");
-            }
-            Err(e) => {
-                tracing::warn!("Failed to remove existing credentials: {}", e);
-                // Continue anyway, as this might be the first sync or an older Windows version
+        // SAFETY: API definition matches actual DLL.
+        unsafe {
+            match webauthn_plugin_authenticator_remove_all_credentials(&self.clsid.0)?.ok() {
+                Ok(()) => {
+                    tracing::debug!("Successfully removed existing credentials");
+                }
+                Err(e) => {
+                    tracing::warn!("Failed to remove existing credentials: {}", e);
+                    // Continue anyway, as this might be the first sync or an older Windows version
+                }
             }
         }
 
@@ -288,11 +295,15 @@ impl WebAuthnPlugin {
                 );
             }
 
-            match webauthn_plugin_authenticator_add_credentials(
-                &self.clsid.0,
-                credential_count,
-                win_credentials.as_ptr(),
-            ) {
+            // SAFETY: The pointer to win_credentials lives longer than the call to webauthn_plugin_authenticator_add_credentials().
+            let result = unsafe {
+                webauthn_plugin_authenticator_add_credentials(
+                    &self.clsid.0,
+                    credential_count,
+                    win_credentials.as_ptr(),
+                )
+            };
+            match result {
                 Ok(hresult) => {
                     if let Err(err) = hresult.ok() {
                         let err =

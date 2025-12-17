@@ -25,7 +25,7 @@ use super::types::{
 
 use super::PluginAuthenticator;
 use crate::{
-    plugin::{crypto, PluginMakeCredentialRequest},
+    plugin::{crypto, PluginGetAssertionRequest, PluginMakeCredentialRequest},
     ErrorKind, WinWebAuthnError,
 };
 
@@ -113,7 +113,7 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         }
 
         // SAFETY: we received the pointer from Windows, so we trust that the values are set properly.
-        let registration_request = match PluginMakeCredentialRequest::from_ptr(op_request_ptr) {
+        let registration_request = match PluginMakeCredentialRequest::try_from_ptr(op_request_ptr) {
             Ok(r) => r,
             Err(err) => {
                 tracing::error!("Could not deserialize MakeCredential request: {err}");
@@ -173,7 +173,7 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             return E_INVALIDARG;
         }
 
-        let assertion_request = match op_request_ptr.try_into() {
+        let assertion_request = match PluginGetAssertionRequest::try_from_ptr(op_request_ptr) {
             Ok(assertion_request) => assertion_request,
             Err(err) => {
                 tracing::error!("Could not deserialize GetAssertion request: {err}");

@@ -10,7 +10,7 @@ use crate::{ErrorKind, WinWebAuthnError};
 
 macro_rules! webauthn_call {
     ($symbol:literal as fn $fn_name:ident($($arg:ident: $arg_type:ty),+) -> $result_type:ty) => (
-        pub(super) fn $fn_name($($arg: $arg_type),*) -> Result<$result_type, crate::WinWebAuthnError> {
+        pub(super) unsafe fn $fn_name($($arg: $arg_type),*) -> Result<$result_type, crate::WinWebAuthnError> {
             let library = crate::util::load_webauthn_lib()?;
             let response = unsafe {
                 let address = windows::Win32::System::LibraryLoader::GetProcAddress(library, windows::core::s!($symbol)).ok_or(

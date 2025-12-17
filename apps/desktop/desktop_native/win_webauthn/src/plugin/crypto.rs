@@ -37,16 +37,17 @@ pub(super) fn get_operation_signing_public_key(
 ) -> Result<SigningKey, WinWebAuthnError> {
     let mut len = 0;
     let mut data = MaybeUninit::uninit();
-    webauthn_plugin_get_operation_signing_public_key(clsid, &mut len, data.as_mut_ptr())?
-        .ok()
-        .map_err(|err| {
-            WinWebAuthnError::with_cause(
-                ErrorKind::WindowsInternal,
-                "Failed to retrieve operation signing public key",
-                err,
-            )
-        })?;
     unsafe {
+        // SAFETY: We check the OS error code before using the written pointer.
+        webauthn_plugin_get_operation_signing_public_key(clsid, &mut len, data.as_mut_ptr())?
+            .ok()
+            .map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Failed to retrieve operation signing public key",
+                    err,
+                )
+            })?;
         match NonNull::new(data.assume_init()) {
             Some(data) => Ok(SigningKey {
                 cbPublicKey: len,
@@ -65,16 +66,17 @@ pub(super) fn get_user_verification_public_key(
 ) -> Result<SigningKey, WinWebAuthnError> {
     let mut len = 0;
     let mut data = MaybeUninit::uninit();
-    webauthn_plugin_get_user_verification_public_key(clsid, &mut len, data.as_mut_ptr())?
-        .ok()
-        .map_err(|err| {
-            WinWebAuthnError::with_cause(
-                ErrorKind::WindowsInternal,
-                "Failed to retrieve user verification public key",
-                err,
-            )
-        })?;
+    // SAFETY: We check the OS error code before using the written pointer.
     unsafe {
+        webauthn_plugin_get_user_verification_public_key(clsid, &mut len, data.as_mut_ptr())?
+            .ok()
+            .map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Failed to retrieve user verification public key",
+                    err,
+                )
+            })?;
         match NonNull::new(data.assume_init()) {
             Some(data) => Ok(SigningKey {
                 cbPublicKey: len,
