@@ -22,7 +22,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { assertTruthy, assertNonNullish } from "@bitwarden/common/auth/utils";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -199,16 +198,14 @@ export class SetInitialPasswordComponent implements OnInit {
     switch (this.userType) {
       case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER:
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP: {
-        const newApisFlagEnabled = await this.configService.getFeatureFlag(
-          FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-        );
-
-        if (newApisFlagEnabled) {
+        // Remove wrapping "if" check in PM-28143
+        if (passwordInputResult.newApisFlagEnabled) {
           await this.setInitialPasswordV2(passwordInputResult);
           return;
         }
 
         await this.setInitialPassword(passwordInputResult);
+
         break;
       }
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
