@@ -87,6 +87,17 @@ export class DefaultCollectionService implements CollectionService {
     return result$;
   }
 
+  defaultUserCollection$(
+    userId: UserId,
+    orgId: OrganizationId,
+  ): Observable<CollectionView | undefined> {
+    return this.decryptedCollections$(userId).pipe(
+      map((collections) => {
+        return collections.find((c) => c.isDefaultCollection && c.organizationId === orgId);
+      }),
+    );
+  }
+
   private initializeDecryptedState(userId: UserId): Observable<CollectionView[]> {
     return combineLatest([
       this.encryptedCollections$(userId),
