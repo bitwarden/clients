@@ -87,11 +87,18 @@ export default class Domain {
       try {
         viewModel[prop] = await encryptService.decryptString(domain[prop]!, key);
       } catch (e) {
+
+        // In case the SDK maps to a non-Error type, this is defensive
+        const errorMsg =
+          typeof e === "object" && e !== null && "message" in e
+            ? (e as { message: string }).message
+            : String(e);
+
         // eslint-disable-next-line no-console
         console.error(
           `Failed to decrypt property '${String(
             prop,
-          )}' of domain. Context: ${objectContext}. Error: ${"message" in e ? e.message : String(e)}`, // In case the SDK maps to a non-Error type, this is defensive
+          )}' of domain. Context: ${objectContext}. Error: ${errorMsg}`,
         );
         viewModel[prop] = DECRYPT_ERROR;
       }
