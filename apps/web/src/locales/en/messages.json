@@ -5606,8 +5606,23 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescription": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next N days.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "newTextSend": {
     "message": "New Text Send",
@@ -12266,7 +12281,7 @@
       }
     }
   },
-  "removeMasterPasswordForOrgUserKeyConnector":{
+  "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
@@ -12284,10 +12299,10 @@
   "verifyYourOrganization": {
     "message": "Verify your organization to log in"
   },
-  "organizationVerified":{
+  "organizationVerified": {
     "message": "Organization verified"
   },
-  "domainVerified":{
+  "domainVerified": {
     "message": "Domain verified"
   },
   "leaveOrganizationContent": {
@@ -12418,7 +12433,7 @@
       }
     }
   },
-   "howToManageMyVault": {
+  "howToManageMyVault": {
     "message": "How do I manage my vault?"
   },
   "transferItemsToOrganizationTitle": {
@@ -12426,7 +12441,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"  
+        "example": "My Org Name"
       }
     }
   },
@@ -12435,7 +12450,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"  
+        "example": "My Org Name"
       }
     }
   },
@@ -12448,7 +12463,7 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
-   "youHaveBitwardenPremium": {
+  "youHaveBitwardenPremium": {
     "message": "You have Bitwarden Premium"
   },
   "viewAndManagePremiumSubscription": {
@@ -12466,7 +12481,7 @@
       }
     }
   },
-    "uploadLicenseFile": {
+  "uploadLicenseFile": {
     "message": "Upload license file"
   },
   "uploadYourLicenseFile": {
@@ -12484,7 +12499,7 @@
       }
     }
   },
-    "alreadyHaveSubscriptionQuestion": {
+  "alreadyHaveSubscriptionQuestion": {
     "message": "Already have a subscription?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
@@ -12493,7 +12508,7 @@
   "viewAllPlans": {
     "message": "View all plans"
   },
-  "planDescPremium":{
+  "planDescPremium": {
     "message": "Complete online security"
   }
 }

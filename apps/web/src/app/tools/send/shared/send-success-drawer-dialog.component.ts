@@ -39,6 +39,28 @@ export class SendSuccessDrawerDialogComponent {
     this.sendLink.set(env.getSendUrl() + this.send.accessId + "/" + this.send.urlB64Key);
   }
 
+  get formattedExpirationTime(): string {
+    if (!this.send.expirationDate) {
+      return "";
+    }
+    const hoursAvailable = this.getHoursAvailable(this.send);
+    if (hoursAvailable < 24) {
+      return hoursAvailable === 1
+        ? this.i18nService.t("oneHour").toLowerCase()
+        : this.i18nService.t("durationTimeHours", String(hoursAvailable)).toLowerCase();
+    }
+    const daysAvailable = Math.ceil(hoursAvailable / 24);
+    return daysAvailable === 1
+      ? this.i18nService.t("oneDay").toLowerCase()
+      : this.i18nService.t("days", String(daysAvailable)).toLowerCase();
+  }
+
+  private getHoursAvailable(send: SendView): number {
+    const now = new Date().getTime();
+    const expirationDate = new Date(send.expirationDate).getTime();
+    return Math.max(0, Math.ceil((expirationDate - now) / (1000 * 60 * 60)));
+  }
+
   copyLink() {
     const link = this.sendLink();
     if (!link) {
