@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Exporta des de"
   },
-  "exportVault": {
-    "message": "Exporta la caixa forta"
-  },
-  "exportSecrets": {
-    "message": "Exporta secrets"
-  },
   "fileFormat": {
     "message": "Format de fitxer"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirma la contrasenya mestra"
-  },
-  "confirmFormat": {
-    "message": "Confirma el format"
   },
   "filePassword": {
     "message": "Contrasenya del fitxer"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Eines"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Importa dades"
@@ -8753,9 +8747,6 @@
   "server": {
     "message": "Servidor"
   },
-  "exportData": {
-    "message": "Exportar dades"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exportació de dades secretes de l’organització"
   },
@@ -11595,6 +11586,9 @@
   },
   "unArchive": {
     "message": "Unarchive"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "itemsInArchive": {
     "message": "Items in archive"

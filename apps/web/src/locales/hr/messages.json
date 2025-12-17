@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Izvezi iz"
   },
-  "exportVault": {
-    "message": "Izvezi trezor"
-  },
-  "exportSecrets": {
-    "message": "Izvezi tajne"
-  },
   "fileFormat": {
     "message": "Format datoteke"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Potvrdi glavnu lozinku"
-  },
-  "confirmFormat": {
-    "message": "Potvrdi oblik"
   },
   "filePassword": {
     "message": "Lozinka datoteke"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Alati"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Uvezi podatke"
@@ -8753,9 +8747,6 @@
   "server": {
     "message": "Poslužitelj"
   },
-  "exportData": {
-    "message": "Izvezi podatke"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Izvoz tajnih podataka organizacije"
   },
@@ -11595,6 +11586,9 @@
   },
   "unArchive": {
     "message": "Poništi arhiviranje"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "itemsInArchive": {
     "message": "Stavke u arhivi"
