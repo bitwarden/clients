@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Exportovať z"
   },
-  "exportVault": {
-    "message": "Export trezoru"
-  },
-  "exportSecrets": {
-    "message": "Exportovať položky"
-  },
   "fileFormat": {
     "message": "Formát Súboru"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Potvrdiť hlavné heslo"
-  },
-  "confirmFormat": {
-    "message": "Potvrdiť formát"
   },
   "filePassword": {
     "message": "Heslo súboru"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Nástroje"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Import dát"
@@ -8753,9 +8747,6 @@
   "server": {
     "message": "Server"
   },
-  "exportData": {
-    "message": "Exportovať dáta"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exportovať tajné dáta Organizácie"
   },
@@ -11595,6 +11586,9 @@
   },
   "unArchive": {
     "message": "Zrušiť archiváciu"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "itemsInArchive": {
     "message": "Položky v archíve"

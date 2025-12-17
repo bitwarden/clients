@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Elporti el"
   },
-  "exportVault": {
-    "message": "Elporti la trezorejon"
-  },
-  "exportSecrets": {
-    "message": "Elporti la sekretojn"
-  },
   "fileFormat": {
     "message": "Dosierformato"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Konfirmi la ĉefpasvorton"
-  },
-  "confirmFormat": {
-    "message": "Konfirmu formaton"
   },
   "filePassword": {
     "message": "Pasvorto de la dosiero"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Iloj"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Importi Datumojn"
@@ -8753,9 +8747,6 @@
   "server": {
     "message": "Servilo"
   },
-  "exportData": {
-    "message": "Elporti datumon"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "En elportado de Sekretaj Datumoj de Organizo"
   },
@@ -11595,6 +11586,9 @@
   },
   "unArchive": {
     "message": "Unarchive"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "itemsInArchive": {
     "message": "Items in archive"

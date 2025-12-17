@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "Додај прилог"
   },
+  "itemsTransferred": {
+    "message": "Пренете ставке"
+  },
+  "fixEncryption": {
+    "message": "Поправи шифровање"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Ова датотека користи застарели метод шифровања."
+  },
+  "attachmentUpdated": {
+    "message": "Прилог је ажуриран"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Максимална величина је 500МБ"
   },
@@ -908,6 +920,12 @@
   "unexpectedError": {
     "message": "Дошло је до неочекиване грешке."
   },
+  "unexpectedErrorShort": {
+    "message": "Неочекивана грешка"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Затворите овај Bitwarden прозор и покушајте поново."
+  },
   "itemInformation": {
     "message": "Инфо о ставци"
   },
@@ -1094,22 +1112,22 @@
     "message": "Сазнај више"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Дошло је до грешке при ажурирању подешавања шифровања."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Ажурирај своје поставке за шифровање"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Нова препоручена подешавања шифрирања побољшаће вашу сигурност налога. Унесите своју главну лозинку за ажурирање."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Да бисте наставили потврдите ваш идентитет"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Унети вашу главну лозинку"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Ажурирај подешавања"
   },
   "featureUnavailable": {
     "message": "Функција је недоступна"
@@ -1180,8 +1198,8 @@
   "followUs": {
     "message": "Пратите нас"
   },
-  "syncVault": {
-    "message": "Синхронизуј сеф"
+  "syncNow": {
+    "message": "Синхронизуј сада"
   },
   "changeMasterPass": {
     "message": "Промени главну лозинку"
@@ -1509,7 +1527,7 @@
     "message": "1ГБ шифровано складиште за прилоге."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ шифровано складиште за прилоге.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1757,8 +1775,11 @@
   "exportFrom": {
     "message": "Извоз од"
   },
-  "exportVault": {
-    "message": "Извоз сефа"
+  "export": {
+    "message": "Извези"
+  },
+  "import": {
+    "message": "Увоз"
   },
   "fileFormat": {
     "message": "Формат датотеке"
@@ -2619,9 +2640,6 @@
   "removedMasterPassword": {
     "message": "Главна лозинка уклоњена"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Главна лозинка више није потребна за чланове следеће организације. Молимо потврдите домен са администратором организације."
-  },
   "organizationName": {
     "message": "Назив организације"
   },
@@ -3477,10 +3495,6 @@
   "aliasDomain": {
     "message": "Домен алијаса"
   },
-  "importData": {
-    "message": "Увези податке",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Грешка при увозу"
   },
@@ -3886,6 +3900,75 @@
   "fileSavedToDevice": {
     "message": "Датотека је сачувана на уређају. Управљајте преузимањима са свог уређаја."
   },
+  "importantNotice": {
+    "message": "Важно обавештење"
+  },
+  "setupTwoStepLogin": {
+    "message": "Поставити дво-степенску пријаву"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden ће послати кôд на имејл вашег налога за верификовање пријављивања са нових уређаја почевши од фебруара 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Можете да подесите пријаву у два корака као алтернативни начин да заштитите свој налог или да промените свој имејл у један који можете да приступите."
+  },
+  "remindMeLater": {
+    "message": "Подсети ме касније"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Да ли имате поуздан приступ својим имејлом, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Не, ненам"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, могу поуздано да приступим овим имејлом"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Упалити дво-степенску пријаву"
+  },
+  "changeAcctEmail": {
+    "message": "Променити имејл налога"
+  },
+  "passkeyLogin": {
+    "message": "Пријавите се са приступним кључем?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Сачувати приступни кључ?"
+  },
+  "saveNewPasskey": {
+    "message": "Сачувати као нову пријаву"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Сачувати приступни кључ као нову пријаву"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Нема одговарајућих пријава за овај сајт"
+  },
+  "overwritePasskey": {
+    "message": "Заменити приступни кључ?"
+  },
+  "unableToSavePasskey": {
+    "message": "Није могуће сачувати приступни кључ"
+  },
+  "alreadyContainsPasskey": {
+    "message": "Ова ставка већ садржи приступни кључ. Да ли сте сигурни да желите да замените тренутни приступни кључ?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "За ову апликацију већ постоји приступни кључ."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "Ова апликација не подржава дупликате."
+  },
+  "closeThisWindow": {
+    "message": "Затвори овај прозор"
+  },
   "allowScreenshots": {
     "message": "Дозволи снимање екрана"
   },
@@ -4244,16 +4327,147 @@
   "andMoreFeatures": {
     "message": "И још више!"
   },
-  "planDescPremium": {
-    "message": "Потпуна онлајн безбедност"
+  "advancedOnlineSecurity": {
+    "message": "Напредна онлајн безбедност"
   },
   "upgradeToPremium": {
     "message": "Надоградите на Premium"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Ваша организација више не користи главне лозинке за пријаву на Bitwarden. Да бисте наставили, верификујте организацију и домен."
+  },
+  "continueWithLogIn": {
+    "message": "Наставити са пријавом"
+  },
+  "doNotContinue": {
+    "message": "Не настави"
+  },
+  "domain": {
+    "message": "Домен"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Овај домен ће чувати кључеве за шифровање вашег налога, па се уверите да му верујете. Ако нисте сигурни, проверите код свог администратора."
+  },
+  "verifyYourOrganization": {
+    "message": "Верификујте своју организацију да бисте се пријавили"
+  },
+  "organizationVerified": {
+    "message": "Организација верификована"
+  },
+  "domainVerified": {
+    "message": "Домен верификован"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ако не верификујете своју организацију, ваш приступ организацији ће бити опозван."
+  },
+  "leaveNow": {
+    "message": "Напусти сада"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Верификујте домен да бисте се пријавили"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Да бисте наставили са пријављивањем, верификујте овај домен."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Да бисте наставили са пријављивањем, верификујте организацију и домен."
+  },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Акција тајмаута"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Истек сесије"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Овим подешавањем управља ваша организација."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Ваша организација је подесила максимално временско ограничење сесије на $HOURS$ сати и $MINUTES$ минута.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Ваша организација је поставила подразумевано временско ограничење сесије на Блокирање система."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Ваша организација је поставила подразумевано временско ограничење сесије на При рестартовању."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Максимално временско ограничење не може да пређе $HOURS$ сат(а) и $MINUTES$ минут(а)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "На поновно покретање"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Подесите метод откључавања да бисте променили радњу временског ограничења"
+  },
+  "upgrade": {
+    "message": "Надогради"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Да ли сте сигурни да желите да напустите?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Ако одбијете, ваши лични предмети ће остати на вашем налогу, али ћете изгубити приступ дељеним ставкама и организационим функцијама."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Контактирајте свог администратора да бисте поново добили приступ."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Напустити $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Како да управљам својим сефом?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Премести ставке у $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ захтева да све ставке буду у власништву организације ради безбедности и усклађености. Кликните на прихвати да бисте пренели власништво над својим ставкама.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Прихвати трансфер"
+  },
+  "declineAndLeave": {
+    "message": "Одбиј и напусти"
+  },
+  "whyAmISeeingThis": {
+    "message": "Зашто видите ово?"
   }
 }
