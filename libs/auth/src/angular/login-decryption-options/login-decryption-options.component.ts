@@ -33,7 +33,11 @@ import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import { SignedSecurityState } from "@bitwarden/common/key-management/types";
+import {
+  SignedPublicKey,
+  SignedSecurityState,
+  WrappedSigningKey,
+} from "@bitwarden/common/key-management/types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -41,6 +45,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -58,6 +63,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
@@ -293,13 +299,13 @@ export class LoginDecryptionOptionsComponent implements OnInit {
               return await ref.value
                 .auth()
                 .registration()
-                .post_keys_for_tde_registration(
-                  organizationId,
-                  orgKeyResponse.publicKey,
-                  userId,
-                  deviceIdentifier,
-                  this.formGroup.value.rememberDevice,
-                );
+                .post_keys_for_tde_registration({
+                  org_id: asUuid<SdkOrganizationId>(organizationId),
+                  org_public_key: orgKeyResponse.publicKey,
+                  user_id: asUuid<SdkUserId>(userId),
+                  device_identifier: deviceIdentifier,
+                  trust_device: this.formGroup.value.rememberDevice,
+                });
             }),
           ),
         );
@@ -315,11 +321,11 @@ export class LoginDecryptionOptionsComponent implements OnInit {
           userId,
         );
         await this.keyService.setSignedPublicKey(
-          register_result.account_cryptographic_state.V2.signed_public_key,
+          register_result.account_cryptographic_state.V2.signed_public_key as SignedPublicKey,
           userId,
         );
         await this.keyService.setUserSigningKey(
-          register_result.account_cryptographic_state.V2.signing_key,
+          register_result.account_cryptographic_state.V2.signing_key as WrappedSigningKey,
           userId,
         );
         await this.securityStateService.setAccountSecurityState(
@@ -335,7 +341,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
 
         // Set user key - user is now unlocked
         await this.keyService.setUserKey(
-          new SymmetricCryptoKey(new Uint8Array(register_result.user_key)) as UserKey,
+          SymmetricCryptoKey.fromString(register_result.user_key) as UserKey,
           userId,
         );
       } else {
