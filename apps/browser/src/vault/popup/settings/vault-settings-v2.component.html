@@ -15,7 +15,7 @@
     <bit-item>
       <button type="button" bit-item-content (click)="import()">
         <div class="tw-flex tw-items-center tw-justify-center tw-gap-2">
-          <p>{{ "import" | i18n }}</p>
+          <p>{{ "importNoun" | i18n }}</p>
           <span
             *ngIf="emptyVaultImportBadge$ | async"
             bitBadge
@@ -30,7 +30,7 @@
     </bit-item>
     <bit-item>
       <a bit-item-content routerLink="/export">
-        {{ "export" | i18n }}
+        {{ "exportNoun" | i18n }}
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
