@@ -77,11 +77,17 @@ describe("VaultSettingsV2Component", () => {
   };
 
   beforeEach(async () => {
+    // Reset BehaviorSubjects to initial values
+    mockUserCanArchive$.next(false);
+    mockHasArchiveFlagEnabled$.next(true);
+    mockArchivedCiphers$.next([]);
+    mockShowNudgeBadge$.next(false);
+
     mockCipherArchiveService = mock<CipherArchiveService>({
       userCanArchive$: jest.fn().mockReturnValue(mockUserCanArchive$),
-      hasArchiveFlagEnabled$: jest.fn().mockReturnValue(mockHasArchiveFlagEnabled$),
       archivedCiphers$: jest.fn().mockReturnValue(mockArchivedCiphers$),
     });
+    mockCipherArchiveService.hasArchiveFlagEnabled$ = mockHasArchiveFlagEnabled$.asObservable();
 
     await TestBed.configureTestingModule({
       imports: [VaultSettingsV2Component],
@@ -133,7 +139,7 @@ describe("VaultSettingsV2Component", () => {
 
       const archiveLink = queryByTestId("archive-link");
 
-      expect(archiveLink.nativeElement.getAttribute("routerLink")).toBe("/archive");
+      expect(archiveLink?.nativeElement.getAttribute("routerLink")).toBe("/archive");
     });
 
     it("routes to archive when user has archived items but cannot archive", async () => {
@@ -141,7 +147,7 @@ describe("VaultSettingsV2Component", () => {
 
       const premiumArchiveLink = queryByTestId("premium-archive-link");
 
-      premiumArchiveLink.nativeElement.click();
+      premiumArchiveLink?.nativeElement.click();
       await fixture.whenStable();
 
       expect(router.navigate).toHaveBeenCalledWith(["/archive"]);
@@ -150,14 +156,14 @@ describe("VaultSettingsV2Component", () => {
     it("prompts for premium when user cannot archive and has no archived items", async () => {
       setArchiveState(false, []);
       const badge = component["premiumBadgeComponent"]();
-      jest.spyOn(badge, "promptForPremium");
+      jest.spyOn(badge!, "promptForPremium");
 
       const premiumArchiveLink = queryByTestId("premium-archive-link");
 
-      premiumArchiveLink.nativeElement.click();
+      premiumArchiveLink?.nativeElement.click();
       await fixture.whenStable();
 
-      expect(badge.promptForPremium).toHaveBeenCalled();
+      expect(badge!.promptForPremium).toHaveBeenCalled();
     });
   });
 
