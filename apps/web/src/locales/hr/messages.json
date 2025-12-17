@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Poništi arhiviranje"
   },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "Stavke u arhivi"
   },

@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Изваждане от архива"
   },
+  "unArchiveAndSave": {
+    "message": "Разархивиране и запазване"
+  },
   "itemsInArchive": {
     "message": "Елементи в архива"
   },

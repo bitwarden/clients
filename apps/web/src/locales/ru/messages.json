@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Разархивировать"
   },
+  "unArchiveAndSave": {
+    "message": "Разархивировать и сохранить"
+  },
   "itemsInArchive": {
     "message": "Элементы в архиве"
   },

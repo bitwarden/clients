@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Dearchiveren"
   },
+  "unArchiveAndSave": {
+    "message": "Dearchiveren en opslaan"
+  },
   "itemsInArchive": {
     "message": "Items in archief"
   },
