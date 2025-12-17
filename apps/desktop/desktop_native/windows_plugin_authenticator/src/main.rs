@@ -302,7 +302,8 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
         let is_unlocked = get_lock_status(&client).map_or(false, |response| response.is_unlocked);
         // Don't mess with the window unless we're going to need it: if the
         // vault is locked or if we need to show credential selection dialog.
-        let needs_ui = !is_unlocked || request.allow_credentials().cCredentials != 1;
+
+        let needs_ui = !is_unlocked || request.allow_credentials().count() != 1;
         if needs_ui {
             unsafe {
                 let plugin_window = get_window_details(&client)?;

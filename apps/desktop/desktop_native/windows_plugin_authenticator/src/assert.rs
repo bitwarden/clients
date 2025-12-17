@@ -39,9 +39,7 @@ pub fn get_assertion(
     // Extract allowed credentials from credential list
     let allowed_credential_ids: Vec<Vec<u8>> = request
         .allow_credentials()
-        .iter()
-        .filter_map(|cred| cred.credential_id())
-        .map(|id| id.to_vec())
+        .filter_map(|cred| cred.credential_id().map(|id| id.to_vec()))
         .collect();
 
     let client_window_handle = request.window_handle.0.addr().to_le_bytes().to_vec();

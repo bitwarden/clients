@@ -324,27 +324,23 @@ impl UserEntityInformation<'_> {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
-    pub dwVersion: u32,
-    pub pwszCredentialType: *const u16, // LPCWSTR
-    pub lAlg: i32,                      // LONG - COSE algorithm identifier
+    dwVersion: u32,
+    pwszCredentialType: NonNull<u16>, // LPCWSTR
+    lAlg: i32,                        // LONG - COSE algorithm identifier
 }
 
 impl WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
     pub fn credential_type(&self) -> Result<String, WinWebAuthnError> {
-        if self.pwszCredentialType.is_null() {
-            return Err(WinWebAuthnError::new(
-                ErrorKind::WindowsInternal,
-                "Invalid credential type",
-            ));
-        }
         unsafe {
-            PCWSTR(self.pwszCredentialType).to_string().map_err(|err| {
-                WinWebAuthnError::with_cause(
-                    ErrorKind::WindowsInternal,
-                    "Invalid credential type",
-                    err,
-                )
-            })
+            PCWSTR(self.pwszCredentialType.as_ptr())
+                .to_string()
+                .map_err(|err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::WindowsInternal,
+                        "Invalid credential type",
+                        err,
+                    )
+                })
         }
     }
     pub fn alg(&self) -> i32 {
@@ -354,19 +350,21 @@ impl WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
+pub(crate) struct WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
     cCredentialParameters: u32,
     pCredentialParameters: *const WEBAUTHN_COSE_CREDENTIAL_PARAMETER,
 }
 
 impl WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
-    pub fn iter(&self) -> ArrayPointerIterator<'_, WEBAUTHN_COSE_CREDENTIAL_PARAMETER> {
-        unsafe {
-            ArrayPointerIterator::new(
-                self.pCredentialParameters,
-                self.cCredentialParameters as usize,
-            )
-        }
+    /// # Safety
+    /// The caller must ensure that the pCredentialParameters is either null or
+    /// marks the beginning of a list whose count is represented accurately by
+    /// cCredentialParameters.
+    pub unsafe fn iter(&self) -> ArrayPointerIterator<'_, WEBAUTHN_COSE_CREDENTIAL_PARAMETER> {
+        ArrayPointerIterator::new(
+            self.pCredentialParameters,
+            self.cCredentialParameters as usize,
+        )
     }
 }
 
@@ -614,7 +612,7 @@ impl TryFrom<Vec<u8>> for CredentialId {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct WEBAUTHN_CREDENTIAL_EX {
+pub(crate) struct WEBAUTHN_CREDENTIAL_EX {
     dwVersion: u32,
     cbId: u32,
     pbId: *const u8,
@@ -622,36 +620,47 @@ pub struct WEBAUTHN_CREDENTIAL_EX {
     dwTransports: u32,
 }
 
-impl WEBAUTHN_CREDENTIAL_EX {
+pub struct CredentialEx<'a> {
+    inner: &'a WEBAUTHN_CREDENTIAL_EX,
+}
+
+impl CredentialEx<'_> {
     pub fn credential_id(&self) -> Option<&[u8]> {
-        if self.cbId == 0 || self.pbId.is_null() {
+        if self.inner.cbId == 0 || self.inner.pbId.is_null() {
             None
         } else {
-            unsafe { Some(std::slice::from_raw_parts(self.pbId, self.cbId as usize)) }
+            unsafe {
+                Some(std::slice::from_raw_parts(
+                    self.inner.pbId,
+                    self.inner.cbId as usize,
+                ))
+            }
         }
     }
 
     pub fn credential_type(&self) -> Result<String, WinWebAuthnError> {
-        if self.pwszCredentialType.is_null() {
+        if self.inner.pwszCredentialType.is_null() {
             return Err(WinWebAuthnError::new(
                 ErrorKind::WindowsInternal,
                 "Received invalid credential ID",
             ));
         }
         unsafe {
-            PCWSTR(self.pwszCredentialType).to_string().map_err(|err| {
-                WinWebAuthnError::with_cause(
-                    ErrorKind::WindowsInternal,
-                    "Invalid credential ID",
-                    err,
-                )
-            })
+            PCWSTR(self.inner.pwszCredentialType)
+                .to_string()
+                .map_err(|err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::WindowsInternal,
+                        "Invalid credential ID",
+                        err,
+                    )
+                })
         }
     }
 
     pub fn transports(&self) -> Vec<CtapTransport> {
         let mut transports = Vec::new();
-        let mut t = self.dwTransports;
+        let mut t = self.inner.dwTransports;
         if t == 0 {
             return transports;
         };
@@ -677,23 +686,6 @@ impl WEBAUTHN_CREDENTIAL_EX {
     }
 }
 
-pub struct CredentialEx {
-    inner: NonNull<WEBAUTHN_CREDENTIAL_EX>,
-}
-
-impl AsRef<WEBAUTHN_CREDENTIAL_EX> for CredentialEx {
-    fn as_ref(&self) -> &WEBAUTHN_CREDENTIAL_EX {
-        // SAFETY: We initialize memory manually in constructors.
-        unsafe { self.inner.as_ref() }
-    }
-}
-
-impl From<NonNull<WEBAUTHN_CREDENTIAL_EX>> for CredentialEx {
-    fn from(value: NonNull<WEBAUTHN_CREDENTIAL_EX>) -> Self {
-        Self { inner: value }
-    }
-}
-
 #[repr(u32)]
 #[derive(Clone, Copy)]
 pub enum CtapTransport {
@@ -708,30 +700,13 @@ pub enum CtapTransport {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct CredentialList {
+pub(crate) struct WEBAUTHN_CREDENTIAL_LIST {
     pub cCredentials: u32,
     pub ppCredentials: *const *const WEBAUTHN_CREDENTIAL_EX,
 }
 
-pub(crate) type WEBAUTHN_CREDENTIAL_LIST = CredentialList;
-pub struct CredentialListIterator<'a> {
-    inner: ArrayPointerIterator<'a, *const WEBAUTHN_CREDENTIAL_EX>,
-}
-
-impl<'a> Iterator for CredentialListIterator<'a> {
-    type Item = &'a WEBAUTHN_CREDENTIAL_EX;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let item = self.inner.next()?;
-        // SAFETY: This type can only be constructed from this library using
-        // responses from Windows APIs, and we trust that the pointer and length
-        // of each inner item of the array is valid.
-        unsafe { item.as_ref() }
-    }
-}
-
-impl CredentialList {
-    pub fn iter(&self) -> CredentialListIterator<'_> {
+impl WEBAUTHN_CREDENTIAL_LIST {
+    pub unsafe fn iter(&self) -> CredentialListIterator<'_> {
         // SAFETY: This type can only be constructed from this library using
         // responses from Windows APIs. The pointer is checked for null safety
         // on construction.
@@ -740,6 +715,22 @@ impl CredentialList {
                 inner: ArrayPointerIterator::new(self.ppCredentials, self.cCredentials as usize),
             }
         }
+    }
+}
+
+pub struct CredentialListIterator<'a> {
+    inner: ArrayPointerIterator<'a, *const WEBAUTHN_CREDENTIAL_EX>,
+}
+
+impl<'a> Iterator for CredentialListIterator<'a> {
+    type Item = CredentialEx<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let item = self.inner.next()?;
+        // SAFETY: This type can only be constructed from this library using
+        // responses from Windows APIs, and we trust that the pointer and length
+        // of each inner item of the array is valid.
+        unsafe { item.as_ref().map(|inner| CredentialEx { inner }) }
     }
 }
 

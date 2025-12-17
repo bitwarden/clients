@@ -49,7 +49,6 @@ pub fn make_credential(
     // Extract supported algorithms
     let supported_algorithms: Vec<i32> = request
         .pub_key_cred_params()
-        .iter()
         .map(|params| params.alg())
         .collect();
 
@@ -66,9 +65,7 @@ pub fn make_credential(
     // Extract excluded credentials from credential list
     let excluded_credentials: Vec<Vec<u8>> = request
         .exclude_credentials()
-        .iter()
-        .filter_map(|cred| cred.credential_id())
-        .map(|id| id.to_vec())
+        .filter_map(|cred| cred.credential_id().map(|id| id.to_vec()))
         .collect();
     if !excluded_credentials.is_empty() {
         tracing::debug!(

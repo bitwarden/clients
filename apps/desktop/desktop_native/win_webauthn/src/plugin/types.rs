@@ -14,16 +14,18 @@ use windows::{
 
 use crate::{
     plugin::crypto,
-    types::{RpEntityInformation, UserEntityInformation, UserId},
+    types::{
+        CredentialEx, RpEntityInformation, UserEntityInformation, UserId,
+        WEBAUTHN_COSE_CREDENTIAL_PARAMETER,
+    },
     util::{webauthn_call, WindowsString},
     CredentialId, ErrorKind, WinWebAuthnError,
 };
 
 use crate::types::{
-    AuthenticatorInfo, CredentialList, CtapTransport, HmacSecretSalt,
-    WebAuthnExtensionMakeCredentialOutput, WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
-    WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_EXTENSIONS,
-    WEBAUTHN_RP_ENTITY_INFORMATION, WEBAUTHN_USER_ENTITY_INFORMATION,
+    AuthenticatorInfo, CtapTransport, HmacSecretSalt, WebAuthnExtensionMakeCredentialOutput,
+    WEBAUTHN_COSE_CREDENTIAL_PARAMETERS, WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_CREDENTIAL_LIST,
+    WEBAUTHN_EXTENSIONS, WEBAUTHN_RP_ENTITY_INFORMATION, WEBAUTHN_USER_ENTITY_INFORMATION,
 };
 
 use super::Clsid;
@@ -378,7 +380,7 @@ pub(super) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
     pub pbClientDataHash: *const u8,
     pub pRpInformation: *const WEBAUTHN_RP_ENTITY_INFORMATION,
     pub pUserInformation: *const WEBAUTHN_USER_ENTITY_INFORMATION,
-    pub WebAuthNCredentialParameters: WEBAUTHN_COSE_CREDENTIAL_PARAMETERS, // Matches C++ sample
+    pub WebAuthNCredentialParameters: WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
     pub CredentialList: WEBAUTHN_CREDENTIAL_LIST,
     pub cbCborExtensionsMap: u32,
     pub pbCborExtensionsMap: *const u8,
@@ -414,12 +416,12 @@ impl PluginMakeCredentialRequest {
 
     pub fn rp_information(&self) -> RpEntityInformation<'_> {
         let ptr = self.as_ref().pRpInformation;
-        // SAFETY: if this is constructed using Self::from_ptr(), the caller must ensure that pRpInformation is valid.
+        // SAFETY: When this is constructed using Self::from_ptr(), the caller must ensure that pRpInformation is valid.
         unsafe { RpEntityInformation::new(ptr.as_ref().expect("pRpInformation to be non-null")) }
     }
 
     pub fn user_information(&self) -> UserEntityInformation<'_> {
-        // SAFETY: if this is constructed using Self::from_ptr(), the caller must ensure that pUserInformation is valid.
+        // SAFETY: When this is constructed using Self::from_ptr(), the caller must ensure that pUserInformation is valid.
         let ptr = self.as_ref().pUserInformation;
         assert!(!ptr.is_null());
         unsafe {
@@ -427,12 +429,14 @@ impl PluginMakeCredentialRequest {
         }
     }
 
-    pub fn pub_key_cred_params(&self) -> WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
-        self.as_ref().WebAuthNCredentialParameters
+    pub fn pub_key_cred_params(&self) -> impl Iterator<Item = &WEBAUTHN_COSE_CREDENTIAL_PARAMETER> {
+        // SAFETY: When this is constructed from Self::from_ptr(), the Windows decode API constructs valid pointers.
+        unsafe { self.as_ref().WebAuthNCredentialParameters.iter() }
     }
 
-    pub fn exclude_credentials(&self) -> CredentialList {
-        self.as_ref().CredentialList
+    pub fn exclude_credentials(&self) -> impl Iterator<Item = CredentialEx<'_>> {
+        // SAFETY: When this is constructed from Self::from_ptr(), the Windows decode API constructs valid pointers.
+        unsafe { self.as_ref().CredentialList.iter() }
     }
 
     /// CTAP CBOR extensions map
@@ -459,6 +463,7 @@ impl PluginMakeCredentialRequest {
     /// When calling this method, callers must ensure:
     /// - `ptr` must be convertible to a reference.
     /// - pbEncodedRequest must be non-null and have the length specified in cbEncodedRequest.
+    /// - pbEncodedRequest must point to a valid CTAP MakeCredential bytes.
     pub(super) unsafe fn from_ptr(
         ptr: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>,
     ) -> Result<PluginMakeCredentialRequest, WinWebAuthnError> {
@@ -803,8 +808,9 @@ impl PluginGetAssertionRequest {
         }
     }
 
-    pub fn allow_credentials(&self) -> CredentialList {
-        self.as_ref().CredentialList
+    pub fn allow_credentials(&self) -> impl Iterator<Item = CredentialEx<'_>> {
+        // SAFETY: When this is constructed from Self::from_ptr(), the Windows decode API constructs valid pointers.
+        unsafe { self.as_ref().CredentialList.iter() }
     }
 
     // TODO: Support extensions

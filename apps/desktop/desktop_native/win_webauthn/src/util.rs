@@ -72,7 +72,8 @@ pub struct ArrayPointerIterator<'a, T> {
 }
 
 impl<T> ArrayPointerIterator<'_, T> {
-    /// Safety constraints: The caller must ensure that the pointer and length is
+    /// # Safety
+    /// The caller must ensure that the pointer and length is
     /// valid. A null pointer returns an empty iterator.
     pub unsafe fn new(data: *const T, len: usize) -> Self {
         let slice = if !data.is_null() {
