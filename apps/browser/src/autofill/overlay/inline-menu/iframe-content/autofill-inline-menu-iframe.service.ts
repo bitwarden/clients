@@ -17,7 +17,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private readonly extensionOrigin: string;
   private iframeMutationObserver: MutationObserver;
   private iframe: HTMLIFrameElement;
-  private ariaAlertElement: HTMLDivElement;
+  private ariaAlertElement?: HTMLDivElement;
   private ariaAlertTimeout: number | NodeJS.Timeout;
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private fadeInTimeout: number | NodeJS.Timeout;
@@ -153,7 +153,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
     this.ariaAlertTimeout = globalThis.setTimeout(async () => {
       const isFieldFocused = await this.sendExtensionMessage("checkIsFieldCurrentlyFocused");
-      if (isFieldFocused || triggeredByUser) {
+      if ((isFieldFocused || triggeredByUser) && this.ariaAlertElement) {
         this.shadow.appendChild(this.ariaAlertElement);
       }
       this.ariaAlertTimeout = null;
