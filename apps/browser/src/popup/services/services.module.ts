@@ -207,7 +207,6 @@ import {
   isNotificationsSupported,
 } from "../../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
-import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
@@ -475,13 +474,6 @@ const safeProviders: SafeProvider[] = [
       } else {
         return AngularThemingService.createSystemThemeFromWindow(window);
       }
-    },
-    deps: [PlatformUtilsService],
-  }),
-  safeProvider({
-    provide: FilePopoutUtilsService,
-    useFactory: (platformUtilsService: PlatformUtilsService) => {
-      return new FilePopoutUtilsService(platformUtilsService);
     },
     deps: [PlatformUtilsService],
   }),

@@ -15,8 +15,6 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { BadgeComponent, ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
 
-import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -90,9 +88,6 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
 
   async import() {
     await this.router.navigate(["/import"]);
-    if (await BrowserApi.isPopupOpen()) {
-      await BrowserPopupUtils.openCurrentPagePopout(window);
-    }
   }
 
   async sync() {
