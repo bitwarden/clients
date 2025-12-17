@@ -274,8 +274,8 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    *
    * @param position - The position styles to apply to the iframe
    */
-  private updateIframePosition(position: Partial<CSSStyleDeclaration>) {
-    if (!globalThis.document.hasFocus()) {
+  private updateIframePosition(position?: Partial<CSSStyleDeclaration>) {
+    if (!position || !globalThis.document.hasFocus()) {
       return;
     }
 
@@ -361,8 +361,8 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * @param customElement - The element to update the styles for
    * @param styles - The styles to apply to the element
    */
-  private updateElementStyles(customElement: HTMLElement, styles: Partial<CSSStyleDeclaration>) {
-    if (!customElement) {
+  private updateElementStyles(customElement: HTMLElement, styles?: Partial<CSSStyleDeclaration>) {
+    if (!customElement || !styles) {
       return;
     }
 
