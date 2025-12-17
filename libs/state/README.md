@@ -239,16 +239,24 @@ represents will change along with it.
 The update method has options defined as follows:
 
 ```typescript
-{ActiveUser|SingleUser|Global}State<T> {
-  // ... rest of type left out for brevity
-  update<TCombine>(updateState: (state: T, dependency: TCombine) => T, options?: StateUpdateOptions);
+{
+  ActiveUser | SingleUser | Global;
 }
+State <
+  T >
+  {
+    // ... rest of type left out for brevity
+    update<TCombine>(
+      updateState: (state: T, dependency: TCombine) => T,
+      options?: StateUpdateOptions,
+    );,
+  };
 
 type StateUpdateOptions = {
   shouldUpdate?: (state: T, dependency: TCombine) => boolean;
   combineLatestWith?: Observable<TCombine>;
-  msTimeout?: number
-}
+  msTimeout?: number;
+};
 ```
 
 > [!WARNING] > `firstValueFrom()` and state updates
