@@ -46,7 +46,9 @@
           </div>
           <div class="box-content-row" appBoxRow *ngIf="editMode && type === sendType.File">
             <label for="file">{{ "file" | i18n }}</label>
-            <div class="row-main">{{ send.file.fileName }} ({{ send.file.sizeName }})</div>
+            <div class="row-main tw-text-wrap tw-break-all">
+              {{ send.file.fileName }} ({{ send.file.sizeName }})
+            </div>
           </div>
           <div class="box-content-row" appBoxRow *ngIf="type === sendType.Text">
             <label for="text">{{ "text" | i18n }}</label>
