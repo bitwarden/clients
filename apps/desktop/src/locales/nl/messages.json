@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "Bijlage toevoegen"
   },
+  "itemsTransferred": {
+    "message": "Items overgedragen"
+  },
+  "fixEncryption": {
+    "message": "Versleuteling repareren"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Dit bestand gebruikt een verouderde versleutelingsmethode."
+  },
+  "attachmentUpdated": {
+    "message": "Bijlagen bijgewerkt"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Maximale bestandsgrootte is 500 MB"
   },
@@ -907,6 +919,12 @@
   },
   "unexpectedError": {
     "message": "Er is een onverwachte fout opgetreden."
+  },
+  "unexpectedErrorShort": {
+    "message": "Onverwachte fout"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Sluit dit Bitwarden-venster en probeer het opnieuw."
   },
   "itemInformation": {
     "message": "Item-informatie"
@@ -1180,8 +1198,8 @@
   "followUs": {
     "message": "Volg ons"
   },
-  "syncVault": {
-    "message": "Kluis synchroniseren"
+  "syncNow": {
+    "message": "Nu synchroniseren"
   },
   "changeMasterPass": {
     "message": "Hoofdwachtwoord wijzigen"
@@ -1757,8 +1775,11 @@
   "exportFrom": {
     "message": "Exporteren vanuit"
   },
-  "exportVault": {
-    "message": "Kluis exporteren"
+  "export": {
+    "message": "Exporteren"
+  },
+  "import": {
+    "message": "Importeren"
   },
   "fileFormat": {
     "message": "Bestandsindeling"
@@ -2619,9 +2640,6 @@
   "removedMasterPassword": {
     "message": "Hoofdwachtwoord verwijderd."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Voor leden van de volgende organisatie is een hoofdwachtwoord niet langer nodig. Bevestig het domein hieronder met de beheerder van je organisatie."
-  },
   "organizationName": {
     "message": "Organisatienaam"
   },
@@ -3477,10 +3495,6 @@
   "aliasDomain": {
     "message": "Aliasdomein"
   },
-  "importData": {
-    "message": "Data importeren",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Fout bij importeren"
   },
@@ -3886,6 +3900,75 @@
   "fileSavedToDevice": {
     "message": "Bestand op apparaat opgeslagen. Beheer vanaf de downloads op je apparaat."
   },
+  "importantNotice": {
+    "message": "Belangrijke melding"
+  },
+  "setupTwoStepLogin": {
+    "message": "Tweestapsaanmelding instellen"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Vanaf februari 2025 stuurt Bitwarden een code naar het e-mailadres van je account om inloggen op nieuwe apparaten te verifiëren."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Je kunt tweestapsaanmelding instellen als een alternatieve manier om je account te beschermen of je e-mailadres te veranderen naar een waar je toegang toe hebt."
+  },
+  "remindMeLater": {
+    "message": "Herinner me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Heb je betrouwbare toegang tot je e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nee, dat heb ik niet"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, ik heb betrouwbare toegang tot mijn e-mail"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Tweestapsaanmelding inschakelen"
+  },
+  "changeAcctEmail": {
+    "message": "E-mailadres van het account veranderen"
+  },
+  "passkeyLogin": {
+    "message": "Inloggen met passkey?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Passkey opslaan?"
+  },
+  "saveNewPasskey": {
+    "message": "Opslaan als nieuwe login"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Passkey als nieuwe login opslaan"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Geen overeenkomende logins voor deze site"
+  },
+  "overwritePasskey": {
+    "message": "Passkey overschrijven?"
+  },
+  "unableToSavePasskey": {
+    "message": "Kon passkey niet opslaan"
+  },
+  "alreadyContainsPasskey": {
+    "message": "Dit item heeft al een passkey. Weet je zeker dat je de huidige passkey wilt overschrijven?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Er bestaat al een passkey voor deze applicatie."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "Deze applicatie ondersteunt geen duplicaten."
+  },
+  "closeThisWindow": {
+    "message": "Sluit dit venster"
+  },
   "allowScreenshots": {
     "message": "Schermopname toestaan"
   },
@@ -4244,16 +4327,147 @@
   "andMoreFeatures": {
     "message": "En meer!"
   },
-  "planDescPremium": {
-    "message": "Online beveiliging voltooien"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "upgradeToPremium": {
     "message": "Opwaarderen naar Premium"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Je organisatie maakt niet langer gebruik van hoofdwachtwoorden om in te loggen op Bitwarden. Controleer de organisatie en het domein om door te gaan."
+  },
+  "continueWithLogIn": {
+    "message": "Doorgaan met inloggen"
+  },
+  "doNotContinue": {
+    "message": "Niet verder gaan"
+  },
+  "domain": {
+    "message": "Domein"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Dit domein zal de encryptiesleutels van je account opslaan, dus zorg ervoor dat je het vertrouwt. Als je het niet zeker weet, controleer dan bij je beheerder."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifieer je organisatie om in te loggen"
+  },
+  "organizationVerified": {
+    "message": "Organisatie geverifieerd"
+  },
+  "domainVerified": {
+    "message": "Domein geverifieerd"
+  },
+  "leaveOrganizationContent": {
+    "message": "Als je je organisatie niet verifieert, wordt je toegang tot de organisatie ingetrokken."
+  },
+  "leaveNow": {
+    "message": "Nu verlaten"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifieer je domein om in te loggen"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Bevestig dit domein om verder te gaan met inloggen."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Bevestig organisatie en domein om verder te gaan met inloggen."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Time-out actie"
   },
   "sessionTimeoutHeader": {
     "message": "Sessietime-out"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Deze instelling wordt beheerd door je organisatie."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Je organisatie heeft de maximale sessietime-out ingesteld op $HOURS$ uur en $MINUTES$ minuten.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Je organisatie heeft de standaard sessietime-out ingesteld op Systeem vergrendelen."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Je organisatie heeft de standaard sessietime-out ingesteld op Herstarten applicatie."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximale time-out kan niet langer zijn dan $HOURS$ uur en $MINUTES$ minu(u)t(en)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Herstarten"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Weet je zeker dat je wilt verlaten?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Door te weigeren, blijven je persoonlijke items in je account, maar verlies je toegang tot gedeelde items en organisatiefunctionaliteit."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Neem contact op met je beheerder om weer toegang te krijgen."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "$ORGANIZATION$ verlaten",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Hoe beheer ik mijn kluis?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Items overdragen aan $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en naleving. Klik op accepteren voor het overdragen van eigendom van je items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Overdacht accepteren"
+  },
+  "declineAndLeave": {
+    "message": "Weigeren en verlaten"
+  },
+  "whyAmISeeingThis": {
+    "message": "Waarom zie ik dit?"
   }
 }
