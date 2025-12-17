@@ -194,7 +194,9 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       queryParamsHandling: "merge",
     });
 
-    // close drawer when tabs are changed
+    // Reset drawer state and close drawer when tabs are changed
+    // This ensures card selection state is cleared (PM-29263)
+    this.dataService.closeDrawer();
     this.currentDialogRef?.close();
   }
 
