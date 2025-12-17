@@ -17,6 +17,7 @@ on:
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-desktop.yml'
+      - '.github/workflows/install-run-desktop.yml'
   push:
     branches:
       - 'main'
@@ -29,6 +30,7 @@ on:
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-desktop.yml'
+      - '.github/workflows/install-run-desktop.yml'
   workflow_call:
     inputs: {}
   workflow_dispatch:
