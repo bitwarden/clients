@@ -12467,5 +12467,8 @@
   },
   "viewAllPlans": {
     "message": "View all plans"
+  },
+  "planDescPremium":{
+    "message": "Complete online security"
   }
 }
