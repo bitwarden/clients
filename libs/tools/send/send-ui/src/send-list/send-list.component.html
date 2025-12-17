@@ -1,45 +1,31 @@
 <!-- Loading state -->
-@if (loading()) {
-  <div class="tw-my-4 tw-px-4">
-    <i
-      class="bwi bwi-spinner bwi-spin tw-text-muted"
-      title="{{ 'loading' | i18n }}"
-      aria-hidden="true"
-    ></i>
-    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-  </div>
-}
-
-<!-- Search bar - always visible when not loading -->
-@if (!loading()) {
-  <div class="tw-my-4 tw-px-4">
+<div class="tw-my-4 tw-px-4">
+  @if (loading()) {
+    <bit-spinner [title]="'loading' | i18n"></bit-spinner>
+  } @else {
+    <!-- Search bar - always visible when not loading -->
     <tools-send-search></tools-send-search>
-  </div>
-}
-
-<!-- Empty state: No sends exist -->
-@if (
-  !loading() && (listState() === sendListState.Empty || listState() === sendListState.NoResults)
-) {
-  <div class="tw-px-4">
-    <bit-no-items [icon]="noItemIcon" class="tw-text-main">
-      <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
-      <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
-      <ng-content select="[slot='empty-button']" slot="button" />
-    </bit-no-items>
-  </div>
-}
-
-<!-- Normal state: Display table -->
-@if (!loading() && listState() === null) {
-  <div class="tw-px-4">
-    <tools-send-table
-      [dataSource]="dataSource()"
-      [disableSend]="disableSend()"
-      (editSend)="onEditSend($event)"
-      (copySend)="onCopySend($event)"
-      (removePassword)="onRemovePassword($event)"
-      (deleteSend)="onDeleteSend($event)"
-    />
-  </div>
-}
+    <!-- Empty state: No sends exist -->
+    @if (listState() === sendListState.Empty || listState() === sendListState.NoResults) {
+      <!-- <div> -->
+      <bit-no-items [icon]="noItemIcon" class="tw-text-main">
+        <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
+        <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
+        <ng-content select="[slot='empty-button']" slot="button" />
+      </bit-no-items>
+      <!-- </div> -->
+    } @else if (listState() === null) {
+      <!-- Normal state: Display table -->
+      <!-- <div> -->
+      <tools-send-table
+        [dataSource]="dataSource"
+        [disableSend]="disableSend()"
+        (editSend)="onEditSend($event)"
+        (copySend)="onCopySend($event)"
+        (removePassword)="onRemovePassword($event)"
+        (deleteSend)="onDeleteSend($event)"
+      />
+      <!-- </div> -->
+    }
+  }
+</div>

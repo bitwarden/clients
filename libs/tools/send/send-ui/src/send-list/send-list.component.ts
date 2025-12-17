@@ -1,11 +1,16 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, inject, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
-import { ButtonModule, NoItemsModule, TableDataSource } from "@bitwarden/components";
+import {
+  ButtonModule,
+  NoItemsModule,
+  SpinnerComponent,
+  TableDataSource,
+} from "@bitwarden/components";
 
 import { SendSearchComponent } from "../send-search/send-search.component";
 import { SendTableComponent } from "../send-table/send-table.component";
@@ -28,11 +33,23 @@ export type SendListState = (typeof SendListState)[keyof typeof SendListState];
 @Component({
   selector: "tools-send-list",
   templateUrl: "./send-list.component.html",
+  // styles: [
+  //   `
+  //     /* Temporary padding during layout migration - remove when bit-layout padding is restored */
+  //     :host {
+  //       // padding: 1rem;
+  //       margin: 1rem;
+  //       margin-top: 1.5rem;
+  //       margin-bottom: 1rem;
+  //     }
+  //   `,
+  // ],
   imports: [
     CommonModule,
     JslibModule,
     ButtonModule,
     NoItemsModule,
+    SpinnerComponent,
     SendSearchComponent,
     SendTableComponent,
   ],
@@ -52,13 +69,15 @@ export class SendListComponent {
 
   // Reusable data source instance - updated reactively when sends change
   private readonly _dataSource = new TableDataSource<SendView>();
+  protected readonly dataSource = this._dataSource;
 
-  // Computed signal that updates the existing data source with new data
-  // Returns the same reference so bit-table doesn't need to reconnect
-  protected readonly dataSource = computed(() => {
-    this._dataSource.data = this.sends();
-    return this._dataSource;
-  });
+  constructor() {
+    // Effect to update data source when sends change
+    // Using effect() instead of computed() since we're performing a side effect (updating existing object)
+    effect(() => {
+      this._dataSource.data = this.sends();
+    });
+  }
 
   readonly editSend = output<SendView>();
   readonly copySend = output<SendView>();
