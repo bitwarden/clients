@@ -5,11 +5,11 @@ export class HecTemplate implements OrgIntegrationTemplate {
   event = "#EventMessage#";
   source = "Bitwarden";
   index: string;
-  service: OrganizationIntegrationServiceName;
+  bw_serviceName: OrganizationIntegrationServiceName;
 
   constructor(index: string, service: OrganizationIntegrationServiceName) {
     this.index = index;
-    this.service = service;
+    this.bw_serviceName = service;
   }
 
   toString(): string {

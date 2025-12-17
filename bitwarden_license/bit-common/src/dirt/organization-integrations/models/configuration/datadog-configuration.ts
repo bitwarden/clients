@@ -2,14 +2,14 @@ import { OrgIntegrationConfiguration } from "../integration-builder";
 import { OrganizationIntegrationServiceName } from "../organization-integration-service-type";
 
 export class DatadogConfiguration implements OrgIntegrationConfiguration {
-  uri: string;
-  apiKey: string;
-  service: OrganizationIntegrationServiceName;
+  Uri: string;
+  ApiKey: string;
+  bw_serviceName: OrganizationIntegrationServiceName;
 
-  constructor(uri: string, apiKey: string, service: OrganizationIntegrationServiceName) {
-    this.uri = uri;
-    this.apiKey = apiKey;
-    this.service = service;
+  constructor(Uri: string, ApiKey: string, bw_serviceName: OrganizationIntegrationServiceName) {
+    this.Uri = Uri;
+    this.ApiKey = ApiKey;
+    this.bw_serviceName = bw_serviceName;
   }
 
   toString(): string {

@@ -61,8 +61,8 @@ export class ConnectHecDialogComponent implements OnInit {
       null;
 
     this.formGroup.patchValue({
-      url: this.hecConfig?.uri || "",
-      bearerToken: this.hecConfig?.token || "",
+      url: this.hecConfig?.Uri || "",
+      bearerToken: this.hecConfig?.Token || "",
       index: this.hecTemplate?.index || "",
       service: this.connectInfo.settings.name,
     });

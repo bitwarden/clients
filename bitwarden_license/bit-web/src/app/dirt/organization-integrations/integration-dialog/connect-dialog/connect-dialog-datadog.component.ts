@@ -59,8 +59,8 @@ export class ConnectDatadogDialogComponent implements OnInit {
       null;
 
     this.formGroup.patchValue({
-      url: this.datadogConfig?.uri || "",
-      apiKey: this.datadogConfig?.apiKey || "",
+      url: this.datadogConfig?.Uri || "",
+      apiKey: this.datadogConfig?.ApiKey || "",
       service: this.connectInfo.settings.name,
     });
   }
