@@ -27,23 +27,20 @@ export class ApplicationsLoadingComponent {
   // Progress step input from parent component (already delayed via concatMap)
   readonly progressStep = input<ReportProgress | null>(null);
 
-  // Computed signal: derive message from progress step
-  protected readonly currentMessage = computed<LoadingMessage>(() => {
-    const step = this.progressStep();
+  // Helper to find step config, defaults to first step
+  private getStepConfig(step: ReportProgress | null) {
     if (step === null) {
-      return PROGRESS_STEPS[0].message;
+      return PROGRESS_STEPS[0];
     }
-    const stepConfig = PROGRESS_STEPS.find((config) => config.step === step);
-    return stepConfig?.message ?? PROGRESS_STEPS[0].message;
-  });
+    return PROGRESS_STEPS.find((config) => config.step === step) ?? PROGRESS_STEPS[0];
+  }
 
-  // Computed signal: derive progress percentage from progress step
-  protected readonly progress = computed<number>(() => {
-    const step = this.progressStep();
-    if (step === null) {
-      return PROGRESS_STEPS[0].progress;
-    }
-    const stepConfig = PROGRESS_STEPS.find((config) => config.step === step);
-    return stepConfig?.progress ?? PROGRESS_STEPS[0].progress;
-  });
+  // Computed signals: derive display values from progress step
+  protected readonly currentMessage = computed<LoadingMessage>(
+    () => this.getStepConfig(this.progressStep()).message,
+  );
+
+  protected readonly progress = computed<number>(
+    () => this.getStepConfig(this.progressStep()).progress,
+  );
 }

@@ -47,6 +47,9 @@ import { PageLoadingComponent } from "./shared/page-loading.component";
 import { RiskInsightsDrawerDialogComponent } from "./shared/risk-insights-drawer-dialog.component";
 import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.component";
 
+// Type alias for progress step (used in concatMap emissions)
+type ProgressStep = ReportProgress | null;
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./risk-insights.component.html",
@@ -99,7 +102,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   // Current progress step for loading component (null = not loading)
   // Uses concatMap with delay to ensure each step is displayed for a minimum time
-  protected readonly currentProgressStep = signal<ReportProgress | null>(null);
+  protected readonly currentProgressStep = signal<ProgressStep>(null);
 
   // Minimum time to display each progress step (in milliseconds)
   private readonly STEP_DISPLAY_DELAY_MS = 250;
@@ -203,8 +206,8 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
             // - Without this concat, the loading would stay on "Compiling insights..." forever
             // - The concat automatically emits null to hide the loader
             return concat(
-              of(step as ReportProgress | null).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
-              of(null as ReportProgress | null).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
+              of(step as ProgressStep).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
+              of(null as ProgressStep).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
             );
           }
           return of(step).pipe(delay(this.STEP_DISPLAY_DELAY_MS));
