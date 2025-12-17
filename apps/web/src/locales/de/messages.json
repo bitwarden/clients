@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Nicht mehr archivieren"
   },
+  "unArchiveAndSave": {
+    "message": "Nicht mehr archivieren und speichern"
+  },
   "itemsInArchive": {
     "message": "Einträge im Archiv"
   },

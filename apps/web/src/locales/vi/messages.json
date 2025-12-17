@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Hủy lưu trữ"
   },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "Các mục trong kho lưu trữ"
   },

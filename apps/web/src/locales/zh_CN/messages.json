@@ -245,7 +245,7 @@
     }
   },
   "applicationsMarkedAsCriticalFail": {
-    "message": "无法将应用程序标记为关键"
+    "message": "将应用程序标记为关键失败"
   },
   "application": {
     "message": "应用程序"
@@ -11586,6 +11586,9 @@
   },
   "unArchive": {
     "message": "取消归档"
+  },
+  "unArchiveAndSave": {
+    "message": "取消归档并保存"
   },
   "itemsInArchive": {
     "message": "归档中的项目"

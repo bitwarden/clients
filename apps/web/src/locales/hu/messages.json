@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Visszavétel archívumból"
   },
+  "unArchiveAndSave": {
+    "message": "Archiválás visszavonása és mentés"
+  },
   "itemsInArchive": {
     "message": "Archiválandó elemek"
   },

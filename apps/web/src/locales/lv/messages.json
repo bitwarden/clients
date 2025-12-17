@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Atcelt arhivēšanu"
   },
+  "unArchiveAndSave": {
+    "message": "Atcelt arhivēšanu un saglabāt"
+  },
   "itemsInArchive": {
     "message": "Vienumi arhīvā"
   },

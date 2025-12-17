@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Odebrat z archivu"
   },
+  "unArchiveAndSave": {
+    "message": "Odebrat z archivu a uložit"
+  },
   "itemsInArchive": {
     "message": "Položky v archivu"
   },
