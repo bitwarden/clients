@@ -12,7 +12,6 @@ export class HecConfiguration implements OrgIntegrationConfiguration {
     this.Uri = uri;
     this.Token = token;
     this.bw_serviceName = bw_serviceName;
-    this.Service = null;
   }
 
   toString(): string {
