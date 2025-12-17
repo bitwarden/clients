@@ -16,7 +16,10 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private portKey?: string;
   private readonly extensionOrigin: string;
   private iframeMutationObserver: MutationObserver;
-  private iframe: HTMLIFrameElement;
+  /**
+   *  Initialized in initMenuIframe which makes it safe to assert non null by lifecycle.
+   */
+  private iframe!: HTMLIFrameElement;
   private ariaAlertElement?: HTMLDivElement;
   private ariaAlertTimeout: number | NodeJS.Timeout | null = null;
   private delayedCloseTimeout: number | NodeJS.Timeout | null = null;
