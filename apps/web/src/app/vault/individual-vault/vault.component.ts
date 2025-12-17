@@ -1,6 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  viewChild,
+  ViewChild,
+} from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -194,6 +203,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent<C>;
+
+  readonly vaultHeaderComponent = viewChild(VaultHeaderComponent);
+
+  readonly newButtonEl = computed(
+    () => this.vaultHeaderComponent()?.newCipherMenu()?.newCipherButton()?.el.nativeElement,
+  );
 
   trashCleanupWarning: string = null;
   kdfIterations: number;
@@ -861,7 +876,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   addFolder = (): void => {
-    AddEditFolderDialogComponent.open(this.dialogService);
+    AddEditFolderDialogComponent.open(this.dialogService, undefined, {
+      restoreFocus: this.newButtonEl(),
+    });
   };
 
   editFolder = async (folder: FolderFilter): Promise<void> => {
@@ -947,12 +964,18 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     formConfig: CipherFormConfig,
     activeCollectionId?: CollectionId,
   ) {
-    this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
-      mode,
-      formConfig,
-      activeCollectionId,
-      restore: this.restore,
-    });
+    this.vaultItemDialogRef = VaultItemDialogComponent.open(
+      this.dialogService,
+      {
+        mode,
+        formConfig,
+        activeCollectionId,
+        restore: this.restore,
+      },
+      {
+        restoreFocus: this.newButtonEl(),
+      },
+    );
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
     this.vaultItemDialogRef = undefined;
@@ -1098,6 +1121,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         showOrgSelector: true,
         limitNestedCollections: true,
       },
+      restoreFocus: this.newButtonEl(),
     });
     const result = await lastValueFrom(dialog.closed);
     if (result.action === CollectionDialogAction.Saved) {
@@ -1121,6 +1145,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         initialTab: tab,
         limitNestedCollections: true,
       },
+      restoreFocus: this.newButtonEl(),
     });
 
     const result = await lastValueFrom(dialog.closed);
