@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "Account encryption keys are unique to each Bitwarden user account, so you can't import an encrypted export into a different account."
   },
-  "export": {
-    "message": "Export"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Export from"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "Tools"
   },
-  "import": {
-    "message": "Import"
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Import data"
