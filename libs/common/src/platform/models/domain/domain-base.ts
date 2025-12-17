@@ -89,7 +89,7 @@ export default class Domain {
         throw new Error(
           `Failed to decrypt property '${String(
             prop,
-          )}' of domain. Context: ${objectContext}. Error: ${(e as Error).message}`,
+          )}' of domain. Context: ${objectContext}. Error: ${"message" in e ? e.message : String(e)}`, // In case the SDK maps to a non-Error type, this is defensive
         );
       }
     }
