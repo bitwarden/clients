@@ -33,7 +33,12 @@ jobs:
     name:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Download deb artifact
         id: download-deb
@@ -52,10 +57,9 @@ jobs:
           sudo apt-get install -y xvfb
 
       - name: Install .deb
-        env:
-          PACKAGE_PATH: ${{ steps.download-deb.outputs.download-path }}
+        working-directory: ${{ steps.download-deb.outputs.download-path }}
         run: |
-          sudo apt-get install -y "$PACKAGE_PATH"/*.deb
+          sudo apt-get install -y ./*.deb
 
       - name: Run .deb
         run: |
@@ -73,7 +77,12 @@ jobs:
     name:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Download appimage artifact
         id: download-appimage
@@ -91,11 +100,10 @@ jobs:
           sudo apt-get install -y libasound2t64 libfuse2 xvfb
 
       - name: Run AppImage
-        env:
-          PACKAGE_PATH: ${{ steps.download-appimage.outputs.download-path }}
+        working-directory: ${{ steps.download-appimage.outputs.download-path }}
         run: |
-          chmod a+x "$PACKAGE_PATH"/*.AppImage
-          xvfb-run -a "$PACKAGE_PATH"/*.AppImage --no-sandbox &
+          chmod a+x ./*.AppImage
+          xvfb-run -a ./*.AppImage --no-sandbox &
           sleep 30
           if pgrep bitwarden > /dev/null; then
             pkill -9 bitwarden
@@ -109,7 +117,12 @@ jobs:
     name:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Download flatpak artifact
         id: download-flatpak
@@ -128,8 +141,7 @@ jobs:
           flatpak install -y flathub
 
       - name: Install flatpak
-        env:
-          PACKAGE_PATH: ${{ steps.download-flatpak.outputs.download-path }}
+        working-directory: ${{ steps.download-flatpak.outputs.download-path }}
         run: |
           flatpak install --bundle com.bitwarden.desktop.flatpak
 
@@ -149,7 +161,12 @@ jobs:
     name:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Download snap artifact
         id: download-snap
@@ -167,10 +184,9 @@ jobs:
           sudo apt-get install -y libasound2t64 snapd xvfb
 
       - name: Install snap
-        env:
-          PACKAGE_PATH: ${{ steps.download-snap.outputs.download-path }}
+        working-directory: ${{ steps.download-snap.outputs.download-path }}
         run: |
-          sudo snap install --dangerous "$PACKAGE_PATH"/bitwarden_*_amd64.snap
+          sudo snap install --dangerous ./bitwarden_*_amd64.snap
 
       - name: Run Snap
         run: |
