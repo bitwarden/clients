@@ -1,0 +1,185 @@
+name: Install and Run Desktop client
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches-ignore:
+      - 'l10n_master'
+      - 'cf-pages'
+    paths:
+      - 'apps/desktop/**'
+      - 'libs/**'
+      - '*'
+      - '!*.md'
+      - '!*.txt'
+      - '.github/workflows/build-desktop.yml'
+      - '.github/workflows/install-run-desktop.yml'
+  push:
+    branches:
+      - 'main'
+      - 'rc'
+      - 'hotfix-rc-desktop'
+    paths:
+      - 'apps/desktop/**'
+      - 'libs/**'
+      - '*'
+      - '!*.md'
+      - '!*.txt'
+      - '.github/workflows/build-desktop.yml'
+      - '.github/workflows/install-run-desktop.yml'
+
+jobs:
+  linux-x64-deb:
+    name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download deb artifact
+        id: download-deb
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          workflow: build-desktop.yml
+          workflow_conclusion: success
+          branch: ${{ github.ref_name }}
+          path: apps/desktop/artifacts/linux/deb/
+          name: Bitwarden-*-amd64.deb
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install libasound2t64 xvfb
+          sudo apt-get install -y xvfb
+
+      - name: Install .deb
+        env:
+          PACKAGE_PATH: ${{ steps.download-deb.outputs.download-path }}
+        run: |
+          sudo apt-get install -y "$PACKAGE_PATH"/*.deb
+
+      - name: Run .deb
+        run: |
+          xvfb-run -a bitwarden &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  linux-x64-appimage:
+    name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download appimage artifact
+        id: download-appimage
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          workflow: build-desktop.yml
+          workflow_conclusion: success
+          branch: ${{ github.ref_name }}
+          path: apps/desktop/artifacts/linux/appimage/
+          name: Bitwarden-*-x86_64.AppImage
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2t64 libfuse2 xvfb
+
+      - name: Run AppImage
+        env:
+          PACKAGE_PATH: ${{ steps.download-appimage.outputs.download-path }}
+        run: |
+          chmod a+x "$PACKAGE_PATH"/*.AppImage
+          xvfb-run -a "$PACKAGE_PATH"/*.AppImage --no-sandbox &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  linux-x64-flatpak:
+    name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download flatpak artifact
+        id: download-flatpak
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          workflow: build-desktop.yml
+          workflow_conclusion: success
+          branch: ${{ github.ref_name }}
+          path: apps/desktop/artifacts/linux/flatpak/
+          name: com.bitwarden.desktop.flatpak
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2t64 flatpak xvfb
+          flatpak install -y flathub
+
+      - name: Install flatpak
+        env:
+          PACKAGE_PATH: ${{ steps.download-flatpak.outputs.download-path }}
+        run: |
+          flatpak install --bundle com.bitwarden.desktop.flatpak
+
+      - name: Run Flatpak
+        run: |
+          xvfb-run -a flatpak run com.bitwarden.desktop &
+          sleep 30
+          if pgrep  bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  linux-x64-snap:
+    name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download snap artifact
+        id: download-snap
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          workflow: build-desktop.yml
+          workflow_conclusion: success
+          branch: ${{ github.ref_name }}
+          path: apps/desktop/artifacts/linux/snap/
+          name: bitwarden_*_amd64.snap
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2t64 snapd xvfb
+
+      - name: Install snap
+        env:
+          PACKAGE_PATH: ${{ steps.download-snap.outputs.download-path }}
+        run: |
+          sudo snap install --dangerous "$PACKAGE_PATH"/bitwarden_*_amd64.snap
+
+      - name: Run Snap
+        run: |
+          xvfb-run -a snap run bitwarden &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
