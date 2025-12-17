@@ -156,7 +156,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
   private get importVault(): MenuItemConstructorOptions {
     return {
       id: "import",
-      label: this.localize("import"),
+      label: this.localize("importNoun"),
       click: () => this.sendMessage("importVault"),
       enabled: !this._isLocked,
     };
@@ -165,7 +165,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
   private get exportVault(): MenuItemConstructorOptions {
     return {
       id: "export",
-      label: this.localize("export"),
+      label: this.localize("exportNoun"),
       click: () => this.sendMessage("exportVault"),
       enabled: !this._isLocked,
     };

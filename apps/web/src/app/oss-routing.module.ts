@@ -748,7 +748,7 @@ const routes: Routes = [
             loadComponent: () =>
               import("./tools/import/import-web.component").then((mod) => mod.ImportWebComponent),
             data: {
-              titleId: "import",
+              titleId: "importNoun",
             } satisfies RouteDataProperties,
           },
           {
@@ -758,7 +758,7 @@ const routes: Routes = [
                 (mod) => mod.ExportWebComponent,
               ),
             data: {
-              titleId: "export",
+              titleId: "exportNoun",
             } satisfies RouteDataProperties,
           },
           {
