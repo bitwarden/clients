@@ -132,7 +132,9 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     this.port.onDisconnect.addListener(this.handlePortDisconnect);
     this.port.onMessage.addListener(this.handlePortMessage);
 
-    this.announceAriaAlert(this.ariaAlert, 2000);
+    if (this.ariaAlert) {
+      this.announceAriaAlert(this.ariaAlert, 2000);
+    }
   };
 
   /**
@@ -293,7 +295,9 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       this.handleFadeInInlineMenuIframe();
     }
 
-    this.announceAriaAlert(this.ariaAlert, 2000);
+    if (this.ariaAlert) {
+      this.announceAriaAlert(this.ariaAlert, 2000);
+    }
   }
 
   /**
