@@ -191,7 +191,10 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     // - After Complete step is shown, emit null to hide loading
     this.dataService.reportProgress$
       .pipe(
-        skip(1), // Skip stale initial value from BehaviorSubject
+        // Skip the initial emission from _reportProgressSubject (BehaviorSubject in orchestrator).
+        // Without this, navigating to the page would flash the loading component briefly
+        // because BehaviorSubject emits its current value (e.g., Complete from last run) to new subscribers.
+        skip(1),
         concatMap((step) => {
           // Show null and FetchingMembers immediately (first visible step)
           // This ensures loading component appears instantly when user clicks "Run Report"
