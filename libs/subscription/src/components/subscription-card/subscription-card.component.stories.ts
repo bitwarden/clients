@@ -16,7 +16,6 @@ import { CartSummaryComponent } from "@bitwarden/pricing";
 import { SubscriptionCardComponent } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-
 // Mock ConfigService for feature flag
 class MockConfigService {
   private featureFlags = new Map<string, BehaviorSubject<boolean>>([

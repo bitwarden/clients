@@ -5,7 +5,11 @@ import { BehaviorSubject } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { BitwardenSubscription , PlanCardAction, SubscriptionCardComponent } from "@bitwarden/subscription";
+import {
+  BitwardenSubscription,
+  PlanCardAction,
+  SubscriptionCardComponent,
+} from "@bitwarden/subscription";
 
 describe("SubscriptionCardComponent", () => {
   let component: SubscriptionCardComponent;

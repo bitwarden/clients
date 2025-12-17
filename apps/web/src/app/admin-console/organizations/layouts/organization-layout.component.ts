@@ -38,7 +38,6 @@ import { FreeFamiliesPolicyService } from "../../../billing/services/free-famili
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -52,7 +51,6 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     IconModule,
     OrgSwitcherComponent,
     BannerModule,
-    TaxIdWarningComponent,
     TaxIdWarningComponent,
     OrganizationWarningsModule,
   ],
