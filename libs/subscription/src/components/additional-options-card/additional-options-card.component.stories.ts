@@ -37,6 +37,4 @@ export default {
 
 type Story = StoryObj<AdditionalOptionsCardComponent>;
 
-export const Default: Story = {
-  name: "Default",
-};
+export const Default: Story = {};

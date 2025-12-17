@@ -274,7 +274,7 @@ describe("StorageCardComponent", () => {
 
       // Act
       const progressBarFill = fixture.debugElement.query(
-        By.css(".tw-absolute.tw-bottom-0.tw-left-0.tw-top-0.tw-bg-primary-600"),
+        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-bg-primary-600"),
       );
 
       // Assert
@@ -326,7 +326,7 @@ describe("StorageCardComponent", () => {
 
       // Act
       const progressBarFill = fixture.debugElement.query(
-        By.css(".tw-absolute.tw-bottom-0.tw-left-0.tw-top-0.tw-bg-primary-600"),
+        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-bg-primary-600"),
       );
 
       // Assert
@@ -342,7 +342,7 @@ describe("StorageCardComponent", () => {
 
       // Act
       const progressBarFill = fixture.debugElement.query(
-        By.css(".tw-absolute.tw-bottom-0.tw-left-0.tw-top-0.tw-bg-primary-600"),
+        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-bg-primary-600"),
       );
 
       // Assert
