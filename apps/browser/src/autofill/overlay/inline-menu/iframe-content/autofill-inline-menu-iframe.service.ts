@@ -18,9 +18,9 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private iframeMutationObserver: MutationObserver;
   private iframe: HTMLIFrameElement;
   private ariaAlertElement?: HTMLDivElement;
-  private ariaAlertTimeout: number | NodeJS.Timeout | null;
-  private delayedCloseTimeout: number | NodeJS.Timeout | null;
-  private fadeInTimeout: number | NodeJS.Timeout | null;
+  private ariaAlertTimeout: number | NodeJS.Timeout | null = null;
+  private delayedCloseTimeout: number | NodeJS.Timeout | null = null;
+  private fadeInTimeout: number | NodeJS.Timeout | null = null;
   private readonly fadeInOpacityTransition = "opacity 125ms ease-out 0s";
   private readonly fadeOutOpacityTransition = "opacity 65ms ease-out 0s";
   private iframeStyles: Partial<CSSStyleDeclaration> = {
@@ -48,7 +48,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   };
   private foreignMutationsCount = 0;
   private mutationObserverIterations = 0;
-  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout | null;
+  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout | null = null;
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
     initAutofillInlineMenuButton: ({ message }) => this.initAutofillInlineMenu(message),
     initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenu(message),
