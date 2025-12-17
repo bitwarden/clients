@@ -127,7 +127,7 @@ export class DataRecoveryComponent {
       currentSteps[i].status = StepStatus.InProgress;
       this.steps.set([...currentSteps]);
 
-      this.logger.record(`Running diagnostics for step: ${step.title}`);
+      this.logger.record(`Running diagnostics for step: ${this.i18nService.t(step.title)}`);
       try {
         const success = await step.runDiagnostics(this.workingData, this.logger);
         currentSteps[i].status = success ? StepStatus.Completed : StepStatus.Failed;
@@ -135,13 +135,13 @@ export class DataRecoveryComponent {
           hasAnyFailures = true;
         }
         this.steps.set([...currentSteps]);
-        this.logger.record(`Diagnostics completed for step: ${step.title}`);
+        this.logger.record(`Diagnostics completed for step: ${this.i18nService.t(step.title)}`);
       } catch (error) {
         currentSteps[i].status = StepStatus.Failed;
         currentSteps[i].message = (error as Error).message;
         this.steps.set([...currentSteps]);
         this.logger.record(
-          `Diagnostics failed for step: ${step.title} with error: ${(error as Error).message}`,
+          `Diagnostics failed for step: ${this.i18nService.t(step.title)} with error: ${(error as Error).message}`,
         );
         hasAnyFailures = true;
       }
@@ -172,7 +172,7 @@ export class DataRecoveryComponent {
       for (let i = 0; i < this.recoverySteps.length; i++) {
         const step = this.recoverySteps[i];
         if (step.canRecover(this.workingData)) {
-          this.logger.record(`Running recovery for step: ${step.title}`);
+          this.logger.record(`Running recovery for step: ${this.i18nService.t(step.title)}`);
           await step.runRecovery(this.workingData, this.logger);
         }
       }
