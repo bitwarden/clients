@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit, input, output } from "@angular/core";
+import { Component, inject, OnInit, output, computed, signal } from "@angular/core";
 import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -11,7 +11,7 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { NavigationModule, DialogService } from "@bitwarden/components";
+import { NavigationModule, DialogService, A11yTitleDirective } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   OrganizationFilter,
@@ -20,12 +20,13 @@ import {
   FolderFilter,
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
-  RoutedVaultFilterBridgeService,
   AddEditFolderDialogComponent,
 } from "@bitwarden/vault";
 
+import { DesktopRoutedVaultFilterBridgeService } from "../../../../app/services/desktop-routed-vault-filter-bridge.service";
 import { DesktopPremiumUpgradePromptService } from "../../../../services/desktop-premium-upgrade-prompt.service";
 
+import { CollectionFilterComponent } from "./filters/collection-filter.component";
 import { FolderFilterComponent } from "./filters/folder-filter.component";
 import { OrganizationFilterComponent } from "./filters/organization-filter.component";
 import { StatusFilterComponent } from "./filters/status-filter.component";
@@ -43,7 +44,9 @@ import { TypeFilterComponent } from "./filters/type-filter.component";
     OrganizationFilterComponent,
     StatusFilterComponent,
     TypeFilterComponent,
+    CollectionFilterComponent,
     FolderFilterComponent,
+    A11yTitleDirective,
   ],
   providers: [
     {
@@ -53,7 +56,7 @@ import { TypeFilterComponent } from "./filters/type-filter.component";
   ],
 })
 export class VaultFilterComponent implements OnInit {
-  private routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
+  private routedVaultFilterBridgeService = inject(DesktopRoutedVaultFilterBridgeService);
   private vaultFilterService: VaultFilterService = inject(VaultFilterService);
   private accountService: AccountService = inject(AccountService);
   private cipherArchiveService: CipherArchiveService = inject(CipherArchiveService);
@@ -62,12 +65,7 @@ export class VaultFilterComponent implements OnInit {
   private dialogService: DialogService = inject(DialogService);
   private componentIsDestroyed$ = new Subject<boolean>();
 
-  protected activeFilter: VaultFilter;
-  protected readonly hideFolders = input(false);
-  protected readonly hideCollections = input(false);
-  protected readonly hideFavorites = input(false);
-  protected readonly hideTrash = input(false);
-  protected readonly hideOrganizations = input(false);
+  protected readonly activeFilter = signal<VaultFilter | null>(null);
   protected onFilterChange = output<VaultFilter>();
 
   private activeUserId: UserId;
@@ -79,6 +77,10 @@ export class VaultFilterComponent implements OnInit {
   protected collections$: Observable<TreeNode<CollectionFilter>>;
   protected folders$: Observable<TreeNode<FolderFilter>>;
   protected cipherTypes$: Observable<TreeNode<CipherTypeFilter>>;
+
+  protected readonly showCollectionsFilter = computed<boolean>(() => {
+    return this.organizations$ != null && !this.activeFilter()?.isMyVaultSelected;
+  });
 
   private async setActivePolicies() {
     this.activeOrganizationDataOwnershipPolicy = await firstValueFrom(
@@ -113,7 +115,7 @@ export class VaultFilterComponent implements OnInit {
     this.routedVaultFilterBridgeService.activeFilter$
       .pipe(takeUntil(this.componentIsDestroyed$))
       .subscribe((filter) => {
-        this.activeFilter = filter;
+        this.activeFilter.set(filter);
       });
 
     this.isLoaded = true;

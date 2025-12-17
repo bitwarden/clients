@@ -1,14 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, viewChild, input, inject, computed } from "@angular/core";
+import { Component, viewChild, input, inject } from "@angular/core";
 import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { NavigationModule } from "@bitwarden/components";
+import { NavigationModule, A11yTitleDirective } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultFilter, CipherStatus, CipherTypeFilter } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -16,13 +16,12 @@ import { VaultFilter, CipherStatus, CipherTypeFilter } from "@bitwarden/vault";
 @Component({
   selector: "app-status-filter",
   templateUrl: "status-filter.component.html",
-  imports: [CommonModule, JslibModule, NavigationModule, PremiumBadgeComponent],
+  imports: [CommonModule, A11yTitleDirective, NavigationModule, PremiumBadgeComponent, I18nPipe],
 })
 export class StatusFilterComponent {
   private accountService: AccountService = inject(AccountService);
   private cipherArchiveService: CipherArchiveService = inject(CipherArchiveService);
 
-  protected readonly hideTrash = input(false);
   protected readonly hideArchive = input(false);
   protected readonly activeFilter = input<VaultFilter>();
   protected readonly archiveFilter: CipherTypeFilter = {
@@ -38,10 +37,6 @@ export class StatusFilterComponent {
     icon: "bwi-trash",
   };
 
-  protected readonly show = computed(() => {
-    return !(this.hideTrash() && this.hideArchive());
-  });
-
   protected applyFilter(filterType: CipherStatus) {
     let filter: CipherTypeFilter = null;
     if (filterType === "archive") {
@@ -55,7 +50,7 @@ export class StatusFilterComponent {
     }
   }
 
-  private readonly premiumBadgeComponent = viewChild(PremiumBadgeComponent);
+  private readonly premiumBadgeComponent = viewChild.required(PremiumBadgeComponent);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected canArchive$ = this.userId$.pipe(

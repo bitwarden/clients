@@ -2,10 +2,10 @@ import { CommonModule } from "@angular/common";
 import { Component, input, inject } from "@angular/core";
 import { map, shareReplay } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { NavigationModule } from "@bitwarden/components";
+import { NavigationModule, A11yTitleDirective } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultFilter, CipherTypeFilter } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -13,7 +13,7 @@ import { VaultFilter, CipherTypeFilter } from "@bitwarden/vault";
 @Component({
   selector: "app-type-filter",
   templateUrl: "type-filter.component.html",
-  imports: [CommonModule, JslibModule, NavigationModule],
+  imports: [CommonModule, A11yTitleDirective, NavigationModule, I18nPipe],
 })
 export class TypeFilterComponent {
   private restrictedItemTypesService: RestrictedItemTypesService = inject(
@@ -23,11 +23,19 @@ export class TypeFilterComponent {
   protected readonly cipherTypes = input<TreeNode<CipherTypeFilter>>();
   protected readonly activeFilter = input<VaultFilter>();
 
-  protected applyFilter(cipherType: TreeNode<CipherTypeFilter>) {
+  protected applyTypeFilter(cipherType: TreeNode<CipherTypeFilter>) {
     const filter = this.activeFilter();
 
     if (filter) {
       filter.selectedCipherTypeNode = cipherType;
+    }
+  }
+
+  protected applyAllItemsFilter() {
+    const filter = this.activeFilter();
+
+    if (filter) {
+      filter.selectedCipherTypeNode = this.cipherTypes();
     }
   }
 

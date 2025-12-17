@@ -11,8 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-
-import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
+import { RoutedVaultFilterService } from "@bitwarden/vault";
 
 import { AdminConsoleCipherFormConfigService } from "./admin-console-cipher-form-config.service";
 

@@ -17,8 +17,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
-
-import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
+import { RoutedVaultFilterService } from "@bitwarden/vault";
 
 import { VaultItemDialogComponent } from "./vault-item-dialog.component";
 

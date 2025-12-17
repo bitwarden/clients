@@ -1,8 +1,8 @@
 import { Component, input, computed, output } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { IconButtonModule, NavigationModule } from "@bitwarden/components";
+import { IconButtonModule, NavigationModule, A11yTitleDirective } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultFilter, FolderFilter } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -10,7 +10,7 @@ import { VaultFilter, FolderFilter } from "@bitwarden/vault";
 @Component({
   selector: "app-folder-filter",
   templateUrl: "folder-filter.component.html",
-  imports: [JslibModule, NavigationModule, IconButtonModule],
+  imports: [A11yTitleDirective, NavigationModule, IconButtonModule, I18nPipe],
 })
 export class FolderFilterComponent {
   protected readonly folder = input<TreeNode<FolderFilter>>();
