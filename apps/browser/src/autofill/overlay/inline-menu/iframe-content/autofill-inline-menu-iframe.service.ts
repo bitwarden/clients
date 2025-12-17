@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
@@ -15,7 +13,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private readonly setElementStyles = setElementStyles;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private port: chrome.runtime.Port | null = null;
-  private portKey: string;
+  private portKey?: string;
   private readonly extensionOrigin: string;
   private iframeMutationObserver: MutationObserver;
   private iframe: HTMLIFrameElement;
@@ -225,7 +223,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * @private
    */
   private initAutofillInlineMenu(message: AutofillInlineMenuIframeExtensionMessage) {
-    this.portKey = message.portKey;
+    this.portKey = message?.portKey;
     if (message.command === "initAutofillInlineMenuList") {
       this.initAutofillInlineMenuList(message);
       return;
@@ -263,7 +261,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
   private postMessageToIFrame(message: any) {
     this.iframe.contentWindow?.postMessage(
-      { portKey: this.portKey, ...message },
+      { portKey: this?.portKey, ...message },
       this.extensionOrigin,
     );
   }
