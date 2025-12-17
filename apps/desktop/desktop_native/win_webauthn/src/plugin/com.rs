@@ -24,7 +24,10 @@ use super::types::{
 };
 
 use super::PluginAuthenticator;
-use crate::{plugin::crypto, ErrorKind, WinWebAuthnError};
+use crate::{
+    plugin::{crypto, PluginMakeCredentialRequest},
+    ErrorKind, WinWebAuthnError,
+};
 
 static HANDLER: OnceLock<(GUID, Arc<dyn PluginAuthenticator + Send + Sync>)> = OnceLock::new();
 
@@ -109,7 +112,8 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             return E_INVALIDARG;
         }
 
-        let registration_request = match op_request_ptr.try_into() {
+        // SAFETY: we received the pointer from Windows, so we trust that the values are set properly.
+        let registration_request = match PluginMakeCredentialRequest::from_ptr(op_request_ptr) {
             Ok(r) => r,
             Err(err) => {
                 tracing::error!("Could not deserialize MakeCredential request: {err}");

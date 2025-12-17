@@ -25,27 +25,18 @@ pub fn make_credential(
 ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     tracing::debug!("=== PluginMakeCredential() called ===");
     // Extract RP information
-    let rp_info = request
-        .rp_information()
-        .ok_or_else(|| "RP information is null".to_string())?;
+    let rp_info = request.rp_information();
 
-    let rpid = rp_info.id()?;
+    let rpid = rp_info.id();
 
     // let rp_name = rp_info.name().unwrap_or_else(|| String::new());
 
     // Extract user information
-    let user = request
-        .user_information()
-        .ok_or_else(|| "User information is null".to_string())?;
+    let user = request.user_information();
 
-    let user_handle = user
-        .id()
-        .map_err(|err| format!("User ID is required for registration: {err}"))?
-        .to_vec();
+    let user_handle = user.id().to_vec();
 
-    let user_name = user
-        .name()
-        .map_err(|err| format!("User name is required for registration: {err}"))?;
+    let user_name = user.name();
 
     // let user_display_name = user.display_name();
 

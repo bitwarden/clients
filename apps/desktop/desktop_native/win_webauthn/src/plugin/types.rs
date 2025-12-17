@@ -14,7 +14,7 @@ use windows::{
 
 use crate::{
     plugin::crypto,
-    types::UserId,
+    types::{RpEntityInformation, UserEntityInformation, UserId},
     util::{webauthn_call, WindowsString},
     CredentialId, ErrorKind, WinWebAuthnError,
 };
@@ -412,20 +412,19 @@ impl PluginMakeCredentialRequest {
         }
     }
 
-    pub fn rp_information(&self) -> Option<&WEBAUTHN_RP_ENTITY_INFORMATION> {
+    pub fn rp_information(&self) -> RpEntityInformation<'_> {
         let ptr = self.as_ref().pRpInformation;
-        if ptr.is_null() {
-            return None;
-        }
-        unsafe { Some(&*ptr) }
+        // SAFETY: if this is constructed using Self::from_ptr(), the caller must ensure that pRpInformation is valid.
+        unsafe { RpEntityInformation::new(ptr.as_ref().expect("pRpInformation to be non-null")) }
     }
 
-    pub fn user_information(&self) -> Option<&WEBAUTHN_USER_ENTITY_INFORMATION> {
+    pub fn user_information(&self) -> UserEntityInformation<'_> {
+        // SAFETY: if this is constructed using Self::from_ptr(), the caller must ensure that pUserInformation is valid.
         let ptr = self.as_ref().pUserInformation;
-        if ptr.is_null() {
-            return None;
+        assert!(!ptr.is_null());
+        unsafe {
+            UserEntityInformation::new(ptr.as_ref().expect("pUserInformation to be non-null"))
         }
-        unsafe { Some(&*ptr) }
     }
 
     pub fn pub_key_cred_params(&self) -> WEBAUTHN_COSE_CREDENTIAL_PARAMETERS {
@@ -455,6 +454,54 @@ impl PluginMakeCredentialRequest {
         }
         unsafe { Some(*ptr) }
     }
+
+    /// # Safety
+    /// When calling this method, callers must ensure:
+    /// - `ptr` must be convertible to a reference.
+    /// - pbEncodedRequest must be non-null and have the length specified in cbEncodedRequest.
+    pub(super) unsafe fn from_ptr(
+        ptr: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>,
+    ) -> Result<PluginMakeCredentialRequest, WinWebAuthnError> {
+        let request = ptr.as_ref();
+        if !matches!(request.requestType, WebAuthnPluginRequestType::CTAP2_CBOR) {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::Serialization,
+                "Unknown plugin operation request type",
+            ));
+        }
+        let request_slice =
+            std::slice::from_raw_parts(request.pbEncodedRequest, request.cbEncodedRequest as usize);
+        let request_hash = crypto::hash_sha256(request_slice).map_err(|err| {
+            WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "failed to hash request", err)
+        })?;
+        let mut registration_request = MaybeUninit::uninit();
+        webauthn_decode_make_credential_request(
+            request.cbEncodedRequest,
+            request.pbEncodedRequest,
+            registration_request.as_mut_ptr(),
+        )?
+        .ok()
+        .map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "Failed to decode get assertion request",
+                err,
+            )
+        })?;
+
+        let registration_request = registration_request.assume_init();
+        Ok(Self {
+            inner: registration_request as *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
+            window_handle: request.hWnd,
+            transaction_id: request.transactionId,
+            request_signature: std::slice::from_raw_parts(
+                request.pbRequestSignature,
+                request.cbEncodedRequest as usize,
+            )
+            .to_vec(),
+            request_hash,
+        })
+    }
 }
 
 impl AsRef<WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST> for PluginMakeCredentialRequest {
@@ -470,60 +517,6 @@ impl Drop for PluginMakeCredentialRequest {
             _ = webauthn_free_decoded_make_credential_request(
                 self.inner as *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
             );
-        }
-    }
-}
-
-impl TryFrom<NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>> for PluginMakeCredentialRequest {
-    type Error = WinWebAuthnError;
-
-    fn try_from(value: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>) -> Result<Self, Self::Error> {
-        unsafe {
-            let request = value.as_ref();
-            if !matches!(request.requestType, WebAuthnPluginRequestType::CTAP2_CBOR) {
-                return Err(WinWebAuthnError::new(
-                    ErrorKind::Serialization,
-                    "Unknown plugin operation request type",
-                ));
-            }
-            let request_slice = std::slice::from_raw_parts(
-                request.pbEncodedRequest,
-                request.cbEncodedRequest as usize,
-            );
-            let request_hash = crypto::hash_sha256(request_slice).map_err(|err| {
-                WinWebAuthnError::with_cause(
-                    ErrorKind::WindowsInternal,
-                    "failed to hash request",
-                    err,
-                )
-            })?;
-            let mut registration_request = MaybeUninit::uninit();
-            webauthn_decode_make_credential_request(
-                request.cbEncodedRequest,
-                request.pbEncodedRequest,
-                registration_request.as_mut_ptr(),
-            )?
-            .ok()
-            .map_err(|err| {
-                WinWebAuthnError::with_cause(
-                    ErrorKind::WindowsInternal,
-                    "Failed to decode get assertion request",
-                    err,
-                )
-            })?;
-
-            let registration_request = registration_request.assume_init();
-            Ok(Self {
-                inner: registration_request as *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
-                window_handle: request.hWnd,
-                transaction_id: request.transactionId,
-                request_signature: std::slice::from_raw_parts(
-                    request.pbRequestSignature,
-                    request.cbEncodedRequest as usize,
-                )
-                .to_vec(),
-                request_hash,
-            })
         }
     }
 }

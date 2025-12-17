@@ -3,7 +3,7 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-use std::{collections::HashSet, fmt::Display, ptr::NonNull};
+use std::{collections::HashSet, fmt::Display, marker::PhantomData, num::NonZeroU32, ptr::NonNull};
 
 use ciborium::Value;
 use windows_core::PCWSTR;
@@ -168,102 +168,159 @@ impl From<&CtapVersion> for String {
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct WEBAUTHN_RP_ENTITY_INFORMATION {
+pub(crate) struct WEBAUTHN_RP_ENTITY_INFORMATION {
+    /// Version of this structure, to allow for modifications in the future.
+    /// This field is required and should be set to CURRENT_VERSION above.
     dwVersion: u32,
-    pwszId: *const u16,   // PCWSTR
+
+    /// Identifier for the RP. This field is required.
+    pwszId: NonNull<u16>, // PCWSTR
+
+    /// Contains the friendly name of the Relying Party, such as "Acme
+    /// Corporation", "Widgets Inc" or "Awesome Site".
+    ///
+    /// This member is deprecated in WebAuthn Level 3 because many clients do not display it, but it
+    /// remains a required dictionary member for backwards compatibility. Relying
+    /// Parties MAY, as a safe default, set this equal to the RP ID.
     pwszName: *const u16, // PCWSTR
-    pwszIcon: *const u16, // PCWSTR
+
+    /// Optional URL pointing to RP's logo.
+    ///
+    /// This field was removed in WebAuthn Level 2. Keeping this here for proper struct sizing.
+    #[deprecated]
+    _pwszIcon: *const u16, // PCWSTR
 }
 
-impl WEBAUTHN_RP_ENTITY_INFORMATION {
-    /// Relying party ID.
-    pub fn id(&self) -> Result<String, WinWebAuthnError> {
-        if self.pwszId.is_null() {
-            return Err(WinWebAuthnError::new(
-                ErrorKind::WindowsInternal,
-                "Received invalid RP ID",
-            ));
-        }
-        unsafe {
-            PCWSTR(self.pwszId).to_string().map_err(|err| {
-                WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "Invalid RP ID", err)
-            })
+/// A wrapper around WEBAUTHN_RP_ENTITY_INFORMATION.
+pub struct RpEntityInformation<'a> {
+    ptr: NonNull<WEBAUTHN_RP_ENTITY_INFORMATION>,
+    _phantom: PhantomData<&'a WEBAUTHN_RP_ENTITY_INFORMATION>,
+}
+
+impl RpEntityInformation<'_> {
+    /// # Safety
+    /// When calling this method, you must ensure that
+    /// - the pointer is convertible to a reference,
+    /// - pwszId points to a valid null-terminated UTF-16 string.
+    /// - pwszName is null or points to a valid null-terminated UTF-16 string.
+    pub(crate) unsafe fn new(ptr: &WEBAUTHN_RP_ENTITY_INFORMATION) -> Self {
+        Self {
+            ptr: NonNull::from_ref(ptr),
+            _phantom: PhantomData,
         }
     }
 
-    /// Relying party name.
-    pub fn name(&self) -> Result<String, WinWebAuthnError> {
-        if self.pwszName.is_null() {
-            return Err(WinWebAuthnError::new(
-                ErrorKind::WindowsInternal,
-                "Received invalid RP name",
-            ));
-        }
+    /// Identifier for the RP.
+    pub fn id(&self) -> String {
+        // SAFETY: If the caller upholds the constraints of the struct in
+        // Self::new(), then pwszId is valid UTF-16.
         unsafe {
-            PCWSTR(self.pwszName).to_string().map_err(|err| {
-                WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "Invalid RP name", err)
-            })
+            assert!(self.ptr.is_aligned());
+            PCWSTR(self.ptr.as_ref().pwszId.as_ptr())
+                .to_string()
+                .expect("valid null-terminated UTF-16 string")
+        }
+    }
+
+    /// Contains the friendly name of the Relying Party, such as "Acme
+    /// Corporation", "Widgets Inc" or "Awesome Site".
+    pub fn name(&self) -> Option<String> {
+        // SAFETY: If the caller upholds the constraints of the struct in
+        // Self::new(), then pwszName is either null or valid UTF-16.
+        unsafe {
+            if self.ptr.as_ref().pwszName.is_null() {
+                return None;
+            }
+            let s = PCWSTR(self.ptr.as_ref().pwszName)
+                .to_string()
+                .expect("null-terminated UTF-16 string or null");
+
+            // WebAuthn Level 3 deprecates the use of the `name` field, so verify whether this is empty or not.
+            if s.is_empty() {
+                None
+            } else {
+                Some(s)
+            }
         }
     }
 }
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct WEBAUTHN_USER_ENTITY_INFORMATION {
+pub(crate) struct WEBAUTHN_USER_ENTITY_INFORMATION {
+    /// Version of this structure, to allow for modifications in the future.
+    /// This field is required and should be set to CURRENT_VERSION above.
     pub dwVersion: u32,
-    pub cbId: u32,                   // DWORD
-    pub pbId: *const u8,             // PBYTE
-    pub pwszName: *const u16,        // PCWSTR
-    pub pwszIcon: *const u16,        // PCWSTR
-    pub pwszDisplayName: *const u16, // PCWSTR
+
+    /// Identifier for the User. This field is required.
+    pub cbId: NonZeroU32, // DWORD
+    pub pbId: NonNull<u8>, // PBYTE
+
+    /// Contains a detailed name for this account, such as "john.p.smith@example.com".
+    pub pwszName: NonNull<u16>, // PCWSTR
+
+    /// Optional URL that can be used to retrieve an image containing the user's current avatar,
+    /// or a data URI that contains the image data.
+    #[deprecated]
+    pub pwszIcon: Option<NonNull<u16>>, // PCWSTR
+
+    /// Contains the friendly name associated with the user account by the Relying Party, such as "John P. Smith".
+    pub pwszDisplayName: NonNull<u16>, // PCWSTR
 }
 
-impl WEBAUTHN_USER_ENTITY_INFORMATION {
-    /// User handle.
-    pub fn id(&self) -> Result<&[u8], WinWebAuthnError> {
-        if self.cbId == 0 || self.pbId.is_null() {
-            return Err(WinWebAuthnError::new(
-                ErrorKind::WindowsInternal,
-                "Received invalid user ID",
-            ));
+pub struct UserEntityInformation<'a> {
+    ptr: NonNull<WEBAUTHN_USER_ENTITY_INFORMATION>,
+    _phantom: PhantomData<&'a WEBAUTHN_USER_ENTITY_INFORMATION>,
+}
+
+impl UserEntityInformation<'_> {
+    /// # Safety
+    /// When calling this method, the caller must ensure that
+    /// - `ptr` is convertible to a reference,
+    /// - pbId is non-null and points to a valid memory allocation with length of cbId.
+    /// - pwszName is non-null and points to a valid null-terminated UTF-16 string.
+    /// - pwszDisplayName is non-null and points to a valid null-terminated UTF-16 string.
+    pub(crate) unsafe fn new(ptr: &WEBAUTHN_USER_ENTITY_INFORMATION) -> Self {
+        Self {
+            ptr: NonNull::from_ref(ptr),
+            _phantom: PhantomData,
         }
-        unsafe { Ok(std::slice::from_raw_parts(self.pbId, self.cbId as usize)) }
+    }
+
+    /// User handle.
+    pub fn id(&self) -> &[u8] {
+        // SAFETY: If the caller upholds the constraints on Self::new(), then pbId
+        // is non-null and points to valid memory.
+        unsafe {
+            let ptr = self.ptr.as_ref();
+            std::slice::from_raw_parts(ptr.pbId.as_ptr(), ptr.cbId.get() as usize)
+        }
     }
 
     /// User name.
-    pub fn name(&self) -> Result<String, WinWebAuthnError> {
-        if self.pwszName.is_null() {
-            return Err(WinWebAuthnError::new(
-                ErrorKind::WindowsInternal,
-                "Received invalid user name",
-            ));
-        }
+    pub fn name(&self) -> String {
+        // SAFETY: If the caller upholds the constraints on Self::new(), then ID
+        // is non-null and points to valid memory.
         unsafe {
-            PCWSTR(self.pwszName).to_string().map_err(|err| {
-                WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "Invalid user name", err)
-            })
+            let ptr = self.ptr.as_ref();
+            PCWSTR(ptr.pwszName.as_ptr())
+                .to_string()
+                .expect("valid UTF-16 string")
         }
     }
 
     /// User display name.
-    pub fn display_name(&self) -> Result<String, WinWebAuthnError> {
-        if self.pwszDisplayName.is_null() {
-            return Err(WinWebAuthnError::new(
-                ErrorKind::WindowsInternal,
-                "Received invalid user name",
-            ));
-        }
+    pub fn display_name(&self) -> String {
         unsafe {
-            PCWSTR(self.pwszDisplayName).to_string().map_err(|err| {
-                WinWebAuthnError::with_cause(
-                    ErrorKind::WindowsInternal,
-                    "Invalid user display name",
-                    err,
-                )
-            })
+            let ptr = self.ptr.as_ref();
+
+            PCWSTR(ptr.pwszDisplayName.as_ptr())
+                .to_string()
+                .expect("valid UTF-16 string")
         }
     }
 }
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
