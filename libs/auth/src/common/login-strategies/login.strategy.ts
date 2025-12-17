@@ -254,8 +254,6 @@ export abstract class LoginStrategy {
     const userId = await this.saveAccountInformation(response);
     result.userId = userId;
 
-    result.resetMasterPassword = response.resetMasterPassword;
-
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
       const userEmail = await this.tokenService.getEmail();
