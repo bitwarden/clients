@@ -182,7 +182,7 @@ describe("ChangeKdfComponent", () => {
       "should show log out banner = %s when feature flag observable is %s",
       async (showLogOutBanner, forceUpgradeKdfFeatureFlag) => {
         // Arrange
-        const mockPBKDF2Config = new PBKDF2KdfConfig(600_000);
+        const mockPBKDF2Config = new PBKDF2KdfConfig(5000);
         mockKdfConfigService.getKdfConfig.mockResolvedValue(mockPBKDF2Config);
         mockConfigService.getFeatureFlag$.mockReturnValue(of(forceUpgradeKdfFeatureFlag));
 
@@ -274,7 +274,7 @@ describe("ChangeKdfComponent", () => {
         // Assert form values update to PBKDF2 defaults
         expect(formGroup.controls.kdf.value).toBe(KdfType.PBKDF2_SHA256);
         const kdfConfigFormGroup = formGroup.controls.kdfConfig;
-        expect(kdfConfigFormGroup.controls.iterations.value).toBe(600_000); // PBKDF2 default
+        expect(kdfConfigFormGroup.controls.iterations.value).toBe(5000); // PBKDF2 default
         expect(kdfConfigFormGroup.controls.memory.value).toBeNull(); // PBKDF2 doesn't use memory
         expect(kdfConfigFormGroup.controls.parallelism.value).toBeNull(); // PBKDF2 doesn't use parallelism
       });
