@@ -13,6 +13,7 @@ import {
   SsoLoginCredentials,
   SsoUrlService,
   UserApiLoginCredentials,
+  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -82,6 +83,7 @@ export class LoginCommand {
     protected ssoUrlService: SsoUrlService,
     protected i18nService: I18nService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
+    protected userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     protected encryptedMigrator: EncryptedMigrator,
   ) {}
 
@@ -361,11 +363,13 @@ export class LoginCommand {
         return Response.error("Login failed.");
       }
 
-      if (response.resetMasterPassword) {
-        return Response.error(
-          "In order to log in with SSO from the CLI, you must first log in" +
-            " through the web vault to set your master password.",
-        );
+      // If we are in the SSO flow and we got a successful login response (we are past rejection scenarios
+      // and should always have a userId here), validate that SSO user in MP encryption org has MP set
+      // This must be done here b/c we have 2 places we try to login with SSO above and neither has a
+      // common handleSsoAuthnResult method to consoldiate this logic into (1. the normal SSO flow and
+      // 2. the requiresSso automatic authentication flow)
+      if (ssoCode != null && ssoCodeVerifier != null && response.userId) {
+        await this.validateSsoUserInMpEncryptionOrgHasMp(response.userId);
       }
 
       // Check if Key Connector domain confirmation is required
@@ -835,5 +839,36 @@ export class LoginCommand {
     const stateSplit = state.split("_identifier=");
     const checkStateSplit = checkState.split("_identifier=");
     return stateSplit[0] === checkStateSplit[0];
+  }
+
+  /**
+   * Validate that a user logging in with SSO that is in an org using MP encryption
+   * has a MP set. If not, they cannot set a MP in the CLI and must use another client.
+   * @param userId
+   * @returns void
+   */
+  private async validateSsoUserInMpEncryptionOrgHasMp(userId: UserId): Promise<void> {
+    const userDecryptionOptions = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+    );
+
+    // device trust isn't supported in the CLI as we don't have persistent device key storage.
+    const notUsingTrustedDeviceEncryption = !userDecryptionOptions.trustedDeviceOption;
+    const notUsingKeyConnector = !userDecryptionOptions.keyConnectorOption;
+
+    if (
+      notUsingTrustedDeviceEncryption &&
+      notUsingKeyConnector &&
+      !userDecryptionOptions.hasMasterPassword
+    ) {
+      // If user is in an org that is using MP encryption and they JIT provisioned but
+      // have not yet set a MP and come to the CLI to login, they won't be able to unlock
+      // or set a MP in the CLI as it isn't supported.
+      await this.logoutCallback();
+      throw Response.error(
+        "In order to log in with SSO from the CLI, you must first log in" +
+          " through the web vault, the desktop, or the extension to set your master password.",
+      );
+    }
   }
 }
