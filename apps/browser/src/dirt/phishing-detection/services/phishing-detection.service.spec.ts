@@ -79,4 +79,9 @@ describe("PhishingDetectionService", () => {
   //     phishingDetectionSettingsService,
   //   );
   // });
+
+  // TODO
+  // it("should not enable phishing detection for safari", () => {
+  //
+  // });
 });
