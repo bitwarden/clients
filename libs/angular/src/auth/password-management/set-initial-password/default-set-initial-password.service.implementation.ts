@@ -15,6 +15,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -44,6 +45,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
+    protected accountCryptographicStateService: AccountCryptographicStateService,
   ) {}
 
   async setInitialPassword(
@@ -162,6 +164,14 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         throw new Error("encrypted private key not found. Could not set private key in state.");
       }
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        {
+          V1: {
+            private_key: keyPair[1].encryptedString,
+          },
+        },
+        userId,
+      );
     }
 
     await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
@@ -198,10 +208,13 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     userId: UserId,
   ) {
     const userDecryptionOpts = await firstValueFrom(
-      this.userDecryptionOptionsService.userDecryptionOptions$,
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
     userDecryptionOpts.hasMasterPassword = true;
-    await this.userDecryptionOptionsService.setUserDecryptionOptions(userDecryptionOpts);
+    await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+      userId,
+      userDecryptionOpts,
+    );
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
     await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);

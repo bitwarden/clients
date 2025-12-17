@@ -35,19 +35,16 @@ export interface SendItemDialogParams {
   disableForm?: boolean;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum SendItemDialogResult {
-  /**
-   * A Send was saved (created or updated).
-   */
-  Saved = "saved",
+/** A result of the Send add/edit dialog. */
+export const SendItemDialogResult = Object.freeze({
+  /** The send item was created or updated. */
+  Saved: "saved",
+  /** The send item was deleted. */
+  Deleted: "deleted",
+} as const);
 
-  /**
-   * A Send was deleted.
-   */
-  Deleted = "deleted",
-}
+/** A result of the Send add/edit dialog. */
+export type SendItemDialogResult = (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
 
 /**
  * Component for adding or editing a send item.
@@ -171,6 +168,21 @@ export class SendAddEditDialogComponent {
    */
   static open(dialogService: DialogService, params: SendItemDialogParams) {
     return dialogService.open<SendItemDialogResult, SendItemDialogParams>(
+      SendAddEditDialogComponent,
+      {
+        data: params,
+      },
+    );
+  }
+
+  /**
+   * Opens the send add/edit dialog in a drawer
+   * @param dialogService Instance of the DialogService.
+   * @param params The parameters for the drawer.
+   * @returns The drawer result.
+   */
+  static openDrawer(dialogService: DialogService, params: SendItemDialogParams) {
+    return dialogService.openDrawer<SendItemDialogResult, SendItemDialogParams>(
       SendAddEditDialogComponent,
       {
         data: params,

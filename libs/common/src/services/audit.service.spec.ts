@@ -1,7 +1,6 @@
 import { ApiService } from "../abstractions/api.service";
 import { HibpApiService } from "../dirt/services/hibp-api.service";
 import { CryptoFunctionService } from "../key-management/crypto/abstractions/crypto-function.service";
-import { ErrorResponse } from "../models/response/error.response";
 
 import { AuditService } from "./audit.service";
 
@@ -73,14 +72,16 @@ describe("AuditService", () => {
     expect(mockApi.nativeFetch).toHaveBeenCalledTimes(4);
   });
 
-  it("should return empty array for breachedAccounts on 404", async () => {
-    mockHibpApi.getHibpBreach.mockRejectedValueOnce({ statusCode: 404 } as ErrorResponse);
+  it("should return empty array for breachedAccounts when no breaches found", async () => {
+    // Server returns 200 with empty array (correct REST semantics)
+    mockHibpApi.getHibpBreach.mockResolvedValueOnce([]);
     const result = await auditService.breachedAccounts("user@example.com");
     expect(result).toEqual([]);
   });
 
-  it("should throw error for breachedAccounts on non-404 error", async () => {
-    mockHibpApi.getHibpBreach.mockRejectedValueOnce({ statusCode: 500 } as ErrorResponse);
-    await expect(auditService.breachedAccounts("user@example.com")).rejects.toThrow();
+  it("should propagate errors from breachedAccounts", async () => {
+    const error = new Error("API error");
+    mockHibpApi.getHibpBreach.mockRejectedValueOnce(error);
+    await expect(auditService.breachedAccounts("user@example.com")).rejects.toBe(error);
   });
 });

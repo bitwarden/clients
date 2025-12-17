@@ -44,8 +44,8 @@
   <ng-container slot="above-scroll-area">
     <ng-container *ngIf="showPremiumSpotlight$ | async">
       <bit-spotlight
-        [title]="'upgradeCompleteSecurity' | i18n"
-        [subtitle]="'premiumGivesMoreTools' | i18n"
+        [title]="'unlockAdvancedSecurity' | i18n"
+        [subtitle]="'unlockAdvancedSecurityDesc' | i18n"
         [buttonText]="'explorePremium' | i18n"
         (onButtonClick)="showPremiumDialog()"
         (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.PremiumUpgrade)"
@@ -108,7 +108,7 @@
     </div>
 
     <ng-template #vaultContentTemplate>
-      <ng-container *ngIf="vaultState === null">
+      <ng-container *ngIf="vaultState === null && !(loading$ | async)">
         <app-autofill-vault-list-items></app-autofill-vault-list-items>
         <app-vault-list-items-container
           [title]="'favorites' | i18n"

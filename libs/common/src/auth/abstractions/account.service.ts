@@ -2,14 +2,11 @@ import { Observable } from "rxjs";
 
 import { UserId } from "../../types/guid";
 
-/**
- * Holds information about an account for use in the AccountService
- * if more information is added, be sure to update the equality method.
- */
 export type AccountInfo = {
   email: string;
   emailVerified: boolean;
   name: string | undefined;
+  creationDate: string | undefined;
 };
 
 export type Account = { id: UserId } & AccountInfo;
@@ -47,6 +44,8 @@ export abstract class AccountService {
   abstract sortedUserIds$: Observable<UserId[]>;
   /** Next account that is not the current active account */
   abstract nextUpAccount$: Observable<Account>;
+  /** Observable to display the header */
+  abstract showHeader$: Observable<boolean>;
   /**
    * Updates the `accounts$` observable with the new account data.
    *
@@ -74,6 +73,12 @@ export abstract class AccountService {
    */
   abstract setAccountEmailVerified(userId: UserId, emailVerified: boolean): Promise<void>;
   /**
+   * updates the `accounts$` observable with the creation date for the account.
+   * @param userId
+   * @param creationDate
+   */
+  abstract setAccountCreationDate(userId: UserId, creationDate: string): Promise<void>;
+  /**
    * updates the `accounts$` observable with the new VerifyNewDeviceLogin property for the account.
    * @param userId
    * @param VerifyNewDeviceLogin
@@ -100,6 +105,11 @@ export abstract class AccountService {
    * @param lastActivity
    */
   abstract setAccountActivity(userId: UserId, lastActivity: Date): Promise<void>;
+  /**
+   * Show the account switcher.
+   * @param value
+   */
+  abstract setShowHeader(visible: boolean): Promise<void>;
 }
 
 export abstract class InternalAccountService extends AccountService {
