@@ -1,0 +1,29 @@
+<bit-card class="tw-size-full tw-flex tw-flex-col tw-gap-4">
+  <!-- Title Section -->
+  <div class="tw-flex tw-flex-col tw-gap-3">
+    <h2 bitTypography="h2" class="tw-m-0">{{ "storage" | i18n }}</h2>
+
+    <!-- Description -->
+    <p bitTypography="body1" class="tw-m-0 tw-text-main">
+      {{ description() }}
+    </p>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="tw-relative tw-h-4 tw-w-full tw-overflow-hidden tw-rounded tw-bg-secondary-100">
+    <div
+      class="tw-absolute tw-bottom-0 tw-left-0 tw-top-0 tw-bg-primary-600 tw-transition-all"
+      [style.width.%]="usage()"
+    ></div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="tw-flex tw-gap-4">
+    <button bitButton buttonType="secondary" (click)="addStorageClicked.emit()" type="button">
+      {{ "addStorage" | i18n }}
+    </button>
+    <button bitButton buttonType="secondary" (click)="removeStorageClicked.emit()" type="button">
+      {{ "removeStorage" | i18n }}
+    </button>
+  </div>
+</bit-card>

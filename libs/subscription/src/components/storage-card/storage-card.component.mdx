@@ -1,0 +1,264 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs/blocks";
+import * as StorageCardStories from "./storage-card.component.stories";
+
+<Meta of={StorageCardStories} />
+
+# Storage Card
+
+A reusable UI-only component that displays storage usage information with a visual progress bar and
+action buttons. This component has no external dependencies and performs no logic - it only displays
+data and emits events when buttons are clicked.
+
+<Canvas of={StorageCardStories.LowUsage} />
+
+## Usage
+
+The storage card component is designed to be used in billing and subscription management interfaces
+to display the current storage usage and allow users to manage their storage capacity.
+
+```ts
+import { StorageCardComponent } from "@bitwarden/subscription";
+```
+
+```html
+<billing-storage-card
+  [total]="5"
+  [used]="1"
+  (addStorageClicked)="handleAddStorage()"
+  (removeStorageClicked)="handleRemoveStorage()"
+/>
+```
+
+## API
+
+### Inputs
+
+| Input   | Type     | Description                                                       |
+| ------- | -------- | ----------------------------------------------------------------- |
+| `total` | `number` | **Required.** The total storage capacity in gigabytes (e.g., 5)   |
+| `used`  | `number` | **Required.** The currently used storage in gigabytes (e.g., 1.5) |
+
+### Outputs
+
+| Output                 | Type   | Description                                         |
+| ---------------------- | ------ | --------------------------------------------------- |
+| `addStorageClicked`    | `void` | Emitted when the "Add storage" button is clicked    |
+| `removeStorageClicked` | `void` | Emitted when the "Remove storage" button is clicked |
+
+### Computed Properties
+
+The component automatically computes the following from the inputs:
+
+- **`usage()`**: The percentage of storage used (0-100), capped at 100% even if over capacity
+- **`description()`**: The formatted description text using i18n
+
+## Design
+
+The component follows the Bitwarden design system with:
+
+- **Full width/height**: Designed to fill its container (`tw-size-full`)
+- **Progress bar**: Visual indicator of storage usage with primary color fill
+- **Action buttons**: Secondary-styled buttons for adding and removing storage
+- **Modern Angular**: Uses signals, computed properties, and standalone components
+- **OnPush**: Optimized change detection strategy
+- **Responsive**: Adapts to container size with flexible layout
+
+## Examples
+
+### Low Usage (20%)
+
+Minimal storage usage with plenty of capacity available:
+
+<Canvas of={StorageCardStories.LowUsage} />
+
+```html
+<billing-storage-card
+  [total]="5"
+  [used]="1"
+  (addStorageClicked)="onAddStorage()"
+  (removeStorageClicked)="onRemoveStorage()"
+/>
+```
+
+### Medium Usage (50%)
+
+Half of the storage capacity used:
+
+<Canvas of={StorageCardStories.MediumUsage} />
+
+```html
+<billing-storage-card
+  [total]="10"
+  [used]="5"
+  (addStorageClicked)="onAddStorage()"
+  (removeStorageClicked)="onRemoveStorage()"
+/>
+```
+
+### High Usage (80%)
+
+Storage nearing capacity:
+
+<Canvas of={StorageCardStories.HighUsage} />
+
+```html
+<billing-storage-card
+  [total]="5"
+  [used]="4"
+  (addStorageClicked)="onAddStorage()"
+  (removeStorageClicked)="onRemoveStorage()"
+/>
+```
+
+### Nearly Full (95%)
+
+Almost at capacity, user should consider adding storage:
+
+<Canvas of={StorageCardStories.NearlyFull} />
+
+```html
+<billing-storage-card
+  [total]="20"
+  [used]="19"
+  (addStorageClicked)="onAddStorage()"
+  (removeStorageClicked)="onRemoveStorage()"
+/>
+```
+
+### At Capacity (100%)
+
+Storage completely used:
+
+<Canvas of={StorageCardStories.AtCapacity} />
+
+```html
+<billing-storage-card
+  [total]="5"
+  [used]="5"
+  (addStorageClicked)="onAddStorage()"
+  (removeStorageClicked)="onRemoveStorage()"
+/>
+```
+
+### Over Capacity (110%)
+
+Storage usage exceeds capacity (progress bar capped at 100%):
+
+<Canvas of={StorageCardStories.OverCapacity} />
+
+```html
+<billing-storage-card
+  [total]="5"
+  [used]="5.5"
+  (addStorageClicked)="onAddStorage()"
+  (removeStorageClicked)="onRemoveStorage()"
+/>
+```
+
+### No Storage Used
+
+Clean slate with no files uploaded:
+
+<Canvas of={StorageCardStories.NoStorage} />
+
+```html
+<billing-storage-card
+  [total]="10"
+  [used]="0"
+  (addStorageClicked)="onAddStorage()"
+  (removeStorageClicked)="onRemoveStorage()"
+/>
+```
+
+### Large Storage (100 GB)
+
+High-capacity storage plan:
+
+<Canvas of={StorageCardStories.LargeStorage} />
+
+```html
+<billing-storage-card
+  [total]="100"
+  [used]="45"
+  (addStorageClicked)="onAddStorage()"
+  (removeStorageClicked)="onRemoveStorage()"
+/>
+```
+
+## Handling Actions
+
+The component emits events when action buttons are clicked:
+
+```ts
+export class BillingComponent {
+  handleAddStorage() {
+    this.router.navigate(["/billing/add-storage"]);
+  }
+
+  handleRemoveStorage() {
+    this.openRemoveStorageDialog();
+  }
+}
+```
+
+```html
+<billing-storage-card
+  [total]="totalStorage"
+  [used]="usedStorage"
+  (addStorageClicked)="handleAddStorage()"
+  (removeStorageClicked)="handleRemoveStorage()"
+/>
+```
+
+## Do's and Don'ts
+
+### ✅ Do
+
+- Provide accurate storage values in gigabytes
+- Handle both `addStorageClicked` and `removeStorageClicked` events
+- Show the component in a container that allows it to fill available space
+- Use decimal values for more precise storage measurements (e.g., 1.5 GB)
+- Consider disabling the "Remove storage" button if no additional storage is available to remove
+
+### ❌ Don't
+
+- Modify the component's internal logic or styling
+- Provide negative storage values
+- Leave action events unhandled
+- Use the component without proper i18n translations
+- Override the card's dimensions - it's designed to be flexible
+
+## Internationalization
+
+The component requires the following i18n keys:
+
+```json
+{
+  "storage": "Storage",
+  "subscriptionStorage": "Your subscription has a total of {0} GB of encrypted file storage. You are currently using {1} GB",
+  "addStorage": "Add storage",
+  "removeStorage": "Remove storage"
+}
+```
+
+The `subscriptionStorage` key accepts two parameters:
+
+1. `{0}` - Total storage in GB
+2. `{1}` - Used storage in GB
+
+## Accessibility
+
+The component includes:
+
+- **Semantic HTML**: Proper heading hierarchy with `h2` element
+- **Visual progress indicator**: Clear visual representation of storage usage
+- **Keyboard navigation**: All interactive buttons are keyboard accessible
+- **Screen reader support**: Descriptive labels and text content
+- **Focus management**: Visible focus states for all interactive elements
+- **Color contrast**: Meets WCAG AA standards for all text and visual elements
+
+## Related Components
+
+- **`SubscriptionCardComponent`** - For displaying subscription membership information
+- **`CartSummaryComponent`** - For displaying pricing breakdown
+- **`PricingCardComponent`** - For displaying subscription plans during selection
