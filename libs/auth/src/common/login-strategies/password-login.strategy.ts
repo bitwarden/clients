@@ -156,6 +156,12 @@ export class PasswordLoginStrategy extends LoginStrategy {
       response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
       userId,
     );
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
   }
 
   protected override encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {

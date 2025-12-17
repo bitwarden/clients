@@ -1,4 +1,4 @@
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { EncryptionType } from "../../enums";
 import { Utils } from "../../misc/utils";
 
@@ -27,7 +27,9 @@ describe("Encrypted private key", () => {
   it("should deserialize encrypted private key", () => {
     const encryptedPrivateKey = makeEncString().encryptedString;
 
-    const result = sut.deserializer(JSON.parse(JSON.stringify(encryptedPrivateKey)));
+    const result = sut.deserializer(
+      JSON.parse(JSON.stringify(encryptedPrivateKey as unknown)) as unknown as EncryptedString,
+    );
 
     expect(result).toEqual(encryptedPrivateKey);
   });

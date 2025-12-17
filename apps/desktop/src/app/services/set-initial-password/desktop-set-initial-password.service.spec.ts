@@ -15,6 +15,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -43,6 +44,7 @@ describe("DesktopSetInitialPasswordService", () => {
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let messagingService: MockProxy<MessagingService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
@@ -56,6 +58,7 @@ describe("DesktopSetInitialPasswordService", () => {
     organizationUserApiService = mock<OrganizationUserApiService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     messagingService = mock<MessagingService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     sut = new DesktopSetInitialPasswordService(
       apiService,
@@ -69,6 +72,7 @@ describe("DesktopSetInitialPasswordService", () => {
       organizationUserApiService,
       userDecryptionOptionsService,
       messagingService,
+      accountCryptographicStateService,
     );
   });
 

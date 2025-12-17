@@ -168,6 +168,8 @@ import { OrganizationBillingService } from "@bitwarden/common/billing/services/o
 import { DefaultSubscriptionPricingService } from "@bitwarden/common/billing/services/subscription-pricing.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import {
   DefaultKeyGenerationService,
   KeyGenerationService,
@@ -572,6 +574,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       TaskSchedulerService,
       ConfigService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
@@ -894,7 +897,13 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       SecurityStateService,
       KdfConfigService,
+      AccountCryptographicStateService,
     ],
+  }),
+  safeProvider({
+    provide: AccountCryptographicStateService,
+    useClass: DefaultAccountCryptographicStateService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: BroadcasterService,
@@ -1565,6 +1574,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
