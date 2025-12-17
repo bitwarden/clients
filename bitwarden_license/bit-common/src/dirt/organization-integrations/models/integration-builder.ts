@@ -57,11 +57,11 @@ export class OrgIntegrationBuilder {
     switch (type) {
       case OrganizationIntegrationType.Hec: {
         const hecConfig = this.convertToJson<HecConfiguration>(configuration);
-        return this.buildHecConfiguration(hecConfig.Uri, hecConfig.Token, hecConfig.bw_serviceName);
+        return this.buildHecConfiguration(hecConfig.uri, hecConfig.token, hecConfig.bw_serviceName);
       }
       case OrganizationIntegrationType.Datadog: {
         const datadogConfig = this.convertToJson<DatadogConfiguration>(configuration);
-        return this.buildDataDogConfiguration(datadogConfig.Uri, datadogConfig.ApiKey);
+        return this.buildDataDogConfiguration(datadogConfig.uri, datadogConfig.apiKey);
       }
       default:
         throw new Error(`Unsupported integration type: ${type}`);
@@ -88,9 +88,33 @@ export class OrgIntegrationBuilder {
 
   private static convertToJson<T>(jsonString?: string): T {
     try {
-      return JSON.parse(jsonString || "{}") as T;
+      const parsed = JSON.parse(jsonString || "{}");
+      return this.normalizePropertyCase(parsed) as T;
     } catch {
       throw new Error("Invalid integration configuration: JSON parse error");
     }
+  }
+
+  /**
+   * Recursively normalizes object property names to camelCase
+   * Converts the first character of each property to lowercase
+   */
+  private static normalizePropertyCase(obj: any): any {
+    if (obj === null || typeof obj !== "object") {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.normalizePropertyCase(item));
+    }
+
+    const normalized: any = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const normalizedKey = key.charAt(0).toLowerCase() + key.slice(1);
+        normalized[normalizedKey] = this.normalizePropertyCase(obj[key]);
+      }
+    }
+    return normalized;
   }
 }

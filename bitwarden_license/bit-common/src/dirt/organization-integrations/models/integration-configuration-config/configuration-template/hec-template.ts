@@ -13,6 +13,11 @@ export class HecTemplate implements OrgIntegrationTemplate {
   }
 
   toString(): string {
-    return JSON.stringify(this);
+    return JSON.stringify({
+      Event: this.event,
+      Source: this.source,
+      Index: this.index,
+      bw_serviceName: this.bw_serviceName,
+    });
   }
 }
