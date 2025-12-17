@@ -70,7 +70,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "No tienes permiso para editar este elemento"
   },
   "welcomeBack": {
     "message": "Bienvenido de nuevo"
@@ -706,22 +706,22 @@
     "message": "El adjunto se ha guardado."
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Añadir adjunto"
   },
   "itemsTransferred": {
     "message": "Items transferred"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Corregir cifrado"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "El archivo está usando un método de cifrado obsoleto."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Adjunto actualizado"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "El tamaño máximo del archivo es de 500 MB"
   },
   "file": {
     "message": "Archivo"
@@ -921,10 +921,10 @@
     "message": "Ha ocurrido un error inesperado."
   },
   "unexpectedErrorShort": {
-    "message": "Unexpected error"
+    "message": "Error inesperado"
   },
   "closeThisBitwardenWindow": {
-    "message": "Close this Bitwarden window and try again."
+    "message": "Cierra esta ventana de Bitwarden e inténtalo de nuevo."
   },
   "itemInformation": {
     "message": "Información del elemento"
@@ -1057,7 +1057,7 @@
     "message": "Debes añadir o bien la URL del servidor base, o al menos un entorno personalizado."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "Las URLs deben usar HTTPS."
   },
   "customEnvironment": {
     "message": "Entorno personalizado"
@@ -1112,7 +1112,7 @@
     "message": "Más información"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Se ha producido un error al actualizar los ajustes de cifrado."
   },
   "updateEncryptionSettingsTitle": {
     "message": "Update your encryption settings"
@@ -1121,13 +1121,13 @@
     "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Confirma tu identidad para continuar"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Introduce tu contraseña maestra"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Actualizar ajustes"
   },
   "featureUnavailable": {
     "message": "Característica no disponible"
@@ -1199,7 +1199,7 @@
     "message": "Síguenos"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Sincronizar ahora"
   },
   "changeMasterPass": {
     "message": "Cambiar contraseña maestra"
@@ -1268,7 +1268,7 @@
     "message": "Contraseña maestra no válida"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Contraseña maestra incorrecta. Confirma que tu correo electrónico es correcto y que tu cuenta fue creada en $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1776,10 +1776,10 @@
     "message": "Exportar desde"
   },
   "export": {
-    "message": "Export"
+    "message": "Exportar"
   },
   "import": {
-    "message": "Import"
+    "message": "Importar"
   },
   "fileFormat": {
     "message": "Formato de archivo"
@@ -3139,18 +3139,18 @@
     "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Aplicación web"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Móvil",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Extensión",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Escritorio",
     "description": "Desktop app"
   },
   "cli": {
@@ -3161,7 +3161,7 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "Servidor"
   },
   "loginRequest": {
     "message": "Login request"
@@ -3901,7 +3901,7 @@
     "message": "File saved to device. Manage from your device downloads."
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Aviso importante"
   },
   "setupTwoStepLogin": {
     "message": "Set up two-step login"
@@ -3913,10 +3913,10 @@
     "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Recuérdame más tarde"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "¿Tienes acceso fiable a tu correo electrónico, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3925,7 +3925,7 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "No, no lo tengo"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
     "message": "Yes, I can reliably access my email"
@@ -3937,37 +3937,37 @@
     "message": "Change account email"
   },
   "passkeyLogin": {
-    "message": "Log in with passkey?"
+    "message": "¿Iniciar sesión con clave de acceso?"
   },
   "savePasskeyQuestion": {
-    "message": "Save passkey?"
+    "message": "¿Guardar clave de acceso?"
   },
   "saveNewPasskey": {
-    "message": "Save as new login"
+    "message": "Guardar como nuevo inicio de sesión"
   },
   "savePasskeyNewLogin": {
-    "message": "Save passkey as new login"
+    "message": "Guardar clave de acceso como nuevo inicio de sesión"
   },
   "noMatchingLoginsForSite": {
-    "message": "No matching logins for this site"
+    "message": "No hay inicios de sesión coincidentes para este sitio"
   },
   "overwritePasskey": {
-    "message": "Overwrite passkey?"
+    "message": "¿Sobrescribir clave de acceso?"
   },
   "unableToSavePasskey": {
-    "message": "Unable to save passkey"
+    "message": "No se puede guardar la clave de acceso"
   },
   "alreadyContainsPasskey": {
-    "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
+    "message": "Este elemento ya contiene una clave de acceso. ¿Estás seguro de que quieres sobrescribir la clave de acceso actual?"
   },
   "passkeyAlreadyExists": {
-    "message": "A passkey already exists for this application."
+    "message": "Ya existe una clave de acceso para esta aplicación."
   },
   "applicationDoesNotSupportDuplicates": {
-    "message": "This application does not support duplicates."
+    "message": "Esta aplicación no soporta duplicados."
   },
   "closeThisWindow": {
-    "message": "Close this window"
+    "message": "Cerrar esta ventana"
   },
   "allowScreenshots": {
     "message": "Permitir captura de pantalla"
@@ -4232,10 +4232,10 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Mostrar más"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Mostrar menos"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden no valida las ubicaciones de entrada, asegúrate de que estás en la ventana y en el capo correctos antes de usar el atajo."
@@ -4247,20 +4247,20 @@
     "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Atajo inválido"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
-    "message": "Next"
+    "message": "Siguiente"
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
   },
   "confirm": {
-    "message": "Confirm"
+    "message": "Confirmar"
   },
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
@@ -4269,18 +4269,18 @@
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Editar atajo"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archivo",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archivar",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Desarchivar"
   },
   "itemsInArchive": {
     "message": "Items in archive"
@@ -4304,13 +4304,13 @@
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "ZIP / Código postal"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Número de tarjeta"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Actualizar ahora"
   },
   "builtInAuthenticator": {
     "message": "Built-in authenticator"
@@ -4319,58 +4319,58 @@
     "message": "Secure file storage"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Acceso de emergencia"
   },
   "breachMonitoring": {
     "message": "Breach monitoring"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "¡Y más!"
   },
   "advancedOnlineSecurity": {
     "message": "Advanced online security"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Actualizar a Premium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Continuar con el inicio de sesión"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "No continuar"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Dominio"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Verifica tu organización para iniciar sesión"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organización verificada"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Dominio verificado"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Si no verificas tu organización, tu acceso a la organización será revocado."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Salir ahora"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Verifica tu dominio para iniciar sesión"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Para continuar con el inicio de sesión, verifica este dominio."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Para continuar con el inicio de sesión, verifica la organización y el dominio."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Timeout action"
@@ -4414,7 +4414,7 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On restart"
+    "message": "Al reiniciar"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
