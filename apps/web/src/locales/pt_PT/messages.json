@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Desarquivar"
   },
+  "unArchiveAndSave": {
+    "message": "Desarquivar e guardar"
+  },
   "itemsInArchive": {
     "message": "Itens no arquivo"
   },

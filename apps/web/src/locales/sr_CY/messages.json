@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Врати из архиве"
   },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "Ставке у архиви"
   },

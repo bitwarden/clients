@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Arşivden çıkar"
   },
+  "unArchiveAndSave": {
+    "message": "Arşivden çıkar ve kaydet"
+  },
   "itemsInArchive": {
     "message": "Arşivdeki kayıtlar"
   },

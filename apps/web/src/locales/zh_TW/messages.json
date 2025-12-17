@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "取消封存"
   },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "封存中的項目"
   },
