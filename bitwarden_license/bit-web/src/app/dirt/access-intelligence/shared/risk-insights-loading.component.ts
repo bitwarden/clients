@@ -1,13 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { concatMap, delay, of } from "rxjs";
+import { Component, computed, input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  ReportProgress,
-  RiskInsightsDataService,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { ReportProgress } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { ProgressModule } from "@bitwarden/components";
 
 const PROGRESS_STEPS = [
@@ -28,39 +23,27 @@ type LoadingMessage = (typeof PROGRESS_STEPS)[number]["message"];
   imports: [CommonModule, JslibModule, ProgressModule],
   templateUrl: "./risk-insights-loading.component.html",
 })
-export class ApplicationsLoadingComponent implements OnInit {
-  private dataService = inject(RiskInsightsDataService);
-  private destroyRef = inject(DestroyRef);
+export class ApplicationsLoadingComponent {
+  // Progress step input from parent component (already delayed via concatMap)
+  readonly progressStep = input<ReportProgress | null>(null);
 
-  // Minimum time to display each progress step (in milliseconds)
-  private readonly STEP_DISPLAY_DELAY_MS = 250;
+  // Computed signal: derive message from progress step
+  protected readonly currentMessage = computed<LoadingMessage>(() => {
+    const step = this.progressStep();
+    if (step === null) {
+      return PROGRESS_STEPS[0].message;
+    }
+    const stepConfig = PROGRESS_STEPS.find((config) => config.step === step);
+    return stepConfig?.message ?? PROGRESS_STEPS[0].message;
+  });
 
-  readonly currentMessage = signal<LoadingMessage>(PROGRESS_STEPS[0].message);
-  readonly progress = signal<number>(PROGRESS_STEPS[0].progress);
-
-  ngOnInit(): void {
-    // Subscribe to actual progress events from the orchestrator
-    // Use concatMap with delay to ensure each step is displayed for a minimum time
-    // This prevents jarring visual jumps when steps complete quickly
-    this.dataService.reportProgress$
-      .pipe(
-        concatMap((progressStep) => of(progressStep).pipe(delay(this.STEP_DISPLAY_DELAY_MS))),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((progressStep) => {
-        if (progressStep === null) {
-          // Reset to initial state
-          this.currentMessage.set(PROGRESS_STEPS[0].message);
-          this.progress.set(PROGRESS_STEPS[0].progress);
-          return;
-        }
-
-        // Find the matching step configuration
-        const stepConfig = PROGRESS_STEPS.find((config) => config.step === progressStep);
-        if (stepConfig) {
-          this.currentMessage.set(stepConfig.message);
-          this.progress.set(stepConfig.progress);
-        }
-      });
-  }
+  // Computed signal: derive progress percentage from progress step
+  protected readonly progress = computed<number>(() => {
+    const step = this.progressStep();
+    if (step === null) {
+      return PROGRESS_STEPS[0].progress;
+    }
+    const stepConfig = PROGRESS_STEPS.find((config) => config.step === step);
+    return stepConfig?.progress ?? PROGRESS_STEPS[0].progress;
+  });
 }

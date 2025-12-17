@@ -6,16 +6,18 @@ import {
   OnDestroy,
   OnInit,
   inject,
+  signal,
   ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BehaviorSubject, EMPTY, firstValueFrom, of } from "rxjs";
-import { delay, distinctUntilChanged, map, shareReplay, switchMap, tap } from "rxjs/operators";
+import { concat, EMPTY, firstValueFrom, of } from "rxjs";
+import { concatMap, delay, distinctUntilChanged, map, skip, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   DrawerType,
+  ReportProgress,
   ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -95,15 +97,12 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected IMPORT_ICON = "bwi bwi-download";
   protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | null = null;
 
-  // Controls loading component visibility with delayed hiding to allow progress animations to complete
-  private showLoadingSubject = new BehaviorSubject<boolean>(false);
-  protected showLoading$ = this.showLoadingSubject
-    .asObservable()
-    .pipe(shareReplay({ bufferSize: 1, refCount: true }));
+  // Current progress step for loading component (null = not loading)
+  // Uses concatMap with delay to ensure each step is displayed for a minimum time
+  protected readonly currentProgressStep = signal<ReportProgress | null>(null);
 
-  // Minimum time to display loading progress after report completes (in milliseconds)
-  // Must be >= STEP_DISPLAY_DELAY_MS × number of steps (250ms × 6 = 1500ms) to allow all animations to complete
-  private readonly LOADING_DISPLAY_DELAY_MS = 1800;
+  // Minimum time to display each progress step (in milliseconds)
+  private readonly STEP_DISPLAY_DELAY_MS = 250;
 
   // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
@@ -181,22 +180,39 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     // or just navigating away from the page and back
     this.currentDialogRef?.close();
 
-    // Subscribe to report status to control loading component visibility
-    // Show loading immediately when generation starts, delay hiding to allow progress animations
-    // Using switchMap to cancel pending "hide" if a new report starts before delay completes
-    this.dataService.isGeneratingReport$
+    // Subscribe to progress steps with delay to ensure each step is displayed for a minimum time
+    // - skip(1): Skip initial BehaviorSubject emission (may contain stale Complete from previous run)
+    // - concatMap: Queue steps and process them sequentially
+    // - First visible step (FetchingMembers) shows immediately so loading appears instantly
+    // - Subsequent steps are delayed to prevent jarring quick transitions
+    // - After Complete step is shown, emit null to hide loading
+    this.dataService.reportProgress$
       .pipe(
-        distinctUntilChanged(),
-        switchMap(
-          (isGenerating) =>
-            isGenerating
-              ? of(true) // Emit true immediately when generation starts
-              : of(false).pipe(delay(this.LOADING_DISPLAY_DELAY_MS)), // Delay hiding
-        ),
+        skip(1), // Skip stale initial value from BehaviorSubject
+        concatMap((step) => {
+          // Show null and FetchingMembers immediately (first visible step)
+          // This ensures loading component appears instantly when user clicks "Run Report"
+          if (step === null || step === ReportProgress.FetchingMembers) {
+            return of(step);
+          }
+          // Delay subsequent steps to prevent jarring quick transitions
+          if (step === ReportProgress.Complete) {
+            // Show Complete step, wait, then emit null to hide loading
+            // Why concat is needed:
+            // - The orchestrator emits Complete but never emits null afterward
+            // - Without this concat, the loading would stay on "Compiling insights..." forever
+            // - The concat automatically emits null to hide the loader
+            return concat(
+              of(step as ReportProgress | null).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
+              of(null as ReportProgress | null).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
+            );
+          }
+          return of(step).pipe(delay(this.STEP_DISPLAY_DELAY_MS));
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((showLoading) => {
-        this.showLoadingSubject.next(showLoading);
+      .subscribe((step) => {
+        this.currentProgressStep.set(step);
       });
   }
 

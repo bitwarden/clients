@@ -8,8 +8,11 @@
     <dirt-page-loading></dirt-page-loading>
   } @else {
     <!-- Show loading component at top level so it's not destroyed when hasReportData$ changes -->
-    @if (showLoading$ | async) {
-      <dirt-risk-insights-loading></dirt-risk-insights-loading>
+    <!-- currentProgressStep is non-null when report generation is in progress -->
+    @if (currentProgressStep() !== null) {
+      <dirt-risk-insights-loading
+        [progressStep]="currentProgressStep()"
+      ></dirt-risk-insights-loading>
     } @else {
       <!-- Check final states after initial calls have been completed -->
       @if (isRiskInsightsActivityTabFeatureEnabled && !(dataService.hasReportData$ | async)) {
