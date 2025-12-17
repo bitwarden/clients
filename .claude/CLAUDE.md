@@ -99,115 +99,14 @@ Example: `/libs/common/src/vault/enums/cipher-type.ts`
 
 ## Color System & Theming
 
-The project uses a **three-tier color token architecture**:
+See the [Color System Documentation](libs/components/src/stories/colors.mdx) in Storybook for complete details on:
 
-1. **Primitive Colors** - Raw color values from Figma design system
-2. **Semantic Tokens** - Meaningful names that reference primitives
-3. **Tailwind Utilities** - CSS classes for components
-
-### Color Token Structure
-
-**Location:** `libs/components/src/tw-theme.css`
-
-**Primitive Colors (Hex format):**
-
-- 10 color families: `brand`, `gray`, `red`, `orange`, `yellow`, `green`, `pink`, `coral`, `teal`, `purple`
-- 11 shades each: `050`, `100`, `200`, `300`, `400`, `500`, `600`, `700`, `800`, `900`, `950`
-- Format: `--color-{family}-{shade}` (e.g., `--color-brand-600`)
-- **Do not use primitives directly in components**
-
-**Semantic Foreground Tokens:**
-
-- Neutral: `fg-white`, `fg-dark`, `fg-contrast`, `fg-heading`, `fg-body`, `fg-body-subtle`, `fg-disabled`
-- Brand: `fg-brand-soft`, `fg-brand`, `fg-brand-strong`
-- Status: `fg-success`, `fg-success-strong`, `fg-danger`, `fg-danger-strong`, `fg-warning`, `fg-warning-strong`, `fg-sensitive`
-- Accent: `fg-accent-primary`, `fg-accent-secondary`, `fg-accent-tertiary` (with `-soft` and `-strong` variants)
-- Format: `--color-fg-{name}`
-
-**Semantic Background Tokens:**
-
-- Neutral: `bg-white`, `bg-dark`, `bg-contrast`, `bg-contrast-strong`, `bg-primary`, `bg-secondary`, `bg-tertiary`, `bg-quaternary`, `bg-gray`, `bg-disabled`
-- Brand: `bg-brand-softer`, `bg-brand-soft`, `bg-brand-medium`, `bg-brand`, `bg-brand-strong`
-- Status: `bg-success-soft`, `bg-success-medium`, `bg-success`, `bg-success-strong`, `bg-danger-soft`, `bg-danger-medium`, `bg-danger`, `bg-danger-strong`, `bg-warning-soft`, `bg-warning-medium`, `bg-warning`, `bg-warning-strong`
-- Accent: `bg-accent-primary-soft`, `bg-accent-primary-medium`, `bg-accent-primary`, `bg-accent-secondary-soft`, `bg-accent-secondary-medium`, `bg-accent-secondary`, `bg-accent-tertiary-soft`, `bg-accent-tertiary-medium`, `bg-accent-tertiary`
-- Special: `bg-hover`, `bg-overlay`
-- Format: `--color-bg-{name}`
-
-**Semantic Border Tokens:**
-
-- Neutral: `border-muted`, `border-light`, `border-base`, `border-strong`, `border-buffer`
-- Brand: `border-brand-soft`, `border-brand`, `border-brand-strong`
-- Status: `border-success-soft`, `border-success`, `border-success-strong`, `border-danger-soft`, `border-danger`, `border-danger-strong`, `border-warning-soft`, `border-warning`, `border-warning-strong`
-- Accent: `border-accent-primary-soft`, `border-accent-primary`, `border-accent-secondary-soft`, `border-accent-secondary`, `border-accent-tertiary-soft`, `border-accent-tertiary`
-- Focus: `border-focus`
-- Format: `--color-border-{name}`
-
-### Usage in Components
-
-**✅ DO - Use semantic tokens via Tailwind:**
-
-```html
-<!-- Text colors -->
-<h1 class="tw-text-fg-heading">Heading text</h1>
-<p class="tw-text-fg-body">Body text</p>
-<button class="tw-text-fg-brand">Brand action</button>
-<span class="tw-text-fg-danger">Error message</span>
-
-<!-- Background colors -->
-<div class="tw-bg-bg-primary">Primary background</div>
-<div class="tw-bg-bg-secondary">Secondary background</div>
-<button class="tw-bg-bg-brand tw-text-fg-white">Brand button</button>
-<div class="tw-bg-bg-danger-soft tw-text-fg-danger">Danger alert</div>
-
-<!-- Border colors -->
-<div class="tw-border tw-border-border-base">Base border</div>
-<input class="tw-border tw-border-border-light focus:tw-border-border-focus" />
-<div class="tw-border-2 tw-border-border-brand">Brand border</div>
-<button class="tw-border tw-border-border-danger">Danger border</button>
-
-<!-- Combined examples -->
-<div
-  class="tw-bg-bg-success-soft tw-text-fg-success tw-border tw-border-border-success-soft tw-rounded tw-p-4"
->
-  Success alert with matching colors
-</div>
-
-<!-- Hover states -->
-<div class="hover:tw-bg-bg-hover">Hover effect</div>
-
-<!-- Overlays -->
-<div class="tw-bg-bg-overlay">Modal overlay</div>
-```
-
-**❌ DON'T - Use primitives directly:**
-
-```html
-<!-- Bad: Using primitive colors -->
-<p class="tw-text-brand-900">Text</p>
-<div class="tw-bg-brand-600">Background</div>
-<div class="tw-border tw-border-brand-700">Border</div>
-<span style="color: var(--color-brand-600)">Text</span>
-```
-
-### Legacy Colors
-
-**Legacy colors (RGB format)** still exist for backwards compatibility:
-
-- `primary-*`, `secondary-*`, `success-*`, `danger-*`, `warning-*`, etc.
-- Use these only when updating existing components
-- Migrate to new semantic tokens when refactoring
-
-### Dark Mode
-
-- Semantic tokens automatically adapt to dark mode via `.theme_dark` class
-- No component changes needed when theme switches
-- The same semantic token name works in both light and dark themes
-
-### Migration Strategy
-
-1. **New components:** Use semantic `fg-*` tokens exclusively
-2. **Existing components:** Keep legacy tokens until refactoring
-3. **When refactoring:** Replace legacy tokens with semantic equivalents
+- Three-tier color token architecture (Primitives → Semantic tokens → Tailwind utilities)
+- Available semantic tokens (`fg-*`, `bg-*`, `border-*`)
+- Color token structure and naming conventions
+- Usage guidelines with examples
+- Dark mode behavior
+- Legacy colors and migration strategy
 
 ## References
 
