@@ -45,7 +45,7 @@ export const SetInitialPasswordUserType: Readonly<{
 /**
  * @deprecated To be removed in PM-28143
  */
-export interface SetInitialPasswordCredentials {
+export interface SetInitialPasswordCredentialsOld {
   newMasterKey: MasterKey;
   newServerMasterKeyHash: string;
   newLocalMasterKeyHash: string;
@@ -90,8 +90,8 @@ export abstract class SetInitialPasswordService {
    * @throws If any property on the `credentials` object is null or undefined, or if a
    *         masterKeyEncryptedUserKey or newKeyPair could not be created.
    */
-  abstract setInitialPassword: (
-    credentials: SetInitialPasswordCredentials,
+  abstract setInitialPasswordOld: (
+    credentials: SetInitialPasswordCredentialsOld,
     userType: SetInitialPasswordUserType,
     userId: UserId,
   ) => Promise<void>;

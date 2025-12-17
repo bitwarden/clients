@@ -1,7 +1,7 @@
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
-  SetInitialPasswordCredentials,
+  SetInitialPasswordCredentialsOld,
   SetInitialPasswordCredentialsV2,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
@@ -56,12 +56,12 @@ export class WebSetInitialPasswordService
   /**
    * @deprecated To be removed in PM-28143
    */
-  override async setInitialPassword(
-    credentials: SetInitialPasswordCredentials,
+  override async setInitialPasswordOld(
+    credentials: SetInitialPasswordCredentialsOld,
     userType: SetInitialPasswordUserType,
     userId: UserId,
   ) {
-    await super.setInitialPassword(credentials, userType, userId);
+    await super.setInitialPasswordOld(credentials, userType, userId);
 
     /**
      * TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615

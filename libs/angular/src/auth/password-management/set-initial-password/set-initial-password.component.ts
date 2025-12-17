@@ -23,7 +23,6 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { assertTruthy, assertNonNullish } from "@bitwarden/common/auth/utils";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -40,7 +39,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
-  SetInitialPasswordCredentials,
+  SetInitialPasswordCredentialsOld,
   SetInitialPasswordCredentialsV2,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
@@ -73,7 +72,6 @@ export class SetInitialPasswordComponent implements OnInit {
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
-    private configService: ConfigService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private logoutService: LogoutService,
@@ -204,7 +202,7 @@ export class SetInitialPasswordComponent implements OnInit {
           return;
         }
 
-        await this.setInitialPassword(passwordInputResult);
+        await this.setInitialPasswordOld(passwordInputResult);
 
         break;
       }
@@ -222,7 +220,7 @@ export class SetInitialPasswordComponent implements OnInit {
   /**
    * @deprecated To be removed in PM-28143
    */
-  private async setInitialPassword(passwordInputResult: PasswordInputResult) {
+  private async setInitialPasswordOld(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
     assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
     assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
@@ -238,7 +236,7 @@ export class SetInitialPasswordComponent implements OnInit {
     assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
 
     try {
-      const credentials: SetInitialPasswordCredentials = {
+      const credentials: SetInitialPasswordCredentialsOld = {
         newMasterKey: passwordInputResult.newMasterKey,
         newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
         newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
@@ -251,7 +249,7 @@ export class SetInitialPasswordComponent implements OnInit {
         salt: passwordInputResult.salt,
       };
 
-      await this.setInitialPasswordService.setInitialPassword(
+      await this.setInitialPasswordService.setInitialPasswordOld(
         credentials,
         this.userType,
         this.userId,

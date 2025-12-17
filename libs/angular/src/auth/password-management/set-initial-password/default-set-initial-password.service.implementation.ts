@@ -36,7 +36,7 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
   SetInitialPasswordService,
-  SetInitialPasswordCredentials,
+  SetInitialPasswordCredentialsOld,
   SetInitialPasswordUserType,
   SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordCredentialsV2,
@@ -60,8 +60,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   /**
    * @deprecated To be removed in PM-28143
    */
-  async setInitialPassword(
-    credentials: SetInitialPasswordCredentials,
+  async setInitialPasswordOld(
+    credentials: SetInitialPasswordCredentialsOld,
     userType: SetInitialPasswordUserType,
     userId: UserId,
   ): Promise<void> {
@@ -162,7 +162,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionProperties(
+    await this.updateAccountDecryptionPropertiesOld(
       newMasterKey,
       kdfConfig,
       masterKeyEncryptedUserKey,
@@ -366,7 +366,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   /**
    * @deprecated To be removed in PM-28143
    */
-  private async updateAccountDecryptionProperties(
+  private async updateAccountDecryptionPropertiesOld(
     masterKey: MasterKey,
     kdfConfig: KdfConfig,
     masterKeyEncryptedUserKey: [UserKey, EncString],
