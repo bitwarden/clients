@@ -48,7 +48,8 @@ jobs:
           workflow_conclusion: success
           branch: ${{ github.ref_name }}
           path: apps/desktop/artifacts/linux/deb/
-          name: Bitwarden-*-amd64.deb
+          artifacts: Bitwarden-*-amd64.deb
+          name_is_regexp: true
 
       - name: Install deps
         run: |
@@ -92,7 +93,8 @@ jobs:
           workflow_conclusion: success
           branch: ${{ github.ref_name }}
           path: apps/desktop/artifacts/linux/appimage/
-          name: Bitwarden-*-x86_64.AppImage
+          artifacts: Bitwarden-*-x86_64.AppImage
+          name_is_regexp: true
 
       - name: Install deps
         run: |
@@ -132,7 +134,7 @@ jobs:
           workflow_conclusion: success
           branch: ${{ github.ref_name }}
           path: apps/desktop/artifacts/linux/flatpak/
-          name: com.bitwarden.desktop.flatpak
+          artifacts: com.bitwarden.desktop.flatpak
 
       - name: Install deps
         run: |
@@ -176,7 +178,8 @@ jobs:
           workflow_conclusion: success
           branch: ${{ github.ref_name }}
           path: apps/desktop/artifacts/linux/snap/
-          name: bitwarden_*_amd64.snap
+          artifacts: bitwarden_*_amd64.snap
+          name_is_regexp: true
 
       - name: Install deps
         run: |
