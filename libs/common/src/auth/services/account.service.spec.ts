@@ -64,6 +64,60 @@ describe("accountService", () => {
     jest.resetAllMocks();
   });
 
+  describe("accountInfoEqual", () => {
+    const accountInfo = mockAccountInfoWith();
+
+    it("compares nulls", () => {
+      expect((sut as any).accountInfoEqual(null, null)).toBe(true);
+      expect((sut as any).accountInfoEqual(null, accountInfo)).toBe(false);
+      expect((sut as any).accountInfoEqual(accountInfo, null)).toBe(false);
+    });
+
+    it("compares name", () => {
+      const same = { ...accountInfo };
+      const different = { ...accountInfo, name: "name2" };
+
+      expect((sut as any).accountInfoEqual(accountInfo, same)).toBe(true);
+      expect((sut as any).accountInfoEqual(accountInfo, different)).toBe(false);
+    });
+
+    it("compares email", () => {
+      const same = { ...accountInfo };
+      const different = { ...accountInfo, email: "email2" };
+
+      expect((sut as any).accountInfoEqual(accountInfo, same)).toBe(true);
+      expect((sut as any).accountInfoEqual(accountInfo, different)).toBe(false);
+    });
+
+    it("compares emailVerified", () => {
+      const same = { ...accountInfo };
+      const different = { ...accountInfo, emailVerified: false };
+
+      expect((sut as any).accountInfoEqual(accountInfo, same)).toBe(true);
+      expect((sut as any).accountInfoEqual(accountInfo, different)).toBe(false);
+    });
+
+    it("compares creationDate", () => {
+      const same = { ...accountInfo };
+      const different = { ...accountInfo, creationDate: new Date("2024-12-31T00:00:00.000Z") };
+
+      expect((sut as any).accountInfoEqual(accountInfo, same)).toBe(true);
+      expect((sut as any).accountInfoEqual(accountInfo, different)).toBe(false);
+    });
+
+    it("compares undefined creationDate", () => {
+      const accountWithoutCreationDate = mockAccountInfoWith({ creationDate: undefined });
+      const same = { ...accountWithoutCreationDate };
+      const different = {
+        ...accountWithoutCreationDate,
+        creationDate: new Date("2024-01-01T00:00:00.000Z"),
+      };
+
+      expect((sut as any).accountInfoEqual(accountWithoutCreationDate, same)).toBe(true);
+      expect((sut as any).accountInfoEqual(accountWithoutCreationDate, different)).toBe(false);
+    });
+  });
+
   describe("activeAccount$", () => {
     it("should emit null if no account is active", () => {
       const emissions = trackEmissions(sut.activeAccount$);
