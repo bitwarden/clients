@@ -5,12 +5,12 @@ import { OrganizationIntegrationServiceName } from "../organization-integration-
 export class WebhookConfiguration implements OrgIntegrationConfiguration {
   propA: string;
   propB: string;
-  service: OrganizationIntegrationServiceName;
+  bw_serviceName: OrganizationIntegrationServiceName;
 
-  constructor(propA: string, propB: string, service: OrganizationIntegrationServiceName) {
+  constructor(propA: string, propB: string, bw_serviceName: OrganizationIntegrationServiceName) {
     this.propA = propA;
     this.propB = propB;
-    this.service = service;
+    this.bw_serviceName = bw_serviceName;
   }
 
   toString(): string {
