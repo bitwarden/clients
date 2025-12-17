@@ -10,6 +10,14 @@ export interface PasswordInputResult {
   newPasswordHint?: string;
   rotateUserKey?: boolean;
 
+  /**
+   * Temporary property that persists the flag state through the entire set/change password process.
+   * Consumers will use this value instead of re-checking the flag state via ConfigService themselves.
+   *
+   * To be removed in PM-28143
+   */
+  newApisFlagEnabled: boolean;
+
   // The deprecated properties below will be removed in PM-28143: https://bitwarden.atlassian.net/browse/PM-28143
 
   /** @deprecated This low-level cryptographic state will be removed. It will be replaced by high level calls to masterpassword service, in the consumers of this interface. */

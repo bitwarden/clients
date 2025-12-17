@@ -377,6 +377,7 @@ export class InputPasswordComponent implements OnInit {
           salt,
           newPasswordHint,
           rotateUserKey: this.formGroup.controls.rotateUserKey?.value ?? false,
+          newApisFlagEnabled, // To be removed in PM-28143
         };
 
         // 5. Emit and return PasswordInputResult object
@@ -411,6 +412,7 @@ export class InputPasswordComponent implements OnInit {
         newLocalMasterKeyHash,
         newPasswordHint,
         kdfConfig: this.kdfConfig,
+        newApisFlagEnabled,
       };
 
       if (
