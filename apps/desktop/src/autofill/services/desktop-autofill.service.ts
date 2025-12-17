@@ -448,10 +448,10 @@ export class DesktopAutofillService implements OnDestroy {
 
 function normalizePosition(position: { x: number; y: number }): { x: number; y: number } {
   // Add 100 pixels to the x-coordinate to offset the native OS dialog positioning.
-  const xPostionOffset = 100;
+  const xPositionOffset = 100;
 
   return {
-    x: Math.round(position.x + xPostionOffset),
+    x: Math.round(position.x + xPositionOffset),
     y: Math.round(position.y),
   };
 }
