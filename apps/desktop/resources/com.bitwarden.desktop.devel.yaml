@@ -36,7 +36,7 @@ modules:
       - mkdir -p ${FLATPAK_DEST}/share/applications/
       - cp com.bitwarden.desktop.desktop ${FLATPAK_DEST}/share/applications/
       - install bitwarden.sh /app/bin/bitwarden.sh
-      - desktop-file-edit --set-key=Exec --set-value="bitwarden.sh" ${FLATPAK_DEST}/share/applications/com.bitwarden.desktop.desktop
+      - desktop-file-edit --set-key=Exec --set-value="bitwarden.sh %U" ${FLATPAK_DEST}/share/applications/com.bitwarden.desktop.desktop
     sources:
       - type: dir
         only-arches: [x86_64]
