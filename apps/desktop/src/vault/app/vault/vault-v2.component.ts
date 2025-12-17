@@ -9,7 +9,16 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom, Observable } from "rxjs";
+import {
+  firstValueFrom,
+  Subject,
+  takeUntil,
+  switchMap,
+  lastValueFrom,
+  Observable,
+  BehaviorSubject,
+  combineLatest,
+} from "rxjs";
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
@@ -172,6 +181,19 @@ export class VaultV2Component<C extends CipherViewLike>
   deleted = false;
   userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
+  private activeFilterSubject = new BehaviorSubject<VaultFilter>(new VaultFilter());
+  private activeFilter$ = this.activeFilterSubject.asObservable();
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  showPremiumCallout$ = this.userId$.pipe(
+    switchMap((userId) =>
+      combineLatest([
+        this.activeFilter$,
+        this.cipherArchiveService.showSubscriptionEndedMessaging$(userId),
+      ]).pipe(
+        map(([activeFilter, showMessaging]) => activeFilter.status === "archive" && showMessaging),
+      ),
+    ),
+  );
   activeUserId: UserId | null = null;
   cipherRepromptId: string | null = null;
   cipher: CipherView | null = new CipherView();
@@ -416,6 +438,7 @@ export class VaultV2Component<C extends CipherViewLike>
       selectedOrganizationId: params.selectedOrganizationId,
       myVaultOnly: params.myVaultOnly ?? false,
     });
+    this.activeFilterSubject.next(this.activeFilter);
     if (this.vaultItemsComponent) {
       await this.vaultItemsComponent.reload(this.activeFilter.buildFilter()).catch(() => {});
     }
@@ -806,6 +829,7 @@ export class VaultV2Component<C extends CipherViewLike>
       this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
     );
     this.activeFilter = vaultFilter;
+    this.activeFilterSubject.next(vaultFilter);
     await this.vaultItemsComponent
       ?.reload(
         this.activeFilter.buildFilter(),
