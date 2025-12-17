@@ -14,6 +14,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -62,6 +63,7 @@ describe("ItemDetailsSectionComponent", () => {
   let i18nService: MockProxy<I18nService>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockPolicyService: MockProxy<PolicyService>;
+  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
 
   const activeAccount$ = new BehaviorSubject<{ email: string }>({ email: "test@example.com" });
   const getInitialCipherView = jest.fn<CipherView | null, []>(() => null);
@@ -99,6 +101,7 @@ describe("ItemDetailsSectionComponent", () => {
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: PolicyService, useValue: mockPolicyService },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
       ],
     }).compileComponents();
 
