@@ -240,7 +240,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    */
   private initAutofillInlineMenuList(message: AutofillInlineMenuIframeExtensionMessage) {
     const { theme } = message;
-    let borderColor: string;
+    let borderColor: string | undefined;
     let verifiedTheme = theme;
     if (verifiedTheme === ThemeTypes.System) {
       verifiedTheme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
