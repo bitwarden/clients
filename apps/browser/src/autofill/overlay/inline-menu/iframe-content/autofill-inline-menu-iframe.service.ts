@@ -228,7 +228,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * @private
    */
   private initAutofillInlineMenu(message: AutofillInlineMenuIframeExtensionMessage) {
-    this.portKey = message?.portKey;
+    this.portKey = message.portKey;
     if (message.command === "initAutofillInlineMenuList") {
       this.initAutofillInlineMenuList(message);
       return;
@@ -266,7 +266,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
   private postMessageToIFrame(message: any) {
     this.iframe.contentWindow?.postMessage(
-      { portKey: this?.portKey, ...message },
+      { portKey: this.portKey, ...message },
       this.extensionOrigin,
     );
   }
