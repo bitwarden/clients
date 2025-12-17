@@ -35,8 +35,8 @@ export const BackgroundCard = ({ name, primitiveColor }) => {
   );
 };
 
-<div class="tw-grid tw-grid-cols-2 tw-gap-8">
-  <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg">
+<div class="sb-unstyled tw-grid tw-grid-cols-2 tw-gap-8 tw-my-6">
+  <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg tw-border tw-border-border-base">
     <h3 class="sb-unstyled sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Light mode</h3>
 
     <div class="sb-unstyled tw-mb-6">
@@ -100,9 +100,15 @@ export const BackgroundCard = ({ name, primitiveColor }) => {
     </div>
 
     <div class="sb-unstyled tw-mb-6">
-      <h4 class="sb-unstyled sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Hover</h4>
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Hover</h4>
       <div class="tw-grid tw-grid-cols-1 tw-gap-2">
         <BackgroundCard name="hover" primitiveColor="rgba" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Overlay</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
         <BackgroundCard name="overlay" primitiveColor="rgba" />
       </div>
     </div>
@@ -134,8 +140,8 @@ export const BackgroundCard = ({ name, primitiveColor }) => {
         <BackgroundCard name="brand-softer" primitiveColor="brand-950" />
         <BackgroundCard name="brand-soft" primitiveColor="brand-900" />
         <BackgroundCard name="brand-medium" primitiveColor="brand-800" />
-        <BackgroundCard name="brand" primitiveColor="brand-600" />
-        <BackgroundCard name="brand-strong" primitiveColor="brand-500" />
+        <BackgroundCard name="brand" primitiveColor="brand-400" />
+        <BackgroundCard name="brand-strong" primitiveColor="brand-300" />
       </div>
     </div>
 
@@ -145,15 +151,15 @@ export const BackgroundCard = ({ name, primitiveColor }) => {
         <BackgroundCard name="success-soft" primitiveColor="green-950" />
         <BackgroundCard name="success-medium" primitiveColor="green-900" />
         <BackgroundCard name="success" primitiveColor="green-400" />
-        <BackgroundCard name="success-strong" primitiveColor="green-600" />
+        <BackgroundCard name="success-strong" primitiveColor="green-300" />
         <BackgroundCard name="danger-soft" primitiveColor="red-950" />
         <BackgroundCard name="danger-medium" primitiveColor="red-900" />
         <BackgroundCard name="danger" primitiveColor="red-400" />
-        <BackgroundCard name="danger-strong" primitiveColor="red-600" />
+        <BackgroundCard name="danger-strong" primitiveColor="red-300" />
         <BackgroundCard name="warning-soft" primitiveColor="orange-950" />
         <BackgroundCard name="warning-medium" primitiveColor="orange-900" />
         <BackgroundCard name="warning" primitiveColor="orange-400" />
-        <BackgroundCard name="warning-strong" primitiveColor="orange-500" />
+        <BackgroundCard name="warning-strong" primitiveColor="orange-300" />
       </div>
     </div>
 
@@ -208,8 +214,8 @@ export const ForegroundCard = ({ name, primitiveColor }) => {
   );
 };
 
-<div class="tw-grid tw-grid-cols-2 tw-gap-8 tw-mt-8">
-  <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg">
+<div class="sb-unstyled tw-grid tw-grid-cols-2 tw-gap-8 tw-my-6">
+  <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg tw-border tw-border-border-base">
     <h3 class="sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Light mode</h3>
 
     <div class="sb-unstyled tw-mb-6">
@@ -340,8 +346,8 @@ export const BorderCard = ({ name, primitiveColor }) => {
   );
 };
 
-<div class="tw-grid tw-grid-cols-2 tw-gap-8 tw-mt-8">
-  <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg">
+<div class="sb-unstyled tw-grid tw-grid-cols-2 tw-gap-8 tw-my-6">
+  <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg tw-border tw-border-border-base">
     <h3 class="sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Light mode</h3>
 
     <div class="sb-unstyled tw-mb-6">
@@ -442,6 +448,7 @@ export const BorderCard = ({ name, primitiveColor }) => {
       <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Accent</h4>
       <div class="tw-grid tw-grid-cols-1 tw-gap-2">
         <BorderCard name="accent-primary-soft" primitiveColor="teal-800" />
+        <BorderCard name="accent-primary" primitiveColor="teal-600" />
         <BorderCard name="accent-secondary-soft" primitiveColor="coral-800" />
         <BorderCard name="accent-secondary" primitiveColor="coral-500" />
         <BorderCard name="accent-tertiary-soft" primitiveColor="purple-800" />
@@ -508,9 +515,7 @@ export const LegacyCard = ({ name }) => {
         <div className="tw-font-mono tw-text-sm tw-font-semibold tw-text-fg-heading">{name}</div>
         <div className="tw-text-xs tw-text-fg-body-subtle tw-mt-0.5">(legacy RGB format)</div>
       </div>
-      <div
-        className={`tw-h-10 tw-w-10 tw-shrink-0 tw-rounded-lg tw-border-2 tw-border-border-base tw-bg-${name}`}
-      ></div>
+      <Swatch name={name} />
     </div>
   );
 };

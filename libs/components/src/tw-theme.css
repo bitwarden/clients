@@ -113,6 +113,7 @@
   --color-gray-800: #1e2939;
   --color-gray-900: #101828;
   --color-gray-950: #070b18;
+  --color-gray-950-rgb: rgba(7, 11, 24);
 
   /* Red Colors */
   --color-red-050: #fef2f2;
@@ -468,22 +469,22 @@
   --color-bg-brand-softer: var(--color-brand-950);
   --color-bg-brand-soft: var(--color-brand-900);
   --color-bg-brand-medium: var(--color-brand-800);
-  --color-bg-brand: var(--color-brand-600);
-  --color-bg-brand-strong: var(--color-brand-500);
+  --color-bg-brand: var(--color-brand-400);
+  --color-bg-brand-strong: var(--color-brand-300);
 
   /* Status Background */
   --color-bg-success-soft: var(--color-green-950);
   --color-bg-success-medium: var(--color-green-900);
   --color-bg-success: var(--color-green-400);
-  --color-bg-success-strong: var(--color-green-600);
+  --color-bg-success-strong: var(--color-green-300);
   --color-bg-danger-soft: var(--color-red-950);
   --color-bg-danger-medium: var(--color-red-900);
   --color-bg-danger: var(--color-red-400);
-  --color-bg-danger-strong: var(--color-red-600);
+  --color-bg-danger-strong: var(--color-red-300);
   --color-bg-warning-soft: var(--color-orange-950);
   --color-bg-warning-medium: var(--color-orange-900);
   --color-bg-warning: var(--color-orange-400);
-  --color-bg-warning-strong: var(--color-orange-500);
+  --color-bg-warning-strong: var(--color-orange-300);
 
   /* Accent Background */
   --color-bg-accent-primary-soft: var(--color-teal-950);
