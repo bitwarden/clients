@@ -33,17 +33,6 @@ export type SendListState = (typeof SendListState)[keyof typeof SendListState];
 @Component({
   selector: "tools-send-list",
   templateUrl: "./send-list.component.html",
-  // styles: [
-  //   `
-  //     /* Temporary padding during layout migration - remove when bit-layout padding is restored */
-  //     :host {
-  //       // padding: 1rem;
-  //       margin: 1rem;
-  //       margin-top: 1.5rem;
-  //       margin-bottom: 1rem;
-  //     }
-  //   `,
-  // ],
   imports: [
     CommonModule,
     JslibModule,

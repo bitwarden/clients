@@ -7,16 +7,13 @@
     <tools-send-search></tools-send-search>
     <!-- Empty state: No sends exist -->
     @if (listState() === sendListState.Empty || listState() === sendListState.NoResults) {
-      <!-- <div> -->
       <bit-no-items [icon]="noItemIcon" class="tw-text-main">
         <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
         <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
         <ng-content select="[slot='empty-button']" slot="button" />
       </bit-no-items>
-      <!-- </div> -->
     } @else if (listState() === null) {
       <!-- Normal state: Display table -->
-      <!-- <div> -->
       <tools-send-table
         [dataSource]="dataSource"
         [disableSend]="disableSend()"
@@ -25,7 +22,6 @@
         (removePassword)="onRemovePassword($event)"
         (deleteSend)="onDeleteSend($event)"
       />
-      <!-- </div> -->
     }
   }
 </div>
