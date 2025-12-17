@@ -39,7 +39,7 @@ import {
   SetInitialPasswordCredentialsOld,
   SetInitialPasswordUserType,
   SetInitialPasswordTdeOffboardingCredentials,
-  SetInitialPasswordCredentialsV2,
+  SetInitialPasswordCredentials,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
@@ -210,8 +210,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
   }
 
-  async setInitialPasswordV2(
-    credentials: SetInitialPasswordCredentialsV2,
+  async setInitialPassword(
+    credentials: SetInitialPasswordCredentials,
     userType: SetInitialPasswordUserType,
     userId: UserId,
   ): Promise<void> {
@@ -318,7 +318,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionPropertiesV2(unlockData, userKey, userId);
+    await this.updateAccountDecryptionProperties(unlockData, userKey, userId);
 
     /**
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
@@ -391,7 +391,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
   }
 
-  private async updateAccountDecryptionPropertiesV2(
+  private async updateAccountDecryptionProperties(
     unlockData: MasterPasswordUnlockData,
     userKey: UserKey,
     userId: UserId,

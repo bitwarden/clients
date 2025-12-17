@@ -56,7 +56,7 @@ export interface SetInitialPasswordCredentialsOld {
   resetPasswordAutoEnroll: boolean;
 }
 
-export interface SetInitialPasswordCredentialsV2 {
+export interface SetInitialPasswordCredentials {
   newPassword: string;
   newPasswordHint: string;
   kdfConfig: KdfConfig;
@@ -118,8 +118,8 @@ export abstract class SetInitialPasswordService {
    * @throws If any property on the `credentials` object is null or undefined, or if a
    *         masterKeyEncryptedUserKey or newKeyPair could not be created.
    */
-  abstract setInitialPasswordV2: (
-    credentials: SetInitialPasswordCredentialsV2,
+  abstract setInitialPassword: (
+    credentials: SetInitialPasswordCredentials,
     userType: SetInitialPasswordUserType,
     userId: UserId,
   ) => Promise<void>;

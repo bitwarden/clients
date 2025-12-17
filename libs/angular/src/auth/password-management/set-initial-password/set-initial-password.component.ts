@@ -39,8 +39,8 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
+  SetInitialPasswordCredentials,
   SetInitialPasswordCredentialsOld,
-  SetInitialPasswordCredentialsV2,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordUserType,
@@ -198,7 +198,7 @@ export class SetInitialPasswordComponent implements OnInit {
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP: {
         // Remove wrapping "if" check in PM-28143
         if (passwordInputResult.newApisFlagEnabled) {
-          await this.setInitialPasswordV2(passwordInputResult);
+          await this.setInitialPassword(passwordInputResult);
           return;
         }
 
@@ -266,7 +266,7 @@ export class SetInitialPasswordComponent implements OnInit {
     }
   }
 
-  private async setInitialPasswordV2(passwordInputResult: PasswordInputResult) {
+  private async setInitialPassword(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
 
     assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
@@ -280,7 +280,7 @@ export class SetInitialPasswordComponent implements OnInit {
     assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
 
     try {
-      const credentials: SetInitialPasswordCredentialsV2 = {
+      const credentials: SetInitialPasswordCredentials = {
         newPassword: passwordInputResult.newPassword,
         newPasswordHint: passwordInputResult.newPasswordHint,
         kdfConfig: passwordInputResult.kdfConfig,
@@ -290,7 +290,7 @@ export class SetInitialPasswordComponent implements OnInit {
         resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
       };
 
-      await this.setInitialPasswordService.setInitialPasswordV2(
+      await this.setInitialPasswordService.setInitialPassword(
         credentials,
         this.userType,
         this.userId,
