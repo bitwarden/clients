@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "הסר מהארכיון"
   },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "פריטים בארכיון"
   },
