@@ -102,7 +102,6 @@ export function identityTokenResponseFactory(
     KdfIterations: kdfIterations,
     Key: encryptedUserKey,
     PrivateKey: privateKey,
-    ResetMasterPassword: false,
     access_token: accessToken,
     expires_in: 3600,
     refresh_token: refreshToken,
@@ -305,7 +304,6 @@ describe("LoginStrategy", () => {
     it("builds AuthResult", async () => {
       const tokenResponse = identityTokenResponseFactory();
       tokenResponse.forcePasswordReset = true;
-      tokenResponse.resetMasterPassword = true;
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
@@ -314,7 +312,6 @@ describe("LoginStrategy", () => {
       const expected = new AuthResult();
       expected.masterPassword = "password";
       expected.userId = userId;
-      expected.resetMasterPassword = true;
       expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
     });
@@ -330,7 +327,6 @@ describe("LoginStrategy", () => {
       const expected = new AuthResult();
       expected.masterPassword = "password";
       expected.userId = userId;
-      expected.resetMasterPassword = false;
       expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
 

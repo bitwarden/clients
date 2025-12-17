@@ -394,7 +394,6 @@ describe("PasswordLoginStrategy", () => {
         newDeviceOtp: deviceVerificationOtp,
       }),
     );
-    expect(result.resetMasterPassword).toBe(false);
     expect(result.userId).toBe(userId);
   });
 

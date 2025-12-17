@@ -4462,7 +4462,7 @@
     }
   },
   "acceptTransfer": {
-    "message": "Prijať prevody"
+    "message": "Prijať prenos"
   },
   "declineAndLeave": {
     "message": "Zamietnuť a odísť"
