@@ -30,7 +30,6 @@ describe("VaultBannersComponent", () => {
   const mockUserId = Utils.newGuid() as UserId;
 
   const bannerService = mock<VaultBannersService>({
-    shouldShowPremiumBanner$: jest.fn((userId: UserId) => premiumBanner$),
     shouldShowUpdateBrowserBanner: jest.fn(),
     shouldShowVerifyEmailBanner: jest.fn(),
     shouldShowPendingAuthRequestBanner: jest.fn((userId: UserId) =>
