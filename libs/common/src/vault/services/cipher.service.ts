@@ -897,7 +897,6 @@ export class CipherService implements CipherServiceAbstraction {
     );
 
     if (sdkCipherEncryptionEnabled) {
-      // return await this.createWithServer_sdk({ cipher, encryptedFor }, orgAdmin);
       return (await this.createWithServer_sdk(cipherView, userId, orgAdmin)) || new CipherView();
     } else {
       const encrypted = await this.encrypt(cipherView, userId);
@@ -963,15 +962,14 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
+    // const sdkCipherEncryptionEnabled = false;
     const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.SdkCipherOperations,
     );
 
     if (sdkCipherEncryptionEnabled) {
-      console.log("USING THE SDK!");
       return await this.updateWithServer_sdk(cipherView, userId, orgAdmin);
     } else {
-      console.log("NOT using the SDK!");
       const encrypted = await this.encrypt(cipherView, userId);
       const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
       const updatedCipherView = this.decrypt(updatedCipher, userId);
@@ -998,6 +996,7 @@ export class CipherService implements CipherServiceAbstraction {
               .vault()
               .ciphers()
               .admin()
+              // TODO: Need to take actual "origCipher" instead of passing the literal same object.
               .edit(sdkUpdateRequest, cipher.toSdkCipherView());
           } else {
             result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
