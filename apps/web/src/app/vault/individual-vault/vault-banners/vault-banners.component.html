@@ -44,15 +44,3 @@
   (onDismiss)="dismissBanner(VisibleVaultBanner.VerifyEmail)"
   (onVerified)="dismissBanner(VisibleVaultBanner.VerifyEmail)"
 ></app-verify-email>
-
-<bit-banner
-  id="premium-banner"
-  bannerType="premium"
-  *ngIf="premiumBannerVisible$ | async"
-  (onClose)="dismissBanner(VisibleVaultBanner.Premium)"
->
-  {{ "premiumUpgradeUnlockFeatures" | i18n }}
-  <a bitLink linkType="secondary" routerLink="/settings/subscription/premium">
-    {{ "goPremium" | i18n }}
-  </a>
-</bit-banner>
