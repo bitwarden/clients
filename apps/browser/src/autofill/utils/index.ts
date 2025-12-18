@@ -142,11 +142,14 @@ export function setElementStyles(
   }
 
   for (const styleProperty in styles) {
-    element.style.setProperty(
-      styleProperty.replace(/([a-z])([A-Z])/g, "$1-$2"), // Convert camelCase to kebab-case
-      styles[styleProperty],
-      priority ? "important" : undefined,
-    );
+    const styleValue = styles[styleProperty];
+    if (styleValue !== undefined) {
+      element.style.setProperty(
+        styleProperty.replace(/([a-z])([A-Z])/g, "$1-$2"), // Convert camelCase to kebab-case
+        styleValue,
+        priority ? "important" : undefined,
+      );
+    }
   }
 }
 
