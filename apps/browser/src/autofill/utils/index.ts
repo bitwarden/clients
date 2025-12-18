@@ -176,12 +176,13 @@ export function setupExtensionDisconnectAction(callback: (port: chrome.runtime.P
  * @param windowContext - The global window context
  */
 export function setupAutofillInitDisconnectAction(windowContext: Window) {
-  if (!windowContext.bitwardenAutofillInit) {
+  const bitwardenAutofillInit = windowContext.bitwardenAutofillInit;
+  if (!bitwardenAutofillInit) {
     return;
   }
 
   const onDisconnectCallback = () => {
-    windowContext.bitwardenAutofillInit.destroy();
+    bitwardenAutofillInit.destroy();
     delete windowContext.bitwardenAutofillInit;
   };
   setupExtensionDisconnectAction(onDisconnectCallback);
