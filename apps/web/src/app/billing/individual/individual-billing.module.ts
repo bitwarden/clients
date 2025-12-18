@@ -12,7 +12,6 @@ import { BillingSharedModule } from "../shared";
 
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
 import { IndividualBillingRoutingModule } from "./individual-billing-routing.module";
-import { CloudHostedPremiumComponent } from "./premium/cloud-hosted-premium.component";
 import { SubscriptionComponent } from "./subscription.component";
 import { UserSubscriptionComponent } from "./user-subscription.component";
 
@@ -26,11 +25,6 @@ import { UserSubscriptionComponent } from "./user-subscription.component";
     PricingCardComponent,
     BaseCardComponent,
   ],
-  declarations: [
-    SubscriptionComponent,
-    BillingHistoryViewComponent,
-    UserSubscriptionComponent,
-    CloudHostedPremiumComponent,
-  ],
+  declarations: [SubscriptionComponent, BillingHistoryViewComponent, UserSubscriptionComponent],
 })
 export class IndividualBillingModule {}
