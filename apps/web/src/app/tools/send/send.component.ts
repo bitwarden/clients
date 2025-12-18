@@ -120,6 +120,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
 
   ngOnDestroy() {
     this.dialogService.closeAll();
+    this.dialogService.closeDrawer();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
   }
 
