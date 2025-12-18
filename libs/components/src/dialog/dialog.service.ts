@@ -237,11 +237,17 @@ export class DialogService {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
       positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
+      restoreFocus: true,
       injector,
       ...config,
     };
 
-    ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
+    // Delay dialog opening to allow menus to close and restore focus to their triggers.
+    // This ensures proper focus restoration when dialogs opened from menus are closed.
+    setTimeout(() => {
+      ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
+    }, 0);
+
     return ref;
   }
 

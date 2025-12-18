@@ -185,6 +185,12 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.isOpen = false;
     this.disposeAll();
     this.menu().closed.emit();
+
+    // Restore focus to the trigger button when the menu closes.
+    // This ensures that when a dialog opens from a menu item, the CDK Dialog's
+    // restoreFocus will capture the menu trigger button as the element to restore to.
+    // The dialog's ngAfterViewInit will then explicitly move focus into the dialog.
+    this.elementRef.nativeElement.focus();
   }
 
   private setupClosingActions(isContextMenu: boolean) {

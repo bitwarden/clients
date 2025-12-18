@@ -964,18 +964,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     formConfig: CipherFormConfig,
     activeCollectionId?: CollectionId,
   ) {
-    this.vaultItemDialogRef = VaultItemDialogComponent.open(
-      this.dialogService,
-      {
-        mode,
-        formConfig,
-        activeCollectionId,
-        restore: this.restore,
-      },
-      {
-        restoreFocus: this.newButtonEl(),
-      },
-    );
+    this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
+      mode,
+      formConfig,
+      activeCollectionId,
+      restore: this.restore,
+    });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
     this.vaultItemDialogRef = undefined;
@@ -1145,7 +1139,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         initialTab: tab,
         limitNestedCollections: true,
       },
-      restoreFocus: this.newButtonEl(),
+      // Don't specify restoreFocus - let it default to capturing the currently focused element
     });
 
     const result = await lastValueFrom(dialog.closed);
