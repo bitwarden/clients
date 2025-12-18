@@ -33,7 +33,10 @@ modules:
       - mkdir -p /app/bin
       - mkdir -p /app/bin/Bitwarden/
       - cp -r ./* /app/bin/
+      - mkdir -p ${FLATPAK_DEST}/share/applications/
+      - cp com.bitwarden.desktop.desktop ${FLATPAK_DEST}/share/applications/
       - install bitwarden.sh /app/bin/bitwarden.sh
+      - desktop-file-edit --set-key=Exec --set-value="bitwarden.sh %U" ${FLATPAK_DEST}/share/applications/com.bitwarden.desktop.desktop
     sources:
       - type: dir
         only-arches: [x86_64]
@@ -41,6 +44,8 @@ modules:
       - type: dir
         only-arches: [aarch64]
         path: ../dist/linux-arm64-unpacked
+      - type: file
+        path: ./com.bitwarden.desktop.desktop
       - type: script
         dest-filename: bitwarden.sh
         commands:
