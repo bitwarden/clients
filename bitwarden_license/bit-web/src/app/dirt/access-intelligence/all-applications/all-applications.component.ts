@@ -36,14 +36,14 @@ import {
   ApplicationTableDataSource,
   AppTableRowScrollableComponent,
 } from "../shared/app-table-row-scrollable.component";
-import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
+import { ReportLoadingComponent } from "../shared/report-loading.component";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-all-applications",
   templateUrl: "./all-applications.component.html",
   imports: [
-    ApplicationsLoadingComponent,
+    ReportLoadingComponent,
     HeaderModule,
     LinkModule,
     SearchModule,
