@@ -87,6 +87,32 @@ describe("SubscriptionCardComponent", () => {
     created: new Date(Date.now() - 25 * 60 * 60 * 1000),
   };
 
+  const mockTrialingPendingCancellation: BitwardenSubscription = {
+    subscriber: mockSubscriber,
+    cart: baseCart,
+    status: "trialing",
+    nextCharge: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    cancelAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  };
+
+  const mockActivePendingCancellation: BitwardenSubscription = {
+    subscriber: mockSubscriber,
+    cart: baseCart,
+    status: "active",
+    nextCharge: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    cancelAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+  };
+
+  const mockPastDuePendingCancellation: BitwardenSubscription = {
+    subscriber: mockSubscriber,
+    cart: baseCart,
+    status: "past_due",
+    expired: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    suspension: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    gracePeriod: 7,
+    cancelAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+  };
+
   beforeEach(async () => {
     mockConfigService = {
       getFeatureFlag$: jest.fn().mockReturnValue(new BehaviorSubject(false)),
@@ -112,6 +138,7 @@ describe("SubscriptionCardComponent", () => {
                 pastDue: "Past due",
                 canceled: "Canceled",
                 unpaid: "Unpaid",
+                pendingCancellation: "Pending cancellation",
                 contactSupportShort: "Contact Support",
                 upgradeYourPlan: "Upgrade your plan",
                 somethingWentWrongSubscription:
@@ -121,12 +148,16 @@ describe("SubscriptionCardComponent", () => {
                 pastDueWarningForChargeAutomatically: `You have a grace period of ${args[0]} days from your subscription expiration date to maintain your subscription. Please resolve the past due invoices by ${args[1]}.`,
                 toReactivateYourSubscription:
                   "To reactivate your subscription, please resolve the past due invoices.",
+                subscriptionPendingCanceled:
+                  "The subscription has been marked for cancellation at the end of the current billing period.",
                 upgradeNow: "Upgrade now",
+                reinstateSubscription: "Reinstate subscription",
                 yourSubscriptionWillBeSuspendedOn: "Your subscription will be suspended on",
                 yourSubscriptionWasSuspendedOn: "Your subscription was suspended on",
                 yourNextChargeIsFor: "Your next charge is for",
                 dueOn: "due on",
                 yourSubscriptionWasCanceledOn: "Your subscription was canceled on",
+                yourSubscriptionWillBeCanceledOn: "Your subscription will be canceled on",
               };
               return translations[key] || key;
             },
@@ -235,6 +266,45 @@ describe("SubscriptionCardComponent", () => {
       expect(badge.text).toBe("Expired");
       expect(badge.variant).toBe("danger");
     });
+
+    it('should display "Pending cancellation" badge with warning variant for trialing status with cancelAt', () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockTrialingPendingCancellation);
+      fixture.detectChanges();
+
+      // Act
+      const badge = component.badge();
+
+      // Assert
+      expect(badge.text).toBe("Pending cancellation");
+      expect(badge.variant).toBe("warning");
+    });
+
+    it('should display "Pending cancellation" badge with warning variant for active status with cancelAt', () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockActivePendingCancellation);
+      fixture.detectChanges();
+
+      // Act
+      const badge = component.badge();
+
+      // Assert
+      expect(badge.text).toBe("Pending cancellation");
+      expect(badge.variant).toBe("warning");
+    });
+
+    it('should display "Pending cancellation" badge with warning variant for past_due status with cancelAt', () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockPastDuePendingCancellation);
+      fixture.detectChanges();
+
+      // Act
+      const badge = component.badge();
+
+      // Assert
+      expect(badge.text).toBe("Pending cancellation");
+      expect(badge.variant).toBe("warning");
+    });
   });
 
   describe("Callout Display", () => {
@@ -322,6 +392,63 @@ describe("SubscriptionCardComponent", () => {
 
       // Assert
       expect(callout).toBeNull();
+    });
+
+    it("should display pending cancellation callout for trialing status with cancelAt", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockTrialingPendingCancellation);
+      fixture.detectChanges();
+
+      // Act
+      const callout = component.callout();
+
+      // Assert
+      expect(callout).toBeTruthy();
+      expect(callout?.title).toBe("Pending cancellation");
+      expect(callout?.type).toBe("warning");
+      expect(callout?.description).toBe(
+        "The subscription has been marked for cancellation at the end of the current billing period.",
+      );
+      expect(callout?.callToAction?.text).toBe("Reinstate subscription");
+      expect(callout?.callToAction?.action).toBe("reinstate-subscription");
+    });
+
+    it("should display pending cancellation callout for active status with cancelAt", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockActivePendingCancellation);
+      fixture.detectChanges();
+
+      // Act
+      const callout = component.callout();
+
+      // Assert
+      expect(callout).toBeTruthy();
+      expect(callout?.title).toBe("Pending cancellation");
+      expect(callout?.type).toBe("warning");
+      expect(callout?.description).toBe(
+        "The subscription has been marked for cancellation at the end of the current billing period.",
+      );
+      expect(callout?.callToAction?.text).toBe("Reinstate subscription");
+      expect(callout?.callToAction?.action).toBe("reinstate-subscription");
+    });
+
+    it("should display pending cancellation callout for past_due status with cancelAt", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockPastDuePendingCancellation);
+      fixture.detectChanges();
+
+      // Act
+      const callout = component.callout();
+
+      // Assert
+      expect(callout).toBeTruthy();
+      expect(callout?.title).toBe("Pending cancellation");
+      expect(callout?.type).toBe("warning");
+      expect(callout?.description).toBe(
+        "The subscription has been marked for cancellation at the end of the current billing period.",
+      );
+      expect(callout?.callToAction?.text).toBe("Reinstate subscription");
+      expect(callout?.callToAction?.action).toBe("reinstate-subscription");
     });
   });
 
@@ -416,6 +543,66 @@ describe("SubscriptionCardComponent", () => {
       // Assert
       expect(suspension).toEqual(mockUnpaidSubscription.suspension);
     });
+
+    it("should compute cancelAt date for trialing status with cancelAt", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockTrialingPendingCancellation);
+      fixture.detectChanges();
+
+      // Act
+      const cancelAt = component.cancelAt();
+
+      // Assert
+      expect(cancelAt).toEqual(mockTrialingPendingCancellation.cancelAt);
+    });
+
+    it("should compute cancelAt date for active status with cancelAt", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockActivePendingCancellation);
+      fixture.detectChanges();
+
+      // Act
+      const cancelAt = component.cancelAt();
+
+      // Assert
+      expect(cancelAt).toEqual(mockActivePendingCancellation.cancelAt);
+    });
+
+    it("should compute cancelAt date for past_due status with cancelAt", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockPastDuePendingCancellation);
+      fixture.detectChanges();
+
+      // Act
+      const cancelAt = component.cancelAt();
+
+      // Assert
+      expect(cancelAt).toEqual(mockPastDuePendingCancellation.cancelAt);
+    });
+
+    it("should return undefined cancelAt for active status without cancelAt", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockActiveSubscription);
+      fixture.detectChanges();
+
+      // Act
+      const cancelAt = component.cancelAt();
+
+      // Assert
+      expect(cancelAt).toBeUndefined();
+    });
+
+    it("should return undefined cancelAt for canceled status", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockCanceledSubscription);
+      fixture.detectChanges();
+
+      // Act
+      const cancelAt = component.cancelAt();
+
+      // Assert
+      expect(cancelAt).toBeUndefined();
+    });
   });
 
   describe("Call to Action Events", () => {
@@ -461,6 +648,26 @@ describe("SubscriptionCardComponent", () => {
       // Assert
       expect(emittedActions).toHaveLength(1);
       expect(emittedActions[0]).toBe("upgrade-plan");
+    });
+
+    it("should emit reinstate-subscription action when reinstate button is clicked", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockActivePendingCancellation);
+      fixture.detectChanges();
+
+      const emittedActions: PlanCardAction[] = [];
+      component.callToActionClicked.subscribe((action: PlanCardAction) => {
+        emittedActions.push(action);
+      });
+
+      // Act
+      const button = fixture.debugElement.query(By.css("button[bitButton]"));
+      expect(button).toBeTruthy();
+      button.nativeElement.click();
+
+      // Assert
+      expect(emittedActions).toHaveLength(1);
+      expect(emittedActions[0]).toBe("reinstate-subscription");
     });
   });
 

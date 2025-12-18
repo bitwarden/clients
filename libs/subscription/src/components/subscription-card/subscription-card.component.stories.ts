@@ -65,6 +65,7 @@ export default {
                 pastDue: "Past due",
                 canceled: "Canceled",
                 unpaid: "Unpaid",
+                pendingCancellation: "Pending cancellation",
 
                 // Callout titles
                 contactSupportShort: "Contact Support",
@@ -80,9 +81,12 @@ export default {
                   "Your subscription is incomplete. Please contact customer support for assistance.",
                 subscriptionExpiredNotice:
                   "Your subscription has expired. Please contact support for assistance.",
+                subscriptionPendingCanceled:
+                  "The subscription has been marked for cancellation at the end of the current billing period.",
 
                 // Callout actions
                 upgradeNow: "Upgrade now",
+                reinstateSubscription: "Reinstate subscription",
 
                 // Cart summary header
                 yourSubscriptionWillBeSuspendedOn: "Your subscription will be suspended on",
@@ -90,6 +94,7 @@ export default {
                 yourNextChargeIsFor: "Your next charge is for",
                 dueOn: "due on",
                 yourSubscriptionWasCanceledOn: "Your subscription was canceled on",
+                yourSubscriptionWillBeCanceledOn: "Your subscription will be canceled on",
 
                 // Cart summary items
                 month: "month",
@@ -172,6 +177,25 @@ export const PremiumActiveWithUpgrade: Story = {
   ],
 };
 
+export const PremiumActivePendingCancellation: Story = {
+  name: "Premium: Active (Pending Cancellation)",
+  args: {
+    subscription: {
+      subscriber: {
+        type: "account",
+        data: {
+          id: "user-123" as any,
+          email: "user@example.com",
+        },
+      },
+      cart: baseCart,
+      status: "active",
+      nextCharge: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      cancelAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Subscription will be canceled at end of billing period
+    },
+  },
+};
+
 export const PremiumTrialing: Story = {
   name: "Premium: Trialing",
   args: {
@@ -209,6 +233,25 @@ export const PremiumTrialingWithUpgrade: Story = {
   ],
 };
 
+export const PremiumTrialingPendingCancellation: Story = {
+  name: "Premium: Trialing (Pending Cancellation)",
+  args: {
+    subscription: {
+      subscriber: {
+        type: "account",
+        data: {
+          id: "user-123" as any,
+          email: "user@example.com",
+        },
+      },
+      cart: baseCart,
+      status: "trialing",
+      nextCharge: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      cancelAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Subscription will be canceled at end of trial
+    },
+  },
+};
+
 export const PremiumIncomplete: Story = {
   name: "Premium: Incomplete",
   args: {
@@ -222,7 +265,7 @@ export const PremiumIncomplete: Story = {
       },
       cart: baseCart,
       status: "incomplete",
-      created: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
+      created: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
     },
   },
 };

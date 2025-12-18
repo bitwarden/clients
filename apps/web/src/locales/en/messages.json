@@ -12507,5 +12507,8 @@
   },
   "subscriptionExpiredNotice": {
     "message": "Your subscription has expired. Please contact support for assistance."
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Your subscription will be canceled on"
   }
 }

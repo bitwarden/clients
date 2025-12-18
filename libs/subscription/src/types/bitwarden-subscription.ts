@@ -37,7 +37,6 @@ type PastDue = {
   expired: Date;
   suspension: Date;
   gracePeriod: number;
-  cancelAt?: Date;
 };
 
 type Canceled = {

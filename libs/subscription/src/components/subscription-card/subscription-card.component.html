@@ -61,16 +61,26 @@
         <span class="tw-font-bold">{{ suspension() | date: "MMM. d, y" }}</span>
       }
       @case ("trialing") {
-        {{ "yourNextChargeIsFor" | i18n }}
-        <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
-        {{ "dueOn" | i18n }}
-        <span class="tw-font-bold">{{ nextCharge() | date: "MMM. d, y" }}</span>
+        @if (cancelAt(); as cancelAt) {
+          {{ "yourSubscriptionWillBeCanceledOn" | i18n }}
+          <span class="tw-font-bold">{{ cancelAt | date: "MMM. d, y" }}</span>
+        } @else {
+          {{ "yourNextChargeIsFor" | i18n }}
+          <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+          {{ "dueOn" | i18n }}
+          <span class="tw-font-bold">{{ nextCharge() | date: "MMM. d, y" }}</span>
+        }
       }
       @case ("active") {
-        {{ "yourNextChargeIsFor" | i18n }}
-        <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
-        {{ "dueOn" | i18n }}
-        <span class="tw-font-bold">{{ nextCharge() | date: "MMM. d, y" }}</span>
+        @if (cancelAt(); as cancelAt) {
+          {{ "yourSubscriptionWillBeCanceledOn" | i18n }}
+          <span class="tw-font-bold">{{ cancelAt | date: "MMM. d, y" }}</span>
+        } @else {
+          {{ "yourNextChargeIsFor" | i18n }}
+          <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+          {{ "dueOn" | i18n }}
+          <span class="tw-font-bold">{{ nextCharge() | date: "MMM. d, y" }}</span>
+        }
       }
       @case ("past_due") {
         {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}

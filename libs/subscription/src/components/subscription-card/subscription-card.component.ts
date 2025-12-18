@@ -13,12 +13,27 @@ import {
   CardComponent,
   TypographyModule,
   CalloutTypes,
+  ButtonType,
 } from "@bitwarden/components";
 import { CartSummaryComponent } from "@bitwarden/pricing";
-import { BitwardenSubscription } from "@bitwarden/subscription";
+import { BitwardenSubscription, Maybe } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-export type PlanCardAction = "contact-support" | "upgrade-plan";
+export type PlanCardAction = "contact-support" | "reinstate-subscription" | "upgrade-plan";
+
+type Badge = { text: string; variant: BadgeVariant };
+
+type Callout = Maybe<{
+  title: string;
+  type: CalloutTypes;
+  icon?: string;
+  description: string;
+  callToAction?: {
+    text: string;
+    buttonType: ButtonType;
+    action: PlanCardAction;
+  };
+}>;
 
 /**
  * A reusable UI-only component that displays a plan membership card with status, billing info,
@@ -62,9 +77,13 @@ export class SubscriptionCardComponent {
 
   readonly callToActionClicked = output<PlanCardAction>();
 
-  readonly badge = computed<{ text: string; variant: BadgeVariant }>(() => {
-    const { status } = this.subscription();
-    switch (status) {
+  readonly badge = computed<Badge>(() => {
+    const subscription = this.subscription();
+    const pendingCancellation: Badge = {
+      text: this.i18nService.t("pendingCancellation"),
+      variant: "warning",
+    };
+    switch (subscription.status) {
       case "incomplete": {
         return {
           text: this.i18nService.t("incomplete"),
@@ -78,12 +97,18 @@ export class SubscriptionCardComponent {
         };
       }
       case "trialing": {
+        if (subscription.cancelAt) {
+          return pendingCancellation;
+        }
         return {
           text: this.i18nService.t("trial"),
           variant: "success",
         };
       }
       case "active": {
+        if (subscription.cancelAt) {
+          return pendingCancellation;
+        }
         return {
           text: this.i18nService.t("active"),
           variant: "success",
@@ -110,18 +135,18 @@ export class SubscriptionCardComponent {
     }
   });
 
-  readonly callout = computed<{
-    title: string;
-    type: CalloutTypes;
-    icon?: string;
-    description: string;
-    callToAction?: {
-      text: string;
-      buttonType: "primary" | "secondary" | "danger";
-      action: PlanCardAction;
-    };
-  } | null>(() => {
+  readonly callout = computed<Callout>(() => {
     const subscription = this.subscription();
+    const pendingCancellation: Callout = {
+      title: this.i18nService.t("pendingCancellation"),
+      type: "warning",
+      description: this.i18nService.t("subscriptionPendingCanceled"),
+      callToAction: {
+        text: this.i18nService.t("reinstateSubscription"),
+        buttonType: "unstyled",
+        action: "reinstate-subscription",
+      },
+    };
     switch (subscription.status) {
       case "incomplete": {
         return {
@@ -130,7 +155,7 @@ export class SubscriptionCardComponent {
           description: this.i18nService.t("subscriptionIncompleteNotice"),
           callToAction: {
             text: this.i18nService.t("contactSupportShort"),
-            buttonType: "primary",
+            buttonType: "unstyled",
             action: "contact-support",
           },
         };
@@ -142,13 +167,16 @@ export class SubscriptionCardComponent {
           description: this.i18nService.t("subscriptionExpiredNotice"),
           callToAction: {
             text: this.i18nService.t("contactSupportShort"),
-            buttonType: "primary",
+            buttonType: "dangerPrimary",
             action: "contact-support",
           },
         };
       }
       case "trialing":
       case "active": {
+        if (subscription.cancelAt) {
+          return pendingCancellation;
+        }
         const canUpgrade =
           subscription.subscriber.type === "account" && this.premiumToOrganizationUpgradeEnabled();
         if (!canUpgrade) {
@@ -188,6 +216,13 @@ export class SubscriptionCardComponent {
           description: this.i18nService.t("toReactivateYourSubscription"),
         };
       }
+    }
+  });
+
+  readonly cancelAt = computed<Date | undefined>(() => {
+    const subscription = this.subscription();
+    if (subscription.status === "trialing" || subscription.status === "active") {
+      return subscription.cancelAt;
     }
   });
 
