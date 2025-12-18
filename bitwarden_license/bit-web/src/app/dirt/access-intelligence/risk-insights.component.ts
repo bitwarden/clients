@@ -45,7 +45,7 @@ import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
 import { PageLoadingComponent } from "./shared/page-loading.component";
 import { RiskInsightsDrawerDialogComponent } from "./shared/risk-insights-drawer-dialog.component";
-import { ApplicationsLoadingComponent } from "./shared/risk-insights-loading.component";
+import { ReportLoadingComponent } from "./shared/risk-insights-loading.component";
 
 // Type alias for progress step (used in concatMap emissions)
 type ProgressStep = ReportProgress | null;
@@ -64,7 +64,7 @@ type ProgressStep = ReportProgress | null;
     HeaderModule,
     TabsModule,
     AllActivityComponent,
-    ApplicationsLoadingComponent,
+    ReportLoadingComponent,
     PageLoadingComponent,
   ],
   animations: [

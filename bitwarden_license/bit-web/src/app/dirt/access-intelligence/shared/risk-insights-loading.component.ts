@@ -23,7 +23,7 @@ type LoadingMessage = (typeof PROGRESS_STEPS)[number]["message"];
   imports: [CommonModule, JslibModule, ProgressModule],
   templateUrl: "./risk-insights-loading.component.html",
 })
-export class ApplicationsLoadingComponent {
+export class ReportLoadingComponent {
   // Progress step input from parent component.
   // Recommended: delay emissions to this input to ensure each step displays for a minimum time.
   // Refer to risk-insights.component for implementation example.
