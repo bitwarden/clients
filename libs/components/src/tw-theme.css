@@ -84,9 +84,9 @@
   --color-transparent-hover: rgb(255 255 255 / 0.02);
   --color-shadow: 0 0 0;
 
-  --color-background: 47 52 61;
+  --color-background: 32 39 51;
   --color-background-alt: 18 26 39;
-  --color-background-alt2: 32 39 51;
+  --color-background-alt2: 47 52 61;
   --color-background-alt3: 48 57 70;
   --color-background-alt4: 18 26 39;
 
@@ -126,8 +126,8 @@
   --color-text-alt2: 255 255 255;
   --color-text-code: 255 143 208;
 
-  --color-hover-default: rgb(0 0 0 / 0.15);
-  --color-hover-contrast: rgb(170 195 239 / 0.1);
+  --color-hover-default: rgb(170 195 239 / 0.1);
+  --color-hover-contrast: rgb(0 0 0 / 0.15);
 
   --color-marketing-logo: 255 255 255;
   --color-bw-blue: 23 93 220;
