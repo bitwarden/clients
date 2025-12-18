@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Exportar desde"
   },
-  "exportVault": {
-    "message": "Exportar caja fuerte"
-  },
-  "exportSecrets": {
-    "message": "Exportar secretos"
-  },
   "fileFormat": {
     "message": "Formato de archivo"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirmar contraseña maestra"
-  },
-  "confirmFormat": {
-    "message": "Confirmar formato"
   },
   "filePassword": {
     "message": "Contraseña del archivo"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Herramientas"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Importar datos"
@@ -8753,9 +8747,6 @@
   "server": {
     "message": "Servidor"
   },
-  "exportData": {
-    "message": "Exportar datos"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exportando caja fuerte de la organización"
   },
@@ -11595,6 +11586,9 @@
   },
   "unArchive": {
     "message": "Unarchive"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "itemsInArchive": {
     "message": "Items in archive"

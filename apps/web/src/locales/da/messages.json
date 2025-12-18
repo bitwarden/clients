@@ -1975,12 +1975,6 @@
   "exportFrom": {
     "message": "Eksportér fra"
   },
-  "exportVault": {
-    "message": "Eksportér boks"
-  },
-  "exportSecrets": {
-    "message": "Eksportér hemmeligheder"
-  },
   "fileFormat": {
     "message": "Filformat"
   },
@@ -1992,9 +1986,6 @@
   },
   "confirmMasterPassword": {
     "message": "Bekræft hovedadgangskode"
-  },
-  "confirmFormat": {
-    "message": "Bekræft format"
   },
   "filePassword": {
     "message": "Filadgangskode"
@@ -2305,6 +2296,9 @@
   },
   "tools": {
     "message": "Værktøjer"
+  },
+  "import": {
+    "message": "Import"
   },
   "importData": {
     "message": "Importér data"
@@ -8753,9 +8747,6 @@
   "server": {
     "message": "Server"
   },
-  "exportData": {
-    "message": "Eksportér data"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Eksporterer organisations hemmelige data"
   },
@@ -11595,6 +11586,9 @@
   },
   "unArchive": {
     "message": "Unarchive"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "itemsInArchive": {
     "message": "Items in archive"
