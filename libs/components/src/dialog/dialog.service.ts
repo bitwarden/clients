@@ -160,14 +160,13 @@ export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   /** This is not available until after construction, @see DialogService.open. */
   cdkDialogRefBase!: CdkDialogRefBase<R, C>;
 
+  private _closed = new Subject<R | undefined>();
+  readonly closed = this._closed.asObservable();
+
   // --- Delegated to CdkDialogRefBase ---
 
   close(result?: R, options?: DialogCloseOptions): void {
     this.cdkDialogRefBase.close(result, options);
-  }
-
-  get closed(): Observable<R | undefined> {
-    return this.cdkDialogRefBase.closed;
   }
 
   get disableClose(): boolean | undefined {
@@ -180,6 +179,16 @@ export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   // Delegate the `componentInstance` property to the CDK DialogRef
   get componentInstance(): C | null {
     return this.cdkDialogRefBase.componentInstance;
+  }
+
+  /** Called by DialogService.open() after the base dialog is created */
+  _connectToCdkDialogRef(base: CdkDialogRefBase<R, C>) {
+    this.cdkDialogRefBase = base;
+    // Forward closed events from the base dialog to our subject
+    base.closed.subscribe({
+      next: (value) => this._closed.next(value),
+      complete: () => this._closed.complete(),
+    });
   }
 }
 
@@ -227,25 +236,33 @@ export class DialogService {
      * This allows us to create the class instance and provide the base instance later, almost like "deferred inheritance".
      **/
     const ref = new CdkDialogRef<R, C>();
+    const elementToRestore =
+      document.activeElement !== document.body ? (document.activeElement as HTMLElement) : null;
+
     const injector = this.createInjector({
       data: config?.data,
       dialogRef: ref,
     });
 
-    // Merge the custom config with the default config
     const _config = {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
       positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
-      restoreFocus: true,
       injector,
       ...config,
     };
 
-    // Delay dialog opening to allow menus to close and restore focus to their triggers.
-    // This ensures proper focus restoration when dialogs opened from menus are closed.
     setTimeout(() => {
-      ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
+      const baseDialogRef = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
+
+      // Restore focus when dialog closes unless consumer specified custom behavior
+      if (elementToRestore && !config?.restoreFocus) {
+        baseDialogRef.closed.subscribe(() => {
+          setTimeout(() => elementToRestore.focus(), 0);
+        });
+      }
+
+      ref._connectToCdkDialogRef(baseDialogRef);
     }, 0);
 
     return ref;
