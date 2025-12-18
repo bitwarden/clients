@@ -1,4 +1,3 @@
-// TODO: Remove this comment - added to trigger CI workflows for pnpm timing analysis
 const { pathsToModuleNameMapper } = require("ts-jest");
 
 const { compilerOptions } = require("./tsconfig.base");
