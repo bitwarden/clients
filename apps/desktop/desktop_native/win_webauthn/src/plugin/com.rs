@@ -12,7 +12,7 @@ use std::{
 use windows::{
     core::{implement, interface, ComObjectInterface, IUnknown, GUID, HRESULT},
     Win32::{
-        Foundation::{E_FAIL, E_INVALIDARG, S_OK},
+        Foundation::{E_FAIL, E_INVALIDARG, S_FALSE, S_OK},
         System::Com::*,
     },
 };
@@ -31,6 +31,7 @@ use crate::{
 };
 
 static HANDLER: OnceLock<(GUID, Arc<dyn PluginAuthenticator + Send + Sync>)> = OnceLock::new();
+static SHUTDOWN: OnceLock<bool> = OnceLock::new();
 
 #[implement(IClassFactory)]
 pub struct Factory;
@@ -284,6 +285,40 @@ pub(super) fn register_server<T>(clsid: &GUID, handler: T) -> Result<(), WinWebA
 where
     T: PluginAuthenticator + Send + Sync + 'static,
 {
+    if HANDLER.get().is_some() {
+        return Err(WinWebAuthnError::new(
+            ErrorKind::Other,
+            "server can only be registered one time per process",
+        ));
+    }
+    unsafe {
+        let com_init_result = CoInitializeEx(None, COINIT_APARTMENTTHREADED);
+        match com_init_result {
+            S_OK | S_FALSE => {} // mark initialized,
+            code => {
+                return Err(WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Could not initialize the COM library",
+                    windows::core::Error::from_hresult(code),
+                ));
+            }
+        }
+
+        if let Err(err) = CoInitializeSecurity(
+            None,
+            -1,
+            None,
+            None,
+            RPC_C_AUTHN_LEVEL_DEFAULT,
+            RPC_C_IMP_LEVEL_IMPERSONATE,
+            None,
+            EOAC_NONE,
+            None,
+        ) {
+            tracing::warn!("Could not initialize COM security: {err}");
+        };
+    }
+
     // Store the handler as a static so it can be initialized
     HANDLER.set((*clsid, Arc::new(handler))).map_err(|_| {
         WinWebAuthnError::new(ErrorKind::WindowsInternal, "Handler already initialized")
@@ -308,43 +343,16 @@ where
     Ok(())
 }
 
-/// Initializes the COM library for use on the calling thread,
-/// and registers + sets the security values.
-pub(super) fn initialize() -> std::result::Result<(), WinWebAuthnError> {
-    let result = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED) };
-
-    if result.is_err() {
-        return Err(WinWebAuthnError::with_cause(
-            ErrorKind::WindowsInternal,
-            "Could not initialize the COM library",
-            windows::core::Error::from_hresult(result),
-        ));
+pub(super) fn shutdown_server() -> std::result::Result<(), WinWebAuthnError> {
+    if HANDLER.get().is_some() {
+        if let Ok(()) = SHUTDOWN.set(true) {
+            unsafe { CoUninitialize() };
+        } else {
+            tracing::debug!("server already shut down");
+        }
+    } else {
+        tracing::debug!("server was not registered. Ignoring.");
     }
-
-    unsafe {
-        CoInitializeSecurity(
-            None,
-            -1,
-            None,
-            None,
-            RPC_C_AUTHN_LEVEL_DEFAULT,
-            RPC_C_IMP_LEVEL_IMPERSONATE,
-            None,
-            EOAC_NONE,
-            None,
-        )
-    }
-    .map_err(|err| {
-        WinWebAuthnError::with_cause(
-            ErrorKind::WindowsInternal,
-            "Could not initialize COM security",
-            err,
-        )
-    })
-}
-
-pub(super) fn uninitialize() -> std::result::Result<(), WinWebAuthnError> {
-    unsafe { CoUninitialize() };
     Ok(())
 }
 

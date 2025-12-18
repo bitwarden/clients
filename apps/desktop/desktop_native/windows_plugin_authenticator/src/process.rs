@@ -74,19 +74,16 @@ pub(super) fn add_authenticator() -> Result<(), String> {
 
 pub(super) fn run_server() -> Result<(), String> {
     tracing::debug!("Setting up COM server");
-    let r = WebAuthnPlugin::initialize();
-    tracing::debug!(
-        "Initialized the com library with WebAuthnPlugin::initialize(): {:?}",
-        r
-    );
 
     let clsid = CLSID.try_into().expect("valid GUID string");
     let plugin = WebAuthnPlugin::new(clsid);
 
-    let r = plugin.register_server(BitwardenPluginAuthenticator {
-        client: Mutex::new(None),
-        callbacks: Arc::new(Mutex::new(HashMap::new())),
-    });
+    let r = plugin
+        .register_server(BitwardenPluginAuthenticator {
+            client: Mutex::new(None),
+            callbacks: Arc::new(Mutex::new(HashMap::new())),
+        })
+        .map_err(|err| err.to_string())?;
     tracing::debug!("Registered the com library: {:?}", r);
     Ok(())
 }

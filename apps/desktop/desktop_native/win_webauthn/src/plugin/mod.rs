@@ -76,10 +76,9 @@ impl WebAuthnPlugin {
         com::register_server(&self.clsid.0, handler)
     }
 
-    /// Initializes the COM library for use on the calling thread,
-    /// and registers + sets the security values.
-    pub fn initialize() -> Result<(), WinWebAuthnError> {
-        com::initialize()
+    /// Uninitializes the COM library for the calling thread.
+    pub fn shutdown_server() -> Result<(), WinWebAuthnError> {
+        com::shutdown_server()
     }
 
     /// Adds this implementation as a Windows WebAuthn plugin.
