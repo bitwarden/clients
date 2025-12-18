@@ -18,10 +18,6 @@
         <li *ngFor="let k of keys; let i = index" #removeKeyBtn [appApiAction]="k.removePromise">
           <ng-container *ngIf="k.configured">
             <i class="bwi bwi-li bwi-key"></i>
-            <!-- <span *ngIf="!k.configured" bitTypography="body1" class="tw-font-medium">
-            {{ "webAuthnkeyX" | i18n: (i + 1).toString() }}
-             {{ "Unconfigured" }}
-          </span> -->
             <span *ngIf="k.configured" bitTypography="body1" class="tw-font-medium">
               {{ k.name || ("unnamedKey" | i18n) }}
             </span>
