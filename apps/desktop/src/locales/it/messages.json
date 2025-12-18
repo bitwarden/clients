@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "Aggiungi allegato"
   },
+  "itemsTransferred": {
+    "message": "Elementi trasferiti"
+  },
+  "fixEncryption": {
+    "message": "Correggi la crittografia"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Questo file usa un metodo di crittografia obsoleto."
+  },
+  "attachmentUpdated": {
+    "message": "Allegato aggiornato"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "La dimensione massima consentita è 500 MB."
   },
@@ -907,6 +919,12 @@
   },
   "unexpectedError": {
     "message": "Si è verificato un errore imprevisto."
+  },
+  "unexpectedErrorShort": {
+    "message": "Errore inaspettato"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Chiudi questa finestra di Bitwarden e riprova."
   },
   "itemInformation": {
     "message": "Informazioni sull'elemento"
@@ -1180,8 +1198,8 @@
   "followUs": {
     "message": "Seguici"
   },
-  "syncVault": {
-    "message": "Sincronizza cassaforte"
+  "syncNow": {
+    "message": "Sync now"
   },
   "changeMasterPass": {
     "message": "Cambia password principale"
@@ -1757,8 +1775,11 @@
   "exportFrom": {
     "message": "Esporta da"
   },
-  "exportVault": {
-    "message": "Esporta cassaforte"
+  "export": {
+    "message": "Export"
+  },
+  "import": {
+    "message": "Import"
   },
   "fileFormat": {
     "message": "Formato file"
@@ -2619,9 +2640,6 @@
   "removedMasterPassword": {
     "message": "Password principale rimossa"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "La password principale non è più richiesta per i membri dell'organizzazione. Per favore, conferma il dominio qui sotto con l'amministratore."
-  },
   "organizationName": {
     "message": "Nome dell'organizzazione"
   },
@@ -3477,10 +3495,6 @@
   "aliasDomain": {
     "message": "Dominio alias"
   },
-  "importData": {
-    "message": "Importa dati",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Errore di importazione"
   },
@@ -3886,6 +3900,75 @@
   "fileSavedToDevice": {
     "message": "File salvato sul dispositivo. Gestisci dai download del dispositivo."
   },
+  "importantNotice": {
+    "message": "Avviso importante"
+  },
+  "setupTwoStepLogin": {
+    "message": "Imposta l'accesso in due passaggi"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden invierà un codice all'email del tuo account per verificare gli accessi da nuovi dispositivi."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Puoi impostare l'accesso in due passaggi per proteggere il tuo account, oppure scegliere una email alla quale hai accesso."
+  },
+  "remindMeLater": {
+    "message": "Ricordamelo in seguito"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Confermi di poter accedere all'email $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Sì, ho accesso all'email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Attiva l'accesso in due passaggi"
+  },
+  "changeAcctEmail": {
+    "message": "Cambia l'email dell'account"
+  },
+  "passkeyLogin": {
+    "message": "Vuoi accedere con la passkey?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Vuoi salvare la passkey?"
+  },
+  "saveNewPasskey": {
+    "message": "Salva come nuovo login"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Salva la passkey come nuovo elemento"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Nessun login salvato per questa pagina"
+  },
+  "overwritePasskey": {
+    "message": "Vuoi sovrascrivere la passkey?"
+  },
+  "unableToSavePasskey": {
+    "message": "Impossibile salvare la passkey"
+  },
+  "alreadyContainsPasskey": {
+    "message": "Questo elemento contiene già una passkey. Vuoi sovrascriverla?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Esiste già una passkey per questa applicazione."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "Questa applicazione non supporta duplicati."
+  },
+  "closeThisWindow": {
+    "message": "Chiudi questa finestra"
+  },
   "allowScreenshots": {
     "message": "Permetti cattura dello schermo"
   },
@@ -4244,16 +4327,147 @@
   "andMoreFeatures": {
     "message": "E molto altro!"
   },
-  "planDescPremium": {
-    "message": "Sicurezza online completa"
+  "advancedOnlineSecurity": {
+    "message": "Sicurezza online avanzata"
   },
   "upgradeToPremium": {
     "message": "Aggiorna a Premium"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Azione al timeout"
   },
   "sessionTimeoutHeader": {
     "message": "Timeout della sessione"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Questa impostazione è gestita dalla tua organizzazione."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "La tua organizzazione ha impostato $HOURS$ ora/e e $MINUTES$ minuto/i come durata massima della sessione.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "In base alle impostazioni della tua organizzazione, la sessione terminerà al blocco del dispositivo."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "In base alle impostazioni della tua organizzazione, la sessione terminerà al riavvio dell'applicazione."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "La durata della sessione non può superare $HOURS$ ora/e e $MINUTES$ minuto/i",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Al riavvio"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Imposta un metodo di sblocco per modificare l'azione al timeout"
+  },
+  "upgrade": {
+    "message": "Aggiorna"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Vuoi davvero abbandonare?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Se rifiuti, tutti gli elementi esistenti resteranno nel tuo account, ma perderai l'accesso agli oggetti condivisi e alle funzioni organizzative."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contatta il tuo amministratore per recuperare l'accesso."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Abbandona $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Come si gestisce la cassaforte?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Trasferisci gli elementi in $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ richiede che tutti gli elementi siano di proprietà dell'organizzazione per motivi di conformità e sicurezza. Clicca su 'Accetta' per trasferire la proprietà.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accetta il trasferimento"
+  },
+  "declineAndLeave": {
+    "message": "Rifiuta e abbandona"
+  },
+  "whyAmISeeingThis": {
+    "message": "Perché vedo questo avviso?"
   }
 }
