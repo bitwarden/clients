@@ -87,7 +87,6 @@ export default class Domain {
       try {
         viewModel[prop] = await encryptService.decryptString(domain[prop]!, key);
       } catch (e) {
-
         // In case the SDK maps to a non-Error type, this is defensive
         const errorMsg =
           typeof e === "object" && e !== null && "message" in e
