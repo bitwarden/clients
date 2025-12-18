@@ -213,6 +213,18 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.webAuthnListening = listening;
   }
 
+  private findNextAvailableKeyId(existingIds: Set<number>): number {
+    // Search for first gap, bounded by current key count + 1
+    for (let i = 1; i <= existingIds.size + 1; i++) {
+      if (!existingIds.has(i)) {
+        return i;
+      }
+    }
+
+    // This should never be reached due to loop bounds, but TypeScript requires a return
+    throw new Error("Unable to find next available key ID");
+  }
+
   private processResponse(response: TwoFactorWebAuthnResponse) {
     if (!response.keys || response.keys.length === 0) {
       response.keys = [];
@@ -246,15 +258,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     // unbounded growth of key IDs over time as users add/remove keys;
     // this strategy gap-fills key IDs.
     const existingIds = new Set(response.keys.map((k) => k.id));
-    let nextId = null;
-
-    // Search for first gap, bounded by current key count + 1
-    for (let i = 1; i <= existingIds.size + 1; i++) {
-      if (!existingIds.has(i)) {
-        nextId = i;
-        break;
-      }
-    }
+    const nextId = this.findNextAvailableKeyId(existingIds);
 
     // Add unconfigured slot, which can be used to add a new key
     this.keys.push({
