@@ -7,4 +7,6 @@ export interface DomQueryService {
     forceDeepQueryAttempt?: boolean,
   ): T[];
   checkPageContainsShadowDom(): boolean;
+  checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
+  checkForNewShadowRoots(): boolean;
 }
