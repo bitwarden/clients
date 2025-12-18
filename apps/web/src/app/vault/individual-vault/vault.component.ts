@@ -658,6 +658,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.vaultFilterService.clearOrganizationFilter();
   }
 
+  async navigateToGetPremium() {
+    await this.router.navigate(["/settings/subscription/premium"]);
+  }
+
   async onVaultItemsEvent(event: VaultItemEvent<C>) {
     this.processingEvent = true;
     try {

@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 
+import { BaseCardComponent } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import {
   EnterBillingAddressComponent,
@@ -22,6 +23,7 @@ import { UserSubscriptionComponent } from "./user-subscription.component";
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     PricingCardComponent,
+    BaseCardComponent,
   ],
   declarations: [SubscriptionComponent, BillingHistoryViewComponent, UserSubscriptionComponent],
 })

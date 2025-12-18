@@ -98,6 +98,14 @@ jobs:
         working-directory: apps/desktop/artifacts
         run: mv "Bitwarden-${PKG_VERSION}-universal.pkg" "Bitwarden-${PKG_VERSION}-universal.pkg.archive"
 
+      - name: Rename .tar.gz to include version
+        env:
+          PKG_VERSION: ${{ steps.version.outputs.version }}
+        working-directory: apps/desktop/artifacts
+        run: |
+          mv "bitwarden_desktop_x64.tar.gz" "bitwarden_${PKG_VERSION}_x64.tar.gz"
+          mv "bitwarden_desktop_arm64.tar.gz" "bitwarden_${PKG_VERSION}_arm64.tar.gz"
+
       - name: Create Release
         uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         if: ${{ steps.release_channel.outputs.channel == 'latest' && github.event.inputs.release_type != 'Dry Run' }}
