@@ -70,7 +70,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Bạn không có quyền chỉnh sửa mục này"
   },
   "welcomeBack": {
     "message": "Chào mừng bạn trở lại"
@@ -708,6 +708,18 @@
   "addAttachment": {
     "message": "Thêm tệp đính kèm"
   },
+  "itemsTransferred": {
+    "message": "Các mục đã chuyển"
+  },
+  "fixEncryption": {
+    "message": "Sửa mã hóa"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Tệp này đang sử dụng phương pháp mã hóa lỗi thời."
+  },
+  "attachmentUpdated": {
+    "message": "Tệp đính kèm đã được cập nhật"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Kích thước tối đa của tập tin là 500MB"
   },
@@ -908,6 +920,12 @@
   "unexpectedError": {
     "message": "Đã xảy ra lỗi không mong muốn."
   },
+  "unexpectedErrorShort": {
+    "message": "Lỗi bất thường"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Đóng cửa sổ Bitwarden này rồi thử lại."
+  },
   "itemInformation": {
     "message": "Thông tin mục"
   },
@@ -1094,22 +1112,22 @@
     "message": "Tìm hiểu thêm"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Đã xảy ra lỗi khi cập nhật cài đặt mã hóa."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Cập nhật cài đặt mã hóa của bạn"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Cài đặt mã hóa được khuyến nghị sẽ cải thiện bảo mật cho tài khoản của bạn. Nhập mật khẩu chính để cập nhật ngay."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Xác minh danh tính để tiếp tục"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Nhập mật khẩu chính của bạn"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Cập nhật cài đặt"
   },
   "featureUnavailable": {
     "message": "Tính năng không có sẵn"
@@ -1180,8 +1198,8 @@
   "followUs": {
     "message": "Theo dõi chúng tôi"
   },
-  "syncVault": {
-    "message": "Đồng bộ kho"
+  "syncNow": {
+    "message": "Sync now"
   },
   "changeMasterPass": {
     "message": "Thay đổi mật khẩu chính"
@@ -1313,7 +1331,7 @@
     "message": "4 giờ"
   },
   "onIdle": {
-    "message": "Khi hệ thống không hoạt động (rảnh rỗi)"
+    "message": "Khi hệ thống nhàn rỗi"
   },
   "onSleep": {
     "message": "Khi hệ thống ngủ"
@@ -1509,7 +1527,7 @@
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1757,8 +1775,11 @@
   "exportFrom": {
     "message": "Xuất từ"
   },
-  "exportVault": {
-    "message": "Xuất kho"
+  "export": {
+    "message": "Export"
+  },
+  "import": {
+    "message": "Import"
   },
   "fileFormat": {
     "message": "Định dạng tập tin"
@@ -2619,9 +2640,6 @@
   "removedMasterPassword": {
     "message": "Đã xóa mật khẩu chính"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Mật khẩu chính không còn được yêu cầu đối với các thành viên của tổ chức sau đây. Vui lòng xác nhận tên miền bên dưới với quản trị viên của tổ chức."
-  },
   "organizationName": {
     "message": "Tên tổ chức"
   },
@@ -3477,10 +3495,6 @@
   "aliasDomain": {
     "message": "Tên miền thay thế"
   },
-  "importData": {
-    "message": "Nhập dữ liệu",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Lỗi khi nhập"
   },
@@ -3886,6 +3900,75 @@
   "fileSavedToDevice": {
     "message": "Tệp đã được lưu vào thiết bị. Quản lý từ phần Tải về trên thiết bị của bạn."
   },
+  "importantNotice": {
+    "message": "Thông báo quan trọng"
+  },
+  "setupTwoStepLogin": {
+    "message": "Thiết lập đăng nhập hai bước"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden sẽ gửi mã đến email tài khoản của bạn để xác minh thông tin đăng nhập từ thiết bị mới bắt đầu từ tháng 2 năm 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Bạn có thể thiết lập đăng nhập hai bước như một cách thay thế để bảo vệ tài khoản của mình hoặc thay đổi email thành email mà bạn có thể truy cập."
+  },
+  "remindMeLater": {
+    "message": "Nhắc tôi sau"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Bạn có thể truy cập vào email $EMAIL$ không?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Không, tôi không có"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Có, tôi có quyền truy cập email này"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Bật đăng nhập hai bước"
+  },
+  "changeAcctEmail": {
+    "message": "Đổi email tài khoản"
+  },
+  "passkeyLogin": {
+    "message": "Đăng nhập bằng mã khóa?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Lưu mã khóa?"
+  },
+  "saveNewPasskey": {
+    "message": "Lưu như đăng nhập mới"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Lưu mã khoá như đăng nhập mới"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Không có đăng nhập khớp với trang web này"
+  },
+  "overwritePasskey": {
+    "message": "Ghi đè mã khoá?"
+  },
+  "unableToSavePasskey": {
+    "message": "Không thể lưu mã khóa"
+  },
+  "alreadyContainsPasskey": {
+    "message": "Mục này đã chứa mã khóa. Bạn có chắc muốn ghi đè mã khóa hiện tại không?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Ứng dụng này đã có mã khoá."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "Ứng dụng này không hỗ trợ các mục trùng lặp."
+  },
+  "closeThisWindow": {
+    "message": "Đóng cửa sổ này"
+  },
   "allowScreenshots": {
     "message": "Cho phép chụp màn hình"
   },
@@ -4244,16 +4327,147 @@
   "andMoreFeatures": {
     "message": "Và nhiều hơn nữa!"
   },
-  "planDescPremium": {
-    "message": "Bảo mật trực tuyến toàn diện"
+  "advancedOnlineSecurity": {
+    "message": "Bảo mật trực tuyến nâng cao"
   },
   "upgradeToPremium": {
     "message": "Nâng cấp lên gói Cao cấp"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Hành động sau khi đóng kho"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Thời gian hết phiên"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Cài đặt này do tổ chức của bạn quản lý."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Tổ chức của bạn đã đặt thời gian chờ phiên tối đa là $HOURS$ giờ và $MINUTES$ phút.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Tổ chức của bạn đã đặt thời gian chờ phiên mặc định là Mỗi khi khóa máy."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Tổ chức của bạn đã đặt thời gian chờ phiên mặc định là Khi khởi động lại."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Thời gian chờ tối đa không thể vượt quá $HOURS$ giờ và $MINUTES$ phút",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Khi khởi động lại máy"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Đặt phương thức mở khóa để thay đổi hành động khi hết thời gian chờ"
+  },
+  "upgrade": {
+    "message": "Nâng cấp"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Bạn có chắc chắn muốn rời đi không?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Bằng việc từ chối, các mục cá nhân sẽ vẫn nằm trong tài khoản của bạn, nhưng bạn sẽ mất quyền truy cập vào các mục được chia sẻ và tính năng tổ chức."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Liên hệ quản trị viên của bạn để lấy lại quyền truy cập."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Rời khỏi $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Tôi quản lý kho của mình như thế nào?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Chuyển các mục đến $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ yêu cầu tất cả các mục phải thuộc sở hữu của tổ chức để đảm bảo an ninh và tuân thủ. Nhấp chấp nhận để chuyển quyền sở hữu các mục của bạn.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Chấp nhận chuyển"
+  },
+  "declineAndLeave": {
+    "message": "Từ chối và rời đi"
+  },
+  "whyAmISeeingThis": {
+    "message": "Tại sao tôi thấy điều này?"
   }
 }

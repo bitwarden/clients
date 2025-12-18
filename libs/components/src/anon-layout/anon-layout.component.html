@@ -5,7 +5,11 @@
     'tw-min-h-full': clientType === 'browser' || clientType === 'desktop',
   }"
 >
-  <div class="tw-flex tw-justify-between tw-items-center tw-w-full tw-mb-12">
+  <div
+    [class]="
+      'tw-flex tw-justify-between tw-items-center tw-w-full' + (!hideLogo() ? ' tw-mb-12' : '')
+    "
+  >
     @if (!hideLogo()) {
       <a
         [routerLink]="['/']"
