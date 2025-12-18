@@ -8,6 +8,7 @@ import { BehaviorSubject, of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionType, CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
+import { ClientType } from "@bitwarden/client-type";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -92,6 +93,7 @@ describe("ItemDetailsSectionComponent", () => {
     mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
     mockPolicyService = mock<PolicyService>();
     mockPolicyService.policiesByType$.mockReturnValue(of([]));
+    mockPlatformUtilsService = mock<PlatformUtilsService>();
 
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
@@ -786,6 +788,29 @@ describe("ItemDetailsSectionComponent", () => {
 
         expect(component.itemDetailsForm.controls.organizationId.disabled).toBe(true);
       });
+    });
+  });
+
+  describe("showArchiveBadge", () => {
+    it("should set showArchiveBadge to true when cipher is archived and client is Desktop", async () => {
+      component.config.organizations = [{ id: "org1" } as Organization];
+
+      const archivedCipher = {
+        name: "archived cipher",
+        organizationId: null,
+        folderId: null,
+        collectionIds: [],
+        favorite: false,
+        isArchived: true,
+      } as unknown as CipherView;
+
+      component.originalCipherView = archivedCipher;
+      getInitialCipherView.mockReturnValueOnce(archivedCipher);
+      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+
+      await component.ngOnInit();
+
+      expect(component["showArchiveBadge"]).toBe(true);
     });
   });
 });
