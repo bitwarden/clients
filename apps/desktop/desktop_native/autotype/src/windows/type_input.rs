@@ -1,5 +1,3 @@
-use std::sync::OnceLock;
-
 use anyhow::{anyhow, Result};
 use tracing::{debug, error};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
@@ -29,13 +27,11 @@ trait InputOperations {
 
 struct Win32InputOperations;
 
-static INPUT_STRUCT_SIZE: OnceLock<i32> = OnceLock::new();
-
 impl InputOperations for Win32InputOperations {
     fn send_input(inputs: &[INPUT]) -> u32 {
-        let size = *(INPUT_STRUCT_SIZE.get_or_init(|| {
-            i32::try_from(std::mem::size_of::<INPUT>()).expect("have space for INPUT size")
-        }));
+        const INPUT_STRUCT_SIZE: usize = std::mem::size_of::<INPUT>();
+
+        let size = i32::try_from(INPUT_STRUCT_SIZE).expect("INPUT size to fit in i32");
 
         let insert_count = unsafe { SendInput(inputs, size) };
 
