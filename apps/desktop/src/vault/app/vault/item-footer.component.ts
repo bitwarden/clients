@@ -8,6 +8,7 @@ import {
   ViewChild,
   OnChanges,
   SimpleChanges,
+  input,
 } from "@angular/core";
 import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 
@@ -67,6 +68,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
 
+  readonly submitButtonText = input<string>("");
   activeUserId: UserId | null = null;
   passwordReprompted: boolean = false;
 

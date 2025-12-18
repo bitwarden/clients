@@ -216,6 +216,22 @@ export class VaultV2Component<C extends CipherViewLike>
     ),
   );
 
+  protected userHasPremium$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    ),
+  );
+
+  protected get submitButtonText$(): Observable<string> {
+    return this.userHasPremium$.pipe(
+      map((hasPremium) =>
+        this.cipher?.isArchived && !hasPremium
+          ? this.i18nService.t("unArchiveAndSave")
+          : this.i18nService.t("save"),
+      ),
+    );
+  }
+
   private componentIsDestroyed$ = new Subject<boolean>();
   private allOrganizations: Organization[] = [];
   private allCollections: CollectionView[] = [];
