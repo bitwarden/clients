@@ -167,7 +167,7 @@ export class SubscriptionCardComponent {
           description: this.i18nService.t("subscriptionExpiredNotice"),
           callToAction: {
             text: this.i18nService.t("contactSupportShort"),
-            buttonType: "dangerPrimary",
+            buttonType: "unstyled",
             action: "contact-support",
           },
         };
@@ -189,7 +189,7 @@ export class SubscriptionCardComponent {
           description: this.i18nService.t("premiumShareEvenMore"),
           callToAction: {
             text: this.i18nService.t("upgradeNow"),
-            buttonType: "primary",
+            buttonType: "unstyled",
             action: "upgrade-plan",
           },
         };
