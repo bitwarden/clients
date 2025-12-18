@@ -48,7 +48,7 @@ pub fn get_foreground_window_title() -> Result<String> {
 struct KeyboardShortcutInput(INPUT);
 
 pub fn type_input(input: &[u16], keyboard_shortcut: &[String]) -> Result<()> {
-    debug!(?keyboard_shortcut, "Using keyboard shortcut.");
+    debug!(?keyboard_shortcut, "type_input() called.");
 
     // convert the raw string input to Windows input and error
     // if any key is not a valid keyboard shortcut input
