@@ -9,7 +9,7 @@ use std::{mem::MaybeUninit, ptr::NonNull};
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use windows::{
     core::{GUID, HRESULT},
-    Win32::Foundation::HWND,
+    Win32::{Foundation::HWND, System::Com::CoTaskMemFree},
 };
 use windows_core::BOOL;
 
@@ -650,6 +650,9 @@ impl PluginMakeCredentialResponse {
                 ));
             }
             let response = std::slice::from_raw_parts(response_ptr, response_len as usize).to_vec();
+            // Ideally, we wouldn't have Windows allocate this in COM, and then
+            // we reallocate locally and then reallocate for COM.
+            CoTaskMemFree(Some(response_ptr.cast()));
 
             Ok(response)
         }
