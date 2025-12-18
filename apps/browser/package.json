@@ -63,8 +63,6 @@
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
     "test:clearCache": "jest --clear-cache",
-    "update:dev:chrome": "./scripts/update-manifest-dev.sh",
-    "compile:autofill-variables": "node ./scripts/compile-autofill-variables.js",
-    "watch:autofill-variables": "nodemon --watch src/autofill/shared/styles/variables.scss --exec 'npm run compile:autofill-variables'"
+    "update:dev:chrome": "./scripts/update-manifest-dev.sh"
   }
 }
