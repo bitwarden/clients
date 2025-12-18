@@ -451,18 +451,16 @@ pub struct PluginMakeCredentialRequest {
 }
 
 impl PluginMakeCredentialRequest {
-    pub fn client_data_hash(&self) -> Result<&[u8], WinWebAuthnError> {
-        if self.as_ref().cbClientDataHash == 0 || self.as_ref().pbClientDataHash.is_null() {
-            return Err(WinWebAuthnError::new(
-                ErrorKind::WindowsInternal,
-                "Received invalid client data hash",
-            ));
-        }
+    pub fn client_data_hash(&self) -> &[u8] {
+        // SAFETY: clientDataHash is a required field, and when this is
+        // constructed using Self::try_from_ptr(), the Windows decode API
+        // constructs valid pointers.
         unsafe {
-            Ok(std::slice::from_raw_parts(
+            std::slice::from_raw_parts(
                 self.as_ref().pbClientDataHash,
+                // SAFETY: we only support Windows versions where usize >= 32
                 self.as_ref().cbClientDataHash as usize,
-            ))
+            )
         }
     }
 
