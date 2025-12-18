@@ -12,7 +12,7 @@
         <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
         <ng-content select="[slot='empty-button']" slot="button" />
       </bit-no-items>
-    } @else if (listState() === null) {
+    } @else {
       <!-- Normal state: Display table -->
       <tools-send-table
         [dataSource]="dataSource"

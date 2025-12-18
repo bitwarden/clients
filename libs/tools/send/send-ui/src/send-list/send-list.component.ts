@@ -62,7 +62,6 @@ export class SendListComponent {
 
   constructor() {
     // Effect to update data source when sends change
-    // Using effect() instead of computed() since we're performing a side effect (updating existing object)
     effect(() => {
       this._dataSource.data = this.sends();
     });
