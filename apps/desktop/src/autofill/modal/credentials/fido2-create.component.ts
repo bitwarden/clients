@@ -136,9 +136,8 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
         throw new Error("Missing session");
       }
 
-      // TODO: We should know the username by now; we should pass that context here.
-      const username = "New Account" // placeholder
-      const isConfirmed = await this.session.promptForUserVerification("New Account", "Verify it's you to create a new credential")
+      const username = await this.session.getUserName();
+      const isConfirmed = await this.session.promptForUserVerification(username, "Verify it's you to create a new credential")
       this.session.notifyConfirmCreateCredential(isConfirmed);
     } catch {
       await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);

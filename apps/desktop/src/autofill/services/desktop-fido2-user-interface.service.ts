@@ -104,6 +104,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   private updatedCipher: CipherView;
 
   private rpId = new BehaviorSubject<string>(null);
+  private userName = new BehaviorSubject<string>(null);
   private availableCipherIdsSubject = new BehaviorSubject<string[]>([""]);
   /**
    * Observable that emits available cipher IDs once they're confirmed by the UI
@@ -196,6 +197,10 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     return firstValueFrom(this.rpId.pipe(filter((id) => id != null)));
   }
 
+  async getUserName(): Promise<string> {
+    return firstValueFrom(this.userName.pipe(filter((id) => id != null)));
+  }
+
   confirmChosenCipher(cipherId: string, userVerified: boolean = false): void {
     this.chosenCipherSubject.next({ cipherId, userVerified });
     this.chosenCipherSubject.complete();
@@ -274,6 +279,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       rpId,
     );
     this.rpId.next(rpId);
+    this.userName.next(userName);
 
     try {
       await this.showUi("/fido2-creation", this.windowObject.windowXy, false);
