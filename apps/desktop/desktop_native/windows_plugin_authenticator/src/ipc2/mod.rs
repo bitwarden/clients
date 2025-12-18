@@ -31,6 +31,7 @@ pub use lock_status::LockStatusResponse;
 pub use registration::{
     PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
 };
+pub use window_handle_query::WindowHandleQueryResponse;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

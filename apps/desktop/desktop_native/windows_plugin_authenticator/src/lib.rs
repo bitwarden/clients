@@ -1,3 +1,4 @@
+#![cfg(target_os = "windows")]
 use std::collections::HashSet;
 
 use win_webauthn::{

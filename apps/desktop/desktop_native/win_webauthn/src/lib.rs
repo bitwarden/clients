@@ -1,3 +1,4 @@
+#![cfg(target_os = "windows")]
 pub mod plugin;
 mod types;
 mod util;
