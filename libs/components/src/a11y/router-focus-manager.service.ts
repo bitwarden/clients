@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { skip, filter, map, combineLatestWith, tap } from "rxjs";
+import { skip, filter, combineLatestWith, tap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -46,14 +46,11 @@ export class RouterFocusManagerService {
     skip(1),
     combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.RouterFocusManagement)),
     filter(([_navEvent, flagEnabled]) => flagEnabled),
-    map(() => {
+    filter(() => {
       const currentNavExtras = this.router.currentNavigation()?.extras;
 
       const focusMainAfterNav: boolean | undefined = currentNavExtras?.state?.focusMainAfterNav;
 
-      return focusMainAfterNav;
-    }),
-    filter((focusMainAfterNav) => {
       return focusMainAfterNav !== false;
     }),
     tap(() => {
