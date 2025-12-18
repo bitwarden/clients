@@ -14,12 +14,12 @@ import { ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
 // Unlike the shared library version, this component emits events instead of using Angular Router,
 // which aligns with Desktop's modal-based architecture.
 @Component({
-  selector: "app-new-send-dropdown",
-  templateUrl: "new-send-dropdown.component.html",
+  selector: "tools-new-send-dropdown-v2",
+  templateUrl: "new-send-dropdown-v2.component.html",
   imports: [JslibModule, ButtonModule, MenuModule, PremiumBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NewSendDropdownComponent {
+export class NewSendDropdownV2Component {
   readonly hideIcon = input<boolean>(false);
   readonly buttonType = input<ButtonType>("primary");
 

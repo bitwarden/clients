@@ -57,13 +57,12 @@ export class SendListComponent {
   readonly listState = input<SendListState | null>(null);
 
   // Reusable data source instance - updated reactively when sends change
-  private readonly _dataSource = new TableDataSource<SendView>();
-  protected readonly dataSource = this._dataSource;
+  protected readonly dataSource = new TableDataSource<SendView>();
 
   constructor() {
     // Effect to update data source when sends change
     effect(() => {
-      this._dataSource.data = this.sends();
+      this.dataSource.data = this.sends();
     });
   }
 

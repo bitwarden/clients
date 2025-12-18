@@ -27,12 +27,15 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, DialogService, ToastService } from "@bitwarden/components";
-import { SendItemsService, SendListComponent, SendListState } from "@bitwarden/send-ui";
+import {
+  NewSendDropdownV2Component,
+  SendItemsService,
+  SendListComponent,
+  SendListState,
+} from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { AddEditComponent } from "../send/add-edit.component";
-
-import { NewSendDropdownComponent } from "./new-send-dropdown.component";
 
 const Action = Object.freeze({
   /** No action is currently active. */
@@ -52,7 +55,7 @@ type Action = (typeof Action)[keyof typeof Action];
     ButtonModule,
     AddEditComponent,
     SendListComponent,
-    NewSendDropdownComponent,
+    NewSendDropdownV2Component,
   ],
   providers: [
     {

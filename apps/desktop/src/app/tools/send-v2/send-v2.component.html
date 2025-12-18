@@ -7,31 +7,33 @@
       >
         <h1 class="tw-text-base tw-font-semibold tw-m-0">{{ "send" | i18n }}</h1>
         @if (!disableSend()) {
-          <app-new-send-dropdown
+          <tools-new-send-dropdown-v2
             [buttonType]="'primary'"
             (addSend)="addSend($event)"
-          ></app-new-send-dropdown>
+          ></tools-new-send-dropdown-v2>
         }
       </div>
 
       <!-- Send List Component -->
-      <tools-send-list
-        [sends]="filteredSends()"
-        [loading]="loading()"
-        [disableSend]="disableSend()"
-        [listState]="listState()"
-        (editSend)="onEditSend($event)"
-        (copySend)="onCopySend($event)"
-        (deleteSend)="onDeleteSend($event)"
-        (removePassword)="onRemovePassword($event)"
-      >
-        <app-new-send-dropdown
-          slot="empty-button"
-          [hideIcon]="true"
-          [buttonType]="'primary'"
-          (addSend)="addSend($event)"
-        />
-      </tools-send-list>
+      <div class="tw-my-4 tw-px-4">
+        <tools-send-list
+          [sends]="filteredSends()"
+          [loading]="loading()"
+          [disableSend]="disableSend()"
+          [listState]="listState()"
+          (editSend)="onEditSend($event)"
+          (copySend)="onCopySend($event)"
+          (deleteSend)="onDeleteSend($event)"
+          (removePassword)="onRemovePassword($event)"
+        >
+          <tools-new-send-dropdown-v2
+            slot="empty-button"
+            [hideIcon]="true"
+            [buttonType]="'primary'"
+            (addSend)="addSend($event)"
+          />
+        </tools-send-list>
+      </div>
     </div>
   </div>
 

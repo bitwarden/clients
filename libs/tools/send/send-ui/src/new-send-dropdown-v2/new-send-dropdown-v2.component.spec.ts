@@ -8,11 +8,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 
-import { NewSendDropdownComponent } from "./new-send-dropdown.component";
+import { NewSendDropdownV2Component } from "./new-send-dropdown-v2.component";
 
-describe("NewSendDropdownComponent", () => {
-  let component: NewSendDropdownComponent;
-  let fixture: ComponentFixture<NewSendDropdownComponent>;
+describe("NewSendDropdownV2Component", () => {
+  let component: NewSendDropdownV2Component;
+  let fixture: ComponentFixture<NewSendDropdownV2Component>;
   let billingService: MockProxy<BillingAccountProfileStateService>;
   let accountService: MockProxy<AccountService>;
   let premiumUpgradeService: MockProxy<PremiumUpgradePromptService>;
@@ -30,7 +30,7 @@ describe("NewSendDropdownComponent", () => {
     i18nService.t.mockImplementation((key: string) => key);
 
     await TestBed.configureTestingModule({
-      imports: [NewSendDropdownComponent],
+      imports: [NewSendDropdownV2Component],
       providers: [
         { provide: BillingAccountProfileStateService, useValue: billingService },
         { provide: AccountService, useValue: accountService },
@@ -39,7 +39,7 @@ describe("NewSendDropdownComponent", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(NewSendDropdownComponent);
+    fixture = TestBed.createComponent(NewSendDropdownV2Component);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -72,7 +72,7 @@ describe("NewSendDropdownComponent", () => {
       billingService.hasPremiumFromAnySource$.mockReturnValue(of(true));
       accountService.activeAccount$ = of({ id: "user-123" } as any);
 
-      fixture = TestBed.createComponent(NewSendDropdownComponent);
+      fixture = TestBed.createComponent(NewSendDropdownV2Component);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -83,7 +83,7 @@ describe("NewSendDropdownComponent", () => {
       billingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
       accountService.activeAccount$ = of({ id: "user-123" } as any);
 
-      fixture = TestBed.createComponent(NewSendDropdownComponent);
+      fixture = TestBed.createComponent(NewSendDropdownV2Component);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -93,7 +93,7 @@ describe("NewSendDropdownComponent", () => {
     it("hasNoPremium defaults to true when no active account", () => {
       accountService.activeAccount$ = of(null);
 
-      fixture = TestBed.createComponent(NewSendDropdownComponent);
+      fixture = TestBed.createComponent(NewSendDropdownV2Component);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -104,7 +104,7 @@ describe("NewSendDropdownComponent", () => {
       const premiumSubject = new BehaviorSubject(false);
       billingService.hasPremiumFromAnySource$.mockReturnValue(premiumSubject.asObservable());
 
-      fixture = TestBed.createComponent(NewSendDropdownComponent);
+      fixture = TestBed.createComponent(NewSendDropdownV2Component);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -131,7 +131,7 @@ describe("NewSendDropdownComponent", () => {
     it("allows text send without premium", () => {
       billingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
-      fixture = TestBed.createComponent(NewSendDropdownComponent);
+      fixture = TestBed.createComponent(NewSendDropdownV2Component);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -160,7 +160,7 @@ describe("NewSendDropdownComponent", () => {
       billingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
       premiumUpgradeService.promptForPremium.mockResolvedValue();
 
-      fixture = TestBed.createComponent(NewSendDropdownComponent);
+      fixture = TestBed.createComponent(NewSendDropdownV2Component);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -176,7 +176,7 @@ describe("NewSendDropdownComponent", () => {
     it("does not emit file send type when premium prompt is shown", async () => {
       billingService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
-      fixture = TestBed.createComponent(NewSendDropdownComponent);
+      fixture = TestBed.createComponent(NewSendDropdownV2Component);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -192,7 +192,7 @@ describe("NewSendDropdownComponent", () => {
       const premiumSubject = new BehaviorSubject(false);
       billingService.hasPremiumFromAnySource$.mockReturnValue(premiumSubject.asObservable());
 
-      fixture = TestBed.createComponent(NewSendDropdownComponent);
+      fixture = TestBed.createComponent(NewSendDropdownV2Component);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
@@ -220,7 +220,7 @@ describe("NewSendDropdownComponent", () => {
       accountService.activeAccount$ = of(null);
 
       expect(() => {
-        fixture = TestBed.createComponent(NewSendDropdownComponent);
+        fixture = TestBed.createComponent(NewSendDropdownV2Component);
         component = fixture.componentInstance;
         fixture.detectChanges();
       }).not.toThrow();

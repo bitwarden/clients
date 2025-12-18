@@ -1,27 +1,25 @@
 <!-- Loading state -->
-<div class="tw-my-4 tw-px-4">
-  @if (loading()) {
-    <bit-spinner [title]="'loading' | i18n"></bit-spinner>
-  } @else {
-    <!-- Search bar - always visible when not loading -->
-    <tools-send-search></tools-send-search>
+@if (loading()) {
+  <bit-spinner [title]="'loading' | i18n"></bit-spinner>
+} @else {
+  <!-- Search bar - always visible when not loading -->
+  <tools-send-search></tools-send-search>
+  @if (listState() === sendListState.Empty || listState() === sendListState.NoResults) {
     <!-- Empty state: No sends exist -->
-    @if (listState() === sendListState.Empty || listState() === sendListState.NoResults) {
-      <bit-no-items [icon]="noItemIcon" class="tw-text-main">
-        <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
-        <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
-        <ng-content select="[slot='empty-button']" slot="button" />
-      </bit-no-items>
-    } @else {
-      <!-- Normal state: Display table -->
-      <tools-send-table
-        [dataSource]="dataSource"
-        [disableSend]="disableSend()"
-        (editSend)="onEditSend($event)"
-        (copySend)="onCopySend($event)"
-        (removePassword)="onRemovePassword($event)"
-        (deleteSend)="onDeleteSend($event)"
-      />
-    }
+    <bit-no-items [icon]="noItemIcon" class="tw-text-main">
+      <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
+      <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
+      <ng-content select="[slot='empty-button']" slot="button" />
+    </bit-no-items>
+  } @else {
+    <!-- Normal state: Display table -->
+    <tools-send-table
+      [dataSource]="dataSource"
+      [disableSend]="disableSend()"
+      (editSend)="onEditSend($event)"
+      (copySend)="onCopySend($event)"
+      (removePassword)="onRemovePassword($event)"
+      (deleteSend)="onDeleteSend($event)"
+    />
   }
-</div>
+}

@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { ChangeDetectorRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormBuilder } from "@angular/forms";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -22,7 +21,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { SendListFiltersService } from "@bitwarden/send-ui";
+import { SendItemsService, SendListFiltersService } from "@bitwarden/send-ui";
 
 import { AddEditComponent } from "../send/add-edit.component";
 
@@ -34,7 +33,8 @@ describe("SendV2Component", () => {
   let sendService: MockProxy<SendService>;
   let accountService: MockProxy<AccountService>;
   let policyService: MockProxy<PolicyService>;
-  let sendListFiltersService: SendListFiltersService;
+  let sendItemsService: MockProxy<SendItemsService>;
+  let sendListFiltersService: MockProxy<SendListFiltersService>;
   let changeDetectorRef: MockProxy<ChangeDetectorRef>;
 
   beforeEach(async () => {
@@ -43,11 +43,15 @@ describe("SendV2Component", () => {
     policyService = mock<PolicyService>();
     changeDetectorRef = mock<ChangeDetectorRef>();
 
-    // Create real SendListFiltersService with mocked dependencies
-    const formBuilder = new FormBuilder();
-    const i18nService = mock<I18nService>();
-    i18nService.t.mockImplementation((key: string) => key);
-    sendListFiltersService = new SendListFiltersService(i18nService, formBuilder);
+    // Mock SendItemsService with all required observables
+    sendItemsService = mock<SendItemsService>();
+    sendItemsService.filteredAndSortedSends$ = of([]);
+    sendItemsService.loading$ = of(false);
+    sendItemsService.emptyList$ = of(false);
+    sendItemsService.noFilteredResults$ = of(false);
+
+    // Mock SendListFiltersService
+    sendListFiltersService = mock<SendListFiltersService>();
 
     // Mock sendViews$ observable
     sendService.sendViews$ = of([]);
@@ -75,6 +79,7 @@ describe("SendV2Component", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: AccountService, useValue: accountService },
+        { provide: SendItemsService, useValue: sendItemsService },
         { provide: SendListFiltersService, useValue: sendListFiltersService },
         { provide: ChangeDetectorRef, useValue: changeDetectorRef },
         {
