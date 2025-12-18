@@ -472,8 +472,8 @@ impl PluginMakeCredentialRequest {
     }
 
     pub fn user_information(&self) -> UserEntityInformation<'_> {
-        // SAFETY: When this is constructed using Self::try_from_ptr(), the caller must ensure that
-        // pUserInformation is valid.
+        // SAFETY: When this is constructed using Self::try_from_ptr(), the Windows decode API
+        // constructs valid pointers.
         let ptr = self.as_ref().pUserInformation;
         assert!(!ptr.is_null());
         unsafe {
