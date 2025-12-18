@@ -16,7 +16,7 @@ import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { BaseCardComponent } from "../card";
+import { CardComponent } from "../card";
 import { IconModule } from "../icon";
 import { LandingLayoutModule } from "../landing-layout/landing-layout.module";
 import { SharedModule } from "../shared";
@@ -35,7 +35,7 @@ export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
     TypographyModule,
     SharedModule,
     RouterModule,
-    BaseCardComponent,
+    CardComponent,
     LandingLayoutModule,
   ],
 })

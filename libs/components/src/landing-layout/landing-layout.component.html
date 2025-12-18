@@ -5,8 +5,9 @@
     'tw-min-h-full': clientType === 'browser' || clientType === 'desktop',
   }"
 >
-  <ng-content select="header[bitLandingHeader]"></ng-content>
+  <ng-content select="bit-landing-header"></ng-content>
   <main class="tw-relative tw-flex tw-flex-1 tw-size-full tw-mx-auto tw-flex-col">
+    <ng-content select="bit-landing-hero"></ng-content>
     <ng-content></ng-content>
   </main>
   @if (!hideBackgroundIllustration()) {
@@ -21,5 +22,5 @@
       <bit-icon [icon]="rightIllustration"></bit-icon>
     </div>
   }
-  <ng-content select="footer[bitLandingFooter]"></ng-content>
+  <ng-content select="bit-landing-footer"></ng-content>
 </div>

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 @Component({
-  selector: "footer[bitLandingFooter]",
+  selector: "bit-landing-footer",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<ng-content></ng-content>`,
+  templateUrl: "./landing-footer.component.html",
 })
 export class LandingFooterComponent {}
