@@ -131,7 +131,8 @@ impl WebAuthnPlugin {
             pbSupportedRpIds,
         };
         unsafe {
-            // SAFETY: We are holding references to all the input data beyond the OS call, so it is valid during the call.
+            // SAFETY: We are holding references to all the input data beyond the OS call, so it is
+            // valid during the call.
             let result = webauthn_plugin_add_authenticator(&options_c, &mut response_ptr)?;
             result.ok().map_err(|err| {
                 WinWebAuthnError::with_cause(
@@ -259,7 +260,8 @@ impl WebAuthnPlugin {
 
             // Convert Bitwarden credentials to Windows credential details
             // All buffers must be allocated with the COM task allocator to be passed over COM.
-            // The receiver is responsible for freeing the COM memory, which is why we leak all the buffers here.
+            // The receiver is responsible for freeing the COM memory, which is why we leak all the
+            // buffers here.
             let mut win_credentials = Vec::new();
             for (i, cred) in credentials.iter().enumerate() {
                 tracing::debug!("[SYNC_TO_WIN] Converting credential {}: RP ID: {}, User: {}, Credential ID: {:?} ({} bytes), User ID: {:?} ({} bytes)",

@@ -295,7 +295,8 @@ where
         // Initialize COM on this thread.
         let com_init_result = CoInitializeEx(None, COINIT_APARTMENTTHREADED);
         match com_init_result {
-            S_OK | S_FALSE => {} // COM successfully initialized, and should be uninitialized with CoUninitialize later.
+            // COM successfully initialized, and should be uninitialized with CoUninitialize later.
+            S_OK | S_FALSE => {}
             code => {
                 return Err(WinWebAuthnError::with_cause(
                     ErrorKind::WindowsInternal,
