@@ -3,17 +3,17 @@ pub(crate) mod crypto;
 pub(crate) mod types;
 
 use std::{error::Error, ptr::NonNull};
-use types::*;
-use windows::{
-    core::GUID,
-    Win32::Foundation::{NTE_USER_CANCELLED, S_OK},
-};
 
+use types::*;
 pub use types::{
     PluginAddAuthenticatorOptions, PluginAddAuthenticatorResponse, PluginCancelOperationRequest,
     PluginCredentialDetails, PluginGetAssertionRequest, PluginLockStatus,
     PluginMakeCredentialRequest, PluginMakeCredentialResponse, PluginUserVerificationRequest,
     PluginUserVerificationResponse,
+};
+use windows::{
+    core::GUID,
+    Win32::Foundation::{NTE_USER_CANCELLED, S_OK},
 };
 
 use super::{ErrorKind, WinWebAuthnError};
@@ -142,7 +142,8 @@ impl WebAuthnPlugin {
             })?;
 
             if let Some(response) = NonNull::new(response_ptr) {
-                // SAFETY: The pointer was allocated by a successful call to webauthn_plugin_add_authenticator.
+                // SAFETY: The pointer was allocated by a successful call to
+                // webauthn_plugin_add_authenticator.
                 Ok(PluginAddAuthenticatorResponse::try_from_ptr(response))
             } else {
                 Err(WinWebAuthnError::new(
@@ -189,7 +190,8 @@ impl WebAuthnPlugin {
                     } else {
                         // SAFETY: Windows only runs on platforms where usize >= u32;
                         let len = response_len as usize;
-                        // SAFETY: Windows returned successful response code and length, so we assume that the data is initialized
+                        // SAFETY: Windows returned successful response code and length, so we
+                        // assume that the data is initialized
                         let signature = std::slice::from_raw_parts(response_ptr, len).to_vec();
                         pub_key.verify_signature(operation_request, &signature)?;
                         signature
@@ -295,7 +297,8 @@ impl WebAuthnPlugin {
                 );
             }
 
-            // SAFETY: The pointer to win_credentials lives longer than the call to webauthn_plugin_authenticator_add_credentials().
+            // SAFETY: The pointer to win_credentials lives longer than the call to
+            // webauthn_plugin_authenticator_add_credentials().
             let result = unsafe {
                 webauthn_plugin_authenticator_add_credentials(
                     &self.clsid.0,

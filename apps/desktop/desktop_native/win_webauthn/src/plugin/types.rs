@@ -13,23 +13,19 @@ use windows::{
 };
 use windows_core::BOOL;
 
+use super::Clsid;
 use crate::{
     plugin::crypto,
     types::{
-        CredentialEx, RpEntityInformation, UserEntityInformation, UserId,
-        WEBAUTHN_COSE_CREDENTIAL_PARAMETER,
+        AuthenticatorInfo, CredentialEx, CtapTransport, HmacSecretSalt, RpEntityInformation,
+        UserEntityInformation, UserId, WebAuthnExtensionMakeCredentialOutput,
+        WEBAUTHN_COSE_CREDENTIAL_PARAMETER, WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
+        WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_EXTENSIONS,
+        WEBAUTHN_RP_ENTITY_INFORMATION, WEBAUTHN_USER_ENTITY_INFORMATION,
     },
     util::{webauthn_call, WindowsString},
     CredentialId, ErrorKind, WinWebAuthnError,
 };
-
-use crate::types::{
-    AuthenticatorInfo, CtapTransport, HmacSecretSalt, WebAuthnExtensionMakeCredentialOutput,
-    WEBAUTHN_COSE_CREDENTIAL_PARAMETERS, WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_CREDENTIAL_LIST,
-    WEBAUTHN_EXTENSIONS, WEBAUTHN_RP_ENTITY_INFORMATION, WEBAUTHN_USER_ENTITY_INFORMATION,
-};
-
-use super::Clsid;
 
 // Plugin Registration types
 
@@ -190,7 +186,8 @@ impl PluginAddAuthenticatorResponse {
         unsafe {
             std::slice::from_raw_parts(
                 self.inner.as_ref().pbOpSignPubKey,
-                // SAFETY: We only support 32-bit or 64-bit platforms, so u32 will always fit in usize.
+                // SAFETY: We only support 32-bit or 64-bit platforms, so u32 will always fit in
+                // usize.
                 self.inner.as_ref().cbOpSignPubKey as usize,
             )
         }
@@ -211,7 +208,8 @@ impl Drop for PluginAddAuthenticatorResponse {
     fn drop(&mut self) {
         unsafe {
             // SAFETY: This should only fail if:
-            // - we cannot load the webauthn.dll, which we already have if we have constructed this type, or
+            // - we cannot load the webauthn.dll, which we already have if we have constructed this
+            //   type, or
             // - we spelled the function wrong, which is a library error.
             webauthn_plugin_free_add_authenticator_response(self.inner.as_mut())
                 .expect("function to load properly");
@@ -422,12 +420,14 @@ impl PluginMakeCredentialRequest {
 
     pub fn rp_information(&self) -> RpEntityInformation<'_> {
         let ptr = self.as_ref().pRpInformation;
-        // SAFETY: When this is constructed using Self::try_from_ptr(), the caller must ensure that pRpInformation is valid.
+        // SAFETY: When this is constructed using Self::try_from_ptr(), the caller must ensure that
+        // pRpInformation is valid.
         unsafe { RpEntityInformation::new(ptr.as_ref().expect("pRpInformation to be non-null")) }
     }
 
     pub fn user_information(&self) -> UserEntityInformation<'_> {
-        // SAFETY: When this is constructed using Self::try_from_ptr(), the caller must ensure that pUserInformation is valid.
+        // SAFETY: When this is constructed using Self::try_from_ptr(), the caller must ensure that
+        // pUserInformation is valid.
         let ptr = self.as_ref().pUserInformation;
         assert!(!ptr.is_null());
         unsafe {
@@ -436,12 +436,14 @@ impl PluginMakeCredentialRequest {
     }
 
     pub fn pub_key_cred_params(&self) -> impl Iterator<Item = &WEBAUTHN_COSE_CREDENTIAL_PARAMETER> {
-        // SAFETY: When this is constructed from Self::try_from_ptr(), the Windows decode API constructs valid pointers.
+        // SAFETY: When this is constructed from Self::try_from_ptr(), the Windows decode API
+        // constructs valid pointers.
         unsafe { self.as_ref().WebAuthNCredentialParameters.iter() }
     }
 
     pub fn exclude_credentials(&self) -> impl Iterator<Item = CredentialEx<'_>> {
-        // SAFETY: When this is constructed from Self::try_from_ptr(), the Windows decode API constructs valid pointers.
+        // SAFETY: When this is constructed from Self::try_from_ptr(), the Windows decode API
+        // constructs valid pointers.
         unsafe { self.as_ref().CredentialList.iter() }
     }
 
@@ -576,37 +578,31 @@ pub struct PluginMakeCredentialResponse {
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_2
-    //
     /// Since VERSION 2
     pub extensions: Option<Vec<WebAuthnExtensionMakeCredentialOutput>>,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_3
-    //
     /// One of the WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
     /// the transport that was used.
     pub used_transport: CtapTransport,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_4
-    //
     pub ep_att: bool,
     pub large_blob_supported: bool,
     pub resident_key: bool,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_5
-    //
     pub prf_enabled: bool,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_6
-    //
     pub unsigned_extension_outputs: Option<Vec<u8>>,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_7
-    //
     pub hmac_secret: Option<HmacSecretSalt>,
 
     /// ThirdPartyPayment Credential or not.
@@ -614,7 +610,6 @@ pub struct PluginMakeCredentialResponse {
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8
-    //
     /// Multiple WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
     /// the transports that are supported.
     pub transports: Option<Vec<CtapTransport>>,
@@ -631,7 +626,8 @@ impl PluginMakeCredentialResponse {
         let attestation = self.try_into()?;
         let mut response_len = 0;
         let mut response_ptr = std::ptr::null_mut();
-        // SAFETY: we construct valid input and check the OS error code before using the returned value.
+        // SAFETY: we construct valid input and check the OS error code before using the returned
+        // value.
         unsafe {
             webauthn_encode_make_credential_response(
                 &attestation,
@@ -892,7 +888,8 @@ impl PluginGetAssertionRequest {
     }
 
     pub fn allow_credentials(&self) -> impl Iterator<Item = CredentialEx<'_>> {
-        // SAFETY: When this is constructed from Self::try_from_ptr(), the Windows decode API constructs valid pointers.
+        // SAFETY: When this is constructed from Self::try_from_ptr(), the Windows decode API
+        // constructs valid pointers.
         unsafe { self.as_ref().CredentialList.iter() }
     }
 

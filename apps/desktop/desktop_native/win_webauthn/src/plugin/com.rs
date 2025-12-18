@@ -18,12 +18,13 @@ use windows::{
 };
 use windows_core::{IInspectable, Interface};
 
-use super::types::{
-    PluginLockStatus, WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
-    WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+use super::{
+    types::{
+        PluginLockStatus, WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+        WEBAUTHN_PLUGIN_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+    },
+    PluginAuthenticator,
 };
-
-use super::PluginAuthenticator;
 use crate::{
     plugin::{crypto, PluginGetAssertionRequest, PluginMakeCredentialRequest},
     ErrorKind, WinWebAuthnError,
@@ -112,7 +113,8 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             return E_INVALIDARG;
         }
 
-        // SAFETY: we received the pointer from Windows, so we trust that the values are set properly.
+        // SAFETY: we received the pointer from Windows, so we trust that the values are set
+        // properly.
         let registration_request = match PluginMakeCredentialRequest::try_from_ptr(op_request_ptr) {
             Ok(r) => r,
             Err(err) => {
@@ -366,7 +368,8 @@ impl ComBuffer {
 
         if for_slice {
             // Ininitialize the buffer so it can later be treated as `&mut [u8]`.
-            // SAFETY: The pointer is valid and we are using a valid value for a byte-wise allocation.
+            // SAFETY: The pointer is valid and we are using a valid value for a byte-wise
+            // allocation.
             unsafe { ptr.write_bytes(0, size) };
         }
 

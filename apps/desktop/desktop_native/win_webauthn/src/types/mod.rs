@@ -139,7 +139,8 @@ impl TryFrom<&str> for Uuid {
             })
             .collect::<Result<Vec<u8>, WinWebAuthnError>>()?;
 
-        // SAFETY: We already checked the length of the string before, so this should result in the correct number of bytes.
+        // SAFETY: We already checked the length of the string before, so this should result in the
+        // correct number of bytes.
         let b: [u8; 16] = bytes.try_into().expect("16 bytes to be parsed");
         Ok(Uuid(b))
     }
@@ -179,8 +180,8 @@ pub(crate) struct WEBAUTHN_RP_ENTITY_INFORMATION {
     /// Contains the friendly name of the Relying Party, such as "Acme
     /// Corporation", "Widgets Inc" or "Awesome Site".
     ///
-    /// This member is deprecated in WebAuthn Level 3 because many clients do not display it, but it
-    /// remains a required dictionary member for backwards compatibility. Relying
+    /// This member is deprecated in WebAuthn Level 3 because many clients do not display it, but
+    /// it remains a required dictionary member for backwards compatibility. Relying
     /// Parties MAY, as a safe default, set this equal to the RP ID.
     pwszName: *const u16, // PCWSTR
 
@@ -235,7 +236,8 @@ impl RpEntityInformation<'_> {
                 .to_string()
                 .expect("null-terminated UTF-16 string or null");
 
-            // WebAuthn Level 3 deprecates the use of the `name` field, so verify whether this is empty or not.
+            // WebAuthn Level 3 deprecates the use of the `name` field, so verify whether this is
+            // empty or not.
             if s.is_empty() {
                 None
             } else {
@@ -264,7 +266,8 @@ pub(crate) struct WEBAUTHN_USER_ENTITY_INFORMATION {
     #[deprecated]
     pub pwszIcon: Option<NonNull<u16>>, // PCWSTR
 
-    /// Contains the friendly name associated with the user account by the Relying Party, such as "John P. Smith".
+    /// Contains the friendly name associated with the user account by the Relying Party, such as
+    /// "John P. Smith".
     pub pwszDisplayName: NonNull<u16>, // PCWSTR
 }
 
@@ -411,39 +414,33 @@ pub(crate) struct WEBAUTHN_CREDENTIAL_ATTESTATION {
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_2
-    //
     /// Since VERSION 2
     pub(crate) Extensions: WEBAUTHN_EXTENSIONS,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_3
-    //
     /// One of the WEBAUTHN_CTAP_TRANSPORT_* bits will be set corresponding to
     /// the transport that was used.
     pub(crate) dwUsedTransport: u32,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_4
-    //
     pub(crate) bEpAtt: bool,
     pub(crate) bLargeBlobSupported: bool,
     pub(crate) bResidentKey: bool,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_5
-    //
     pub(crate) bPrfEnabled: bool,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_6
-    //
     pub(crate) cbUnsignedExtensionOutputs: u32,
     // _Field_size_bytes_(cbUnsignedExtensionOutputs)
     pub(crate) pbUnsignedExtensionOutputs: *const u8,
 
     //
     // Following fields have been added in WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_7
-    //
     pub(crate) pHmacSecret: *const WEBAUTHN_HMAC_SECRET_SALT,
 
     // ThirdPartyPayment Credential or not.
