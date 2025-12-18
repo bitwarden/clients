@@ -213,8 +213,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return this.passwordRepromptService.showPasswordPrompt();
     }
 
-    let cred = cipher.login.fido2Credentials[0];
-    const username = cred.userName ?? cred.userDisplayName
+    const username = cipher.login.username ?? cipher.name
     return this.session.promptForUserVerification(username, "Verify it's you to overwrite a credential")
   }
 

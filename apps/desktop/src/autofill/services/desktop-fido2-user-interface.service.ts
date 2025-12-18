@@ -147,8 +147,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
             return ciphers.find((cipher) => cipher.id == selectedCipherId && !cipher.deletedDate) as CipherView;
           })));
 
-          let cred = cipherView.login.fido2Credentials[0];
-          const username = cred.userName ?? cred.userDisplayName
+          const username = cipherView.login.username ?? cipherView.name
           try {
             // TODO: internationalization
             const isConfirmed = await this.promptForUserVerification(username, "Verify it's you to log in with Bitwarden.");
