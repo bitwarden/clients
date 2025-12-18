@@ -97,7 +97,7 @@ export const ContentSlots: Story = {
         <button bit-item-content type="button">
           <bit-avatar
             slot="start"
-            [text]="'Foo'"
+            text="Foo"
           ></bit-avatar>
           foo&#64;bitwarden.com
           <ng-container slot="secondary">
