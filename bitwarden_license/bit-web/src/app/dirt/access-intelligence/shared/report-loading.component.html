@@ -3,7 +3,7 @@
     <!-- Progress bar -->
     <div class="tw-w-64" role="progressbar" attr.aria-label="{{ 'loadingProgress' | i18n }}">
       <bit-progress
-        [barWidth]="progress()"
+        [barWidth]="stepConfig[progressStep()].progress"
         [showText]="false"
         size="default"
         bgColor="primary"
@@ -13,7 +13,7 @@
     <!-- Status message and subtitle -->
     <div class="tw-text-center tw-flex tw-flex-col tw-gap-1">
       <span class="tw-text-main tw-text-base tw-font-medium tw-leading-4">
-        {{ currentMessage() | i18n }}
+        {{ stepConfig[progressStep()].message | i18n }}
       </span>
       <span class="tw-text-muted tw-text-sm tw-font-normal tw-leading-4">
         {{ "thisMightTakeFewMinutes" | i18n }}
