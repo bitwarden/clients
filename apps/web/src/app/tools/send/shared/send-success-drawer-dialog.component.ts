@@ -40,7 +40,7 @@ export class SendSuccessDrawerDialogComponent {
   }
 
   get formattedExpirationTime(): string {
-    if (!this.send.expirationDate) {
+    if (!this.send.deletionDate) {
       return "";
     }
     const hoursAvailable = this.getHoursAvailable(this.send);
@@ -57,8 +57,8 @@ export class SendSuccessDrawerDialogComponent {
 
   private getHoursAvailable(send: SendView): number {
     const now = new Date().getTime();
-    const expirationDate = new Date(send.expirationDate).getTime();
-    return Math.max(0, Math.ceil((expirationDate - now) / (1000 * 60 * 60)));
+    const deletionDate = new Date(send.deletionDate).getTime();
+    return Math.max(0, Math.ceil((deletionDate - now) / (1000 * 60 * 60)));
   }
 
   copyLink() {
