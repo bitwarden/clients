@@ -3133,6 +3133,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "restartPremium": {
     "message": "Restart Premium"
   },
@@ -12398,7 +12401,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"  
+        "example": "My Org Name"
       }
     }
   },
@@ -12407,7 +12410,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"  
+        "example": "My Org Name"
       }
     }
   },

@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Edit"
   },
@@ -6008,7 +6011,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"  
+        "example": "My Org Name"
       }
     }
   },
@@ -6017,7 +6020,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"  
+        "example": "My Org Name"
       }
     }
   },
