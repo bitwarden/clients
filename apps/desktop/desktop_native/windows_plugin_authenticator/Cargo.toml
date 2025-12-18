@@ -6,9 +6,17 @@ license = { workspace = true }
 publish = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
+base64 = { workspace = true }
 ciborium = { workspace = true }
 desktop_core = { path = "../core" }
 futures = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-appender = "0.2.4"
+tracing-subscriber = { workspace = true }
+win_webauthn = { path = "../win_webauthn" }
 windows = { workspace = true, features = [
     "System",
     "Win32_Foundation",
@@ -18,14 +26,6 @@ windows = { workspace = true, features = [
     "Win32_UI_HiDpi",
 ] }
 windows-core = { workspace = true }
-serde_json = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
-tracing = { workspace = true }
-tracing-appender = "0.2.4"
-tracing-subscriber = { workspace = true }
-tokio = { workspace = true }
-base64 = { workspace = true }
-win_webauthn = { path = "../win_webauthn" }
 
 [lints]
 workspace = true
