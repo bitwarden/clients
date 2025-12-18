@@ -23,7 +23,7 @@ macro_rules! webauthn_call {
                     ),
                 )?;
 
-                let function: unsafe extern "cdecl" fn(
+                let function: unsafe extern "C" fn(
                     $($arg: $arg_type),*
                 ) -> $result_type = std::mem::transmute_copy(&address);
                 function($($arg),*)
