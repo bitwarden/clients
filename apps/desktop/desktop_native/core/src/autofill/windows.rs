@@ -206,15 +206,15 @@ enum SyncCredential {
     #[serde(rename = "login")]
     Login {
         #[serde(rename = "cipherId")]
-        cipher_id: String,
-        password: String,
-        uri: String,
-        username: String,
+        _cipher_id: String,
+        _password: String,
+        _uri: String,
+        _username: String,
     },
     #[serde(rename = "fido2")]
     Fido2 {
         #[serde(rename = "cipherId")]
-        cipher_id: String,
+        _cipher_id: String,
 
         #[serde(rename = "rpId")]
         rp_id: String,

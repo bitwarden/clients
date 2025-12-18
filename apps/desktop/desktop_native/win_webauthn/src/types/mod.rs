@@ -3,7 +3,7 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-use std::{collections::HashSet, fmt::Display, marker::PhantomData, num::NonZeroU32, ptr::NonNull};
+use std::{collections::HashSet, marker::PhantomData, num::NonZeroU32, ptr::NonNull};
 
 use ciborium::Value;
 use windows_core::PCWSTR;
@@ -465,51 +465,22 @@ pub(crate) struct WEBAUTHN_CREDENTIAL_ATTESTATION {
     pub(crate) pbRegistrationResponseJSON: *const u8,
 }
 
-pub enum AttestationFormat {
-    Packed,
-    Tpm,
-    AndroidKey,
-    FidoU2f,
-    None,
-    Compound,
-    Apple,
-}
-
-impl Display for AttestationFormat {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match self {
-            Self::Packed => "packed",
-            Self::Tpm => "tpm",
-            Self::AndroidKey => "android-key",
-            Self::FidoU2f => "fido-u2f",
-            Self::None => "none",
-            Self::Compound => "compound",
-            Self::Apple => "apple",
-        })
-    }
-}
-
-pub enum AttestationDecodeType {
-    None,
-    Common(),
-}
-
 pub(crate) struct WEBAUTHN_HMAC_SECRET_SALT {
     /// Size of pbFirst.
-    cbFirst: u32,
+    _cbFirst: u32,
     // _Field_size_bytes_(cbFirst)
     /// Required
-    pbFirst: *mut u8,
+    _pbFirst: *mut u8,
 
     /// Size of pbSecond.
-    cbSecond: u32,
+    _cbSecond: u32,
     // _Field_size_bytes_(cbSecond)
-    pbSecond: *mut u8,
+    _pbSecond: *mut u8,
 }
 
 pub struct HmacSecretSalt {
-    first: Vec<u8>,
-    second: Option<Vec<u8>>,
+    _first: Vec<u8>,
+    _second: Option<Vec<u8>>,
 }
 
 #[repr(C)]

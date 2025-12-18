@@ -2,13 +2,8 @@ use base64::engine::{general_purpose::STANDARD, Engine as _};
 use serde::{de::Visitor, Deserializer};
 use windows::{
     core::GUID,
-    Win32::{
-        Foundation::*,
-        UI::{HiDpi::GetDpiForWindow, WindowsAndMessaging::GetWindowRect},
-    },
+    Win32::{Foundation::*, UI::WindowsAndMessaging::GetWindowRect},
 };
-
-const BASE_DPI: u32 = 96;
 
 pub trait HwndExt {
     fn center_position(&self) -> windows::core::Result<(i32, i32)>;

@@ -274,8 +274,8 @@ fn get_window_details(client: &WindowsProviderClient) -> Result<WindowDetails, S
 
 #[derive(Debug)]
 struct WindowDetails {
-    is_visible: bool,
-    is_focused: bool,
+    _is_visible: bool,
+    _is_focused: bool,
     handle: HWND,
 }
 
@@ -296,8 +296,8 @@ impl TryFrom<WindowHandleQueryResponse> for WindowDetails {
                 ));
             };
             Ok(Self {
-                is_visible: value.is_visible,
-                is_focused: value.is_focused,
+                _is_visible: value.is_visible,
+                _is_focused: value.is_focused,
                 handle,
             })
         }

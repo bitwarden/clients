@@ -369,6 +369,9 @@ pub(crate) struct WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
 #[repr(u32)]
 #[derive(Debug, Copy, Clone)]
 pub enum WebAuthnPluginRequestType {
+    // This is being used to check the value that Windows gives us, but it isn't
+    // ever constructed by our library.
+    #[allow(unused)]
     CTAP2_CBOR = 0x01,
 }
 
@@ -780,42 +783,42 @@ webauthn_call!("WebAuthNEncodeMakeCredentialResponse" as fn webauthn_encode_make
 
 pub(super) struct WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY {
     /// Version of this structure, to allow for modifications in the future.
-    pub dwVersion: u32,
+    pub _dwVersion: u32,
 
     /// Key type
-    pub lKty: i32,
+    pub _lKty: i32,
 
     /// Hash Algorithm: ES256, ES384, ES512
-    pub lAlg: i32,
+    pub _lAlg: i32,
 
     /// Curve
-    pub lCrv: i32,
+    pub _lCrv: i32,
 
     /// Size of "x" (X Coordinate)
-    pub cbX: u32,
+    pub _cbX: u32,
 
     /// "x" (X Coordinate) data. Big Endian.
-    pub pbX: *const u8,
+    pub _pbX: *const u8,
 
     /// Size of "y" (Y Coordinate)
-    pub cbY: u32,
+    pub _cbY: u32,
 
     /// "y" (Y Coordinate) data. Big Endian.
-    pub pbY: *const u8,
+    pub _pbY: *const u8,
 }
 
 pub(super) struct WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION {
     /// Version of this structure, to allow for modifications in the future.
-    pub dwVersion: u32,
+    pub _dwVersion: u32,
 
     // Platform's key agreement public key
-    pub pKeyAgreement: *const WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY,
+    pub _pKeyAgreement: *const WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY,
 
-    pub cbEncryptedSalt: u32,
-    pub pbEncryptedSalt: *const u8,
+    pub _cbEncryptedSalt: u32,
+    pub _pbEncryptedSalt: *const u8,
 
-    pub cbSaltAuth: u32,
-    pub pbSaltAuth: *const u8,
+    pub _cbSaltAuth: u32,
+    pub _pbSaltAuth: *const u8,
 }
 
 #[repr(C)]
