@@ -24,7 +24,9 @@ type LoadingMessage = (typeof PROGRESS_STEPS)[number]["message"];
   templateUrl: "./risk-insights-loading.component.html",
 })
 export class ApplicationsLoadingComponent {
-  // Progress step input from parent component (already delayed via concatMap)
+  // Progress step input from parent component.
+  // Recommended: delay emissions to this input to ensure each step displays for a minimum time.
+  // Refer to risk-insights.component for implementation example.
   readonly progressStep = input<ReportProgress | null>(null);
 
   // Helper to find step config, defaults to first step
