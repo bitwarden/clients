@@ -13,10 +13,16 @@
       {{ "sshkeyApprovalMessageSuffix" | i18n }} {{ params.action | i18n }}
     </div>
     <ng-container bitDialogFooter>
-      <button type="submit" bitButton bitFormButton buttonType="primary">
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [disabled]="!authorizeEnabled"
+      >
         <span>{{ "authorize" | i18n }}</span>
       </button>
-      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+      <button type="button" bitButton bitFormButton buttonType="secondary" (click)="deny()">
         {{ "deny" | i18n }}
       </button>
     </ng-container>
