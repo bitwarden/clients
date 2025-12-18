@@ -5,7 +5,7 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
   SetInitialPasswordCredentials,
-  SetInitialPasswordCredentialsV2,
+  SetInitialPasswordCredentialsOld,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
@@ -86,9 +86,9 @@ describe("WebSetInitialPasswordService", () => {
   /**
    * @deprecated To be removed in PM-28143
    */
-  describe("setInitialPassword(...)", () => {
+  describe("setInitialPasswordOld(...)", () => {
     // Mock function parameters
-    let credentials: SetInitialPasswordCredentials;
+    let credentials: SetInitialPasswordCredentialsOld;
     let userType: SetInitialPasswordUserType;
     let userId: UserId;
 
@@ -160,7 +160,7 @@ describe("WebSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        await sut.setInitialPassword(credentials, userType, userId);
+        await sut.setInitialPasswordOld(credentials, userType, userId);
 
         // Assert
         expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -172,7 +172,7 @@ describe("WebSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        await sut.setInitialPassword(credentials, userType, userId);
+        await sut.setInitialPasswordOld(credentials, userType, userId);
 
         // Assert
         expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -187,7 +187,7 @@ describe("WebSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        const promise = sut.setInitialPassword(credentials, userType, userId);
+        const promise = sut.setInitialPasswordOld(credentials, userType, userId);
 
         // Assert
         await expect(promise).rejects.toThrow();
@@ -201,7 +201,7 @@ describe("WebSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        const promise = sut.setInitialPassword(credentials, userType, userId);
+        const promise = sut.setInitialPasswordOld(credentials, userType, userId);
 
         // Assert
         await expect(promise).rejects.toThrow();
@@ -211,8 +211,8 @@ describe("WebSetInitialPasswordService", () => {
     });
   });
 
-  describe("setInitialPasswordV2(...)", () => {
-    let credentials: SetInitialPasswordCredentialsV2;
+  describe("setInitialPassword()", () => {
+    let credentials: SetInitialPasswordCredentials;
     let userType: SetInitialPasswordUserType;
     let userId: UserId;
 
@@ -234,11 +234,11 @@ describe("WebSetInitialPasswordService", () => {
       it("should call additional state clearing methods", async () => {
         // Arrange
         jest
-          .spyOn(DefaultSetInitialPasswordService.prototype, "setInitialPasswordV2")
+          .spyOn(DefaultSetInitialPasswordService.prototype, "setInitialPassword")
           .mockResolvedValue(undefined);
 
         // Act
-        await sut.setInitialPasswordV2(credentials, userType, userId);
+        await sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
         expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
@@ -249,13 +249,13 @@ describe("WebSetInitialPasswordService", () => {
     describe("given the initial password was NOT successfully set (due to parent method failure)", () => {
       it("should NOT call any further methods", async () => {
         // Arrange
-        const parentError = new Error("Parent setInitialPasswordV2 failed");
+        const parentError = new Error("Parent setInitialPassword failed");
         jest
-          .spyOn(DefaultSetInitialPasswordService.prototype, "setInitialPasswordV2")
+          .spyOn(DefaultSetInitialPasswordService.prototype, "setInitialPassword")
           .mockRejectedValue(parentError);
 
         // Act
-        const promise = sut.setInitialPasswordV2(credentials, userType, userId);
+        const promise = sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
         await expect(promise).rejects.toThrow(parentError);
