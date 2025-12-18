@@ -233,6 +233,13 @@ describe("DomQueryService", () => {
   });
 
   describe("checkForNewShadowRoots", () => {
+    beforeEach(() => {
+      // Clear any shadow roots from previous tests
+      document.body.innerHTML = "";
+      // Reset the observed shadow roots set
+      domQueryService["observedShadowRoots"] = new WeakSet<ShadowRoot>();
+    });
+
     it("returns true when a shadow root is not in the observed set", () => {
       const customElement = document.createElement("custom-element");
       customElement.attachShadow({ mode: "open" });

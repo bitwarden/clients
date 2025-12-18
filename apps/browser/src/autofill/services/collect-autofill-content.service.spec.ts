@@ -2297,6 +2297,9 @@ describe("CollectAutofillContentService", () => {
 
     it("schedules a debounced check for new shadow roots", () => {
       jest.useFakeTimers();
+      const div = document.createElement("div");
+      document.body.appendChild(div);
+
       const mutationRecord: MutationRecord = {
         type: "childList",
         addedNodes: document.querySelectorAll("div"),
@@ -2305,7 +2308,7 @@ describe("CollectAutofillContentService", () => {
         nextSibling: null,
         oldValue: null,
         previousSibling: null,
-        removedNodes: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
         target: document.body,
       };
       collectAutofillContentService["currentLocationHref"] = window.location.href;
@@ -2330,6 +2333,9 @@ describe("CollectAutofillContentService", () => {
 
     it("does not schedule duplicate shadow root checks when already pending", () => {
       jest.useFakeTimers();
+      const div = document.createElement("div");
+      document.body.appendChild(div);
+
       const mutationRecord: MutationRecord = {
         type: "childList",
         addedNodes: document.querySelectorAll("div"),
@@ -2338,7 +2344,7 @@ describe("CollectAutofillContentService", () => {
         nextSibling: null,
         oldValue: null,
         previousSibling: null,
-        removedNodes: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
         target: document.body,
       };
       collectAutofillContentService["currentLocationHref"] = window.location.href;
