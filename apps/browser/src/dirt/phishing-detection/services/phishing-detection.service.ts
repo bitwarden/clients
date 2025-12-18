@@ -111,7 +111,6 @@ export class PhishingDetectionService {
       .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
       .pipe(switchMap((message) => BrowserApi.closeTab(message.tabId)));
 
-    // Phishing detection is unavailable on Safari due to platform limitations
     const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
     const initSub = phishingDetectionActive$
