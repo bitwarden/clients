@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -10,6 +10,7 @@ import {
   ButtonLocation,
   SystemNotificationEvent,
 } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/user-core";
 
 import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -30,7 +31,24 @@ describe("DefaultAuthRequestAnsweringService", () => {
   let sut: AuthRequestAnsweringService;
 
   const userId = "9f4c3452-6a45-48af-a7d0-74d3e8b65e4c" as UserId;
+  const userAccountInfo = mockAccountInfoWith({
+    name: "User",
+    email: "user@example.com",
+  });
+  const userAccount: Account = {
+    id: userId,
+    ...userAccountInfo,
+  };
+
   const otherUserId = "554c3112-9a75-23af-ab80-8dk3e9bl5i8e" as UserId;
+  const otherUserAccountInfo = mockAccountInfoWith({
+    name: "Other",
+    email: "other@example.com",
+  });
+  const otherUserAccount: Account = {
+    id: otherUserId,
+    ...otherUserAccountInfo,
+  };
 
   beforeEach(() => {
     accountService = mock<AccountService>();
@@ -43,15 +61,10 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
     // Common defaults
     authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
-    accountService.activeAccount$ = of({
-      id: userId,
-      email: "user@example.com",
-      emailVerified: true,
-      name: "User",
-    });
+    accountService.activeAccount$ = of(userAccount);
     accountService.accounts$ = of({
-      [userId]: { email: "user@example.com", emailVerified: true, name: "User" },
-      [otherUserId]: { email: "other@example.com", emailVerified: true, name: "Other User" },
+      [userId]: userAccountInfo,
+      [otherUserId]: otherUserAccountInfo,
     });
 
     sut = new DefaultAuthRequestAnsweringService(
@@ -124,19 +137,14 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
   describe("setupUnlockListenersForProcessingAuthRequests()", () => {
     let destroy$: Subject<void>;
-    let activeAccount$: BehaviorSubject<any>;
+    let activeAccount$: BehaviorSubject<Account>;
     let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
     let authStatusForSubjects: Map<UserId, BehaviorSubject<AuthenticationStatus>>;
     let pendingRequestMarkers: PendingAuthUserMarker[];
 
     beforeEach(() => {
       destroy$ = new Subject<void>();
-      activeAccount$ = new BehaviorSubject({
-        id: userId,
-        email: "user@example.com",
-        emailVerified: true,
-        name: "User",
-      });
+      activeAccount$ = new BehaviorSubject(userAccount);
       activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Locked);
       authStatusForSubjects = new Map();
       pendingRequestMarkers = [];
@@ -169,12 +177,7 @@ describe("DefaultAuthRequestAnsweringService", () => {
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
 
         // Simulate account switching to an Unlocked account
-        activeAccount$.next({
-          id: otherUserId,
-          email: "other@example.com",
-          emailVerified: true,
-          name: "Other",
-        });
+        activeAccount$.next(otherUserAccount);
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0)); // Allows observable chain to complete before assertion
@@ -189,12 +192,7 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
-        activeAccount$.next({
-          id: otherUserId,
-          email: "other@example.com",
-          emailVerified: true,
-          name: "Other",
-        });
+        activeAccount$.next(otherUserAccount);
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
@@ -209,12 +207,7 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
-        activeAccount$.next({
-          id: otherUserId,
-          email: "other@example.com",
-          emailVerified: true,
-          name: "Other",
-        });
+        activeAccount$.next(otherUserAccount);
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
@@ -237,9 +230,8 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
       it("should handle multiple user switches correctly", async () => {
         // Arrange
-        const secondUserId = "second-user-id" as UserId;
+        authStatusForSubjects.set(userId, new BehaviorSubject(AuthenticationStatus.Locked));
         authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Unlocked));
-        authStatusForSubjects.set(secondUserId, new BehaviorSubject(AuthenticationStatus.Locked));
         pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
         pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
 
@@ -247,21 +239,11 @@ describe("DefaultAuthRequestAnsweringService", () => {
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
 
         // Switch to unlocked user (should trigger)
-        activeAccount$.next({
-          id: otherUserId,
-          email: "other@example.com",
-          emailVerified: true,
-          name: "Other",
-        });
+        activeAccount$.next(otherUserAccount);
         await new Promise((resolve) => setTimeout(resolve, 0));
 
         // Switch to locked user (should NOT trigger)
-        activeAccount$.next({
-          id: secondUserId,
-          email: "second@example.com",
-          emailVerified: true,
-          name: "Second",
-        });
+        activeAccount$.next(userAccount);
         await new Promise((resolve) => setTimeout(resolve, 0));
 
         // Assert
@@ -279,12 +261,7 @@ describe("DefaultAuthRequestAnsweringService", () => {
 
         // Act
         sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
-        activeAccount$.next({
-          id: otherUserId,
-          email: "other@example.com",
-          emailVerified: true,
-          name: "Other",
-        });
+        activeAccount$.next(otherUserAccount);
 
         // Assert
         await new Promise((resolve) => setTimeout(resolve, 0));
@@ -437,12 +414,7 @@ describe("DefaultAuthRequestAnsweringService", () => {
         destroy$.next();
 
         // Try to trigger processing after cleanup
-        activeAccount$.next({
-          id: otherUserId,
-          email: "other@example.com",
-          emailVerified: true,
-          name: "Other",
-        });
+        activeAccount$.next(otherUserAccount);
         activeAccountStatus$.next(AuthenticationStatus.Unlocked);
 
         // Assert

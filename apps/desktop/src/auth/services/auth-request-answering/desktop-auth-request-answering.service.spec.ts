@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -9,6 +9,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
@@ -26,6 +27,15 @@ describe("DesktopAuthRequestAnsweringService", () => {
   let sut: AuthRequestAnsweringService;
 
   const userId = "9f4c3452-6a45-48af-a7d0-74d3e8b65e4c" as UserId;
+  const userAccountInfo = mockAccountInfoWith({
+    name: "User",
+    email: "user@example.com",
+  });
+  const userAccount: Account = {
+    id: userId,
+    ...userAccountInfo,
+  };
+
   const authRequestId = "auth-request-id-123";
 
   beforeEach(() => {
@@ -50,14 +60,9 @@ describe("DesktopAuthRequestAnsweringService", () => {
 
     // Common defaults
     authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
-    accountService.activeAccount$ = of({
-      id: userId,
-      email: "user@example.com",
-      emailVerified: true,
-      name: "User",
-    });
+    accountService.activeAccount$ = of(userAccount);
     accountService.accounts$ = of({
-      [userId]: { email: "user@example.com", emailVerified: true, name: "User" },
+      [userId]: userAccountInfo,
     });
     (global as any).ipc.platform.isWindowVisible.mockResolvedValue(false);
     i18nService.t.mockImplementation(
@@ -193,9 +198,10 @@ describe("DesktopAuthRequestAnsweringService", () => {
         const differentUserId = "different-user-id" as UserId;
         accountService.activeAccount$ = of({
           id: differentUserId,
-          email: "different@example.com",
-          emailVerified: true,
-          name: "Different User",
+          ...mockAccountInfoWith({
+            name: "Different User",
+            email: "different@example.com",
+          }),
         });
       });
 
