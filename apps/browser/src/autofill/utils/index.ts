@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
@@ -369,9 +367,12 @@ export function getPropertyOrAttribute(element: HTMLElement, attributeName: stri
  * @param callback - The callback function to throttle.
  * @param limit - The time in milliseconds to throttle the callback.
  */
-export function throttle(callback: (_args: any) => any, limit: number) {
+export function throttle<FunctionType extends (...args: unknown[]) => unknown>(
+  callback: FunctionType,
+  limit: number,
+): (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) => void {
   let waitingDelay = false;
-  return function (...args: unknown[]) {
+  return function (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) {
     if (!waitingDelay) {
       callback.apply(this, args);
       waitingDelay = true;
@@ -387,9 +388,14 @@ export function throttle(callback: (_args: any) => any, limit: number) {
  * @param delay - The time in milliseconds to debounce the callback.
  * @param immediate - Determines whether the callback should run immediately.
  */
-export function debounce(callback: (_args: any) => any, delay: number, immediate?: boolean) {
-  let timeout: NodeJS.Timeout;
-  return function (...args: unknown[]) {
+export function debounce<FunctionType extends (...args: unknown[]) => unknown>(
+  callback: FunctionType,
+  delay: number,
+  immediate?: boolean,
+): (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) => void {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  return function (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) {
     const callImmediately = !!immediate && !timeout;
 
     if (timeout) {
