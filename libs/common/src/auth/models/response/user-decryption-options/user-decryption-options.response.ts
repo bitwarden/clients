@@ -6,6 +6,10 @@ import {
   KeyConnectorUserDecryptionOptionResponse,
 } from "./key-connector-user-decryption-option.response";
 import {
+  ITideCloakUserDecryptionOptionServerResponse,
+  TideCloakUserDecryptionOptionResponse,
+} from "./tidecloak-user-decryption-option.response";
+import {
   ITrustedDeviceUserDecryptionOptionServerResponse,
   TrustedDeviceUserDecryptionOptionResponse,
 } from "./trusted-device-user-decryption-option.response";
@@ -19,6 +23,7 @@ export interface IUserDecryptionOptionsServerResponse {
   MasterPasswordUnlock?: unknown;
   TrustedDeviceOption?: ITrustedDeviceUserDecryptionOptionServerResponse;
   KeyConnectorOption?: IKeyConnectorUserDecryptionOptionServerResponse;
+  TideCloakOption?: ITideCloakUserDecryptionOptionServerResponse;
   WebAuthnPrfOption?: IWebAuthnPrfDecryptionOptionServerResponse;
 }
 
@@ -27,6 +32,7 @@ export class UserDecryptionOptionsResponse extends BaseResponse {
   masterPasswordUnlock?: MasterPasswordUnlockResponse;
   trustedDeviceOption?: TrustedDeviceUserDecryptionOptionResponse;
   keyConnectorOption?: KeyConnectorUserDecryptionOptionResponse;
+  tideCloakOption?: TideCloakUserDecryptionOptionResponse;
   webAuthnPrfOption?: WebAuthnPrfDecryptionOptionResponse;
 
   constructor(response: IUserDecryptionOptionsServerResponse) {
@@ -47,6 +53,11 @@ export class UserDecryptionOptionsResponse extends BaseResponse {
     if (response.KeyConnectorOption) {
       this.keyConnectorOption = new KeyConnectorUserDecryptionOptionResponse(
         this.getResponseProperty("KeyConnectorOption"),
+      );
+    }
+    if (response.TideCloakOption) {
+      this.tideCloakOption = new TideCloakUserDecryptionOptionResponse(
+        this.getResponseProperty("TideCloakOption"),
       );
     }
     if (response.WebAuthnPrfOption) {

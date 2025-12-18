@@ -11,6 +11,7 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { TideCloakService } from "@bitwarden/common/key-management/tidecloak/abstractions/tidecloak.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -69,6 +70,7 @@ export class SsoLoginStrategy extends LoginStrategy {
   constructor(
     data: SsoLoginStrategyData,
     private keyConnectorService: KeyConnectorService,
+    private tideCloakService: TideCloakService,
     private deviceTrustService: DeviceTrustServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
     private i18nService: I18nService,
@@ -117,9 +119,33 @@ export class SsoLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(tokenResponse: IdentityTokenResponse, userId: UserId) {
-    // The only way we can be setting a master key at this point is if we are using Key Connector.
-    // First, check to make sure that we should do so based on the token response.
-    if (this.shouldSetMasterKeyFromKeyConnector(tokenResponse)) {
+    // Check if we should use TideCloak for key management (takes precedence over Key Connector)
+    if (this.shouldSetMasterKeyFromTideCloak(tokenResponse)) {
+      // TideCloak uses SMPC - the master key is decrypted client-side via TideCloak SDK
+      const newSsoUser = tokenResponse.key == null;
+      if (newSsoUser) {
+        // Store TideCloak domain confirmation data for new user setup
+        await this.tideCloakService.setNewSsoUserTideCloakConversionData(
+          {
+            kdfConfig: tokenResponse.kdfConfig,
+            tideCloakUrl: this.getTideCloakUrl(tokenResponse),
+            organizationId: this.cache.value.orgId,
+          },
+          userId,
+        );
+      } else {
+        // Existing user: decrypt master key using TideCloak SMPC
+        const tideCloakUrl = this.getTideCloakUrl(tokenResponse);
+        const encryptedMasterKey = this.getTideCloakEncryptedMasterKey(tokenResponse);
+        await this.tideCloakService.setMasterKeyFromTideCloak(
+          tideCloakUrl,
+          encryptedMasterKey,
+          userId,
+        );
+      }
+    } else if (this.shouldSetMasterKeyFromKeyConnector(tokenResponse)) {
+      // The only way we can be setting a master key at this point is if we are using Key Connector.
+      // First, check to make sure that we should do so based on the token response.
       // If we're here, we know that the user should use Key Connector (they have a KeyConnectorUrl) and does not have a master password.
       // We can now check the key on the token response to see whether they are a brand new user or an existing user.
       // The presence of a masterKeyEncryptedUserKey indicates that the user has already been provisioned in Key Connector.
@@ -165,6 +191,35 @@ export class SsoLoginStrategy extends LoginStrategy {
     return userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl;
   }
 
+  /**
+   * Determines if it is possible to set the `masterKey` from TideCloak.
+   * @param tokenResponse
+   * @returns `true` if the master key can be set from TideCloak, `false` otherwise
+   */
+  private shouldSetMasterKeyFromTideCloak(tokenResponse: IdentityTokenResponse): boolean {
+    const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
+
+    if (userDecryptionOptions != null) {
+      const userHasMasterPassword = userDecryptionOptions.hasMasterPassword;
+      const userHasTideCloakUrl = userDecryptionOptions.tideCloakOption?.tideCloakUrl != null;
+
+      // In order for us to set the master key from TideCloak, we need to have a TideCloak URL
+      // and the user must not have a master password.
+      return userHasTideCloakUrl && !userHasMasterPassword;
+    }
+    return false;
+  }
+
+  private getTideCloakUrl(tokenResponse: IdentityTokenResponse): string {
+    const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
+    return userDecryptionOptions?.tideCloakOption?.tideCloakUrl;
+  }
+
+  private getTideCloakEncryptedMasterKey(tokenResponse: IdentityTokenResponse): string {
+    const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
+    return userDecryptionOptions?.tideCloakOption?.encryptedMasterKey;
+  }
+
   // TODO: future passkey login strategy will need to support setting user key (decrypting via TDE or admin approval request)
   // so might be worth moving this logic to a common place (base login strategy or a separate service?)
   protected override async setUserKey(
@@ -203,6 +258,12 @@ export class SsoLoginStrategy extends LoginStrategy {
 
         await this.trySetUserKeyWithDeviceKey(tokenResponse, userId);
       }
+    } else if (
+      masterKeyEncryptedUserKey != null &&
+      this.getTideCloakUrl(tokenResponse) != null
+    ) {
+      // TideCloak enabled for user - master key was already decrypted via SMPC in setMasterKey
+      await this.trySetUserKeyWithMasterKey(userId);
     } else if (
       masterKeyEncryptedUserKey != null &&
       this.getKeyConnectorUrl(tokenResponse) != null
@@ -424,6 +485,7 @@ export class SsoLoginStrategy extends LoginStrategy {
       !userDecryptionOptions.trustedDeviceOption &&
       !userDecryptionOptions.hasMasterPassword &&
       !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
+      !userDecryptionOptions.tideCloakOption?.tideCloakUrl &&
       hasUserKeyEncryptedPrivateKey &&
       !hasUserKey
     ) {
@@ -453,6 +515,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     if (
       !userDecryptionOptions.hasMasterPassword &&
       !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
+      !userDecryptionOptions.tideCloakOption?.tideCloakUrl &&
       !userDecryptionOptions.trustedDeviceOption
     ) {
       await this.masterPasswordService.setForceSetPasswordReason(

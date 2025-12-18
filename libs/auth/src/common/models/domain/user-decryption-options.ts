@@ -4,6 +4,7 @@ import { Jsonify } from "type-fest";
 
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { KeyConnectorUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/key-connector-user-decryption-option.response";
+import { TideCloakUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/tidecloak-user-decryption-option.response";
 import { TrustedDeviceUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/trusted-device-user-decryption-option.response";
 
 /**
@@ -42,6 +43,49 @@ export class KeyConnectorUserDecryptionOption {
       return undefined;
     }
     return Object.assign(new KeyConnectorUserDecryptionOption(), obj);
+  }
+}
+
+/**
+ * TideCloak decryption options. Intended to be sent to the client for use after authentication.
+ * TideCloak uses Secure Multiparty Computation (SMPC) for key management.
+ * @see {@link UserDecryptionOptions}
+ */
+export class TideCloakUserDecryptionOption {
+  /** The URL of the TideCloak service for SDK initialization. */
+  tideCloakUrl: string;
+  /** The encrypted master key stored on the server (encrypted via SMPC). */
+  encryptedMasterKey?: string;
+
+  /**
+   * Initializes a new instance of the TideCloakUserDecryptionOption from a response object.
+   * @param response The TideCloak user decryption option response object.
+   * @returns A new instance of the TideCloakUserDecryptionOption or undefined if `response` is nullish.
+   */
+  static fromResponse(
+    response: TideCloakUserDecryptionOptionResponse,
+  ): TideCloakUserDecryptionOption | undefined {
+    if (response == null) {
+      return undefined;
+    }
+    const options = new TideCloakUserDecryptionOption();
+    options.tideCloakUrl = response?.tideCloakUrl ?? null;
+    options.encryptedMasterKey = response?.encryptedMasterKey ?? undefined;
+    return options;
+  }
+
+  /**
+   * Initializes a new instance of a TideCloakUserDecryptionOption from a JSON object.
+   * @param obj JSON object to deserialize.
+   * @returns A new instance of the TideCloakUserDecryptionOption or undefined if `obj` is nullish.
+   */
+  static fromJSON(
+    obj: Jsonify<TideCloakUserDecryptionOption>,
+  ): TideCloakUserDecryptionOption | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+    return Object.assign(new TideCloakUserDecryptionOption(), obj);
   }
 }
 
@@ -104,6 +148,8 @@ export class UserDecryptionOptions {
   trustedDeviceOption?: TrustedDeviceUserDecryptionOption;
   /** {@link KeyConnectorUserDecryptionOption} */
   keyConnectorOption?: KeyConnectorUserDecryptionOption;
+  /** {@link TideCloakUserDecryptionOption} */
+  tideCloakOption?: TideCloakUserDecryptionOption;
 
   /**
    * Initializes a new instance of the UserDecryptionOptions from a response object.
@@ -134,6 +180,10 @@ export class UserDecryptionOptions {
       decryptionOptions.keyConnectorOption = KeyConnectorUserDecryptionOption.fromResponse(
         responseOptions.keyConnectorOption,
       );
+
+      decryptionOptions.tideCloakOption = TideCloakUserDecryptionOption.fromResponse(
+        responseOptions.tideCloakOption,
+      );
     } else {
       throw new Error(
         "User Decryption Options are required for client initialization. userDecryptionOptions is missing in response.",
@@ -156,6 +206,10 @@ export class UserDecryptionOptions {
 
     decryptionOptions.keyConnectorOption = KeyConnectorUserDecryptionOption.fromJSON(
       obj?.keyConnectorOption,
+    );
+
+    decryptionOptions.tideCloakOption = TideCloakUserDecryptionOption.fromJSON(
+      obj?.tideCloakOption,
     );
 
     return decryptionOptions;

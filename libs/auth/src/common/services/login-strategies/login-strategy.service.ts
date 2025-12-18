@@ -24,6 +24,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { TideCloakService } from "@bitwarden/common/key-management/tidecloak/abstractions/tidecloak.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -145,6 +146,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected messagingService: MessagingService,
     protected logService: LogService,
     protected keyConnectorService: KeyConnectorService,
+    protected tideCloakService: TideCloakService,
     protected environmentService: EnvironmentService,
     protected stateService: StateService,
     protected twoFactorService: TwoFactorService,
@@ -532,6 +534,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
             return new SsoLoginStrategy(
               data?.sso ?? new SsoLoginStrategyData(),
               this.keyConnectorService,
+              this.tideCloakService,
               this.deviceTrustService,
               this.authRequestService,
               this.i18nService,
