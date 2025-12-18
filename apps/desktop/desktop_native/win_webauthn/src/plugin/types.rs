@@ -11,6 +11,7 @@ use windows::{
     core::{GUID, HRESULT},
     Win32::Foundation::HWND,
 };
+use windows_core::BOOL;
 
 use crate::{
     plugin::crypto,
@@ -778,6 +779,46 @@ webauthn_call!("WebAuthNEncodeMakeCredentialResponse" as fn webauthn_encode_make
 
 // GetAssertion types
 
+pub(super) struct WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY {
+    /// Version of this structure, to allow for modifications in the future.
+    pub dwVersion: u32,
+
+    /// Key type
+    pub lKty: i32,
+
+    /// Hash Algorithm: ES256, ES384, ES512
+    pub lAlg: i32,
+
+    /// Curve
+    pub lCrv: i32,
+
+    /// Size of "x" (X Coordinate)
+    pub cbX: u32,
+
+    /// "x" (X Coordinate) data. Big Endian.
+    pub pbX: *const u8,
+
+    /// Size of "y" (Y Coordinate)
+    pub cbY: u32,
+
+    /// "y" (Y Coordinate) data. Big Endian.
+    pub pbY: *const u8,
+}
+
+pub(super) struct WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION {
+    /// Version of this structure, to allow for modifications in the future.
+    pub dwVersion: u32,
+
+    // Platform's key agreement public key
+    pub pKeyAgreement: *const WEBAUTHN_CTAPCBOR_ECC_PUBLIC_KEY,
+
+    pub cbEncryptedSalt: u32,
+    pub pbEncryptedSalt: *const u8,
+
+    pub cbSaltAuth: u32,
+    pub pbSaltAuth: *const u8,
+}
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub(super) struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
@@ -791,7 +832,37 @@ pub(super) struct WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
     pub cbCborExtensionsMap: u32,
     pub pbCborExtensionsMap: *const u8,
     pub pAuthenticatorOptions: *const WebAuthnCtapCborAuthenticatorOptions,
-    // Add other fields as needed...
+
+    // Pin Auth (Optional)
+    /// Zero length PinAuth is included in the request
+    pub fEmptyPinAuth: BOOL,
+    pub cbPinAuth: u32,
+    pub pbPinAuth: *const u8,
+
+    // HMAC Salt Extension (Optional)
+    pub pHmacSaltExtension: *const WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION,
+
+    // PRF Extension
+    pub cbHmacSecretSaltValues: u32,
+    pub pbHmacSecretSaltValues: *const u8,
+
+    pub dwPinProtocol: u32,
+
+    //"credBlob": true  extension
+    pub lCredBlobExt: i32,
+
+    //"largeBlobKey": true extension
+    pub lLargeBlobKeyExt: i32,
+
+    //"largeBlob" extension
+    pub dwCredLargeBlobOperation: u32,
+    pub cbCredLargeBlobCompressed: u32,
+    pub pbCredLargeBlobCompressed: *const u8,
+    pub dwCredLargeBlobOriginalSize: u32,
+
+    // "json" extension. Nonzero if present
+    pub cbJsonExt: u32,
+    pub pbJsonExt: *const u8,
 }
 
 #[derive(Debug)]
