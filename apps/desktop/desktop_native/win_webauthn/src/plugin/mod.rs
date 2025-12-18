@@ -2,7 +2,7 @@ pub(crate) mod com;
 pub(crate) mod crypto;
 pub(crate) mod types;
 
-use std::{error::Error, ptr::NonNull};
+use std::{error::Error, mem::MaybeUninit, ptr::NonNull};
 
 use types::*;
 pub use types::{
@@ -176,26 +176,22 @@ impl WebAuthnPlugin {
             pwszDisplayHint: hint.map_or(std::ptr::null(), |buf| buf.leak()),
         };
         let mut response_len = 0;
-        let mut response_ptr = std::ptr::null_mut();
+        let mut response_ptr = MaybeUninit::uninit();
         unsafe {
             let hresult = webauthn_plugin_perform_user_verification(
                 &uv_request,
                 &mut response_len,
-                &mut response_ptr,
+                response_ptr.as_mut_ptr(),
             )?;
             match hresult {
                 S_OK => {
-                    let signature = if response_len > 0 {
-                        Vec::new()
-                    } else {
-                        // SAFETY: Windows only runs on platforms where usize >= u32;
-                        let len = response_len as usize;
-                        // SAFETY: Windows returned successful response code and length, so we
-                        // assume that the data is initialized
-                        let signature = std::slice::from_raw_parts(response_ptr, len).to_vec();
-                        pub_key.verify_signature(operation_request, &signature)?;
-                        signature
-                    };
+                    // SAFETY: Windows returned successful response code and length, so we
+                    // assume that the data and length are initialized
+                    let response_ptr = response_ptr.assume_init();
+                    // SAFETY: Windows only runs on platforms where usize >= u32;
+                    let len = response_len as usize;
+                    let signature = std::slice::from_raw_parts(response_ptr, len).to_vec();
+                    pub_key.verify_signature(operation_request, &signature)?;
                     webauthn_plugin_free_user_verification_response(response_ptr)?;
                     Ok(PluginUserVerificationResponse {
                         transaction_id: request.transaction_id,
