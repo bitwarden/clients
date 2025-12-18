@@ -359,7 +359,7 @@ export function getAttributeBoolean(
  */
 export function getPropertyOrAttribute(element: HTMLElement, attributeName: string): string | null {
   if (attributeName in element) {
-    return (element as FormElementWithAttribute)[attributeName];
+    return (element as FormElementWithAttribute)[attributeName] ?? null;
   }
 
   return element.getAttribute(attributeName);
