@@ -13,7 +13,7 @@ workspace = true
 
 [target.'cfg(windows)'.dependencies]
 base64 = { workspace = true }
-ciborium = "0.2"
+ciborium = { workspace = true }
 tracing = { workspace = true }
 windows = { workspace = true, features = [
     "Win32_Foundation",
