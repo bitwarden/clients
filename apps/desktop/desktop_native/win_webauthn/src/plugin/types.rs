@@ -4,7 +4,7 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-use std::{mem::MaybeUninit, ptr::NonNull};
+use std::{mem::MaybeUninit, num::NonZeroU32, ptr::NonNull};
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use windows::{
@@ -392,7 +392,49 @@ pub(super) struct WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST {
     pub cbCborExtensionsMap: u32,
     pub pbCborExtensionsMap: *const u8,
     pub pAuthenticatorOptions: *const WebAuthnCtapCborAuthenticatorOptions,
-    // Add other fields as needed...
+
+    // Pin Auth (Optional)
+    /// Indicates zero length PinAuth is included in the request
+    pub fEmptyPinAuth: BOOL,
+    pub cbPinAuth: u32,
+    pub pbPinAuth: *const u8,
+
+    /// "hmac-secret": true extension
+    pub lHmacSecretExt: i32,
+
+    /// "hmac-secret-mc" extension
+    pub pHmacSecretMcExtension: *const WEBAUTHN_CTAPCBOR_HMAC_SALT_EXTENSION,
+
+    /// "prf" extension
+    pub lPrfExt: i32,
+    pub cbHmacSecretSaltValues: u32,
+    pub pbHmacSecretSaltValues: *const u8,
+
+    /// "credProtect" extension. Nonzero if present
+    pub dwCredProtect: Option<NonZeroU32>,
+
+    /// Nonzero if present
+    pub dwPinProtocol: Option<NonZeroU32>,
+
+    /// Nonzero if present
+    pub dwEnterpriseAttestation: Option<NonZeroU32>,
+
+    /// "credBlob" extension. Nonzero if present
+    pub cbCredBlobExt: Option<NonZeroU32>,
+    pub pbCredBlobExt: *const u8,
+
+    /// "largeBlobKey": true extension
+    pub lLargeBlobKeyExt: i32,
+
+    /// "largeBlob": extension
+    pub dwLargeBlobSupport: u32,
+
+    /// "minPinLength": true extension
+    pub lMinPinLengthExt: i32,
+
+    /// "json" extension. Nonzero if present
+    pub cbJsonExt: u32,
+    pub pbJsonExt: *const u8,
 }
 
 #[derive(Debug)]
