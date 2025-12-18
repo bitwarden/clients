@@ -44,8 +44,8 @@ import { CriticalApplicationsComponent } from "./critical-applications/critical-
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
 import { PageLoadingComponent } from "./shared/page-loading.component";
+import { ReportLoadingComponent } from "./shared/report-loading.component";
 import { RiskInsightsDrawerDialogComponent } from "./shared/risk-insights-drawer-dialog.component";
-import { ReportLoadingComponent } from "./shared/risk-insights-loading.component";
 
 // Type alias for progress step (used in concatMap emissions)
 type ProgressStep = ReportProgress | null;

@@ -36,7 +36,7 @@ import {
   ApplicationTableDataSource,
   AppTableRowScrollableComponent,
 } from "../shared/app-table-row-scrollable.component";
-import { ReportLoadingComponent } from "../shared/risk-insights-loading.component";
+import { ReportLoadingComponent } from "../shared/report-loading.component";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

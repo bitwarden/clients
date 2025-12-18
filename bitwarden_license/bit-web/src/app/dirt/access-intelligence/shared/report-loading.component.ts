@@ -23,9 +23,9 @@ const DefaultStepConfig: StepConfig = ProgressStepConfig[ReportProgress.Fetching
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "dirt-risk-insights-loading",
+  selector: "dirt-report-loading",
   imports: [CommonModule, JslibModule, ProgressModule],
-  templateUrl: "./risk-insights-loading.component.html",
+  templateUrl: "./report-loading.component.html",
 })
 export class ReportLoadingComponent {
   // Progress step input from parent component.

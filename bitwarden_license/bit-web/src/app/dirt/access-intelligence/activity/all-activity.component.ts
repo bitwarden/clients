@@ -14,7 +14,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { ReportLoadingComponent } from "../shared/risk-insights-loading.component";
+import { ReportLoadingComponent } from "../shared/report-loading.component";
 
 import { ActivityCardComponent } from "./activity-card.component";
 import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
