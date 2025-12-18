@@ -4,4 +4,5 @@
     "strictTemplates": true
   },
   "include": ["src/app/main.ts", "src/global.d.ts"]
+  // "exclude": ["src/entry.ts", "src/main.ts", "src/main", "src/proxy", "src/**/*.spec.ts"]
 }

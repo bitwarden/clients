@@ -23,9 +23,9 @@ module.exports = (webpackConfig, context) => {
     return buildConfig({
       configName: "Commercial",
       renderer: {
-        entry: "",
-        entryModule: "",
-        tsConfig: "",
+        entry: path.resolve(__dirname, "src/app/main.ts"),
+        entryModule: "src/app/app.module#AppModule",
+        tsConfig: path.resolve(__dirname, "tsconfig.renderer.json"),
       },
       main: {
         entry: path.resolve(__dirname, "src/entry.ts"),
