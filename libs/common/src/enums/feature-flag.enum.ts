@@ -14,6 +14,7 @@ export enum FeatureFlag {
   CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
+  IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
@@ -21,6 +22,7 @@ export enum FeatureFlag {
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
+  WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
@@ -42,12 +44,14 @@ export enum FeatureFlag {
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
+  DataRecoveryTool = "pm-28813-data-recovery-tool",
   ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   ChromiumImporterWithABE = "pm-25855-chromium-importer-abe",
+  SendUIRefresh = "pm-28175-send-ui-refresh",
 
   /* DIRT */
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
@@ -63,6 +67,7 @@ export enum FeatureFlag {
   RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
   VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
+  MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -97,15 +102,18 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CreateDefaultLocation]: FALSE,
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
+  [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
 
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.ChromiumImporterWithABE]: FALSE,
+  [FeatureFlag.SendUIRefresh]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
@@ -121,6 +129,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
+  [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
@@ -145,6 +154,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
 
   /* Platform */
