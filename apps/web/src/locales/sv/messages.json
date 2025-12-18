@@ -11587,6 +11587,9 @@
   "unArchive": {
     "message": "Avarkivera"
   },
+  "unArchiveAndSave": {
+    "message": "Avarkivera och spara"
+  },
   "itemsInArchive": {
     "message": "Objekt i arkivet"
   },
