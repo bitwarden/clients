@@ -27,14 +27,10 @@ import {
   SearchModule,
   SimpleDialogOptions,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent } from "@bitwarden/vault";
+import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "../../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
