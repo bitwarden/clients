@@ -87,6 +87,8 @@ import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import {
   DefaultKeyGenerationService,
   KeyGenerationService,
@@ -455,6 +457,7 @@ export default class MainBackground {
   syncServiceListener: SyncServiceListener;
   browserInitialInstallService: BrowserInitialInstallService;
   backgroundSyncService: BackgroundSyncService;
+  accountCryptographicStateService: AccountCryptographicStateService;
 
   webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
   themeStateService: DefaultThemeStateService;
@@ -1010,6 +1013,9 @@ export default class MainBackground {
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
 
     this.providerService = new ProviderService(this.stateProvider);
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -1037,6 +1043,7 @@ export default class MainBackground {
       this.stateProvider,
       this.securityStateService,
       this.kdfConfigService,
+      this.accountCryptographicStateService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
