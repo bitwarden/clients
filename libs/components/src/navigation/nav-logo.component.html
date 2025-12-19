@@ -17,7 +17,7 @@
     [attr.aria-label]="label()"
     [title]="label()"
     routerLinkActive
-    [ariaCurrentWhenActive]="'page'"
+    ariaCurrentWhenActive="page"
   >
     <bit-icon [icon]="sideNavService.open ? openIcon() : closedIcon()"></bit-icon>
   </a>

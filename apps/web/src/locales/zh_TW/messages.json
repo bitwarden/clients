@@ -1969,17 +1969,16 @@
   "encExportAccountWarningDesc": {
     "message": "每個 Bitwarden 使用者帳戶的帳戶加密金鑰都不相同，因此無法將已加密匯出的檔案匯入至不同帳戶中。"
   },
-  "export": {
-    "message": "匯出"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "匯出自"
-  },
-  "exportVault": {
-    "message": "匯出密碼庫"
-  },
-  "exportSecrets": {
-    "message": "匯出機密"
   },
   "fileFormat": {
     "message": "檔案格式"
@@ -1992,9 +1991,6 @@
   },
   "confirmMasterPassword": {
     "message": "確認主密碼"
-  },
-  "confirmFormat": {
-    "message": "確認格式"
   },
   "filePassword": {
     "message": "檔案密碼"
@@ -2305,6 +2301,14 @@
   },
   "tools": {
     "message": "工具"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "匯入資料"
@@ -3289,6 +3293,9 @@
   "launchCloudSubscription": {
     "message": "啟動雲端訂閱"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Launch cloud subscription"
+  },
   "storage": {
     "message": "儲存空間"
   },
@@ -4203,6 +4210,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Accepted transfer to organization ownership."
+  },
+  "userDeclinedTransfer": {
+    "message": "Revoked for declining transfer to organization ownership."
   },
   "invitedUserId": {
     "message": "已邀請使用者 $ID$。",
@@ -8753,9 +8766,6 @@
   "server": {
     "message": "伺服器"
   },
-  "exportData": {
-    "message": "匯出資料"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "匯出組織機密資料"
   },
@@ -11596,6 +11606,9 @@
   "unArchive": {
     "message": "取消封存"
   },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "封存中的項目"
   },
@@ -12418,5 +12431,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "You have Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "View and manage your Premium subscription"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "You'll need to update your license file"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Upload license file"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Upload your license file"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Upload your Premium license file"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Already have a subscription?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+  },
+  "viewAllPlans": {
+    "message": "View all plans"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
   }
 }

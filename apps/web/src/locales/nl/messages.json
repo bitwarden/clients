@@ -1969,17 +1969,16 @@
   "encExportAccountWarningDesc": {
     "message": "Encryptiesleutels zijn uniek voor elk Bitwarden-gebruikersaccount, je kun kunt een versleutelde niet in een ander account importeren."
   },
-  "export": {
-    "message": "Exporteren"
+  "exportNoun": {
+    "message": "Exporteren",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exporteren",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Exporteren vanuit"
-  },
-  "exportVault": {
-    "message": "Kluis exporteren"
-  },
-  "exportSecrets": {
-    "message": "Geheimen exporteren"
   },
   "fileFormat": {
     "message": "Bestandsindeling"
@@ -1992,9 +1991,6 @@
   },
   "confirmMasterPassword": {
     "message": "Nieuw hoofdwachtwoord bevestigen"
-  },
-  "confirmFormat": {
-    "message": "Formaat bevestigen"
   },
   "filePassword": {
     "message": "Bestandswachtwoord"
@@ -2305,6 +2301,14 @@
   },
   "tools": {
     "message": "Hulpmiddelen"
+  },
+  "importNoun": {
+    "message": "Importeren",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importeren",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Gegevens importeren"
@@ -3289,6 +3293,9 @@
   "launchCloudSubscription": {
     "message": "Cloudabonnement starten"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Cloudabonnement starten"
+  },
   "storage": {
     "message": "Opslagruimte"
   },
@@ -4203,6 +4210,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Overdracht naar organisatie-eigendom geaccepteerd."
+  },
+  "userDeclinedTransfer": {
+    "message": "Ingetrokken wegens afwijzen van overdracht naar organisatie-eigendom."
   },
   "invitedUserId": {
     "message": "Gebruiker uitgenodigd $ID$.",
@@ -8753,9 +8766,6 @@
   "server": {
     "message": "Server"
   },
-  "exportData": {
-    "message": "Gegevens exporteren"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Geheime gegevens van de organisatie exporteren"
   },
@@ -11596,6 +11606,9 @@
   "unArchive": {
     "message": "Dearchiveren"
   },
+  "unArchiveAndSave": {
+    "message": "Dearchiveren en opslaan"
+  },
   "itemsInArchive": {
     "message": "Items in archief"
   },
@@ -12418,5 +12431,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Je hebt Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Premium-abonnement bekijken en beheren"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Je moet je licentiebestand bijwerken"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Licentiebestand uploaden"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Uploadt je licentiebestand"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Uploadt je Premium-licentiebestand"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "De naam van je licensiebestand lijkt op: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Heb je al een abonnement?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Open de abonnementspagina op je Bitwarden-cloudaccount en download je licentiebestand. Ga daarna terug naar dit scherm en upload het hieronder."
+  },
+  "viewAllPlans": {
+    "message": "Alle abonnementen bekijken"
+  },
+  "planDescPremium": {
+    "message": "Online beveiliging voltooien"
   }
 }
