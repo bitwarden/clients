@@ -1,43 +1,29 @@
 name: Install and Run Desktop client
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    branches-ignore:
-      - 'l10n_master'
-      - 'cf-pages'
-    paths:
-      - 'apps/desktop/**'
-      - 'libs/**'
-      - '*'
-      - '!*.md'
-      - '!*.txt'
-      - '.github/workflows/build-desktop.yml'
-      - '.github/workflows/install-run-desktop.yml'
-  push:
-    branches:
-      - 'main'
-      - 'rc'
-      - 'hotfix-rc-desktop'
-    paths:
-      - 'apps/desktop/**'
-      - 'libs/**'
-      - '*'
-      - '!*.md'
-      - '!*.txt'
-      - '.github/workflows/build-desktop.yml'
-      - '.github/workflows/install-run-desktop.yml'
+  workflow_run:
+    workflows: ["Build Desktop"]
+    types:
+      - completed
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
 
 jobs:
   linux-x64-deb:
-    name:
-    runs-on: ubuntu-latest
+    name: Install and run Linux x64 .deb
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Check out repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           fetch-depth: 1
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
 
       - name: Download deb artifact
@@ -46,7 +32,7 @@ jobs:
         with:
           workflow: build-desktop.yml
           workflow_conclusion: success
-          branch: ${{ github.ref_name }}
+          branch: ${{ github.event.workflow_run.head_branch }}
           path: apps/desktop/artifacts/linux/deb/
           artifacts: Bitwarden-*-amd64.deb
           name_is_regexp: true
@@ -75,14 +61,15 @@ jobs:
           fi
 
   linux-x64-appimage:
-    name:
-    runs-on: ubuntu-latest
+    name: Install and run Linux x64 appimage
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Check out repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           fetch-depth: 1
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
 
       - name: Download appimage artifact
@@ -91,7 +78,7 @@ jobs:
         with:
           workflow: build-desktop.yml
           workflow_conclusion: success
-          branch: ${{ github.ref_name }}
+          branch: ${{ github.event.workflow_run.head_branch }}
           path: apps/desktop/artifacts/linux/appimage/
           artifacts: Bitwarden-*-x86_64.AppImage
           name_is_regexp: true
@@ -116,14 +103,15 @@ jobs:
           fi
 
   linux-x64-flatpak:
-    name:
-    runs-on: ubuntu-latest
+    name: Install and run Linux x64 Flatpak
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Check out repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           fetch-depth: 1
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
 
       - name: Download flatpak artifact
@@ -132,7 +120,7 @@ jobs:
         with:
           workflow: build-desktop.yml
           workflow_conclusion: success
-          branch: ${{ github.ref_name }}
+          branch: ${{ github.event.workflow_run.head_branch }}
           path: apps/desktop/artifacts/linux/flatpak/
           artifacts: com.bitwarden.desktop.flatpak
 
@@ -160,14 +148,15 @@ jobs:
           fi
 
   linux-x64-snap:
-    name:
-    runs-on: ubuntu-latest
+    name: Install and run Linux x64 snap
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Check out repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           fetch-depth: 1
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
 
       - name: Download snap artifact
@@ -176,7 +165,7 @@ jobs:
         with:
           workflow: build-desktop.yml
           workflow_conclusion: success
-          branch: ${{ github.ref_name }}
+          branch: ${{ github.event.workflow_run.head_branch }}
           path: apps/desktop/artifacts/linux/snap/
           artifacts: bitwarden_*_amd64.snap
           name_is_regexp: true
