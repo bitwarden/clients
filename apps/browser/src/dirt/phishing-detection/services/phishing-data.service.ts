@@ -21,7 +21,7 @@ import { LogService } from "@bitwarden/logging";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 
 export type PhishingData = {
-  domains: string[];
+  webAddresses: string[];
   timestamp: number;
   checksum: string;
 
@@ -37,7 +37,7 @@ export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
   "phishingDomains",
   {
     deserializer: (value: PhishingData) =>
-      value ?? { domains: [], timestamp: 0, checksum: "", applicationVersion: "" },
+      value ?? { webAddresses: [], timestamp: 0, checksum: "", applicationVersion: "" },
   },
 );
 
@@ -56,7 +56,7 @@ export class PhishingDataService {
     map(
       (state) =>
         new Set(
-          (state?.domains?.filter((line) => line.trim().length > 0) ?? []).concat(
+          (state?.webAddresses?.filter((line) => line.trim().length > 0) ?? []).concat(
             this._testDomains,
             "phishing.testcategory.com", // Included for QA to test in prod
           ),
@@ -140,7 +140,7 @@ export class PhishingDataService {
   }
 
   async getNextDomains(prev: PhishingData | null): Promise<PhishingData | null> {
-    prev = prev ?? { domains: [], timestamp: 0, checksum: "", applicationVersion: "" };
+    prev = prev ?? { webAddresses: [], timestamp: 0, checksum: "", applicationVersion: "" };
     const timestamp = Date.now();
     const prevAge = timestamp - prev.timestamp;
     this.logService.info(`[PhishingDataService] Cache age: ${prevAge}`);
@@ -167,7 +167,7 @@ export class PhishingDataService {
         `[PhishingDataService] ${dailyDomains.length} new phishing domains added`,
       );
       return {
-        domains: prev.domains.concat(dailyDomains),
+        webAddresses: prev.webAddresses.concat(dailyDomains),
         checksum: remoteChecksum,
         timestamp,
         applicationVersion,
@@ -177,7 +177,7 @@ export class PhishingDataService {
     // Approach 2: Fetch all domains
     const domains = await this.fetchPhishingDomains(PhishingDataService.RemotePhishingDatabaseUrl);
     return {
-      domains,
+      webAddresses: domains,
       timestamp,
       checksum: remoteChecksum,
       applicationVersion,

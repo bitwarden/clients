@@ -52,7 +52,7 @@ describe("PhishingDataService", () => {
   describe("isPhishingDomains", () => {
     it("should detect a phishing domain", async () => {
       setMockState({
-        domains: ["phish.com", "badguy.net"],
+        webAddresses: ["phish.com", "badguy.net"],
         timestamp: Date.now(),
         checksum: "abc123",
         applicationVersion: "1.0.0",
@@ -64,7 +64,7 @@ describe("PhishingDataService", () => {
 
     it("should not detect a safe domain", async () => {
       setMockState({
-        domains: ["phish.com", "badguy.net"],
+        webAddresses: ["phish.com", "badguy.net"],
         timestamp: Date.now(),
         checksum: "abc123",
         applicationVersion: "1.0.0",
@@ -76,7 +76,7 @@ describe("PhishingDataService", () => {
 
     it("should match against root domain", async () => {
       setMockState({
-        domains: ["phish.com", "badguy.net"],
+        webAddresses: ["phish.com", "badguy.net"],
         timestamp: Date.now(),
         checksum: "abc123",
         applicationVersion: "1.0.0",
@@ -97,7 +97,7 @@ describe("PhishingDataService", () => {
   describe("getNextDomains", () => {
     it("refetches all domains if applicationVersion has changed", async () => {
       const prev: PhishingData = {
-        domains: ["a.com"],
+        webAddresses: ["a.com"],
         timestamp: Date.now() - 60000,
         checksum: "old",
         applicationVersion: "1.0.0",
@@ -108,28 +108,28 @@ describe("PhishingDataService", () => {
 
       const result = await service.getNextDomains(prev);
 
-      expect(result!.domains).toEqual(["d.com", "e.com"]);
+      expect(result!.webAddresses).toEqual(["d.com", "e.com"]);
       expect(result!.checksum).toBe("new");
       expect(result!.applicationVersion).toBe("2.0.0");
     });
 
     it("only updates timestamp if checksum matches", async () => {
       const prev: PhishingData = {
-        domains: ["a.com"],
+        webAddresses: ["a.com"],
         timestamp: Date.now() - 60000,
         checksum: "abc",
         applicationVersion: "1.0.0",
       };
       fetchChecksumSpy.mockResolvedValue("abc");
       const result = await service.getNextDomains(prev);
-      expect(result!.domains).toEqual(prev.domains);
+      expect(result!.webAddresses).toEqual(prev.webAddresses);
       expect(result!.checksum).toBe("abc");
       expect(result!.timestamp).not.toBe(prev.timestamp);
     });
 
     it("patches daily domains if cache is fresh", async () => {
       const prev: PhishingData = {
-        domains: ["a.com"],
+        webAddresses: ["a.com"],
         timestamp: Date.now() - 60000,
         checksum: "old",
         applicationVersion: "1.0.0",
@@ -137,13 +137,13 @@ describe("PhishingDataService", () => {
       fetchChecksumSpy.mockResolvedValue("new");
       fetchDomainsSpy.mockResolvedValue(["b.com", "c.com"]);
       const result = await service.getNextDomains(prev);
-      expect(result!.domains).toEqual(["a.com", "b.com", "c.com"]);
+      expect(result!.webAddresses).toEqual(["a.com", "b.com", "c.com"]);
       expect(result!.checksum).toBe("new");
     });
 
     it("fetches all domains if cache is old", async () => {
       const prev: PhishingData = {
-        domains: ["a.com"],
+        webAddresses: ["a.com"],
         timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
         checksum: "old",
         applicationVersion: "1.0.0",
@@ -151,7 +151,7 @@ describe("PhishingDataService", () => {
       fetchChecksumSpy.mockResolvedValue("new");
       fetchDomainsSpy.mockResolvedValue(["d.com", "e.com"]);
       const result = await service.getNextDomains(prev);
-      expect(result!.domains).toEqual(["d.com", "e.com"]);
+      expect(result!.webAddresses).toEqual(["d.com", "e.com"]);
       expect(result!.checksum).toBe("new");
     });
   });
