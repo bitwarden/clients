@@ -45,6 +45,13 @@ import { NewSendDropdownComponent } from "./new-send/new-send-dropdown.component
 
 const BroadcasterSubscriptionId = "SendComponent";
 
+const SendFilterType = Object.freeze({
+  All: "all",
+  Text: "text",
+  File: "file",
+} as const);
+type SendFilterType = (typeof SendFilterType)[keyof typeof SendFilterType];
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -63,7 +70,7 @@ const BroadcasterSubscriptionId = "SendComponent";
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
   private sendItemDialogRef?: DialogRef<SendItemDialogResult> | undefined;
   noItemIcon = NoSendsIcon;
-  selectedToggleValue: "all" | "text" | "file" = "all";
+  selectedToggleValue: SendFilterType = SendFilterType.All;
   SendUIRefresh$: Observable<boolean>;
 
   override set filteredSends(filteredSends: SendView[]) {
@@ -115,10 +122,11 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
 
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const typeParam = params.get("type");
-      const value = (typeParam === "text" || typeParam === "file" ? typeParam : "all") as
-        | "all"
-        | "text"
-        | "file";
+      const value = (
+        typeParam === SendFilterType.Text || typeParam === SendFilterType.File
+          ? typeParam
+          : SendFilterType.All
+      ) as SendFilterType;
       this.selectedToggleValue = value;
 
       if (this.loaded) {
@@ -208,18 +216,18 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     }
   }
 
-  private applyTypeFilter(value: "all" | "text" | "file") {
-    if (value === "all") {
+  private applyTypeFilter(value: SendFilterType) {
+    if (value === SendFilterType.All) {
       this.selectAll();
-    } else if (value === "text") {
+    } else if (value === SendFilterType.Text) {
       this.selectType(SendType.Text);
-    } else if (value === "file") {
+    } else if (value === SendFilterType.File) {
       this.selectType(SendType.File);
     }
   }
 
-  onToggleChange(value: "all" | "text" | "file") {
-    const queryParams = value === "all" ? { type: null } : { type: value };
+  onToggleChange(value: SendFilterType) {
+    const queryParams = value === SendFilterType.All ? { type: null } : { type: value };
 
     void this.router.navigate([], {
       relativeTo: this.route,
