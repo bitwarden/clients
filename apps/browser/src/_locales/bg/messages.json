@@ -1322,11 +1322,21 @@
   "exportFrom": {
     "message": "Изнасяне от"
   },
-  "export": {
-    "message": "Изнасяне"
+  "exportVerb": {
+    "message": "Изнасяне",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Внасяне"
+  "exportNoun": {
+    "message": "Изнасяне",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Внасяне",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Внасяне",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат на файла"
@@ -4802,13 +4812,13 @@
     "message": "Защита на регистрацията"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Блокатор на измами"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Разпознаване на измами"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Показване на предупреждение преди зареждане на уеб сайтове подозирани за измамни"
   },
   "notifications": {
     "message": "Известия"
