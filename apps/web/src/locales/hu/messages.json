@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "A fiók titkosítási kulcsai minden Bitwarden felhasználói fiókhoz egyediek, ezért nem importálhatunk titkosított exportálást egy másik fiókba."
   },
-  "export": {
-    "message": "Exportálás"
+  "exportNoun": {
+    "message": "Exportálás",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exportálás",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Exportálás innen:"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "Eszközök"
   },
-  "import": {
-    "message": "Importálás"
+  "importNoun": {
+    "message": "Importálás",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importálás",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Adatok importálása"
@@ -3283,6 +3293,9 @@
   "launchCloudSubscription": {
     "message": "Felhő előfizetés indítása"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Felhő előfizetés indítása"
+  },
   "storage": {
     "message": "Tárhely"
   },
@@ -4197,6 +4210,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Accepted transfer to organization ownership."
+  },
+  "userDeclinedTransfer": {
+    "message": "Revoked for declining transfer to organization ownership."
   },
   "invitedUserId": {
     "message": "$ID$ azonosítójú felhasználó meghívásra került.",
@@ -12412,5 +12431,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Miért látható ez?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Bitwarden Prémium verzió van használatban."
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Tekintsük meg és kezeljük a Prémium előfizetést."
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Frissíteni kell a licensz fájlt."
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Licensz fájl feltöltése"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Licensz fájl feltöltése"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Licensz fájl feltöltése"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "A licensz fájl neve hasonló lesz: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Már van előfizetés?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Nyissuk meg az előfizetési oldalt Bitwarden felhőfiókjában és töltsük le licensz fájlt. Ezután térjünk vissza erre a képernyőre és töltsük fel lentebb."
+  },
+  "viewAllPlans": {
+    "message": "Összes csomag megtekintése"
+  },
+  "planDescPremium": {
+    "message": "Teljes körű online biztonság"
   }
 }

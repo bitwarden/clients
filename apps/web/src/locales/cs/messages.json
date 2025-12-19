@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "Šifrovací klíče účtu jsou pro každý uživatelský účet Bitwardenu jedinečné, takže nelze importovat šifrovaný export do jiného účtu."
   },
-  "export": {
-    "message": "Exportovat"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exportovat",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Exportovat z"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "Nástroje"
   },
-  "import": {
-    "message": "Importovat"
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importovat",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Importovat data"
@@ -3283,6 +3293,9 @@
   "launchCloudSubscription": {
     "message": "Spustit předplatné Cloud"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Spustit předplatné Cloud"
+  },
   "storage": {
     "message": "Úložiště"
   },
@@ -4197,6 +4210,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Převod do vlastnictví organizace byl přijat."
+  },
+  "userDeclinedTransfer": {
+    "message": "Zrušeno z důvodu odmítnutí převodu do vlastnictví organizace."
   },
   "invitedUserId": {
     "message": "Byl pozván uživatel $ID$.",
@@ -12412,5 +12431,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Proč se mi toto zobrazuje?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Máte Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Zobrazit a spravovat předplatné Premium"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Budete muset aktualizovat svůj licenční soubor"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Nahrát licenční soubor"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Nahrajte Váš licenční soubor"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Nahrajte Váš licenční soubor Premium"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Název Vašeho licenčního souboru bude podobný názvu $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Již máte předplatné?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Otevřete stránku s předplatným na Vašem účtu Bitwarden a stáhněte si licenční soubor. Poté se vraťte na tuto obrazovku a nahrajte jej níže."
+  },
+  "viewAllPlans": {
+    "message": "Zobraz všechny plány"
+  },
+  "planDescPremium": {
+    "message": "Dokončit online zabezpečení"
   }
 }
