@@ -4,3 +4,4 @@ export * from "./landing-content.component";
 export * from "./landing-footer.component";
 export * from "./landing-header.component";
 export * from "./landing-hero.component";
+export * from "./landing-max-width-container.component";

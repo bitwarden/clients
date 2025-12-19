@@ -4,16 +4,19 @@
       <ng-content select="[slot=header-actions]"></ng-content>
     </div>
   </bit-landing-header>
-  <div [class]="'tw-flex tw-justify-center tw-flex-1 tw-bg-background-alt tw-p-5 tw-text-main'">
-    <div [class]="'tw-flex-1 ' + maxWidthClass">
+  <div
+    [class]="
+      'tw-flex tw-flex-col tw-items-center tw-flex-1 tw-bg-background-alt tw-p-5 tw-text-main'
+    "
+  >
+    <bit-landing-max-width-container [maxWidth]="maxWidth()">
+      <bit-landing-hero
+        class="tw-bg-background-alt"
+        [icon]="icon()"
+        [title]="title()"
+        [subtitle]="subtitle()"
+      ></bit-landing-hero>
       <bit-landing-content>
-        <bit-landing-hero
-          class="tw-bg-background-alt"
-          [icon]="icon()"
-          [title]="title()"
-          [subtitle]="subtitle()"
-        >
-        </bit-landing-hero>
         @if (hideCardWrapper()) {
           <div class="tw-mb-6 sm:tw-mb-10">
             <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
@@ -25,7 +28,7 @@
         }
         <ng-content select="[slot=secondary]"></ng-content>
       </bit-landing-content>
-    </div>
+    </bit-landing-max-width-container>
   </div>
 
   @if (!hideFooter()) {

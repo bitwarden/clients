@@ -5,6 +5,7 @@ import { LandingFooterComponent } from "./landing-footer.component";
 import { LandingHeaderComponent } from "./landing-header.component";
 import { LandingHeroComponent } from "./landing-hero.component";
 import { LandingLayoutComponent } from "./landing-layout.component";
+import { LandingMaxWidthContainerComponent } from "./landing-max-width-container.component";
 
 @NgModule({
   imports: [
@@ -13,6 +14,7 @@ import { LandingLayoutComponent } from "./landing-layout.component";
     LandingHeroComponent,
     LandingFooterComponent,
     LandingContentComponent,
+    LandingMaxWidthContainerComponent,
   ],
   exports: [
     LandingLayoutComponent,
@@ -20,6 +22,7 @@ import { LandingLayoutComponent } from "./landing-layout.component";
     LandingHeroComponent,
     LandingFooterComponent,
     LandingContentComponent,
+    LandingMaxWidthContainerComponent,
   ],
 })
 export class LandingLayoutModule {}
