@@ -19,7 +19,13 @@
     "!**/node_modules/@bitwarden/desktop-napi/**/*",
     "**/node_modules/@bitwarden/desktop-napi/index.js",
     "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node",
-    "!**/node_modules/@nx/**/*"
+    "!**/node_modules/@nx/**/*",
+    "!**/node_modules/@parcel/watcher-*/**/*",
+    "!**/node_modules/@esbuild/**/*",
+    "!**/node_modules/@swc/**/*",
+    "!**/node_modules/@rollup/**/*",
+    "!**/node_modules/sass/**/*",
+    "!**/node_modules/sass-embedded*/**/*"
   ],
   "electronVersion": "37.7.0",
   "generateUpdatesFilesForAllChannels": true,
