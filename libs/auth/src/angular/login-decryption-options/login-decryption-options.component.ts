@@ -31,6 +31,7 @@ import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/aut
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import {
@@ -140,6 +141,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private securityStateService: SecurityStateService,
     private appIdService: AppIdService,
     private configService: ConfigService,
+    private accountCryptographicStateService: AccountCryptographicStateService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -316,6 +318,11 @@ export class LoginDecryptionOptionsComponent implements OnInit {
 
         // Note: When SDK state management matures, these should be moved into post_keys_for_tde_registration
         // Set account cryptography state
+        await this.accountCryptographicStateService.setAccountCryptographicState(
+          register_result.account_cryptographic_state,
+          userId,
+        );
+        // Legacy individual states
         await this.keyService.setPrivateKey(
           register_result.account_cryptographic_state.V2.private_key,
           userId,

@@ -1,3 +1,8 @@
+// Mock asUuid to return the input value for test consistency
+jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk.service", () => ({
+  asUuid: (x: any) => x,
+}));
+
 import { DestroyRef } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -62,6 +67,7 @@ describe("LoginDecryptionOptionsComponent", () => {
   let securityStateService: MockProxy<SecurityStateService>;
   let appIdService: MockProxy<AppIdService>;
   let configService: MockProxy<ConfigService>;
+  let accountCryptographicStateService: MockProxy<any>;
 
   const mockUserId = "user-id-123" as UserId;
   const mockEmail = "test@example.com";
@@ -93,6 +99,7 @@ describe("LoginDecryptionOptionsComponent", () => {
     securityStateService = mock<SecurityStateService>();
     appIdService = mock<AppIdService>();
     configService = mock<ConfigService>();
+    accountCryptographicStateService = mock();
 
     // Setup default mocks
     accountService.activeAccount$ = new BehaviorSubject({
@@ -132,6 +139,7 @@ describe("LoginDecryptionOptionsComponent", () => {
       securityStateService,
       appIdService,
       configService,
+      accountCryptographicStateService,
     );
   });
 
@@ -151,6 +159,10 @@ describe("LoginDecryptionOptionsComponent", () => {
     let mockSecurityState: SignedSecurityState;
 
     beforeEach(async () => {
+      // Mock asUuid to return the input value for test consistency
+      jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk.service", () => ({
+        asUuid: (x: any) => x,
+      }));
       (Symbol as any).dispose = Symbol("dispose");
 
       mockPrivateKey = "mock-private-key";
@@ -254,13 +266,13 @@ describe("LoginDecryptionOptionsComponent", () => {
       // Verify SDK registration was called with correct parameters
       expect(mockSdkValue.auth).toHaveBeenCalled();
       expect(mockAuth.registration).toHaveBeenCalled();
-      expect(mockPostKeysForTdeRegistration).toHaveBeenCalledWith(
-        mockOrgId,
-        "mock-org-public-key",
-        mockUserId,
-        "mock-app-id",
-        true,
-      );
+      expect(mockPostKeysForTdeRegistration).toHaveBeenCalledWith({
+        org_id: mockOrgId,
+        org_public_key: "mock-org-public-key",
+        user_id: mockUserId,
+        device_identifier: "mock-app-id",
+        trust_device: true,
+      });
 
       const expectedDeviceKey = mockDeviceKeyObj;
       const expectedUserKey = new SymmetricCryptoKey(new Uint8Array(mockUserKeyBytes));
@@ -271,6 +283,17 @@ describe("LoginDecryptionOptionsComponent", () => {
       expect(keyService.setUserSigningKey).toHaveBeenCalledWith(mockSigningKey, mockUserId);
       expect(securityStateService.setAccountSecurityState).toHaveBeenCalledWith(
         mockSecurityState,
+        mockUserId,
+      );
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+        expect.objectContaining({
+          V2: {
+            private_key: mockPrivateKey,
+            signed_public_key: mockSignedPublicKey,
+            signing_key: mockSigningKey,
+            security_state: mockSecurityState,
+          },
+        }),
         mockUserId,
       );
 
