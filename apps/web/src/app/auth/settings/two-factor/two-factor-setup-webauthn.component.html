@@ -59,7 +59,9 @@
         type="button"
         [bitAction]="readKey"
         buttonType="secondary"
-        [disabled]="$any(readKeyBtn).loading() || webAuthnListening || !keyIdAvailable"
+        [disabled]="
+          $any(readKeyBtn).loading() || webAuthnListening || !keyIdAvailable || formGroup.invalid
+        "
         class="tw-mr-2"
         #readKeyBtn
       >

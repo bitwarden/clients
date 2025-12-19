@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject, NgZone } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -99,7 +99,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       toastService,
     );
     this.formGroup = new FormGroup({
-      name: new FormControl({ value: "", disabled: false }),
+      name: new FormControl({ value: "", disabled: false }, Validators.required),
     });
     this.auth(data);
   }
