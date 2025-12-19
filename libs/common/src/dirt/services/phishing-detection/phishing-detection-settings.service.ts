@@ -8,6 +8,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/user-core";
 
 import { PHISHING_DETECTION_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
@@ -32,6 +33,7 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
     private billingService: BillingAccountProfileStateService,
     private configService: ConfigService,
     private organizationService: OrganizationService,
+    private platformService: PlatformUtilsService,
     private stateProvider: StateProvider,
   ) {
     this.available$ = this.buildAvailablePipeline$().pipe(
@@ -60,6 +62,11 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
    * @returns An observable pipeline that determines if phishing detection is available
    */
   private buildAvailablePipeline$(): Observable<boolean> {
+    // Phishing detection is unavailable on Safari due to platform limitations.
+    if (this.platformService.isSafari()) {
+      return of(false);
+    }
+
     return combineLatest([
       this.accountService.activeAccount$,
       this.configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
