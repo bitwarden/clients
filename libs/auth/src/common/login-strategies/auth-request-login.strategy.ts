@@ -128,6 +128,12 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
       response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
       userId,
     );
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
   }
 
   exportCache(): CacheData {
