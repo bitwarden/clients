@@ -219,7 +219,7 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
 
         match self.handler.cancel_operation(request.into()) {
             Ok(()) => {
-                tracing::error!("CancelOperation completed successfully");
+                tracing::debug!("CancelOperation completed successfully");
                 S_OK
             }
             Err(err) => {
