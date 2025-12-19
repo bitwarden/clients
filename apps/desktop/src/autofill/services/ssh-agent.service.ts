@@ -58,7 +58,7 @@ export class SshAgentService implements OnDestroy {
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
     private accountService: AccountService,
-  ) { }
+  ) {}
 
   async init() {
     this.desktopSettingsService.sshAgentEnabled$
