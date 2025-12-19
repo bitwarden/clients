@@ -135,7 +135,7 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
                         tracing::error!(
                             "Failed to write MakeCredential response to Windows: {err}"
                         );
-                        return E_FAIL;
+                        E_FAIL
                     }
                 }
             }
@@ -193,7 +193,7 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
                     }
                     Err(err) => {
                         tracing::error!("Failed to write GetCredential response to Windows: {err}");
-                        return E_FAIL;
+                        E_FAIL
                     }
                 }
             }
@@ -375,12 +375,13 @@ impl ComBuffer {
         // SAFETY: Any size is valid to pass to Windows, even `0`.
         let ptr = NonNull::new(unsafe { CoTaskMemAlloc(size) }).unwrap_or_else(|| {
             // XXX: This doesn't have to be correct, just close enough for an OK OOM error.
-            let layout = alloc::Layout::from_size_align(size, align_of::<u8>()).unwrap();
+            let layout = alloc::Layout::from_size_align(size, align_of::<u8>())
+                .expect("size of u8 to always be aligned");
             alloc::handle_alloc_error(layout)
         });
 
         if for_slice {
-            // Ininitialize the buffer so it can later be treated as `&mut [u8]`.
+            // Initialize the buffer so it can later be treated as `&mut [u8]`.
             // SAFETY: The pointer is valid and we are using a valid value for a byte-wise
             // allocation.
             unsafe { ptr.write_bytes(0, size) };
@@ -412,18 +413,14 @@ impl ComBufferExt for &[u8] {
 
 impl ComBufferExt for Vec<u16> {
     fn to_com_buffer(&self) -> ComBuffer {
-        let buffer: Vec<u8> = self.into_iter().flat_map(|x| x.to_le_bytes()).collect();
+        let buffer: Vec<u8> = self.iter().flat_map(|x| x.to_le_bytes()).collect();
         ComBuffer::from(&buffer)
     }
 }
 
 impl ComBufferExt for &[u16] {
     fn to_com_buffer(&self) -> ComBuffer {
-        let buffer: Vec<u8> = self
-            .as_ref()
-            .into_iter()
-            .flat_map(|x| x.to_le_bytes())
-            .collect();
+        let buffer: Vec<u8> = self.as_ref().iter().flat_map(|x| x.to_le_bytes()).collect();
         ComBuffer::from(&buffer)
     }
 }
@@ -432,7 +429,7 @@ impl<T: AsRef<[u8]>> From<T> for ComBuffer {
     fn from(value: T) -> Self {
         let buffer: Vec<u8> = value
             .as_ref()
-            .into_iter()
+            .iter()
             .flat_map(|x| x.to_le_bytes())
             .collect();
         let len = buffer.len();
