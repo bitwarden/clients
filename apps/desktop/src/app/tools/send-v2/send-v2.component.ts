@@ -91,6 +91,10 @@ export class SendV2Component {
 
   protected readonly loading = toSignal(this.sendItemsService.loading$, { initialValue: true });
 
+  protected readonly currentSearchText = toSignal(this.sendItemsService.latestSearchText$, {
+    initialValue: "",
+  });
+
   protected readonly disableSend = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,

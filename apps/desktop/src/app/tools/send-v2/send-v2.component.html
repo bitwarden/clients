@@ -21,6 +21,7 @@
           [loading]="loading()"
           [disableSend]="disableSend()"
           [listState]="listState()"
+          [searchText]="currentSearchText()"
           (editSend)="onEditSend($event)"
           (copySend)="onCopySend($event)"
           (deleteSend)="onDeleteSend($event)"
@@ -29,7 +30,7 @@
           <tools-new-send-dropdown-v2
             slot="empty-button"
             [hideIcon]="true"
-            [buttonType]="'primary'"
+            buttonType="primary"
             (addSend)="addSend($event)"
           />
         </tools-send-list>

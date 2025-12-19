@@ -1,12 +1,14 @@
 <!-- Loading state -->
 @if (loading()) {
-  <bit-spinner [title]="'loading' | i18n"></bit-spinner>
+  <bit-spinner />
 } @else {
-  <!-- Search bar - always visible when not loading -->
-  <tools-send-search></tools-send-search>
+  @if (showSearchBar()) {
+    <!-- Search bar - show when results exist OR search is active -->
+    <tools-send-search></tools-send-search>
+  }
   @if (listState() === sendListState.Empty || listState() === sendListState.NoResults) {
     <!-- Empty state: No sends exist -->
-    <bit-no-items [icon]="noItemIcon" class="tw-text-main">
+    <bit-no-items [icon]="noItemIcon">
       <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
       <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
       <ng-content select="[slot='empty-button']" slot="button" />

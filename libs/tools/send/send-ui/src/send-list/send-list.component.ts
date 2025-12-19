@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, effect, inject, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+} from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
@@ -55,6 +63,13 @@ export class SendListComponent {
   readonly loading = input<boolean>(false);
   readonly disableSend = input<boolean>(false);
   readonly listState = input<SendListState | null>(null);
+  readonly searchText = input<string>("");
+
+  // Computed signal to determine search bar visibility
+  // Show search bar if: (1) there are results to display, OR (2) user is actively searching
+  protected readonly showSearchBar = computed(
+    () => this.sends().length > 0 || this.searchText().length > 0,
+  );
 
   // Reusable data source instance - updated reactively when sends change
   protected readonly dataSource = new TableDataSource<SendView>();
