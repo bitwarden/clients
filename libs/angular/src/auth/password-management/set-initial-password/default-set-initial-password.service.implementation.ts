@@ -19,6 +19,7 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -62,6 +63,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       orgSsoIdentifier,
       orgId,
       resetPasswordAutoEnroll,
+      newPassword,
+      salt,
     } = credentials;
 
     for (const [key, value] of Object.entries(credentials)) {
@@ -155,6 +158,20 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
     );
 
+    // Set master password unlock data for unlock path pointed to with
+    // MasterPasswordUnlockData feature development
+    // (requires: password, salt, kdf, userKey).
+    // As migration to this strategy continues, both unlock paths need supported.
+    // Several invocations in this file become redundant and can be removed once
+    // the feature is enshrined/unwound. These are marked with [PM-23246] below.
+    await this.setMasterPasswordUnlockData(
+      newPassword,
+      salt,
+      kdfConfig,
+      masterKeyEncryptedUserKey[0],
+      userId,
+    );
+
     /**
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
      * (Existing TDE users will have their private key set on sync or on login.)
@@ -174,6 +191,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       );
     }
 
+    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
     await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
@@ -216,8 +234,38 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userDecryptionOpts,
     );
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
+    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
     await this.masterPasswordService.setMasterKey(masterKey, userId);
+    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
+    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
+      masterKeyEncryptedUserKey[1],
+      userId,
+    );
     await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
+  }
+
+  /**
+   * As part of [PM-28494], adding this setting path to accommodate the changes that are
+   * emerging with pm-23246-unlock-with-master-password-unlock-data.
+   * Without this, immediately locking/unlocking the vault with the new password _may_ still fail
+   * if sync has not completed. Sync will eventually set this data, but we want to ensure it's
+   * set right away here to prevent a race condition UX issue that prevents immediate unlock.
+   */
+  private async setMasterPasswordUnlockData(
+    password: string,
+    salt: MasterPasswordSalt,
+    kdfConfig: KdfConfig,
+    userKey: UserKey,
+    userId: UserId,
+  ): Promise<void> {
+    const masterPasswordUnlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
+      password,
+      kdfConfig,
+      salt,
+      userKey,
+    );
+
+    await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
   }
 
   private async handleResetPasswordAutoEnroll(

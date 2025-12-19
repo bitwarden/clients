@@ -1,3 +1,4 @@
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
@@ -50,6 +51,8 @@ export interface SetInitialPasswordCredentials {
   orgSsoIdentifier: string;
   orgId: string;
   resetPasswordAutoEnroll: boolean;
+  newPassword: string;
+  salt: MasterPasswordSalt;
 }
 
 export interface SetInitialPasswordTdeOffboardingCredentials {
