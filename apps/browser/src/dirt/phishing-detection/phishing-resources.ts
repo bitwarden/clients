@@ -1,8 +1,10 @@
 export type PhishingResource = {
+  name?: string;
   remoteUrl: string;
   checksumUrl: string;
   todayUrl: string;
-  name?: string;
+  /** Matcher used to decide whether a given URL matches an entry from this resource */
+  match: (url: URL, entry: string) => boolean;
 };
 
 export const PhishingResourceType = Object.freeze({
@@ -22,6 +24,23 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5",
       todayUrl:
         "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-domains-NEW-today.txt",
+      match: (url: URL, entry: string) => {
+        if (!entry) {
+          return false;
+        }
+        const candidate = entry.trim().toLowerCase().replace(/\/$/, "");
+        // If entry contains a scheme, strip it for comparison
+        const e = candidate.replace(/^https?:\/\//, "");
+        // Compare against hostname or host+path
+        if (e === url.hostname.toLowerCase()) {
+          return true;
+        }
+        const urlNoProto = url.href
+          .toLowerCase()
+          .replace(/https?:\/\//, "")
+          .replace(/\/$/, "");
+        return urlNoProto === e || urlNoProto.startsWith(e + "/");
+      },
     },
   ],
   [PhishingResourceType.Links]: [
@@ -33,6 +52,50 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-links-ACTIVE.txt.md5",
       todayUrl:
         "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-links-NEW-today.txt",
+      match: (url: URL, entry: string) => {
+        if (!entry) {
+          return false;
+        }
+        // Basic HTML entity decode for common cases (the lists sometimes contain &amp;)
+        const decodeHtml = (s: string) => s.replace(/&amp;/g, "&");
+
+        const normalizedEntry = decodeHtml(entry.trim()).toLowerCase().replace(/\/$/, "");
+
+        // Normalize URL for comparison
+        const normalizedUrl = decodeHtml(url.href).toLowerCase().replace(/\/$/, "");
+        const urlNoProto = normalizedUrl.replace(/^https?:\/\//, "");
+
+        // If entry includes a scheme, compare full URL (exact or prefix)
+        if (normalizedEntry.startsWith("http://") || normalizedEntry.startsWith("https://")) {
+          if (normalizedEntry === normalizedUrl) {
+            return true;
+          }
+          if (
+            normalizedUrl.startsWith(normalizedEntry + "/") ||
+            normalizedUrl.startsWith(normalizedEntry + "?") ||
+            normalizedUrl.startsWith(normalizedEntry + "#")
+          ) {
+            return true;
+          }
+        } else {
+          // Entry without scheme: could be hostname or host+path
+          if (normalizedEntry === url.hostname.toLowerCase()) {
+            return true;
+          }
+          if (urlNoProto === normalizedEntry) {
+            return true;
+          }
+          if (
+            urlNoProto.startsWith(normalizedEntry + "/") ||
+            urlNoProto.startsWith(normalizedEntry + "?") ||
+            urlNoProto.startsWith(normalizedEntry + "#")
+          ) {
+            return true;
+          }
+        }
+
+        return false;
+      },
     },
   ],
 };

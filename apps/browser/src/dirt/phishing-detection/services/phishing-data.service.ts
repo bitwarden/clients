@@ -127,12 +127,21 @@ export class PhishingDataService {
    * @returns True if the URL is a known phishing web address, false otherwise
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
-    const webAddresses = await firstValueFrom(this._webAddresses$);
-    const result = webAddresses.has(url.hostname);
-    if (result) {
-      return true;
+    // Use domain (hostname) matching for domain resources, and link matching for links resources
+    const entries = await firstValueFrom(this._webAddresses$);
+
+    const resource = getPhishingResources(this.resourceType);
+    if (resource && resource.match) {
+      for (const entry of entries) {
+        if (resource.match(url, entry)) {
+          return true;
+        }
+      }
+      return false;
     }
-    return false;
+
+    // Default/domain behavior: exact hostname match as a fallback
+    return entries.has(url.hostname);
   }
 
   async getNextWebAddresses(prev: PhishingData | null): Promise<PhishingData | null> {
