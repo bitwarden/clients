@@ -9,12 +9,19 @@ module.exports = (webpackConfig, context) => {
     return buildConfig({
       configName: "Commercial",
       renderer: {
-        entry: "",
-        entryModule: "",
-        tsConfig: "",
+        entry: path.resolve(__dirname, "src/app/main.ts"),
+        entryModule: "src/app/app.module#AppModule",
+        tsConfig: path.resolve(
+          context.context.root,
+          "bitwarden_license/bit-desktop/tsconfig.renderer.json",
+        ),
       },
       main: {
         entry: path.resolve(__dirname, "src/entry.ts"),
+        tsConfig: path.resolve(context.context.root, "bitwarden_license/bit-desktop/tsconfig.json"),
+      },
+      preload: {
+        entry: path.resolve(__dirname, "src/preload.ts"),
         tsConfig: path.resolve(context.context.root, "bitwarden_license/bit-desktop/tsconfig.json"),
       },
       outputPath: path.resolve(context.context.root, context.options.outputPath),
