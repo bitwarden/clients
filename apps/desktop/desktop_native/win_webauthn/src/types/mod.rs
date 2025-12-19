@@ -724,7 +724,7 @@ mod tests {
         let aaguid = Uuid::try_from(AAGUID).unwrap();
         let authenticator_info = AuthenticatorInfo {
             versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
-            aaguid: aaguid,
+            aaguid,
             options: Some(HashSet::from([
                 "rk".to_string(),
                 "up".to_string(),
@@ -778,9 +778,6 @@ mod tests {
         } else {
             panic!("CBOR should decode to a map");
         }
-
-        // Print the generated CBOR for verification
-        println!("Generated CBOR hex: {}", hex::encode(&cbor_bytes));
     }
 
     #[test]

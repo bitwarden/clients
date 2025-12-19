@@ -547,8 +547,16 @@ impl PluginMakeCredentialRequest {
                 err,
             )
         })?;
-
+        // SAFETY: Initialized by successful call to webauthn_decode_make_credential()
         let registration_request = registration_request.assume_init();
+
+        if request.hWnd.is_invalid() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Invalid handle received",
+            ));
+        }
+
         Ok(Self {
             inner: registration_request as *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
             window_handle: request.hWnd,
@@ -989,6 +997,14 @@ impl PluginGetAssertionRequest {
                 err,
             )
         })?;
+
+        if request.hWnd.is_invalid() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Invalid handle received",
+            ));
+        }
+
         Ok(Self {
             // SAFETY: Windows should return a valid decoded assertion request struct.
             inner: assertion_request as *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
