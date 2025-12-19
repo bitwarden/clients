@@ -66,7 +66,6 @@ export class SendListComponent {
   readonly searchText = input<string>("");
 
   // Computed signal to determine search bar visibility
-  // Show search bar if: (1) there are results to display, OR (2) user is actively searching
   protected readonly showSearchBar = computed(
     () => this.sends().length > 0 || this.searchText().length > 0,
   );

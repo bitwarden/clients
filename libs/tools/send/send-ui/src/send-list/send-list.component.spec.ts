@@ -21,7 +21,6 @@ describe("SendListComponent", () => {
     // Mock SendItemsService for SendSearchComponent child component
     sendItemsService = mock<SendItemsService>();
     sendItemsService.latestSearchText$ = of("");
-    sendItemsService.applyFilter = jest.fn();
 
     await TestBed.configureTestingModule({
       imports: [SendListComponent],
