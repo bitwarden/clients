@@ -1,5 +1,8 @@
 #![allow(non_snake_case)]
-use std::{mem::MaybeUninit, ptr::NonNull};
+use std::{
+    mem::{self, MaybeUninit},
+    ptr::NonNull,
+};
 
 use windows::{
     core::{GUID, HRESULT, PCWSTR},
@@ -169,20 +172,25 @@ pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> 
         // support platforms where usize is at least 32-bits.
         let len_size: usize = u32::from_ne_bytes(len_size_buf) as usize;
         tracing::debug!("  Length of hash buffer object: {len_size}");
-        let mut hash_obj_buf = Vec::with_capacity(len_size);
-        hash_obj_buf.set_len(len_size);
-
-        tracing::debug!("Creating hash algorithm handle with buffer object");
-        // Get SHA256 handle
+        let mut hash_obj_buf: Vec<MaybeUninit<u8>> = Vec::with_capacity(len_size);
         let mut hash_handle = MaybeUninit::uninit();
-        BCryptCreateHash(
-            BCRYPT_SHA256_ALG_HANDLE,
-            hash_handle.as_mut_ptr(),
-            Some(hash_obj_buf.as_mut_slice()),
-            None,
-            0,
-        )
-        .ok()?;
+        {
+            tracing::debug!("Creating hash algorithm handle with buffer object");
+            let hash_obj_slice: &mut [u8] = mem::transmute(hash_obj_buf.spare_capacity_mut());
+            // Get SHA256 handle
+            BCryptCreateHash(
+                BCRYPT_SHA256_ALG_HANDLE,
+                hash_handle.as_mut_ptr(),
+                Some(hash_obj_slice),
+                None,
+                0,
+            )
+            .ok()?;
+        }
+        // SAFETY: BCryptCreateHash initializes the hash_handle and hash_obj_buf.
+        hash_obj_buf.set_len(len_size);
+        // This memory must be preserved until the hash_handle is dropped.
+        let _hash_obj_buf: Vec<u8> = mem::transmute(hash_obj_buf);
         let hash_handle = hash_handle.assume_init();
 
         tracing::debug!("Hashing data");
@@ -206,9 +214,14 @@ pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> 
         tracing::debug!("  Length of hash output: {hash_output_len}");
 
         tracing::debug!("Completing hash");
-        let mut hash_buffer = Vec::with_capacity(hash_output_len);
+        let mut hash_buffer: Vec<MaybeUninit<u8>> = Vec::with_capacity(hash_output_len);
+        {
+            let hash_slice: &mut [u8] = mem::transmute(hash_buffer.spare_capacity_mut());
+            BCryptFinishHash(hash_handle, hash_slice, 0).ok()?;
+        }
+        // SAFETY: BCryptFinishHash initializes the buffer
         hash_buffer.set_len(hash_output_len);
-        BCryptFinishHash(hash_handle, hash_buffer.as_mut_slice(), 0).ok()?;
+        let hash_buffer: Vec<u8> = mem::transmute(hash_buffer);
         tracing::debug!(" Hash: {hash_buffer:?}");
         Ok(hash_buffer)
     }
