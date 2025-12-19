@@ -31,10 +31,10 @@ export class Fido2CipherRowComponent {
   @Output() onSelected = new EventEmitter<CipherView>();
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() cipher: CipherView;
+  @Input({ required: true }) cipher!: CipherView;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() title: string;
+  @Input({ required: true }) title!: string;
 
   protected selectCipher(c: CipherView) {
     this.onSelected.emit(c);
