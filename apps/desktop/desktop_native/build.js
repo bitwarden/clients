@@ -113,8 +113,8 @@ if (process.platform === "linux") {
 
 platformTargets.forEach(([target, _]) => {
     installTarget(target);
-    buildNapiModule(target);
-    buildProxyBin(target);
-    buildImporterBinaries(target);
+    buildNapiModule(target, mode === "release");
+    buildProxyBin(target, mode === "release");
+    buildImporterBinaries(target, mode === "release");
     buildProcessIsolation();
 });
