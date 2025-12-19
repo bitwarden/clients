@@ -1322,11 +1322,21 @@
   "exportFrom": {
     "message": "Exportera från"
   },
-  "export": {
-    "message": "Exportera"
+  "exportVerb": {
+    "message": "Exportera",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importera"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importera",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Filformat"
@@ -4802,13 +4812,13 @@
     "message": "Kontosäkerhet"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Nätfiskeblockerare"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Nätfiskedetektering"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Visa varning innan du öppnar misstänkta nätfiskeplatser"
   },
   "notifications": {
     "message": "Aviseringar"
