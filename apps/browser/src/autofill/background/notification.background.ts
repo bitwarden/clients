@@ -538,7 +538,6 @@ export default class NotificationBackground {
     return true;
   }
 
-  // @TODO we should probably roll this into `triggerChangedPasswordNotification` and handle the prequalified scenarios for locked vaults there; we're likely going to have to call new logic notifications from `triggerChangedPasswordNotification` anyway
   /**
    * Adds a login message to the notification queue, prompting the user to save
    * the login if it does not already exist in the vault. If the cipher exists
@@ -622,19 +621,22 @@ export default class NotificationBackground {
   }
 
   /**
-   * Receives filled form values (which have prequalified a potential cipher update).
+   * Receives filled form values and determines if a notification should be
+   * triggered, and if so, what kind and with what data.
+   *
    * If an update scenario is identified, a change password message is added to the
    * notification queue, prompting the user to update a stored login that has changed.
-   * Returns `true` or `false` to indicate if such an update notification was
+   *
+   * A new cipher notification is triggered in other defined scenarios
+   * with the user's form input.
+   *
+   * Returns `true` or `false` to indicate if such a notification was
    * triggered or not.
    *
-   * For the purposes of this function, form field inputs should be assumed to be qualified accurately.
-   *
-   * @param message - The message to add to the queue
-   * @param sender - The contextual sender of the message
+   * For the purposes of this function, form field inputs should be assumed to be
+   * qualified accurately.
    */
-  // @TODO Merge to triggerLoginCipherNotification
-  async triggerChangedPasswordNotification(
+  async triggerCipherNotification(
     data: ModifyLoginCipherFormData,
     tab: chrome.tabs.Tab,
   ): Promise<boolean> {
@@ -840,7 +842,120 @@ export default class NotificationBackground {
     return false;
   }
 
-  // Order of conditionals matters, here; later evaluations depend on the early exits of preceding logic
+  /**
+   * Adds a change password message to the notification queue, prompting the user
+   * to update the password for a login that has changed.
+   *
+   * @param message - The message to add to the queue
+   * @param sender - The contextual sender of the message
+   */
+  async triggerChangedPasswordNotification(
+    data: ModifyLoginCipherFormData,
+    tab: chrome.tabs.Tab,
+  ): Promise<boolean> {
+    const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
+    if (!changePasswordIsEnabled) {
+      return false;
+    }
+    const authStatus = await this.getAuthStatus();
+    if (authStatus === AuthenticationStatus.LoggedOut) {
+      return false;
+    }
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId === null) {
+      return false;
+    }
+    const loginDomain = Utils.getDomain(data.uri);
+    if (loginDomain === null) {
+      return false;
+    }
+
+    const username: string | null = data.username || null;
+    const currentPasswordFieldValue = data.password || null;
+    const newPasswordFieldValue = data.newPassword || null;
+
+    if (authStatus === AuthenticationStatus.Locked && newPasswordFieldValue !== null) {
+      await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
+      return true;
+    }
+
+    let ciphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      data.uri,
+      activeUserId,
+    );
+
+    const normalizedUsername: string = username ? username.toLowerCase() : "";
+
+    const shouldMatchUsername = typeof username === "string" && username.length > 0;
+
+    if (shouldMatchUsername) {
+      // Presence of a username should filter ciphers further.
+      ciphers = ciphers.filter(
+        (cipher) =>
+          cipher.login.username !== null &&
+          cipher.login.username.toLowerCase() === normalizedUsername,
+      );
+    }
+
+    if (ciphers.length === 1) {
+      const [cipher] = ciphers;
+      if (
+        username !== null &&
+        newPasswordFieldValue === null &&
+        cipher.login.username.toLowerCase() === normalizedUsername &&
+        cipher.login.password === currentPasswordFieldValue
+      ) {
+        // Assumed to be a login
+        return false;
+      }
+    }
+
+    if (
+      ciphers.length > 0 &&
+      currentPasswordFieldValue?.length &&
+      // Only use current password for change if no new password present.
+      !newPasswordFieldValue
+    ) {
+      const currentPasswordMatchesAnExistingValue = ciphers.some(
+        (cipher) =>
+          cipher.login?.password?.length && cipher.login.password === currentPasswordFieldValue,
+      );
+
+      // The password entered matched a stored cipher value with
+      // the same username (no change)
+      if (currentPasswordMatchesAnExistingValue) {
+        return false;
+      }
+
+      await this.pushChangePasswordToQueue(
+        ciphers.map((cipher) => cipher.id),
+        loginDomain,
+        currentPasswordFieldValue,
+        tab,
+      );
+
+      return true;
+    }
+
+    if (newPasswordFieldValue) {
+      // Otherwise include all known ciphers.
+      if (ciphers.length > 0) {
+        await this.pushChangePasswordToQueue(
+          ciphers.map((cipher) => cipher.id),
+          loginDomain,
+          newPasswordFieldValue,
+          tab,
+        );
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   private async handleInputMatchScenario({
     inputScenario,
     ciphersByInputMatchCategory,
@@ -868,10 +983,12 @@ export default class NotificationBackground {
       usernameOnlyMatches,
       usernamePasswordMatches,
     } = ciphersByInputMatchCategory;
+    // IMPORTANT! The order of statements matters here; later evaluations
+    // depend on the assumptions of the early exits in preceding logic
 
     // If no ciphers match any filled input values
-    // Note, this block may uniquely exit early since this match scenario
-    // involves all ciphers, making it mutually exclusive from any other scenario
+    // (Note, this block may uniquely exit early since this match scenario
+    // involves all ciphers, making it mutually exclusive from any other scenario)
     if (noFieldMatches.length === ciphersForURL.length) {
       // trigger a new cipher notification in these input scenarios
       if (
