@@ -1,6 +1,7 @@
 {
   "name": "@bitwarden/clients",
   "version": "0.0.0",
+  "packageManager": "pnpm@10.26.0",
   "description": "Bitwarden Client Applications",
   "repository": {
     "type": "git",
