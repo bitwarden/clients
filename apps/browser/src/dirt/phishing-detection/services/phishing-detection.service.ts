@@ -95,7 +95,7 @@ export class PhishingDetectionService {
           this._ignoredHostnames.delete(url.hostname);
           return;
         }
-        const isPhishing = await phishingDataService.isPhishingDomain(url);
+        const isPhishing = await phishingDataService.isPhishingWebAddress(url);
         if (!isPhishing) {
           return;
         }
