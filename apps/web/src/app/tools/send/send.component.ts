@@ -3,7 +3,7 @@
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, Observable, combineLatest } from "rxjs";
+import { lastValueFrom, Observable, switchMap, EMPTY } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { NoSendsIcon } from "@bitwarden/assets/svg";
@@ -120,25 +120,27 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
 
     this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
 
-    combineLatest([this.SendUIRefresh$, this.route.queryParamMap])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([sendUiRefreshEnabled, params]) => {
-        if (!sendUiRefreshEnabled) {
-          return;
+    this.SendUIRefresh$.pipe(
+      switchMap((sendUiRefreshEnabled) => {
+        if (sendUiRefreshEnabled) {
+          return this.route.queryParamMap;
         }
+        return EMPTY;
+      }),
+      takeUntilDestroyed(),
+    ).subscribe((params) => {
+      const typeParam = params.get("type");
+      const value = (
+        typeParam === SendFilterType.Text || typeParam === SendFilterType.File
+          ? typeParam
+          : SendFilterType.All
+      ) as SendFilterType;
+      this.selectedToggleValue = value;
 
-        const typeParam = params.get("type");
-        const value = (
-          typeParam === SendFilterType.Text || typeParam === SendFilterType.File
-            ? typeParam
-            : SendFilterType.All
-        ) as SendFilterType;
-        this.selectedToggleValue = value;
-
-        if (this.loaded) {
-          this.applyTypeFilter(value);
-        }
-      });
+      if (this.loaded) {
+        this.applyTypeFilter(value);
+      }
+    });
   }
 
   async ngOnInit() {
