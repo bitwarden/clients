@@ -9,11 +9,11 @@ use windows::{
     Win32::{
         Foundation::E_INVALIDARG,
         Security::Cryptography::{
-            BCryptCreateHash, BCryptFinishHash, BCryptGetProperty, BCryptHashData, NCryptImportKey,
-            NCryptOpenStorageProvider, NCryptVerifySignature, BCRYPT_HASH_LENGTH, BCRYPT_KEY_BLOB,
-            BCRYPT_OBJECT_LENGTH, BCRYPT_PKCS1_PADDING_INFO, BCRYPT_PUBLIC_KEY_BLOB,
-            BCRYPT_RSAPUBLIC_MAGIC, BCRYPT_SHA256_ALGORITHM, BCRYPT_SHA256_ALG_HANDLE,
-            NCRYPT_FLAGS, NCRYPT_PAD_PKCS1_FLAG,
+            BCryptCreateHash, BCryptDestroyHash, BCryptFinishHash, BCryptGetProperty,
+            BCryptHashData, NCryptImportKey, NCryptOpenStorageProvider, NCryptVerifySignature,
+            BCRYPT_HASH_HANDLE, BCRYPT_HASH_LENGTH, BCRYPT_KEY_BLOB, BCRYPT_OBJECT_LENGTH,
+            BCRYPT_PKCS1_PADDING_INFO, BCRYPT_PUBLIC_KEY_BLOB, BCRYPT_RSAPUBLIC_MAGIC,
+            BCRYPT_SHA256_ALGORITHM, BCRYPT_SHA256_ALG_HANDLE, NCRYPT_FLAGS, NCRYPT_PAD_PKCS1_FLAG,
         },
     },
 };
@@ -156,46 +156,9 @@ fn verify_signature(
 
 pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> {
     unsafe {
-        tracing::debug!("Getting length of hash buffer object");
-        // Get length of SHA-256 buffer
-        let mut len_size_buf = [0; size_of::<u32>()];
-        let mut bytes_read = 0;
-        BCryptGetProperty(
-            BCRYPT_SHA256_ALG_HANDLE.into(),
-            BCRYPT_OBJECT_LENGTH,
-            Some(&mut len_size_buf),
-            &mut bytes_read,
-            0,
-        )
-        .ok()?;
-        // SAFETY: We explicitly set the size of the buffer to u32, and we only
-        // support platforms where usize is at least 32-bits.
-        let len_size: usize = u32::from_ne_bytes(len_size_buf) as usize;
-        tracing::debug!("  Length of hash buffer object: {len_size}");
-        let mut hash_obj_buf: Vec<MaybeUninit<u8>> = Vec::with_capacity(len_size);
-        let mut hash_handle = MaybeUninit::uninit();
-        {
-            tracing::debug!("Creating hash algorithm handle with buffer object");
-            let hash_obj_slice: &mut [u8] = mem::transmute(hash_obj_buf.spare_capacity_mut());
-            // Get SHA256 handle
-            BCryptCreateHash(
-                BCRYPT_SHA256_ALG_HANDLE,
-                hash_handle.as_mut_ptr(),
-                Some(hash_obj_slice),
-                None,
-                0,
-            )
-            .ok()?;
-        }
-        // SAFETY: BCryptCreateHash initializes the hash_handle and hash_obj_buf.
-        hash_obj_buf.set_len(len_size);
-        // This memory must be preserved until the hash_handle is dropped.
-        let _hash_obj_buf: Vec<u8> = mem::transmute(hash_obj_buf);
-        let hash_handle = hash_handle.assume_init();
-
-        tracing::debug!("Hashing data");
         // Hash data
-        BCryptHashData(hash_handle, data, 0).ok()?;
+        let sha256 = BcryptHash::sha256()?;
+        BCryptHashData(sha256.handle, data, 0).ok()?;
 
         // Get length of SHA256 hash output
         tracing::debug!("Getting length of hash output");
@@ -217,13 +180,75 @@ pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> 
         let mut hash_buffer: Vec<MaybeUninit<u8>> = Vec::with_capacity(hash_output_len);
         {
             let hash_slice: &mut [u8] = mem::transmute(hash_buffer.spare_capacity_mut());
-            BCryptFinishHash(hash_handle, hash_slice, 0).ok()?;
+            BCryptFinishHash(sha256.handle, hash_slice, 0).ok()?;
         }
         // SAFETY: BCryptFinishHash initializes the buffer
         hash_buffer.set_len(hash_output_len);
         let hash_buffer: Vec<u8> = mem::transmute(hash_buffer);
         tracing::debug!(" Hash: {hash_buffer:?}");
         Ok(hash_buffer)
+    }
+}
+
+struct BcryptHash {
+    handle: BCRYPT_HASH_HANDLE,
+}
+
+impl BcryptHash {
+    fn sha256() -> Result<Self, windows::core::Error> {
+        unsafe {
+            tracing::debug!("Getting length of hash object");
+            // Get length of SHA-256 hash object buffer
+            let mut len_size_buf = [0; size_of::<u32>()];
+            let mut bytes_read = 0;
+            BCryptGetProperty(
+                BCRYPT_SHA256_ALG_HANDLE.into(),
+                BCRYPT_OBJECT_LENGTH,
+                Some(&mut len_size_buf),
+                &mut bytes_read,
+                0,
+            )
+            .ok()?;
+            // SAFETY: We explicitly set the size of the buffer to u32, and we only
+            // support platforms where usize is at least 32-bits.
+            let len_size: usize = u32::from_ne_bytes(len_size_buf) as usize;
+            tracing::debug!("  Length of hash buffer object: {len_size}");
+            let mut hash_obj_buf: Vec<MaybeUninit<u8>> = Vec::with_capacity(len_size);
+            let mut hash_handle = MaybeUninit::uninit();
+            {
+                tracing::debug!("Creating hash algorithm handle with buffer object");
+                let hash_slice: &mut [u8] = mem::transmute(hash_obj_buf.spare_capacity_mut());
+                // Get SHA256 handle
+                BCryptCreateHash(
+                    BCRYPT_SHA256_ALG_HANDLE,
+                    hash_handle.as_mut_ptr(),
+                    Some(hash_slice),
+                    None,
+                    0,
+                )
+                .ok()?;
+            }
+            // SAFETY: BCryptCreateHash initializes hash_handle and hash_obj_buf.
+            // This memory must be preserved until hash_handle is dropped, but will be cleaned up on
+            // call BCryptDestroyHash.
+            mem::forget(hash_obj_buf);
+            let hash_handle = hash_handle.assume_init();
+            Ok(Self {
+                handle: hash_handle,
+            })
+        }
+    }
+}
+
+impl Drop for BcryptHash {
+    fn drop(&mut self) {
+        if !self.handle.is_invalid() {
+            unsafe {
+                if let Err(err) = BCryptDestroyHash(self.handle).to_hresult().ok() {
+                    tracing::error!("Failed to clean up hash object: {err}");
+                }
+            }
+        }
     }
 }
 
