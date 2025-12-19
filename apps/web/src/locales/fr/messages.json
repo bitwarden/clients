@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "Les clés de chiffrement du compte sont spécifiques à chaque utilisateur Bitwarden. Vous ne pouvez donc pas importer d'export chiffré dans un compte différent."
   },
-  "export": {
-    "message": "Exporter"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exporter",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Exporter à partir de"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "Outils"
   },
-  "import": {
-    "message": "Importer"
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importer",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Importer des données"
@@ -3283,6 +3293,9 @@
   "launchCloudSubscription": {
     "message": "Démarrer l'Abonnement Cloud"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Démarrer l'Abonnement Cloud"
+  },
   "storage": {
     "message": "Stockage"
   },
@@ -4197,6 +4210,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Transfert accepté à la propriété de l'organisation."
+  },
+  "userDeclinedTransfer": {
+    "message": "Révoqué pour le refus du transfert vers la propriété de l'organisation."
   },
   "invitedUserId": {
     "message": "Utilisateur $ID$ invité.",
@@ -12412,5 +12431,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Pourquoi est-ce que je vois ça ?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Vous avez Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Afficher et gérer votre abonnement Premium"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Vous devrez mettre à jour votre fichier de licence"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Téléverser le fichier de licence"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Téléverser votre fichier de licence"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Téléversez votre fichier de licence Premium"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Votre nom de fichier de licence sera similaire à : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Vous avez déjà un abonnement ?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Ouvrez la page d'abonnement sur votre compte cloud Bitwarden et téléchargez votre fichier de licence. Puis revenez à cet écran et téléversez-le ci-dessous."
+  },
+  "viewAllPlans": {
+    "message": "Afficher tous les forfaits"
+  },
+  "planDescPremium": {
+    "message": "Sécurité en ligne complète"
   }
 }

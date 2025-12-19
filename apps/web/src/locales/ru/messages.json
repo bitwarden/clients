@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "Ключи шифрования уникальны для каждой учетной записи Bitwarden, поэтому нельзя импортировать зашифрованное хранилище в другой аккаунт."
   },
-  "export": {
-    "message": "Экспорт"
+  "exportNoun": {
+    "message": "Экспорт",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Экспортировать",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Экспорт из"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "Инструменты"
   },
-  "import": {
-    "message": "Импорт"
+  "importNoun": {
+    "message": "Импорт",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Импортировать",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Импорт данных"
@@ -3283,6 +3293,9 @@
   "launchCloudSubscription": {
     "message": "Запустить облачную подписку"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Запустить облачную подписку"
+  },
   "storage": {
     "message": "Хранилище"
   },
@@ -4197,6 +4210,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Принятая передача в собственность организации."
+  },
+  "userDeclinedTransfer": {
+    "message": "Отозван в связи с отказом в передаче в собственность организации."
   },
   "invitedUserId": {
     "message": "Приглашен пользователь $ID$.",
@@ -12412,5 +12431,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Почему я это вижу?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "У вас Bitwarden Премиум"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Просматривайте свою премиум-подписку и управляйте ею"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Вам нужно будет обновить свой файл лицензии"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Загрузить файл лицензии"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Загрузите ваш файл лицензии"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Загрузите ваш файл лицензии Премиум"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Название вашего файла лицензии будет похоже на $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Уже есть подписка?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Откройте страницу подписки в своем аккаунте Bitwarden cloud и скачайте файл лицензии. Затем вернитесь на этот экран и загрузите его ниже."
+  },
+  "viewAllPlans": {
+    "message": "Посмотреть все планы"
+  },
+  "planDescPremium": {
+    "message": "Полная онлайн-защищенность"
   }
 }

@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "Ключовете за шифриране са уникални за всеки потребител, затова не може да внесете шифрирани данни от един потребител в регистрацията на друг."
   },
-  "export": {
-    "message": "Изнасяне"
+  "exportNoun": {
+    "message": "Изнасяне",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Изнасяне",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Изнасяне от"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "Инструменти"
   },
-  "import": {
-    "message": "Внасяне"
+  "importNoun": {
+    "message": "Внасяне",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Внасяне",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Внасяне на данни"
@@ -3283,6 +3293,9 @@
   "launchCloudSubscription": {
     "message": "Launch Cloud Subscription"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Стартиране на облачния абонамент"
+  },
   "storage": {
     "message": "Съхранение на данни"
   },
@@ -4197,6 +4210,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Прието прехвърляне на собствеността към организацията."
+  },
+  "userDeclinedTransfer": {
+    "message": "Премахнато, поради отказ от прехвърляне на собствеността към организацията."
   },
   "invitedUserId": {
     "message": "Потребител № $ID$ е поканен.",
@@ -12412,5 +12431,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Защо виждам това?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Вие имате платен абонамент за Битуорден"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Прегледайте и управлявайте своя платен абонамент"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Ще трябва да обновите лицензния си файл"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Качване на лицензен файл"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Качете своя лицензен файл"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Качете своя лицензен файл за платения абонамент"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Името на Вашия лицензен файл ще бъде подобно на: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Имате ли вече абонамент?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Отворете страницата за абонаменти в облачния си акаунт за Битуорден и свалете лицензния си файл. След това се върнете на този екран и го качете по-долу."
+  },
+  "viewAllPlans": {
+    "message": "Преглед на всички планове"
+  },
+  "planDescPremium": {
+    "message": "Пълна сигурност в Интернет"
   }
 }
