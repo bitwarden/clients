@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 
+import { LandingCardComponent } from "./landing-card.component";
 import { LandingContentComponent } from "./landing-content.component";
 import { LandingFooterComponent } from "./landing-footer.component";
 import { LandingHeaderComponent } from "./landing-header.component";
@@ -15,6 +16,7 @@ import { LandingMaxWidthContainerComponent } from "./landing-max-width-container
     LandingFooterComponent,
     LandingContentComponent,
     LandingMaxWidthContainerComponent,
+    LandingCardComponent,
   ],
   exports: [
     LandingLayoutComponent,
@@ -23,6 +25,7 @@ import { LandingMaxWidthContainerComponent } from "./landing-max-width-container
     LandingFooterComponent,
     LandingContentComponent,
     LandingMaxWidthContainerComponent,
+    LandingCardComponent,
   ],
 })
 export class LandingLayoutModule {}

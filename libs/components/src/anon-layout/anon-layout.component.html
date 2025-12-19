@@ -22,9 +22,9 @@
             <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
           </div>
         } @else {
-          <bit-card>
+          <bit-landing-card>
             <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
-          </bit-card>
+          </bit-landing-card>
         }
         <ng-content select="[slot=secondary]"></ng-content>
       </bit-landing-content>
