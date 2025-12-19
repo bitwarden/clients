@@ -11,16 +11,17 @@
     "output": "dist",
     "app": "build"
   },
+  "npmRebuild": false,
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
-  "asarUnpack": ["**/*.node"],
-  "files": [
-    "**/*",
-    "!**/node_modules/.pnpm/**/*",
-    "!**/node_modules/@bitwarden/desktop-napi/**/*",
-    "**/node_modules/@bitwarden/desktop-napi/index.js",
-    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node",
-    "!**/node_modules/@nx/**/*"
+  "asarUnpack": ["node_modules/@bitwarden/desktop-napi/*.node"],
+  "files": ["**/*", "!**/node_modules/!(@bitwarden)/**"],
+  "extraResources": [
+    {
+      "from": "desktop_native/napi",
+      "to": "node_modules/@bitwarden/desktop-napi",
+      "filter": ["package.json", "index.js", "index.d.ts", "*.node"]
+    }
   ],
   "electronVersion": "37.7.0",
   "generateUpdatesFilesForAllChannels": true,

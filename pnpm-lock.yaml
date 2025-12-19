@@ -609,7 +609,23 @@ importers:
         specifier: 4.4.2
         version: 4.4.2
 
-  apps/desktop: {}
+  apps/desktop:
+    devDependencies:
+      '@electron/notarize':
+        specifier: 3.0.1
+        version: 3.0.1
+      concurrently:
+        specifier: 9.2.0
+        version: 9.2.0
+      dotenv:
+        specifier: 16.6.1
+        version: 16.6.1
+      fs-extra:
+        specifier: 11.3.0
+        version: 11.3.0
+      rimraf:
+        specifier: 6.1.2
+        version: 6.1.2
 
   apps/desktop/desktop_native/napi:
     devDependencies:
@@ -6982,6 +6998,10 @@ packages:
   fs-extra@10.1.0:
     resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
     engines: {node: '>=12'}
+
+  fs-extra@11.3.0:
+    resolution: {integrity: sha512-Z4XaCL6dUDHfP/jT25jJKMmtxvuwbkrD1vNSMFlo9lNLY2c5FHYSQgHPRZUjAB26TpDEoW9HCOgplrdbaPV/ew==}
+    engines: {node: '>=14.14'}
 
   fs-extra@11.3.2:
     resolution: {integrity: sha512-Xr9F6z6up6Ws+NjzMCZc6WXg2YFRlrLP9NQDO3VQrWrfiojdhS56TzueT88ze0uBdCTwEIhQ3ptnmKeWGFAe0A==}
@@ -14397,7 +14417,7 @@ snapshots:
       '@aduh95/viz.js': 3.4.0
       '@compodoc/ngd-core': 2.1.1
       dot: 2.0.0-beta.1
-      fs-extra: 11.3.2
+      fs-extra: 11.3.0
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -14511,7 +14531,7 @@ snapshots:
       '@malept/cross-spawn-promise': 2.0.0
       debug: 4.4.3
       dir-compare: 4.2.0
-      fs-extra: 11.3.2
+      fs-extra: 11.3.0
       minimatch: 9.0.5
       plist: 3.1.0
     transitivePeerDependencies:
@@ -14521,7 +14541,7 @@ snapshots:
     dependencies:
       cross-dirname: 0.1.0
       debug: 4.4.3
-      fs-extra: 11.3.2
+      fs-extra: 11.3.0
       minimist: 1.2.8
       postject: 1.0.0-alpha.6
     transitivePeerDependencies:
@@ -20388,6 +20408,12 @@ snapshots:
       jsonfile: 6.2.0
       universalify: 2.0.1
 
+  fs-extra@11.3.0:
+    dependencies:
+      graceful-fs: 4.2.11
+      jsonfile: 6.2.0
+      universalify: 2.0.1
+
   fs-extra@11.3.2:
     dependencies:
       graceful-fs: 4.2.11
@@ -25698,7 +25724,7 @@ snapshots:
     dependencies:
       bluebird: 3.7.2
       duplexer2: 0.1.4
-      fs-extra: 11.3.2
+      fs-extra: 11.3.0
       graceful-fs: 4.2.11
       node-int64: 0.4.0
 
