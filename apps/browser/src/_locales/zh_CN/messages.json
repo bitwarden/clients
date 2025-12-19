@@ -1322,11 +1322,21 @@
   "exportFrom": {
     "message": "导出自"
   },
-  "export": {
-    "message": "导出"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "导入"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "文件格式"
@@ -2355,7 +2365,7 @@
     "message": "无效 PIN 码。"
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "无效的 PIN 输入尝试次数过多，正在注销。"
+    "message": "无效的 PIN 输入尝试次数过多。正在注销。"
   },
   "unlockWithBiometrics": {
     "message": "使用生物识别解锁"
@@ -4802,13 +4812,13 @@
     "message": "账户安全"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "网络钓鱼拦截器"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "网络钓鱼检测"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "在访问疑似钓鱼网站前显示警告"
   },
   "notifications": {
     "message": "通知"
@@ -5726,7 +5736,7 @@
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "进一步了解钓鱼检测"
+    "message": "进一步了解网络钓鱼检测"
   },
   "protectedBy": {
     "message": "受 $PRODUCT$ 保护",
