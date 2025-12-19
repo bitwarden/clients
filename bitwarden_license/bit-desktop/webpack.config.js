@@ -32,8 +32,8 @@ module.exports = (webpackConfig, context) => {
         tsConfig: path.resolve(__dirname, "tsconfig.json"),
       },
       preload: {
-        entry: "",
-        tsConfig: "",
+        entry: path.resolve(__dirname, "src/preload.ts"),
+        tsConfig: path.resolve(__dirname, "tsconfig.json"),
       },
     });
   }
