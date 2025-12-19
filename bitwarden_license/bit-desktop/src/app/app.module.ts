@@ -1,9 +1,15 @@
+import "zone.js";
+
+// Register the locales for the application
+import "@bitwarden/desktop/platform/app/locales";
+
 import { NgModule } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { CalloutModule, DialogModule } from "@bitwarden/components";
+import { AppRoutingModule as OssAppRoutingModule } from "@bitwarden/desktop/app/app-routing.module";
 import { UserVerificationComponent } from "@bitwarden/desktop/app/components/user-verification.component";
 import { AccountSwitcherComponent } from "@bitwarden/desktop/app/layout/account-switcher.component";
 import { HeaderComponent } from "@bitwarden/desktop/app/layout/header.component";
@@ -25,6 +31,7 @@ import { AppComponent } from "./app.component";
   imports: [
     BrowserAnimationsModule,
     SharedModule,
+    OssAppRoutingModule,
     AppRoutingModule,
     VaultFilterModule,
     LoginModule,
