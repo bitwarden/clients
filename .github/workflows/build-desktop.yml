@@ -1787,7 +1787,6 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
-          CSC_NAME: "Bitwarden Inc"
         run: pnpm run pack:mac:mas
 
       - name: Create MacOS App Store build number artifact
