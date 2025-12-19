@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
+import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -95,6 +96,10 @@ describe("VaultItemDialogComponent", () => {
 
     fixture = TestBed.createComponent(TestVaultItemDialogComponent);
     component = fixture.componentInstance;
+    Object.defineProperty(component, "userHasPremium$", {
+      get: () => of(false),
+      configurable: true,
+    });
     fixture.detectChanges();
   });
 
@@ -133,6 +138,37 @@ describe("VaultItemDialogComponent", () => {
         cipherType: CipherType.Card,
       });
       expect(component.getTestTitle()).toBe("newItemHeaderCard");
+    });
+  });
+  describe("submitButtonText$", () => {
+    it("should return 'unArchiveAndSave' when premium is false and cipher is archived", (done) => {
+      jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(false));
+      component["cipherIsArchived"] = true;
+
+      component["submitButtonText$"].subscribe((text) => {
+        expect(text).toBe("unArchiveAndSave");
+        done();
+      });
+    });
+
+    it("should return 'save' when cipher is archived and user has premium", (done) => {
+      jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(true));
+      component["cipherIsArchived"] = true;
+
+      component["submitButtonText$"].subscribe((text) => {
+        expect(text).toBe("save");
+        done();
+      });
+    });
+
+    it("should return 'save' when cipher is not archived", (done) => {
+      jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(false));
+      component["cipherIsArchived"] = false;
+
+      component["submitButtonText$"].subscribe((text) => {
+        expect(text).toBe("save");
+        done();
+      });
     });
   });
 });

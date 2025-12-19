@@ -91,4 +91,12 @@ export class DefaultKeyGenerationService implements KeyGenerationService {
 
     return new SymmetricCryptoKey(newKey);
   }
+
+  async deriveVaultExportKey(
+    password: string,
+    salt: string,
+    kdfConfig: KdfConfig,
+  ): Promise<SymmetricCryptoKey> {
+    return await this.stretchKey(await this.deriveKeyFromPassword(password, salt, kdfConfig));
+  }
 }

@@ -11,6 +11,7 @@ import {
   FakeStateProvider,
   awaitAsync,
   mockAccountServiceWith,
+  mockAccountInfoWith,
 } from "../../../../spec";
 import { KeyGenerationService } from "../../../key-management/crypto";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
@@ -71,9 +72,10 @@ describe("SendService", () => {
 
     accountService.activeAccountSubject.next({
       id: mockUserId,
-      email: "email",
-      emailVerified: false,
-      name: "name",
+      ...mockAccountInfoWith({
+        email: "email",
+        name: "name",
+      }),
     });
 
     // Initial encrypted state

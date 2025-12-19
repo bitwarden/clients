@@ -108,7 +108,7 @@
     </div>
 
     <ng-template #vaultContentTemplate>
-      <ng-container *ngIf="vaultState === null">
+      <ng-container *ngIf="vaultState === null && !(loading$ | async)">
         <app-autofill-vault-list-items></app-autofill-vault-list-items>
         <app-vault-list-items-container
           [title]="'favorites' | i18n"

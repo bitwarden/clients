@@ -2,13 +2,11 @@
   <bit-dialog>
     <div class="tw-font-medium" bitDialogTitle>{{ "sshkeyApprovalTitle" | i18n }}</div>
     <div bitDialogContent>
-      <app-callout
-        type="warning"
-        title="{{ 'agentForwardingWarningTitle' | i18n }}"
-        *ngIf="params.isAgentForwarding"
-      >
+      @if (params.isAgentForwarding) {
+      <bit-callout type="warning" title="{{ 'agentForwardingWarningTitle' | i18n }}">
         {{ 'agentForwardingWarningText' | i18n }}
-      </app-callout>
+      </bit-callout>
+      }
 
       <b>{{params.applicationName}}</b> {{ "sshkeyApprovalMessageInfix" | i18n }}
       <b>{{params.cipherName}}</b>

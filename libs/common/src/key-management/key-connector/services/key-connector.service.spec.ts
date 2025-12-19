@@ -603,7 +603,10 @@ describe("KeyConnectorService", () => {
       const data$ = keyConnectorService.requiresDomainConfirmation$(mockUserId);
       const data = await firstValueFrom(data$);
 
-      expect(data).toEqual({ keyConnectorUrl: conversion.keyConnectorUrl });
+      expect(data).toEqual({
+        keyConnectorUrl: conversion.keyConnectorUrl,
+        organizationSsoIdentifier: conversion.organizationId,
+      });
     });
 
     it("should return observable of null value when no data is set", async () => {

@@ -12,6 +12,7 @@ import {
   DialogModule,
   LinkModule,
   TypographyModule,
+  CenterPositionStrategy,
 } from "@bitwarden/components";
 
 export interface TransferItemsDialogParams {
@@ -58,6 +59,8 @@ export class TransferItemsDialogComponent {
 
   static open(dialogService: DialogService, config: DialogConfig<TransferItemsDialogParams>) {
     return dialogService.open<TransferItemsDialogResultType>(TransferItemsDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+      disableClose: true,
       ...config,
     });
   }

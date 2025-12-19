@@ -90,20 +90,20 @@ export const WithChildButtons: Story = {
     template: /*html*/ `
       <bit-nav-item text="Hello World Very Cool World" [route]="['']" icon="bwi-collection-shared">
         <button
-          type="button" 
+          type="button"
           slot="end"
           class="tw-ms-auto"
-          [bitIconButton]="'bwi-pencil-square'"
-          [buttonType]="'nav-contrast'"
+          bitIconButton="bwi-pencil-square"
+          buttonType="nav-contrast"
           size="small"
           label="Edit"
         ></button>
         <button
-          type="button" 
+          type="button"
           slot="end"
           class="tw-ms-auto"
-          [bitIconButton]="'bwi-check'"
-          [buttonType]="'nav-contrast'"
+          bitIconButton="bwi-check"
+          buttonType="nav-contrast"
           size="small"
           label="Confirm"
         ></button>

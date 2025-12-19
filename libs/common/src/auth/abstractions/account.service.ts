@@ -2,14 +2,11 @@ import { Observable } from "rxjs";
 
 import { UserId } from "../../types/guid";
 
-/**
- * Holds information about an account for use in the AccountService
- * if more information is added, be sure to update the equality method.
- */
 export type AccountInfo = {
   email: string;
   emailVerified: boolean;
   name: string | undefined;
+  creationDate: string | undefined;
 };
 
 export type Account = { id: UserId } & AccountInfo;
@@ -75,6 +72,12 @@ export abstract class AccountService {
    * @param emailVerified
    */
   abstract setAccountEmailVerified(userId: UserId, emailVerified: boolean): Promise<void>;
+  /**
+   * updates the `accounts$` observable with the creation date for the account.
+   * @param userId
+   * @param creationDate
+   */
+  abstract setAccountCreationDate(userId: UserId, creationDate: string): Promise<void>;
   /**
    * updates the `accounts$` observable with the new VerifyNewDeviceLogin property for the account.
    * @param userId

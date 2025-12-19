@@ -12,6 +12,7 @@ import {
   FormFieldModule,
   IconButtonModule,
   DialogService,
+  CalloutModule,
 } from "@bitwarden/components";
 
 export interface ApproveSshRequestParams {
@@ -35,6 +36,7 @@ export interface ApproveSshRequestParams {
     ReactiveFormsModule,
     AsyncActionsModule,
     FormFieldModule,
+    CalloutModule,
   ],
 })
 export class ApproveSshRequestComponent {

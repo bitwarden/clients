@@ -10,6 +10,7 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
@@ -63,9 +64,10 @@ describe("UnifiedUpgradeDialogComponent", () => {
 
   const mockAccount: Account = {
     id: "user-id" as UserId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
   };
 
   const defaultDialogData: UnifiedUpgradeDialogParams = {

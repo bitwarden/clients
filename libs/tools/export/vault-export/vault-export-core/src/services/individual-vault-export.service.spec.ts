@@ -3,13 +3,13 @@ import * as JSZip from "jszip";
 import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
@@ -169,7 +169,7 @@ describe("VaultExportService", () => {
   let exportService: IndividualVaultExportService;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let cipherService: MockProxy<CipherService>;
-  let pinService: MockProxy<PinServiceAbstraction>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
   let folderService: MockProxy<FolderService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
@@ -184,7 +184,7 @@ describe("VaultExportService", () => {
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
     cipherService = mock<CipherService>();
-    pinService = mock<PinServiceAbstraction>();
+    keyGenerationService = mock<KeyGenerationService>();
     folderService = mock<FolderService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
@@ -220,7 +220,7 @@ describe("VaultExportService", () => {
     exportService = new IndividualVaultExportService(
       folderService,
       cipherService,
-      pinService,
+      keyGenerationService,
       keyService,
       encryptService,
       cryptoFunctionService,

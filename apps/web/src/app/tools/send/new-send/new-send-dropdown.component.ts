@@ -6,6 +6,8 @@ import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/pre
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
 import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwarden/send-ui";
@@ -38,6 +40,7 @@ export class NewSendDropdownComponent {
     private accountService: AccountService,
     private dialogService: DialogService,
     private addEditFormConfigService: DefaultSendFormConfigService,
+    private configService: ConfigService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -60,6 +63,11 @@ export class NewSendDropdownComponent {
 
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
 
-    SendAddEditDialogComponent.open(this.dialogService, { formConfig });
+    const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
+    if (useRefresh) {
+      SendAddEditDialogComponent.openDrawer(this.dialogService, { formConfig });
+    } else {
+      SendAddEditDialogComponent.open(this.dialogService, { formConfig });
+    }
   }
 }

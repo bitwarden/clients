@@ -5,9 +5,9 @@ import * as papa from "papaparse";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
@@ -42,7 +42,7 @@ export class IndividualVaultExportService
   constructor(
     private folderService: FolderService,
     private cipherService: CipherService,
-    pinService: PinServiceAbstraction,
+    keyGenerationService: KeyGenerationService,
     private keyService: KeyService,
     encryptService: EncryptService,
     cryptoFunctionService: CryptoFunctionService,
@@ -50,7 +50,7 @@ export class IndividualVaultExportService
     private apiService: ApiService,
     private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
-    super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
+    super(keyGenerationService, encryptService, cryptoFunctionService, kdfConfigService);
   }
 
   /** Creates an export of an individual vault (My Vault). Based on the provided format it will either be unencrypted, encrypted or password protected and in case zip is selected will include attachments

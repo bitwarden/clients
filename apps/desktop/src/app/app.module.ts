@@ -15,7 +15,6 @@ import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginModule } from "../auth/login/login.module";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
-import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { VaultFilterModule } from "../vault/app/vault/vault-filter/vault-filter.module";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 
@@ -50,7 +49,6 @@ import { SharedModule } from "./shared/shared.module";
     ColorPasswordCountPipe,
     HeaderComponent,
     PremiumComponent,
-    RemovePasswordComponent,
     SearchComponent,
   ],
   providers: [SshAgentService],

@@ -403,11 +403,13 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   isSecretsManagerTrial(): boolean {
-    return (
+    const isSmStandalone = this.sub?.customerDiscount?.id === "sm-standalone";
+    const appliesToProduct =
       this.sub?.subscription?.items?.some((item) =>
         this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
-      ) ?? false
-    );
+      ) ?? false;
+
+    return isSmStandalone && appliesToProduct;
   }
 
   closeChangePlan() {

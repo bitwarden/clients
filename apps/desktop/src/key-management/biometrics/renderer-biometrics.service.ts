@@ -1,5 +1,7 @@
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -13,6 +15,10 @@ import { DesktopBiometricsService } from "./desktop.biometrics.service";
  */
 @Injectable()
 export class RendererBiometricsService extends DesktopBiometricsService {
+  constructor(private tokenService: TokenService) {
+    super();
+  }
+
   async authenticateWithBiometrics(): Promise<boolean> {
     return await ipc.keyManagement.biometric.authenticateWithBiometrics();
   }
@@ -31,6 +37,10 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
+    if ((await firstValueFrom(this.tokenService.hasAccessToken$(id))) === false) {
+      return BiometricsStatus.NotEnabledInConnectedDesktopApp;
+    }
+
     return await ipc.keyManagement.biometric.getBiometricsStatusForUser(id);
   }
 

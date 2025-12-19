@@ -226,7 +226,7 @@ impl BitwardenDesktopAgent {
         keystore.0.write().expect("RwLock is not poisoned").clear();
 
         self.needs_unlock
-            .store(true, std::sync::atomic::Ordering::Relaxed);
+            .store(false, std::sync::atomic::Ordering::Relaxed);
 
         for (key, name, cipher_id) in new_keys.iter() {
             match parse_key_safe(key) {
@@ -305,5 +305,89 @@ fn parse_key_safe(pem: &str) -> Result<ssh_key::private::PrivateKey, anyhow::Err
             ))),
         },
         Err(e) => Err(anyhow::Error::msg(format!("Failed to parse key: {e}"))),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn create_test_agent() -> (
+        BitwardenDesktopAgent,
+        tokio::sync::mpsc::Receiver<SshAgentUIRequest>,
+        tokio::sync::broadcast::Sender<(u32, bool)>,
+    ) {
+        let (tx, rx) = tokio::sync::mpsc::channel(10);
+        let (response_tx, response_rx) = tokio::sync::broadcast::channel(10);
+        let agent = BitwardenDesktopAgent::new(tx, Arc::new(Mutex::new(response_rx)));
+        (agent, rx, response_tx)
+    }
+
+    const TEST_ED25519_KEY: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACCWETEIh/JX+ZaK0Xlg5xZ9QIfjiKD2Qs57PjhRY45trwAAAIhqmvSbapr0
+mwAAAAtzc2gtZWQyNTUxOQAAACCWETEIh/JX+ZaK0Xlg5xZ9QIfjiKD2Qs57PjhRY45trw
+AAAEAHVflTgR/OEl8mg9UEKcO7SeB0FH4AiaUurhVfBWT4eZYRMQiH8lf5lorReWDnFn1A
+h+OIoPZCzns+OFFjjm2vAAAAAAECAwQF
+-----END OPENSSH PRIVATE KEY-----";
+
+    #[tokio::test]
+    async fn test_needs_unlock_initial_state() {
+        let (agent, _rx, _response_tx) = create_test_agent();
+
+        // Initially, needs_unlock should be true
+        assert!(agent
+            .needs_unlock
+            .load(std::sync::atomic::Ordering::Relaxed));
+    }
+
+    #[tokio::test]
+    async fn test_needs_unlock_after_set_keys() {
+        let (mut agent, _rx, _response_tx) = create_test_agent();
+        agent
+            .is_running
+            .store(true, std::sync::atomic::Ordering::Relaxed);
+
+        // Set keys should set needs_unlock to false
+        let keys = vec![(
+            TEST_ED25519_KEY.to_string(),
+            "test_key".to_string(),
+            "cipher_id".to_string(),
+        )];
+
+        agent.set_keys(keys).unwrap();
+
+        assert!(!agent
+            .needs_unlock
+            .load(std::sync::atomic::Ordering::Relaxed));
+    }
+
+    #[tokio::test]
+    async fn test_needs_unlock_after_clear_keys() {
+        let (mut agent, _rx, _response_tx) = create_test_agent();
+        agent
+            .is_running
+            .store(true, std::sync::atomic::Ordering::Relaxed);
+
+        // Set keys first
+        let keys = vec![(
+            TEST_ED25519_KEY.to_string(),
+            "test_key".to_string(),
+            "cipher_id".to_string(),
+        )];
+        agent.set_keys(keys).unwrap();
+
+        // Verify needs_unlock is false
+        assert!(!agent
+            .needs_unlock
+            .load(std::sync::atomic::Ordering::Relaxed));
+
+        // Clear keys should set needs_unlock back to true
+        agent.clear_keys().unwrap();
+
+        // Verify needs_unlock is true
+        assert!(agent
+            .needs_unlock
+            .load(std::sync::atomic::Ordering::Relaxed));
     }
 }
