@@ -1,102 +1,112 @@
-<bit-table [dataSource]="dataSource()">
-  <ng-container header>
-    <tr>
-      <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
-      <th bitCell bitSortable="deletionDate">{{ "deletionDate" | i18n }}</th>
-      <th bitCell>{{ "options" | i18n }}</th>
-    </tr>
-  </ng-container>
-  <ng-template body let-rows$>
-    <tr bitRow *ngFor="let s of rows$ | async">
-      <td bitCell (click)="onEditSend(s)" class="tw-cursor-pointer">
-        <div class="tw-flex tw-gap-2 tw-items-center">
-          <span aria-hidden="true">
-            @if (s.type == sendType.File) {
-              <i class="bwi bwi-fw bwi-lg bwi-file"></i>
-            }
-            @if (s.type == sendType.Text) {
-              <i class="bwi bwi-fw bwi-lg bwi-file-text"></i>
-            }
-          </span>
-          <button type="button" bitLink>
-            {{ s.name }}
-          </button>
-          @if (s.disabled) {
-            <i
-              class="bwi bwi-exclamation-triangle"
-              appStopProp
-              title="{{ 'disabled' | i18n }}"
-              aria-hidden="true"
-            ></i>
-            <span class="tw-sr-only">{{ "disabled" | i18n }}</span>
-          }
-          @if (s.password) {
-            <i
-              class="bwi bwi-key"
-              appStopProp
-              title="{{ 'password' | i18n }}"
-              aria-hidden="true"
-            ></i>
-            <span class="tw-sr-only">{{ "password" | i18n }}</span>
-          }
-          @if (s.maxAccessCountReached) {
-            <i
-              class="bwi bwi-exclamation-triangle"
-              appStopProp
-              title="{{ 'maxAccessCountReached' | i18n }}"
-              aria-hidden="true"
-            ></i>
-            <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
-          }
-          @if (s.expired) {
-            <i
-              class="bwi bwi-clock"
-              appStopProp
-              title="{{ 'expired' | i18n }}"
-              aria-hidden="true"
-            ></i>
-            <span class="tw-sr-only">{{ "expired" | i18n }}</span>
-          }
-          @if (s.pendingDelete) {
-            <i
-              class="bwi bwi-trash"
-              appStopProp
-              title="{{ 'pendingDeletion' | i18n }}"
-              aria-hidden="true"
-            ></i>
-            <span class="tw-sr-only">{{ "pendingDeletion" | i18n }}</span>
-          }
-        </div>
-      </td>
-      <td bitCell (click)="onEditSend(s)" class="tw-text-muted tw-cursor-pointer">
-        <small bitTypography="body2" appStopProp>{{ s.deletionDate | date: "medium" }}</small>
-      </td>
-      <td bitCell class="tw-w-0 tw-text-right">
-        <button
-          type="button"
-          [bitMenuTriggerFor]="sendOptions"
-          bitIconButton="bwi-ellipsis-v"
-          label="{{ 'options' | i18n }}"
-        ></button>
-        <bit-menu #sendOptions>
-          <button type="button" bitMenuItem (click)="onCopy(s)">
-            <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-            {{ "copySendLink" | i18n }}
-          </button>
-          @if (s.password && !disableSend()) {
-            <button type="button" bitMenuItem (click)="onRemovePassword(s)">
-              <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-              {{ "removePassword" | i18n }}
-            </button>
-          }
-          <button type="button" bitMenuItem (click)="onDelete(s)">
-            <span class="tw-text-danger">
-              <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-              {{ "delete" | i18n }}
+<div class="tw-@container/send-table">
+  <bit-table [dataSource]="dataSource()">
+    <ng-container header>
+      <tr>
+        <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
+        <th bitCell bitSortable="deletionDate" class="@lg/send-table:tw-table-cell tw-hidden">
+          {{ "deletionDate" | i18n }}
+        </th>
+        <th bitCell>{{ "options" | i18n }}</th>
+      </tr>
+    </ng-container>
+    <ng-template body let-rows$>
+      <tr bitRow *ngFor="let s of rows$ | async">
+        <td bitCell (click)="onEditSend(s)" class="tw-cursor-pointer">
+          <div class="tw-flex tw-gap-2 tw-items-center">
+            <span aria-hidden="true">
+              @if (s.type == sendType.File) {
+                <i class="bwi bwi-fw bwi-lg bwi-file"></i>
+              }
+              @if (s.type == sendType.Text) {
+                <i class="bwi bwi-fw bwi-lg bwi-file-text"></i>
+              }
             </span>
-          </button>
-        </bit-menu>
-      </td>
-    </tr>
-  </ng-template>
-</bit-table>
+            <button type="button" bitLink>
+              {{ s.name }}
+            </button>
+            @if (s.disabled) {
+              <i
+                class="bwi bwi-exclamation-triangle"
+                appStopProp
+                title="{{ 'disabled' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="tw-sr-only">{{ "disabled" | i18n }}</span>
+            }
+            @if (s.password) {
+              <i
+                class="bwi bwi-key"
+                appStopProp
+                title="{{ 'password' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="tw-sr-only">{{ "password" | i18n }}</span>
+            }
+            @if (s.maxAccessCountReached) {
+              <i
+                class="bwi bwi-exclamation-triangle"
+                appStopProp
+                title="{{ 'maxAccessCountReached' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
+            }
+            @if (s.expired) {
+              <i
+                class="bwi bwi-clock"
+                appStopProp
+                title="{{ 'expired' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="tw-sr-only">{{ "expired" | i18n }}</span>
+            }
+            @if (s.pendingDelete) {
+              <i
+                class="bwi bwi-trash"
+                appStopProp
+                title="{{ 'pendingDeletion' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="tw-sr-only">{{ "pendingDeletion" | i18n }}</span>
+            }
+          </div>
+        </td>
+        <td
+          bitCell
+          (click)="onEditSend(s)"
+          class="tw-text-muted tw-cursor-pointer @lg/send-table:tw-table-cell tw-hidden"
+        >
+          <small bitTypography="body2" appStopProp>
+            {{ s.deletionDate | date: "medium" }}
+          </small>
+        </td>
+        <td bitCell class="tw-w-0 tw-text-right">
+          <button
+            type="button"
+            [bitMenuTriggerFor]="sendOptions"
+            bitIconButton="bwi-ellipsis-v"
+            label="{{ 'options' | i18n }}"
+          ></button>
+          <bit-menu #sendOptions>
+            <button type="button" bitMenuItem (click)="onCopy(s)">
+              <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+              {{ "copySendLink" | i18n }}
+            </button>
+            @if (s.password && !disableSend()) {
+              <button type="button" bitMenuItem (click)="onRemovePassword(s)">
+                <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                {{ "removePassword" | i18n }}
+              </button>
+            }
+            <button type="button" bitMenuItem (click)="onDelete(s)">
+              <span class="tw-text-danger">
+                <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+                {{ "delete" | i18n }}
+              </span>
+            </button>
+          </bit-menu>
+        </td>
+      </tr>
+    </ng-template>
+  </bit-table>
+</div>
