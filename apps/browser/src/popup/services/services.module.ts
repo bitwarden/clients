@@ -523,6 +523,7 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       ConfigService,
       OrganizationService,
+      PlatformUtilsService,
       StateProvider,
     ],
   }),
