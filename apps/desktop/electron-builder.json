@@ -147,6 +147,7 @@
     }
   },
   "mas": {
+    "identity": "588E3F1724AE018EBA762E42279DAE85B313E3ED",
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
