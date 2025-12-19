@@ -6,6 +6,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
+import { mockAccountInfoWith } from "../../../spec/fake-account-service";
 import { FakeGlobalState } from "../../../spec/fake-state";
 import {
   FakeGlobalStateProvider,
@@ -27,7 +28,7 @@ import {
 } from "./account.service";
 
 describe("accountInfoEqual", () => {
-  const accountInfo: AccountInfo = { name: "name", email: "email", emailVerified: true };
+  const accountInfo = mockAccountInfoWith();
 
   it("compares nulls", () => {
     expect(accountInfoEqual(null, null)).toBe(true);
@@ -64,6 +65,23 @@ describe("accountInfoEqual", () => {
     expect(accountInfoEqual(accountInfo, same)).toBe(true);
     expect(accountInfoEqual(accountInfo, different)).toBe(false);
   });
+
+  it("compares creationDate", () => {
+    const same = { ...accountInfo };
+    const different = { ...accountInfo, creationDate: "2024-12-31T00:00:00.000Z" };
+
+    expect(accountInfoEqual(accountInfo, same)).toBe(true);
+    expect(accountInfoEqual(accountInfo, different)).toBe(false);
+  });
+
+  it("compares undefined creationDate", () => {
+    const accountWithoutCreationDate = mockAccountInfoWith({ creationDate: undefined });
+    const same = { ...accountWithoutCreationDate };
+    const different = { ...accountWithoutCreationDate, creationDate: "2024-01-01T00:00:00.000Z" };
+
+    expect(accountInfoEqual(accountWithoutCreationDate, same)).toBe(true);
+    expect(accountInfoEqual(accountWithoutCreationDate, different)).toBe(false);
+  });
 });
 
 describe("accountService", () => {
@@ -76,7 +94,10 @@ describe("accountService", () => {
   let activeAccountIdState: FakeGlobalState<UserId>;
   let accountActivityState: FakeGlobalState<Record<UserId, Date>>;
   const userId = Utils.newGuid() as UserId;
-  const userInfo = { email: "email", name: "name", emailVerified: true };
+  const userInfo = mockAccountInfoWith({
+    email: "email",
+    name: "name",
+  });
 
   beforeEach(() => {
     messagingService = mock();
@@ -253,6 +274,56 @@ describe("accountService", () => {
     });
   });
 
+  describe("setCreationDate", () => {
+    const initialState = { [userId]: userInfo };
+    beforeEach(() => {
+      accountsState.stateSubject.next(initialState);
+    });
+
+    it("should update the account with a new creation date", async () => {
+      const newCreationDate = "2024-12-31T00:00:00.000Z";
+      await sut.setAccountCreationDate(userId, newCreationDate);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: { ...userInfo, creationDate: newCreationDate },
+      });
+    });
+
+    it("should not update if the creation date is the same", async () => {
+      await sut.setAccountCreationDate(userId, userInfo.creationDate);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual(initialState);
+    });
+
+    it("should update from undefined to a defined creation date", async () => {
+      const accountWithoutCreationDate = mockAccountInfoWith({
+        ...userInfo,
+        creationDate: undefined,
+      });
+      accountsState.stateSubject.next({ [userId]: accountWithoutCreationDate });
+
+      const newCreationDate = "2024-06-15T12:30:00.000Z";
+      await sut.setAccountCreationDate(userId, newCreationDate);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: { ...accountWithoutCreationDate, creationDate: newCreationDate },
+      });
+    });
+
+    it("should update to a different creation date string format", async () => {
+      const newCreationDate = "2023-03-15T08:45:30.123Z";
+      await sut.setAccountCreationDate(userId, newCreationDate);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: { ...userInfo, creationDate: newCreationDate },
+      });
+    });
+  });
+
   describe("setAccountVerifyNewDeviceLogin", () => {
     const initialState = true;
     beforeEach(() => {
@@ -294,6 +365,7 @@ describe("accountService", () => {
           email: "",
           emailVerified: false,
           name: undefined,
+          creationDate: undefined,
         },
       });
     });

@@ -102,6 +102,36 @@ describe("ExtensionLoginComponentService", () => {
     });
   });
 
+  describe("redirectToSsoLoginWithOrganizationSsoIdentifier", () => {
+    it("launches SSO browser window with correct Url", async () => {
+      const email = "test@bitwarden.com";
+      const state = "testState";
+      const expectedState = "testState:clientId=browser";
+      const codeVerifier = "testCodeVerifier";
+      const codeChallenge = "testCodeChallenge";
+      const orgSsoIdentifier = "org-sso-identifier";
+
+      passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
+      passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
+      jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+
+      await service.redirectToSsoLoginWithOrganizationSsoIdentifier(email, orgSsoIdentifier);
+
+      expect(ssoUrlService.buildSsoUrl).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        email,
+        orgSsoIdentifier,
+      );
+      expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(expectedState);
+      expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+      expect(platformUtilsService.launchUri).toHaveBeenCalled();
+    });
+  });
+
   describe("showBackButton", () => {
     it("sets showBackButton in extensionAnonLayoutWrapperDataService", () => {
       service.showBackButton(true);
