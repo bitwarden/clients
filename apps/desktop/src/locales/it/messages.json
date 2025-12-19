@@ -1199,7 +1199,7 @@
     "message": "Seguici"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Sincronizza"
   },
   "changeMasterPass": {
     "message": "Cambia password principale"
@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "Esporta da"
   },
-  "export": {
-    "message": "Export"
+  "exportNoun": {
+    "message": "Esporta",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Import"
+  "exportVerb": {
+    "message": "Esporta",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importa",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importa",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formato file"
@@ -4334,43 +4344,43 @@
     "message": "Aggiorna a Premium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "La tua organizzazione non utilizza più le password principali per accedere a Bitwarden. Per continuare, verifica l'organizzazione e il dominio."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Accedi e continua"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Non continuare"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Dominio"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Questo dominio memorizzerà le chiavi di crittografia del tuo account, quindi assicurati di impostarlo come affidabile. Se non hai la certezza che lo sia, verifica con l'amministratore."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Verifica la tua organizzazione per accedere"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organizzazione verificata"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Dominio verificato"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Se non verifichi l'organizzazione, il tuo accesso sarà revocato."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Abbandona"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Verifica il tuo dominio per accedere"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Per continuare con l'accesso, verifica questo dominio."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Per continuare con l'accesso, verifica l'organizzazione e il dominio."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Azione al timeout"

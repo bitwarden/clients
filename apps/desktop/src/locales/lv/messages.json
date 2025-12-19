@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "Izgūt no"
   },
-  "export": {
-    "message": "Izgūt"
+  "exportNoun": {
+    "message": "Izgūšana",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Ievietot"
+  "exportVerb": {
+    "message": "Izgūt",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Ievietošana",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Ievietot",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Datnes veids"

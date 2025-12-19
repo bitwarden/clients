@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "Exportálás innen:"
   },
-  "export": {
-    "message": "Exportálás"
+  "exportNoun": {
+    "message": "Exportálás",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Importálás"
+  "exportVerb": {
+    "message": "Exportálás",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importálás",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importálás",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Fájlformátum"
