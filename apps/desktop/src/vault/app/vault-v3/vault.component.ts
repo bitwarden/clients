@@ -273,8 +273,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
                 break;
               case "syncCompleted":
                 if (this.vaultItemsComponent) {
-                  const filter = this.activeFilter.buildFilter();
-                  await this.vaultItemsComponent.reload(filter).catch(() => {});
+                  await this.vaultItemsComponent.refresh().catch(() => {});
                 }
                 break;
               case "modalShown":

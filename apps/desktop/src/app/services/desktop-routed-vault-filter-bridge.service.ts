@@ -33,7 +33,6 @@ export class DesktopRoutedVaultFilterBridgeService extends RoutedVaultFilterBrid
     const vaultCommands = [DesktopRoutedVaultFilterBridgeService.VAULT_ROUTE];
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.desktopRouter.navigate(vaultCommands, extras);
+    void this.desktopRouter.navigate(vaultCommands, extras);
   }
 }

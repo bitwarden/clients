@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 // eslint-disable-next-line no-restricted-imports
 import { Unassigned } from "@bitwarden/admin-console/common";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -128,8 +129,8 @@ describe("createFilter", () => {
 
     it("should return true when filter matches collection id", () => {
       const filterFunction = createFilterFunction({
-        collectionId: "collectionId",
-        organizationId: "organizationId",
+        collectionId: "collectionId" as CollectionId,
+        organizationId: "organizationId" as OrganizationId,
       });
 
       const result = filterFunction(cipher);
@@ -139,8 +140,8 @@ describe("createFilter", () => {
 
     it("should return false when filter does not match collection id", () => {
       const filterFunction = createFilterFunction({
-        collectionId: "nonMatchingCollectionId",
-        organizationId: "organizationId",
+        collectionId: "nonMatchingCollectionId" as CollectionId,
+        organizationId: "organizationId" as OrganizationId,
       });
 
       const result = filterFunction(cipher);
@@ -150,7 +151,7 @@ describe("createFilter", () => {
 
     it("should return false when filter does not match organization id", () => {
       const filterFunction = createFilterFunction({
-        organizationId: "nonMatchingOrganizationId",
+        organizationId: "nonMatchingOrganizationId" as OrganizationId,
       });
 
       const result = filterFunction(cipher);
@@ -187,7 +188,9 @@ describe("createFilter", () => {
     });
 
     it("should return true when filter matches organization id", () => {
-      const filterFunction = createFilterFunction({ organizationId: "organizationId" });
+      const filterFunction = createFilterFunction({
+        organizationId: "organizationId" as OrganizationId,
+      });
 
       const result = filterFunction(cipher);
 

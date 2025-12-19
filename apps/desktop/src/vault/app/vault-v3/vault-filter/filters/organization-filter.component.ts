@@ -51,7 +51,8 @@ export class OrganizationFilterComponent {
     return displayMode;
   });
 
-  protected applyFilter(organization: TreeNode<OrganizationFilter>) {
+  protected applyFilter(event: Event, organization: TreeNode<OrganizationFilter>) {
+    event.stopPropagation();
     if (!organization.node.enabled) {
       this.toastService.showToast({
         variant: "error",
@@ -66,6 +67,15 @@ export class OrganizationFilterComponent {
 
     if (filter) {
       filter.selectedOrganizationNode = organization;
+    }
+  }
+
+  protected applyAllVaultsFilter() {
+    this.vaultFilterService.clearOrganizationFilter();
+    const filter = this.activeFilter();
+
+    if (filter) {
+      filter.selectedOrganizationNode = null;
     }
   }
 }

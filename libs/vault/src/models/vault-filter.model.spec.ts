@@ -3,7 +3,7 @@
 // eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CollectionId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -179,8 +179,8 @@ describe("VaultFilter", () => {
       it("should return true when filter matches collection id", () => {
         const filterFunction = createFilterFunction({
           selectedCollectionNode: createCollectionFilterNode({
-            id: "collectionId",
-            organizationId: "organizationId",
+            id: "collectionId" as CollectionId,
+            organizationId: "organizationId" as OrganizationId,
           }),
         });
 
@@ -192,8 +192,8 @@ describe("VaultFilter", () => {
       it("should return false when filter does not match collection id", () => {
         const filterFunction = createFilterFunction({
           selectedCollectionNode: createCollectionFilterNode({
-            id: "nonMatchingCollectionId",
-            organizationId: "organizationId",
+            id: "nonMatchingCollectionId" as CollectionId,
+            organizationId: "organizationId" as OrganizationId,
           }),
         });
 
@@ -205,7 +205,7 @@ describe("VaultFilter", () => {
       it("should return false when filter does not match organization id", () => {
         const filterFunction = createFilterFunction({
           selectedOrganizationNode: createOrganizationFilterNode({
-            id: "nonMatchingOrganizationId",
+            id: "nonMatchingOrganizationId" as OrganizationId,
           }),
         });
 
@@ -216,7 +216,9 @@ describe("VaultFilter", () => {
 
       it("should return false when filtering for my vault only", () => {
         const filterFunction = createFilterFunction({
-          selectedOrganizationNode: createOrganizationFilterNode({ id: "MyVault" }),
+          selectedOrganizationNode: createOrganizationFilterNode({
+            id: "MyVault" as OrganizationId,
+          }),
         });
 
         const result = filterFunction(cipher);
@@ -252,7 +254,9 @@ describe("VaultFilter", () => {
 
       it("should return true when filter matches organization id", () => {
         const filterFunction = createFilterFunction({
-          selectedOrganizationNode: createOrganizationFilterNode({ id: "organizationId" }),
+          selectedOrganizationNode: createOrganizationFilterNode({
+            id: "organizationId" as OrganizationId,
+          }),
         });
 
         const result = filterFunction(cipher);
@@ -277,7 +281,9 @@ describe("VaultFilter", () => {
       it("should return true when filtering for my vault only", () => {
         const cipher = createCipher({ organizationId: null });
         const filterFunction = createFilterFunction({
-          selectedOrganizationNode: createOrganizationFilterNode({ id: "MyVault" }),
+          selectedOrganizationNode: createOrganizationFilterNode({
+            id: "MyVault" as OrganizationId,
+          }),
         });
 
         const result = filterFunction(cipher);
@@ -316,7 +322,7 @@ function createCollectionFilterNode(
   const collection = new CollectionView({
     name: options.name ?? "Test Name",
     id: options.id ?? null,
-    organizationId: options.organizationId ?? "Org Id",
+    organizationId: options.organizationId ?? ("Org Id" as OrganizationId),
   }) as CollectionFilter;
   return new TreeNode<CollectionFilter>(collection, {} as TreeNode<CollectionFilter>);
 }

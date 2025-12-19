@@ -111,7 +111,6 @@ export class VaultFilterComponent implements OnInit {
       this.cipherArchiveService.hasArchiveFlagEnabled$,
     );
 
-    // Subscribe to the active filter from the bridge service
     this.routedVaultFilterBridgeService.activeFilter$
       .pipe(takeUntil(this.componentIsDestroyed$))
       .subscribe((filter) => {
