@@ -89,9 +89,9 @@ export class SshAgentService implements OnDestroy {
         filter(({ enabled }) => enabled),
         map(({ message }) => message),
         withLatestFrom(this.authService.activeAccountStatus$, this.accountService.activeAccount$),
-        // This switchMap handles unlocking the vault if it is locked:
-        //   - If the vault is locked, we will wait for it to be unlocked.
-        //   - If the vault is not unlocked within the timeout, we will abort the flow.
+        // This switchMap handles unlocking the vault if it is not unlocked:
+        //   - If the vault is locked or logged out, we will wait for it to be unlocked:
+        //   - If the vault is not unlocked in within the timeout, we will abort the flow.
         //   - If the vault is unlocked, we will continue with the flow.
         // switchMap is used here to prevent multiple requests from being processed at the same time,
         // and will cancel the previous request if a new one is received.
