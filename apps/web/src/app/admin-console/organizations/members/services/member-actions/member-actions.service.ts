@@ -12,9 +12,9 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
