@@ -266,7 +266,7 @@ export class OrganizationIntegrationService {
     return new OrganizationIntegration(
       integrationResponse.id,
       integrationResponse.type,
-      config.service,
+      config.bw_serviceName,
       config,
       [integrationConfig],
     );
