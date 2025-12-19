@@ -28,7 +28,7 @@ permissions:
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -99,17 +99,32 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@6d653acede28d24f02e3cd41383119e8b1b35921 # stable
-        with:
-          toolchain: stable
-          components: rustfmt, clippy
+      - name: Set Rust Toolchain
+        id: toolchain
+        shell: bash
+        run: |
+          RUST_TOOLCHAIN="$(grep -oE '^channel.*"(.+)"' ./apps/desktop/desktop_native/rust-toolchain.toml | cut -d '"' -f 2)"
+          echo "RUST_TOOLCHAIN=${RUST_TOOLCHAIN}" | tee -a "${GITHUB_OUTPUT}"
 
-      - name: Install Rust nightly
-        uses: dtolnay/rust-toolchain@6d653acede28d24f02e3cd41383119e8b1b35921 # stable
+      - name: Set Rust Nightly Toolchain
+        id: nightly-toolchain
+        shell: bash
+        run: |
+          RUST_NIGHTLY_TOOLCHAIN="$(grep -oE '^nightly-channel.*"(.+)"' ./apps/desktop/desktop_native/rust-toolchain.toml | cut -d '"' -f 2)"
+          echo "RUST_NIGHTLY_TOOLCHAIN=${RUST_NIGHTLY_TOOLCHAIN}" | tee -a "${GITHUB_OUTPUT}"
+
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@0b1efabc08b657293548b77fb76cc02d26091c7e # stable
         with:
-          toolchain: nightly
-          components: rustfmt
+          toolchain: "${{ steps.toolchain.outputs.RUST_TOOLCHAIN }}"
+          components: clippy, rustfmt
+
+      - name: Install rust nightly
+        env:
+          RUST_NIGHTLY_TOOLCHAIN: ${{ steps.nightly-toolchain.outputs.RUST_NIGHTLY_TOOLCHAIN }}
+        run: |
+          rustup toolchain install "${RUST_NIGHTLY_TOOLCHAIN}"
+          rustup component add rustfmt --toolchain "${RUST_NIGHTLY_TOOLCHAIN}"-x86_64-unknown-linux-gnu
 
       - name: Check Rust version
         run: rustup --version
@@ -119,7 +134,9 @@ jobs:
 
       - name: Run cargo fmt
         working-directory: ./apps/desktop/desktop_native
-        run: cargo +nightly fmt --check
+        env:
+          RUST_NIGHTLY_TOOLCHAIN: ${{ steps.nightly-toolchain.outputs.RUST_NIGHTLY_TOOLCHAIN }}
+        run: cargo +"${RUST_NIGHTLY_TOOLCHAIN}" fmt --check
 
       - name: Run Clippy
         working-directory: ./apps/desktop/desktop_native
@@ -139,7 +156,9 @@ jobs:
 
       - name: Cargo udeps
         working-directory: ./apps/desktop/desktop_native
-        run: cargo +nightly udeps --workspace --all-features --all-targets
+        env:
+          RUST_NIGHTLY_TOOLCHAIN: ${{ steps.nightly-toolchain.outputs.RUST_NIGHTLY_TOOLCHAIN }}
+        run: cargo +"${RUST_NIGHTLY_TOOLCHAIN}" udeps --workspace --all-features
 
       - name: Install cargo-deny
         uses: taiki-e/install-action@073d46cba2cde38f6698c798566c1b3e24feeb44 # v2.62.67
