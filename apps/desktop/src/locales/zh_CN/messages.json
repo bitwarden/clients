@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "导出自"
   },
-  "export": {
-    "message": "导出"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "导入"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "文件格式"
@@ -1883,7 +1893,7 @@
     "message": "无效的 PIN 码。"
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "无效的 PIN 输入尝试次数过多，正在注销。"
+    "message": "无效的 PIN 输入尝试次数过多。正在注销。"
   },
   "unlockWithWindowsHello": {
     "message": "使用 Windows Hello 解锁"
