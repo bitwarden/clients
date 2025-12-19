@@ -1926,7 +1926,7 @@ jobs:
       - name: Install .deb
         working-directory: ${{ steps.download-deb.outputs.download-path }}
         run: |
-          sudo apt-get install -y ./*.deb
+          sudo apt-get install -y Bitwarden-$_PACKAGE_VERSION-amd64.deb
 
       - name: Run .deb
         run: |
