@@ -36,8 +36,8 @@ export class MemberActionsService {
   constructor(
     private organizationUserApiService: OrganizationUserApiService,
     private organizationUserService: OrganizationUserService,
-    private organizationMetadataService: OrganizationMetadataServiceAbstraction,
     private configService: ConfigService,
+    private organizationMetadataService: OrganizationMetadataServiceAbstraction,
   ) {}
 
   async inviteUser(

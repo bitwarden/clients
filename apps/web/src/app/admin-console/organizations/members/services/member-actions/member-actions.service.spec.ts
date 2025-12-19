@@ -16,7 +16,6 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
@@ -33,7 +32,6 @@ describe("MemberActionsService", () => {
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let configService: MockProxy<ConfigService>;
-  let accountService: FakeAccountService;
   let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
 
   const userId = newGuid() as UserId;
@@ -49,7 +47,6 @@ describe("MemberActionsService", () => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     configService = mock<ConfigService>();
-    accountService = mockAccountServiceWith(userId);
     organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
 
     mockOrganization = {
@@ -71,10 +68,7 @@ describe("MemberActionsService", () => {
     service = new MemberActionsService(
       organizationUserApiService,
       organizationUserService,
-      keyService,
-      encryptService,
       configService,
-      accountService,
       organizationMetadataService,
     );
   });
