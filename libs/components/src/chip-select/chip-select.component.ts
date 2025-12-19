@@ -126,7 +126,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
       // Note: `isOpen` is intentionally accessed outside signal tracking (via `trigger?.isOpen`)
       // to avoid re-focusing when the menu state changes. We only want to focus during
       // submenu navigation, not on initial open/close.
-      if (items.length > 0 && trigger?.isOpen) {
+      if (items.length > 0 && trigger?.isOpen()) {
         currentMenu?.keyManager?.setFirstItemActive();
       }
     });

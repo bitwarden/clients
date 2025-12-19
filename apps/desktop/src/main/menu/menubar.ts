@@ -29,7 +29,7 @@ export interface IMenubarMenu {
 }
 
 export class Menubar {
-  private readonly items: IMenubarMenu[];
+  readonly items: IMenubarMenu[];
 
   get menu(): Menu {
     const template: MenuItemConstructorOptions[] = [];
