@@ -23,7 +23,8 @@ export class TypeFilterComponent {
   protected readonly cipherTypes = input<TreeNode<CipherTypeFilter>>();
   protected readonly activeFilter = input<VaultFilter>();
 
-  protected applyTypeFilter(cipherType: TreeNode<CipherTypeFilter>) {
+  protected applyTypeFilter(event: Event, cipherType: TreeNode<CipherTypeFilter>) {
+    event.stopPropagation();
     const filter = this.activeFilter();
 
     if (filter) {
@@ -31,7 +32,7 @@ export class TypeFilterComponent {
     }
   }
 
-  protected applyAllItemsFilter() {
+  protected applyAllItemsFilter(event: Event) {
     const filter = this.activeFilter();
 
     if (filter) {
