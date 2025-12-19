@@ -118,7 +118,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       accountService,
     );
 
-    this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.DesktopSendUIRefresh);
+    this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
 
     combineLatest([this.SendUIRefresh$, this.route.queryParamMap])
       .pipe(takeUntilDestroyed())
