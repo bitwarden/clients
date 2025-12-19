@@ -10,6 +10,7 @@ config.content = [
   "../../libs/angular/src/**/*.{html,ts}",
   "../../libs/vault/src/**/*.{html,ts,mdx}",
   "../../libs/pricing/src/**/*.{html,ts}",
+  "../../libs/tools/send/send-ui/src/**/*.{html,ts}",
 ];
 
 module.exports = config;
