@@ -147,6 +147,7 @@
     }
   },
   "mas": {
+    "identity": "3rd Party Mac Developer Application: Bitwarden Inc",
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
