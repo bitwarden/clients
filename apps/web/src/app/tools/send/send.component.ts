@@ -3,7 +3,7 @@
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, Observable } from "rxjs";
+import { lastValueFrom, Observable, combineLatest } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { NoSendsIcon } from "@bitwarden/assets/svg";
@@ -70,7 +70,7 @@ type SendFilterType = (typeof SendFilterType)[keyof typeof SendFilterType];
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
   private sendItemDialogRef?: DialogRef<SendItemDialogResult> | undefined;
   noItemIcon = NoSendsIcon;
-  selectedToggleValue: SendFilterType = SendFilterType.All;
+  selectedToggleValue?: SendFilterType;
   SendUIRefresh$: Observable<boolean>;
 
   override set filteredSends(filteredSends: SendView[]) {
@@ -118,21 +118,27 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       accountService,
     );
 
-    this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
+    this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.DesktopSendUIRefresh);
 
-    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const typeParam = params.get("type");
-      const value = (
-        typeParam === SendFilterType.Text || typeParam === SendFilterType.File
-          ? typeParam
-          : SendFilterType.All
-      ) as SendFilterType;
-      this.selectedToggleValue = value;
+    combineLatest([this.SendUIRefresh$, this.route.queryParamMap])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([sendUiRefreshEnabled, params]) => {
+        if (!sendUiRefreshEnabled) {
+          return;
+        }
 
-      if (this.loaded) {
-        this.applyTypeFilter(value);
-      }
-    });
+        const typeParam = params.get("type");
+        const value = (
+          typeParam === SendFilterType.Text || typeParam === SendFilterType.File
+            ? typeParam
+            : SendFilterType.All
+        ) as SendFilterType;
+        this.selectedToggleValue = value;
+
+        if (this.loaded) {
+          this.applyTypeFilter(value);
+        }
+      });
   }
 
   async ngOnInit() {
@@ -141,7 +147,9 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     this.filteredSends = [];
     await this.load();
 
-    this.applyTypeFilter(this.selectedToggleValue);
+    if (this.selectedToggleValue) {
+      this.applyTypeFilter(this.selectedToggleValue);
+    }
 
     // Broadcaster subscription - load if sync completes in the background
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -153,7 +161,9 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
             if (message.successfully) {
               await this.load();
 
-              this.applyTypeFilter(this.selectedToggleValue);
+              if (this.selectedToggleValue) {
+                this.applyTypeFilter(this.selectedToggleValue);
+              }
             }
             break;
         }
