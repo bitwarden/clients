@@ -70,9 +70,7 @@ export class StatusFilterComponent {
 
     if (canArchive || hasArchivedCiphers) {
       this.applyFilter("archive");
-    } else if (this.premiumBadgeComponent()) {
-      // The `premiumBadgeComponent` should always be defined here, adding the
-      // if to satisfy TypeScript.
+    } else {
       await this.premiumBadgeComponent().promptForPremium(event);
     }
   }
