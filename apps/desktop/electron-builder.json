@@ -14,11 +14,12 @@
   "npmRebuild": false,
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
-  "asarUnpack": ["node_modules/@bitwarden/desktop-napi/*.node"],
-  "files": ["**/*", "!**/node_modules/!(@bitwarden)/**"],
-  "extraResources": [
+  "asarUnpack": ["**/*.node"],
+  "files": [
+    "**/*",
+    "!**/node_modules/!(@bitwarden)/**",
     {
-      "from": "desktop_native/napi",
+      "from": "node_modules/@bitwarden/desktop-napi",
       "to": "node_modules/@bitwarden/desktop-napi",
       "filter": ["package.json", "index.js", "index.d.ts", "*.node"]
     }
@@ -71,7 +72,8 @@
       "CFBundleDevelopmentRegion": "en"
     },
     "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
-    "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
+    "singleArchFiles": "**/desktop_napi.darwin-*.node",
+    "x64ArchFiles": "**/desktop_napi.darwin-*.node",
     "extraFiles": [
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
