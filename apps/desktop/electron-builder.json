@@ -18,7 +18,8 @@
     "**/*",
     "!**/node_modules/@bitwarden/desktop-napi/**/*",
     "**/node_modules/@bitwarden/desktop-napi/index.js",
-    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
+    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node",
+    "!**/node_modules/@nx/**/*"
   ],
   "electronVersion": "37.7.0",
   "generateUpdatesFilesForAllChannels": true,
