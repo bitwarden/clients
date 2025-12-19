@@ -34,6 +34,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     collectPageDetailsResponse: ({ message, sender }) =>
       this.handleCollectPageDetailsResponse(message, sender),
   };
+  // @TODO flip this default and update via feature-flag
+  private useFullCipherTriggeringLogic = true;
 
   constructor(
     private logService: LogService,
@@ -429,27 +431,39 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     tab: chrome.tabs.Tab,
     config: { skippable: NotificationType[] } = { skippable: [] },
   ) => {
-    const notificationCandidates = [
-      {
-        type: NotificationTypes.Change,
-        trigger: this.notificationBackground.triggerChangedPasswordNotification,
-      },
-      {
-        type: NotificationTypes.Add,
-        trigger: this.notificationBackground.triggerAddLoginNotification,
-      },
-      {
-        type: NotificationTypes.AtRiskPassword,
-        trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
-      },
-    ].filter(
+    const notificationCandidates = this.useFullCipherTriggeringLogic
+      ? [
+          {
+            type: NotificationTypes.Full,
+            trigger: this.notificationBackground.triggerCipherNotification,
+          },
+          {
+            type: NotificationTypes.AtRiskPassword,
+            trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
+          },
+        ]
+      : [
+          {
+            type: NotificationTypes.Change,
+            trigger: this.notificationBackground.triggerChangedPasswordNotification,
+          },
+          {
+            type: NotificationTypes.Add,
+            trigger: this.notificationBackground.triggerAddLoginNotification,
+          },
+          {
+            type: NotificationTypes.AtRiskPassword,
+            trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
+          },
+        ];
+    const filteredNotificationCandidates = notificationCandidates.filter(
       (candidate) =>
         this.shouldAttemptNotification(modifyLoginData, candidate.type) ||
         config.skippable.includes(candidate.type),
     );
 
     const results: string[] = [];
-    for (const { trigger, type } of notificationCandidates) {
+    for (const { trigger, type } of filteredNotificationCandidates) {
       const success = await trigger.bind(this.notificationBackground)(modifyLoginData, tab);
       if (success) {
         results.push(`Success: ${type}`);
@@ -473,6 +487,14 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     modifyLoginData: ModifyLoginCipherFormData,
     notificationType: NotificationType,
   ): boolean => {
+    if (notificationType === NotificationTypes.Full) {
+      // The logic after this block pre-qualifies some cipher add/update scenarios
+      // prematurely (where matching against vault contents is required) and should be
+      // skipped for this case (these same checks are performed early in the
+      // notification triggering logic).
+      return true;
+    }
+
     // Intentionally not stripping whitespace characters here as they
     // represent user entry.
     const usernameFieldHasValue = !!(modifyLoginData?.username || "").length;
