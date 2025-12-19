@@ -1322,11 +1322,21 @@
   "exportFrom": {
     "message": "Buradan xaricə köçür"
   },
-  "export": {
-    "message": "Xaricə köçür"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Daxilə köçür"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Fayl formatı"
@@ -4802,13 +4812,13 @@
     "message": "Hesab güvənliyi"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Fişinq əngəlləyici"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Fişinq aşkarlama"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Şübhəli fişinq saytlarına erişməzdən əvvəl xəbərdarlıq nümayiş etdir"
   },
   "notifications": {
     "message": "Bildirişlər"

@@ -1322,11 +1322,21 @@
   "exportFrom": {
     "message": "Esporta da"
   },
-  "export": {
-    "message": "Esporta"
+  "exportVerb": {
+    "message": "Esporta",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importa"
+  "exportNoun": {
+    "message": "Esporta",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importa",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importa",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formato file"
@@ -4802,13 +4812,13 @@
     "message": "Sicurezza dell'account"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Blocco phishing"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Rilevazione phishing"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Mostra un avviso prima di accedere ai siti sospetti di phishing"
   },
   "notifications": {
     "message": "Notifiche"
