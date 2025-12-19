@@ -89,7 +89,6 @@ export class SshAgentService implements OnDestroy {
         filter(({ enabled }) => enabled),
         map(({ message }) => message),
         withLatestFrom(this.authService.activeAccountStatus$, this.accountService.activeAccount$),
-        filter(([, , account]) => account != null),
         // This switchMap handles unlocking the vault if it is locked:
         //   - If the vault is locked, we will wait for it to be unlocked.
         //   - If the vault is not unlocked within the timeout, we will abort the flow.
@@ -97,7 +96,7 @@ export class SshAgentService implements OnDestroy {
         // switchMap is used here to prevent multiple requests from being processed at the same time,
         // and will cancel the previous request if a new one is received.
         switchMap(([message, status, account]) => {
-          if (status !== AuthenticationStatus.Unlocked) {
+          if (status !== AuthenticationStatus.Unlocked || account == null) {
             ipc.platform.focusWindow();
             this.toastService.showToast({
               variant: "info",
