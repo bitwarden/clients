@@ -100,6 +100,7 @@ describe("LoginDecryptionOptionsComponent", () => {
       email: mockEmail,
       name: "Test User",
       emailVerified: true,
+      creationDate: new Date().toISOString(),
     });
     platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
     deviceTrustService.getShouldTrustDevice.mockResolvedValue(true);
