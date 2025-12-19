@@ -57,28 +57,26 @@ jobs:
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
-        if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
-
-      - name: Cache NPM
-        id: npm-cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-        with:
-          path: "~/.npm"
-          key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}
         if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
 
       - name: Install Node dependencies
         if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build Storybook
         if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
-        run: npm run build-storybook:ci
+        run: pnpm run build-storybook:ci
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main

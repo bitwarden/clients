@@ -1,0 +1,4 @@
+packages:
+  - "apps/*"
+  - "apps/desktop/desktop_native/napi"
+  - "libs/**/*"

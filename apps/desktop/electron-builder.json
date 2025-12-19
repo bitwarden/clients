@@ -11,14 +11,17 @@
     "output": "dist",
     "app": "build"
   },
+  "npmRebuild": false,
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
-  "asarUnpack": ["**/*.node"],
-  "files": [
-    "**/*",
-    "!**/node_modules/@bitwarden/desktop-napi/**/*",
-    "**/node_modules/@bitwarden/desktop-napi/index.js",
-    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
+  "asarUnpack": ["node_modules/@bitwarden/desktop-napi/*.node"],
+  "files": ["**/*", "!**/node_modules/!(@bitwarden)/**"],
+  "extraResources": [
+    {
+      "from": "desktop_native/napi",
+      "to": "node_modules/@bitwarden/desktop-napi",
+      "filter": ["package.json", "index.js", "index.d.ts", "*.node"]
+    }
   ],
   "electronVersion": "37.7.0",
   "generateUpdatesFilesForAllChannels": true,
@@ -147,6 +150,7 @@
     }
   },
   "mas": {
+    "identity": "588E3F1724AE018EBA762E42279DAE85B313E3ED",
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
