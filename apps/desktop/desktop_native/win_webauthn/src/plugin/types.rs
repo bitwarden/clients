@@ -144,13 +144,13 @@ impl PluginAddAuthenticatorOptions {
     pub(super) fn light_theme_logo_b64(&self) -> Option<Vec<u16>> {
         self.light_theme_logo_svg
             .as_ref()
-            .map(|svg| Self::encode_svg(&svg))
+            .map(|svg| Self::encode_svg(svg))
     }
 
     pub(super) fn dark_theme_logo_b64(&self) -> Option<Vec<u16>> {
         self.dark_theme_logo_svg
             .as_ref()
-            .map(|svg| Self::encode_svg(&svg))
+            .map(|svg| Self::encode_svg(svg))
     }
 
     fn encode_svg(svg: &str) -> Vec<u16> {
@@ -199,7 +199,6 @@ impl PluginAddAuthenticatorResponse {
     pub(super) unsafe fn try_from_ptr(
         value: NonNull<WebAuthnPluginAddAuthenticatorResponse>,
     ) -> Self {
-        if value.as_ref().pbOpSignPubKey.is_null() {}
         Self { inner: value }
     }
 }

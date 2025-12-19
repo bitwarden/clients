@@ -491,6 +491,8 @@ pub(crate) struct WEBAUTHN_EXTENSION {
     pvExtension: *mut u8,
 }
 
+// These names follow the naming convention in the Windows API.
+#[allow(clippy::enum_variant_names)]
 pub enum CredProtectOutput {
     UserVerificationAny,
     UserVerificationOptional,
@@ -517,6 +519,8 @@ pub(crate) struct WEBAUTHN_EXTENSIONS {
 pub struct UserId(Vec<u8>);
 
 impl UserId {
+    // User IDs cannot be empty
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> u8 {
         // SAFETY: User ID guaranteed to be <= 64 bytes
         self.0.len() as u8
@@ -532,6 +536,12 @@ impl TryFrom<Vec<u8>> for UserId {
     type Error = WinWebAuthnError;
 
     fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
+        if value.is_empty() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::Serialization,
+                "User ID cannot be empty",
+            ));
+        }
         if value.len() > 64 {
             return Err(WinWebAuthnError::new(
                 ErrorKind::Serialization,
@@ -549,6 +559,8 @@ impl TryFrom<Vec<u8>> for UserId {
 pub struct CredentialId(Vec<u8>);
 
 impl CredentialId {
+    // Credential IDs cannot be empty
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> u16 {
         // SAFETY: CredentialId guaranteed to be < 1024 bytes
         self.0.len() as u16
@@ -565,11 +577,11 @@ impl TryFrom<Vec<u8>> for CredentialId {
     type Error = WinWebAuthnError;
 
     fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
-        if value.len() > 1023 {
+        if value.len() < 16 || value.len() > 1023 {
             return Err(WinWebAuthnError::new(
                 ErrorKind::Serialization,
                 &format!(
-                    "Credential ID exceeds maximum length of 1023, received {}",
+                    "Credential ID must be between 16 and 1023 bytes long, received {}",
                     value.len()
                 ),
             ));
@@ -646,7 +658,7 @@ impl CredentialEx<'_> {
                 break;
             }
             if a as u32 & t > 0 {
-                transports.push(a.clone());
+                transports.push(a);
                 t -= a as u32;
             }
         }
