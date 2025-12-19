@@ -19,7 +19,9 @@ export const USER_DECRYPTION_OPTIONS = new UserKeyDefinition<UserDecryptionOptio
   },
 );
 
-export class UserDecryptionOptionsService implements InternalUserDecryptionOptionsServiceAbstraction {
+export class UserDecryptionOptionsService
+  implements InternalUserDecryptionOptionsServiceAbstraction
+{
   constructor(private singleUserStateProvider: SingleUserStateProvider) {}
 
   userDecryptionOptionsById$(userId: UserId): Observable<UserDecryptionOptions> {

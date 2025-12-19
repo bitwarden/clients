@@ -35,10 +35,13 @@ import { OrganizationUserResetPasswordEntry } from "./organization-user-reset-pa
 @Injectable({
   providedIn: "root",
 })
-export class OrganizationUserResetPasswordService implements UserKeyRotationKeyRecoveryProvider<
-  OrganizationUserResetPasswordWithIdRequest,
-  OrganizationUserResetPasswordEntry
-> {
+export class OrganizationUserResetPasswordService
+  implements
+    UserKeyRotationKeyRecoveryProvider<
+      OrganizationUserResetPasswordWithIdRequest,
+      OrganizationUserResetPasswordEntry
+    >
+{
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
