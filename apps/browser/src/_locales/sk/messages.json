@@ -1322,11 +1322,21 @@
   "exportFrom": {
     "message": "Exportovať z"
   },
-  "export": {
-    "message": "Exportovať"
+  "exportVerb": {
+    "message": "Exportovať",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importovať"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importovať",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formát súboru"
