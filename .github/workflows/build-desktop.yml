@@ -17,7 +17,6 @@ on:
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-desktop.yml'
-      - '.github/workflows/install-run-desktop.yml'
   push:
     branches:
       - 'main'
@@ -30,7 +29,6 @@ on:
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-desktop.yml'
-      - '.github/workflows/install-run-desktop.yml'
   workflow_call:
     inputs: {}
   workflow_dispatch:
@@ -1896,6 +1894,52 @@ jobs:
           upload_sources: true
           upload_translations: false
 
+  validate-linux-x64-deb:
+    name: Install and run Linux x64 .deb
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - linux
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Download deb artifact
+        id: download-deb
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/deb/
+          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install libasound2t64 xvfb
+          sudo apt-get install -y xvfb
+
+      - name: Install .deb
+        working-directory: ${{ steps.download-deb.outputs.download-path }}
+        run: |
+          sudo apt-get install -y ./*.deb
+
+      - name: Run .deb
+        run: |
+          xvfb-run -a bitwarden &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
   check-failures:
     name: Check for failures
     if: always()
@@ -1910,6 +1954,7 @@ jobs:
       - macos-package-github
       - macos-package-mas
       - crowdin-push
+      - validate-linux-x64-deb
     permissions:
       contents: read
       id-token: write
