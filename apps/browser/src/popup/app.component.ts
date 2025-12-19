@@ -9,7 +9,7 @@ import {
   OnDestroy,
   OnInit,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import {
   catchError,
@@ -88,9 +88,14 @@ export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   // Show a warning if the SDK is not available.
-  protected showSdkWarning = this.sdkService.client$.pipe(
-    map(() => false),
-    catchError(() => of(true)),
+  protected readonly showSdkWarning = toSignal(
+    this.sdkService.client$.pipe(
+      map(() => false),
+      catchError(() => of(true)),
+    ),
+    {
+      initialValue: false,
+    },
   );
 
   constructor(
