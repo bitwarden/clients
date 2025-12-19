@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, input, OnInit, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, DestroyRef, inject, input, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   FormControl,
   FormGroup,
@@ -18,27 +18,28 @@ import {
   firstValueFrom,
   map,
   Observable,
-  of,
   pairwise,
   startWith,
   switchMap,
+  tap,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/client-type";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { MaximumSessionTimeoutPolicyData } from "@bitwarden/common/key-management/session-timeout";
 import {
-  MaximumVaultTimeoutPolicyData,
   VaultTimeout,
   VaultTimeoutAction,
-  VaultTimeoutOption,
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   CheckboxModule,
@@ -86,6 +87,19 @@ export class SessionTimeoutSettingsComponent implements OnInit {
     new BehaviorSubject<void>(undefined),
   );
 
+  private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
+  private readonly sessionTimeoutSettingsComponentService = inject(
+    SessionTimeoutSettingsComponentService,
+  );
+  private readonly i18nService = inject(I18nService);
+  private readonly toastService = inject(ToastService);
+  private readonly policyService = inject(PolicyService);
+  private readonly accountService = inject(AccountService);
+  private readonly dialogService = inject(DialogService);
+  private readonly logService = inject(LogService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+
   formGroup = new FormGroup({
     timeout: new FormControl<VaultTimeout | null>(null, [Validators.required]),
     timeoutAction: new FormControl<VaultTimeoutAction>(VaultTimeoutAction.Lock, [
@@ -93,62 +107,47 @@ export class SessionTimeoutSettingsComponent implements OnInit {
     ]),
   });
   protected readonly availableTimeoutActions = signal<VaultTimeoutAction[]>([]);
-  protected readonly availableTimeoutOptions$ =
-    this.sessionTimeoutSettingsComponentService.availableTimeoutOptions$.pipe(
-      startWith([] as VaultTimeoutOption[]),
-    );
-  protected hasVaultTimeoutPolicy$: Observable<boolean> = of(false);
+  protected readonly availableTimeoutOptions$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.sessionTimeoutSettingsComponentService.policyFilteredTimeoutOptions$(userId),
+    ),
+    tap((options) => {
+      this.logService.debug("[SessionTimeoutSettings] Available timeout options", options);
+    }),
+  );
+  protected readonly sessionTimeoutActionFromPolicy$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+    ),
+    getFirstPolicy,
+    map((policy) => policy?.data as MaximumSessionTimeoutPolicyData | undefined),
+    map((data) => data?.action ?? null),
+  );
+  protected readonly sessionTimeoutActionFromPolicy = toSignal(
+    this.sessionTimeoutActionFromPolicy$,
+  );
 
   private userId!: UserId;
-
-  constructor(
-    private readonly vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private readonly sessionTimeoutSettingsComponentService: SessionTimeoutSettingsComponentService,
-    private readonly i18nService: I18nService,
-    private readonly toastService: ToastService,
-    private readonly policyService: PolicyService,
-    private readonly accountService: AccountService,
-    private readonly dialogService: DialogService,
-    private readonly logService: LogService,
-    private readonly destroyRef: DestroyRef,
-  ) {}
 
   get canLock() {
     return this.availableTimeoutActions().includes(VaultTimeoutAction.Lock);
   }
 
+  get supportsLock() {
+    return (
+      this.platformUtilsService.getClientType() !== ClientType.Web &&
+      this.sessionTimeoutActionFromPolicy() !== "logOut"
+    );
+  }
+
   async ngOnInit(): Promise<void> {
-    const availableTimeoutOptions = await firstValueFrom(
-      this.sessionTimeoutSettingsComponentService.availableTimeoutOptions$,
-    );
-
-    this.logService.debug(
-      "[SessionTimeoutSettings] Available timeout options",
-      availableTimeoutOptions,
-    );
-
     this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    const maximumVaultTimeoutPolicy$ = this.policyService
-      .policiesByType$(PolicyType.MaximumVaultTimeout, this.userId)
-      .pipe(getFirstPolicy);
-
-    this.hasVaultTimeoutPolicy$ = maximumVaultTimeoutPolicy$.pipe(map((policy) => policy != null));
-
-    let timeout = await firstValueFrom(
+    const timeout = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(this.userId),
     );
-
-    // Fallback if current timeout option is not available on this platform
-    // Only applies to string-based timeout types, not numeric values
-    const hasCurrentOption = availableTimeoutOptions.some((opt) => opt.value === timeout);
-    if (!hasCurrentOption && typeof timeout !== "number") {
-      this.logService.debug(
-        "[SessionTimeoutSettings] Current timeout option not available, falling back from",
-        { timeout },
-      );
-      timeout = VaultTimeoutStringType.OnRestart;
-    }
 
     this.formGroup.patchValue(
       {
@@ -160,6 +159,23 @@ export class SessionTimeoutSettingsComponent implements OnInit {
       { emitEvent: false },
     );
 
+    // Sync form with reactive timeout updates to handle race condition where policies
+    // load asynchronously and may override the initially set timeout value
+    this.vaultTimeoutSettingsService
+      .getVaultTimeoutByUserId$(this.userId)
+      .pipe(
+        filter((timeout) => this.formGroup.controls.timeout.value !== timeout),
+        tap((timeout) =>
+          this.logService.debug(
+            `[SessionTimeoutSettings] Updating initial form timeout from ${this.formGroup.controls.timeout.value} to ${timeout}`,
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((timeout) => {
+        this.formGroup.controls.timeout.setValue(timeout, { emitEvent: false });
+      });
+
     this.refreshTimeoutActionSettings()
       .pipe(
         startWith(undefined),
@@ -167,19 +183,17 @@ export class SessionTimeoutSettingsComponent implements OnInit {
           combineLatest([
             this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(this.userId),
             this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(this.userId),
-            maximumVaultTimeoutPolicy$,
+            this.sessionTimeoutActionFromPolicy$,
           ]),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(([availableActions, action, policy]) => {
+      .subscribe(([availableActions, action, sessionTimeoutActionFromPolicy]) => {
         this.availableTimeoutActions.set(availableActions);
         this.formGroup.controls.timeoutAction.setValue(action, { emitEvent: false });
 
-        const policyData = policy?.data as MaximumVaultTimeoutPolicyData | undefined;
-
         // Enable/disable the action control based on policy or available actions
-        if (policyData?.action != null || availableActions.length <= 1) {
+        if (sessionTimeoutActionFromPolicy != null || availableActions.length <= 1) {
           this.formGroup.controls.timeoutAction.disable({ emitEvent: false });
         } else {
           this.formGroup.controls.timeoutAction.enable({ emitEvent: false });

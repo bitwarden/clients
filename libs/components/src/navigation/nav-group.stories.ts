@@ -84,6 +84,11 @@ export const Default: StoryObj<NavGroupComponent> = {
           <bit-nav-item text="Child B"></bit-nav-item>
           <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
         </bit-nav-group>
+        <bit-nav-group open="true" text="Lorem Ipsum (Button)" icon="bwi-filter">
+          <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-item text="Child B"></bit-nav-item>
+          <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
+        </bit-nav-group>
       </bit-side-nav>
     `,
   }),
@@ -139,8 +144,8 @@ export const Tree: StoryObj<NavGroupComponent> = {
     template: /*html*/ `
       <bit-side-nav>
         <bit-nav-group text="Tree example" icon="bwi-collection-shared" [open]="true">
-          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection-shared" [variant]="'tree'"></bit-nav-item>
-          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection-shared" [variant]="'tree'" [open]="true">
+          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection-shared" variant="tree"></bit-nav-item>
+          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection-shared" variant="tree" [open]="true">
             <bit-nav-group text="Level 2 - with children" route="t4" icon="bwi-collection-shared" variant="tree" [open]="true">
               <bit-nav-item text="Level 3 - no children, no icon" route="t5" variant="tree"></bit-nav-item>
               <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection-shared" variant="tree" [open]="true">

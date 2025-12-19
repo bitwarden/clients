@@ -72,33 +72,37 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
     const result = new ImportResult();
     const account = await firstValueFrom(this.accountService.activeAccount$);
 
-    if (data.encKeyValidation_DO_NOT_EDIT != null) {
-      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(account.id));
-      let keyForDecryption: OrgKey | UserKey | null | undefined = orgKeys?.[this.organizationId];
-      if (!keyForDecryption) {
-        keyForDecryption = await firstValueFrom(this.keyService.userKey$(account.id));
-      }
+    if (this.isNullOrWhitespace(data.encKeyValidation_DO_NOT_EDIT)) {
+      result.success = false;
+      result.errorMessage = this.i18nService.t("importEncKeyError");
+      return result;
+    }
 
-      if (!keyForDecryption) {
-        result.success = false;
-        result.errorMessage = this.i18nService.t("importEncKeyError");
-        return result;
-      }
-      const encKeyValidation = new EncString(data.encKeyValidation_DO_NOT_EDIT);
-      try {
-        await this.encryptService.decryptString(encKeyValidation, keyForDecryption);
-      } catch {
-        result.success = false;
-        result.errorMessage = this.i18nService.t("importEncKeyError");
-        return result;
-      }
+    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(account.id));
+    let keyForDecryption: OrgKey | UserKey | null | undefined = orgKeys?.[this.organizationId];
+    if (!keyForDecryption) {
+      keyForDecryption = await firstValueFrom(this.keyService.userKey$(account.id));
+    }
+
+    if (!keyForDecryption) {
+      result.success = false;
+      result.errorMessage = this.i18nService.t("importEncKeyError");
+      return result;
+    }
+    const encKeyValidation = new EncString(data.encKeyValidation_DO_NOT_EDIT);
+    try {
+      await this.encryptService.decryptString(encKeyValidation, keyForDecryption);
+    } catch {
+      result.success = false;
+      result.errorMessage = this.i18nService.t("importEncKeyError");
+      return result;
     }
 
     let groupingsMap: Map<string, number> | null = null;
     if (isOrgEncrypted(data)) {
       groupingsMap = await this.parseEncryptedCollections(account.id, data, result);
     } else {
-      groupingsMap = await this.parseEncryptedFolders(data, result);
+      groupingsMap = await this.parseEncryptedFolders(account.id, data, result);
     }
 
     for (const c of data.items) {
@@ -133,6 +137,7 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
   }
 
   private async parseEncryptedFolders(
+    userId: UserId,
     data: BitwardenEncryptedIndividualJsonExport,
     importResult: ImportResult,
   ): Promise<Map<string, number>> {
@@ -142,11 +147,13 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
       return groupingsMap;
     }
 
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
     for (const f of data.folders) {
       let folderView: FolderView;
       const folder = FolderWithIdExport.toDomain(f);
       if (folder != null) {
-        folderView = await folder.decrypt();
+        folderView = await folder.decrypt(userKey);
       }
 
       if (folderView != null) {

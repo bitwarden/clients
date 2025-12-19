@@ -69,6 +69,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import {
   DefaultKeyGenerationService,
   KeyGenerationService,
@@ -211,6 +212,7 @@ import {
 
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
+import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
@@ -333,6 +335,7 @@ export class ServiceContainer {
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
+  private accountCryptographicStateService: DefaultAccountCryptographicStateService;
 
   constructor() {
     let p = null;
@@ -491,10 +494,7 @@ export class ServiceContainer {
 
     const pinStateService = new PinStateService(this.stateProvider);
     this.pinService = new PinService(
-      this.accountService,
       this.encryptService,
-      this.kdfConfigService,
-      this.keyGenerationService,
       this.logService,
       this.keyService,
       this.sdkService,
@@ -529,6 +529,8 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
+
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       pinStateService,
@@ -540,6 +542,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.Never, // default vault timeout
+      sessionTimeoutTypeService,
     );
 
     const refreshAccessTokenErrorCallback = () => {
@@ -716,6 +719,10 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
+
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -743,6 +750,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.taskSchedulerService,
       this.configService,
+      this.accountCryptographicStateService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -878,6 +886,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.securityStateService,
       this.kdfConfigService,
+      this.accountCryptographicStateService,
     );
 
     this.totpService = new TotpService(this.sdkService);
@@ -904,7 +913,7 @@ export class ServiceContainer {
       this.collectionService,
       this.keyService,
       this.encryptService,
-      this.pinService,
+      this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
     );
@@ -912,7 +921,7 @@ export class ServiceContainer {
     this.individualExportService = new IndividualVaultExportService(
       this.folderService,
       this.cipherService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -926,7 +935,7 @@ export class ServiceContainer {
     this.organizationExportService = new OrganizationVaultExportService(
       this.cipherService,
       this.vaultExportApiService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -981,7 +990,12 @@ export class ServiceContainer {
 
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);
     const changeKdfApiService = new DefaultChangeKdfApiService(this.apiService);
-    const changeKdfService = new DefaultChangeKdfService(changeKdfApiService, this.sdkService);
+    const changeKdfService = new DefaultChangeKdfService(
+      changeKdfApiService,
+      this.sdkService,
+      this.keyService,
+      this.masterPasswordService,
+    );
     this.encryptedMigrator = new DefaultEncryptedMigrator(
       this.kdfConfigService,
       changeKdfService,
