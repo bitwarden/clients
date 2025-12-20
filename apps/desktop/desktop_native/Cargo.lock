@@ -325,6 +325,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26"
 
 [[package]]
+name = "autofill_provider"
+version = "0.0.0"
+dependencies = [
+ "desktop_core",
+ "futures",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "tracing-oslog",
+ "tracing-subscriber",
+ "uniffi",
+]
+
+[[package]]
 name = "autotype"
 version = "0.0.0"
 dependencies = [
@@ -1743,21 +1758,6 @@ name = "log"
 version = "0.4.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
-
-[[package]]
-name = "macos_provider"
-version = "0.0.0"
-dependencies = [
- "desktop_core",
- "futures",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
- "tracing-oslog",
- "tracing-subscriber",
- "uniffi",
-]
 
 [[package]]
 name = "matchers"

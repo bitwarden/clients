@@ -1,5 +1,5 @@
 [package]
-name = "macos_provider"
+name = "autofill_provider"
 edition = { workspace = true }
 license = { workspace = true }
 version = { workspace = true }
@@ -23,8 +23,8 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }
-tracing-oslog = "=0.3.0"
 tracing-subscriber = { workspace = true }
+tracing-oslog = "=0.3.0"
 
 [build-dependencies]
 uniffi = { workspace = true, features = ["build"] }
