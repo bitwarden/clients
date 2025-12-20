@@ -5,7 +5,7 @@ members = [
     "bitwarden_chromium_import_helper",
     "chromium_importer",
     "core",
-    "macos_provider",
+    "autofill_provider",
     "napi",
     "process_isolation",
     "proxy",

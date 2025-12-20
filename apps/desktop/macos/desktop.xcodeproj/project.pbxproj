@@ -17,7 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3368DB382C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BitwardenMacosProviderFFI.xcframework; path = ../desktop_native/macos_provider/BitwardenMacosProviderFFI.xcframework; sourceTree = "<group>"; };
+		3368DB382C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BitwardenMacosProviderFFI.xcframework; path = ../desktop_native/autofill_provider/BitwardenMacosProviderFFI.xcframework; sourceTree = "<group>"; };
 		3368DB3A2C654F3800896B75 /* BitwardenMacosProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitwardenMacosProvider.swift; sourceTree = "<group>"; };
 		968ED08A2C52A47200FFFEE6 /* ReleaseAppStore.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ReleaseAppStore.xcconfig; sourceTree = "<group>"; };
 		9AE299082DF9D82E00AAE454 /* bitwarden-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bitwarden-icon.png"; sourceTree = "<group>"; };

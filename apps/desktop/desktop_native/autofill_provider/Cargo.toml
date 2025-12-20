@@ -1,5 +1,5 @@
 [package]
-name = "macos_provider"
+name = "autofill_provider"
 edition = { workspace = true }
 license = { workspace = true }
 version = { workspace = true }
