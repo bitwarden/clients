@@ -1491,6 +1491,7 @@ export default class MainBackground {
       this.billingAccountProfileStateService,
       this.configService,
       this.organizationService,
+      this.platformUtilsService,
       this.stateProvider,
     );
 

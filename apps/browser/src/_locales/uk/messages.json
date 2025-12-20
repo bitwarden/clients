@@ -437,7 +437,7 @@
     "message": "Синхронізація"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Синхронізувати"
   },
   "lastSync": {
     "message": "Остання синхронізація:"
@@ -583,7 +583,7 @@
     "message": "Архівовані записи виключаються з результатів звичайного пошуку та пропозицій автозаповнення. Ви дійсно хочете архівувати цей запис?"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Для використання архіву необхідна передплата Premium."
   },
   "edit": {
     "message": "Змінити"
@@ -595,10 +595,10 @@
     "message": "Переглянути все"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Показати все"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Показати менше"
   },
   "viewLogin": {
     "message": "Переглянути запис"
@@ -803,10 +803,10 @@
     "message": "З блокуванням системи"
   },
   "onIdle": {
-    "message": "On system idle"
+    "message": "Бездіяльність системи"
   },
   "onSleep": {
-    "message": "On system sleep"
+    "message": "Режим сну"
   },
   "onRestart": {
     "message": "З перезапуском браузера"
@@ -1322,11 +1322,21 @@
   "exportFrom": {
     "message": "Експортувати з"
   },
-  "export": {
-    "message": "Export"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Import"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат файлу"
@@ -1407,25 +1417,25 @@
     "message": "Докладніше"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Сталася помилка під час оновлення налаштувань шифрування."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Оновіть свої налаштування шифрування"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Нові рекомендовані налаштування шифрування покращать безпеку вашого облікового запису. Щоб оновити їх, введіть свій головний пароль."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Щоб продовжити, підтвердьте свої облікові дані"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Введіть головний пароль"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Оновити налаштування"
   },
   "later": {
-    "message": "Later"
+    "message": "Пізніше"
   },
   "authenticatorKeyTotp": {
     "message": "Ключ автентифікації (TOTP)"
@@ -1458,13 +1468,13 @@
     "message": "Вкладення збережено"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Виправити шифрування"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "Для цього файлу використовується застарілий метод шифрування."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Вкладення оновлено"
   },
   "file": {
     "message": "Файл"
@@ -1476,7 +1486,7 @@
     "message": "Оберіть файл"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Записи переміщено"
   },
   "maxFileSize": {
     "message": "Максимальний розмір файлу 500 МБ."
@@ -1509,7 +1519,7 @@
     "message": "1 ГБ зашифрованого сховища для файлів."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ зашифрованого сховища для вкладених файлів.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1916,7 +1926,7 @@
     "message": "Рік завершення"
   },
   "monthly": {
-    "message": "month"
+    "message": "місяць"
   },
   "expiration": {
     "message": "Термін дії"
@@ -2488,7 +2498,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+    "message": "Ця сторінка заважає роботі Bitwarden. Задля безпеки вбудоване меню Bitwarden тимчасово вимкнено."
   },
   "setMasterPassword": {
     "message": "Встановити головний пароль"
@@ -4802,13 +4812,13 @@
     "message": "Безпека облікового запису"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Блокувальник шахрайства"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Виявлення шахрайства"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Показувати попередження перед відвідуванням підозрюваних шахрайських сайтів"
   },
   "notifications": {
     "message": "Сповіщення"
@@ -4956,7 +4966,7 @@
     "message": "Premium"
   },
   "unlockFeaturesWithPremium": {
-    "message": "Unlock reporting, emergency access, and more security features with Premium."
+    "message": "Розблокуйте звіти, екстрений доступ та інші функції безпеки, передплативши Premium."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Організації без передплати не можуть використовувати вкладення"
@@ -5043,7 +5053,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "Типово ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5863,25 +5873,25 @@
     "message": "Інші можливості!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Розширена онлайн-безпека"
   },
   "upgradeToPremium": {
     "message": "Покращити до Premium"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "Розблокуйте розширені функції безпеки"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "З передплатою Premium ви матимете більше інструментів безпеки та контролю"
   },
   "explorePremium": {
-    "message": "Explore Premium"
+    "message": "Ознайомитися з Premium"
   },
   "loadingVault": {
-    "message": "Loading vault"
+    "message": "Завантаження сховища"
   },
   "vaultLoaded": {
-    "message": "Vault loaded"
+    "message": "Сховище завантажено"
   },
   "settingDisabledByPolicy": {
     "message": "Цей параметр вимкнено політикою вашої організації.",
@@ -5894,52 +5904,52 @@
     "message": "Номер картки"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердіть організацію та домен."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Перейти до входу"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Не продовжувати"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Домен"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Цей домен зберігатиме ключі шифрування вашого облікового запису, тому переконайтеся в його надійності. Якщо ви не впевнені, зверніться до свого адміністратора."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Підтвердьте свою організацію, щоб увійти"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Організацію підтверджено"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Домен підтверджено"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Якщо ви не підтвердите свою організацію, ваш доступ до неї буде відкликаний."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Покинути"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Підтвердьте свій домен, щоб увійти"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Щоб перейти до входу, підтвердьте цей домен."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Щоб перейти до входу, підтвердьте організацію і домен."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Дія після часу очікування"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "Цим параметром керує ваша організація."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Ваша організація встановила максимальний час очікування сеансу $HOURS$ год і $MINUTES$ хв.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5952,16 +5962,16 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
-    "message": "Your organization has set the default session timeout to Immediately."
+    "message": "Ваша організація встановила максимальний час очікування сеансу \"Негайно\"."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Your organization has set the default session timeout to On system lock."
+    "message": "Ваша організація встановила максимальний час очікування сеансу \"Блокування системи\"."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to On browser restart."
+    "message": "Ваша організація встановила максимальний час очікування сеансу \"З перезапуском браузера\"."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "message": "Максимальний час очікування не може перевищувати $HOURS$ год і $MINUTES$ хв",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5974,25 +5984,25 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser restart"
+    "message": "З перезапуском браузера"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "Set an unlock method to change your timeout action"
+    "message": "Встановіть спосіб розблокування, щоб змінити дію під час очікування"
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "Оновити"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Ви дійсно хочете покинути?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Відхиливши, ваші особисті записи залишаться у вашому обліковому записі, але ви втратите доступ до спільних записів та функцій організації."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Зверніться до свого адміністратора, щоб відновити доступ."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Покинути $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6001,10 +6011,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Як керувати своїм сховищем?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Перемістити записи до $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6013,7 +6023,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "message": "З міркувань безпеки та для забезпечення відповідності $ORGANIZATION$ вимагає, щоб власником всіх елементів була організація. Натисніть кнопку \"прийняти\", щоб передати права власності на ваші елементи.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6022,12 +6032,12 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Схвалити переміщення"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Відхилити і покинути"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Чому я це бачу?"
   }
 }
