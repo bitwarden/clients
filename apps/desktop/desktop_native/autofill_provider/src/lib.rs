@@ -5,6 +5,8 @@ mod registration;
 mod util;
 mod window_handle_query;
 
+#[cfg(target_os = "macos")]
+use std::sync::Once;
 use std::{
     collections::HashMap,
     error::Error,
@@ -17,10 +19,15 @@ use std::{
     time::{Duration, Instant},
 };
 
-#[cfg(target_os = "macos")]
-use std::sync::Once;
-
+pub use assertion::{
+    PasskeyAssertionRequest, PasskeyAssertionResponse, PasskeyAssertionWithoutUserInterfaceRequest,
+    PreparePasskeyAssertionCallback,
+};
 use futures::FutureExt;
+pub use lock_status::LockStatusResponse;
+pub use registration::{
+    PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
+};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tracing::{error, info};
 #[cfg(target_os = "macos")]
@@ -29,21 +36,12 @@ use tracing_subscriber::{
     layer::SubscriberExt,
     util::SubscriberInitExt,
 };
+pub use window_handle_query::WindowHandleQueryResponse;
 
 use crate::{
     lock_status::{GetLockStatusCallback, LockStatusRequest},
     window_handle_query::{GetWindowHandleQueryCallback, WindowHandleQueryRequest},
 };
-
-pub use assertion::{
-    PasskeyAssertionRequest, PasskeyAssertionResponse, PasskeyAssertionWithoutUserInterfaceRequest,
-    PreparePasskeyAssertionCallback,
-};
-pub use lock_status::LockStatusResponse;
-pub use registration::{
-    PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
-};
-pub use window_handle_query::WindowHandleQueryResponse;
 
 #[cfg(target_os = "macos")]
 uniffi::setup_scaffolding!();
@@ -147,8 +145,6 @@ impl AutofillProviderClient {
 
 #[cfg_attr(target_os = "macos", uniffi::export)]
 impl AutofillProviderClient {
-    // FIXME: Remove unwraps! They panic and terminate the whole application.
-    #[allow(clippy::unwrap_used)]
     #[cfg_attr(target_os = "macos", uniffi::constructor)]
     pub fn connect() -> Self {
         #[cfg(target_os = "macos")]
@@ -210,7 +206,7 @@ impl AutofillProviderClient {
                         Ok(SerializedMessage::Message {
                             sequence_number,
                             value,
-                        }) => match queue.lock().unwrap().remove(&sequence_number) {
+                        }) => match queue.lock().expect("not poisoned").remove(&sequence_number) {
                             Some((cb, request_start_time)) => {
                                 info!(
                                     "Time to process request: {:?}",
@@ -302,7 +298,6 @@ enum SerializedMessage {
 }
 
 impl AutofillProviderClient {
-    #[allow(clippy::unwrap_used)]
     fn add_callback(&self, callback: Box<dyn Callback>) -> u32 {
         let sequence_number = self
             .response_callbacks_counter
@@ -316,7 +311,6 @@ impl AutofillProviderClient {
         sequence_number
     }
 
-    #[allow(clippy::unwrap_used)]
     fn send_message(
         &self,
         message: impl Serialize + DeserializeOwned,
@@ -328,13 +322,24 @@ impl AutofillProviderClient {
             NO_CALLBACK_INDICATOR
         };
 
-        let message = serde_json::to_string(&SerializedMessage::Message {
-            sequence_number,
-            value: Ok(serde_json::to_value(message).unwrap()),
-        })
-        .expect("Can't serialize message");
-
-        if let Err(e) = self.to_server_send.blocking_send(message) {
+        fn inner(
+            sequence_number: u32,
+            message: impl Serialize + DeserializeOwned,
+            tx: &tokio::sync::mpsc::Sender<String>,
+        ) -> Result<(), String> {
+            let value = serde_json::to_value(message)
+                .map_err(|err| format!("Could not represent message as JSON: {err}"))?;
+            let message = SerializedMessage::Message {
+                sequence_number,
+                value: Ok(value),
+            };
+            let json = serde_json::to_string(&message)
+                .map_err(|err| format!("Could not serialize message as JSON: {err}"))?;
+            tx.blocking_send(json)
+                .map_err(|err| format!("Error sending message: {err}"))?;
+            Ok(())
+        }
+        if let Err(e) = inner(sequence_number, message, &self.to_server_send) {
             // Make sure we remove the callback from the queue if we can't send the message
             if sequence_number != NO_CALLBACK_INDICATOR {
                 if let Some((callback, _)) = self
@@ -368,9 +373,17 @@ impl Display for CallbackError {
 }
 impl std::error::Error for CallbackError {}
 
+type CallbackResponse<T> = Result<T, BitwardenError>;
+
 pub struct TimedCallback<T> {
-    tx: Arc<Mutex<Option<Sender<Result<T, BitwardenError>>>>>,
-    rx: Arc<Mutex<Receiver<Result<T, BitwardenError>>>>,
+    tx: Arc<Mutex<Option<Sender<CallbackResponse<T>>>>>,
+    rx: Arc<Mutex<Receiver<CallbackResponse<T>>>>,
+}
+
+impl<T: Send + 'static> Default for TimedCallback<T> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<T: Send + 'static> TimedCallback<T> {
@@ -392,7 +405,11 @@ impl<T: Send + 'static> TimedCallback<T> {
             let tx2 = tx.clone();
             let cancellation_token = Mutex::new(cancellation_token);
             std::thread::spawn(move || {
-                if let Ok(()) = cancellation_token.lock().unwrap().recv_timeout(timeout) {
+                if let Ok(()) = cancellation_token
+                    .lock()
+                    .expect("not poisoned")
+                    .recv_timeout(timeout)
+                {
                     tracing::debug!("Forwarding cancellation");
                     _ = tx2.send(Err(CallbackError::Cancelled));
                 }
@@ -400,7 +417,11 @@ impl<T: Send + 'static> TimedCallback<T> {
         }
         let response_rx = self.rx.clone();
         std::thread::spawn(move || {
-            if let Ok(response) = response_rx.lock().unwrap().recv_timeout(timeout) {
+            if let Ok(response) = response_rx
+                .lock()
+                .expect("not poisoned")
+                .recv_timeout(timeout)
+            {
                 _ = tx.send(Ok(response));
             }
         });
@@ -420,9 +441,9 @@ impl<T: Send + 'static> TimedCallback<T> {
     }
 
     fn send(&self, response: Result<T, BitwardenError>) {
-        match self.tx.lock().unwrap().take() {
+        match self.tx.lock().expect("not poisoned").take() {
             Some(tx) => {
-                if let Err(_) = tx.send(response) {
+                if tx.send(response).is_err() {
                     tracing::error!("Windows provider channel closed before receiving IPC response from Electron")
                 }
             }
