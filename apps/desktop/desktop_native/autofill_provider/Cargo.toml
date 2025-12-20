@@ -14,7 +14,7 @@ crate-type = ["lib", "staticlib", "cdylib"]
 bench = false
 
 [dependencies]
-base64 = { workspace = true}
+base64 = { workspace = true }
 desktop_core = { path = "../core" }
 futures = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

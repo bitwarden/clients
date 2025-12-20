@@ -1,11 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
+    "autofill_provider",
     "autotype",
     "bitwarden_chromium_import_helper",
     "chromium_importer",
     "core",
-    "autofill_provider",
     "napi",
     "process_isolation",
     "proxy",
