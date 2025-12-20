@@ -1,35 +1,58 @@
-#![cfg(target_os = "macos")]
 #![allow(clippy::disallowed_macros)] // uniffi macros trip up clippy's evaluation
+mod assertion;
+mod lock_status;
+mod registration;
+mod util;
+mod window_handle_query;
 
 use std::{
     collections::HashMap,
-    sync::{atomic::AtomicU32, Arc, Mutex, Once},
-    time::Instant,
+    error::Error,
+    fmt::Display,
+    sync::{
+        atomic::AtomicU32,
+        mpsc::{self, Receiver, RecvTimeoutError, Sender},
+        Arc, Mutex,
+    },
+    time::{Duration, Instant},
 };
+
+#[cfg(target_os = "macos")]
+use std::sync::Once;
 
 use futures::FutureExt;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tracing::{error, info};
+#[cfg(target_os = "macos")]
 use tracing_subscriber::{
     filter::{EnvFilter, LevelFilter},
     layer::SubscriberExt,
     util::SubscriberInitExt,
 };
 
-uniffi::setup_scaffolding!();
+use crate::{
+    lock_status::{GetLockStatusCallback, LockStatusRequest},
+    window_handle_query::{GetWindowHandleQueryCallback, WindowHandleQueryRequest},
+};
 
-mod assertion;
-mod registration;
-
-use assertion::{
-    PasskeyAssertionRequest, PasskeyAssertionWithoutUserInterfaceRequest,
+pub use assertion::{
+    PasskeyAssertionRequest, PasskeyAssertionResponse, PasskeyAssertionWithoutUserInterfaceRequest,
     PreparePasskeyAssertionCallback,
 };
-use registration::{PasskeyRegistrationRequest, PreparePasskeyRegistrationCallback};
+pub use lock_status::LockStatusResponse;
+pub use registration::{
+    PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
+};
+pub use window_handle_query::WindowHandleQueryResponse;
 
+#[cfg(target_os = "macos")]
+uniffi::setup_scaffolding!();
+
+#[cfg(target_os = "macos")]
 static INIT: Once = Once::new();
 
-#[derive(uniffi::Enum, Debug, Serialize, Deserialize)]
+#[cfg_attr(target_os = "macos", derive(uniffi::Enum))]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum UserVerification {
     Preferred,
@@ -37,17 +60,29 @@ pub enum UserVerification {
     Discouraged,
 }
 
-#[derive(uniffi::Record, Debug, Serialize, Deserialize)]
+#[cfg_attr(target_os = "macos", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Position {
     pub x: i32,
     pub y: i32,
 }
 
-#[derive(Debug, uniffi::Error, Serialize, Deserialize)]
+#[cfg_attr(target_os = "macos", derive(uniffi::Error))]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum BitwardenError {
     Internal(String),
 }
+
+impl Display for BitwardenError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Internal(msg) => write!(f, "Internal error occurred: {msg}"),
+        }
+    }
+}
+
+impl Error for BitwardenError {}
 
 // TODO: These have to be named differently than the actual Uniffi traits otherwise
 // the generated code will lead to ambiguous trait implementations
@@ -57,16 +92,17 @@ trait Callback: Send + Sync {
     fn error(&self, error: BitwardenError);
 }
 
-#[derive(uniffi::Enum, Debug)]
-/// Store the connection status between the macOS credential provider extension
+#[cfg_attr(target_os = "macos", derive(uniffi::Enum))]
+#[derive(Debug)]
+/// Store the connection status between the credential provider extension
 /// and the desktop application's IPC server.
 pub enum ConnectionStatus {
     Connected,
     Disconnected,
 }
 
-#[derive(uniffi::Object)]
-pub struct MacOSProviderClient {
+#[cfg_attr(target_os = "macos", derive(uniffi::Object))]
+pub struct AutofillProviderClient {
     to_server_send: tokio::sync::mpsc::Sender<String>,
 
     // We need to keep track of the callbacks so we can call them when we receive a response
@@ -81,7 +117,7 @@ pub struct MacOSProviderClient {
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Store native desktop status information to use for IPC communication
-/// between the application and the macOS credential provider.
+/// between the application and the credential provider.
 pub struct NativeStatus {
     key: String,
     value: String,
@@ -91,12 +127,31 @@ pub struct NativeStatus {
 // have a callback.
 const NO_CALLBACK_INDICATOR: u32 = 0;
 
-#[uniffi::export]
-impl MacOSProviderClient {
+// These methods are not currently needed in macOS and/or cannot be exported via FFI
+impl AutofillProviderClient {
+    pub fn is_available() -> bool {
+        desktop_core::ipc::path("af").exists()
+    }
+
+    pub fn get_lock_status(&self, callback: Arc<dyn GetLockStatusCallback>) {
+        self.send_message(LockStatusRequest {}, Some(Box::new(callback)));
+    }
+
+    pub fn get_window_handle(&self, callback: Arc<dyn GetWindowHandleQueryCallback>) {
+        self.send_message(
+            WindowHandleQueryRequest::default(),
+            Some(Box::new(callback)),
+        );
+    }
+}
+
+#[cfg_attr(target_os = "macos", uniffi::export)]
+impl AutofillProviderClient {
     // FIXME: Remove unwraps! They panic and terminate the whole application.
     #[allow(clippy::unwrap_used)]
-    #[uniffi::constructor]
+    #[cfg_attr(target_os = "macos", uniffi::constructor)]
     pub fn connect() -> Self {
+        #[cfg(target_os = "macos")]
         INIT.call_once(|| {
             let filter = EnvFilter::builder()
                 // Everything logs at `INFO`
@@ -112,10 +167,12 @@ impl MacOSProviderClient {
                 .init();
         });
 
+        tracing::debug!("Autofill provider attempting to connect to Electron IPC...");
+
         let (from_server_send, mut from_server_recv) = tokio::sync::mpsc::channel(32);
         let (to_server_send, to_server_recv) = tokio::sync::mpsc::channel(32);
 
-        let client = MacOSProviderClient {
+        let client = AutofillProviderClient {
             to_server_send,
             response_callbacks_counter: AtomicU32::new(1), /* Start at 1 since 0 is reserved for
                                                             * "no callback" scenarios */
@@ -244,7 +301,7 @@ enum SerializedMessage {
     },
 }
 
-impl MacOSProviderClient {
+impl AutofillProviderClient {
     #[allow(clippy::unwrap_used)]
     fn add_callback(&self, callback: Box<dyn Callback>) -> u32 {
         let sequence_number = self
@@ -292,5 +349,96 @@ impl MacOSProviderClient {
                 }
             }
         }
+    }
+}
+
+#[derive(Debug)]
+pub enum CallbackError {
+    Timeout,
+    Cancelled,
+}
+
+impl Display for CallbackError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Timeout => f.write_str("Callback timed out"),
+            Self::Cancelled => f.write_str("Callback cancelled"),
+        }
+    }
+}
+impl std::error::Error for CallbackError {}
+
+pub struct TimedCallback<T> {
+    tx: Arc<Mutex<Option<Sender<Result<T, BitwardenError>>>>>,
+    rx: Arc<Mutex<Receiver<Result<T, BitwardenError>>>>,
+}
+
+impl<T: Send + 'static> TimedCallback<T> {
+    pub fn new() -> Self {
+        let (tx, rx) = mpsc::channel();
+        Self {
+            tx: Arc::new(Mutex::new(Some(tx))),
+            rx: Arc::new(Mutex::new(rx)),
+        }
+    }
+
+    pub fn wait_for_response(
+        &self,
+        timeout: Duration,
+        cancellation_token: Option<Receiver<()>>,
+    ) -> Result<Result<T, BitwardenError>, CallbackError> {
+        let (tx, rx) = mpsc::channel();
+        if let Some(cancellation_token) = cancellation_token {
+            let tx2 = tx.clone();
+            let cancellation_token = Mutex::new(cancellation_token);
+            std::thread::spawn(move || {
+                if let Ok(()) = cancellation_token.lock().unwrap().recv_timeout(timeout) {
+                    tracing::debug!("Forwarding cancellation");
+                    _ = tx2.send(Err(CallbackError::Cancelled));
+                }
+            });
+        }
+        let response_rx = self.rx.clone();
+        std::thread::spawn(move || {
+            if let Ok(response) = response_rx.lock().unwrap().recv_timeout(timeout) {
+                _ = tx.send(Ok(response));
+            }
+        });
+        match rx.recv_timeout(timeout) {
+            Ok(Ok(response)) => Ok(response),
+            Ok(err @ Err(CallbackError::Cancelled)) => {
+                tracing::debug!("Received cancellation, dropping.");
+                err
+            }
+            Ok(err @ Err(CallbackError::Timeout)) => {
+                tracing::debug!("Request timed out, dropping.");
+                err
+            }
+            Err(RecvTimeoutError::Timeout) => Err(CallbackError::Timeout),
+            Err(_) => Err(CallbackError::Cancelled),
+        }
+    }
+
+    fn send(&self, response: Result<T, BitwardenError>) {
+        match self.tx.lock().unwrap().take() {
+            Some(tx) => {
+                if let Err(_) = tx.send(response) {
+                    tracing::error!("Windows provider channel closed before receiving IPC response from Electron")
+                }
+            }
+            None => {
+                tracing::error!("Callback channel used before response: multi-threading issue?");
+            }
+        }
+    }
+}
+
+impl PreparePasskeyRegistrationCallback for TimedCallback<PasskeyRegistrationResponse> {
+    fn on_complete(&self, credential: PasskeyRegistrationResponse) {
+        self.send(Ok(credential));
+    }
+
+    fn on_error(&self, error: BitwardenError) {
+        self.send(Err(error))
     }
 }

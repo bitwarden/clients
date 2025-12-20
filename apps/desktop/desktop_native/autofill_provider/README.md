@@ -1,3 +1,7 @@
+# Autofill Provider
+
+A library for native autofill providers to interact with a host Bitwarden desktop app.
+
 # Explainer: Mac OS Native Passkey Provider
 
 This document describes the changes introduced in https://github.com/bitwarden/clients/pull/13963, where we introduce the MacOS Native Passkey Provider. It gives the high level explanation of the architecture and some of the quirks and additional good to know context.

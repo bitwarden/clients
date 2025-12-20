@@ -2,44 +2,60 @@ use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
+#[cfg(not(target_os = "macos"))]
+use crate::TimedCallback;
 use crate::{BitwardenError, Callback, Position, UserVerification};
 
-#[derive(uniffi::Record, Debug, Serialize, Deserialize)]
+#[cfg_attr(target_os = "macos", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionRequest {
-    rp_id: String,
-    client_data_hash: Vec<u8>,
-    user_verification: UserVerification,
-    allowed_credentials: Vec<Vec<u8>>,
-    window_xy: Position,
-    //extension_input: Vec<u8>, TODO: Implement support for extensions
+    pub rp_id: String,
+    pub client_data_hash: Vec<u8>,
+    pub user_verification: UserVerification,
+    pub allowed_credentials: Vec<Vec<u8>>,
+    pub window_xy: Position,
+    #[cfg(not(target_os = "macos"))]
+    pub client_window_handle: Vec<u8>,
+    #[cfg(not(target_os = "macos"))]
+    pub context: String,
+    // pub extension_input: Vec<u8>, TODO: Implement support for extensions
 }
 
-#[derive(uniffi::Record, Debug, Serialize, Deserialize)]
+#[cfg_attr(target_os = "macos", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionWithoutUserInterfaceRequest {
-    rp_id: String,
-    credential_id: Vec<u8>,
-    user_name: String,
-    user_handle: Vec<u8>,
-    record_identifier: Option<String>,
-    client_data_hash: Vec<u8>,
-    user_verification: UserVerification,
-    window_xy: Position,
+    pub rp_id: String,
+    pub credential_id: Vec<u8>,
+    #[cfg(target_os = "macos")]
+    pub user_name: String,
+    #[cfg(target_os = "macos")]
+    pub user_handle: Vec<u8>,
+    #[cfg(target_os = "macos")]
+    pub record_identifier: Option<String>,
+    pub client_data_hash: Vec<u8>,
+    pub user_verification: UserVerification,
+    pub window_xy: Position,
+    #[cfg(not(target_os = "macos"))]
+    pub client_window_handle: Vec<u8>,
+    #[cfg(not(target_os = "macos"))]
+    pub context: String,
 }
 
-#[derive(uniffi::Record, Serialize, Deserialize)]
+#[cfg_attr(target_os = "macos", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionResponse {
-    rp_id: String,
-    user_handle: Vec<u8>,
-    signature: Vec<u8>,
-    client_data_hash: Vec<u8>,
-    authenticator_data: Vec<u8>,
-    credential_id: Vec<u8>,
+    pub rp_id: String,
+    pub user_handle: Vec<u8>,
+    pub signature: Vec<u8>,
+    pub client_data_hash: Vec<u8>,
+    pub authenticator_data: Vec<u8>,
+    pub credential_id: Vec<u8>,
 }
 
-#[uniffi::export(with_foreign)]
+#[cfg_attr(target_os = "macos", uniffi::export(with_foreign))]
 pub trait PreparePasskeyAssertionCallback: Send + Sync {
     fn on_complete(&self, credential: PasskeyAssertionResponse);
     fn on_error(&self, error: BitwardenError);
@@ -54,5 +70,16 @@ impl Callback for Arc<dyn PreparePasskeyAssertionCallback> {
 
     fn error(&self, error: BitwardenError) {
         PreparePasskeyAssertionCallback::on_error(self.as_ref(), error);
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+impl PreparePasskeyAssertionCallback for TimedCallback<PasskeyAssertionResponse> {
+    fn on_complete(&self, credential: PasskeyAssertionResponse) {
+        self.send(Ok(credential));
+    }
+
+    fn on_error(&self, error: BitwardenError) {
+        self.send(Err(error))
     }
 }
