@@ -2,8 +2,12 @@
 
 cd "$(dirname "$0")"
 
-rm -r BitwardenMacosProviderFFI.xcframework
-rm -r tmp
+if [ -d "BitwardenMacosProviderFFI.xcframework" ]; then
+  rm -r "BitwardenMacosProviderFFI.xcframework"
+fi
+if [ -d "tmp" ]; then
+  rm -r "tmp"
+fi
 
 mkdir -p ./tmp/target/universal-darwin/release/
 

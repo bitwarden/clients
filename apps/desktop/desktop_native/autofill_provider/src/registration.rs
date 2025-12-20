@@ -4,29 +4,35 @@ use serde::{Deserialize, Serialize};
 
 use crate::{BitwardenError, Callback, Position, UserVerification};
 
-#[derive(uniffi::Record, Debug, Serialize, Deserialize)]
+#[cfg_attr(target_os = "macos", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyRegistrationRequest {
-    rp_id: String,
-    user_name: String,
-    user_handle: Vec<u8>,
-    client_data_hash: Vec<u8>,
-    user_verification: UserVerification,
-    supported_algorithms: Vec<i32>,
-    window_xy: Position,
-    excluded_credentials: Vec<Vec<u8>>,
+    pub rp_id: String,
+    pub user_name: String,
+    pub user_handle: Vec<u8>,
+    pub client_data_hash: Vec<u8>,
+    pub user_verification: UserVerification,
+    pub supported_algorithms: Vec<i32>,
+    pub window_xy: Position,
+    pub excluded_credentials: Vec<Vec<u8>>,
+    #[cfg(not(target_os = "macos"))]
+    pub client_window_handle: Vec<u8>,
+    #[cfg(not(target_os = "macos"))]
+    pub context: String,
 }
 
-#[derive(uniffi::Record, Serialize, Deserialize)]
+#[cfg_attr(target_os = "macos", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyRegistrationResponse {
-    rp_id: String,
-    client_data_hash: Vec<u8>,
-    credential_id: Vec<u8>,
-    attestation_object: Vec<u8>,
+    pub rp_id: String,
+    pub client_data_hash: Vec<u8>,
+    pub credential_id: Vec<u8>,
+    pub attestation_object: Vec<u8>,
 }
 
-#[uniffi::export(with_foreign)]
+#[cfg_attr(target_os = "macos", uniffi::export(with_foreign))]
 pub trait PreparePasskeyRegistrationCallback: Send + Sync {
     fn on_complete(&self, credential: PasskeyRegistrationResponse);
     fn on_error(&self, error: BitwardenError);
