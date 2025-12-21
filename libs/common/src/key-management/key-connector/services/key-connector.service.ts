@@ -34,6 +34,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
+import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "../../crypto";
 import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
@@ -92,6 +93,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private configService: ConfigService,
     private registerSdkService: RegisterSdkService,
     private securityStateService: SecurityStateService,
+    private accountCryptographicStateService: AccountCryptographicStateService,
   ) {
     this.convertAccountRequired$ = accountService.activeAccount$.pipe(
       filter((account) => account != null),
@@ -243,16 +245,21 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       userId,
     );
 
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      result.account_cryptographic_state,
+      userId,
+    );
+    // Legacy states
     await this.keyService.setPrivateKey(result.account_cryptographic_state.V2.private_key, userId);
+    await this.keyService.setUserSigningKey(
+      result.account_cryptographic_state.V2.signing_key as WrappedSigningKey,
+      userId,
+    );
+    await this.securityStateService.setAccountSecurityState(
+      result.account_cryptographic_state.V2.security_state as SignedSecurityState,
+      userId,
+    );
     if (result.account_cryptographic_state.V2.signed_public_key != null) {
-      await this.keyService.setUserSigningKey(
-        result.account_cryptographic_state.V2.signing_key as WrappedSigningKey,
-        userId,
-      );
-      await this.securityStateService.setAccountSecurityState(
-        result.account_cryptographic_state.V2.security_state as SignedSecurityState,
-        userId,
-      );
       await this.keyService.setSignedPublicKey(
         result.account_cryptographic_state.V2.signed_public_key as SignedPublicKey,
         userId,

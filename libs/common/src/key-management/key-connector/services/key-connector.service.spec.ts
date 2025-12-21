@@ -25,6 +25,7 @@ import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
+import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "../../crypto";
 import { EncString } from "../../crypto/models/enc-string";
 import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
@@ -57,6 +58,7 @@ describe("KeyConnectorService", () => {
   const configService = mock<ConfigService>();
   const registerSdkService = mock<RegisterSdkService>();
   const securityStateService = mock<SecurityStateService>();
+  const accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
   let stateProvider: FakeStateProvider;
 
@@ -100,6 +102,7 @@ describe("KeyConnectorService", () => {
       configService,
       registerSdkService,
       securityStateService,
+      accountCryptographicStateService,
     );
   });
 
@@ -516,6 +519,17 @@ describe("KeyConnectorService", () => {
           expect.any(EncString),
           mockUserId,
         );
+        expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+          {
+            V2: {
+              private_key: mockPrivateKey,
+              signing_key: mockSigningKey,
+              signed_public_key: mockSignedPublicKey,
+              security_state: mockSecurityState,
+            },
+          },
+          mockUserId,
+        );
         expect(keyService.setPrivateKey).toHaveBeenCalledWith(mockPrivateKey, mockUserId);
         expect(keyService.setUserSigningKey).toHaveBeenCalledWith(mockSigningKey, mockUserId);
         expect(securityStateService.setAccountSecurityState).toHaveBeenCalledWith(
@@ -546,6 +560,9 @@ describe("KeyConnectorService", () => {
         expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
         expect(keyService.setUserKey).not.toHaveBeenCalled();
         expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
+        expect(
+          accountCryptographicStateService.setAccountCryptographicState,
+        ).not.toHaveBeenCalled();
         expect(keyService.setPrivateKey).not.toHaveBeenCalled();
         expect(keyService.setUserSigningKey).not.toHaveBeenCalled();
         expect(securityStateService.setAccountSecurityState).not.toHaveBeenCalled();
@@ -581,6 +598,9 @@ describe("KeyConnectorService", () => {
         expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
         expect(keyService.setUserKey).not.toHaveBeenCalled();
         expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
+        expect(
+          accountCryptographicStateService.setAccountCryptographicState,
+        ).not.toHaveBeenCalled();
         expect(keyService.setPrivateKey).not.toHaveBeenCalled();
         expect(keyService.setUserSigningKey).not.toHaveBeenCalled();
         expect(securityStateService.setAccountSecurityState).not.toHaveBeenCalled();
@@ -608,6 +628,9 @@ describe("KeyConnectorService", () => {
         expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
         expect(keyService.setUserKey).not.toHaveBeenCalled();
         expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
+        expect(
+          accountCryptographicStateService.setAccountCryptographicState,
+        ).not.toHaveBeenCalled();
         expect(keyService.setPrivateKey).not.toHaveBeenCalled();
         expect(keyService.setUserSigningKey).not.toHaveBeenCalled();
         expect(securityStateService.setAccountSecurityState).not.toHaveBeenCalled();
