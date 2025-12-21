@@ -14,6 +14,7 @@ export abstract class PinStateServiceAbstraction {
   /**
    * Checks if a user is enrolled into PIN unlock
    * @param userId The user's id
+   * @throws If the user id is not provided
    */
   abstract pinSet$(userId: UserId): Observable<boolean>;
 
