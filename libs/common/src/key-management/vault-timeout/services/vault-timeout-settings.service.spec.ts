@@ -99,16 +99,13 @@ describe("VaultTimeoutSettingsService", () => {
       it("contains Lock when the user has a master password", async () => {
         userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: true }));
 
-        const hasMasterPasswordSpy = jest.spyOn(
-          userDecryptionOptionsService,
-          "hasMasterPasswordById$",
-        );
-
         const result = await firstValueFrom(
           vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
         );
 
-        expect(hasMasterPasswordSpy).toHaveBeenCalledWith(mockUserId);
+        expect(userDecryptionOptionsService.hasMasterPasswordById$).toHaveBeenCalledWith(
+          mockUserId,
+        );
         expect(result).toContain(VaultTimeoutAction.Lock);
       });
 
@@ -156,41 +153,39 @@ describe("VaultTimeoutSettingsService", () => {
 
     describe("with explicit userId parameter", () => {
       it("should return Lock and LogOut when provided user has master password", async () => {
-        const hasMasterPasswordSpy = jest
-          .spyOn(userDecryptionOptionsService, "hasMasterPasswordById$")
-          .mockReturnValue(of(true));
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(true));
 
         const result = await firstValueFrom(
           vaultTimeoutSettingsService.availableVaultTimeoutActions$(mockUserId),
         );
 
-        expect(hasMasterPasswordSpy).toHaveBeenCalledWith(mockUserId);
+        expect(userDecryptionOptionsService.hasMasterPasswordById$).toHaveBeenCalledWith(
+          mockUserId,
+        );
         expect(result).toContain(VaultTimeoutAction.Lock);
         expect(result).toContain(VaultTimeoutAction.LogOut);
       });
 
       it("should return Lock and LogOut when provided user has PIN configured", async () => {
-        const pinSpy = jest.spyOn(pinStateService, "pinSet$").mockReturnValue(of(true));
+        pinStateService.pinSet$.mockReturnValue(of(true));
 
         const result = await firstValueFrom(
           vaultTimeoutSettingsService.availableVaultTimeoutActions$(mockUserId),
         );
 
-        expect(pinSpy).toHaveBeenCalledWith(mockUserId);
+        expect(pinStateService.pinSet$).toHaveBeenCalledWith(mockUserId);
         expect(result).toContain(VaultTimeoutAction.Lock);
         expect(result).toContain(VaultTimeoutAction.LogOut);
       });
 
       it("should return Lock and LogOut when provided user has biometrics configured", async () => {
-        const biometricSpy = jest
-          .spyOn(biometricStateService, "biometricUnlockEnabled$")
-          .mockReturnValue(of(true));
+        biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
 
         const result = await firstValueFrom(
           vaultTimeoutSettingsService.availableVaultTimeoutActions$(mockUserId),
         );
 
-        expect(biometricSpy).toHaveBeenCalledWith(mockUserId);
+        expect(biometricStateService.biometricUnlockEnabled$).toHaveBeenCalledWith(mockUserId);
         expect(result).toContain(VaultTimeoutAction.Lock);
         expect(result).toContain(VaultTimeoutAction.LogOut);
       });
