@@ -50,6 +50,7 @@ describe("KeyConnectorService", () => {
   let masterPasswordService: FakeMasterPasswordService;
 
   const mockUserId = Utils.newGuid() as UserId;
+  const mockSsoOrgIdentifier = "test-sso-org-id";
   const mockOrgId = Utils.newGuid() as OrganizationId;
 
   const mockMasterKeyResponse: KeyConnectorUserKeyResponse = new KeyConnectorUserKeyResponse({
@@ -61,7 +62,7 @@ describe("KeyConnectorService", () => {
   const conversion: NewSsoUserKeyConnectorConversion = {
     kdfConfig: new PBKDF2KdfConfig(600_000),
     keyConnectorUrl,
-    organizationId: mockOrgId,
+    organizationId: mockSsoOrgIdentifier,
   };
 
   beforeEach(() => {
@@ -455,7 +456,7 @@ describe("KeyConnectorService", () => {
         const conversion: NewSsoUserKeyConnectorConversion = {
           kdfConfig: expectedKdfConfig,
           keyConnectorUrl: keyConnectorUrl,
-          organizationId: mockOrgId,
+          organizationId: mockSsoOrgIdentifier,
         };
         const conversionState = stateProvider.singleUser.getFake(
           mockUserId,
@@ -492,7 +493,7 @@ describe("KeyConnectorService", () => {
           new SetKeyConnectorKeyRequest(
             mockMakeUserKeyResult[1].encryptedString!,
             expectedKdfConfig,
-            mockOrgId,
+            mockSsoOrgIdentifier,
             new KeysRequest(mockKeyPair[0], mockKeyPair[1].encryptedString!),
           ),
         );

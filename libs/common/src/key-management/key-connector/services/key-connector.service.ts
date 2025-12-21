@@ -28,6 +28,7 @@ import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
+import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
@@ -168,7 +169,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       throw new Error("Key Connector conversion not found");
     }
 
-    const { kdfConfig, keyConnectorUrl, organizationId } = conversion;
+    const { kdfConfig, keyConnectorUrl, organizationId: ssoOrganizationIdentifier } = conversion;
 
     if (
       await firstValueFrom(
@@ -177,13 +178,17 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         ),
       )
     ) {
-      await this.convertNewSsoUserToKeyConnectorV2(userId, keyConnectorUrl, organizationId);
+      await this.convertNewSsoUserToKeyConnectorV2(
+        userId,
+        keyConnectorUrl,
+        ssoOrganizationIdentifier,
+      );
     } else {
       await this.convertNewSsoUserToKeyConnectorV1(
         userId,
         kdfConfig,
         keyConnectorUrl,
-        organizationId,
+        ssoOrganizationIdentifier,
       );
     }
 
@@ -195,7 +200,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   async convertNewSsoUserToKeyConnectorV2(
     userId: UserId,
     keyConnectorUrl: string,
-    organizationId: string,
+    ssoOrganizationIdentifier: string,
   ) {
     await SdkLoadService.Ready;
 
@@ -211,7 +216,11 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
           return ref.value
             .auth()
             .registration()
-            .post_keys_for_key_connector_registration(keyConnectorUrl, organizationId, userId);
+            .post_keys_for_key_connector_registration(
+              keyConnectorUrl,
+              ssoOrganizationIdentifier,
+              asUuid(userId),
+            );
         }),
       ),
     );
@@ -225,7 +234,10 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       SymmetricCryptoKey.fromString(result.key_connector_key) as MasterKey,
       userId,
     );
-    await this.keyService.setUserKey(new SymmetricCryptoKey(result.user_key) as UserKey, userId);
+    await this.keyService.setUserKey(
+      SymmetricCryptoKey.fromString(result.user_key) as UserKey,
+      userId,
+    );
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(
       new EncString(result.key_connector_key_wrapped_user_key),
       userId,
@@ -252,7 +264,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     userId: UserId,
     kdfConfig: KdfConfig,
     keyConnectorUrl: string,
-    organizationId: string,
+    ssoOrganizationIdentifier: string,
   ) {
     const password = await this.keyGenerationService.createKey(512);
 
@@ -282,7 +294,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     const setPasswordRequest = new SetKeyConnectorKeyRequest(
       userKey[1].encryptedString,
       kdfConfig,
-      organizationId,
+      ssoOrganizationIdentifier,
       keys,
     );
     await this.apiService.postSetKeyConnectorKey(setPasswordRequest);
