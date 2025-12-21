@@ -13,7 +13,6 @@ import {
   PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
   PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
   USER_KEY_ENCRYPTED_PIN,
-  PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT,
 } from "./pin.state";
 
 export class PinStateService implements PinStateServiceAbstraction {
@@ -37,14 +36,12 @@ export class PinStateService implements PinStateServiceAbstraction {
 
     return combineLatest([
       this.pinProtectedUserKeyEnvelope$(userId, "PERSISTENT").pipe(map((key) => key != null)),
-      // Deprecated
-      this.legacyPinKeyEncryptedUserKeyPersistent$(userId).pipe(map((key) => key != null)),
       this.stateProvider
         .getUserState$(USER_KEY_ENCRYPTED_PIN, userId)
         .pipe(map((key) => key != null)),
     ]).pipe(
-      map(([isPersistentPinSet, isLegacyPersistentPinSet, isPinSet]) => {
-        if (isPersistentPinSet || isLegacyPersistentPinSet) {
+      map(([isPersistentPinSet, isPinSet]) => {
+        if (isPersistentPinSet) {
           return "PERSISTENT";
         } else if (isPinSet) {
           return "EPHEMERAL";
@@ -68,12 +65,6 @@ export class PinStateService implements PinStateServiceAbstraction {
     assertNonNullish(userId, "userId");
 
     return await firstValueFrom(this.pinProtectedUserKeyEnvelope$(userId, pinLockType));
-  }
-
-  async getLegacyPinKeyEncryptedUserKeyPersistent(userId: UserId): Promise<EncString | null> {
-    assertNonNullish(userId, "userId");
-
-    return await firstValueFrom(this.legacyPinKeyEncryptedUserKeyPersistent$(userId));
   }
 
   async setPinState(
@@ -111,9 +102,6 @@ export class PinStateService implements PinStateServiceAbstraction {
     await this.stateProvider.setUserState(USER_KEY_ENCRYPTED_PIN, null, userId);
     await this.stateProvider.setUserState(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, null, userId);
     await this.stateProvider.setUserState(PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT, null, userId);
-
-    // Note: This can be deleted after sufficiently many PINs are migrated and the state is removed.
-    await this.stateProvider.setUserState(PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT, null, userId);
   }
 
   async clearEphemeralPinState(userId: UserId): Promise<void> {
@@ -135,13 +123,5 @@ export class PinStateService implements PinStateServiceAbstraction {
     } else {
       throw new Error(`Unsupported PinLockType: ${pinLockType}`);
     }
-  }
-
-  private legacyPinKeyEncryptedUserKeyPersistent$(userId: UserId): Observable<EncString | null> {
-    assertNonNullish(userId, "userId");
-
-    return this.stateProvider
-      .getUserState$(PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT, userId)
-      .pipe(map((value) => (value ? new EncString(value) : null)));
   }
 }

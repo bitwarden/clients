@@ -172,7 +172,7 @@ class KitchenSinkDialogComponent {
       </bit-tab>
     </bit-tab-group>
 
-    <bit-popover [title]="'Educational Popover'" #myPopover>
+    <bit-popover title="Educational Popover" #myPopover>
       <div>You can learn more things at:</div>
       <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
         <li>Help center</li>

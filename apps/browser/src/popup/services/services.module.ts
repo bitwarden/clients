@@ -41,6 +41,7 @@ import {
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   AccountService,
@@ -67,6 +68,8 @@ import {
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
+import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -76,6 +79,7 @@ import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -135,6 +139,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
   BiometricsService,
@@ -170,6 +175,7 @@ import { InlineMenuFieldQualificationService } from "../../autofill/services/inl
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
 import { BrowserSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/browser-session-timeout-settings-component.service";
+import { BrowserSessionTimeoutTypeService } from "../../key-management/session-timeout/services/browser-session-timeout-type.service";
 import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
 import { BrowserActionsService } from "../../platform/actions/browser-actions.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -510,6 +516,18 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
+    provide: PhishingDetectionSettingsServiceAbstraction,
+    useClass: PhishingDetectionSettingsService,
+    deps: [
+      AccountService,
+      BillingAccountProfileStateService,
+      ConfigService,
+      OrganizationService,
+      PlatformUtilsService,
+      StateProvider,
+    ],
+  }),
+  safeProvider({
     provide: MessageListener,
     useFactory: (subject: Subject<Message<Record<string, unknown>>>, ngZone: NgZone) =>
       new MessageListener(
@@ -724,14 +742,24 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: SessionTimeoutTypeService,
+    useClass: BrowserSessionTimeoutTypeService,
+    deps: [PlatformUtilsService],
+  }),
+  safeProvider({
     provide: SessionTimeoutSettingsComponentService,
     useClass: BrowserSessionTimeoutSettingsComponentService,
-    deps: [I18nServiceAbstraction, PlatformUtilsService, MessagingServiceAbstraction],
+    deps: [
+      I18nServiceAbstraction,
+      SessionTimeoutTypeService,
+      PolicyService,
+      MessagingServiceAbstraction,
+    ],
   }),
 ];
 
 @NgModule({
-  imports: [JslibServicesModule],
+  imports: [JslibServicesModule, GeneratorServicesModule],
   declarations: [],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,

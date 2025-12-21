@@ -195,6 +195,8 @@ export class Program extends BaseProgram {
             this.serviceContainer.ssoUrlService,
             this.serviceContainer.i18nService,
             this.serviceContainer.masterPasswordService,
+            this.serviceContainer.userDecryptionOptionsService,
+            this.serviceContainer.encryptedMigrator,
           );
           const response = await command.run(email, password, options);
           this.processResponse(response, true);
@@ -311,6 +313,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.organizationApiService,
             async () => await this.serviceContainer.logout(),
             this.serviceContainer.i18nService,
+            this.serviceContainer.encryptedMigrator,
             this.serviceContainer.masterPasswordUnlockService,
             this.serviceContainer.configService,
           );
@@ -522,6 +525,7 @@ export class Program extends BaseProgram {
           this.serviceContainer.syncService,
           this.serviceContainer.accountService,
           this.serviceContainer.authService,
+          this.serviceContainer.userAutoUnlockKeyService,
         );
         const response = await command.run();
         this.processResponse(response);
