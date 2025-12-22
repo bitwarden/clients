@@ -1,9 +1,10 @@
+// eslint-disable-next-line no-restricted-imports
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
-import { RoutedVaultFilterBridgeService } from "../../services/routed-vault-filter-bridge.service";
+import { RoutedVaultFilterBridgeService } from "../services/routed-vault-filter-bridge.service";
 
 import {
   All,

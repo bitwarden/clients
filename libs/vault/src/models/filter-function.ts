@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {

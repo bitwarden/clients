@@ -3,9 +3,18 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { NavigationModule } from "@bitwarden/components";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { DialogService, NavigationModule } from "@bitwarden/components";
+import {
+  RoutedVaultFilterService,
+  VaultFilterServiceAbstraction as VaultFilterService,
+} from "@bitwarden/vault";
 
+import { DesktopRoutedVaultFilterBridgeService } from "../services/desktop-routed-vault-filter-bridge.service";
 import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
@@ -43,6 +52,38 @@ describe("DesktopLayoutComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: DesktopRoutedVaultFilterBridgeService,
+          useValue: mock<DesktopRoutedVaultFilterBridgeService>(),
+        },
+        {
+          provide: RoutedVaultFilterService,
+          useValue: mock<RoutedVaultFilterService>(),
+        },
+        {
+          provide: VaultFilterService,
+          useValue: mock<VaultFilterService>(),
+        },
+        {
+          provide: AccountService,
+          useValue: mock<AccountService>(),
+        },
+        {
+          provide: CipherArchiveService,
+          useValue: mock<CipherArchiveService>(),
+        },
+        {
+          provide: FolderService,
+          useValue: mock<FolderService>(),
+        },
+        {
+          provide: PolicyService,
+          useValue: mock<PolicyService>(),
+        },
+        {
+          provide: DialogService,
+          useValue: mock<DialogService>(),
         },
       ],
     })
