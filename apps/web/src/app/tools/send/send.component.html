@@ -29,7 +29,7 @@
   </div>
 
   <div class="tw-mb-4">
-    <bit-toggle-group [(selected)]="selectedToggleValue" (selectedChange)="onToggleChange($event)">
+    <bit-toggle-group [selected]="selectedToggleValue" (selectedChange)="onToggleChange($event)">
       <bit-toggle [value]="'all'">{{ "allSends" | i18n }}</bit-toggle>
       <bit-toggle [value]="'text'">{{ "sendTypeText" | i18n }}</bit-toggle>
       <bit-toggle [value]="'file'">{{ "sendTypeFile" | i18n }}</bit-toggle>
