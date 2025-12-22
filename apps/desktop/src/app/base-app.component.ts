@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
+  Component,
   DestroyRef,
-  Directive,
   NgZone,
   OnDestroy,
   OnInit,
@@ -92,13 +92,9 @@ const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
 const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 
-/**
- * Base class for AppComponent containing all application logic.
- * This class has a @Directive decorator to enable dependency injection,
- * allowing subclasses to define their own @Component templates while
- * inheriting all the logic.
- */
-@Directive()
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({ template: "" })
 export class BaseAppComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -758,7 +754,7 @@ export class BaseAppComponent implements OnInit, OnDestroy {
 
     [this.modal] = await this.modalService.openViewRef(type, ref);
 
-     
+    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     this.modal.onClosed.subscribe(() => {
       this.modal = null;
     });
