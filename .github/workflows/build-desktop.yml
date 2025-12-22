@@ -1914,7 +1914,7 @@ jobs:
         id: download-deb
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          path: apps/desktop/artifacts/linux/deb/
+          path: apps/desktop/artifacts/linux/deb
           artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
 
       - name: Install deps
@@ -1923,10 +1923,8 @@ jobs:
           sudo apt-get install -y libasound2 xvfb unzip
 
       - name: Install .deb
-        working-directory: ${{ steps.download-deb.outputs.download-path }}
-        run: |
-          unzip ./Bitwarden-${_PACKAGE_VERSION}-amd64.deb.zip
-          sudo apt-get install -y ./Bitwarden-${_PACKAGE_VERSION}-amd64.deb
+        working-directory: apps/desktop/artifacts/linux/deb
+        run: sudo apt-get install -y ./Bitwarden-${_PACKAGE_VERSION}-amd64.deb
 
       - name: Run .deb
         run: |
@@ -1960,18 +1958,18 @@ jobs:
         id: download-appimage
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          path: apps/desktop/artifacts/linux/appimage/
+          path: apps/desktop/artifacts/linux/appimage
           artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
 
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libasound2 libfuse2 xvfb unzip
+          sudo apt-get install -y libasound2 libfuse2 xvfb
 
       - name: Run AppImage
         working-directory: ${{ steps.download-appimage.outputs.download-path }}
+        working-directory: apps/desktop/artifacts/linux/appimage
         run: |
-          unzip ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage.zip
           chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
           xvfb-run -a ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
           sleep 30
@@ -2008,11 +2006,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libasound2 flatpak xvfb
-          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          flatpak install -y flathub
+          flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install -y --user flathub
 
       - name: Install flatpak
-        working-directory: ${{ steps.download-flatpak.outputs.download-path }}
+        working-directory: apps/desktop/artifacts/linux/flatpak
         run: flatpak install --bundle com.bitwarden.desktop.flatpak
 
       - name: Run Flatpak
@@ -2047,7 +2045,7 @@ jobs:
         id: download-snap
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          path: apps/desktop/artifacts/linux/snap/
+          path: apps/desktop/artifacts/linux/snap
           artifacts: bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
 
       - name: Install deps
@@ -2056,7 +2054,7 @@ jobs:
           sudo apt-get install -y libasound2 snapd xvfb
 
       - name: Install snap
-        working-directory: ${{ steps.download-snap.outputs.download-path }}
+        working-directory: apps/desktop/artifacts/linux/snap
         run: |
           sudo snap install --dangerous ./bitwarden_${_PACKAGE_VERSION}_amd64.snap
 
