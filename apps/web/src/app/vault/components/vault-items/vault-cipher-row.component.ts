@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  input,
 } from "@angular/core";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
@@ -101,8 +102,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() userCanArchive: boolean;
+  /** Archive feature is enabled */
+  readonly archiveEnabled = input.required<boolean>();
   /**
-   * Enforge Org Data Ownership Policy Status
+   * Enforce Org Data Ownership Policy Status
    */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -142,16 +145,21 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get showArchiveButton() {
+    if (!this.archiveEnabled()) {
+      return false;
+    }
+
     return (
-      this.userCanArchive &&
-      !CipherViewLikeUtils.isArchived(this.cipher) &&
-      !CipherViewLikeUtils.isDeleted(this.cipher) &&
-      !this.cipher.organizationId
+      !CipherViewLikeUtils.isArchived(this.cipher) && !CipherViewLikeUtils.isDeleted(this.cipher)
     );
   }
 
   // If item is archived always show unarchive button, even if user is not premium
   protected get showUnArchiveButton() {
+    if (!this.archiveEnabled()) {
+      return false;
+    }
+
     return CipherViewLikeUtils.isArchived(this.cipher);
   }
 
@@ -245,14 +253,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
-  protected get hasPasswordToCopy() {
-    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "password");
-  }
-
-  protected get hasUsernameToCopy() {
-    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "username");
-  }
-
   protected get permissionText() {
     if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
       return this.i18nService.t("manageCollection");
@@ -311,6 +311,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get isIdentityCipher() {
+    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+      return false;
+    }
     return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Identity && !this.isDeleted;
   }
 
@@ -384,6 +387,13 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
 
     return this.organization.canEditAllCiphers || (this.cipher.edit && this.cipher.viewPassword);
+  }
+
+  protected get showFavorite() {
+    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+      return false;
+    }
+    return true;
   }
 
   protected toggleFavorite() {
