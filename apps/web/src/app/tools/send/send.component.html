@@ -117,7 +117,17 @@
               </small>
             </td>
             <td bitCell class="tw-w-0 tw-text-right">
-              <bit-menu>
+              <button
+                type="button"
+                [bitMenuTriggerFor]="sendOptions"
+                bitIconButton="bwi-ellipsis-v"
+                label="{{ 'options' | i18n }}"
+              ></button>
+              <bit-menu #sendOptions>
+                <button type="button" bitMenuItem (click)="copy(s)">
+                  <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+                  {{ "copySendLink" | i18n }}
+                </button>
                 <button
                   type="button"
                   bitMenuItem
