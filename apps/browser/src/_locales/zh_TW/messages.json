@@ -437,7 +437,7 @@
     "message": "同步"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "立即同步"
   },
   "lastSync": {
     "message": "上次同步於："
@@ -1323,19 +1323,19 @@
     "message": "匯出自"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "匯出",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "匯出",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "匯入",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "匯入",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1486,7 +1486,7 @@
     "message": "選取檔案"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "項目已轉移"
   },
   "maxFileSize": {
     "message": "檔案最大為 500MB。"
@@ -4812,13 +4812,13 @@
     "message": "帳戶安全性"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "釣魚封鎖器"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "釣魚偵測"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "在存取疑似釣魚網站前顯示警告"
   },
   "notifications": {
     "message": "通知"
@@ -5904,43 +5904,43 @@
     "message": "支付卡號碼"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "您的組織已不再使用主密碼登入 Bitwarden。若要繼續，請驗證組織與網域。"
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "繼續登入"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "不要繼續"
   },
   "domain": {
-    "message": "Domain"
+    "message": "網域"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "此網域將儲存您帳號的加密金鑰，請確認您信任它。若不確定，請洽詢您的管理員。"
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "驗證您的組織以登入"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "組織已驗證"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "已驗證網域"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "若您未驗證組織，將會被撤銷對該組織的存取權限。"
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "立即離開"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "驗證您的網域以登入"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "若要繼續登入，請驗證此網域。"
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "若要繼續登入，請驗證組織與網域。"
   },
   "sessionTimeoutSettingsAction": {
     "message": "逾時後動作"
@@ -5990,19 +5990,19 @@
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "升級"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "確定要離開嗎？"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "若選擇拒絕，您的個人項目將保留在帳號中，但您將失去對共用項目與組織功能的存取權。"
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "請聯絡您的管理員以重新取得存取權限。"
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "離開 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6011,10 +6011,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "我要如何管理我的密碼庫？"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "將項目轉移至 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6023,7 +6023,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "message": "$ORGANIZATION$ 為了安全性與合規性，要求所有項目皆由組織擁有。點擊接受即可轉移您項目的擁有權。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6032,12 +6032,12 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "同意轉移"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "拒絕並離開"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "為什麼我會看到此訊息？"
   }
 }

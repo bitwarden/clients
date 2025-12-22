@@ -1323,19 +1323,19 @@
     "message": "ส่งออกจาก"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "ส่งออก",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "ส่งออก",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "นำเข้า",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "นำเข้า",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
