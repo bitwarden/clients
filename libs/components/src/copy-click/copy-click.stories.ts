@@ -64,7 +64,7 @@ export const Default: Story = {
           type="button"
           bitSuffix
           bitIconButton="bwi-clone"
-          [label]="'Copy'"
+          label="Copy"
           [appCopyClick]="value"
         ></button>
       </bit-form-field>
@@ -86,7 +86,7 @@ export const WithDefaultToast: Story = {
           type="button"
           bitSuffix
           bitIconButton="bwi-clone"
-          [label]="'Copy'"
+          label="Copy"
           [appCopyClick]="value"
           showToast
         ></button>
@@ -109,7 +109,7 @@ export const WithCustomToastVariant: Story = {
           type="button"
           bitSuffix
           bitIconButton="bwi-clone"
-          [label]="'Copy'"
+          label="Copy"
           [appCopyClick]="value"
           showToast="info"
         ></button>
@@ -132,7 +132,7 @@ export const WithCustomValueLabel: Story = {
           type="button"
           bitSuffix
           bitIconButton="bwi-clone"
-          [label]="'Copy'"
+          label="Copy"
           [appCopyClick]="value"
           showToast
           valueLabel="API Key"
