@@ -2,23 +2,40 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
 import { DialogService } from "@bitwarden/components";
+import { EditBillingAddressDialogComponent } from "@bitwarden/web-vault/app/billing/payment/components/edit-billing-address-dialog.component";
+import { AddressPipe } from "@bitwarden/web-vault/app/billing/payment/pipes";
+import { BillingAddress } from "@bitwarden/web-vault/app/billing/payment/types";
+import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import {
+  TaxIdWarningType,
+  TaxIdWarningTypes,
+} from "@bitwarden/web-vault/app/billing/warnings/types";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { SharedModule } from "../../../shared";
-import { BillableEntity } from "../../types";
-import { AddressPipe } from "../pipes";
-import { BillingAddress } from "../types";
-
-import { EditBillingAddressDialogComponent } from "./edit-billing-address-dialog.component";
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-display-billing-address",
   template: `
     <bit-section>
-      <h2 bitTypography="h2">{{ "billingAddress" | i18n }}</h2>
+      <h2 bitTypography="h2">
+        {{ "billingAddress" | i18n }}
+        @if (showMissingTaxIdBadge) {
+          <span bitBadge variant="warning">{{ "missingTaxId" | i18n }}</span>
+        }
+      </h2>
       @if (billingAddress) {
         <p>{{ billingAddress | address }}</p>
         @if (billingAddress.taxId) {
-          <p>{{ "taxId" | i18n: billingAddress.taxId.value }}</p>
+          <p class="tw-flex tw-items-center tw-gap-2">
+            {{ "taxId" | i18n: billingAddress.taxId.value }}
+            @if (showTaxIdPendingVerificationBadge) {
+              <span bitBadge variant="secondary">{{ "pendingVerification" | i18n }}</span>
+            }
+            @if (showUnverifiedTaxIdBadge) {
+              <span bitBadge variant="warning">{{ "unverified" | i18n }}</span>
+            }
+          </p>
         }
       } @else {
         <p>{{ "noBillingAddress" | i18n }}</p>
@@ -33,8 +50,17 @@ import { EditBillingAddressDialogComponent } from "./edit-billing-address-dialog
   imports: [AddressPipe, SharedModule],
 })
 export class DisplayBillingAddressComponent {
-  @Input({ required: true }) owner!: BillableEntity;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ required: true }) subscriber!: BitwardenSubscriber;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) billingAddress!: BillingAddress | null;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() taxIdWarning?: TaxIdWarningType;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() updated = new EventEmitter<BillingAddress>();
 
   constructor(private dialogService: DialogService) {}
@@ -42,8 +68,9 @@ export class DisplayBillingAddressComponent {
   editBillingAddress = async (): Promise<void> => {
     const dialogRef = EditBillingAddressDialogComponent.open(this.dialogService, {
       data: {
-        owner: this.owner,
+        subscriber: this.subscriber,
         billingAddress: this.billingAddress,
+        taxIdWarning: this.taxIdWarning,
       },
     });
 
@@ -53,4 +80,22 @@ export class DisplayBillingAddressComponent {
       this.updated.emit(result.billingAddress);
     }
   };
+
+  get showMissingTaxIdBadge(): boolean {
+    return this.subscriber.type !== "account" && this.taxIdWarning === TaxIdWarningTypes.Missing;
+  }
+
+  get showTaxIdPendingVerificationBadge(): boolean {
+    return (
+      this.subscriber.type !== "account" &&
+      this.taxIdWarning === TaxIdWarningTypes.PendingVerification
+    );
+  }
+
+  get showUnverifiedTaxIdBadge(): boolean {
+    return (
+      this.subscriber.type !== "account" &&
+      this.taxIdWarning === TaxIdWarningTypes.FailedVerification
+    );
+  }
 }

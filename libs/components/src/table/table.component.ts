@@ -1,15 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { isDataSource } from "@angular/cdk/collections";
 import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   Component,
-  ContentChild,
   Directive,
   OnDestroy,
   TemplateRef,
   input,
+  contentChild,
 } from "@angular/core";
 import { Observable } from "rxjs";
 
@@ -23,6 +21,8 @@ export class TableBodyDirective {
   constructor(public readonly template: TemplateRef<any>) {}
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-table",
   templateUrl: "./table.component.html",
@@ -32,9 +32,9 @@ export class TableComponent implements OnDestroy, AfterContentChecked {
   readonly dataSource = input<TableDataSource<any>>();
   readonly layout = input<"auto" | "fixed">("auto");
 
-  @ContentChild(TableBodyDirective) templateVariable: TableBodyDirective;
+  readonly templateVariable = contentChild(TableBodyDirective);
 
-  protected rows$: Observable<any[]>;
+  protected rows$?: Observable<any[]>;
 
   private _initialized = false;
 

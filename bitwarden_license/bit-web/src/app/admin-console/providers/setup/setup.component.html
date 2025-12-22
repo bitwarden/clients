@@ -12,50 +12,28 @@
   </div>
   <p>{{ "setupProviderDesc" | i18n }}</p>
   <form [formGroup]="formGroup" [bitSubmit]="submit">
-    @if (!(requireProviderPaymentMethodDuringSetup$ | async)) {
-      <h2 class="tw-mt-5">{{ "generalInformation" | i18n }}</h2>
-      <div class="tw-grid tw-grid-flow-col tw-grid-cols-12 tw-gap-4">
-        <div class="tw-col-span-6">
-          <bit-form-field>
-            <bit-label>{{ "providerName" | i18n }}</bit-label>
-            <input type="text" bitInput formControlName="name" />
-          </bit-form-field>
-        </div>
-        <div class="tw-col-span-6">
-          <bit-form-field>
-            <bit-label>{{ "billingEmail" | i18n }}</bit-label>
-            <input type="email" bitInput formControlName="billingEmail" />
-            <bit-hint>{{ "providerBillingEmailHint" | i18n }}</bit-hint>
-          </bit-form-field>
-        </div>
+    <h2 class="tw-mt-5">{{ "billingInformation" | i18n }}</h2>
+    <div class="tw-grid tw-grid-flow-col tw-grid-cols-12 tw-gap-4">
+      <div class="tw-col-span-6">
+        <bit-form-field>
+          <bit-label>{{ "providerName" | i18n }}</bit-label>
+          <input type="text" bitInput formControlName="name" />
+        </bit-form-field>
       </div>
-      <app-manage-tax-information />
-    } @else {
-      <h2 class="tw-mt-5">{{ "billingInformation" | i18n }}</h2>
-      <div class="tw-grid tw-grid-flow-col tw-grid-cols-12 tw-gap-4">
-        <div class="tw-col-span-6">
-          <bit-form-field>
-            <bit-label>{{ "providerName" | i18n }}</bit-label>
-            <input type="text" bitInput formControlName="name" />
-          </bit-form-field>
-        </div>
-        <div class="tw-col-span-6">
-          <bit-form-field>
-            <bit-label>{{ "billingEmail" | i18n }}</bit-label>
-            <input type="email" bitInput formControlName="billingEmail" />
-            <bit-hint>{{ "providerBillingEmailHint" | i18n }}</bit-hint>
-          </bit-form-field>
-        </div>
+      <div class="tw-col-span-6">
+        <bit-form-field>
+          <bit-label>{{ "billingEmail" | i18n }}</bit-label>
+          <input type="email" bitInput formControlName="billingEmail" />
+          <bit-hint>{{ "providerBillingEmailHint" | i18n }}</bit-hint>
+        </bit-form-field>
       </div>
-      <h2 class="tw-mt-5">{{ "paymentMethod" | i18n }}</h2>
-      <app-payment
-        [showAccountCredit]="false"
-        [bankAccountWarningOverride]="
-          'verifyProviderBankAccountWithStatementDescriptorWarning' | i18n
-        "
-      />
-      <app-manage-tax-information />
-    }
+    </div>
+    <h2 class="tw-mt-5">{{ "paymentMethod" | i18n }}</h2>
+    <app-enter-payment-method [group]="formGroup.controls.paymentMethod"></app-enter-payment-method>
+    <app-enter-billing-address
+      [group]="formGroup.controls.billingAddress"
+      [scenario]="{ type: 'checkout', supportsTaxId: true }"
+    ></app-enter-billing-address>
     <button class="tw-mt-8" bitButton bitFormButton buttonType="primary" type="submit">
       {{ "submit" | i18n }}
     </button>

@@ -21,11 +21,29 @@ export const StripeCardBrands = {
 
 export type StripeCardBrand = (typeof StripeCardBrands)[keyof typeof StripeCardBrands];
 
+export const cardBrandIcons: Record<string, string> = {
+  amex: "card-amex",
+  diners: "card-diners-club",
+  discover: "card-discover",
+  jcb: "card-jcb",
+  mastercard: "card-mastercard",
+  unionpay: "card-unionpay",
+  visa: "card-visa",
+};
+
+export const getCardBrandIcon = (paymentMethod: MaskedPaymentMethod | null): string | null => {
+  if (paymentMethod?.type !== "card") {
+    return null;
+  }
+
+  return paymentMethod.brand in cardBrandIcons ? cardBrandIcons[paymentMethod.brand] : null;
+};
+
 type MaskedBankAccount = {
   type: BankAccountPaymentMethod;
   bankName: string;
   last4: string;
-  verified: boolean;
+  hostedVerificationUrl?: string;
 };
 
 type MaskedCard = {
@@ -73,7 +91,7 @@ class MaskedBankAccountResponse extends BaseResponse implements MaskedBankAccoun
   type: BankAccountPaymentMethod;
   bankName: string;
   last4: string;
-  verified: boolean;
+  hostedVerificationUrl?: string;
 
   constructor(response: any) {
     super(response);
@@ -81,7 +99,7 @@ class MaskedBankAccountResponse extends BaseResponse implements MaskedBankAccoun
     this.type = "bankAccount";
     this.bankName = this.getResponseProperty("BankName");
     this.last4 = this.getResponseProperty("Last4");
-    this.verified = this.getResponseProperty("Verified");
+    this.hostedVerificationUrl = this.getResponseProperty("HostedVerificationUrl");
   }
 }
 

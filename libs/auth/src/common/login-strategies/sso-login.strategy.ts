@@ -125,9 +125,13 @@ export class SsoLoginStrategy extends LoginStrategy {
       // The presence of a masterKeyEncryptedUserKey indicates that the user has already been provisioned in Key Connector.
       const newSsoUser = tokenResponse.key == null;
       if (newSsoUser) {
-        await this.keyConnectorService.convertNewSsoUserToKeyConnector(
-          tokenResponse,
-          this.cache.value.orgId,
+        // Store Key Connector domain confirmation data in state instead of AuthResult
+        await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
+          {
+            kdfConfig: tokenResponse.kdfConfig,
+            keyConnectorUrl: this.getKeyConnectorUrl(tokenResponse),
+            organizationId: this.cache.value.orgId,
+          },
           userId,
         );
       } else {
@@ -153,22 +157,12 @@ export class SsoLoginStrategy extends LoginStrategy {
       // In order for us to set the master key from Key Connector, we need to have a Key Connector URL
       // and the user must not have a master password.
       return userHasKeyConnectorUrl && !userHasMasterPassword;
-    } else {
-      // In pre-TDE versions of the server, the userDecryptionOptions will not be present.
-      // In this case, we can determine if the user has a master password and has a Key Connector URL by
-      // just checking the keyConnectorUrl property. This is because the server short-circuits on the response
-      // and will not pass back the URL in the response if the user has a master password.
-      // TODO: remove compatibility check after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
-      return tokenResponse.keyConnectorUrl != null;
     }
   }
 
   private getKeyConnectorUrl(tokenResponse: IdentityTokenResponse): string {
-    // TODO: remove tokenResponse.keyConnectorUrl reference after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
-    return (
-      tokenResponse.keyConnectorUrl ?? userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl
-    );
+    return userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl;
   }
 
   // TODO: future passkey login strategy will need to support setting user key (decrypting via TDE or admin approval request)
@@ -327,10 +321,12 @@ export class SsoLoginStrategy extends LoginStrategy {
   private async trySetUserKeyWithMasterKey(userId: UserId): Promise<void> {
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
 
-    // There is a scenario in which the master key is not set here. That will occur if the user
-    // has a master password and is using Key Connector. In that case, we cannot set the master key
+    // There are two scenarios in which the master key is not set here:
+    // 1. If the user has a master password and is using Key Connector. In that case, we cannot set the master key
     // because the user hasn't entered their master password yet.
-    // Instead, we'll return here and let the migration to Key Connector handle setting the master key.
+    // 2. For new users with Key Connector, we will not have a master key yet, since Key Connector domain
+    // has to be confirmed first.
+    // In both cases, we'll return here and let the migration to Key Connector handle setting the master key.
     if (!masterKey) {
       return;
     }
@@ -343,6 +339,13 @@ export class SsoLoginStrategy extends LoginStrategy {
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
+    if (tokenResponse.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        tokenResponse.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
+
     if (tokenResponse.hasMasterKeyEncryptedUserKey()) {
       // User has masterKeyEncryptedUserKey, so set the userKeyEncryptedPrivateKey
       // Note: new JIT provisioned SSO users will not yet have a user asymmetric key pair
@@ -387,7 +390,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     // Check for TDE-related conditions
     const userDecryptionOptions = await firstValueFrom(
-      this.userDecryptionOptionsService.userDecryptionOptions$,
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
 
     if (!userDecryptionOptions) {

@@ -69,6 +69,9 @@
       }
     }
   },
+  "noEditPermissions": {
+    "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+  },
   "welcomeBack": {
     "message": "Willkommen zurück"
   },
@@ -702,6 +705,24 @@
   "attachmentSaved": {
     "message": "Anhang gespeichert"
   },
+  "addAttachment": {
+    "message": "Anhang hinzufügen"
+  },
+  "itemsTransferred": {
+    "message": "Einträge wurden übertragen"
+  },
+  "fixEncryption": {
+    "message": "Verschlüsselung reparieren"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Diese Datei verwendet eine veraltete Verschlüsselungsmethode."
+  },
+  "attachmentUpdated": {
+    "message": "Anhang aktualisiert"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Die maximale Dateigröße beträgt 500 MB"
+  },
   "file": {
     "message": "Datei"
   },
@@ -763,7 +784,10 @@
     "message": "Anmelden mit einem anderen Gerät"
   },
   "useSingleSignOn": {
-    "message": "Single Sign-on verwenden"
+    "message": "Single Sign-On verwenden"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Deine Organisation erfordert Single Sign-On."
   },
   "submit": {
     "message": "Absenden"
@@ -896,6 +920,12 @@
   "unexpectedError": {
     "message": "Ein unerwarteter Fehler ist aufgetreten."
   },
+  "unexpectedErrorShort": {
+    "message": "Unerwarteter Fehler"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Schließe dieses Bitwarden-Fenster und versuche es erneut."
+  },
   "itemInformation": {
     "message": "Eintragsinformationen"
   },
@@ -953,9 +983,6 @@
   },
   "insertU2f": {
     "message": "Stecke deinen Sicherheitsschlüssel in einen USB-Anschluss deines Computers. Falls er einen Knopf hat, drücke diesen."
-  },
-  "recoveryCodeDesc": {
-    "message": "Zugang zu allen Zwei-Faktor-Anbietern verloren? Benutze deinen Wiederherstellungscode, um alle Zwei-Faktor-Anbieter in deinem Konto zu deaktivieren."
   },
   "recoveryCodeTitle": {
     "message": "Wiederherstellungscode"
@@ -1029,6 +1056,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Du musst entweder die Basis-Server-URL oder mindestens eine benutzerdefinierte Umgebung hinzufügen."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs müssen HTTPS verwenden."
+  },
   "customEnvironment": {
     "message": "Benutzerdefinierte Umgebung"
   },
@@ -1080,6 +1110,24 @@
   },
   "learnMore": {
     "message": "Mehr erfahren"
+  },
+  "migrationsFailed": {
+    "message": "Beim Aktualisieren der Verschlüsselungseinstellungen ist ein Fehler aufgetreten."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aktualisiere deine Verschlüsselungseinstellungen"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Die neuen empfohlenen Verschlüsselungseinstellungen verbessern deine Kontosicherheit. Gib dein Master-Passwort ein, um sie zu aktualisieren."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bestätige deine Identität, um fortzufahren"
+  },
+  "enterYourMasterPassword": {
+    "message": "Gib dein Master-Passwort ein"
+  },
+  "updateSettings": {
+    "message": "Einstellungen aktualisieren"
   },
   "featureUnavailable": {
     "message": "Funktion nicht verfügbar"
@@ -1150,8 +1198,8 @@
   "followUs": {
     "message": "Folge uns"
   },
-  "syncVault": {
-    "message": "Tresor synchronisieren"
+  "syncNow": {
+    "message": "Jetzt synchronisieren"
   },
   "changeMasterPass": {
     "message": "Master-Passwort ändern"
@@ -1219,17 +1267,32 @@
   "invalidMasterPassword": {
     "message": "Ungültiges Master-Passwort"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Ungültiges Master-Passwort. Überprüfe, ob deine E-Mail-Adresse korrekt ist und dein Konto auf $HOST$ erstellt wurde.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "twoStepLoginConfirmation": {
     "message": "Mit der Zwei-Faktor-Authentifizierung wird dein Konto zusätzlich abgesichert, da jede Anmeldung mit einem anderen Gerät wie einem Sicherheitsschlüssel, einer Authentifizierungs-App, einer SMS, einem Anruf oder einer E-Mail verifiziert werden muss. Die Zwei-Faktor-Authentifizierung kann im bitwarden.com Web-Tresor aktiviert werden. Möchtest du die Website jetzt öffnen?"
   },
   "twoStepLogin": {
     "message": "Zwei-Faktor-Authentifizierung"
   },
+  "vaultTimeoutHeader": {
+    "message": "Tresor-Timeout"
+  },
   "vaultTimeout": {
     "message": "Tresor-Timeout"
   },
   "vaultTimeout1": {
     "message": "Timeout"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout-Aktion"
   },
   "vaultTimeoutDesc": {
     "message": "Wähle, wann der Timeout deines Tresors aktiviert werden soll und welche Aktion er bewirken soll."
@@ -1293,11 +1356,8 @@
     "message": "Kopierten Inhalt automatisch aus der Zwischenablage löschen.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Website-Symbole anzeigen"
-  },
-  "faviconDesc": {
-    "message": "Ein wiedererkennbares Bild neben jeden Zugangsdaten anzeigen."
+  "showIconsChangePasswordUrls": {
+    "message": "Website-Symbole anzeigen und URLs zum Ändern von Passwörtern abrufen"
   },
   "enableMinToTray": {
     "message": "In Infobereich-Symbol minimieren"
@@ -1465,6 +1525,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB verschlüsselter Speicherplatz für Dateianhänge."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ verschlüsselter Speicher für Dateianhänge.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
@@ -1706,8 +1775,21 @@
   "exportFrom": {
     "message": "Export aus"
   },
-  "exportVault": {
-    "message": "Tresor exportieren"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exportieren",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importieren",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Dateiformat"
@@ -1834,14 +1916,14 @@
   "autoPromptTouchId": {
     "message": "Beim Start nach Touch ID fragen"
   },
-  "requirePasswordOnStart": {
-    "message": "Passwort oder PIN beim Start der App verlangen"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Ein Passwort beim Starten der App verlangen"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "Beim Neustart mit Master-Passwort sperren"
+  },
+  "requireMasterPasswordOrPinOnAppRestart": {
+    "message": "Master-Passwort oder PIN beim App-Neustart erfordern"
+  },
+  "requireMasterPasswordOnAppRestart": {
+    "message": "Master-Passwort beim App-Neustart erfordern"
   },
   "deleteAccount": {
     "message": "Konto löschen"
@@ -1955,7 +2037,7 @@
     "message": "Timeout-Aktion bestätigen"
   },
   "enterpriseSingleSignOn": {
-    "message": "Enterprise Single-Sign-On"
+    "message": "Enterprise Single Sign-On"
   },
   "setMasterPassword": {
     "message": "Master-Passwort festlegen"
@@ -2126,9 +2208,6 @@
   "browserIntegrationErrorDesc": {
     "message": "Beim Aktivieren der Browser-Integration ist ein Fehler aufgetreten."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Leider wird die Browser-Integration derzeit nur in der Mac App Store Version unterstützt."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Leider wird die Browser-Integration derzeit nicht in der Microsoft Store Version unterstützt."
   },
@@ -2206,6 +2285,10 @@
   },
   "contactInfo": {
     "message": "Kontaktinformationen"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Alle Sends",
@@ -2511,6 +2594,38 @@
   "vaultTimeoutTooLarge": {
     "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Deine Unternehmensrichtlinien haben das maximal zulässige Tresor-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Das Timeout überschreitet die von deiner Organisation festgelegte Beschränkung: Maximal $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimale benutzerdefinierte Timeout-Zeit beträgt 1 Minute."
+  },
   "inviteAccepted": {
     "message": "Einladung angenommen"
   },
@@ -2534,9 +2649,6 @@
   },
   "removedMasterPassword": {
     "message": "Master-Passwort entfernt"
-  },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Für Mitglieder der folgenden Organisation ist kein Master-Passwort mehr erforderlich. Bitte bestätige die folgende Domain bei deinem Organisations-Administrator."
   },
   "organizationName": {
     "message": "Name der Organisation"
@@ -2622,6 +2734,24 @@
       "organization": {
         "content": "$1",
         "example": "ACME Moving Co."
+      }
+    }
+  },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Nur der mit $ORGANIZATION$ verknüpfte Organisations-Tresor wird exportiert. Meine Eintrags-Sammlungen werden nicht eingeschlossen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
       }
     }
   },
@@ -2920,7 +3050,8 @@
     "message": "Bist du sicher, dass du die Option \"Nie\" verwenden möchtest? Durch das Setzen der Sperroptionen zu \"Nie\" wird der Verschlüsselungscode deines Tresors auf deinem Gerät gespeichert. Wenn du diese Option verwendest, solltest du sicherstellen, dass dein Gerät ausreichend geschützt ist."
   },
   "vault": {
-    "message": "Tresor"
+    "message": "Tresor",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Mit Master-Passwort anmelden"
@@ -2992,9 +3123,6 @@
     "message": "Zeichenanzahl ein-/ausschalten",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Versuchst du auf dein Konto zuzugreifen?"
-  },
   "accessAttemptBy": {
     "message": "Zugriffsversuch von $EMAIL$",
     "placeholders": {
@@ -3003,6 +3131,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Anmeldeanfrage für $EMAIL$ auf $DEVICE$ genehmigt",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
+  },
+  "webApp": {
+    "message": "Web-App"
+  },
+  "mobile": {
+    "message": "Mobile App",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Erweiterung",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Anmeldungsanfrage"
   },
   "deviceType": {
     "message": "Gerätetyp"
@@ -3018,22 +3190,6 @@
   },
   "denyAccess": {
     "message": "Zugriff ablehnen"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Anmeldung von $EMAIL$ auf $DEVICE$ bestätigt",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
   },
   "justNow": {
     "message": "Gerade eben"
@@ -3349,10 +3505,6 @@
   "aliasDomain": {
     "message": "Alias-Domain"
   },
-  "importData": {
-    "message": "Daten importieren",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Importfehler"
   },
@@ -3431,15 +3583,11 @@
   "selectImportCollection": {
     "message": "Sammlung auswählen"
   },
-  "importTargetHint": {
-    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine(n) $DESTINATION$ verschoben werden soll",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
+  },
+  "importTargetHintFolder": {
+    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in einen Ordner verschoben werden soll"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -3534,6 +3682,12 @@
   },
   "awaitingSSODesc": {
     "message": "Bitte melde dich weiterhin mit deinen Firmenzugangsdaten an."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Direkt aus dem Browser importieren"
+  },
+  "browserProfile": {
+    "message": "Browser-Profil"
   },
   "seeDetailedInstructions": {
     "message": "Detaillierte Anleitungen auf unserer Hilfeseite unter",
@@ -3756,6 +3910,75 @@
   "fileSavedToDevice": {
     "message": "Datei auf Gerät gespeichert. Greife darauf über die Downloads deines Geräts zu."
   },
+  "importantNotice": {
+    "message": "Wichtiger Hinweis"
+  },
+  "setupTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung einrichten"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Ab Februar 2025 wird Bitwarden einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten zu verifizieren."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Du kannst die Zwei-Faktor-Authentifizierung als eine alternative Methode einrichten, um dein Konto zu schützen, oder deine E-Mail-Adresse zu einer anderen ändern, auf die du zugreifen kannst."
+  },
+  "remindMeLater": {
+    "message": "Erinnere mich später"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Hast du zuverlässigen Zugriff auf deine E-Mail-Adresse $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nein, habe ich nicht"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, ich kann zuverlässig auf meine E-Mails zugreifen"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung aktivieren"
+  },
+  "changeAcctEmail": {
+    "message": "E-Mail-Adresse des Kontos ändern"
+  },
+  "passkeyLogin": {
+    "message": "Mit Passkey anmelden?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Passkey speichern?"
+  },
+  "saveNewPasskey": {
+    "message": "Als neue Zugangsdaten speichern"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Passkey als neue Zugangsdaten speichern"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "Keine passenden Zugangsdaten für diese Seite"
+  },
+  "overwritePasskey": {
+    "message": "Passkey überschreiben?"
+  },
+  "unableToSavePasskey": {
+    "message": "Passkey konnte nicht gespeichert werden"
+  },
+  "alreadyContainsPasskey": {
+    "message": "Dieser Eintrag enthält bereits einen Passkey. Bist du sicher, dass du den aktuellen Passkey überschreiben möchtest?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Für diese Anwendung existiert bereits ein Passkey."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "Diese Anwendung unterstützt keine mehrfachen Instanzen."
+  },
+  "closeThisWindow": {
+    "message": "Dieses Fenster schließen"
+  },
   "allowScreenshots": {
     "message": "Bildschirmaufnahme erlauben"
   },
@@ -3776,6 +3999,12 @@
   },
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
+  },
+  "missingWebsite": {
+    "message": "Fehlende Website"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
@@ -3871,6 +4100,12 @@
     "message": "Erfahre mehr über den SSH-Agenten",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Über diese Einstellung"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden verwendet gespeicherte URIs für die Anmeldung, um zu bestimmen, welches Symbol oder welche URL zum Ändern des Passworts verwendet werden soll, um dein Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn du diesen Dienst nutzt."
   },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
@@ -4006,10 +4241,243 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Enable Autotype"
+  "showMore": {
+    "message": "Mehr anzeigen"
+  },
+  "showLess": {
+    "message": "Weniger anzeigen"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden überprüft die Eingabestellen nicht. Vergewissere dich, dass du dich im richtigen Fenster und Feld befindest, bevor du die Tastenkombination verwendest."
+  },
+  "typeShortcut": {
+    "message": "Autotype-Tastaturkürzel"
+  },
+  "editAutotypeShortcutDescription": {
+    "message": "Füge einen oder zwei der folgenden Modifikatoren ein: Strg, Alt, Win oder Umschalttaste, sowie einen Buchstaben."
+  },
+  "invalidShortcut": {
+    "message": "Ungültiges Tastaturkürzel"
+  },
+  "moreBreadcrumbs": {
+    "message": "Weitere Navigationspfade",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Weiter"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-Domain bestätigen"
+  },
+  "confirm": {
+    "message": "Bestätigen"
+  },
+  "enableAutotypeShortcutPreview": {
+    "message": "Autotype-Tastaturkürzel aktivieren (Funktionsvorschau)"
+  },
+  "enableAutotypeShortcutDescription": {
+    "message": "Stell sicher, dass du dich im richtigen Feld befindest, bevor du das Tastaturkürzel benutzt, um zu vermeiden, dass Daten an der falschen Stelle ausgefüllt werden."
+  },
+  "editShortcut": {
+    "message": "Tastaturkürzel bearbeiten"
+  },
+  "archiveNoun": {
+    "message": "Archiv",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archivieren",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Wiederherstellen"
+  },
+  "itemsInArchive": {
+    "message": "Einträge im Archiv"
+  },
+  "noItemsInArchive": {
+    "message": "Keine Einträge im Archiv"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
+  },
+  "itemWasSentToArchive": {
+    "message": "Eintrag wurde archiviert"
+  },
+  "itemWasUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
+  },
+  "archiveItem": {
+    "message": "Eintrag archivieren"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  },
+  "zipPostalCodeLabel": {
+    "message": "PLZ / Postleitzahl"
+  },
+  "cardNumberLabel": {
+    "message": "Kartennummer"
+  },
+  "upgradeNow": {
+    "message": "Jetzt upgraden"
+  },
+  "builtInAuthenticator": {
+    "message": "Integrierter Authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Sichere Dateispeicherung"
+  },
+  "emergencyAccess": {
+    "message": "Notfallzugriff"
+  },
+  "breachMonitoring": {
+    "message": "Datenleck-Überwachung"
+  },
+  "andMoreFeatures": {
+    "message": "Und vieles mehr!"
+  },
+  "advancedOnlineSecurity": {
+    "message": "Erweiterte Online-Sicherheit"
+  },
+  "upgradeToPremium": {
+    "message": "Auf Premium upgraden"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Deine Organisation verwendet keine Master-Passwörter mehr, um sich bei Bitwarden anzumelden. Verifiziere die Organisation und Domain, um fortzufahren."
+  },
+  "continueWithLogIn": {
+    "message": "Mit der Anmeldung fortfahren"
+  },
+  "doNotContinue": {
+    "message": "Nicht fortfahren"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Diese Domain speichert die Verschlüsselungsschlüssel deines Kontos. Stelle daher sicher, dass du ihr vertraust. Wenn du dir nicht sicher bist, wende dich an deinen Administrator."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifiziere deine Organisation, um dich anzumelden"
+  },
+  "organizationVerified": {
+    "message": "Organisation verifiziert"
+  },
+  "domainVerified": {
+    "message": "Domain verifiziert"
+  },
+  "leaveOrganizationContent": {
+    "message": "Wenn du deine Organisation nicht verifizierst, wird dein Zugriff auf die Organisation widerrufen."
+  },
+  "leaveNow": {
+    "message": "Jetzt verlassen"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifiziere deine Domain, um dich anzumelden"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Verifiziere diese Domain, um mit der Anmeldung fortzufahren."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Um mit der Anmeldung fortzufahren, verifiziere die Organisation und Domain."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout-Aktion"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sitzungs-Timeout"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Diese Einstellung wird von deiner Organisation verwaltet."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Deine Organisation hat das maximale Sitzungs-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Deine Organisation hat das Standard-Sitzungs-Timeout auf \"Wenn System gesperrt\" gesetzt."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Deine Organisation hat das Standard-Sitzungs-Timeout auf \"Beim Neustart der App\" gesetzt."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Das maximale Timeout darf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) nicht überschreiten",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Beim Neustart der App"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Stell eine Entsperrmethode ein, um deine Timeout-Aktion zu ändern"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Bist du sicher, dass du gehen willst?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Wenn du ablehnst, bleiben deine persönlichen Einträge in deinem Konto erhalten, aber du wirst den Zugriff auf geteilte Einträge und Organisationsfunktionen verlieren."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Kontaktiere deinen Administrator, um wieder Zugriff zu erhalten."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "$ORGANIZATION$ verlassen",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Wie kann ich meinen Tresor verwalten?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Einträge zu $ORGANIZATION$ übertragen",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ erfordert zur Sicherheit und Compliance, dass alle Einträge der Organisation gehören. Klicke auf Akzeptieren, um den Besitz deiner Einträge zu übertragen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Übertragung annehmen"
+  },
+  "declineAndLeave": {
+    "message": "Ablehnen und verlassen"
+  },
+  "whyAmISeeingThis": {
+    "message": "Warum wird mir das angezeigt?"
   }
 }

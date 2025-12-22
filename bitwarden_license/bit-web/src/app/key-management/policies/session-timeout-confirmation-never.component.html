@@ -1,0 +1,38 @@
+<bit-dialog dialogSize="small">
+  <div bitDialogTitle class="tw-mt-4 tw-flex tw-flex-col tw-gap-2 tw-text-center">
+    <i class="bwi bwi-exclamation-triangle tw-text-3xl tw-text-warning" aria-hidden="true"></i>
+    <h1
+      bitTypography="h3"
+      class="tw-break-words tw-hyphens-auto tw-whitespace-normal tw-max-w-fit tw-inline-block"
+    >
+      {{ "sessionTimeoutConfirmationNeverTitle" | i18n }}
+    </h1>
+  </div>
+
+  <span
+    bitDialogContent
+    class="tw-flex tw-flex-col tw-gap-2 tw-items-center tw-text-center tw-text-base tw-break-words tw-hyphens-auto"
+  >
+    <p>{{ "sessionTimeoutConfirmationNeverDescription" | i18n }}</p>
+    <a
+      target="_blank"
+      rel="noreferrer"
+      appA11yTitle="{{ 'learnMoreAboutDeviceProtection' | i18n }}"
+      href="https://bitwarden.com/help/vault-timeout/"
+      bitLink
+      class="tw-flex tw-flex-row tw-gap-1"
+    >
+      {{ "learnMoreAboutDeviceProtection" | i18n }}
+      <i class="bwi bwi-external-link" aria-hidden="true"></i>
+    </a>
+  </span>
+
+  <div bitDialogFooter class="tw-flex tw-flex-col tw-flex-grow tw-gap-2">
+    <button bitButton buttonType="primary" type="button" (click)="dialogRef.close(true)">
+      {{ "yes" | i18n }}
+    </button>
+    <button bitButton buttonType="secondary" type="button" (click)="dialogRef.close(false)">
+      {{ "no" | i18n }}
+    </button>
+  </div>
+</bit-dialog>

@@ -1,12 +1,28 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { ButtonComponent } from "./button.component";
 
 export default {
   title: "Component Library/Button",
   component: ButtonComponent,
+  decorators: [
+    moduleMetadata({
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              loading: "Loading",
+            }),
+        },
+      ],
+    }),
+  ],
   args: {
     disabled: false,
     loading: false,
@@ -46,6 +62,13 @@ export const Primary: Story = {
   },
 };
 
+export const DangerPrimary: Story = {
+  ...Default,
+  args: {
+    buttonType: "dangerPrimary",
+  },
+};
+
 export const Danger: Story = {
   ...Default,
   args: {
@@ -58,9 +81,10 @@ export const Small: Story = {
     props: args,
     template: /*html*/ `
     <div class="tw-flex tw-gap-4 tw-mb-6 tw-items-center">
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'primary'" [size]="size" [block]="block">Primary small</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'secondary'" [size]="size" [block]="block">Secondary small</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'danger'" [size]="size" [block]="block">Danger small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block">Primary small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block">Secondary small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block">Danger small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerPrimary" [size]="size" [block]="block">Danger Primary small</button>
     </div>
     `,
   }),

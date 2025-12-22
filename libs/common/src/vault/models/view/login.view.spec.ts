@@ -29,11 +29,6 @@ describe("LoginView", () => {
   });
 
   describe("fromSdkLoginView", () => {
-    it("should return undefined when the input is null", () => {
-      const result = LoginView.fromSdkLoginView(null as unknown as SdkLoginView);
-      expect(result).toBeUndefined();
-    });
-
     it("should return a LoginView from an SdkLoginView", () => {
       jest.spyOn(LoginUriView, "fromSdkLoginUriView").mockImplementation(mockFromSdk);
 

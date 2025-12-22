@@ -19,6 +19,8 @@ export class Policy extends Domain {
    */
   enabled: boolean;
 
+  revisionDate: Date;
+
   constructor(obj?: PolicyData) {
     super();
     if (obj == null) {
@@ -30,13 +32,14 @@ export class Policy extends Domain {
     this.type = obj.type;
     this.data = obj.data;
     this.enabled = obj.enabled;
+    this.revisionDate = new Date(obj.revisionDate);
   }
 
   static fromResponse(response: PolicyResponse): Policy {
     return new Policy(new PolicyData(response));
   }
 
-  static fromListResponse(response: ListResponse<PolicyResponse>): Policy[] | undefined {
-    return response.data?.map((d) => Policy.fromResponse(d)) ?? undefined;
+  static fromListResponse(response: ListResponse<PolicyResponse>): Policy[] {
+    return response.data.map((d) => Policy.fromResponse(d));
   }
 }

@@ -19,6 +19,7 @@ describe("BannerComponent", () => {
           useFactory: () =>
             new I18nMockService({
               close: "Close",
+              loading: "Loading",
             }),
         },
       ],

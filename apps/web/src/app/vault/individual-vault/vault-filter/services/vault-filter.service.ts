@@ -13,8 +13,8 @@ import {
 } from "rxjs";
 
 import {
-  CollectionAdminView,
   CollectionService,
+  CollectionTypes,
   CollectionView,
 } from "@bitwarden/admin-console/common";
 import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
@@ -38,6 +38,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 import { CipherListView } from "@bitwarden/sdk-internal";
+import { cloneCollection } from "@bitwarden/web-vault/app/admin-console/organizations/collections";
 
 import {
   CipherTypeFilter,
@@ -246,26 +247,29 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     if (!collections) {
       return headNode;
     }
-    const nodes: TreeNode<CollectionFilter>[] = [];
+    const all: TreeNode<CollectionFilter>[] = [];
 
     if (defaultCollectionsFlagEnabled) {
       collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
     }
 
-    collections.forEach((c) => {
-      const collectionCopy = new CollectionView() as CollectionFilter;
-      collectionCopy.id = c.id;
-      collectionCopy.organizationId = c.organizationId;
-      collectionCopy.icon = "bwi-collection-shared";
-      if (c instanceof CollectionAdminView) {
-        collectionCopy.groups = c.groups;
-        collectionCopy.assigned = c.assigned;
-      }
-      const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, null, NestingDelimiter);
-    });
+    const groupedByOrg = this.collectionService.groupByOrganization(collections);
 
-    nodes.forEach((n) => {
+    for (const group of groupedByOrg.values()) {
+      const nodes: TreeNode<CollectionFilter>[] = [];
+      for (const c of group) {
+        const collectionCopy = cloneCollection(
+          new CollectionView({ ...c, name: c.name }),
+        ) as CollectionFilter;
+        collectionCopy.icon =
+          c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared";
+        const parts = c.name ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
+        ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
+      }
+      all.push(...nodes);
+    }
+
+    all.forEach((n) => {
       n.parent = headNode;
       headNode.children.push(n);
     });
@@ -274,7 +278,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   }
 
   protected getCollectionFilterHead(): TreeNode<CollectionFilter> {
-    const head = new CollectionView() as CollectionFilter;
+    const head = CollectionView.vaultFilterHead() as CollectionFilter;
     return new TreeNode<CollectionFilter>(head, null, "collections", "AllCollections");
   }
 

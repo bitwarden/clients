@@ -12,7 +12,7 @@
         [subtitle]="'autofillSpotlightDesc' | i18n"
         [buttonText]="spotlightButtonText"
         (onDismiss)="dismissSpotlight()"
-        (onButtonClick)="openURI($event, disablePasswordManagerURI)"
+        (onButtonClick)="disableBrowserAutofillSettingsFromNudge($event)"
         [buttonIcon]="spotlightButtonIcon"
       ></bit-spotlight>
     </div>
@@ -213,7 +213,7 @@
         </bit-card>
       </form>
     </bit-section>
-    <bit-section [disableMargin]="!blockBrowserInjectionsByDomainEnabled">
+    <bit-section>
       <form [formGroup]="additionalOptionsForm">
         <bit-section-header>
           <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
@@ -232,7 +232,7 @@
             <input formControlName="enableAutoTotpCopy" bitCheckbox id="totp" type="checkbox" />
             <bit-label for="totp">{{ "enableAutoTotpCopy" | i18n }}</bit-label>
           </bit-form-control>
-          <bit-form-field>
+          <bit-form-field [disableMargin]="isDefaultUriMatchDisabledByPolicy">
             <bit-label for="clearClipboard">{{ "clearClipboard" | i18n }}</bit-label>
             <bit-select
               formControlName="clearClipboard"
@@ -250,7 +250,7 @@
               {{ "clearClipboardDesc" | i18n }}
             </bit-hint>
           </bit-form-field>
-          <bit-form-field disableMargin>
+          <bit-form-field disableMargin *ngIf="!isDefaultUriMatchDisabledByPolicy">
             <bit-label for="defaultUriMatch">{{ "defaultUriMatchDetection" | i18n }}</bit-label>
             <bit-select
               formControlName="defaultUriMatch"
@@ -276,10 +276,10 @@
         </bit-card>
       </form>
     </bit-section>
-    <bit-section *ngIf="blockBrowserInjectionsByDomainEnabled" disableMargin>
+    <bit-section disableMargin>
       <bit-item>
         <a bit-item-content routerLink="/blocked-domains">{{ "blockedDomains" | i18n }}</a>
-        <i slot="end" class="bwi bwi-angle-right bwi-lg row-sub-icon" aria-hidden="true"></i>
+        <i slot="end" class="bwi bwi-angle-right bwi-lg" aria-hidden="true"></i>
       </bit-item>
     </bit-section>
   </div>

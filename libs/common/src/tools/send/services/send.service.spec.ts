@@ -11,12 +11,13 @@ import {
   FakeStateProvider,
   awaitAsync,
   mockAccountServiceWith,
+  mockAccountInfoWith,
 } from "../../../../spec";
+import { KeyGenerationService } from "../../../key-management/crypto";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
@@ -71,9 +72,10 @@ describe("SendService", () => {
 
     accountService.activeAccountSubject.next({
       id: mockUserId,
-      email: "email",
-      emailVerified: false,
-      name: "name",
+      ...mockAccountInfoWith({
+        email: "email",
+        name: "name",
+      }),
     });
 
     // Initial encrypted state
@@ -86,6 +88,7 @@ describe("SendService", () => {
     decryptedState.nextState([testSendViewData("1", "Test Send")]);
 
     sendService = new SendService(
+      accountService,
       keyService,
       i18nService,
       keyGenerationService,

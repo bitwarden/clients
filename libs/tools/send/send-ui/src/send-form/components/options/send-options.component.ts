@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { BehaviorSubject, firstValueFrom, map, switchMap } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -12,6 +12,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { pin } from "@bitwarden/common/tools/rx";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -33,6 +34,8 @@ import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/ge
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-options",
   templateUrl: "./send-options.component.html",
@@ -52,8 +55,12 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendOptionsComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   config: SendFormConfig;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   originalSendView: SendView;
   disableHideEmail = false;
@@ -106,18 +113,27 @@ export class SendOptionsComponent implements OnInit {
         this.disableHideEmail = disableHideEmail;
       });
 
-    this.sendOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.sendFormContainer.patchSend((send) => {
-        Object.assign(send, {
-          maxAccessCount: value.maxAccessCount,
-          accessCount: value.accessCount,
-          password: value.password,
-          hideEmail: value.hideEmail,
-          notes: value.notes,
+    this.sendOptionsForm.valueChanges
+      .pipe(
+        tap((value) => {
+          if (Utils.isNullOrWhitespace(value.password)) {
+            value.password = null;
+          }
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((value) => {
+        this.sendFormContainer.patchSend((send) => {
+          Object.assign(send, {
+            maxAccessCount: value.maxAccessCount,
+            accessCount: value.accessCount,
+            password: value.password,
+            hideEmail: value.hideEmail,
+            notes: value.notes,
+          });
+          return send;
         });
-        return send;
       });
-    });
   }
 
   generatePassword = async () => {

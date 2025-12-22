@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { filter, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NoFolders } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -15,12 +16,14 @@ import {
   ItemModule,
   NoItemsModule,
 } from "@bitwarden/components";
-import { AddEditFolderDialogComponent, VaultIcons } from "@bitwarden/vault";
+import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./folders-v2.component.html",
   imports: [
@@ -39,7 +42,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 export class FoldersV2Component {
   folders$: Observable<FolderView[]>;
 
-  NoFoldersIcon = VaultIcons.NoFolders;
+  NoFoldersIcon = NoFolders;
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   constructor(

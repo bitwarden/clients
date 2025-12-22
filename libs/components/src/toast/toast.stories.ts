@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -17,11 +17,16 @@ import { ToastOptions, ToastService } from "./toast.service";
 const toastServiceExampleTemplate = `
   <button bitButton type="button" (click)="toastService.showToast(toastOptions)">Show Toast</button>
 `;
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "toast-service-example",
   template: toastServiceExampleTemplate,
+  imports: [ButtonModule],
 })
 export class ToastServiceExampleComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   toastOptions?: ToastOptions;
 
@@ -54,6 +59,7 @@ export default {
               error: "Error",
               warning: "Warning",
               info: "Info",
+              loading: "Loading",
             });
           },
         },

@@ -47,9 +47,9 @@ import { guidToRawFormat } from "./guid-utils";
  *
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
-export class Fido2ClientService<ParentWindowReference>
-  implements Fido2ClientServiceAbstraction<ParentWindowReference>
-{
+export class Fido2ClientService<
+  ParentWindowReference,
+> implements Fido2ClientServiceAbstraction<ParentWindowReference> {
   private timeoutAbortController: AbortController;
   private readonly TIMEOUTS = {
     NO_VERIFICATION: {
@@ -251,8 +251,7 @@ export class Fido2ClientService<ParentWindowReference>
       clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
       publicKey: Fido2Utils.bufferToString(makeCredentialResult.publicKey),
       publicKeyAlgorithm: makeCredentialResult.publicKeyAlgorithm,
-      transports:
-        params.rp.id === "google.com" ? ["internal", "usb", "hybrid"] : ["internal", "hybrid"],
+      transports: ["internal", "hybrid"],
       extensions: { credProps },
     };
   }

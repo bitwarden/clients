@@ -1,9 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-// import { NoAccess } from "libs/components/src/icon/icons";
 import { firstValueFrom } from "rxjs";
 
+import { DeactivatedOrg } from "@bitwarden/assets/svg";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -35,7 +35,6 @@ import {
   CalloutComponent,
   DialogService,
   ToastService,
-  Icons,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -46,6 +45,8 @@ import {
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   standalone: true,
   templateUrl: "set-initial-password.component.html",
@@ -113,7 +114,7 @@ export class SetInitialPasswordComponent implements OnInit {
       this.userType = SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER_UNTRUSTED_DEVICE;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "unableToCompleteLogin" },
-        pageIcon: Icons.NoAccess,
+        pageIcon: DeactivatedOrg,
       });
     }
 
@@ -213,6 +214,8 @@ export class SetInitialPasswordComponent implements OnInit {
     assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.newLocalMasterKeyHash, "newLocalMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
     assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
     assertTruthy(this.orgId, "orgId", ctx);
     assertTruthy(this.userType, "userType", ctx);
@@ -230,6 +233,8 @@ export class SetInitialPasswordComponent implements OnInit {
         orgSsoIdentifier: this.orgSsoIdentifier,
         orgId: this.orgId,
         resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
+        newPassword: passwordInputResult.newPassword,
+        salt: passwordInputResult.salt,
       };
 
       await this.setInitialPasswordService.setInitialPassword(

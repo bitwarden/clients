@@ -12,6 +12,8 @@ import {
 
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-view-identity-sections",
   templateUrl: "./view-identity-sections.component.html",
@@ -26,6 +28,8 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
   ],
 })
 export class ViewIdentitySectionsComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipher: CipherView | null = null;
 
   /** Returns all populated address fields */

@@ -3,20 +3,18 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { Collection as CollectionDomain, CollectionView } from "@bitwarden/admin-console/common";
-
-import { CollectionId } from "../../types/guid";
+import { CollectionId } from "@bitwarden/common/types/guid";
 
 import { CollectionExport } from "./collection.export";
 
 export class CollectionWithIdExport extends CollectionExport {
   id: CollectionId;
 
-  static toView(req: CollectionWithIdExport, view = new CollectionView()) {
-    view.id = req.id;
-    return super.toView(req, view);
+  static toView(req: CollectionWithIdExport) {
+    return super.toView(req, req.id);
   }
 
-  static toDomain(req: CollectionWithIdExport, domain = new CollectionDomain()) {
+  static toDomain(req: CollectionWithIdExport, domain: CollectionDomain) {
     domain.id = req.id;
     return super.toDomain(req, domain);
   }

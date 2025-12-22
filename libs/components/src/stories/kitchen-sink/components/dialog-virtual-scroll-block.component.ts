@@ -7,6 +7,8 @@ import { ScrollLayoutDirective } from "../../../layout";
 import { SectionComponent } from "../../../section";
 import { TableDataSource, TableModule } from "../../../table";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dialog-virtual-scroll-block",
   standalone: true,
@@ -36,7 +38,7 @@ import { TableDataSource, TableModule } from "../../../table";
               <button
                 bitIconButton="bwi-ellipsis-v"
                 type="button"
-                aria-label="Options"
+                label="Options"
                 (click)="openDefaultDialog()"
               ></button>
             </td>

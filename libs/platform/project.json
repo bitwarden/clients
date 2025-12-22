@@ -1,0 +1,41 @@
+{
+  "name": "@bitwarden/platform",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/platform/src",
+  "projectType": "library",
+  "tags": ["scope:platform", "type:lib"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "dependsOn": [],
+      "options": {
+        "script": "build"
+      }
+    },
+    "build:watch": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:watch"
+      }
+    },
+    "clean": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "clean"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/platform/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "test"
+      }
+    }
+  }
+}

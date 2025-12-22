@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Name" xml:space="preserve">
+    <value>Bitwarden கடவுச்சொல் நிர்வாகி</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>வீட்டிலோ, வேலையிலோ அல்லது பயணத்திலோ, பிட்வார்டன் உங்கள் கடவுச்சொற்கள் மற்றும் முக்கியமான தகவல்களை எளிதாகப் பாதுகாக்கிறது.</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>PCMag, WIRED, The Verge, CNET, G2 மற்றும் பலவற்றால் சிறந்த கடவுச்சொல் நிர்வாகியாக அங்கீகரிக்கப்பட்டது!
+
+உங்கள் டிஜிட்டல் வாழ்க்கையைப் பாதுகாக்கவும்
+ஒவ்வொரு கணக்கிற்கும் தனித்துவமான, வலுவான கடவுச்சொற்களை உருவாக்கி சேமிப்பதன் மூலம் உங்கள் டிஜிட்டல் வாழ்க்கையைப் பாதுகாக்கவும், தரவு மீறல்களிலிருந்து பாதுகாக்கவும். நீங்கள் மட்டுமே அணுகக்கூடிய முழுமையான மறைகுறியாக்கப்பட்ட கடவுச்சொல் பெட்டகத்தில் அனைத்தையும் பராமரிக்கவும்.
+
+உங்கள் தரவை, எங்கும், எந்த நேரத்திலும், எந்த சாதனத்திலும் அணுகவும்
+கட்டுப்பாடுகள் இல்லாமல் வரம்பற்ற சாதனங்களில் வரம்பற்ற கடவுச்சொற்களை எளிதாக நிர்வகிக்கவும், சேமிக்கவும், பாதுகாக்கவும் மற்றும் பகிரவும்.
+
+ஆன்லைனில் பாதுகாப்பாக இருப்பதற்கான கருவிகள் அனைவருக்கும் இருக்க வேண்டும்
+விளம்பரங்கள் அல்லது விற்பனைத் தரவு இல்லாமல் Bitwarden ஐ இலவசமாகப் பயன்படுத்தவும். ஆன்லைனில் பாதுகாப்பாக இருக்கும் திறன் அனைவருக்கும் இருக்க வேண்டும் என்று Bitwarden நம்புகிறது. பிரீமியம் திட்டங்கள் மேம்பட்ட அம்சங்களுக்கான அணுகலை வழங்குகின்றன.
+
+BITWARDEN மூலம் உங்கள் குழுக்களை மேம்படுத்துங்கள்
+குழுக்கள் மற்றும் நிறுவனத்திற்கான திட்டங்கள் தொழில்முறை வணிக அம்சங்களுடன் வருகின்றன. சில எடுத்துக்காட்டுகளில் SSO ஒருங்கிணைப்பு, சுய-ஹோஸ்டிங், டைரக்டரி ஒருங்கிணைப்பு மற்றும் SCIM வழங்கல், உலகளாவிய கொள்கைகள், API அணுகல், நிகழ்வு பதிவுகள் மற்றும் பல அடங்கும்.
+
+உங்கள் பணியாளர்களைப் பாதுகாக்கவும், சக ஊழியர்களுடன் முக்கியமான தகவல்களைப் பகிரவும் Bitwarden ஐப் பயன்படுத்தவும்.
+
+Bitwarden ஐத் தேர்வு செய்வதற்கான கூடுதல் காரணங்கள்:
+
+உலகத் தரம் வாய்ந்த குறியாக்கம்
+கடவுச்சொற்கள் மேம்பட்ட எண்ட்-டு-எண்ட் குறியாக்கத்துடன் (AES-256 பிட், சால்டட் ஹாஷிங் மற்றும் PBKDF2 SHA-256) பாதுகாக்கப்படுகின்றன, இதனால் உங்கள் தரவு பாதுகாப்பாகவும் தனிப்பட்டதாகவும் இருக்கும்.
+
+மூன்றாம் தரப்பு தணிக்கைகள்
+பிட்வார்டன் குறிப்பிடத்தக்க பாதுகாப்பு நிறுவனங்களுடன் விரிவான மூன்றாம் தரப்பு பாதுகாப்பு தணிக்கைகளை தொடர்ந்து நடத்துகிறது. இந்த வருடாந்திர தணிக்கைகளில் மூலக் குறியீடு மதிப்பீடுகள் மற்றும் Bitwarden IPகள், சேவையகங்கள் மற்றும் வலை பயன்பாடுகளில் ஊடுருவல் சோதனை ஆகியவை அடங்கும்.
+
+மேம்பட்ட 2FA
+மூன்றாம் தரப்பு அங்கீகரிப்பான், மின்னஞ்சல் செய்யப்பட்ட குறியீடுகள் அல்லது வன்பொருள் பாதுகாப்பு விசை அல்லது கடவுச்சொல் போன்ற FIDO2 WebAuthn சான்றுகள் மூலம் உங்கள் உள்நுழைவைப் பாதுகாக்கவும்.
+
+Bitwarden Send
+முழுமையான மறைகுறியாக்கப்பட்ட பாதுகாப்பைப் பராமரித்து வெளிப்பாட்டைக் கட்டுப்படுத்தும் அதே வேளையில், தரவை நேரடியாக மற்றவர்களுக்கு அனுப்பவும்.
+
+உள்ளமைக்கப்பட்ட ஜெனரேட்டர்
+நீங்கள் பார்வையிடும் ஒவ்வொரு தளத்திற்கும் நீண்ட, சிக்கலான மற்றும் தனித்துவமான கடவுச்சொற்கள் மற்றும் தனித்துவமான பயனர்பெயர்களை உருவாக்கவும். கூடுதல் தனியுரிமைக்காக மின்னஞ்சல் மாற்று வழங்குநர்களுடன் ஒருங்கிணைக்கவும்.
+
+உலகளாவிய மொழிபெயர்ப்புகள்
+Crowdin மூலம் உலகளாவிய சமூகத்தால் மொழிபெயர்க்கப்பட்ட 60 க்கும் மேற்பட்ட மொழிகளுக்கு Bitwarden மொழிபெயர்ப்புகள் உள்ளன.
+
+குறுக்கு-தள பயன்பாடுகள்
+எந்த உலாவி, மொபைல் சாதனம் அல்லது டெஸ்க்டாப் OS மற்றும் பலவற்றிலிருந்தும் உங்கள் Bitwarden Vault-க்குள் முக்கியமான தரவைப் பாதுகாத்து பகிரவும்.
+
+Bitwarden கடவுச்சொற்களை விட அதிகமாகப் பாதுகாக்கிறது
+Bitwarden இலிருந்து முழுமையான மறைகுறியாக்கப்பட்ட நற்சான்றிதழ் மேலாண்மை தீர்வுகள், டெவலப்பர் ரகசியங்கள் மற்றும் பாஸ்கீ அனுபவங்கள் உட்பட அனைத்தையும் பாதுகாக்க நிறுவனங்களுக்கு அதிகாரம் அளிக்கின்றன. Bitwarden Secrets Manager மற்றும் Bitwarden Passwordless.dev பற்றி மேலும் அறிய Bitwarden.com ஐப் பார்வையிடவும்!</value>
+  </data>
+  <data name="AssetTitle" xml:space="preserve">
+    <value>வீட்டிலோ, வேலையிலோ அல்லது பயணத்திலோ, பிட்வார்டன் உங்கள் கடவுச்சொற்கள் மற்றும் முக்கியமான தகவல்களை எளிதாகப் பாதுகாக்கிறது.</value>
+  </data>
+  <data name="ScreenshotSync" xml:space="preserve">
+    <value>பல சாதனங்களிலிருந்து உங்கள் பெட்டகத்தை ஒத்திசைத்து அணுகவும்</value>
+  </data>
+  <data name="ScreenshotVault" xml:space="preserve">
+    <value>உங்கள் அனைத்து உள்நுழைவுகளையும் கடவுச்சொற்களையும் பாதுகாப்பான பெட்டகத்திலிருந்து நிர்வகிக்கவும்</value>
+  </data>
+  <data name="ScreenshotAutofill" xml:space="preserve">
+    <value>நீங்கள் பார்வையிடும் எந்த வலைத்தளத்திலும் உங்கள் உள்நுழைவு சான்றுகளை விரைவாக தானாக நிரப்பவும்</value>
+  </data>
+  <data name="ScreenshotMenu" xml:space="preserve">
+    <value>உங்கள் பெட்டகத்தை வலது கிளிக் மெனுவிலிருந்து வசதியாக அணுகலாம்</value>
+  </data>
+  <data name="ScreenshotPassword" xml:space="preserve">
+    <value>வலுவான, சீரற்ற மற்றும் பாதுகாப்பான கடவுச்சொற்களை தானாகவே உருவாக்குங்கள்</value>
+  </data>
+  <data name="ScreenshotEdit" xml:space="preserve">
+    <value>உங்கள் தகவல் AES-256 பிட் குறியாக்கத்தைப் பயன்படுத்தி பாதுகாப்பாக நிர்வகிக்கப்படுகிறது</value>
+  </data>
+</root>

@@ -5,7 +5,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap, of } from "rxjs";
+import { firstValueFrom, Observable, switchMap, of, map } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -76,6 +76,8 @@ type LoadAction =
   | typeof COPY_VERIFICATION_CODE_ID
   | typeof UPDATE_PASSWORD;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-view-v2",
   templateUrl: "view-v2.component.html",
@@ -194,23 +196,23 @@ export class ViewV2Component {
   }
 
   setHeader(type: CipherType) {
-    switch (type) {
-      case CipherType.Login:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeLogin"));
-      case CipherType.Card:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeCard"));
-      case CipherType.Identity:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeIdentity"));
-      case CipherType.SecureNote:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("note"));
-      case CipherType.SshKey:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeSshkey"));
-    }
+    const translation = {
+      [CipherType.Login]: "viewItemHeaderLogin",
+      [CipherType.Card]: "viewItemHeaderCard",
+      [CipherType.Identity]: "viewItemHeaderIdentity",
+      [CipherType.SecureNote]: "viewItemHeaderNote",
+      [CipherType.SshKey]: "viewItemHeaderSshKey",
+    };
+    return this.i18nService.t(translation[type]);
   }
 
   async getCipherData(id: string, userId: UserId) {
-    const cipher = await this.cipherService.get(id, userId);
-    return await this.cipherService.decrypt(cipher, userId);
+    return await firstValueFrom(
+      this.cipherService.cipherViews$(userId).pipe(
+        filterOutNullish(),
+        map((ciphers) => ciphers.find((c) => c.id === id)),
+      ),
+    );
   }
 
   async editCipher() {
@@ -325,8 +327,10 @@ export class ViewV2Component {
       case UPDATE_PASSWORD: {
         const repromptSuccess = await this.passwordRepromptService.showPasswordPrompt();
 
+        const tab = await BrowserApi.getTab(senderTabId);
         await sendExtensionMessage("bgHandleReprompt", {
-          tab: await chrome.tabs.get(senderTabId),
+          tab,
+          cipherId: cipher.id,
           success: repromptSuccess,
         });
 

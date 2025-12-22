@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FocusableOption } from "@angular/cdk/a11y";
 import { Directive, ElementRef, HostBinding, Input, input } from "@angular/core";
 
@@ -15,7 +13,9 @@ export class TabListItemDirective implements FocusableOption {
   // TODO: Skipped for signal migration because:
   //  This input overrides a field from a superclass, while the superclass field
   //  is not migrated.
-  @Input() disabled: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() disabled = false;
 
   @HostBinding("attr.disabled")
   get disabledAttr() {
@@ -60,7 +60,7 @@ export class TabListItemDirective implements FocusableOption {
       "tw-relative",
       "tw-py-2",
       "tw-px-4",
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-transition",
       "tw-rounded-t-lg",
       "tw-border-0",
@@ -84,7 +84,7 @@ export class TabListItemDirective implements FocusableOption {
   get activeClassList(): string[] {
     return [
       "tw--mb-px",
-      "tw-border-x-secondary-300",
+      "tw-border-x-secondary-100",
       "tw-border-t-primary-600",
       "tw-border-b",
       "tw-border-b-background",

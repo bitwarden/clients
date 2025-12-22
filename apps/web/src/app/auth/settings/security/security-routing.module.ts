@@ -2,12 +2,12 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { DeviceManagementComponent } from "@bitwarden/angular/auth/device-management/device-management.component";
-import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
+import { SessionTimeoutComponent } from "../../../key-management/session-timeout/session-timeout.component";
 import { TwoFactorSetupComponent } from "../two-factor/two-factor-setup.component";
 
-import { DeviceManagementOldComponent } from "./device-management-old.component";
 import { PasswordSettingsComponent } from "./password-settings/password-settings.component";
 import { SecurityKeysComponent } from "./security-keys.component";
 import { SecurityComponent } from "./security.component";
@@ -18,7 +18,20 @@ const routes: Routes = [
     component: SecurityComponent,
     data: { titleId: "security" },
     children: [
-      { path: "", pathMatch: "full", redirectTo: "password" },
+      { path: "", pathMatch: "full", redirectTo: "session-timeout" },
+      {
+        path: "session-timeout",
+        component: SessionTimeoutComponent,
+        canActivate: [
+          canAccessFeature(
+            FeatureFlag.ConsolidatedSessionTimeoutComponent,
+            true,
+            "/settings/security/password",
+            false,
+          ),
+        ],
+        data: { titleId: "sessionTimeoutHeader" },
+      },
       {
         path: "password",
         component: PasswordSettingsComponent,
@@ -34,15 +47,11 @@ const routes: Routes = [
         component: SecurityKeysComponent,
         data: { titleId: "keys" },
       },
-      ...featureFlaggedRoute({
-        defaultComponent: DeviceManagementOldComponent,
-        flaggedComponent: DeviceManagementComponent,
-        featureFlag: FeatureFlag.PM14938_BrowserExtensionLoginApproval,
-        routeOptions: {
-          path: "device-management",
-          data: { titleId: "devices" },
-        },
-      }),
+      {
+        path: "device-management",
+        component: DeviceManagementComponent,
+        data: { titleId: "devices" },
+      },
     ],
   },
 ];

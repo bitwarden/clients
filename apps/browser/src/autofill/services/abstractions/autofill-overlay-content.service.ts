@@ -26,7 +26,7 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   destroyAutofillInlineMenuListeners: () => void;
   getInlineMenuFormFieldData: ({
     message,
-  }: AutofillExtensionMessageParam) => Promise<ModifyLoginCipherFormData>;
+  }: AutofillExtensionMessageParam) => Promise<ModifyLoginCipherFormData | void>;
 };
 
 export interface AutofillOverlayContentService {
@@ -39,6 +39,9 @@ export interface AutofillOverlayContentService {
     pageDetails: AutofillPageDetails,
   ): Promise<void>;
   blurMostRecentlyFocusedField(isClosingInlineMenu?: boolean): void;
+  getOwnedInlineMenuTagNames(): string[];
+  getUnownedTopLayerItems(includeCandidates?: boolean): NodeListOf<Element> | undefined;
+  refreshMenuLayerPosition(): void;
   clearUserFilledFields(): void;
   destroy(): void;
 }

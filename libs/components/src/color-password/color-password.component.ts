@@ -9,10 +9,12 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
  * the logic for displaying letters as `text-main`, numbers as `primary`, and special symbols as
  * `danger`.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-color-password",
   template: `@for (character of passwordCharArray(); track $index; let i = $index) {
-    <span [class]="getCharacterClass(character)">
+    <span [class]="getCharacterClass(character)" class="tw-font-mono">
       <span>{{ character }}</span>
       @if (showCount()) {
         <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
@@ -21,11 +23,11 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
   }`,
 })
 export class ColorPasswordComponent {
-  password = input<string>("");
-  showCount = input<boolean>(false);
+  readonly password = input<string>("");
+  readonly showCount = input<boolean>(false);
 
   // Convert to an array to handle cases that strings have special characters, i.e.: emoji.
-  passwordCharArray = computed(() => {
+  readonly passwordCharArray = computed(() => {
     return Array.from(this.password() ?? "");
   });
 

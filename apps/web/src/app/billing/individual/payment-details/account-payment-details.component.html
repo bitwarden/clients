@@ -12,13 +12,13 @@
   } @else {
     <ng-container>
       <app-display-payment-method
-        [owner]="view.account"
+        [subscriber]="view.account"
         [paymentMethod]="view.paymentMethod"
         (updated)="setPaymentMethod($event)"
       ></app-display-payment-method>
 
       <app-display-account-credit
-        [owner]="view.account"
+        [subscriber]="view.account"
         [credit]="view.credit"
       ></app-display-account-credit>
     </ng-container>

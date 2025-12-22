@@ -2,9 +2,9 @@ import { Component, ViewChild } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, ToastService } from "@bitwarden/components";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
-import { BillingClient } from "../../services";
-import { BillableEntity } from "../../types";
+import { BitwardenSubscriber } from "../../types";
 import { MaskedPaymentMethod } from "../types";
 
 import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
@@ -14,16 +14,20 @@ export type SubmitPaymentMethodDialogResult =
   | { type: "error" }
   | { type: "success"; paymentMethod: MaskedPaymentMethod };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({ template: "" })
 export abstract class SubmitPaymentMethodDialogComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent)
   private enterPaymentMethodComponent!: EnterPaymentMethodComponent;
   protected formGroup = EnterPaymentMethodComponent.getFormGroup();
 
-  protected abstract owner: BillableEntity;
+  protected abstract subscriber: BitwardenSubscriber;
 
   protected constructor(
-    protected billingClient: BillingClient,
+    protected billingClient: SubscriberBillingClient,
     protected dialogRef: DialogRef<SubmitPaymentMethodDialogResult>,
     protected i18nService: I18nService,
     protected toastService: ToastService,
@@ -37,13 +41,17 @@ export abstract class SubmitPaymentMethodDialogComponent {
     }
 
     const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
+    if (!paymentMethod) {
+      return;
+    }
+
     const billingAddress =
       this.formGroup.value.type !== "payPal"
         ? this.formGroup.controls.billingAddress.getRawValue()
         : null;
 
     const result = await this.billingClient.updatePaymentMethod(
-      this.owner,
+      this.subscriber,
       paymentMethod,
       billingAddress,
     );

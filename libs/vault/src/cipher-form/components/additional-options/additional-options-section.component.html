@@ -24,10 +24,10 @@
       bitLink
       type="button"
       linkType="primary"
-      *ngIf="!hasCustomFields && !isPartialEdit"
+      *ngIf="!hasCustomFields && !isPartialEdit && allowNewField"
       (click)="addCustomField()"
     >
-      <i class="bwi bwi-plus tw-font-bold" aria-hidden="true"></i>
+      <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
       {{ "addField" | i18n }}
     </button>
   </bit-card>

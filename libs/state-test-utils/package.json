@@ -4,8 +4,8 @@
   "description": "Test utilities and fakes for state management",
   "private": true,
   "type": "commonjs",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "license": "GPL-3.0",
   "author": "platform"
 }

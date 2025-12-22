@@ -41,8 +41,10 @@
       "
     >
       <div class="tw-flex tw-flex-col tw-items-center">
-        <bit-icon [icon]="Icons.UserVerificationBiometricsIcon" class="tw-mb-4"></bit-icon>
-        <p class="tw-font-bold tw-mb-1">{{ "verifyWithBiometrics" | i18n }}</p>
+        <div class="tw-size-16 tw-content-center tw-mb-4">
+          <bit-icon [icon]="Icons.UserVerificationBiometricsIcon"></bit-icon>
+        </div>
+        <p class="tw-font-medium tw-mb-1">{{ "verifyWithBiometrics" | i18n }}</p>
         <div *ngIf="!biometricsVerificationFailed">
           <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
           {{ "awaitingConfirmation" | i18n }}

@@ -1,86 +1,88 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
-import * as rxjs from "rxjs";
+import { firstValueFrom } from "rxjs";
+import { Jsonify } from "type-fest";
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
   FakeAccountService,
+  FakeStateProvider,
+  makeEncString,
   makeSymmetricCryptoKey,
   mockAccountServiceWith,
 } from "../../../../spec";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
-import { StateService } from "../../../platform/abstractions/state.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
+import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
-import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
-import { MasterPasswordSalt } from "../types/master-password.types";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "../types/master-password.types";
 
-import { MasterPasswordService } from "./master-password.service";
+import {
+  FORCE_SET_PASSWORD_REASON,
+  MASTER_KEY,
+  MASTER_KEY_ENCRYPTED_USER_KEY,
+  MASTER_PASSWORD_UNLOCK_KEY,
+  MasterPasswordService,
+} from "./master-password.service";
 
 describe("MasterPasswordService", () => {
   let sut: MasterPasswordService;
 
-  let stateProvider: MockProxy<StateProvider>;
-  let stateService: MockProxy<StateService>;
   let keyGenerationService: MockProxy<KeyGenerationService>;
-  let encryptService: MockProxy<EncryptService>;
   let logService: MockProxy<LogService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let accountService: FakeAccountService;
+  let stateProvider: FakeStateProvider;
 
   const userId = "00000000-0000-0000-0000-000000000000" as UserId;
-  const mockUserState = {
-    state$: of(null),
-    update: jest.fn().mockResolvedValue(null),
-  };
 
-  const testUserKey: SymmetricCryptoKey = makeSymmetricCryptoKey(64, 1);
-  const testMasterKey: MasterKey = makeSymmetricCryptoKey(32, 2);
-  const testStretchedMasterKey: SymmetricCryptoKey = makeSymmetricCryptoKey(64, 3);
+  const kdfPBKDF2: KdfConfig = new PBKDF2KdfConfig(600_000);
+  const kdfArgon2: KdfConfig = new Argon2KdfConfig(4, 64, 3);
+  const salt = "test@bitwarden.com" as MasterPasswordSalt;
+  const userKey = makeSymmetricCryptoKey(64, 2) as UserKey;
   const testMasterKeyEncryptedKey =
     "0.gbauOANURUHqvhLTDnva1A==|nSW+fPumiuTaDB/s12+JO88uemV6rhwRSR+YR1ZzGr5j6Ei3/h+XEli2Unpz652NlZ9NTuRpHxeOqkYYJtp7J+lPMoclgteXuAzUu9kqlRc=";
-  const testStretchedMasterKeyEncryptedKey =
-    "2.gbauOANURUHqvhLTDnva1A==|nSW+fPumiuTaDB/s12+JO88uemV6rhwRSR+YR1ZzGr5j6Ei3/h+XEli2Unpz652NlZ9NTuRpHxeOqkYYJtp7J+lPMoclgteXuAzUu9kqlRc=|DeUFkhIwgkGdZA08bDnDqMMNmZk21D+H5g8IostPKAY=";
+  const sdkLoadServiceReady = jest.fn();
 
   beforeEach(() => {
-    stateProvider = mock<StateProvider>();
-    stateService = mock<StateService>();
     keyGenerationService = mock<KeyGenerationService>();
-    encryptService = mock<EncryptService>();
     logService = mock<LogService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
     accountService = mockAccountServiceWith(userId);
-
-    stateProvider.getUser.mockReturnValue(mockUserState as any);
-
-    mockUserState.update.mockReset();
+    stateProvider = new FakeStateProvider(accountService);
 
     sut = new MasterPasswordService(
       stateProvider,
-      stateService,
       keyGenerationService,
-      encryptService,
       logService,
       cryptoFunctionService,
       accountService,
     );
 
-    encryptService.unwrapSymmetricKey.mockResolvedValue(makeSymmetricCryptoKey(64, 1));
     keyGenerationService.stretchKey.mockResolvedValue(makeSymmetricCryptoKey(64, 3));
     Object.defineProperty(SdkLoadService, "Ready", {
-      value: Promise.resolve(),
+      value: new Promise((resolve) => {
+        sdkLoadServiceReady();
+        resolve(undefined);
+      }),
       configurable: true,
     });
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   describe("saltForUser$", () => {
@@ -106,12 +108,10 @@ describe("MasterPasswordService", () => {
 
       await sut.setForceSetPasswordReason(reason, userId);
 
-      expect(stateProvider.getUser).toHaveBeenCalled();
-      expect(mockUserState.update).toHaveBeenCalled();
-
-      // Call the update function to verify it returns the correct reason
-      const updateFn = mockUserState.update.mock.calls[0][0];
-      expect(updateFn(null)).toBe(reason);
+      const state = await firstValueFrom(
+        stateProvider.getUser(userId, FORCE_SET_PASSWORD_REASON).state$,
+      );
+      expect(state).toEqual(reason);
     });
 
     it("throws an error if reason is null", async () => {
@@ -127,68 +127,87 @@ describe("MasterPasswordService", () => {
     });
 
     it("does not overwrite AdminForcePasswordReset with other reasons except None", async () => {
-      jest
-        .spyOn(sut, "forceSetPasswordReason$")
-        .mockReturnValue(of(ForceSetPasswordReason.AdminForcePasswordReset));
-
-      jest
-        .spyOn(rxjs, "firstValueFrom")
-        .mockResolvedValue(ForceSetPasswordReason.AdminForcePasswordReset);
+      stateProvider.singleUser
+        .getFake(userId, FORCE_SET_PASSWORD_REASON)
+        .nextState(ForceSetPasswordReason.AdminForcePasswordReset);
 
       await sut.setForceSetPasswordReason(ForceSetPasswordReason.WeakMasterPassword, userId);
 
-      expect(mockUserState.update).not.toHaveBeenCalled();
+      const state = await firstValueFrom(
+        stateProvider.getUser(userId, FORCE_SET_PASSWORD_REASON).state$,
+      );
+      expect(state).toEqual(ForceSetPasswordReason.AdminForcePasswordReset);
     });
 
     it("allows overwriting AdminForcePasswordReset with None", async () => {
-      jest
-        .spyOn(sut, "forceSetPasswordReason$")
-        .mockReturnValue(of(ForceSetPasswordReason.AdminForcePasswordReset));
-
-      jest
-        .spyOn(rxjs, "firstValueFrom")
-        .mockResolvedValue(ForceSetPasswordReason.AdminForcePasswordReset);
+      stateProvider.singleUser
+        .getFake(userId, FORCE_SET_PASSWORD_REASON)
+        .nextState(ForceSetPasswordReason.AdminForcePasswordReset);
 
       await sut.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
-      expect(mockUserState.update).toHaveBeenCalled();
+      const state = await firstValueFrom(
+        stateProvider.getUser(userId, FORCE_SET_PASSWORD_REASON).state$,
+      );
+      expect(state).toEqual(ForceSetPasswordReason.None);
     });
   });
+
   describe("decryptUserKeyWithMasterKey", () => {
-    it("decrypts a userkey wrapped in AES256-CBC", async () => {
-      encryptService.unwrapSymmetricKey.mockResolvedValue(testUserKey);
-      await sut.decryptUserKeyWithMasterKey(
-        testMasterKey,
+    const masterKey = makeSymmetricCryptoKey(64, 0) as MasterKey;
+    const userKey = makeSymmetricCryptoKey(64, 1) as UserKey;
+    const masterKeyEncryptedUserKey = makeEncString("test-encrypted-user-key");
+
+    const decryptUserKeyWithMasterKeyMock = jest.spyOn(
+      PureCrypto,
+      "decrypt_user_key_with_master_key",
+    );
+
+    beforeEach(() => {
+      decryptUserKeyWithMasterKeyMock.mockReturnValue(userKey.toEncoded());
+    });
+
+    it("successfully decrypts", async () => {
+      const decryptedUserKey = await sut.decryptUserKeyWithMasterKey(
+        masterKey,
         userId,
-        new EncString(testMasterKeyEncryptedKey),
+        masterKeyEncryptedUserKey,
       );
-      expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(
-        new EncString(testMasterKeyEncryptedKey),
-        testMasterKey,
+
+      expect(decryptedUserKey).toEqual(new SymmetricCryptoKey(userKey.toEncoded()));
+      expect(sdkLoadServiceReady).toHaveBeenCalled();
+      expect(PureCrypto.decrypt_user_key_with_master_key).toHaveBeenCalledWith(
+        masterKeyEncryptedUserKey.toSdk(),
+        masterKey.toEncoded(),
+      );
+      expect(sdkLoadServiceReady.mock.invocationCallOrder[0]).toBeLessThan(
+        decryptUserKeyWithMasterKeyMock.mock.invocationCallOrder[0],
       );
     });
-    it("decrypts a userkey wrapped in AES256-CBC-HMAC", async () => {
-      encryptService.unwrapSymmetricKey.mockResolvedValue(testUserKey);
-      keyGenerationService.stretchKey.mockResolvedValue(testStretchedMasterKey);
-      await sut.decryptUserKeyWithMasterKey(
-        testMasterKey,
+
+    it("returns null when failed to decrypt", async () => {
+      decryptUserKeyWithMasterKeyMock.mockImplementation(() => {
+        throw new Error("Decryption failed");
+      });
+
+      const decryptedUserKey = await sut.decryptUserKeyWithMasterKey(
+        masterKey,
         userId,
-        new EncString(testStretchedMasterKeyEncryptedKey),
+        masterKeyEncryptedUserKey,
       );
-      expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(
-        new EncString(testStretchedMasterKeyEncryptedKey),
-        testStretchedMasterKey,
-      );
-      expect(keyGenerationService.stretchKey).toHaveBeenCalledWith(testMasterKey);
+      expect(decryptedUserKey).toBeNull();
     });
-    it("returns null if failed to decrypt", async () => {
-      encryptService.unwrapSymmetricKey.mockResolvedValue(null);
-      const result = await sut.decryptUserKeyWithMasterKey(
-        testMasterKey,
-        userId,
-        new EncString(testStretchedMasterKeyEncryptedKey),
-      );
-      expect(result).toBeNull();
+
+    it("returns error when master key is null", async () => {
+      stateProvider.singleUser.getFake(userId, MASTER_KEY).nextState(null);
+
+      await expect(
+        sut.decryptUserKeyWithMasterKey(
+          null as unknown as MasterKey,
+          userId,
+          masterKeyEncryptedUserKey,
+        ),
+      ).rejects.toThrow("No master key found.");
     });
   });
 
@@ -222,10 +241,10 @@ describe("MasterPasswordService", () => {
 
       await sut.setMasterKeyEncryptedUserKey(encryptedKey, userId);
 
-      expect(stateProvider.getUser).toHaveBeenCalled();
-      expect(mockUserState.update).toHaveBeenCalled();
-      const updateFn = mockUserState.update.mock.calls[0][0];
-      expect(updateFn(null)).toEqual(encryptedKey.toJSON());
+      const state = await firstValueFrom(
+        stateProvider.getUser(userId, MASTER_KEY_ENCRYPTED_USER_KEY).state$,
+      );
+      expect(state).toEqual(encryptedKey.toJSON());
     });
   });
 
@@ -319,6 +338,136 @@ describe("MasterPasswordService", () => {
       await expect(
         sut.makeMasterPasswordUnlockData(password, kdf, salt, null as unknown as UserKey),
       ).rejects.toThrow();
+    });
+  });
+
+  describe("setMasterPasswordUnlockData", () => {
+    it.each([kdfPBKDF2, kdfArgon2])(
+      "sets the master password unlock data kdf %o in the state",
+      async (kdfConfig) => {
+        const masterKeyWrappedUserKey = makeEncString().toSdk() as MasterKeyWrappedUserKey;
+        const masterPasswordUnlockData = new MasterPasswordUnlockData(
+          salt,
+          kdfConfig,
+          masterKeyWrappedUserKey,
+        );
+
+        await sut.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
+
+        const state = await firstValueFrom(
+          stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$,
+        );
+        expect(state).toEqual(masterPasswordUnlockData.toJSON());
+      },
+    );
+
+    it("throws if masterPasswordUnlockData is null", async () => {
+      await expect(
+        sut.setMasterPasswordUnlockData(null as unknown as MasterPasswordUnlockData, userId),
+      ).rejects.toThrow("masterPasswordUnlockData is null or undefined.");
+    });
+
+    it("throws if userId is null", async () => {
+      const masterPasswordUnlockData = await sut.makeMasterPasswordUnlockData(
+        "test-password",
+        kdfPBKDF2,
+        salt,
+        userKey,
+      );
+
+      await expect(
+        sut.setMasterPasswordUnlockData(masterPasswordUnlockData, null as unknown as UserId),
+      ).rejects.toThrow("userId is null or undefined.");
+    });
+  });
+
+  describe("masterPasswordUnlockData$", () => {
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        expect(() => sut.masterPasswordUnlockData$(userId)).toThrow("userId is null or undefined.");
+      },
+    );
+
+    it("returns null when no data is set", async () => {
+      stateProvider.singleUser.getFake(userId, MASTER_PASSWORD_UNLOCK_KEY).nextState(null);
+
+      const result = await firstValueFrom(sut.masterPasswordUnlockData$(userId));
+
+      expect(result).toBeNull();
+    });
+
+    it.each([kdfPBKDF2, kdfArgon2])(
+      "returns the master password unlock data for kdf %o from state",
+      async (kdfConfig) => {
+        const masterPasswordUnlockData = await sut.makeMasterPasswordUnlockData(
+          "test-password",
+          kdfConfig,
+          salt,
+          userKey,
+        );
+        await sut.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
+
+        const result = await firstValueFrom(sut.masterPasswordUnlockData$(userId));
+
+        expect(result).toEqual(masterPasswordUnlockData.toJSON());
+      },
+    );
+  });
+
+  describe("MASTER_PASSWORD_UNLOCK_KEY", () => {
+    it("has the correct configuration", () => {
+      expect(MASTER_PASSWORD_UNLOCK_KEY.stateDefinition).toBeDefined();
+      expect(MASTER_PASSWORD_UNLOCK_KEY.key).toBe("masterPasswordUnlockKey");
+      expect(MASTER_PASSWORD_UNLOCK_KEY.clearOn).toEqual(["logout"]);
+    });
+
+    describe("deserializer", () => {
+      const kdfPBKDF2: KdfConfig = new PBKDF2KdfConfig(600_000);
+      const kdfArgon2: KdfConfig = new Argon2KdfConfig(4, 64, 3);
+      const salt = "test@bitwarden.com" as MasterPasswordSalt;
+      const encryptedUserKey = "testUserKet" as MasterKeyWrappedUserKey;
+
+      it("returns null when value is null", () => {
+        const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(
+          null as unknown as Jsonify<MasterPasswordUnlockData>,
+        );
+        expect(deserialized).toBeNull();
+      });
+
+      it("returns master password unlock data when value is present and kdf type is pbkdf2", () => {
+        const data: Jsonify<MasterPasswordUnlockData> = {
+          salt: salt,
+          kdf: {
+            kdfType: KdfType.PBKDF2_SHA256,
+            iterations: kdfPBKDF2.iterations,
+          },
+          masterKeyWrappedUserKey: encryptedUserKey as string,
+        };
+
+        const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(data);
+        expect(deserialized).toEqual(
+          new MasterPasswordUnlockData(salt, kdfPBKDF2, encryptedUserKey),
+        );
+      });
+
+      it("returns master password unlock data when value is present and kdf type is argon2", () => {
+        const data: Jsonify<MasterPasswordUnlockData> = {
+          salt: salt,
+          kdf: {
+            kdfType: KdfType.Argon2id,
+            iterations: kdfArgon2.iterations,
+            memory: kdfArgon2.memory,
+            parallelism: kdfArgon2.parallelism,
+          },
+          masterKeyWrappedUserKey: encryptedUserKey as string,
+        };
+
+        const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(data);
+        expect(deserialized).toEqual(
+          new MasterPasswordUnlockData(salt, kdfArgon2, encryptedUserKey),
+        );
+      });
     });
   });
 });

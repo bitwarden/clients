@@ -1,21 +1,23 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { LoginUri as SdkLoginUri } from "@bitwarden/sdk-internal";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
-import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
+import {
+  normalizeUriMatchStrategyForSdk,
+  UriMatchStrategySetting,
+} from "../../../models/domain/domain-service";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { LoginUriData } from "../data/login-uri.data";
 import { LoginUriView } from "../view/login-uri.view";
 
 export class LoginUri extends Domain {
-  uri: EncString;
-  uriChecksum: EncString | undefined;
-  match: UriMatchStrategySetting;
+  uri?: EncString;
+  uriChecksum?: EncString;
+  match?: UriMatchStrategySetting;
 
   constructor(obj?: LoginUriData) {
     super();
@@ -23,42 +25,33 @@ export class LoginUri extends Domain {
       return;
     }
 
-    this.match = obj.match;
-    this.buildDomainModel(
-      this,
-      obj,
-      {
-        uri: null,
-        uriChecksum: null,
-      },
-      [],
-    );
+    this.uri = conditionalEncString(obj.uri);
+    this.uriChecksum = conditionalEncString(obj.uriChecksum);
+    this.match = obj.match ?? undefined;
   }
 
   decrypt(
-    orgId: string,
+    encKey: SymmetricCryptoKey,
     context: string = "No Cipher Context",
-    encKey?: SymmetricCryptoKey,
   ): Promise<LoginUriView> {
     return this.decryptObj<LoginUri, LoginUriView>(
       this,
       new LoginUriView(this),
       ["uri"],
-      orgId,
       encKey,
       context,
     );
   }
 
-  async validateChecksum(clearTextUri: string, orgId: string, encKey: SymmetricCryptoKey) {
+  async validateChecksum(clearTextUri: string, encKey: SymmetricCryptoKey) {
     if (this.uriChecksum == null) {
       return false;
     }
 
-    const keyService = Utils.getContainerService().getEncryptService();
-    const localChecksum = await keyService.hash(clearTextUri, "sha256");
+    const encryptService = Utils.getContainerService().getEncryptService();
+    const localChecksum = await encryptService.hash(clearTextUri, "sha256");
 
-    const remoteChecksum = await this.uriChecksum.decrypt(orgId, encKey);
+    const remoteChecksum = await encryptService.decryptString(this.uriChecksum, encKey);
     return remoteChecksum === localChecksum;
   }
 
@@ -77,17 +70,17 @@ export class LoginUri extends Domain {
     return u;
   }
 
-  static fromJSON(obj: Jsonify<LoginUri>): LoginUri {
+  static fromJSON(obj: Jsonify<LoginUri> | undefined): LoginUri | undefined {
     if (obj == null) {
-      return null;
+      return undefined;
     }
 
-    const uri = EncString.fromJSON(obj.uri);
-    const uriChecksum = EncString.fromJSON(obj.uriChecksum);
-    return Object.assign(new LoginUri(), obj, {
-      uri,
-      uriChecksum,
-    });
+    const loginUri = new LoginUri();
+    loginUri.uri = encStringFrom(obj.uri);
+    loginUri.match = obj.match ?? undefined;
+    loginUri.uriChecksum = encStringFrom(obj.uriChecksum);
+
+    return loginUri;
   }
 
   /**
@@ -99,20 +92,20 @@ export class LoginUri extends Domain {
     return {
       uri: this.uri?.toSdk(),
       uriChecksum: this.uriChecksum?.toSdk(),
-      match: this.match,
+      match: normalizeUriMatchStrategyForSdk(this.match),
     };
   }
 
-  static fromSdkLoginUri(obj: SdkLoginUri): LoginUri | undefined {
+  static fromSdkLoginUri(obj?: SdkLoginUri): LoginUri | undefined {
     if (obj == null) {
       return undefined;
     }
 
-    const view = new LoginUri();
-    view.uri = EncString.fromJSON(obj.uri);
-    view.uriChecksum = obj.uriChecksum ? EncString.fromJSON(obj.uriChecksum) : undefined;
-    view.match = obj.match;
+    const loginUri = new LoginUri();
+    loginUri.uri = encStringFrom(obj.uri);
+    loginUri.uriChecksum = encStringFrom(obj.uriChecksum);
+    loginUri.match = obj.match;
 
-    return view;
+    return loginUri;
   }
 }

@@ -1,7 +1,10 @@
-use crate::password::PASSWORD_NOT_FOUND;
+use std::collections::HashMap;
+
 use anyhow::{anyhow, Result};
 use oo7::dbus::{self};
-use std::collections::HashMap;
+use tracing::info;
+
+use crate::password::PASSWORD_NOT_FOUND;
 
 pub async fn get_password(service: &str, account: &str) -> Result<String> {
     match get_password_new(service, account).await {
@@ -27,7 +30,7 @@ async fn get_password_new(service: &str, account: &str) -> Result<String> {
 
 // forces to read via secret service; remvove after 2025.03
 async fn get_password_legacy(service: &str, account: &str) -> Result<String> {
-    println!("falling back to get legacy {} {}", service, account);
+    info!("falling back to get legacy {} {}", service, account);
     let svc = dbus::Service::new().await?;
     let collection = svc.default_collection().await?;
     let keyring = oo7::Keyring::DBus(collection);
@@ -38,10 +41,7 @@ async fn get_password_legacy(service: &str, account: &str) -> Result<String> {
     match res {
         Some(res) => {
             let secret = res.secret().await?;
-            println!(
-                "deleting legacy secret service entry {} {}",
-                service, account
-            );
+            info!(service, account, "deleting legacy secret service entry",);
             keyring.delete(&attributes).await?;
             let secret_string = String::from_utf8(secret.to_vec())?;
             set_password(service, account, &secret_string).await?;
@@ -77,7 +77,7 @@ pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     // seems to happen because we call [delete_password] many times when a forced
     // de-auth occurs to clean up old keys.
     if is_locked().await? {
-        println!("skipping deletion of old keys. OS keyring is locked.");
+        info!("skipping deletion of old keys. OS keyring is locked.");
         return Ok(());
     }
 
@@ -105,11 +105,11 @@ pub async fn is_locked() -> Result<bool> {
     if let Some(item) = items.first() {
         return match item.is_locked().await {
             Ok(is_locked) => {
-                println!("OS keyring is locked = {is_locked}");
+                info!(is_locked, "OS keyring");
                 Ok(is_locked)
             }
             Err(_) => {
-                println!("OS keyring is unlocked");
+                info!("OS keyring is unlocked");
                 Ok(false)
             }
         };

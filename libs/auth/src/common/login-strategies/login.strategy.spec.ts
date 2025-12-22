@@ -5,7 +5,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -16,10 +15,17 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -32,7 +38,6 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
@@ -42,7 +47,7 @@ import {
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -57,7 +62,7 @@ const masterPassword = "password";
 const deviceId = Utils.newGuid();
 const accessToken = "ACCESS_TOKEN";
 const refreshToken = "REFRESH_TOKEN";
-const userKey = "USER_KEY";
+const encryptedUserKey = "USER_KEY";
 const privateKey = "PRIVATE_KEY";
 const kdf = 0;
 const kdfIterations = 10000;
@@ -66,6 +71,14 @@ const masterPasswordHash = "MASTER_PASSWORD_HASH";
 const name = "NAME";
 const defaultUserDecryptionOptionsServerResponse: IUserDecryptionOptionsServerResponse = {
   HasMasterPassword: true,
+  MasterPasswordUnlock: {
+    Salt: email,
+    Kdf: {
+      KdfType: kdf,
+      Iterations: kdfIterations,
+    },
+    MasterKeyEncryptedUserKey: encryptedUserKey,
+  },
 };
 
 const decodedToken = {
@@ -87,9 +100,8 @@ export function identityTokenResponseFactory(
     ForcePasswordReset: false,
     Kdf: kdf,
     KdfIterations: kdfIterations,
-    Key: userKey,
+    Key: encryptedUserKey,
     PrivateKey: privateKey,
-    ResetMasterPassword: false,
     access_token: accessToken,
     expires_in: 3600,
     refresh_token: refreshToken,
@@ -125,6 +137,7 @@ describe("LoginStrategy", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -151,6 +164,7 @@ describe("LoginStrategy", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
 
@@ -181,6 +195,7 @@ describe("LoginStrategy", () => {
       kdfConfigService,
       environmentService,
       configService,
+      accountCryptographicStateService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
   });
@@ -243,20 +258,19 @@ describe("LoginStrategy", () => {
         refreshToken,
       );
 
-      expect(stateService.addAccount).toHaveBeenCalledWith(
-        new Account({
-          profile: {
-            ...new AccountProfile(),
-            ...{
-              userId: userId,
-              name: name,
-              email: email,
-            },
-          },
-        }),
+      expect(environmentService.seedUserEnvironment).toHaveBeenCalled();
+
+      expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
+        userId,
+        UserDecryptionOptions.fromIdentityTokenResponse(idTokenResponse),
       );
-      expect(userDecryptionOptionsService.setUserDecryptionOptions).toHaveBeenCalledWith(
-        UserDecryptionOptions.fromResponse(idTokenResponse),
+      expect(masterPasswordService.mock.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+        new MasterPasswordUnlockData(
+          email as MasterPasswordSalt,
+          new PBKDF2KdfConfig(kdfIterations),
+          encryptedUserKey as MasterKeyWrappedUserKey,
+        ),
+        userId,
       );
       expect(messagingService.send).toHaveBeenCalledWith("loggedIn");
     });
@@ -290,15 +304,14 @@ describe("LoginStrategy", () => {
     it("builds AuthResult", async () => {
       const tokenResponse = identityTokenResponseFactory();
       tokenResponse.forcePasswordReset = true;
-      tokenResponse.resetMasterPassword = true;
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
       const result = await passwordLoginStrategy.logIn(credentials);
 
       const expected = new AuthResult();
+      expected.masterPassword = "password";
       expected.userId = userId;
-      expected.resetMasterPassword = true;
       expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
     });
@@ -312,8 +325,8 @@ describe("LoginStrategy", () => {
       const result = await passwordLoginStrategy.logIn(credentials);
 
       const expected = new AuthResult();
+      expected.masterPassword = "password";
       expected.userId = userId;
-      expected.resetMasterPassword = false;
       expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
 
@@ -327,7 +340,7 @@ describe("LoginStrategy", () => {
       const tokenResponse = identityTokenResponseFactory();
       tokenResponse.privateKey = null;
       keyService.makeKeyPair.mockResolvedValue(["PUBLIC_KEY", new EncString("PRIVATE_KEY")]);
-      keyService.getUserKey.mockResolvedValue(userKey);
+      keyService.userKey$.mockReturnValue(new BehaviorSubject<UserKey>(userKey).asObservable());
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
       masterPasswordService.masterKeySubject.next(masterKey);
@@ -346,9 +359,11 @@ describe("LoginStrategy", () => {
     });
 
     it("throws if userKey is CoseEncrypt0 (V2 encryption) in createKeyPairForOldAccount", async () => {
-      keyService.getUserKey.mockResolvedValue({
-        inner: () => ({ type: 7 }),
-      } as UserKey);
+      keyService.userKey$.mockReturnValue(
+        new BehaviorSubject<UserKey>({
+          inner: () => ({ type: 7 }),
+        } as unknown as UserKey).asObservable(),
+      );
       await expect(passwordLoginStrategy["createKeyPairForOldAccount"](userId)).resolves.toBe(
         undefined,
       );
@@ -388,7 +403,8 @@ describe("LoginStrategy", () => {
 
       const result = await passwordLoginStrategy.logIn(credentials);
 
-      expect(stateService.addAccount).not.toHaveBeenCalled();
+      expect(environmentService.seedUserEnvironment).not.toHaveBeenCalled();
+      expect(accountService.mock.switchAccount).not.toHaveBeenCalled();
       expect(messagingService.send).not.toHaveBeenCalled();
       expect(tokenService.clearTwoFactorToken).toHaveBeenCalled();
 
@@ -422,7 +438,7 @@ describe("LoginStrategy", () => {
 
       const result = await passwordLoginStrategy.logIn(credentials);
 
-      expect(stateService.addAccount).not.toHaveBeenCalled();
+      expect(environmentService.seedUserEnvironment).not.toHaveBeenCalled();
       expect(messagingService.send).not.toHaveBeenCalled();
 
       const expected = new AuthResult();
@@ -506,6 +522,7 @@ describe("LoginStrategy", () => {
         kdfConfigService,
         environmentService,
         configService,
+        accountCryptographicStateService,
       );
 
       apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
@@ -567,6 +584,7 @@ describe("LoginStrategy", () => {
         kdfConfigService,
         environmentService,
         configService,
+        accountCryptographicStateService,
       );
 
       const result = await passwordLoginStrategy.logIn(credentials);

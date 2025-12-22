@@ -26,7 +26,10 @@ export default class WebRequestBackground {
 
   startListening() {
     this.webRequest.onAuthRequired.addListener(
-      async (details, callback) => {
+      (async (
+        details: chrome.webRequest.OnAuthRequiredDetails,
+        callback: (response: chrome.webRequest.BlockingResponse) => void,
+      ) => {
         if (!details.url || this.pendingAuthRequests.has(details.requestId)) {
           if (callback) {
             callback(null);
@@ -42,7 +45,7 @@ export default class WebRequestBackground {
         } else {
           await this.resolveAuthCredentials(details.url, callback, callback);
         }
-      },
+      }) as any,
       { urls: ["http://*/*", "https://*/*"] },
       [this.isFirefox ? "blocking" : "asyncBlocking"],
     );
@@ -50,16 +53,17 @@ export default class WebRequestBackground {
     this.webRequest.onCompleted.addListener((details) => this.completeAuthRequest(details), {
       urls: ["http://*/*"],
     });
-    this.webRequest.onErrorOccurred.addListener(
-      (details: any) => this.completeAuthRequest(details),
-      {
-        urls: ["http://*/*"],
-      },
-    );
+    this.webRequest.onErrorOccurred.addListener((details) => this.completeAuthRequest(details), {
+      urls: ["http://*/*"],
+    });
   }
 
-  // eslint-disable-next-line
-  private async resolveAuthCredentials(domain: string, success: Function, error: Function) {
+  private async resolveAuthCredentials(
+    domain: string,
+    success: (response: chrome.webRequest.BlockingResponse) => void,
+    // eslint-disable-next-line
+    error: Function,
+  ) {
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
@@ -97,7 +101,7 @@ export default class WebRequestBackground {
     }
   }
 
-  private completeAuthRequest(details: chrome.webRequest.WebResponseCacheDetails) {
+  private completeAuthRequest(details: chrome.webRequest.WebRequestDetails) {
     this.pendingAuthRequests.delete(details.requestId);
   }
 }

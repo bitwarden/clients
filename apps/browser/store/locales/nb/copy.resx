@@ -144,7 +144,7 @@ Bruk Bitwarden til å sikre arbeidsstyrken din og dele sensitiv informasjon med 
 Flere grunner til å velge Bitwarden:
 
 Kryptering i verdensklasse
-Passord er beskyttet med avansert ende-til-ende-kryptering (AES-256 bit, saltet hashtag og PBKDF2 SHA-256) slik at dataene dine forblir sikre og private.
+Passord er beskyttet med avansert ende-til-ende-kryptering (AES-256 bit, saltet hashing og PBKDF2 SHA-256) slik at dataene dine forblir sikre og private.
 
 Tredjepartsrevisjoner
 Bitwarden gjennomfører regelmessig omfattende tredjeparts sikkerhetsrevisjoner med bemerkelsesverdige sikkerhetsfirmaer. Disse årlige revisjonene inkluderer kildekodevurderinger og penetrasjonstesting på tvers av Bitwarden IP-er, servere og webapplikasjoner.

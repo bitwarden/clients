@@ -4,16 +4,12 @@ import { firstValueFrom, map } from "rxjs";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   SETUP_EXTENSION_DISMISSED_DISK,
   StateProvider,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
-
-import { WebBrowserInteractionService } from "../services/web-browser-interaction.service";
 
 export const SETUP_EXTENSION_DISMISSED = new UserKeyDefinition<boolean>(
   SETUP_EXTENSION_DISMISSED_DISK,
@@ -26,21 +22,15 @@ export const SETUP_EXTENSION_DISMISSED = new UserKeyDefinition<boolean>(
 
 export const setupExtensionRedirectGuard: CanActivateFn = async () => {
   const router = inject(Router);
-  const configService = inject(ConfigService);
   const accountService = inject(AccountService);
   const vaultProfileService = inject(VaultProfileService);
   const stateProvider = inject(StateProvider);
-  const webBrowserInteractionService = inject(WebBrowserInteractionService);
 
   const isMobile = Utils.isMobileBrowser;
 
-  const endUserFeatureEnabled = await configService.getFeatureFlag(
-    FeatureFlag.PM19315EndUserActivationMvp,
-  );
-
   // The extension page isn't applicable for mobile users, do not redirect them.
   // Include before any other checks to avoid unnecessary processing.
-  if (!endUserFeatureEnabled || isMobile) {
+  if (isMobile) {
     return true;
   }
 
@@ -49,10 +39,6 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
   if (!currentAcct) {
     return router.createUrlTree(["/login"]);
   }
-
-  const hasExtensionInstalledPromise = firstValueFrom(
-    webBrowserInteractionService.extensionInstalled$,
-  );
 
   const dismissedExtensionPage = await firstValueFrom(
     stateProvider
@@ -70,13 +56,6 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
   );
 
   if (dismissedExtensionPage || isProfileOlderThan30Days) {
-    return true;
-  }
-
-  // Checking for the extension is a more expensive operation, do it last to avoid unnecessary delays.
-  const hasExtensionInstalled = await hasExtensionInstalledPromise;
-
-  if (hasExtensionInstalled) {
     return true;
   }
 

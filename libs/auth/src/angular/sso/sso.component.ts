@@ -24,6 +24,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { SsoPreValidateResponse } from "@bitwarden/common/auth/models/response/sso-pre-validate.response";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -61,6 +62,8 @@ interface QueryParams {
 /**
  * This component handles the SSO flow.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "sso.component.html",
   imports: [
@@ -116,6 +119,7 @@ export class SsoComponent implements OnInit {
     private toastService: ToastService,
     private ssoComponentService: SsoComponentService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private keyConnectorService: KeyConnectorService,
   ) {
     environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       this.redirectUri = env.getWebVaultUrl() + "/sso-connector.html";
@@ -288,6 +292,7 @@ export class SsoComponent implements OnInit {
     this.identifier = this.identifierFormControl.value ?? "";
     await this.ssoLoginService.setOrganizationSsoIdentifier(this.identifier);
     this.ssoComponentService.setDocumentCookies?.();
+
     try {
       await this.submitSso();
     } catch (error) {
@@ -432,7 +437,7 @@ export class SsoComponent implements OnInit {
 
       // Everything after the 2FA check is considered a successful login
       // Just have to figure out where to send the user
-      await this.loginSuccessHandlerService.run(authResult.userId);
+      await this.loginSuccessHandlerService.run(authResult.userId, null);
 
       // Save off the OrgSsoIdentifier for use in the TDE flows (or elsewhere)
       // - TDE login decryption options component
@@ -444,9 +449,18 @@ export class SsoComponent implements OnInit {
         authResult.userId,
       );
 
+      if (
+        (await firstValueFrom(
+          this.keyConnectorService.requiresDomainConfirmation$(authResult.userId),
+        )) != null
+      ) {
+        await this.router.navigate(["confirm-key-connector-domain"]);
+        return;
+      }
+
       // must come after 2fa check since user decryption options aren't available if 2fa is required
       const userDecryptionOpts = await firstValueFrom(
-        this.userDecryptionOptionsService.userDecryptionOptions$,
+        this.userDecryptionOptionsService.userDecryptionOptionsById$(authResult.userId),
       );
 
       const tdeEnabled = userDecryptionOpts.trustedDeviceOption
@@ -464,7 +478,7 @@ export class SsoComponent implements OnInit {
         !userDecryptionOpts.hasMasterPassword &&
         userDecryptionOpts.keyConnectorOption === undefined;
 
-      if (requireSetPassword || authResult.resetMasterPassword) {
+      if (requireSetPassword) {
         // Change implies going no password -> password in this case
         return await this.handleChangePasswordRequired(orgSsoIdentifier);
       }

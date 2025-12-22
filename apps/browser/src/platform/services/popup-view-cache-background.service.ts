@@ -42,6 +42,22 @@ export type ViewCacheState = {
   options?: ViewCacheOptions;
 };
 
+export type RouteCacheOptions = {
+  /**
+   * When true, the route history will be reset on tab change and respective route was the last visited route.
+   * i.e. Upon the user re-opening the extension the route history will be empty and the user will be taken to the default route.
+   */
+  resetRouterCacheOnTabChange?: boolean;
+};
+
+export type RouteHistoryCacheState = {
+  /** Route URL */
+  url: string;
+
+  /** Options for managing the route history cache */
+  options?: RouteCacheOptions;
+};
+
 /** We cannot use `UserKeyDefinition` because we must be able to store state when there is no active user. */
 export const POPUP_VIEW_CACHE_KEY = KeyDefinition.record<ViewCacheState>(
   POPUP_VIEW_MEMORY,
@@ -51,9 +67,9 @@ export const POPUP_VIEW_CACHE_KEY = KeyDefinition.record<ViewCacheState>(
   },
 );
 
-export const POPUP_ROUTE_HISTORY_KEY = new KeyDefinition<string[]>(
+export const POPUP_ROUTE_HISTORY_KEY = new KeyDefinition<RouteHistoryCacheState[]>(
   POPUP_VIEW_MEMORY,
-  "popup-route-history",
+  "popup-route-history-details",
   {
     deserializer: (jsonValue) => jsonValue,
   },
@@ -125,7 +141,9 @@ export class PopupViewCacheBackgroundService {
     // on popup closed, with 2 minute delay that is cancelled by re-opening the popup
     fromChromeEvent(chrome.runtime.onConnect)
       .pipe(
-        filter(([port]) => port.name === popupClosedPortName),
+        filter(
+          ([port]) => port.name === popupClosedPortName && BrowserApi.senderIsInternal(port.sender),
+        ),
         switchMap(([port]) =>
           fromChromeEvent(port.onDisconnect).pipe(
             delay(

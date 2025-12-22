@@ -63,7 +63,7 @@ export class DefaultAuthRequestApiService implements AuthRequestApiServiceAbstra
     try {
       // Submit the current device identifier in the header as well as in the POST body.
       // The value in the header will be used to build the request context and ensure that the resulting
-      // notifications have the current device as a source.
+      // server notifications have the current device as a source.
       const response = await this.apiService.send(
         "POST",
         "/auth-requests/",

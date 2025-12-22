@@ -6,6 +6,7 @@ import {
   distinctUntilChanged,
   shareReplay,
   combineLatest,
+  BehaviorSubject,
   Observable,
   switchMap,
   filter,
@@ -61,6 +62,7 @@ const LOGGED_OUT_INFO: AccountInfo = {
   email: "",
   emailVerified: false,
   name: undefined,
+  creationDate: undefined,
 };
 
 /**
@@ -84,6 +86,7 @@ export const getOptionalUserId = map<Account | null, UserId | null>(
 export class AccountServiceImplementation implements InternalAccountService {
   private accountsState: GlobalState<Record<UserId, AccountInfo>>;
   private activeAccountIdState: GlobalState<UserId | undefined>;
+  private _showHeader$ = new BehaviorSubject<boolean>(true);
 
   accounts$: Observable<Record<UserId, AccountInfo>>;
   activeAccount$: Observable<Account | null>;
@@ -91,6 +94,7 @@ export class AccountServiceImplementation implements InternalAccountService {
   accountVerifyNewDeviceLogin$: Observable<boolean>;
   sortedUserIds$: Observable<UserId[]>;
   nextUpAccount$: Observable<Account>;
+  showHeader$ = this._showHeader$.asObservable();
 
   constructor(
     private messagingService: MessagingService,
@@ -164,6 +168,10 @@ export class AccountServiceImplementation implements InternalAccountService {
     await this.setAccountInfo(userId, { emailVerified });
   }
 
+  async setAccountCreationDate(userId: UserId, creationDate: string): Promise<void> {
+    await this.setAccountInfo(userId, { creationDate });
+  }
+
   async clean(userId: UserId) {
     await this.setAccountInfo(userId, LOGGED_OUT_INFO);
     await this.removeAccountActivity(userId);
@@ -232,9 +240,11 @@ export class AccountServiceImplementation implements InternalAccountService {
       return;
     }
 
-    await this.singleUserStateProvider.get(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN).update(() => {
-      return setVerifyNewDeviceLogin;
-    });
+    await this.singleUserStateProvider
+      .get(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN)
+      .update(() => setVerifyNewDeviceLogin, {
+        shouldUpdate: (previousValue) => previousValue !== setVerifyNewDeviceLogin,
+      });
   }
 
   async removeAccountActivity(userId: UserId): Promise<void> {
@@ -258,6 +268,10 @@ export class AccountServiceImplementation implements InternalAccountService {
       this.logService.error(e);
       throw e;
     }
+  }
+
+  async setShowHeader(visible: boolean): Promise<void> {
+    this._showHeader$.next(visible);
   }
 
   private async setAccountInfo(userId: UserId, update: Partial<AccountInfo>): Promise<void> {

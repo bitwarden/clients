@@ -84,7 +84,7 @@
             ></i>
             &nbsp;{{ f.node.name }}
           </button>
-          <span class="ml-auto tw-flex tw-items-center">
+          <span class="tw-ml-auto tw-flex tw-items-center">
             <button
               type="button"
               *ngIf="editInfo && f.node.id"
@@ -104,6 +104,9 @@
               <ng-container
                 *ngComponentOutlet="optionsInfo.component; injector: createInjector(f.node)"
               ></ng-container>
+            </ng-container>
+            <ng-container *ngIf="premiumFeature">
+              <app-premium-badge></app-premium-badge>
             </ng-container>
           </span>
         </span>

@@ -3,12 +3,6 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import {
-  AddAccountCreditDialogComponent,
-  InvoicesComponent,
-  NoInvoicesComponent,
-  ManageTaxInformationComponent,
-} from "@bitwarden/angular/billing/components";
-import {
   AsyncActionsModule,
   AutofocusDirective,
   ButtonModule,
@@ -27,11 +21,11 @@ import {
   TypographyModule,
   CopyClickDirective,
   A11yTitleDirective,
+  NoItemsModule,
 } from "@bitwarden/components";
 
 import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
 import { NotPremiumDirective } from "./billing/directives/not-premium.directive";
-import { DeprecatedCalloutComponent } from "./components/callout.component";
 import { A11yInvalidDirective } from "./directives/a11y-invalid.directive";
 import { ApiActionDirective } from "./directives/api-action.directive";
 import { BoxRowDirective } from "./directives/box-row.directive";
@@ -77,6 +71,7 @@ import { IconComponent } from "./vault/components/icon.component";
     TypographyModule,
     TableModule,
     MenuModule,
+    NoItemsModule,
     IconButtonModule,
     IconModule,
     LinkModule,
@@ -90,7 +85,6 @@ import { IconComponent } from "./vault/components/icon.component";
     A11yInvalidDirective,
     ApiActionDirective,
     BoxRowDirective,
-    DeprecatedCalloutComponent,
     CopyTextDirective,
     CreditCardNumberPipe,
     EllipsisPipe,
@@ -110,10 +104,6 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     IfFeatureDirective,
     FingerprintPipe,
-    AddAccountCreditDialogComponent,
-    InvoicesComponent,
-    NoInvoicesComponent,
-    ManageTaxInformationComponent,
     TwoFactorIconComponent,
   ],
   exports: [
@@ -123,7 +113,6 @@ import { IconComponent } from "./vault/components/icon.component";
     AutofocusDirective,
     ToastModule,
     BoxRowDirective,
-    DeprecatedCalloutComponent,
     CopyTextDirective,
     CreditCardNumberPipe,
     EllipsisPipe,
@@ -144,10 +133,6 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     IfFeatureDirective,
     FingerprintPipe,
-    AddAccountCreditDialogComponent,
-    InvoicesComponent,
-    NoInvoicesComponent,
-    ManageTaxInformationComponent,
     TwoFactorIconComponent,
     TextDragDirective,
   ],

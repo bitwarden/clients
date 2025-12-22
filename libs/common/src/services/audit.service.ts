@@ -3,9 +3,9 @@ import { mergeMap } from "rxjs/operators";
 
 import { ApiService } from "../abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "../abstractions/audit.service";
+import { BreachAccountResponse } from "../dirt/models/response/breach-account.response";
+import { HibpApiService } from "../dirt/services/hibp-api.service";
 import { CryptoFunctionService } from "../key-management/crypto/abstractions/crypto-function.service";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
-import { ErrorResponse } from "../models/response/error.response";
 import { Utils } from "../platform/misc/utils";
 
 const PwnedPasswordsApi = "https://api.pwnedpasswords.com/range/";
@@ -20,6 +20,7 @@ export class AuditService implements AuditServiceAbstraction {
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
     private apiService: ApiService,
+    private hibpApiService: HibpApiService,
     private readonly maxConcurrent: number = 100, // default to 100, can be overridden
   ) {
     this.maxConcurrent = maxConcurrent;
@@ -68,14 +69,6 @@ export class AuditService implements AuditServiceAbstraction {
   }
 
   async breachedAccounts(username: string): Promise<BreachAccountResponse[]> {
-    try {
-      return await this.apiService.getHibpBreach(username);
-    } catch (e) {
-      const error = e as ErrorResponse;
-      if (error.statusCode === 404) {
-        return [];
-      }
-      throw new Error();
-    }
+    return this.hibpApiService.getHibpBreach(username);
   }
 }

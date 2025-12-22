@@ -1,11 +1,11 @@
 <form [formGroup]="updateLicenseForm" [bitSubmit]="submit">
   <bit-form-field>
     <bit-label *ngIf="showAutomaticSyncAndManualUpload">{{ "licenseFile" | i18n }}</bit-label>
-    <div class="tw-pb-1 tw-pt-2">
+    <div class="tw-pb-1 tw-pt-2 tw-flex tw-items-center tw-gap-3">
       <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
         {{ "chooseFile" | i18n }}
       </button>
-      {{ this.licenseFile ? this.licenseFile.name : ("noFileChosen" | i18n) }}
+      <span>{{ this.licenseFile ? this.licenseFile.name : ("noFileChosen" | i18n) }}</span>
     </div>
     <input
       bitInput
@@ -24,17 +24,19 @@
               : "bitwarden_organization_license.json")
     }}</bit-hint>
   </bit-form-field>
-  <button type="submit" buttonType="primary" bitButton bitFormButton>
-    {{ "submit" | i18n }}
-  </button>
-  <button
-    bitButton
-    *ngIf="showCancel"
-    bitFormButton
-    buttonType="secondary"
-    type="button"
-    [bitAction]="cancel"
-  >
-    {{ "cancel" | i18n }}
-  </button>
+  <div class="tw-flex tw-gap-2 tw-mt-4">
+    <button type="submit" buttonType="primary" bitButton bitFormButton>
+      {{ "submit" | i18n }}
+    </button>
+    <button
+      bitButton
+      *ngIf="showCancel"
+      bitFormButton
+      buttonType="secondary"
+      type="button"
+      [bitAction]="cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </div>
 </form>

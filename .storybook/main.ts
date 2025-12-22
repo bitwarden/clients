@@ -10,6 +10,8 @@ const config: StorybookConfig = {
     "../libs/auth/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/dirt/card/src/**/*.mdx",
     "../libs/dirt/card/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../libs/pricing/src/**/*.mdx",
+    "../libs/pricing/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/tools/send/send-ui/src/**/*.mdx",
     "../libs/tools/send/send-ui/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/vault/src/**/*.mdx",
@@ -26,15 +28,13 @@ const config: StorybookConfig = {
   ],
   addons: [
     getAbsolutePath("@storybook/addon-links"),
-    getAbsolutePath("@storybook/addon-essentials"),
     getAbsolutePath("@storybook/addon-a11y"),
     getAbsolutePath("@storybook/addon-designs"),
-    getAbsolutePath("@storybook/addon-interactions"),
     getAbsolutePath("@storybook/addon-themes"),
     {
       // @storybook/addon-docs is part of @storybook/addon-essentials
-      // eslint-disable-next-line storybook/no-uninstalled-addons
-      name: "@storybook/addon-docs",
+
+      name: getAbsolutePath("@storybook/addon-docs"),
       options: {
         mdxPluginOptions: {
           mdxCompileOptions: {
@@ -58,6 +58,10 @@ const config: StorybookConfig = {
   webpackFinal: async (config, { configType }) => {
     if (config.resolve) {
       config.resolve.plugins = [new TsconfigPathsPlugin()] as any;
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        path: require.resolve("path-browserify"),
+      };
     }
     return config;
   },

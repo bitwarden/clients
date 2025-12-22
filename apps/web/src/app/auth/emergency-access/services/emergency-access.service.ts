@@ -45,13 +45,10 @@ import { EmergencyAccessGranteeDetailsResponse } from "../response/emergency-acc
 import { EmergencyAccessApiService } from "./emergency-access-api.service";
 
 @Injectable()
-export class EmergencyAccessService
-  implements
-    UserKeyRotationKeyRecoveryProvider<
-      EmergencyAccessWithIdRequest,
-      GranteeEmergencyAccessWithPublicKey
-    >
-{
+export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvider<
+  EmergencyAccessWithIdRequest,
+  GranteeEmergencyAccessWithPublicKey
+> {
   constructor(
     private emergencyAccessApiService: EmergencyAccessApiService,
     private apiService: ApiService,
@@ -175,11 +172,17 @@ export class EmergencyAccessService
    * Step 3 of the 3 step setup flow.
    * Intended for grantor.
    * @param id emergency access id
-   * @param token secret token provided in email
+   * @param granteeId id of the grantee
    * @param publicKey public key of grantee
+   * @param activeUserId the active user's id
    */
-  async confirm(id: string, granteeId: string, publicKey: Uint8Array): Promise<void> {
-    const userKey = await this.keyService.getUserKey();
+  async confirm(
+    id: string,
+    granteeId: string,
+    publicKey: Uint8Array,
+    activeUserId: UserId,
+  ): Promise<void> {
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     if (!userKey) {
       throw new Error("No user key found");
     }

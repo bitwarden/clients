@@ -1,0 +1,176 @@
+default_platform(:mac)
+
+# Static configuration for the Mac desktop app
+require 'json'
+require 'base64'
+
+APP_CONFIG = {
+  app_identifier: "com.bitwarden.desktop",
+  release_notes_path: "fastlane/release_notes",
+  locales: ["ca", "zh-Hans", "zh-Hant", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pt-PT", "pt-BR", "ru", "es-ES", "es-MX", "sv", "tr", "vi", "en-GB", "th"]
+}
+
+platform :mac do
+  desc "Prepare release notes from changelog"
+  lane :prepare_release_notes do |options|
+    changelog = options[:changelog] || "Bug fixes and improvements"
+    
+    # Split on periods and format with bullet points
+    # Try different formatting approaches for App Store Connect
+    formatted_changelog = changelog
+      .split('.')
+      .map(&:strip)
+      .reject(&:empty?)
+      .map { |item| "• #{item.gsub(/\A(?:•|\u2022)\s*/, '')}" }
+      .join("\n")
+    
+    UI.message("Original changelog: ")
+    UI.message("#{changelog}")
+    UI.message("Formatted changelog: ")
+    UI.message("#{formatted_changelog}")
+    
+    # Create release notes directories and files for all locales
+    APP_CONFIG[:locales].each do |locale|
+      dir = "release_notes/#{locale}"
+      FileUtils.mkdir_p(dir)
+      File.write("#{dir}/release_notes.txt", formatted_changelog)
+      UI.message("Creating release notes for #{locale}")
+    end
+
+    # Create release notes hash for deliver
+    notes = APP_CONFIG[:locales].each_with_object({}) do |locale, hash|
+      file_path = "release_notes/#{locale}/release_notes.txt"
+      if File.exist?(file_path)
+        hash[locale] = File.read(file_path)
+      else
+        UI.important("No release notes found for #{locale} at #{file_path}, skipping.")
+      end
+    end
+    
+    UI.success("✅ Prepared release notes for #{APP_CONFIG[:locales].count} locales")
+    notes
+  end
+
+  desc "Display configuration information"
+  lane :show_config do |options|
+    build_number = (options[:build_number] || ENV["BUILD_NUMBER"]).to_s.strip
+    app_version = (options[:app_version] || ENV["APP_VERSION"]).to_s.strip
+    
+    UI.message("📦 App ID: #{APP_CONFIG[:app_identifier]}")
+    UI.message("🏷️ Version: #{app_version.empty? ? '(not set)' : app_version}")
+    UI.message("🔢 Build Number: #{build_number}")
+    UI.message("🌍 Locales: #{APP_CONFIG[:locales].count}")
+  end
+
+  desc "Publish desktop to the Mac App Store"
+  lane :publish do |options|
+    build_number = (options[:build_number] || ENV["BUILD_NUMBER"]).to_s.strip
+    app_version = (options[:app_version] || ENV["APP_VERSION"]).to_s.strip
+    changelog = options[:changelog] || "Bug fixes and improvements"
+    is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
+    
+    if is_dry_run
+      UI.header("🧪 DRY RUN: Testing Bitwarden Desktop App Store submission")
+    else
+      UI.header("🚀 Publishing Bitwarden Desktop to Mac App Store")
+    end
+    
+    # Show configuration info
+    show_config(build_number: build_number, app_version: app_version)
+    
+    # Validate app_version
+    UI.user_error!("❌ APP_VERSION is required") if app_version.nil? || app_version.empty?
+    # Validate build_number
+    UI.user_error!("❌ BUILD_NUMBER is required") if build_number.nil? || build_number.empty?
+    
+    # Prepare release notes for all locales
+    notes = prepare_release_notes(changelog: changelog)
+    
+    if is_dry_run
+      UI.important("🧪 DRY RUN MODE - Skipping actual App Store Connect submission")
+      UI.message("✅ Validation passed")
+      UI.message("✅ Release notes prepared for #{APP_CONFIG[:locales].count} locales")
+      UI.message("✅ Release notes: #{changelog[0,100]}#{changelog.length > 100 ? '...' : ''}")
+      UI.success("🎯 DRY RUN COMPLETE - Everything looks ready for production!")
+      next # Use 'next' instead of 'return' in fastlane lanes
+    end
+
+    # Set up App Store Connect API
+    app_store_connect_api_key(
+      key_id: "6TV9MKN3GP",
+      issuer_id: ENV["APP_STORE_CONNECT_TEAM_ISSUER"],
+      key_content: Base64.encode64(ENV["APP_STORE_CONNECT_AUTH_KEY"]),
+      is_key_content_base64: true
+    )
+
+    UI.message("📝 Using release notes for #{notes.keys.count} locales")
+    UI.message("🎯 Publishing version #{app_version} with build #{build_number}")
+
+    # Upload to App Store Connect
+    deliver(
+      platform: "osx",
+      app_identifier: APP_CONFIG[:app_identifier],
+      app_version: app_version,
+      build_number: build_number,
+      metadata_path: "metadata",
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_metadata: false, # Enable metadata upload to include release notes 
+      release_notes: notes,
+      edit_live: false,
+      submit_for_review: true, # if this is false, the build number does not attach to the draft
+      phased_release: true, # Enable 7-day phased rollout
+      precheck_include_in_app_purchases: false,
+      run_precheck_before_submit: false,
+      automatic_release: true,
+      force: true
+    )
+
+    # Verify submission in App Store Connect (skip in dry run mode)
+    unless is_dry_run
+      UI.message("⏳ Waiting 60 seconds for App Store Connect to process submission...")
+      sleep(60)
+
+      UI.message("🔍 Verifying submission in App Store Connect...")
+
+      # Find the app
+      app = Spaceship::ConnectAPI::App.find(APP_CONFIG[:app_identifier])
+      UI.user_error!("❌ App not found in App Store Connect") if app.nil?
+
+      # Find the version we just submitted
+      versions = app.get_app_store_versions
+      target_version = nil
+
+      versions.each do |v|
+        if v.version_string == app_version
+          target_version = v
+          break
+        end
+      end
+
+      UI.user_error!("❌ Version #{app_version} not found in App Store Connect after submission") if target_version.nil?
+
+      UI.success("✅ Version #{app_version} found in App Store Connect")
+      UI.message("📊 Current status: #{target_version.app_store_state}")
+
+      # Validate build attachment
+      if target_version.build.nil?
+        UI.user_error!("❌ No build attached to version #{app_version}")
+      elsif target_version.build.version != build_number
+        UI.user_error!("❌ Wrong build attached: found #{target_version.build.version}, expected #{build_number}")
+      else
+        UI.success("✅ Build #{build_number} correctly attached to version #{app_version}")
+      end
+
+      # Check submission status
+      valid_states = ["WAITING_FOR_REVIEW", "IN_REVIEW"]
+      unless valid_states.include?(target_version.app_store_state)
+        UI.user_error!("❌ Unexpected submission state: #{target_version.app_store_state}. Expected one of: #{valid_states.join(', ')}")
+      end
+
+      UI.success("🎉 Verification complete: Version #{app_version} with build #{build_number} successfully submitted!")
+    else
+      UI.success("🧪 DRY RUN: Skipping App Store Connect verification")
+    end
+  end
+end

@@ -1,10 +1,13 @@
-import { ReportBreach } from "./icons/report-breach.icon";
-import { ReportExposedPasswords } from "./icons/report-exposed-passwords.icon";
-import { ReportInactiveTwoFactor } from "./icons/report-inactive-two-factor.icon";
-import { MemberAccess } from "./icons/report-member-access.icon";
-import { ReportReusedPasswords } from "./icons/report-reused-passwords.icon";
-import { ReportUnsecuredWebsites } from "./icons/report-unsecured-websites.icon";
-import { ReportWeakPasswords } from "./icons/report-weak-passwords.icon";
+import {
+  NoCredentialsIcon,
+  ReportBreach,
+  ReportExposedPasswords,
+  ReportUnsecuredWebsites,
+  TwoFactorAuthSecurityKeyFailedIcon,
+  UnlockedIcon,
+  UserLockIcon,
+} from "@bitwarden/assets/svg";
+
 import { ReportEntry } from "./shared";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -32,13 +35,13 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     title: "reusedPasswordsReport",
     description: "reusedPasswordsReportDesc",
     route: "reused-passwords-report",
-    icon: ReportReusedPasswords,
+    icon: NoCredentialsIcon,
   },
   [ReportType.WeakPasswords]: {
     title: "weakPasswordsReport",
     description: "weakPasswordsReportDesc",
     route: "weak-passwords-report",
-    icon: ReportWeakPasswords,
+    icon: UnlockedIcon,
   },
   [ReportType.UnsecuredWebsites]: {
     title: "unsecuredWebsitesReport",
@@ -50,7 +53,7 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     title: "inactive2faReport",
     description: "inactive2faReportDesc",
     route: "inactive-two-factor-report",
-    icon: ReportInactiveTwoFactor,
+    icon: TwoFactorAuthSecurityKeyFailedIcon,
   },
   [ReportType.DataBreach]: {
     title: "dataBreachReport",
@@ -62,6 +65,6 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     title: "memberAccessReport",
     description: "memberAccessReportDesc",
     route: "member-access-report",
-    icon: MemberAccess,
+    icon: UserLockIcon,
   },
 };

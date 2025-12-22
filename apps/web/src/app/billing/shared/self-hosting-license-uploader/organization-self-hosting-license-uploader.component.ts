@@ -2,11 +2,14 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -21,6 +24,8 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
  * Processes license file uploads for organizations.
  * @remarks Requires self-hosting.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "organization-self-hosting-license-uploader",
   templateUrl: "./self-hosting-license-uploader.component.html",
@@ -30,6 +35,8 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
   /**
    * Notifies the parent component of the `organizationId` the license was created for.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onLicenseFileUploaded: EventEmitter<string> = new EventEmitter<string>();
 
   constructor(
@@ -43,14 +50,15 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
     private readonly keyService: KeyService,
     private readonly organizationApiService: OrganizationApiServiceAbstraction,
     private readonly syncService: SyncService,
+    private readonly accountService: AccountService,
   ) {
     super(formBuilder, i18nService, platformUtilsService, toastService, tokenService);
   }
 
   protected async submit(): Promise<void> {
     await super.submit();
-
-    const orgKey = await this.keyService.makeOrgKey<OrgKey>();
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const orgKey = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
     const key = orgKey[0].encryptedString;
     const collection = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),

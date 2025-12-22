@@ -124,50 +124,48 @@
     <value>집에서도, 직장에서도, 이동 중에도 Bitwarden은 비밀번호, 패스키, 민감 정보를 쉽게 보호합니다.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>PCMag, WIRED, The Verge, CNET, G2 등에서 최고의 비밀번호 관리자 선정!
+    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
 
-디지털 라이프를 안전하게 보호하세요
-모든 계정을 위한 강력하고 고유한 비밀번호를 생성하고 저장하여, 데이터 유출로부터 안전하게 보호하세요. 오직 사용자만 접근할 수 있는 엔드투엔드 방식으로 암호화된 비밀번호 보관함에서 모든 것을 관리하세요.
+SECURE YOUR DIGITAL LIFE
+Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
 
-어디서든, 언제든, 어떤 기기에서든 접근 가능
-무제한의 비밀번호들을 관리, 저장, 보호, 공유하며 무제한의 기기에서 손쉽게 이용하세요.
+ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
+Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
 
-모두가 온라인 안전을 위한 도구를 가져야 합니다.
-광고나 데이터 판매 없이 Bitwarden을 무료로 이용하세요. Bitwarden은 모두가 안전한 온라인 환경을 누릴 권리가 있다고 믿습니다. 프리미엄 플랜을 통해 고급 기능도 이용 가능합니다.
+EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
+Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
 
-Bitwarden으로 팀을 강화하세요
-팀 및 사업용 플랜은 전문 비즈니스 기능을 제공합니다. 예를 들어 SSO 통합, 자체 호스팅, 디렉토리 통합 및 SCIM 프로비저닝, 글로벌 정책, API 접근, 이벤트 로그 등을 포함합니다.
-(SSO: 1회 사용자 인증으로 다수의 앱, 웹에 접근, 인증할 수 있는 통합 로그인 솔루션)
+EMPOWER YOUR TEAMS WITH BITWARDEN
+Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
 
-Bitwarden을 사용하여 직원을 보호하고 동료들과 민감한 정보를 안전하게 공유하세요.
+Use Bitwarden to secure your workforce and share sensitive information with colleagues.
 
 
-Bitwarden을 선택해야 하는 이유
+More reasons to choose Bitwarden:
 
-세계적 수준의 암호화
-고급 엔드 투 엔드 암호화(AES-256 비트, 솔팅된 해시 태그, PBKDF2 SHA-256)로 비밀번호를 보호하여 데이터의 보안과 개인 정보를 유지합니다.
+World-Class Encryption
+Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
 
-제3자를 통한 보안 감사
-Bitwarden은 저명한 보안 회사와 함께 정기적인 제3자 보안 감사를 수행합니다. 연례 감사에는 소스 코드 평가와 Bitwarden IP, 서버, 웹 애플리케이션에 대한 침투 테스트가 포함됩니다.
+3rd-party Audits
+Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
 
-고급 2단계 인증(2FA)
-타사 인증 앱, 이메일 코드 또는 하드웨어 보안 키나 패스키와 같은 FIDO2 WebAuthn 자격 증명을 통해 로그인 보안을 강화하세요.
+Advanced 2FA
+Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
 
-Bitwarden의 데이터 전송 방식
-엔드투엔드 암호화를 유지하면서 데이터를 직접 다른 사람에게 전송하여 노출을 최소화합니다.
+Bitwarden Send
+Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
 
-내장된 비밀번호 및 사용자 이름 생성자
-긴, 복잡하고 고유한 비밀번호와 각 사이트에 사용할 고유 사용자 이름을 생성하세요. 이메일명 제공업체와 통합하여 추가적인 개인 정보 보호를 제공합니다.
+Built-in Generator
+Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
 
-글로벌 번역
-Bitwarden은 Crowdin 글로벌 커뮤니티를 통해 한국어를 포함한 60개 이상의 언어로 번역되어 있습니다.
+Global Translations
+Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
 
-크로스 플랫폼 애플리케이션
-모든 브라우저, 모바일 기기, 데스크톱 OS 등 다양한 환경에서 Bitwarden 보관함 내의 중요한 데이터를 안전하게 관리하고 공유하세요.
+Cross-Platform Applications
+Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
 
-비밀번호 이상의 보안을 제공합니다
-Bitwarden의 엔드투엔드 암호화된 신용 증명 관리 솔루션은 개발자 비밀과 패스키 경험을 포함한 모든 것을 보호하도록 조직을 지원합니다.
-Bitwarden 의 Secrets Manager 및Passwordless.dev에 대해 자세히 알아보려면 Bitwarden.com 을 방문하세요!
+Bitwarden secures more than just passwords
+End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">

@@ -9,6 +9,12 @@ COPY package*.json ./
 COPY . .
 RUN npm ci
 
+# Remove commercial packages if LICENSE_TYPE is not 'commercial'
+ARG LICENSE_TYPE=oss
+RUN if [ "${LICENSE_TYPE}" != "commercial" ] ; then \
+      rm -rf node_modules/@bitwarden/commercial-sdk-internal ; \
+    fi
+
 WORKDIR /source/apps/web
 ARG NPM_COMMAND=dist:bit:selfhost
 RUN npm run ${NPM_COMMAND}
@@ -67,6 +73,7 @@ EXPOSE 5000
 
 RUN apk add --no-cache curl \
     icu-libs \
+    shadow \
     && apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community gosu
 
 # Copy app from the build stage

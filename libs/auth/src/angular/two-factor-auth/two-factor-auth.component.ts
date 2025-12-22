@@ -16,6 +16,13 @@ import { lastValueFrom, firstValueFrom } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
+  TwoFactorAuthAuthenticatorIcon,
+  TwoFactorAuthEmailIcon,
+  TwoFactorAuthWebAuthnIcon,
+  TwoFactorAuthSecurityKeyIcon,
+  TwoFactorAuthDuoIcon,
+} from "@bitwarden/assets/svg";
+import {
   LoginStrategyServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
   TrustedDeviceUserDecryptionOption,
@@ -25,12 +32,13 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -48,14 +56,6 @@ import {
   FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
-
-import {
-  TwoFactorAuthAuthenticatorIcon,
-  TwoFactorAuthEmailIcon,
-  TwoFactorAuthWebAuthnIcon,
-  TwoFactorAuthSecurityKeyIcon,
-  TwoFactorAuthDuoIcon,
-} from "../icons/two-factor-auth";
 
 import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator/two-factor-auth-authenticator.component";
 import { TwoFactorAuthDuoComponent } from "./child-components/two-factor-auth-duo/two-factor-auth-duo.component";
@@ -75,6 +75,8 @@ import {
   TwoFactorOptionsDialogResult,
 } from "./two-factor-options.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-auth",
   templateUrl: "two-factor-auth.component.html",
@@ -99,6 +101,8 @@ import {
   ],
 })
 export class TwoFactorAuthComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("continueButton", { read: ElementRef, static: false }) continueButton:
     | ElementRef
     | undefined = undefined;
@@ -114,6 +118,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   twoFactorProviders: Map<TwoFactorProviderType, { [key: string]: string }> | null = null;
   selectedProviderData: { [key: string]: string } | undefined;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("duoComponent") duoComponent!: TwoFactorAuthDuoComponent;
 
   form = this.formBuilder.group({
@@ -167,6 +173,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
     private authService: AuthService,
+    private keyConnectorService: KeyConnectorService,
   ) {}
 
   async ngOnInit() {
@@ -443,7 +450,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     }
 
     // User is fully logged in so handle any post login logic before executing navigation
-    await this.loginSuccessHandlerService.run(authResult.userId);
+    await this.loginSuccessHandlerService.run(authResult.userId, authResult.masterPassword);
 
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component
@@ -456,8 +463,17 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       );
     }
 
+    if (
+      (await firstValueFrom(
+        this.keyConnectorService.requiresDomainConfirmation$(authResult.userId),
+      )) != null
+    ) {
+      await this.router.navigate(["confirm-key-connector-domain"]);
+      return;
+    }
+
     const userDecryptionOpts = await firstValueFrom(
-      this.userDecryptionOptionsService.userDecryptionOptions$,
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(authResult.userId),
     );
 
     const tdeEnabled = await this.isTrustedDeviceEncEnabled(userDecryptionOpts.trustedDeviceOption);
@@ -471,7 +487,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       !userDecryptionOpts.hasMasterPassword && userDecryptionOpts.keyConnectorOption === undefined;
 
     // New users without a master password must set a master password before advancing.
-    if (requireSetPassword || authResult.resetMasterPassword) {
+    if (requireSetPassword) {
       // Change implies going no password -> password in this case
       return await this.handleChangePasswordRequired(this.orgSsoIdentifier);
     }

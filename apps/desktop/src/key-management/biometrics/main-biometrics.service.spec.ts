@@ -7,6 +7,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
+import { newGuid } from "@bitwarden/guid";
 import {
   BiometricsService,
   BiometricsStatus,
@@ -16,9 +17,9 @@ import {
 import { WindowMain } from "../../main/window.main";
 
 import { MainBiometricsService } from "./main-biometrics.service";
+import { WindowsBiometricsSystem } from "./native-v2";
 import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
 import OsBiometricsServiceMac from "./os-biometrics-mac.service";
-import OsBiometricsServiceWindows from "./os-biometrics-windows.service";
 import { OsBiometricService } from "./os-biometrics.service";
 
 jest.mock("@bitwarden/desktop-napi", () => {
@@ -27,6 +28,13 @@ jest.mock("@bitwarden/desktop-napi", () => {
     passwords: jest.fn(),
   };
 });
+
+jest.mock("./native-v2", () => ({
+  WindowsBiometricsSystem: jest.fn(),
+  biometrics_v2: {
+    initBiometricSystem: jest.fn(),
+  },
+}));
 
 const unlockKey = new SymmetricCryptoKey(new Uint8Array(64));
 
@@ -37,24 +45,6 @@ describe("MainBiometricsService", function () {
   const biometricStateService = mock<BiometricStateService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
-
-  it("Should call the platformspecific methods", async () => {
-    const sut = new MainBiometricsService(
-      i18nService,
-      windowMain,
-      logService,
-      process.platform,
-      biometricStateService,
-      encryptService,
-      cryptoFunctionService,
-    );
-
-    const mockService = mock<OsBiometricService>();
-    (sut as any).osBiometricsService = mockService;
-
-    await sut.authenticateBiometric();
-    expect(mockService.authenticateBiometric).toBeCalled();
-  });
 
   describe("Should create a platform specific service", function () {
     it("Should create a biometrics service specific for Windows", () => {
@@ -70,7 +60,7 @@ describe("MainBiometricsService", function () {
 
       const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(OsBiometricsServiceWindows);
+      expect(internalService).toBeInstanceOf(WindowsBiometricsSystem);
     });
 
     it("Should create a biometrics service specific for MacOs", () => {
@@ -207,46 +197,6 @@ describe("MainBiometricsService", function () {
     });
   });
 
-  describe("setupBiometrics", () => {
-    it("should call the platform specific setup method", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        process.platform,
-        biometricStateService,
-        encryptService,
-        cryptoFunctionService,
-      );
-      const osBiometricsService = mock<OsBiometricService>();
-      (sut as any).osBiometricsService = osBiometricsService;
-
-      await sut.setupBiometrics();
-
-      expect(osBiometricsService.runSetup).toHaveBeenCalled();
-    });
-  });
-
-  describe("authenticateWithBiometrics", () => {
-    it("should call the platform specific authenticate method", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        process.platform,
-        biometricStateService,
-        encryptService,
-        cryptoFunctionService,
-      );
-      const osBiometricsService = mock<OsBiometricService>();
-      (sut as any).osBiometricsService = osBiometricsService;
-
-      await sut.authenticateWithBiometrics();
-
-      expect(osBiometricsService.authenticateBiometric).toHaveBeenCalled();
-    });
-  });
-
   describe("unlockWithBiometricsForUser", () => {
     let sut: MainBiometricsService;
     let osBiometricsService: MockProxy<OsBiometricService>;
@@ -285,55 +235,6 @@ describe("MainBiometricsService", function () {
       expect(userKey!.keyB64).toBe(biometricKey.toBase64());
       expect(userKey!.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
       expect(osBiometricsService.getBiometricKey).toHaveBeenCalledWith(userId);
-    });
-  });
-
-  describe("setBiometricProtectedUnlockKeyForUser", () => {
-    let sut: MainBiometricsService;
-    let osBiometricsService: MockProxy<OsBiometricService>;
-
-    beforeEach(() => {
-      sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        process.platform,
-        biometricStateService,
-        encryptService,
-        cryptoFunctionService,
-      );
-      osBiometricsService = mock<OsBiometricService>();
-      (sut as any).osBiometricsService = osBiometricsService;
-    });
-
-    it("should call the platform specific setBiometricKey method", async () => {
-      const userId = "test" as UserId;
-
-      await sut.setBiometricProtectedUnlockKeyForUser(userId, unlockKey);
-
-      expect(osBiometricsService.setBiometricKey).toHaveBeenCalledWith(userId, unlockKey);
-    });
-  });
-
-  describe("deleteBiometricUnlockKeyForUser", () => {
-    it("should call the platform specific deleteBiometricKey method", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        process.platform,
-        biometricStateService,
-        encryptService,
-        cryptoFunctionService,
-      );
-      const osBiometricsService = mock<OsBiometricService>();
-      (sut as any).osBiometricsService = osBiometricsService;
-
-      const userId = "test" as UserId;
-
-      await sut.deleteBiometricUnlockKeyForUser(userId);
-
-      expect(osBiometricsService.deleteBiometricKey).toHaveBeenCalledWith(userId);
     });
   });
 
@@ -384,6 +285,68 @@ describe("MainBiometricsService", function () {
       const shouldAutoPrompt = await sut.getShouldAutopromptNow();
 
       expect(shouldAutoPrompt).toBe(true);
+    });
+  });
+
+  describe("pass through methods that call platform specific osBiometricsService methods", () => {
+    const userId = newGuid() as UserId;
+    let sut: MainBiometricsService;
+    let osBiometricsService: MockProxy<OsBiometricService>;
+
+    beforeEach(() => {
+      sut = new MainBiometricsService(
+        i18nService,
+        windowMain,
+        logService,
+        process.platform,
+        biometricStateService,
+        encryptService,
+        cryptoFunctionService,
+      );
+      osBiometricsService = mock<OsBiometricService>();
+      (sut as any).osBiometricsService = osBiometricsService;
+    });
+
+    it("calls the platform specific setBiometricKey method", async () => {
+      await sut.setBiometricProtectedUnlockKeyForUser(userId, unlockKey);
+
+      expect(osBiometricsService.setBiometricKey).toHaveBeenCalledWith(userId, unlockKey);
+    });
+
+    it("calls the platform specific enrollPersistent method", async () => {
+      await sut.enrollPersistent(userId, unlockKey);
+
+      expect(osBiometricsService.enrollPersistent).toHaveBeenCalledWith(userId, unlockKey);
+    });
+
+    it("calls the platform specific hasPersistentKey method", async () => {
+      await sut.hasPersistentKey(userId);
+
+      expect(osBiometricsService.hasPersistentKey).toHaveBeenCalledWith(userId);
+    });
+
+    it("calls the platform specific deleteBiometricUnlockKeyForUser method", async () => {
+      await sut.deleteBiometricUnlockKeyForUser(userId);
+
+      expect(osBiometricsService.deleteBiometricKey).toHaveBeenCalledWith(userId);
+    });
+
+    it("calls the platform specific authenticateWithBiometrics method", async () => {
+      await sut.authenticateWithBiometrics();
+
+      expect(osBiometricsService.authenticateBiometric).toHaveBeenCalled();
+    });
+
+    it("calls the platform specific authenticateBiometric method", async () => {
+      await sut.authenticateBiometric();
+
+      expect(osBiometricsService.authenticateBiometric).toHaveBeenCalled();
+    });
+
+    it("calls the platform specific setupBiometrics method", async () => {
+      await sut.setupBiometrics();
+
+      expect(osBiometricsService.runSetup).toHaveBeenCalled();
     });
   });
 });

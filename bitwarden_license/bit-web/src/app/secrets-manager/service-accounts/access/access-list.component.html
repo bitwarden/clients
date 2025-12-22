@@ -21,7 +21,7 @@
   <ng-container header>
     <tr>
       <th bitCell class="tw-w-0">
-        <label class="tw-m-0 tw-flex tw-w-fit tw-gap-2 !tw-font-bold !tw-text-muted">
+        <label class="tw-m-0 tw-flex tw-w-fit tw-gap-2 !tw-font-medium !tw-text-muted">
           <input
             type="checkbox"
             (change)="$event ? toggleAll() : null"
@@ -40,8 +40,7 @@
           bitIconButton="bwi-ellipsis-v"
           buttonType="main"
           [bitMenuTriggerFor]="tableMenu"
-          [title]="'options' | i18n"
-          [attr.aria-label]="'options' | i18n"
+          [label]="'options' | i18n"
         ></button>
       </th>
     </tr>
@@ -65,8 +64,7 @@
           type="button"
           bitIconButton="bwi-ellipsis-v"
           buttonType="main"
-          [title]="'options' | i18n"
-          [attr.aria-label]="'options' | i18n"
+          [label]="'options' | i18n"
           [bitMenuTriggerFor]="tokenMenu"
         ></button>
       </td>
