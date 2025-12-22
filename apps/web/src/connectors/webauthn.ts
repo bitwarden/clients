@@ -2,8 +2,7 @@
 // @ts-strict-ignore
 import { b64Decode, getQsParam } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
-
-const mobileCallbackUri = "bitwarden://webauthn-callback";
+import { buildMobileCallbackUri } from "./utils/callbackUri";
 
 let parsed = false;
 let webauthnJson: any;
@@ -216,8 +215,9 @@ function onMessage() {
 
 function error(message: string) {
   if (mobileResponse) {
-    document.location.replace(mobileCallbackUri + "?error=" + encodeURIComponent(message));
-    returnButton(mobileCallbackUri + "?error=" + encodeURIComponent(message));
+    const callbackUri = buildMobileCallbackUri("webauthn");
+    document.location.replace(callbackUri + "?error=" + encodeURIComponent(message));
+    returnButton(callbackUri + "?error=" + encodeURIComponent(message));
   } else {
     parent.postMessage("error|" + message, parentUrl);
     setDefaultWebAuthnButtonState();
@@ -232,8 +232,9 @@ function success(assertedCredential: PublicKeyCredential) {
   const dataString = buildDataString(assertedCredential);
 
   if (mobileResponse) {
-    document.location.replace(mobileCallbackUri + "?data=" + encodeURIComponent(dataString));
-    returnButton(mobileCallbackUri + "?data=" + encodeURIComponent(dataString));
+    const callbackUri = buildMobileCallbackUri("webauthn");
+    document.location.replace(callbackUri + "?data=" + encodeURIComponent(dataString));
+    returnButton(callbackUri + "?data=" + encodeURIComponent(dataString));
   } else {
     parent.postMessage("success|" + dataString, parentUrl);
     sentSuccess = true;
