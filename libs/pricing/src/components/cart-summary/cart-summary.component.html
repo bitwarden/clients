@@ -75,19 +75,6 @@
             </div>
           </div>
         }
-
-        <!-- Discount -->
-        @let discount = appliedDiscount();
-        @if (discount) {
-          <div id="discount" class="tw-flex tw-justify-between">
-            <div bitTypography="body1" class="tw-text-success-600">
-              {{ discount.text }}
-            </div>
-            <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
-              -{{ discount.value | currency: "USD" : "symbol" }}
-            </div>
-          </div>
-        }
       </div>
 
       <!-- Secrets Manager Section -->
@@ -132,6 +119,22 @@
               </div>
             </div>
           }
+        </div>
+      }
+
+      <!-- Discount -->
+      @let discount = appliedDiscount();
+      @if (discount) {
+        <div
+          id="discount"
+          class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
+        >
+          <h3 bitTypography="h5" class="tw-text-success-600">
+            {{ discount.text }}
+          </h3>
+          <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
+            -{{ discount.value | currency: "USD" : "symbol" }}
+          </div>
         </div>
       }
 
