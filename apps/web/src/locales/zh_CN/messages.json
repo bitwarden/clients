@@ -1970,11 +1970,11 @@
     "message": "每个 Bitwarden 用户账户的账户加密密钥都是唯一的，因此您无法将加密的导出导入到另一个账户。"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "导出",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "导出",
     "description": "The verb form of the word Export"
   },
   "exportFrom": {
@@ -2303,11 +2303,11 @@
     "message": "工具"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "导入",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "导入",
     "description": "The verb form of the word Import"
   },
   "importData": {
@@ -3294,7 +3294,7 @@
     "message": "启动云订阅"
   },
   "launchCloudSubscriptionSentenceCase": {
-    "message": "Launch cloud subscription"
+    "message": "启动云订阅"
   },
   "storage": {
     "message": "存储"
@@ -12433,16 +12433,16 @@
     "message": "为什么我会看到这个？"
   },
   "youHaveBitwardenPremium": {
-    "message": "You have Bitwarden Premium"
+    "message": "您有 Bitwarden 高级版"
   },
   "viewAndManagePremiumSubscription": {
-    "message": "View and manage your Premium subscription"
+    "message": "查看和管理您的高级版订阅"
   },
   "youNeedToUpdateLicenseFile": {
-    "message": "You'll need to update your license file"
+    "message": "您需要更新您的许可文件"
   },
   "youNeedToUpdateLicenseFileDate": {
-    "message": "$DATE$.",
+    "message": "$DATE$。",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -12451,16 +12451,16 @@
     }
   },
   "uploadLicenseFile": {
-    "message": "Upload license file"
+    "message": "上传许可证文件"
   },
   "uploadYourLicenseFile": {
-    "message": "Upload your license file"
+    "message": "上传您的许可证文件"
   },
   "uploadYourPremiumLicenseFile": {
-    "message": "Upload your Premium license file"
+    "message": "上传您的高级版许可证文件"
   },
   "uploadLicenseFileDesc": {
-    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "message": "您的许可证文件名将类似于：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -12469,15 +12469,15 @@
     }
   },
   "alreadyHaveSubscriptionQuestion": {
-    "message": "Already have a subscription?"
+    "message": "已经有一个订阅？"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
-    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+    "message": "打开您的 Bitwarden 云账户上的订阅页面并下载您的许可证文件，然后返回此屏幕并上传。"
   },
   "viewAllPlans": {
-    "message": "View all plans"
+    "message": "查看所有套餐"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "全面的在线安全防护"
   }
 }
