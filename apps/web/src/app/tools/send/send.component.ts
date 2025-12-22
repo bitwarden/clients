@@ -238,7 +238,5 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       .catch((err) => {
         this.logService.error("Failed to update route query params:", err);
       });
-
-    this.applyTypeFilter(value);
   }
 }
