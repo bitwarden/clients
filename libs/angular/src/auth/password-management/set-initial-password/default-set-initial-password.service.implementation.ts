@@ -411,6 +411,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * As part of [PM-28494], adding this setting path to accommodate the changes that are
    * emerging with pm-23246-unlock-with-master-password-unlock-data.
    * Without this, immediately locking/unlocking the vault with the new password _may_ still fail
