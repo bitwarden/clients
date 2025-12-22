@@ -131,7 +131,7 @@ describe("AutofillInlineMenuList", () => {
         const addVaultItemButton =
           autofillInlineMenuList["inlineMenuListContainer"].querySelector("#new-item-button");
 
-        addVaultItemButton.dispatchEvent(new Event("mousedown"));
+        addVaultItemButton.dispatchEvent(new Event("click"));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
           { command: "addNewVaultItem", portKey, addNewCipherType: CipherType.Login },
@@ -578,7 +578,7 @@ describe("AutofillInlineMenuList", () => {
         });
 
         it("allows for the creation of a new login cipher", () => {
-          newVaultItemButtonSpy.dispatchEvent(new Event("mousedown"));
+          newVaultItemButtonSpy.dispatchEvent(new Event("click"));
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
             { command: "addNewVaultItem", portKey, addNewCipherType: CipherType.Login },
