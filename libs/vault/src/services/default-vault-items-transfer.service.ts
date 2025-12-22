@@ -11,10 +11,12 @@ import {
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -49,6 +51,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     private i18nService: I18nService,
     private dialogService: DialogService,
     private toastService: ToastService,
+    private eventCollectionService: EventCollectionService,
     private configService: ConfigService,
   ) {}
 
@@ -160,6 +163,13 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
 
     if (!userAcceptedTransfer) {
       // TODO: Revoke user from organization if they decline migration and show toast PM-29465
+
+      await this.eventCollectionService.collect(
+        EventType.Organization_ItemOrganization_Declined,
+        undefined,
+        undefined,
+        migrationInfo.enforcingOrganization.id,
+      );
       return;
     }
 
@@ -175,6 +185,13 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         variant: "success",
         message: this.i18nService.t("itemsTransferred"),
       });
+
+      await this.eventCollectionService.collect(
+        EventType.Organization_ItemOrganization_Accepted,
+        undefined,
+        undefined,
+        migrationInfo.enforcingOrganization.id,
+      );
     } catch (error) {
       this._transferInProgressSubject.next(false);
       this.logService.error("Error transferring personal items to organization", error);

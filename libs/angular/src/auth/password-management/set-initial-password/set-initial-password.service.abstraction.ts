@@ -54,6 +54,8 @@ export interface SetInitialPasswordCredentialsOld {
   orgSsoIdentifier: string;
   orgId: string;
   resetPasswordAutoEnroll: boolean;
+  newPassword: string;
+  salt: MasterPasswordSalt;
 }
 
 export interface SetInitialPasswordCredentials {

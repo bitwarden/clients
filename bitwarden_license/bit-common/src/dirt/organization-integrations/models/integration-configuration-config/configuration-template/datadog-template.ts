@@ -2,17 +2,54 @@ import { OrgIntegrationTemplate } from "../../integration-builder";
 import { OrganizationIntegrationServiceName } from "../../organization-integration-service-type";
 
 export class DatadogTemplate implements OrgIntegrationTemplate {
-  source_type_name = "Bitwarden";
-  title: string = "#Title#";
-  text: string =
-    "ActingUser: #ActingUserId#\nUser: #UserId#\nEvent: #Type#\nOrganization: #OrganizationId#\nPolicyId: #PolicyId#\nIpAddress: #IpAddress#\nDomainName: #DomainName#\nCipherId: #CipherId#\n";
-  service: OrganizationIntegrationServiceName;
+  bw_serviceName: OrganizationIntegrationServiceName;
 
   constructor(service: OrganizationIntegrationServiceName) {
-    this.service = service;
+    this.bw_serviceName = service;
+  }
+
+  private toJSON() {
+    return {
+      bw_serviceName: this.bw_serviceName,
+      ddsource: "bitwarden",
+      service: "event-logs",
+      event: {
+        service: "payments",
+        object: "event",
+        type: "#Type#",
+        itemId: "#CipherId#",
+        collectionId: "#CollectionId#",
+        groupId: "#GroupId#",
+        policyId: "#PolicyId#",
+        memberId: "#UserId#",
+        actingUserId: "#ActingUserId#",
+        installationId: "#InstallationId#",
+        date: "#DateIso8601#",
+        device: "#DeviceType#",
+        ipAddress: "#IpAddress#",
+        secretId: "#SecretId#",
+        projectId: "#ProjectId#",
+        serviceAccountId: "#ServiceAccountId#",
+      },
+      enrichment_details: {
+        actingUser: {
+          name: "#ActingUserName#",
+          email: "#ActingUserEmail#",
+          type: "#ActingUserType#",
+        },
+        member: {
+          name: "#UserName#",
+          email: "#UserEmail#",
+          type: "#UserType#",
+        },
+        group: {
+          name: "#GroupName#",
+        },
+      },
+    };
   }
 
   toString(): string {
-    return JSON.stringify(this);
+    return JSON.stringify(this.toJSON());
   }
 }

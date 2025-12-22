@@ -1322,11 +1322,21 @@
   "exportFrom": {
     "message": "Экспорт из"
   },
-  "export": {
-    "message": "Экспорт"
+  "exportVerb": {
+    "message": "Экспортировать",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Импорт"
+  "exportNoun": {
+    "message": "Экспорт",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Импорт",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Импортировать",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат файла"

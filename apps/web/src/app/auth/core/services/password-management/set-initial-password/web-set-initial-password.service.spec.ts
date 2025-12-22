@@ -18,6 +18,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -48,6 +49,7 @@ describe("WebSetInitialPasswordService", () => {
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
   let routerService: MockProxy<RouterService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
@@ -62,6 +64,7 @@ describe("WebSetInitialPasswordService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     organizationInviteService = mock<OrganizationInviteService>();
     routerService = mock<RouterService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     sut = new WebSetInitialPasswordService(
       apiService,
@@ -76,6 +79,7 @@ describe("WebSetInitialPasswordService", () => {
       userDecryptionOptionsService,
       organizationInviteService,
       routerService,
+      accountCryptographicStateService,
     );
   });
 

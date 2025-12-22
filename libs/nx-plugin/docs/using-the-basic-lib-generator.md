@@ -78,7 +78,7 @@ After generating your library:
 
 ### Issue: TypeScript path mapping not working
 
-**Solution**: Run `nx reset` to clear the Nx cache, then try importing from your library again.
+**Solution**: Run `npx nx reset` to clear the Nx cache, then try importing from your library again.
 
 ## Extending the Generated Code
 

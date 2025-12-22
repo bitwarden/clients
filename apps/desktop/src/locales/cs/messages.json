@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "Exportovat z"
   },
-  "export": {
-    "message": "Exportovat"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Importovat"
+  "exportVerb": {
+    "message": "Exportovat",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importovat",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formát souboru"

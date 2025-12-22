@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "Exportar de"
   },
-  "export": {
-    "message": "Exportar"
+  "exportNoun": {
+    "message": "Exportação",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Importar"
+  "exportVerb": {
+    "message": "Exportar",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importação",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importar",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formato do arquivo"

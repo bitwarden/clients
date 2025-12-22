@@ -3,12 +3,12 @@ import { OrganizationIntegrationServiceName } from "../../organization-integrati
 
 // Added to reflect how future webhook integrations could be structured within the OrganizationIntegration
 export class WebhookTemplate implements OrgIntegrationTemplate {
-  service: OrganizationIntegrationServiceName;
+  bw_serviceName: OrganizationIntegrationServiceName;
   propA: string;
   propB: string;
 
-  constructor(service: OrganizationIntegrationServiceName, propA: string, propB: string) {
-    this.service = service;
+  constructor(bw_serviceName: OrganizationIntegrationServiceName, propA: string, propB: string) {
+    this.bw_serviceName = bw_serviceName;
     this.propA = propA;
     this.propB = propB;
   }

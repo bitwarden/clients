@@ -1322,11 +1322,21 @@
   "exportFrom": {
     "message": "Exportovať z"
   },
-  "export": {
-    "message": "Exportovať"
+  "exportVerb": {
+    "message": "Exportovať",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importovať"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importovať",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formát súboru"
@@ -1476,7 +1486,7 @@
     "message": "Vyberte súbor"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Položky boli prenesené"
   },
   "maxFileSize": {
     "message": "Maximálna veľkosť súboru je 500 MB."
@@ -3398,10 +3408,10 @@
     "message": "Použiť možnosti subadresovania svojho poskytovateľa e-mailu."
   },
   "catchallEmail": {
-    "message": "Catch-all e-mail"
+    "message": "Doménový kôš"
   },
   "catchallEmailDesc": {
-    "message": "Použiť doručenú poštu typu catch-all nastavenú na doméne."
+    "message": "Použiť nastavený doménový kôš."
   },
   "random": {
     "message": "Náhodné"
