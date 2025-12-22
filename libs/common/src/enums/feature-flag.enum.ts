@@ -26,7 +26,6 @@ export enum FeatureFlag {
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
-  PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
@@ -137,7 +136,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
