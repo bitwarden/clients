@@ -27,7 +27,6 @@ import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-sdk.service";
-import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -204,8 +203,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     keyConnectorUrl: string,
     ssoOrganizationIdentifier: string,
   ) {
-    await SdkLoadService.Ready;
-
     const result = await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(
         map((sdk) => {

@@ -39,12 +39,6 @@ import {
   USES_KEY_CONNECTOR,
 } from "./key-connector.service";
 
-jest.mock("../../../platform/abstractions/sdk/sdk-load.service", () => ({
-  SdkLoadService: {
-    Ready: Promise.resolve(),
-  },
-}));
-
 describe("KeyConnectorService", () => {
   let keyConnectorService: KeyConnectorService;
 
