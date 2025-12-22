@@ -667,6 +667,34 @@ pub mod autofill {
         Discouraged,
     }
 
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct LockStatusQueryRequest {}
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct LockStatusQueryResponse {
+        pub is_unlocked: bool,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct WindowHandleQueryRequest {
+        pub window_handle: String,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct WindowHandleQueryResponse {
+        pub is_visible: bool,
+        pub is_focused: bool,
+        pub handle: String,
+    }
+
     #[derive(Serialize, Deserialize)]
     #[serde(bound = "T: Serialize + DeserializeOwned")]
     pub struct PasskeyMessage<T: Serialize + DeserializeOwned> {
@@ -694,6 +722,8 @@ pub mod autofill {
         pub supported_algorithms: Vec<i32>,
         pub window_xy: Position,
         pub excluded_credentials: Vec<Vec<u8>>,
+        pub client_window_handle: Option<Vec<u8>>,
+        pub context: Option<String>,
     }
 
     #[napi(object)]
@@ -715,6 +745,8 @@ pub mod autofill {
         pub user_verification: UserVerification,
         pub allowed_credentials: Vec<Vec<u8>>,
         pub window_xy: Position,
+        pub client_window_handle: Option<Vec<u8>>,
+        pub context: Option<String>,
         //extension_input: Vec<u8>, TODO: Implement support for extensions
     }
 
@@ -724,12 +756,14 @@ pub mod autofill {
     pub struct PasskeyAssertionWithoutUserInterfaceRequest {
         pub rp_id: String,
         pub credential_id: Vec<u8>,
-        pub user_name: String,
-        pub user_handle: Vec<u8>,
+        pub user_name: Option<String>,
+        pub user_handle: Option<Vec<u8>>,
         pub record_identifier: Option<String>,
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
         pub window_xy: Position,
+        pub client_window_handle: Option<Vec<u8>>,
+        pub context: Option<String>,
     }
 
     #[napi(object)]
@@ -794,6 +828,18 @@ pub mod autofill {
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void"
             )]
             native_status_callback: ThreadsafeFunction<(u32, u32, NativeStatus)>,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: LockStatusQueryRequest) => void"
+            )]
+            lock_status_query_callback: ThreadsafeFunction<
+                FnArgs<(u32, u32, LockStatusQueryRequest)>,
+            >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: WindowHandleQueryRequest) => void"
+            )]
+            window_handle_query_callback: ThreadsafeFunction<
+                FnArgs<(u32, u32, WindowHandleQueryRequest)>,
+            >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -812,6 +858,24 @@ pub mod autofill {
                                 continue;
                             };
 
+                            match serde_json::from_str::<PasskeyMessage<WindowHandleQueryRequest>>(
+                                &message,
+                            ) {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value).into())
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+
+                                    window_handle_query_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(e) => {
+                                    tracing::warn!(error = %e, "Could not deserialize request as WindowHandleQueryRequest. Trying other types...");
+                                }
+                            }
+
                             match serde_json::from_str::<PasskeyMessage<PasskeyAssertionRequest>>(
                                 &message,
                             ) {
@@ -826,7 +890,7 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    error!(error = %e, "Error deserializing message1");
+                                    error!(error = %e, "Error deserializing passkey assertion request");
                                 }
                             }
 
@@ -845,7 +909,7 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    error!(error = %e, "Error deserializing message1");
+                                    error!(error = %e, "Error deserializing passkey assertion without user interface request");
                                 }
                             }
 
@@ -862,7 +926,7 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(e) => {
-                                    error!(error = %e, "Error deserializing message2");
+                                    error!(error = %e, "Error deserializing passkey registration request");
                                 }
                             }
 
@@ -877,7 +941,24 @@ pub mod autofill {
                                     continue;
                                 }
                                 Err(error) => {
-                                    error!(%error, "Unable to deserialze native status.");
+                                    error!(%error, "Unable to deserialize native status.");
+                                }
+                            }
+
+                            match serde_json::from_str::<PasskeyMessage<LockStatusQueryRequest>>(
+                                &message,
+                            ) {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value).into())
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+                                    lock_status_query_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(error) => {
+                                    error!(%error, "Unable to deserialize lock status query request.");
                                 }
                             }
 
@@ -931,6 +1012,34 @@ pub mod autofill {
             client_id: u32,
             sequence_number: u32,
             response: PasskeyAssertionResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
+        pub fn complete_lock_status_query(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: LockStatusQueryResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
+        pub fn complete_window_handle_query(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: WindowHandleQueryResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
                 sequence_number,

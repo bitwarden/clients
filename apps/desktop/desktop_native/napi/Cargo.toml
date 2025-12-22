@@ -27,6 +27,7 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
+windows = { workspace = true }
 windows-registry = { workspace = true }
 windows_plugin_authenticator = { path = "../windows_plugin_authenticator" }
 
