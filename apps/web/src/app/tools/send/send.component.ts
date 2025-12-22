@@ -20,6 +20,7 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import {
@@ -44,13 +45,6 @@ import { SharedModule } from "../../shared";
 import { NewSendDropdownComponent } from "./new-send/new-send-dropdown.component";
 
 const BroadcasterSubscriptionId = "SendComponent";
-
-const SendFilterType = Object.freeze({
-  All: "all",
-  Text: "text",
-  File: "file",
-} as const);
-type SendFilterType = (typeof SendFilterType)[keyof typeof SendFilterType];
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
