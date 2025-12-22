@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-require-imports, no-console */
 
 exports.default = async function (configuration) {
-  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && configuration.path.slice(-4) == ".exe") {
+  const ext = configuration.path.split(".").at(-1);
+  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && ["exe", "appx"].includes(ext)) {
     console.log(`[*] Signing file: ${configuration.path}`);
     require("child_process").execSync(
       `azuresigntool sign -v ` +
