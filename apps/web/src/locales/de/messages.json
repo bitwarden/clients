@@ -3294,7 +3294,7 @@
     "message": "Cloud-Abonnement starten"
   },
   "launchCloudSubscriptionSentenceCase": {
-    "message": "Launch cloud subscription"
+    "message": "Cloud-Abonnement starten"
   },
   "storage": {
     "message": "Speicher"
@@ -12433,13 +12433,13 @@
     "message": "Warum wird mir das angezeigt?"
   },
   "youHaveBitwardenPremium": {
-    "message": "You have Bitwarden Premium"
+    "message": "Du hast Bitwarden Premium"
   },
   "viewAndManagePremiumSubscription": {
     "message": "View and manage your Premium subscription"
   },
   "youNeedToUpdateLicenseFile": {
-    "message": "You'll need to update your license file"
+    "message": "Du musst deine Lizenzdatei aktualisieren"
   },
   "youNeedToUpdateLicenseFileDate": {
     "message": "$DATE$.",
@@ -12457,10 +12457,10 @@
     "message": "Lade deine Lizenzdatei hoch"
   },
   "uploadYourPremiumLicenseFile": {
-    "message": "Upload your Premium license file"
+    "message": "Lade deine Premium-Lizenzdatei hoch"
   },
   "uploadLicenseFileDesc": {
-    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "message": "Dein Lizenzdateiname wird in etwa so aussehen: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -12469,13 +12469,13 @@
     }
   },
   "alreadyHaveSubscriptionQuestion": {
-    "message": "Already have a subscription?"
+    "message": "Du hast bereits ein Abonnement?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
   },
   "viewAllPlans": {
-    "message": "View all plans"
+    "message": "Alle Tarife anzeigen"
   },
   "planDescPremium": {
     "message": "Umfassende Online-Sicherheit"

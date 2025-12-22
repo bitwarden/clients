@@ -4212,10 +4212,10 @@
     }
   },
   "userAcceptedTransfer": {
-    "message": "Accepted transfer to organization ownership."
+    "message": "Transferência para propriedade da organização aceite."
   },
   "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "Revogado por recusa de transferência para propriedade da organização."
   },
   "invitedUserId": {
     "message": "Utilizador $ID$ convidado.",

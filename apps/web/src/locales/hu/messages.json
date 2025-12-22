@@ -4212,10 +4212,10 @@
     }
   },
   "userAcceptedTransfer": {
-    "message": "Accepted transfer to organization ownership."
+    "message": "Az átruházás a szervezet tulajdonába elfogadásra került."
   },
   "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "A szervezet tulajdonába átruházás visszavonásra került elutasítás miatt."
   },
   "invitedUserId": {
     "message": "$ID$ azonosítójú felhasználó meghívásra került.",

@@ -4212,10 +4212,10 @@
     }
   },
   "userAcceptedTransfer": {
-    "message": "Accepted transfer to organization ownership."
+    "message": "Pieņemta īpašumtiesību nodošana apvienībai."
   },
   "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "Atsaukts īpašumtiesību nodošanas apvienībai noraidīšanas dēļ."
   },
   "invitedUserId": {
     "message": "Uzaicināts lietotājs $ID$.",
@@ -12460,7 +12460,7 @@
     "message": "Jāaugšupielādē sava Premium licences datne"
   },
   "uploadLicenseFileDesc": {
-    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "message": "Licences datnes nosaukums būs līdzīgs šim: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -12469,15 +12469,15 @@
     }
   },
   "alreadyHaveSubscriptionQuestion": {
-    "message": "Already have a subscription?"
+    "message": "Jau ir abonements?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
-    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+    "message": "Jāatver abonementu lapa Bitwarden mākoņa kontā un jālejupielādē licences datne. Tad jāatgriežas šajā skatā un zemāk jāaugšupielādē."
   },
   "viewAllPlans": {
-    "message": "View all plans"
+    "message": "Apskatīt visus plānus"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Pilnīga drošība tiešsaistē"
   }
 }
