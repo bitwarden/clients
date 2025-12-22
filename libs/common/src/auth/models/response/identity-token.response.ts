@@ -19,9 +19,21 @@ export class IdentityTokenResponse extends BaseResponse {
   tokenType: string;
 
   // Decryption Information
-  privateKey: string; // userKeyEncryptedPrivateKey
+
+  /**
+   * privateKey is actually userKeyEncryptedPrivateKey
+   * @deprecated Use {@link accountKeysResponseModel} instead
+   */
+  privateKey: string;
+
+  // TODO: https://bitwarden.atlassian.net/browse/PM-30124 - Rename to just accountKeys
   accountKeysResponseModel: PrivateKeysResponseModel | null = null;
-  key?: EncString; // masterKeyEncryptedUserKey
+
+  /**
+   * key is actually masterKeyEncryptedUserKey
+   * @deprecated Use {@link userDecryptionOptions.masterPasswordUnlock.masterKeyWrappedUserKey} instead
+   */
+  key?: EncString;
   twoFactorToken: string;
   kdfConfig: KdfConfig;
   forcePasswordReset: boolean;
