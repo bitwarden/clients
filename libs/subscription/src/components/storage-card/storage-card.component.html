@@ -12,7 +12,9 @@
   <!-- Progress Bar -->
   <div class="tw-relative tw-h-4 tw-w-full tw-overflow-hidden tw-rounded tw-bg-secondary-100">
     <div
-      class="tw-absolute tw-inset-y-0 tw-left-0 tw-bg-primary-600 tw-transition-all"
+      class="tw-absolute tw-inset-y-0 tw-left-0 tw-transition-all"
+      [class.tw-bg-primary-600]="!isNearlyFull()"
+      [class.tw-bg-danger-600]="isNearlyFull()"
       [style.width.%]="usage()"
     ></div>
   </div>

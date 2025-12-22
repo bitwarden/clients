@@ -42,8 +42,12 @@ export class StorageCardComponent {
   });
 
   readonly description = computed<string>(() => {
-    const total = this.total();
     const used = this.used();
-    return this.i18nService.t("subscriptionStorage", total.toString(), used.toString());
+    const total = this.total();
+    return this.i18nService.t("youHaveUsedStorage", used.toString(), total.toString());
+  });
+
+  readonly isNearlyFull = computed<boolean>(() => {
+    return this.usage() >= 95;
   });
 }

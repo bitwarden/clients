@@ -21,7 +21,7 @@ export default {
             t: (key: string, ...args: any[]) => {
               const translations: Record<string, string> = {
                 storage: "Storage",
-                subscriptionStorage: `Your subscription has a total of ${args[0]} GB of encrypted file storage. You are currently using ${args[1]} GB`,
+                youHaveUsedStorage: `You have used ${args[0]} out of ${args[1]} GB of your encrypted file storage.`,
                 addStorage: "Add storage",
                 removeStorage: "Remove storage",
               };

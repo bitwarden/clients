@@ -12541,5 +12541,18 @@
         "example": "Dec 22, 2025"
       }
     }
+  },
+  "youHaveUsedStorage": {
+    "message": "You have used $USED$ out of $TOTAL$ GB of your encrypted file storage.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   }
 }

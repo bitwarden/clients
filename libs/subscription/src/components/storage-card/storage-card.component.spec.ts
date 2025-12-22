@@ -18,7 +18,7 @@ describe("StorageCardComponent", () => {
             t: (key: string, ...args: any[]) => {
               const translations: Record<string, string> = {
                 storage: "Storage",
-                subscriptionStorage: `Your subscription has a total of ${args[0]} GB of encrypted file storage. You are currently using ${args[1]} GB`,
+                youHaveUsedStorage: `Your subscription has a total of ${args[1]} GB of encrypted file storage. You are currently using ${args[0]} GB`,
                 addStorage: "Add storage",
                 removeStorage: "Remove storage",
               };
@@ -148,6 +148,64 @@ describe("StorageCardComponent", () => {
     });
   });
 
+  describe("Nearly Full Computation", () => {
+    it("should return false when usage is below 95%", () => {
+      // Arrange
+      fixture.componentRef.setInput("total", 10);
+      fixture.componentRef.setInput("used", 9);
+      fixture.detectChanges();
+
+      // Act
+      const isNearlyFull = component.isNearlyFull();
+
+      // Assert
+      expect(component.usage()).toBe(90);
+      expect(isNearlyFull).toBe(false);
+    });
+
+    it("should return true when usage is exactly 95%", () => {
+      // Arrange
+      fixture.componentRef.setInput("total", 20);
+      fixture.componentRef.setInput("used", 19);
+      fixture.detectChanges();
+
+      // Act
+      const isNearlyFull = component.isNearlyFull();
+
+      // Assert
+      expect(component.usage()).toBe(95);
+      expect(isNearlyFull).toBe(true);
+    });
+
+    it("should return true when usage is above 95%", () => {
+      // Arrange
+      fixture.componentRef.setInput("total", 5);
+      fixture.componentRef.setInput("used", 4.8);
+      fixture.detectChanges();
+
+      // Act
+      const isNearlyFull = component.isNearlyFull();
+
+      // Assert
+      expect(component.usage()).toBe(96);
+      expect(isNearlyFull).toBe(true);
+    });
+
+    it("should return true when usage is 100%", () => {
+      // Arrange
+      fixture.componentRef.setInput("total", 5);
+      fixture.componentRef.setInput("used", 5);
+      fixture.detectChanges();
+
+      // Act
+      const isNearlyFull = component.isNearlyFull();
+
+      // Assert
+      expect(component.usage()).toBe(100);
+      expect(isNearlyFull).toBe(true);
+    });
+  });
+
   describe("Description Computation", () => {
     it("should generate correct description with 5 GB total and 1 GB used", () => {
       // Arrange
@@ -274,12 +332,65 @@ describe("StorageCardComponent", () => {
 
       // Act
       const progressBarFill = fixture.debugElement.query(
-        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-bg-primary-600"),
+        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-transition-all"),
       );
 
       // Assert
       expect(progressBarFill).toBeTruthy();
       expect(progressBarFill.nativeElement.style.width).toBe("50%");
+    });
+
+    it("should display blue progress bar when usage is below 95%", () => {
+      // Arrange
+      fixture.componentRef.setInput("total", 10);
+      fixture.componentRef.setInput("used", 5);
+      fixture.detectChanges();
+
+      // Act
+      const progressBarFill = fixture.debugElement.query(
+        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-transition-all"),
+      );
+
+      // Assert
+      expect(progressBarFill).toBeTruthy();
+      expect(progressBarFill.nativeElement.classList.contains("tw-bg-primary-600")).toBe(true);
+      expect(progressBarFill.nativeElement.classList.contains("tw-bg-danger-600")).toBe(false);
+    });
+
+    it("should display red progress bar when usage is 95% or above", () => {
+      // Arrange
+      fixture.componentRef.setInput("total", 20);
+      fixture.componentRef.setInput("used", 19);
+      fixture.detectChanges();
+
+      // Act
+      const progressBarFill = fixture.debugElement.query(
+        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-transition-all"),
+      );
+
+      // Assert
+      expect(component.usage()).toBe(95);
+      expect(progressBarFill).toBeTruthy();
+      expect(progressBarFill.nativeElement.classList.contains("tw-bg-danger-600")).toBe(true);
+      expect(progressBarFill.nativeElement.classList.contains("tw-bg-primary-600")).toBe(false);
+    });
+
+    it("should display red progress bar when usage is 100%", () => {
+      // Arrange
+      fixture.componentRef.setInput("total", 5);
+      fixture.componentRef.setInput("used", 5);
+      fixture.detectChanges();
+
+      // Act
+      const progressBarFill = fixture.debugElement.query(
+        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-transition-all"),
+      );
+
+      // Assert
+      expect(component.usage()).toBe(100);
+      expect(progressBarFill).toBeTruthy();
+      expect(progressBarFill.nativeElement.classList.contains("tw-bg-danger-600")).toBe(true);
+      expect(progressBarFill.nativeElement.classList.contains("tw-bg-primary-600")).toBe(false);
     });
 
     it("should display Add storage button", () => {
@@ -326,12 +437,13 @@ describe("StorageCardComponent", () => {
 
       // Act
       const progressBarFill = fixture.debugElement.query(
-        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-bg-primary-600"),
+        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-transition-all"),
       );
 
       // Assert
       expect(progressBarFill).toBeTruthy();
       expect(progressBarFill.nativeElement.style.width).toBe("0%");
+      expect(progressBarFill.nativeElement.classList.contains("tw-bg-primary-600")).toBe(true);
     });
 
     it("should display progress bar with 100% width when storage is at capacity", () => {
@@ -342,12 +454,13 @@ describe("StorageCardComponent", () => {
 
       // Act
       const progressBarFill = fixture.debugElement.query(
-        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-bg-primary-600"),
+        By.css(".tw-absolute.tw-inset-y-0.tw-left-0.tw-transition-all"),
       );
 
       // Assert
       expect(progressBarFill).toBeTruthy();
       expect(progressBarFill.nativeElement.style.width).toBe("100%");
+      expect(progressBarFill.nativeElement.classList.contains("tw-bg-danger-600")).toBe(true);
     });
   });
 });

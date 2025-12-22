@@ -51,13 +51,17 @@ The component automatically computes the following from the inputs:
 
 - **`usage()`**: The percentage of storage used (0-100), capped at 100% even if over capacity
 - **`description()`**: The formatted description text using i18n
+- **`isNearlyFull()`**: Boolean indicating if storage usage is 95% or above (triggers red progress
+  bar)
 
 ## Design
 
 The component follows the Bitwarden design system with:
 
 - **Full width/height**: Designed to fill its container (`tw-size-full`)
-- **Progress bar**: Visual indicator of storage usage with primary color fill
+- **Progress bar**: Visual indicator of storage usage with dynamic color:
+  - **Blue** (`tw-bg-primary-600`) for usage below 95%
+  - **Red** (`tw-bg-danger-600`) for usage at or above 95% to warn users they're nearly full
 - **Action buttons**: Secondary-styled buttons for adding and removing storage
 - **Modern Angular**: Uses signals, computed properties, and standalone components
 - **OnPush**: Optimized change detection strategy
@@ -112,7 +116,7 @@ Storage nearing capacity:
 
 ### Nearly Full (95%)
 
-Almost at capacity, user should consider adding storage:
+Almost at capacity with **red progress bar** warning, user should consider adding storage:
 
 <Canvas of={StorageCardStories.NearlyFull} />
 
@@ -127,7 +131,7 @@ Almost at capacity, user should consider adding storage:
 
 ### At Capacity (100%)
 
-Storage completely used:
+Storage completely used with **red progress bar** indicating critical capacity:
 
 <Canvas of={StorageCardStories.AtCapacity} />
 
@@ -142,7 +146,7 @@ Storage completely used:
 
 ### Over Capacity (110%)
 
-Storage usage exceeds capacity (progress bar capped at 100%):
+Storage usage exceeds capacity with **red progress bar** (progress bar width capped at 100%):
 
 <Canvas of={StorageCardStories.OverCapacity} />
 
@@ -235,16 +239,16 @@ The component requires the following i18n keys:
 ```json
 {
   "storage": "Storage",
-  "subscriptionStorage": "Your subscription has a total of {0} GB of encrypted file storage. You are currently using {1} GB",
+  "youHaveUsedStorage": "You have used {0} out of {1} GB of your encrypted file storage.",
   "addStorage": "Add storage",
   "removeStorage": "Remove storage"
 }
 ```
 
-The `subscriptionStorage` key accepts two parameters:
+The `youHaveUsedStorage` key accepts two parameters:
 
-1. `{0}` - Total storage in GB
-2. `{1}` - Used storage in GB
+1. `{0}` - Used storage in GB
+2. `{1}` - Total storage in GB
 
 ## Accessibility
 
