@@ -102,17 +102,7 @@ Example: `/libs/common/src/vault/enums/cipher-type.ts`
 
 ## Color System & Theming
 
-See the [Color System Documentation](libs/components/src/stories/colors.mdx) in Storybook:
-
-- [Color Token Structure](libs/components/src/stories/colors.mdx#color-token-structure)
-- [Semantic Color Tokens](libs/components/src/stories/colors.mdx#semantic-color-tokens)
-  - [Background Colors](libs/components/src/stories/colors.mdx#background-colors)
-  - [Foreground Colors](libs/components/src/stories/colors.mdx#foreground-colors)
-  - [Border Colors](libs/components/src/stories/colors.mdx#border-colors)
-- [Usage Guidelines](libs/components/src/stories/colors.mdx#usage-guidelines)
-- [Dark Mode](libs/components/src/stories/colors.mdx#dark-mode)
-- [Migration Strategy](libs/components/src/stories/colors.mdx#migration-strategy)
-- [Legacy Colors](libs/components/src/stories/colors.mdx#legacy-colors)
+[Color System Documentation](libs/components/src/stories/colors.mdx)
 
 ## References
 
