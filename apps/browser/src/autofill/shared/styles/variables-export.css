@@ -1,5 +1,7 @@
+@import "../../../../../../libs/components/src/theme.css";
+
 :root {
-  --autofill-font-family-sans-serif: Inter, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --autofill-font-family-sans-serif: var(--font-sans);
   --autofill-font-family-source-code-pro: Source Code Pro, monospace;
   --autofill-font-size-base: 14px;
   --autofill-text-color-light: #212529;
