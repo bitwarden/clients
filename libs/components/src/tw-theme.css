@@ -219,6 +219,10 @@
   --color-purple-900: #59168b;
   --color-purple-950: #3c0366;
 
+  /* White and Black */
+  --color-white: #ffffff;
+  --color-black: #000000;
+
   /* ========================================
    * SEMANTIC FOREGROUND COLORS (Light Mode)
    * These are the tokens that should be exposed to Tailwind
@@ -226,9 +230,9 @@
    * ======================================== */
 
   /* Neutral Foreground */
-  --color-fg-white: #ffffff;
+  --color-fg-white: var(--color-white);
   --color-fg-dark: var(--color-gray-900);
-  --color-fg-contrast: #ffffff;
+  --color-fg-contrast: var(--color-white);
   --color-fg-heading: var(--color-gray-900);
   --color-fg-body: var(--color-gray-600);
   --color-fg-body-subtle: var(--color-gray-500);
@@ -264,11 +268,11 @@
    * ======================================== */
 
   /* Neutral Background */
-  --color-bg-white: #ffffff;
+  --color-bg-white: var(--color-white);
   --color-bg-dark: var(--color-gray-800);
   --color-bg-contrast: var(--color-gray-800);
   --color-bg-contrast-strong: var(--color-gray-950);
-  --color-bg-primary: #ffffff;
+  --color-bg-primary: var(--color-white);
   --color-bg-secondary: var(--color-gray-050);
   --color-bg-tertiary: var(--color-gray-050);
   --color-bg-quaternary: var(--color-gray-200);
@@ -320,7 +324,7 @@
   --color-border-light: var(--color-gray-100);
   --color-border-base: var(--color-gray-200);
   --color-border-strong: var(--color-gray-800);
-  --color-border-buffer: #ffffff;
+  --color-border-buffer: var(--color-white);
 
   /* Brand Border */
   --color-border-brand-soft: var(--color-brand-200);
@@ -347,7 +351,7 @@
   --color-border-accent-tertiary: var(--color-purple-600);
 
   /* Focus Border */
-  --color-border-focus: #000000;
+  --color-border-focus: var(--color-black);
 }
 
 .theme_light {
@@ -536,7 +540,7 @@
   --color-border-accent-tertiary: var(--color-purple-500);
 
   /* Focus Border */
-  --color-border-focus: #ffffff;
+  --color-border-focus: var(--color-white);
 }
 
 @layer components {
