@@ -3,7 +3,7 @@
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, Observable, switchMap, EMPTY, of } from "rxjs";
+import { lastValueFrom, Observable, switchMap, EMPTY } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { NoSendsIcon } from "@bitwarden/assets/svg";
@@ -112,7 +112,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       accountService,
     );
 
-    this.SendUIRefresh$ = of(true); // this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
+    this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
 
     this.SendUIRefresh$.pipe(
       switchMap((sendUiRefreshEnabled) => {
