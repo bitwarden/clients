@@ -19,7 +19,7 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import {
   AsyncActionsModule,

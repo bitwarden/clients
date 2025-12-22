@@ -5,7 +5,7 @@ import { RouterTestingHarness } from "@angular/router/testing";
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NavigationModule } from "@bitwarden/components";
 import { SendListFiltersService } from "@bitwarden/send-ui";
 

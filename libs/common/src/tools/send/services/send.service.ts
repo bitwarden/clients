@@ -16,7 +16,7 @@ import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { SendType } from "../enums/send-type";
+import { SendType } from "../types/send-type";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendFile } from "../models/domain/send-file";

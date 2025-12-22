@@ -1,4 +1,4 @@
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendId } from "@bitwarden/common/types/guid";
 

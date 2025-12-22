@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
-import { SendType } from "../../enums/send-type";
+import { SendType } from "../../types/send-type";
 import { SendTextApi } from "../../models/api/send-text.api";
 import { SendTextData } from "../../models/data/send-text.data";
 import { SendData } from "../../models/data/send.data";

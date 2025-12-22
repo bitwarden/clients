@@ -27,7 +27,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
 import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text.view";
