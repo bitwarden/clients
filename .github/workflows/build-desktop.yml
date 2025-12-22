@@ -1920,12 +1920,12 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install libasound2 xvfb
-          sudo apt-get install -y xvfb
+          sudo apt-get install -y libasound2 xvfb unzip
 
       - name: Install .deb
         working-directory: ${{ steps.download-deb.outputs.download-path }}
         run: |
+          unzip ./Bitwarden-${_PACKAGE_VERSION}-amd64.deb.zip
           sudo apt-get install -y ./Bitwarden-${_PACKAGE_VERSION}-amd64.deb
 
       - name: Run .deb
@@ -1966,11 +1966,12 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libasound2 libfuse2 xvfb
+          sudo apt-get install -y libasound2 libfuse2 xvfb unzip
 
       - name: Run AppImage
         working-directory: ${{ steps.download-appimage.outputs.download-path }}
         run: |
+          unzip ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage.zip
           chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
           xvfb-run -a ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
           sleep 30
@@ -2007,6 +2008,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libasound2 flatpak xvfb
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           flatpak install -y flathub
 
       - name: Install flatpak
@@ -2051,7 +2053,7 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libasound2t64 snapd xvfb
+          sudo apt-get install -y libasound2 snapd xvfb
 
       - name: Install snap
         working-directory: ${{ steps.download-snap.outputs.download-path }}
