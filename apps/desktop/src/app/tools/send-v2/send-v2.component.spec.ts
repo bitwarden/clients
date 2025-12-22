@@ -49,6 +49,7 @@ describe("SendV2Component", () => {
     sendItemsService.loading$ = of(false);
     sendItemsService.emptyList$ = of(false);
     sendItemsService.noFilteredResults$ = of(false);
+    sendItemsService.latestSearchText$ = of("");
 
     // Mock SendListFiltersService
     sendListFiltersService = mock<SendListFiltersService>();

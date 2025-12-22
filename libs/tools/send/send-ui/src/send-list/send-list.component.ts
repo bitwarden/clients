@@ -25,9 +25,9 @@ import { SendTableComponent } from "../send-table/send-table.component";
 
 /** A state of the Send list UI. */
 export const SendListState = Object.freeze({
-  /** No sends exist for the current filter (file or text). */
+  /** No Sends exist at all (File or Text). */
   Empty: "Empty",
-  /** Sends exist, but none match the current filter/search. */
+  /** Sends exist, but none match the current Side Nav Filter (File or Text). */
   NoResults: "NoResults",
 } as const);
 
@@ -65,16 +65,18 @@ export class SendListComponent {
   readonly listState = input<SendListState | null>(null);
   readonly searchText = input<string>("");
 
-  // Computed signal to determine search bar visibility
   protected readonly showSearchBar = computed(
     () => this.sends().length > 0 || this.searchText().length > 0,
+  );
+
+  protected readonly noSearchResults = computed(
+    () => (this.showSearchBar() && this.sends().length === 0) || this.searchText().length > 0,
   );
 
   // Reusable data source instance - updated reactively when sends change
   protected readonly dataSource = new TableDataSource<SendView>();
 
   constructor() {
-    // Effect to update data source when sends change
     effect(() => {
       this.dataSource.data = this.sends();
     });
