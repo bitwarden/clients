@@ -970,9 +970,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async saveAutotypeShortcut() {
+    // disable the shortcut so that the user can't re-enter the existing
+    // shortcut and trigger the feature during the settings menu.
+    // it is not necessary to check if it's already enabled, because
+    // the edit shortcut is only avaialble if the feature is enabled
+    // in the settings.
+    await this.desktopAutotypeService.setAutotypeEnabledState(false);
+
     const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
 
     const newShortcutArray = await firstValueFrom(dialogRef.closed);
+
+    // re-enable
+    await this.desktopAutotypeService.setAutotypeEnabledState(true);
 
     if (!newShortcutArray) {
       return;
