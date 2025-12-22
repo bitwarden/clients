@@ -4,7 +4,7 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
@@ -17,6 +17,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -80,11 +81,12 @@ describe("NotificationBackground", () => {
   const organizationService = mock<OrganizationService>();
 
   const userId = "testId" as UserId;
-  const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
+  const activeAccountSubject = new BehaviorSubject({
     id: userId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
   });
 
   beforeEach(() => {
@@ -1528,6 +1530,64 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(environmentServiceSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe("handleUnlockPopoutClosed", () => {
+      let onRemovedListeners: Array<(tabId: number, removeInfo: chrome.tabs.OnRemovedInfo) => void>;
+      let tabsQuerySpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        onRemovedListeners = [];
+        chrome.tabs.onRemoved.addListener = jest.fn((listener) => {
+          onRemovedListeners.push(listener);
+        });
+        chrome.runtime.getURL = jest.fn().mockReturnValue("chrome-extension://id/popup/index.html");
+        notificationBackground.init();
+      });
+
+      const triggerTabRemoved = async (tabId: number) => {
+        onRemovedListeners[0](tabId, mock<chrome.tabs.OnRemovedInfo>());
+        await flushPromises();
+      };
+
+      it("sends abandon message when unlock popout is closed and vault is locked", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+        tabsQuerySpy = jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+
+        await triggerTabRemoved(1);
+
+        expect(tabsQuerySpy).toHaveBeenCalled();
+        expect(messagingService.send).toHaveBeenCalledWith("abandonAutofillPendingNotifications");
+      });
+
+      it("uses tracked tabId for fast lookup when available", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+        tabsQuerySpy = jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([
+          {
+            id: 123,
+            url: "chrome-extension://id/popup/index.html?singleActionPopout=auth_unlockExtension",
+          } as chrome.tabs.Tab,
+        ]);
+
+        await triggerTabRemoved(999);
+        tabsQuerySpy.mockClear();
+        messagingService.send.mockClear();
+
+        await triggerTabRemoved(123);
+
+        expect(tabsQuerySpy).not.toHaveBeenCalled();
+        expect(messagingService.send).toHaveBeenCalledWith("abandonAutofillPendingNotifications");
+      });
+
+      it("returns early when vault is unlocked", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        tabsQuerySpy = jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+
+        await triggerTabRemoved(1);
+
+        expect(tabsQuerySpy).not.toHaveBeenCalled();
+        expect(messagingService.send).not.toHaveBeenCalled();
       });
     });
   });

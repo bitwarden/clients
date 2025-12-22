@@ -31,7 +31,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -149,6 +151,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   protected estimatedTax: number = 0;
   private _productTier = ProductTierType.Free;
+  private _familyPlan: PlanType;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -247,6 +250,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private subscriberBillingClient: SubscriberBillingClient,
     private taxClient: TaxClient,
     private organizationWarningsService: OrganizationWarningsService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -296,10 +300,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
+    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM26462_Milestone_3,
+    );
+    this._familyPlan = milestone3FeatureEnabled
+      ? PlanType.FamiliesAnnually
+      : PlanType.FamiliesAnnually2025;
     if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) =>
         this.currentPlan.productTier === ProductTierType.Free
-          ? plan.type === PlanType.FamiliesAnnually
+          ? plan.type === this._familyPlan
           : plan.upgradeSortOrder == this.currentPlan.upgradeSortOrder + 1,
       );
 
@@ -377,6 +387,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.focusedIndex = this.selectableProducts.length - 1;
     if (!this.isSubscriptionCanceled) {
       await this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    } else {
+      await this.selectPlan(this.reSubscribablePlan);
     }
   }
 
@@ -537,16 +549,32 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return this.selectedPlan.isAnnual ? "year" : "month";
   }
 
+  get reSubscribablePlan() {
+    if (!this.currentPlan) {
+      throw new Error(
+        "Current plan must be set to find the re-subscribable plan for a cancelled subscription.",
+      );
+    }
+    if (!this.currentPlan.disabled) {
+      return this.currentPlan;
+    }
+    return (
+      this.passwordManagerPlans.find(
+        (plan) =>
+          plan.productTier === this.currentPlan.productTier &&
+          plan.isAnnual === this.currentPlan.isAnnual &&
+          !plan.disabled,
+      ) ?? this.currentPlan
+    );
+  }
+
   get selectableProducts() {
     if (this.isSubscriptionCanceled) {
-      // Return only the current plan if the subscription is canceled
-      return [this.currentPlan];
+      return [this.reSubscribablePlan];
     }
 
     if (this.acceptingSponsorship) {
-      const familyPlan = this.passwordManagerPlans.find(
-        (plan) => plan.type === PlanType.FamiliesAnnually,
-      );
+      const familyPlan = this.passwordManagerPlans.find((plan) => plan.type === this._familyPlan);
       this.discount = familyPlan.PasswordManager.basePrice;
       return [familyPlan];
     }
@@ -562,6 +590,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           plan.productTier === ProductTierType.TeamsStarter ||
           (this.selectedInterval === PlanInterval.Annually && plan.isAnnual) ||
           (this.selectedInterval === PlanInterval.Monthly && !plan.isAnnual)) &&
+        (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
         (!this.currentPlan || this.currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
         this.planIsEnabled(plan),
     );
@@ -611,7 +640,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get storageGb() {
-    return this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0;
+    return Math.max(
+      0,
+      (this.sub?.maxStorageGb ?? 0) - this.selectedPlan.PasswordManager.baseStorageGb,
+    );
   }
 
   passwordManagerSeatTotal(plan: PlanResponse): number {
@@ -635,12 +667,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    return (
-      plan.PasswordManager.additionalStoragePricePerGb *
-      // TODO: Eslint upgrade. Please resolve this  since the null check does nothing
-      // eslint-disable-next-line no-constant-binary-expression
-      Math.abs(this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0 || 0)
-    );
+    return plan.PasswordManager.additionalStoragePricePerGb * this.storageGb;
   }
 
   additionalStoragePriceMonthly(selectedPlan: PlanResponse) {
@@ -926,7 +953,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) => {
         if (this.currentPlan.productTier === ProductTierType.Free) {
-          return plan.type === PlanType.FamiliesAnnually;
+          return plan.type === this._familyPlan;
         }
 
         if (
@@ -1024,6 +1051,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     const getPlanFromLegacyEnum = (planType: PlanType): OrganizationSubscriptionPlan => {
       switch (planType) {
         case PlanType.FamiliesAnnually:
+        case PlanType.FamiliesAnnually2025:
           return { tier: "families", cadence: "annually" };
         case PlanType.TeamsMonthly:
           return { tier: "teams", cadence: "monthly" };

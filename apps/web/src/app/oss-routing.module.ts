@@ -14,6 +14,7 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -48,8 +49,10 @@ import {
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { LockComponent } from "@bitwarden/key-management-ui";
+import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
+import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
@@ -75,12 +78,13 @@ import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 import { RouteDataProperties } from "./core";
 import { ReportsModule } from "./dirt/reports";
+import { DataRecoveryComponent } from "./key-management/data-recovery/data-recovery.component";
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
-import { RemovePasswordComponent } from "./key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
+import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
@@ -540,9 +544,9 @@ const routes: Routes = [
         canActivate: [authGuard],
         data: {
           pageTitle: {
-            key: "removeMasterPassword",
+            key: "verifyYourOrganization",
           },
-          titleId: "removeMasterPassword",
+          titleId: "verifyYourOrganization",
           pageIcon: LockIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
@@ -552,9 +556,9 @@ const routes: Routes = [
         canActivate: [],
         data: {
           pageTitle: {
-            key: "confirmKeyConnectorDomain",
+            key: "verifyYourOrganization",
           },
-          titleId: "confirmKeyConnectorDomain",
+          titleId: "verifyYourOrganization",
           pageIcon: DomainIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
@@ -630,7 +634,7 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
-        canActivate: [setupExtensionRedirectGuard],
+        canActivate: [premiumInterestRedirectGuard, setupExtensionRedirectGuard],
         loadChildren: () => VaultModule,
       },
       {
@@ -663,13 +667,40 @@ const routes: Routes = [
             data: { titleId: "myAccount" } satisfies RouteDataProperties,
           },
           {
+            path: "appearance",
+            component: AppearanceComponent,
+            canActivate: [
+              canAccessFeature(
+                FeatureFlag.ConsolidatedSessionTimeoutComponent,
+                true,
+                "/settings/preferences",
+                false,
+              ),
+            ],
+            data: { titleId: "appearance" } satisfies RouteDataProperties,
+          },
+          {
             path: "preferences",
             component: PreferencesComponent,
+            canActivate: [
+              canAccessFeature(
+                FeatureFlag.ConsolidatedSessionTimeoutComponent,
+                false,
+                "/settings/appearance",
+                false,
+              ),
+            ],
             data: { titleId: "preferences" } satisfies RouteDataProperties,
           },
           {
             path: "security",
             loadChildren: () => SecurityRoutingModule,
+          },
+          {
+            path: "data-recovery",
+            component: DataRecoveryComponent,
+            canActivate: [canAccessFeature(FeatureFlag.DataRecoveryTool)],
+            data: { titleId: "dataRecovery" } satisfies RouteDataProperties,
           },
           {
             path: "domain-rules",
@@ -717,7 +748,7 @@ const routes: Routes = [
             loadComponent: () =>
               import("./tools/import/import-web.component").then((mod) => mod.ImportWebComponent),
             data: {
-              titleId: "importData",
+              titleId: "importNoun",
             } satisfies RouteDataProperties,
           },
           {
@@ -727,7 +758,7 @@ const routes: Routes = [
                 (mod) => mod.ExportWebComponent,
               ),
             data: {
-              titleId: "exportVault",
+              titleId: "exportNoun",
             } satisfies RouteDataProperties,
           },
           {

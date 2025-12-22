@@ -32,7 +32,7 @@
     "message": "Dùng đăng nhập một lần"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Tổ chức của bạn yêu cầu đăng nhập một lần."
   },
   "welcomeBack": {
     "message": "Chào mừng bạn trở lại"
@@ -436,8 +436,8 @@
   "sync": {
     "message": "Đồng bộ"
   },
-  "syncVaultNow": {
-    "message": "Đồng bộ kho lưu trữ ngay"
+  "syncNow": {
+    "message": "Sync now"
   },
   "lastSync": {
     "message": "Đồng bộ lần cuối:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Ứng dụng web Bitwarden"
-  },
-  "importItems": {
-    "message": "Nhập vào kho"
   },
   "select": {
     "message": "Chọn"
@@ -585,6 +582,9 @@
   "archiveItemConfirmDesc": {
     "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
   },
+  "upgradeToUseArchive": {
+    "message": "Cần là thành viên cao cấp để sử dụng tính năng Lưu trữ."
+  },
   "edit": {
     "message": "Sửa"
   },
@@ -592,7 +592,13 @@
     "message": "Xem"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Xem tất cả"
+  },
+  "showAll": {
+    "message": "Hiện tất cả"
+  },
+  "viewLess": {
+    "message": "Ẩn bớt"
   },
   "viewLogin": {
     "message": "Xem đăng nhập"
@@ -795,6 +801,12 @@
   },
   "onLocked": {
     "message": "Mỗi khi khóa máy"
+  },
+  "onIdle": {
+    "message": "Khi hệ thống nhàn rỗi"
+  },
+  "onSleep": {
+    "message": "Khi hệ thống ngủ"
   },
   "onRestart": {
     "message": "Mỗi khi khởi động lại trình duyệt"
@@ -1035,10 +1047,10 @@
     "message": "Đã lưu mục"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Đã lưu trang web"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Đã lưu trang web ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1310,8 +1322,21 @@
   "exportFrom": {
     "message": "Xuất từ"
   },
-  "exportVault": {
-    "message": "Xuất kho"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Định dạng tập tin"
@@ -1391,6 +1416,27 @@
   "learnMore": {
     "message": "Tìm hiểu thêm"
   },
+  "migrationsFailed": {
+    "message": "Đã xảy ra lỗi khi cập nhật cài đặt mã hóa."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Cập nhật cài đặt mã hóa của bạn"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Cài đặt mã hóa được khuyến nghị sẽ cải thiện bảo mật cho tài khoản của bạn. Nhập mật khẩu chính để cập nhật ngay."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Xác minh danh tính để tiếp tục"
+  },
+  "enterYourMasterPassword": {
+    "message": "Nhập mật khẩu chính của bạn"
+  },
+  "updateSettings": {
+    "message": "Cập nhật cài đặt"
+  },
+  "later": {
+    "message": "Để sau"
+  },
   "authenticatorKeyTotp": {
     "message": "Khóa xác thực (TOTP)"
   },
@@ -1421,6 +1467,15 @@
   "attachmentSaved": {
     "message": "Đã lưu tệp đính kèm"
   },
+  "fixEncryption": {
+    "message": "Sửa mã hóa"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Tệp này đang sử dụng phương pháp mã hóa lỗi thời."
+  },
+  "attachmentUpdated": {
+    "message": "Tệp đính kèm đã được cập nhật"
+  },
   "file": {
     "message": "Tập tin"
   },
@@ -1429,6 +1484,9 @@
   },
   "selectFile": {
     "message": "Chọn tập tin"
+  },
+  "itemsTransferred": {
+    "message": "Các mục đã chuyển"
   },
   "maxFileSize": {
     "message": "Kích thước tối đa của tập tin là 500MB."
@@ -1459,6 +1517,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Truy cập khẩn cấp."
@@ -1522,12 +1589,6 @@
   },
   "enableAutoBiometricsPrompt": {
     "message": "Yêu cầu sinh trắc học khi khởi chạy"
-  },
-  "premiumRequired": {
-    "message": "Cần có tài khoản Cao cấp"
-  },
-  "premiumRequiredDesc": {
-    "message": "Cần là thành viên Cao cấp để sử dụng tính năng này."
   },
   "authenticationTimeout": {
     "message": "Thời gian chờ xác thực"
@@ -1641,6 +1702,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Bạn phải thêm URL máy chủ cơ sở hoặc ít nhất một môi trường tùy chỉnh."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL phải sử dụng HTTPS."
+  },
   "customEnvironment": {
     "message": "Môi trường tùy chỉnh"
   },
@@ -1695,28 +1759,28 @@
     "message": "Tắt tự động điền"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Xác nhận tự động điền"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Trang web này không khớp với đăng nhập đã lưu của bạn. Trước khi bạn điền thông tin đăng nhập, hãy đảm bảo đây là trang web đáng tin cậy."
   },
   "showInlineMenuLabel": {
     "message": "Hiển thị các gợi ý tự động điền trên các trường biểu mẫu"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Bitwarden bảo vệ dữ liệu của bạn khỏi lừa đảo như thế nào?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Trang web hiện tại"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Tự động điền và thêm trang web này"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Tự động điền mà không thêm"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Không tự động điền"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Hiển thị danh tính dưới dạng gợi ý"
@@ -1860,6 +1924,9 @@
   },
   "expirationYear": {
     "message": "Năm hết hạn"
+  },
+  "monthly": {
+    "message": "tháng"
   },
   "expiration": {
     "message": "Hết hạn"
@@ -2429,6 +2496,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Trang này đang làm gián đoạn trải nghiệm Bitwarden. Menu nội tuyến của Bitwarden đã tạm thời bị tắt để đảm bảo an toàn."
   },
   "setMasterPassword": {
     "message": "Đặt mật khẩu chính"
@@ -3192,9 +3262,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Không tìm thấy danh tính duy nhất."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Mật khẩu chính không còn được yêu cầu đối với các thành viên của tổ chức sau đây. Vui lòng xác nhận tên miền bên dưới với quản trị viên của tổ chức."
-  },
   "organizationName": {
     "message": "Tên tổ chức"
   },
@@ -3280,7 +3347,7 @@
     "message": "Lỗi giải mã"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Lỗi khi lấy dữ liệu tự động điền"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden không thể giải mã các mục trong kho lưu trữ được liệt kê bên dưới."
@@ -4054,13 +4121,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Không thể tự động điền"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "Phép so khớp mặc định được đặt thành \"Khớp chính xác\". Trang web hiện tại không khớp chính xác với đăng nhập đã lưu cho mục này."
   },
   "okay": {
-    "message": "Okay"
+    "message": "Đồng ý"
   },
   "toggleSideNavigation": {
     "message": "Ẩn/hiện thanh điều hướng bên"
@@ -4157,10 +4224,6 @@
   },
   "ignore": {
     "message": "Bỏ qua"
-  },
-  "importData": {
-    "message": "Nhập dữ liệu",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Lỗi khi nhập"
@@ -4748,6 +4811,15 @@
   "accountSecurity": {
     "message": "Bảo mật tài khoản"
   },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
+  },
   "notifications": {
     "message": "Thông báo"
   },
@@ -4893,6 +4965,9 @@
   "premium": {
     "message": "Cao cấp"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Mở khóa tính năng báo cáo, quyền truy cập khẩn cấp và nhiều tính năng bảo mật khác với gói Cao cấp."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Các tổ chức miễn phí không thể sử dụng tệp đính kèm"
   },
@@ -4969,6 +5044,16 @@
   },
   "defaultLabel": {
     "message": "Mặc định ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Mặc định ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5769,14 +5854,190 @@
   "atRiskLoginsSecured": {
     "message": "Thật tuyệt khi bảo vệ các đăng nhập có nguy cơ của bạn!"
   },
+  "upgradeNow": {
+    "message": "Nâng cấp ngay"
+  },
+  "builtInAuthenticator": {
+    "message": "Trình xác thực tích hợp"
+  },
+  "secureFileStorage": {
+    "message": "Lưu trữ tệp an toàn"
+  },
+  "emergencyAccess": {
+    "message": "Truy cập khẩn cấp"
+  },
+  "breachMonitoring": {
+    "message": "Giám sát vi phạm"
+  },
+  "andMoreFeatures": {
+    "message": "Và nhiều hơn nữa!"
+  },
+  "advancedOnlineSecurity": {
+    "message": "Bảo mật trực tuyến nâng cao"
+  },
+  "upgradeToPremium": {
+    "message": "Nâng cấp lên gói Cao cấp"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Mở khóa các tính năng bảo mật nâng cao"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Đăng ký gói Cao cấp cung cấp nhiều công cụ để bạn luôn an toàn và kiểm soát tốt hơn"
+  },
+  "explorePremium": {
+    "message": "Khám phá gói Cao cấp"
+  },
+  "loadingVault": {
+    "message": "Đang tải kho"
+  },
+  "vaultLoaded": {
+    "message": "Đã tải kho"
+  },
   "settingDisabledByPolicy": {
     "message": "Cài đặt này bị vô hiệu hóa bởi chính sách tổ chức của bạn.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Mã ZIP / Bưu điện"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Số thẻ"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Hành động sau khi đóng kho"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Cài đặt này do tổ chức của bạn quản lý."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Tổ chức của bạn đã đặt thời gian chờ phiên tối đa là $HOURS$ giờ và $MINUTES$ phút.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Tổ chức của bạn đã đặt thời gian chờ phiên mặc định là Ngay lập tức."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Tổ chức của bạn đã đặt thời gian chờ phiên mặc định là Mỗi khi khóa máy."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Tổ chức của bạn đã đặt thời gian chờ phiên mặc định là Mỗi khi khởi động lại trình duyệt."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Thời gian chờ tối đa không thể vượt quá $HOURS$ giờ và $MINUTES$ phút",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Mỗi khi khởi động lại trình duyệt"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Đặt phương thức mở khóa để thay đổi hành động khi hết thời gian chờ"
+  },
+  "upgrade": {
+    "message": "Nâng cấp"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Bạn có chắc chắn muốn rời đi không?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Bằng việc từ chối, các mục cá nhân sẽ vẫn nằm trong tài khoản của bạn, nhưng bạn sẽ mất quyền truy cập vào các mục được chia sẻ và tính năng tổ chức."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Liên hệ quản trị viên của bạn để lấy lại quyền truy cập."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Rời khỏi $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Tôi quản lý kho của mình như thế nào?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Chuyển các mục đến $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ yêu cầu tất cả các mục phải thuộc sở hữu của tổ chức để đảm bảo an ninh và tuân thủ. Nhấp chấp nhận để chuyển quyền sở hữu các mục của bạn.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Chấp nhận chuyển"
+  },
+  "declineAndLeave": {
+    "message": "Từ chối và rời đi"
+  },
+  "whyAmISeeingThis": {
+    "message": "Tại sao tôi thấy điều này?"
   }
 }

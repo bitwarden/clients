@@ -24,7 +24,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
-import { FingerprintDialogComponent, VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import { LockService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -32,6 +32,8 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
@@ -40,6 +42,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -60,6 +63,7 @@ import {
   SelectModule,
   TypographyModule,
   ToastService,
+  SwitchComponent,
 } from "@bitwarden/components";
 import {
   KeyService,
@@ -67,6 +71,10 @@ import {
   BiometricStateService,
   BiometricsStatus,
 } from "@bitwarden/key-management";
+import {
+  SessionTimeoutInputLegacyComponent,
+  SessionTimeoutSettingsComponent,
+} from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -100,9 +108,11 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    SessionTimeoutSettingsComponent,
     SpotlightComponent,
     TypographyModule,
-    VaultTimeoutInputComponent,
+    SessionTimeoutInputLegacyComponent,
+    SwitchComponent,
   ],
 })
 export class AccountSecurityComponent implements OnInit, OnDestroy {
@@ -123,6 +133,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     pinLockWithMasterPassword: false,
     biometric: false,
     enableAutoBiometricsPrompt: true,
+    enablePhishingDetection: true,
   });
 
   protected showAccountSecurityNudge$: Observable<boolean> =
@@ -133,11 +144,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       ),
     );
 
-  private refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
+  protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
+  protected readonly phishingDetectionAvailable$: Observable<boolean>;
+
+  protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
 
   constructor(
     private accountService: AccountService,
+    private configService: ConfigService,
     private pinService: PinServiceAbstraction,
     private policyService: PolicyService,
     private formBuilder: FormBuilder,
@@ -157,7 +172,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private vaultNudgesService: NudgesService,
     private validationService: ValidationService,
     private logService: LogService,
-  ) {}
+    private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
+  ) {
+    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
+      FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    );
+
+    // Check if user phishing detection available
+    this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
+  }
 
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
@@ -173,6 +196,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       this.hasVaultTimeoutPolicy = true;
     }
 
+    // Determine platform-specific timeout options
     const showOnLocked =
       !this.platformUtilsService.isFirefox() &&
       !this.platformUtilsService.isSafari() &&
@@ -236,6 +260,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       enableAutoBiometricsPrompt: await firstValueFrom(
         this.biometricStateService.promptAutomatically$,
       ),
+      enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
@@ -341,6 +366,16 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (enabled) => {
           await this.biometricStateService.setPromptAutomatically(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    this.form.controls.enablePhishingDetection.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+          await this.phishingDetectionSettingsService.setEnabled(userId, enabled);
         }),
         takeUntil(this.destroy$),
       )

@@ -45,10 +45,10 @@
         tabindex="0"
         [attr.aria-label]="'viewItem' | i18n"
       >
-        <!-- Passing the first cipher of the application for app-vault-icon cipher input requirement -->
         <app-vault-icon
-          *ngIf="row.cipherIds.length > 0"
-          [cipher]="row.cipherIds[0]"
+          *ngIf="row.iconCipher"
+          [cipher]="row.iconCipher"
+          [size]="24"
         ></app-vault-icon>
       </td>
       <td
