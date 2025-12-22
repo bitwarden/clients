@@ -144,7 +144,7 @@ jobs:
       - name: Install cargo-deny
         uses: taiki-e/install-action@073d46cba2cde38f6698c798566c1b3e24feeb44 # v2.62.67
         with:
-          tool: cargo-deny@0.18.5
+          tool: cargo-deny@0.18.6
 
       - name: Run cargo deny
         working-directory: ./apps/desktop/desktop_native
