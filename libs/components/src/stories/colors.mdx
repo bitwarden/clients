@@ -20,7 +20,6 @@ Location: `libs/components/src/tw-theme.css`
   `purple`
 - 11 shades each: `050`, `100`, `200`, `300`, `400`, `500`, `600`, `700`, `800`, `900`, `950`
 - Format: `--color-{family}-{shade}` (e.g., `--color-brand-600`)
-- **Do not use primitives directly in components**
 
 ### Semantic Foreground Tokens
 
@@ -60,6 +59,13 @@ Location: `libs/components/src/tw-theme.css`
 - Format: `--color-border-{name}`
 
 ## Semantic Color Tokens
+
+> **Note:** Due to Tailwind's utility naming and our semantic token structure, class names will
+> appear repetitive (e.g., `tw-bg-bg-primary`). This repetition is intentional:
+>
+> - `tw-` = Tailwind prefix
+> - `bg-` = Tailwind utility type (background)
+> - `bg-primary` = Our semantic token name
 
 ### Background Colors
 
@@ -554,56 +560,42 @@ export const BorderCard = ({ name, primitiveColor }) => {
 <div class="tw-bg-bg-overlay">Modal overlay</div>
 ```
 
-### ❌ DON'T - Use primitives directly
+````markdown
+### ❌ DON'T - Use primitive colors directly
 
 ```html
-<!-- Bad: Using primitive colors -->
+<!-- Bad: These Tailwind classes don't exist (primitives not exposed) -->
 <p class="tw-text-brand-900">Text</p>
 <div class="tw-bg-brand-600">Background</div>
-<div class="tw-border tw-border-brand-700">Border</div>
+
+<!-- Bad: Using primitives with Tailwind bracket notation -->
+<p class="tw-text-[var(--color-brand-600)]">Text</p>
+<div class="tw-bg-[var(--color-success-700)]">Background</div>
+
+<!-- Bad: Using primitive CSS variables bypasses the semantic layer -->
 <span style="color: var(--color-brand-600)">Text</span>
-```
+<div style="background: var(--color-success-700)">Background</div>
 
----
-
-## Dark Mode
-
-- Semantic tokens automatically adapt to dark mode via `.theme_dark` class
-- No component changes needed when theme switches
-- The same semantic token name works in both light and dark themes
-- All color values are automatically swapped based on the active theme
-
----
-
-## Migration Strategy
-
-1. **New components:** Use semantic tokens (`fg-*`, `bg-*`, `border-*`) exclusively
-2. **Existing components:** Keep legacy tokens until refactoring
-3. **When refactoring:** Replace legacy tokens with semantic equivalents
-
----
-
-## Legacy Colors
-
-**Legacy colors (RGB format)** still exist for backwards compatibility:
-
-- `primary-*`, `secondary-*`, `success-*`, `danger-*`, `warning-*`, etc.
-- Use these only when updating existing components
-- Migrate to new semantic tokens when refactoring
-
-The following legacy colors are displayed below with both light and dark mode values:
-
-export const LegacyCard = ({ name }) => {
-  return (
-    <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-p-4 tw-border tw-border-border-base tw-bg-bg-primary">
-      <div className="tw-flex-1 tw-min-w-0">
-        <div className="tw-font-mono tw-text-sm tw-font-semibold tw-text-fg-heading">{name}</div>
-        <div className="tw-text-xs tw-text-fg-body-subtle tw-mt-0.5">(legacy RGB format)</div>
-      </div>
-      <Swatch name={name} />
-    </div>
-  );
-};
+--- ## Dark Mode - Semantic tokens automatically adapt to dark mode via `.theme_dark` class - No
+component changes needed when theme switches - The same semantic token name works in both light and
+dark themes - All color values are automatically swapped based on the active theme --- ## Migration
+Strategy 1. **New components:** Use semantic tokens (`fg-*`, `bg-*`, `border-*`) exclusively 2.
+**Existing components:** Keep legacy tokens until refactoring 3. **When refactoring:** Replace
+legacy tokens with semantic equivalents --- ## Legacy Colors **Legacy colors (RGB format)** still
+exist for backwards compatibility: - `primary-*`, `secondary-*`, `success-*`, `danger-*`,
+`warning-*`, etc. - Use these only when updating existing components - Migrate to new semantic
+tokens when refactoring The following legacy colors are displayed below with both light and dark
+mode values: export const LegacyCard = ({ name }) => { return (
+<div
+  className="tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-p-4 tw-border tw-border-border-base tw-bg-bg-primary"
+>
+  <div className="tw-flex-1 tw-min-w-0">
+    <div className="tw-font-mono tw-text-sm tw-font-semibold tw-text-fg-heading">{name}</div>
+    <div className="tw-text-xs tw-text-fg-body-subtle tw-mt-0.5">(legacy RGB format)</div>
+  </div>
+  <Swatch name="{name}" />
+</div>
+); };
 
 <div class="tw-grid tw-grid-cols-2 tw-gap-8">
   <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg">
@@ -631,7 +623,9 @@ export const LegacyCard = ({ name }) => {
     </div>
 
     <div class="sb-unstyled tw-mb-6">
-      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Secondary</h4>
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">
+        Secondary
+      </h4>
       <div class="tw-grid tw-grid-cols-1 tw-gap-2">
         <LegacyCard name="secondary-100" />
         <LegacyCard name="secondary-300" />
@@ -676,7 +670,6 @@ export const LegacyCard = ({ name }) => {
         <LegacyCard name="info-700" />
       </div>
     </div>
-
   </div>
 
   <div class="theme_dark tw-bg-bg-primary tw-p-6 tw-rounded-lg">
@@ -704,7 +697,9 @@ export const LegacyCard = ({ name }) => {
     </div>
 
     <div class="sb-unstyled tw-mb-6">
-      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Secondary</h4>
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">
+        Secondary
+      </h4>
       <div class="tw-grid tw-grid-cols-1 tw-gap-2">
         <LegacyCard name="secondary-100" />
         <LegacyCard name="secondary-300" />
@@ -749,6 +744,7 @@ export const LegacyCard = ({ name }) => {
         <LegacyCard name="info-700" />
       </div>
     </div>
-
   </div>
 </div>
+```
+````
