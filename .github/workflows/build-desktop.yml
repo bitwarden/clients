@@ -1967,7 +1967,6 @@ jobs:
           sudo apt-get install -y libasound2 libfuse2 xvfb
 
       - name: Run AppImage
-        working-directory: ${{ steps.download-appimage.outputs.download-path }}
         working-directory: apps/desktop/artifacts/linux/appimage
         run: |
           chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
