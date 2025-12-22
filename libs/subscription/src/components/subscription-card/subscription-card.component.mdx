@@ -39,9 +39,9 @@ import { SubscriptionCardComponent } from "@bitwarden/subscription";
 
 ### Outputs
 
-| Output                | Type                                                                                 | Description                                                         |
-| --------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| `callToActionClicked` | `PlanCardAction` (`"contact-support" \| "upgrade-plan" \| "reinstate-subscription"`) | Emitted when a call-to-action button is clicked in a status callout |
+| Output                | Type                                                                                                            | Description                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `callToActionClicked` | `PlanCardAction` (`"contact-support" \| "update-payment-method" \| "upgrade-plan" \| "reinstate-subscription"`) | Emitted when a call-to-action button is clicked in a status callout |
 
 ## Subscription Object
 
@@ -72,18 +72,18 @@ type BitwardenSubscription = {
 
 The component displays different information and callouts based on the subscription status:
 
-| Status                | Badge Variant | Callout Type | Description                                                         |
-| --------------------- | ------------- | ------------ | ------------------------------------------------------------------- |
-| `active`              | success       | info (opt.)  | Normal active subscription with next charge date                    |
-| `active` + cancelAt   | warning       | warning      | Active subscription pending cancellation, shows cancellation date   |
-| `trialing`            | success       | info (opt.)  | Trial period with next charge date                                  |
-| `trialing` + cancelAt | warning       | warning      | Trial subscription pending cancellation, shows cancellation date    |
-| `past_due`            | warning       | warning      | Payment failed, shows grace period and suspension date              |
-| `past_due` + cancelAt | warning       | warning      | Past due subscription pending cancellation, shows cancellation date |
-| `canceled`            | danger        | none         | Subscription canceled, shows cancellation date                      |
-| `unpaid`              | danger        | danger       | Suspended due to non-payment                                        |
-| `incomplete`          | warning       | warning      | Payment incomplete, shows suspension warning                        |
-| `incomplete_expired`  | danger        | warning      | Incomplete payment expired                                          |
+| Status                | Badge Variant | Callout Type | Description                                                                  |
+| --------------------- | ------------- | ------------ | ---------------------------------------------------------------------------- |
+| `active`              | success       | info (opt.)  | Normal active subscription with next charge date                             |
+| `active` + cancelAt   | warning       | warning      | Active subscription pending cancellation, shows date with reinstate option   |
+| `trialing`            | success       | info (opt.)  | Trial period with next charge date                                           |
+| `trialing` + cancelAt | warning       | warning      | Trial subscription pending cancellation, shows date with reinstate option    |
+| `past_due`            | warning       | warning      | Payment failed, shows grace period and suspension date                       |
+| `past_due` + cancelAt | warning       | warning      | Past due subscription pending cancellation, shows date with reinstate option |
+| `canceled`            | danger        | none         | Subscription canceled, shows cancellation date                               |
+| `unpaid`              | danger        | danger       | Suspended due to non-payment                                                 |
+| `incomplete`          | warning       | warning      | Payment incomplete, shows update payment and contact support options         |
+| `incomplete_expired`  | danger        | danger       | Incomplete payment expired, shows contact support option                     |
 
 ## Design
 
@@ -210,7 +210,7 @@ Suspended subscription requiring payment:
 
 ### Incomplete Payment
 
-Payment setup not completed:
+Payment setup not completed, shows options to update payment or contact support:
 
 <Canvas of={SubscriptionCardStories.PremiumIncomplete} />
 
@@ -223,7 +223,7 @@ Payment setup not completed:
     status: 'incomplete',
     created: createdDate
   }"
-  (callToActionClicked)="contactSupport()"
+  (callToActionClicked)="handleAction($event)"
 />
 ```
 
@@ -278,7 +278,7 @@ When a subscription has a `cancelAt` date, the component displays a pending canc
 
 #### Trialing Pending Cancellation
 
-Trial subscription scheduled to be canceled at end of trial:
+Trial subscription scheduled to be canceled at end of trial with option to reinstate:
 
 <Canvas of={SubscriptionCardStories.PremiumTrialingPendingCancellation} />
 
@@ -292,13 +292,13 @@ Trial subscription scheduled to be canceled at end of trial:
     nextCharge: trialEndDate,
     cancelAt: trialEndDate
   }"
-  (callToActionClicked)="handleReinstate($event)"
+  (callToActionClicked)="handleAction($event)"
 />
 ```
 
 #### Active Pending Cancellation
 
-Active subscription scheduled to be canceled at end of billing period:
+Active subscription scheduled to be canceled at end of billing period with option to reinstate:
 
 <Canvas of={SubscriptionCardStories.PremiumActivePendingCancellation} />
 
@@ -312,7 +312,7 @@ Active subscription scheduled to be canceled at end of billing period:
     nextCharge: billingPeriodEndDate,
     cancelAt: billingPeriodEndDate
   }"
-  (callToActionClicked)="handleReinstate($event)"
+  (callToActionClicked)="handleAction($event)"
 />
 ```
 
@@ -321,12 +321,19 @@ Active subscription scheduled to be canceled at end of billing period:
 The component emits `callToActionClicked` events for status-specific actions:
 
 ```ts
-export type PlanCardAction = "contact-support" | "upgrade-plan" | "reinstate-subscription";
+export type PlanCardAction =
+  | "contact-support"
+  | "update-payment-method"
+  | "upgrade-plan"
+  | "reinstate-subscription";
 
 handleAction(action: PlanCardAction) {
   switch (action) {
     case "contact-support":
       this.openSupportDialog();
+      break;
+    case "update-payment-method":
+      this.router.navigate(["/settings/billing/payment-method"]);
       break;
     case "upgrade-plan":
       this.router.navigate(["/upgrade"]);

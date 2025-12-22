@@ -103,16 +103,6 @@ describe("SubscriptionCardComponent", () => {
     cancelAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   };
 
-  const mockPastDuePendingCancellation: BitwardenSubscription = {
-    subscriber: mockSubscriber,
-    cart: baseCart,
-    status: "past_due",
-    expired: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    suspension: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-    gracePeriod: 7,
-    cancelAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-  };
-
   beforeEach(async () => {
     mockConfigService = {
       getFeatureFlag$: jest.fn().mockReturnValue(new BehaviorSubject(false)),
@@ -141,15 +131,19 @@ describe("SubscriptionCardComponent", () => {
                 pendingCancellation: "Pending cancellation",
                 contactSupportShort: "Contact Support",
                 upgradeYourPlan: "Upgrade your plan",
+                updatePayment: "Update payment",
+                weCouldNotProcessYourPayment:
+                  "We could not process your payment. Please update your payment method or contact customer support for assistance.",
                 somethingWentWrongSubscription:
                   "Something went wrong with your subscription. For assistance, please contact customer support.",
                 premiumShareEvenMore:
                   "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise",
-                pastDueWarningForChargeAutomatically: `You have a grace period of ${args[0]} days from your subscription expiration date to maintain your subscription. Please resolve the past due invoices by ${args[1]}.`,
+                youHaveAGracePeriod: `You have a grace period of ${args[0]} days from your expiration date. Please resolve the past due invoices by ${args[1]}.`,
                 toReactivateYourSubscription:
                   "To reactivate your subscription, please resolve the past due invoices.",
-                subscriptionPendingCanceled:
-                  "The subscription has been marked for cancellation at the end of the current billing period.",
+                subscriptionExpiredNotice:
+                  "Your subscription has expired. Please contact support for assistance.",
+                yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${args[0]}. You can reinstate it anytime before then.`,
                 upgradeNow: "Upgrade now",
                 reinstateSubscription: "Reinstate subscription",
                 yourSubscriptionWillBeSuspendedOn: "Your subscription will be suspended on",
@@ -292,19 +286,6 @@ describe("SubscriptionCardComponent", () => {
       expect(badge.text).toBe("Pending cancellation");
       expect(badge.variant).toBe("warning");
     });
-
-    it('should display "Pending cancellation" badge with warning variant for past_due status with cancelAt', () => {
-      // Arrange
-      fixture.componentRef.setInput("subscription", mockPastDuePendingCancellation);
-      fixture.detectChanges();
-
-      // Act
-      const badge = component.badge();
-
-      // Assert
-      expect(badge.text).toBe("Pending cancellation");
-      expect(badge.variant).toBe("warning");
-    });
   });
 
   describe("Callout Display", () => {
@@ -333,8 +314,9 @@ describe("SubscriptionCardComponent", () => {
       expect(callout?.title).toBe("Upgrade your plan");
       expect(callout?.type).toBe("info");
       expect(callout?.icon).toBe("bwi-gem");
-      expect(callout?.callToAction?.text).toBe("Upgrade now");
-      expect(callout?.callToAction?.action).toBe("upgrade-plan");
+      expect(callout?.callsToAction).toHaveLength(1);
+      expect(callout?.callsToAction?.[0]?.text).toBe("Upgrade now");
+      expect(callout?.callsToAction?.[0]?.action).toBe("upgrade-plan");
     });
 
     it("should display warning callout for incomplete status", () => {
@@ -347,9 +329,36 @@ describe("SubscriptionCardComponent", () => {
 
       // Assert
       expect(callout).toBeTruthy();
-      expect(callout?.title).toBe("Incomplete");
+      expect(callout?.title).toBe("Update payment");
       expect(callout?.type).toBe("warning");
-      expect(callout?.callToAction?.action).toBe("contact-support");
+      expect(callout?.description).toBe(
+        "We could not process your payment. Please update your payment method or contact customer support for assistance.",
+      );
+      expect(callout?.callsToAction).toHaveLength(2);
+      expect(callout?.callsToAction?.[0]?.text).toBe("Update payment");
+      expect(callout?.callsToAction?.[0]?.action).toBe("update-payment-method");
+      expect(callout?.callsToAction?.[1]?.text).toBe("Contact Support");
+      expect(callout?.callsToAction?.[1]?.action).toBe("contact-support");
+    });
+
+    it("should display danger callout for incomplete_expired status", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockIncompleteExpiredSubscription);
+      fixture.detectChanges();
+
+      // Act
+      const callout = component.callout();
+
+      // Assert
+      expect(callout).toBeTruthy();
+      expect(callout?.title).toBe("Expired");
+      expect(callout?.type).toBe("danger");
+      expect(callout?.description).toBe(
+        "Your subscription has expired. Please contact support for assistance.",
+      );
+      expect(callout?.callsToAction).toHaveLength(1);
+      expect(callout?.callsToAction?.[0]?.text).toBe("Contact Support");
+      expect(callout?.callsToAction?.[0]?.action).toBe("contact-support");
     });
 
     it("should display warning callout for past_due status with grace period", () => {
@@ -364,7 +373,8 @@ describe("SubscriptionCardComponent", () => {
       expect(callout).toBeTruthy();
       expect(callout?.title).toBe("Past due");
       expect(callout?.type).toBe("warning");
-      expect(callout?.description).toContain("7 days");
+      expect(callout?.description).toContain("You have a grace period of 7 days");
+      expect(callout?.description).toContain("Please resolve the past due invoices");
     });
 
     it("should display danger callout for unpaid status", () => {
@@ -406,11 +416,11 @@ describe("SubscriptionCardComponent", () => {
       expect(callout).toBeTruthy();
       expect(callout?.title).toBe("Pending cancellation");
       expect(callout?.type).toBe("warning");
-      expect(callout?.description).toBe(
-        "The subscription has been marked for cancellation at the end of the current billing period.",
-      );
-      expect(callout?.callToAction?.text).toBe("Reinstate subscription");
-      expect(callout?.callToAction?.action).toBe("reinstate-subscription");
+      expect(callout?.description).toContain("Your subscription is scheduled to cancel on");
+      expect(callout?.description).toContain("You can reinstate it anytime before then.");
+      expect(callout?.callsToAction).toHaveLength(1);
+      expect(callout?.callsToAction?.[0]?.text).toBe("Reinstate subscription");
+      expect(callout?.callsToAction?.[0]?.action).toBe("reinstate-subscription");
     });
 
     it("should display pending cancellation callout for active status with cancelAt", () => {
@@ -425,30 +435,11 @@ describe("SubscriptionCardComponent", () => {
       expect(callout).toBeTruthy();
       expect(callout?.title).toBe("Pending cancellation");
       expect(callout?.type).toBe("warning");
-      expect(callout?.description).toBe(
-        "The subscription has been marked for cancellation at the end of the current billing period.",
-      );
-      expect(callout?.callToAction?.text).toBe("Reinstate subscription");
-      expect(callout?.callToAction?.action).toBe("reinstate-subscription");
-    });
-
-    it("should display pending cancellation callout for past_due status with cancelAt", () => {
-      // Arrange
-      fixture.componentRef.setInput("subscription", mockPastDuePendingCancellation);
-      fixture.detectChanges();
-
-      // Act
-      const callout = component.callout();
-
-      // Assert
-      expect(callout).toBeTruthy();
-      expect(callout?.title).toBe("Pending cancellation");
-      expect(callout?.type).toBe("warning");
-      expect(callout?.description).toBe(
-        "The subscription has been marked for cancellation at the end of the current billing period.",
-      );
-      expect(callout?.callToAction?.text).toBe("Reinstate subscription");
-      expect(callout?.callToAction?.action).toBe("reinstate-subscription");
+      expect(callout?.description).toContain("Your subscription is scheduled to cancel on");
+      expect(callout?.description).toContain("You can reinstate it anytime before then.");
+      expect(callout?.callsToAction).toHaveLength(1);
+      expect(callout?.callsToAction?.[0]?.text).toBe("Reinstate subscription");
+      expect(callout?.callsToAction?.[0]?.action).toBe("reinstate-subscription");
     });
   });
 
@@ -568,18 +559,6 @@ describe("SubscriptionCardComponent", () => {
       expect(cancelAt).toEqual(mockActivePendingCancellation.cancelAt);
     });
 
-    it("should compute cancelAt date for past_due status with cancelAt", () => {
-      // Arrange
-      fixture.componentRef.setInput("subscription", mockPastDuePendingCancellation);
-      fixture.detectChanges();
-
-      // Act
-      const cancelAt = component.cancelAt();
-
-      // Assert
-      expect(cancelAt).toEqual(mockPastDuePendingCancellation.cancelAt);
-    });
-
     it("should return undefined cancelAt for active status without cancelAt", () => {
       // Arrange
       fixture.componentRef.setInput("subscription", mockActiveSubscription);
@@ -606,9 +585,29 @@ describe("SubscriptionCardComponent", () => {
   });
 
   describe("Call to Action Events", () => {
-    it("should emit contact-support action when contact support button is clicked", () => {
+    it("should emit update-payment-method action when update payment button is clicked", () => {
       // Arrange
       fixture.componentRef.setInput("subscription", mockIncompleteSubscription);
+      fixture.detectChanges();
+
+      const emittedActions: PlanCardAction[] = [];
+      component.callToActionClicked.subscribe((action: PlanCardAction) => {
+        emittedActions.push(action);
+      });
+
+      // Act - Click the first button (Update payment)
+      const buttons = fixture.debugElement.queryAll(By.css("button[bitButton]"));
+      expect(buttons.length).toBeGreaterThan(0);
+      buttons[0].nativeElement.click();
+
+      // Assert
+      expect(emittedActions).toHaveLength(1);
+      expect(emittedActions[0]).toBe("update-payment-method");
+    });
+
+    it("should emit contact-support action when contact support button is clicked", () => {
+      // Arrange
+      fixture.componentRef.setInput("subscription", mockIncompleteExpiredSubscription);
       fixture.detectChanges();
 
       const emittedActions: PlanCardAction[] = [];

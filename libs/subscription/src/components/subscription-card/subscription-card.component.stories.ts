@@ -70,19 +70,20 @@ export default {
                 // Callout titles
                 contactSupportShort: "Contact Support",
                 upgradeYourPlan: "Upgrade your plan",
+                updatePayment: "Update payment",
 
                 // Callout descriptions
                 premiumShareEvenMore:
-                  "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise",
+                  "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise.",
                 pastDueWarningForChargeAutomatically: `You have a grace period of ${args[0]} days from your subscription expiration date to maintain your subscription. Please resolve the past due invoices by ${args[1]}.`,
                 toReactivateYourSubscription:
                   "To reactivate your subscription, please resolve the past due invoices.",
-                subscriptionIncompleteNotice:
-                  "Your subscription is incomplete. Please contact customer support for assistance.",
+                weCouldNotProcessYourPayment:
+                  "We could not process your payment. Please update your payment method or contact customer support for assistance.",
                 subscriptionExpiredNotice:
                   "Your subscription has expired. Please contact support for assistance.",
-                subscriptionPendingCanceled:
-                  "The subscription has been marked for cancellation at the end of the current billing period.",
+                yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${args[0]}. You can reinstate it anytime before then.`,
+                youHaveAGracePeriod: `You have a grace period of ${args[0]} days from your expiration date. Please resolve the past due invoices by ${args[1]}.`,
 
                 // Callout actions
                 upgradeNow: "Upgrade now",

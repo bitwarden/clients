@@ -26,16 +26,18 @@
     <bit-callout [type]="callout.type" [icon]="callout.icon" [title]="callout.title">
       <div class="tw-flex tw-flex-col tw-gap-2">
         <p class="tw-m-0">{{ callout.description }}</p>
-        @if (callout.callToAction) {
-          <div>
-            <button
-              bitButton
-              [buttonType]="callout.callToAction.buttonType"
-              (click)="callToActionClicked.emit(callout.callToAction.action)"
-              type="button"
-            >
-              {{ callout.callToAction.text }}
-            </button>
+        @if (callout.callsToAction) {
+          <div class="tw-flex tw-flex-row tw-gap-2">
+            @for (cta of callout.callsToAction; track cta.action) {
+              <button
+                bitButton
+                [buttonType]="cta.buttonType"
+                (click)="callToActionClicked.emit(cta.action)"
+                type="button"
+              >
+                {{ cta.text }}
+              </button>
+            }
           </div>
         }
       </div>
@@ -54,45 +56,45 @@
     @switch (status) {
       @case ("incomplete") {
         {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
-        <span class="tw-font-bold">{{ suspension() | date: "MMM. d, y" }}</span>
+        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
       }
       @case ("incomplete_expired") {
         {{ "yourSubscriptionWasSuspendedOn" | i18n }}
-        <span class="tw-font-bold">{{ suspension() | date: "MMM. d, y" }}</span>
+        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
       }
       @case ("trialing") {
         @if (cancelAt(); as cancelAt) {
           {{ "yourSubscriptionWillBeCanceledOn" | i18n }}
-          <span class="tw-font-bold">{{ cancelAt | date: "MMM. d, y" }}</span>
+          <span class="tw-font-bold">{{ cancelAt | date: dateFormat }}</span>
         } @else {
           {{ "yourNextChargeIsFor" | i18n }}
           <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
           {{ "dueOn" | i18n }}
-          <span class="tw-font-bold">{{ nextCharge() | date: "MMM. d, y" }}</span>
+          <span class="tw-font-bold">{{ nextCharge() | date: dateFormat }}</span>
         }
       }
       @case ("active") {
         @if (cancelAt(); as cancelAt) {
           {{ "yourSubscriptionWillBeCanceledOn" | i18n }}
-          <span class="tw-font-bold">{{ cancelAt | date: "MMM. d, y" }}</span>
+          <span class="tw-font-bold">{{ cancelAt | date: dateFormat }}</span>
         } @else {
           {{ "yourNextChargeIsFor" | i18n }}
           <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
           {{ "dueOn" | i18n }}
-          <span class="tw-font-bold">{{ nextCharge() | date: "MMM. d, y" }}</span>
+          <span class="tw-font-bold">{{ nextCharge() | date: dateFormat }}</span>
         }
       }
       @case ("past_due") {
         {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
-        <span class="tw-font-bold">{{ suspension() | date: "MMM. d, y" }}</span>
+        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
       }
       @case ("canceled") {
         {{ "yourSubscriptionWasCanceledOn" | i18n }}
-        <span class="tw-font-bold">{{ canceled() | date: "MMM. d, y" }}</span>
+        <span class="tw-font-bold">{{ canceled() | date: dateFormat }}</span>
       }
       @case ("unpaid") {
         {{ "yourSubscriptionWasSuspendedOn" | i18n }}
-        <span class="tw-font-bold">{{ suspension() | date: "MMM. d, y" }}</span>
+        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
       }
     }
   </h2>

@@ -12506,15 +12506,40 @@
     "message": "Your subscription was canceled on"
   },
   "premiumShareEvenMore": {
-    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
-  },
-  "subscriptionIncompleteNotice": {
-    "message": "Your subscription is incomplete. Please contact customer support for assistance."
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
   },
   "subscriptionExpiredNotice": {
     "message": "Your subscription has expired. Please contact support for assistance."
   },
   "yourSubscriptionWillBeCanceledOn": {
     "message": "Your subscription will be canceled on"
+  },
+  "updatePayment": {
+    "message": "Update payment"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "We could not process your payment. Please update your payment method or contact customer support for assistance."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "December 22, 2025"
+      }
+    }
+  },
+  "youHaveAGracePeriod": {
+    "message": "You have a grace period of $DAYS$ days from your expiration date. Please resolve the past due invoices by $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec 22, 2025"
+      }
+    }
   }
 }

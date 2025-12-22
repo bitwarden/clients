@@ -19,7 +19,11 @@ import { CartSummaryComponent } from "@bitwarden/pricing";
 import { BitwardenSubscription, Maybe } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-export type PlanCardAction = "contact-support" | "reinstate-subscription" | "upgrade-plan";
+export type PlanCardAction =
+  | "contact-support"
+  | "reinstate-subscription"
+  | "update-payment-method"
+  | "upgrade-plan";
 
 type Badge = { text: string; variant: BadgeVariant };
 
@@ -28,11 +32,11 @@ type Callout = Maybe<{
   type: CalloutTypes;
   icon?: string;
   description: string;
-  callToAction?: {
+  callsToAction?: {
     text: string;
     buttonType: ButtonType;
     action: PlanCardAction;
-  };
+  }[];
 }>;
 
 /**
@@ -59,6 +63,8 @@ export class SubscriptionCardComponent {
   private configService = inject(ConfigService);
   private datePipe = inject(DatePipe);
   private i18nService = inject(I18nService);
+
+  protected readonly dateFormat = "MMM. d, y";
 
   private readonly premiumToOrganizationUpgradeEnabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM29593_PremiumToOrganizationUpgrade),
@@ -137,27 +143,24 @@ export class SubscriptionCardComponent {
 
   readonly callout = computed<Callout>(() => {
     const subscription = this.subscription();
-    const pendingCancellation: Callout = {
-      title: this.i18nService.t("pendingCancellation"),
-      type: "warning",
-      description: this.i18nService.t("subscriptionPendingCanceled"),
-      callToAction: {
-        text: this.i18nService.t("reinstateSubscription"),
-        buttonType: "unstyled",
-        action: "reinstate-subscription",
-      },
-    };
     switch (subscription.status) {
       case "incomplete": {
         return {
-          title: this.i18nService.t("incomplete"),
+          title: this.i18nService.t("updatePayment"),
           type: "warning",
-          description: this.i18nService.t("subscriptionIncompleteNotice"),
-          callToAction: {
-            text: this.i18nService.t("contactSupportShort"),
-            buttonType: "unstyled",
-            action: "contact-support",
-          },
+          description: this.i18nService.t("weCouldNotProcessYourPayment"),
+          callsToAction: [
+            {
+              text: this.i18nService.t("updatePayment"),
+              buttonType: "unstyled",
+              action: "update-payment-method",
+            },
+            {
+              text: this.i18nService.t("contactSupportShort"),
+              buttonType: "unstyled",
+              action: "contact-support",
+            },
+          ],
         };
       }
       case "incomplete_expired": {
@@ -165,17 +168,31 @@ export class SubscriptionCardComponent {
           title: this.i18nService.t("expired"),
           type: "danger",
           description: this.i18nService.t("subscriptionExpiredNotice"),
-          callToAction: {
-            text: this.i18nService.t("contactSupportShort"),
-            buttonType: "unstyled",
-            action: "contact-support",
-          },
+          callsToAction: [
+            {
+              text: this.i18nService.t("contactSupportShort"),
+              buttonType: "unstyled",
+              action: "contact-support",
+            },
+          ],
         };
       }
       case "trialing":
       case "active": {
         if (subscription.cancelAt) {
-          return pendingCancellation;
+          const cancelAt = this.datePipe.transform(subscription.cancelAt, this.dateFormat);
+          return {
+            title: this.i18nService.t("pendingCancellation"),
+            type: "warning",
+            description: this.i18nService.t("yourSubscriptionIsScheduledToCancel", cancelAt!),
+            callsToAction: [
+              {
+                text: this.i18nService.t("reinstateSubscription"),
+                buttonType: "unstyled",
+                action: "reinstate-subscription",
+              },
+            ],
+          };
         }
         const canUpgrade =
           subscription.subscriber.type === "account" && this.premiumToOrganizationUpgradeEnabled();
@@ -187,20 +204,22 @@ export class SubscriptionCardComponent {
           type: "info",
           icon: "bwi-gem",
           description: this.i18nService.t("premiumShareEvenMore"),
-          callToAction: {
-            text: this.i18nService.t("upgradeNow"),
-            buttonType: "unstyled",
-            action: "upgrade-plan",
-          },
+          callsToAction: [
+            {
+              text: this.i18nService.t("upgradeNow"),
+              buttonType: "unstyled",
+              action: "upgrade-plan",
+            },
+          ],
         };
       }
       case "past_due": {
-        const suspension = this.datePipe.transform(subscription.suspension, "MMM. d, y");
+        const suspension = this.datePipe.transform(subscription.suspension, this.dateFormat);
         return {
           title: this.i18nService.t("pastDue"),
           type: "warning",
           description: this.i18nService.t(
-            "pastDueWarningForChargeAutomatically",
+            "youHaveAGracePeriod",
             subscription.gracePeriod,
             suspension!,
           ),
