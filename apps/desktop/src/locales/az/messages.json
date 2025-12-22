@@ -1776,19 +1776,19 @@
     "message": "Buradan xaricə köçür"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Xaricə köçürmə",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Xaricə köçür",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Daxilə köçürmə",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Daxilə köçür",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
