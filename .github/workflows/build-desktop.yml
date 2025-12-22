@@ -2010,7 +2010,7 @@ jobs:
 
       - name: Install flatpak
         working-directory: apps/desktop/artifacts/linux/flatpak
-        run: flatpak install --user --bundle com.bitwarden.desktop.flatpak
+        run: flatpak install -y --user --bundle com.bitwarden.desktop.flatpak
 
       - name: Run Flatpak
         run: |
