@@ -30,7 +30,8 @@
     "build-storybook": "ng run components:build-storybook",
     "build-storybook:ci": "ng run components:build-storybook --webpack-stats-json",
     "test-stories": "test-storybook --url http://localhost:6006",
-    "test-stories:watch": "test-stories --watch"
+    "test-stories:watch": "test-stories --watch",
+    "icons:build": "ts-node scripts/material-icons/build-with-bwi-names.ts"
   },
   "workspaces": [
     "apps/*",
@@ -107,6 +108,7 @@
     "eslint-plugin-rxjs-angular": "2.0.1",
     "eslint-plugin-storybook": "9.1.16",
     "eslint-plugin-tailwindcss": "3.18.0",
+    "fantasticon": "3.0.0",
     "html-loader": "5.1.0",
     "html-webpack-injector": "1.1.4",
     "html-webpack-plugin": "5.6.5",
@@ -131,6 +133,7 @@
     "sass-loader": "16.0.6",
     "storybook": "9.1.17",
     "style-loader": "4.0.0",
+    "svgo": "4.0.0",
     "tailwindcss": "3.4.18",
     "ts-jest": "29.4.5",
     "ts-loader": "9.5.4",
@@ -157,8 +160,8 @@
     "@angular/platform-browser": "20.3.15",
     "@angular/platform-browser-dynamic": "20.3.15",
     "@angular/router": "20.3.15",
-    "@bitwarden/sdk-internal": "0.2.0-main.433",
     "@bitwarden/commercial-sdk-internal": "0.2.0-main.433",
+    "@bitwarden/sdk-internal": "0.2.0-main.433",
     "@electron/fuses": "1.8.0",
     "@emotion/css": "11.13.5",
     "@koa/multer": "4.0.0",
