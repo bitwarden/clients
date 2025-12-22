@@ -1486,7 +1486,7 @@
     "message": "Vyberte súbor"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Položky boli prenesené"
   },
   "maxFileSize": {
     "message": "Maximálna veľkosť súboru je 500 MB."
@@ -3408,10 +3408,10 @@
     "message": "Použiť možnosti subadresovania svojho poskytovateľa e-mailu."
   },
   "catchallEmail": {
-    "message": "Catch-all e-mail"
+    "message": "Doménový kôš"
   },
   "catchallEmailDesc": {
-    "message": "Použiť doručenú poštu typu catch-all nastavenú na doméne."
+    "message": "Použiť nastavený doménový kôš."
   },
   "random": {
     "message": "Náhodné"
