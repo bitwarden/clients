@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "Kypteringsnycklar är unika för varje Bitwarden-konto, så du kan inte importera en krypterad export till ett annat konto."
   },
-  "export": {
-    "message": "Exportera"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exportera",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Exportera från"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "Verktyg"
   },
-  "import": {
-    "message": "Importera"
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importera",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Importera data"
@@ -3283,6 +3293,9 @@
   "launchCloudSubscription": {
     "message": "Starta molnprenumeration"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Starta molnprenumeration"
+  },
   "storage": {
     "message": "Lagring"
   },
@@ -4197,6 +4210,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Godkände överföring till organisationens ägarskap."
+  },
+  "userDeclinedTransfer": {
+    "message": "Återkallad för att överföring till organisationens ägarskap avböjdes."
   },
   "invitedUserId": {
     "message": "Bjöd in användaren $ID$.",
@@ -12412,5 +12431,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Varför ser jag det här?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Du har Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Visa och hantera ditt Premium-abonnemang"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Du måste uppdatera din licensfil"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Ladda upp licensfil"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Ladda upp din licensfil"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Ladda upp din Premium-licensfil"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Ditt licensfilnamn kommer att likna $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Har du redan ett abonnemang?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Öppna prenumerationssidan på ditt Bitwarden-molnkonto och ladda ner din licensfil. Återvänd sedan till den här skärmen och ladda upp den nedan."
+  },
+  "viewAllPlans": {
+    "message": "Visa alla planer"
+  },
+  "planDescPremium": {
+    "message": "Komplett säkerhet online"
   }
 }
