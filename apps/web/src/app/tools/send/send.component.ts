@@ -139,12 +139,11 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
 
   async ngOnInit() {
     await super.ngOnInit();
+    this.onSuccessfulLoad = async () => {
+      this.applyTypeFilter(this.selectedToggleValue);
+    };
 
     await this.load();
-
-    if (this.selectedToggleValue) {
-      this.applyTypeFilter(this.selectedToggleValue);
-    }
 
     // Broadcaster subscription - load if sync completes in the background
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -155,10 +154,6 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
           case "syncCompleted":
             if (message.successfully) {
               await this.load();
-
-              if (this.selectedToggleValue) {
-                this.applyTypeFilter(this.selectedToggleValue);
-              }
             }
             break;
         }
