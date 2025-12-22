@@ -2014,6 +2014,7 @@ jobs:
 
       - name: Run Flatpak
         run: |
+          export $(dbus-launch)
           xvfb-run -a flatpak run com.bitwarden.desktop &
           sleep 30
           if pgrep  bitwarden > /dev/null; then
