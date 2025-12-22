@@ -70,7 +70,7 @@ export class SendListComponent {
   );
 
   protected readonly noSearchResults = computed(
-    () => (this.showSearchBar() && this.sends().length === 0) || this.searchText().length > 0,
+    () => this.showSearchBar() && (this.sends().length === 0 || this.searchText().length > 0),
   );
 
   // Reusable data source instance - updated reactively when sends change
