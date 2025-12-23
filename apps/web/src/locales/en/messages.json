@@ -12369,7 +12369,7 @@
       }
     }
   },
-  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnAppRestart": {
     "message": "Your organization has set the default session timeout to On browser refresh."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
@@ -12385,7 +12385,7 @@
       }
     }
   },
-  "sessionTimeoutOnRestart": {
+  "sessionTimeoutOnAppRestart": {
     "message": "On browser refresh"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
