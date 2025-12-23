@@ -60,8 +60,8 @@ export class SshKeySectionComponent implements OnInit {
   });
 
   readonly showImport = computed(() => {
-    // Web does not support clipboard access
     return (
+      // Web does not support clipboard access
       this.platformUtilsService.getClientType() !== ClientType.Web &&
       this.originalCipherView()?.edit
     );
