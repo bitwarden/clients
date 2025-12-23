@@ -74,6 +74,9 @@ export class RoutedVaultFilterService implements OnDestroy {
         type: filter.type ?? null,
       },
       queryParamsHandling: "merge",
+      state: {
+        focusMainAfterNav: false,
+      },
     };
     return [commands, extras];
   }

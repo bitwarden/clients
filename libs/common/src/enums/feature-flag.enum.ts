@@ -27,7 +27,6 @@ export enum FeatureFlag {
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
-  PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
@@ -46,6 +45,7 @@ export enum FeatureFlag {
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   DataRecoveryTool = "pm-28813-data-recovery-tool",
   ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
+  PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
@@ -139,7 +139,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
@@ -158,6 +157,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
+  [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
