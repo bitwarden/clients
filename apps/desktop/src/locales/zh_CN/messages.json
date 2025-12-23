@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "导出自"
   },
-  "export": {
-    "message": "导出"
+  "exportNoun": {
+    "message": "导出",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "导入"
+  "exportVerb": {
+    "message": "导出",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "导入",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "导入",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "文件格式"
