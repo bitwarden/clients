@@ -2136,7 +2136,7 @@ jobs:
           fi
 
   validate-macos-dmg:
-    name: Install and run MacOS dmg
+    name: Validate MacOS dmg
     runs-on: macos-15
     needs:
       - setup
@@ -2181,7 +2181,7 @@ jobs:
           fi
 
   validate-macos-mas:
-    name: Install and run MacOS mas
+    name: Validate MacOS mas
     runs-on: macos-15
     needs:
       - setup
@@ -2238,6 +2238,8 @@ jobs:
       - validate-linux-flatpak
       - validate-linux-snap
       - validate-linux-wayland
+      - validate-macos-dmg
+      - validate-macos-mas
     permissions:
       contents: read
       id-token: write
