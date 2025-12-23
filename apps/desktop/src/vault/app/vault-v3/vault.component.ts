@@ -158,7 +158,7 @@ export class VaultComponent<C extends CipherViewLike>
   cipherId: string | null = null;
   favorites = false;
   type: CipherType | null = null;
-  folderId: string | null = null;
+  folderId: string | null | undefined = null;
   collectionId: string | null = null;
   organizationId: string | null = null;
   myVaultOnly = false;
@@ -980,9 +980,7 @@ export class VaultComponent<C extends CipherViewLike>
       // clear out organizationId when the user switches to a personal vault filter
       this.addOrganizationId = null;
     }
-    if (this.activeFilter.selectedFolderId && this.activeFilter.selectedFolder) {
-      this.folderId = this.activeFilter.selectedFolderId;
-    }
+    this.folderId = this.activeFilter.selectedFolderId;
 
     if (this.config == null) {
       return;
