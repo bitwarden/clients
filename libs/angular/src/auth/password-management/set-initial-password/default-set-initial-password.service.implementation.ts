@@ -329,6 +329,14 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         throw new Error("encrypted private key not found. Could not set private key in state.");
       }
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        {
+          V1: {
+            private_key: keyPair[1].encryptedString,
+          },
+        },
+        userId,
+      );
     }
 
     if (resetPasswordAutoEnroll) {
