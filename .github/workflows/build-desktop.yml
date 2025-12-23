@@ -2116,7 +2116,7 @@ jobs:
           # install
           cp -r /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal/Bitwarden.app /Applications/
           # unmount
-          hdiutil detach /Volumes/Bitwarden\ ${_PACKAGE_VERSION}/Bitwarden.app
+          hdiutil detach /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal/Bitwarden.app
 
       - name: Run dmg
         run: |
@@ -2159,7 +2159,7 @@ jobs:
 
       - name: Run pkg
         run: |
-          open /Applications/Bitwarden.app/Contents/MacOS/Bitwarden &
+          /Applications/Bitwarden.app/Contents/MacOS/Bitwarden &
           sleep 30
           if pgrep Bitwarden > /dev/null; then
             pkill -9 Bitwarden
