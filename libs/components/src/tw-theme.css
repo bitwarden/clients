@@ -113,7 +113,7 @@
   --color-gray-800: #1e2939;
   --color-gray-900: #101828;
   --color-gray-950: #070b18;
-  --color-gray-950-rgb: rgba(7, 11, 24);
+  --color-gray-950-rgb: 7, 11, 24;
 
   /* Red Colors */
   --color-red-050: #fef2f2;
@@ -221,6 +221,7 @@
 
   /* White and Black */
   --color-white: #ffffff;
+  --color-white-rgb: 255, 255, 255;
   --color-black: #000000;
 
   /* ========================================
@@ -312,8 +313,8 @@
   --color-bg-accent-tertiary: var(--color-purple-600);
 
   /* Hover & Overlay */
-  --color-bg-hover: rgba(7, 11, 24, 0.05);
-  --color-bg-overlay: rgba(7, 11, 24, 0.3);
+  --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
+  --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.3);
 
   /* ========================================
    * SEMANTIC BORDER COLORS (Light Mode)
@@ -502,8 +503,8 @@
   --color-bg-accent-tertiary: var(--color-purple-600);
 
   /* Hover & Overlay */
-  --color-bg-hover: rgba(255, 255, 255, 0.05);
-  --color-bg-overlay: rgba(7, 11, 24, 0.85);
+  --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
+  --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.85);
 
   /* ========================================
    * SEMANTIC BORDER COLORS (Dark Mode Overrides)
