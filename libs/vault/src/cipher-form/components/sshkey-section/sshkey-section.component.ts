@@ -97,7 +97,7 @@ export class SshKeySectionComponent implements OnInit {
     // Web does not support clipboard access
     if (
       this.platformUtilsService.getClientType() !== ClientType.Web &&
-      this.originalCipherView().edit
+      this.originalCipherView()?.edit
     ) {
       this.showImport = true;
     }
