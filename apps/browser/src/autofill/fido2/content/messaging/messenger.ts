@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Message, MessageTypes } from "./message";
 
 const SENDER = "bitwarden-webauthn";
@@ -25,7 +23,7 @@ type Handler = (
  * handling aborts and exceptions across separate execution contexts.
  */
 export class Messenger {
-  private messageEventListener: (event: MessageEvent<MessageWithMetadata>) => void | null = null;
+  private messageEventListener: ((event: MessageEvent<MessageWithMetadata>) => void) | null = null;
   private onDestroy = new EventTarget();
 
   /**
@@ -60,6 +58,12 @@ export class Messenger {
     this.broadcastChannel.addEventListener(this.messageEventListener);
   }
 
+  private stripMetadata({ SENDER, senderId, ...message }: MessageWithMetadata): Message {
+    void SENDER;
+    void senderId;
+    return message;
+  }
+
   /**
    * Sends a request to the content script and returns the response.
    * AbortController signals will be forwarded to the content script.
@@ -74,7 +78,9 @@ export class Messenger {
 
     try {
       const promise = new Promise<Message>((resolve) => {
-        localPort.onmessage = (event: MessageEvent<MessageWithMetadata>) => resolve(event.data);
+        localPort.onmessage = (event: MessageEvent<MessageWithMetadata>) => {
+          resolve(this.stripMetadata(event.data));
+        };
       });
 
       const abortListener = () =>
@@ -129,7 +135,9 @@ export class Messenger {
 
       try {
         const handlerResponse = await this.handler(message, abortController);
-        port.postMessage({ ...handlerResponse, SENDER });
+        if (handlerResponse !== undefined) {
+          port.postMessage({ ...handlerResponse, SENDER });
+        }
       } catch (error) {
         port.postMessage({
           SENDER,
