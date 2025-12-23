@@ -187,7 +187,7 @@ describe("SshKeySectionComponent", () => {
 
     await component.ngOnInit();
 
-    expect(component.showImport).toBe(true);
+    expect(component.showImport()).toBe(true);
   });
 
   it("keeps showImport false when client type is Web", async () => {
@@ -200,7 +200,7 @@ describe("SshKeySectionComponent", () => {
 
     await component.ngOnInit();
 
-    expect(component.showImport).toBe(false);
+    expect(component.showImport()).toBe(false);
   });
 
   it("disables the ssh key form when formStatusChange emits enabled", async () => {
