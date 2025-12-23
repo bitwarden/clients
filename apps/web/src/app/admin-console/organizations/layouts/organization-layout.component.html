@@ -104,12 +104,12 @@
         *ngIf="organization.use2fa && organization.isOwner"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="'import' | i18n"
+        [text]="'importNoun' | i18n"
         route="settings/tools/import"
         *ngIf="organization.canAccessImport"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="'export' | i18n"
+        [text]="'exportNoun' | i18n"
         route="settings/tools/export"
         *ngIf="canAccessExport$ | async"
       ></bit-nav-item>
