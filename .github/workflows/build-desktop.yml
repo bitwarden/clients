@@ -1895,7 +1895,7 @@ jobs:
           upload_translations: false
 
   validate-linux-x64-deb:
-    name: Install and run Linux x64 .deb
+    name: Validate Linux x64 .deb
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -1920,7 +1920,7 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libasound2 xvfb unzip
+          sudo apt-get install -y libasound2 xvfb
 
       - name: Install .deb
         working-directory: apps/desktop/artifacts/linux/deb
@@ -1939,7 +1939,7 @@ jobs:
           fi
 
   validate-linux-x64-appimage:
-    name: Install and run Linux x64 appimage
+    name: Validate Linux x64 appimage
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -1980,8 +1980,60 @@ jobs:
             exit 1
           fi
 
+  validate-linux-wayland:
+    name: Validate Linux Wayland
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - linux
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download appimage artifact
+        id: download-appimage
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/appimage
+          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 libfuse2 xvfb
+          sudo apt-get install -y weston libwayland-client-dev libwayland-server-dev
+
+      - name: Run headless Wayland compositor
+        run: |
+          # Start Weston in a virtual terminal in headless mode
+          weston --headless --socket=wayland-0 &
+          # Let the compositor start
+          sleep 5
+
+      - name: Run AppImage
+        working-directory: apps/desktop/artifacts/linux/appimage
+        env:
+          WAYLAND_DISPLAY: wayland-0
+        run: |
+          chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
+          ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
   validate-linux-flatpak:
-    name: Install and run Linux ${{ matrix.os }} Flatpak
+    name: Validate Linux ${{ matrix.os }} Flatpak
     runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
     strategy:
       matrix:
@@ -2032,7 +2084,7 @@ jobs:
           fi
 
   validate-linux-snap:
-    name: Install and run Linux ${{ matrix.os }} Snap
+    name: Validate Linux ${{ matrix.os }} Snap
     runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
     strategy:
       matrix:
@@ -2182,6 +2234,10 @@ jobs:
       - macos-package-mas
       - crowdin-push
       - validate-linux-x64-deb
+      - validate-linux-x64-appimage
+      - validate-linux-flatpak
+      - validate-linux-snap
+      - validate-linux-wayland
     permissions:
       contents: read
       id-token: write
