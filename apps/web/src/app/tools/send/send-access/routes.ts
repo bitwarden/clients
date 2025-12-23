@@ -5,8 +5,8 @@ import { AnonLayoutWrapperData } from "@bitwarden/components";
 
 import { RouteDataProperties } from "../../../core";
 
+import { PasswordAuthenticationComponent } from "./password-authentication.component";
 import { SendAccessExplainerComponent } from "./send-access-explainer.component";
-import { SendAccessPasswordComponent } from "./send-access-password.component";
 import { trySendAccess } from "./try-send-access.guard";
 
 /** Routes to reach send access screens */
@@ -28,7 +28,7 @@ export const SendAccessRoutes: Routes = [
     children: [
       {
         path: "",
-        component: SendAccessPasswordComponent,
+        component: PasswordAuthenticationComponent,
       },
       {
         path: "",
