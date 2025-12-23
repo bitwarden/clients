@@ -27,6 +27,13 @@ import {
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -35,9 +42,11 @@ import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey, UserPrivateKey, UserPublicKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { DefaultSetInitialPasswordService } from "./default-set-initial-password.service.implementation";
 import {
+  SetInitialPasswordCredentials,
   SetInitialPasswordCredentialsOld,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
@@ -424,6 +433,664 @@ describe("DefaultSetInitialPasswordService", () => {
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
           expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
             credentials.newLocalMasterKeyHash,
+            userId,
+          );
+        });
+
+        it("should create and set master password unlock data to prevent race condition with sync", async () => {
+          // Arrange
+          setupMocks();
+
+          const mockUnlockData = {
+            salt: credentials.salt,
+            kdf: credentials.kdfConfig,
+            masterKeyWrappedUserKey: "wrapped_key_string",
+          };
+
+          masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(
+            mockUnlockData as any,
+          );
+
+          // Act
+          await sut.setInitialPassword(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+            credentials.newPassword,
+            credentials.kdfConfig,
+            credentials.salt,
+            masterKeyEncryptedUserKey[0],
+          );
+          expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+            mockUnlockData,
+            userId,
+          );
+        });
+
+        describe("given resetPasswordAutoEnroll is true", () => {
+          it(`should handle reset password (account recovery) auto enroll`, async () => {
+            // Arrange
+            credentials.resetPasswordAutoEnroll = true;
+
+            setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
+
+            // Act
+            await sut.setInitialPasswordOld(credentials, userType, userId);
+
+            // Assert
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(
+              organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
+            ).toHaveBeenCalledWith(credentials.orgId, userId, enrollmentRequest);
+          });
+
+          it("should throw if organization keys are not found", async () => {
+            // Arrange
+            credentials.resetPasswordAutoEnroll = true;
+            organizationKeys = null;
+
+            setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
+
+            // Act
+            const promise = sut.setInitialPasswordOld(credentials, userType, userId);
+
+            // Assert
+            await expect(promise).rejects.toThrow(
+              "Organization keys response is null. Could not handle reset password auto enroll.",
+            );
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(
+              organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
+            ).not.toHaveBeenCalled();
+          });
+
+          ["orgPublicKeyEncryptedUserKey", "orgPublicKeyEncryptedUserKey.encryptedString"].forEach(
+            (property) => {
+              it("should throw if orgPublicKeyEncryptedUserKey is not found", async () => {
+                // Arrange
+                credentials.resetPasswordAutoEnroll = true;
+
+                if (property === "orgPublicKeyEncryptedUserKey") {
+                  orgPublicKeyEncryptedUserKey = null;
+                } else {
+                  orgPublicKeyEncryptedUserKey.encryptedString = "" as EncryptedString;
+                }
+
+                setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
+
+                // Act
+                const promise = sut.setInitialPasswordOld(credentials, userType, userId);
+
+                // Assert
+                await expect(promise).rejects.toThrow(
+                  "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
+                );
+                expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+                  setPasswordRequest,
+                );
+                expect(
+                  organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
+                ).not.toHaveBeenCalled();
+              });
+            },
+          );
+        });
+
+        describe("given resetPasswordAutoEnroll is false", () => {
+          it(`should NOT handle reset password (account recovery) auto enroll`, async () => {
+            // Arrange
+            credentials.resetPasswordAutoEnroll = false;
+
+            setupMocks();
+
+            // Act
+            await sut.setInitialPasswordOld(credentials, userType, userId);
+
+            // Assert
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(
+              organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
+            ).not.toHaveBeenCalled();
+          });
+        });
+      });
+    });
+
+    describe("given SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP", () => {
+      beforeEach(() => {
+        userType = SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP;
+        setPasswordRequest.keys = null;
+      });
+
+      it("should NOT generate a keyPair", async () => {
+        // Arrange
+        setupMocks({ ...defaultMockConfig, userType });
+
+        // Act
+        await sut.setInitialPasswordOld(credentials, userType, userId);
+
+        // Assert
+        expect(keyService.userPrivateKey$).not.toHaveBeenCalled();
+        expect(keyService.userPublicKey$).not.toHaveBeenCalled();
+        expect(encryptService.wrapDecapsulationKey).not.toHaveBeenCalled();
+        expect(keyService.makeKeyPair).not.toHaveBeenCalled();
+      });
+
+      describe("given the user has a userKey", () => {
+        it("should successfully set an initial password", async () => {
+          // Arrange
+          setupMocks({ ...defaultMockConfig, userType });
+
+          // Act
+          await sut.setInitialPasswordOld(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        });
+      });
+
+      describe("given the user does NOT have a userKey", () => {
+        it("should successfully set an initial password", async () => {
+          // Arrange
+          setupMocks({ ...defaultMockConfig, userType });
+
+          // Act
+          await sut.setInitialPasswordOld(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        });
+      });
+
+      describe("given the initial password has been successfully set", () => {
+        it("should clear the ForceSetPasswordReason by setting it to None", async () => {
+          // Arrange
+          setupMocks({ ...defaultMockConfig, userType });
+
+          // Act
+          await sut.setInitialPasswordOld(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
+            ForceSetPasswordReason.None,
+            userId,
+          );
+        });
+
+        it("should update account decryption properties", async () => {
+          // Arrange
+          setupMocks({ ...defaultMockConfig, userType });
+
+          // Act
+          await sut.setInitialPasswordOld(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
+            userId,
+            userDecryptionOptions,
+          );
+          expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
+          expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
+            credentials.newMasterKey,
+            userId,
+          );
+          expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+            masterKeyEncryptedUserKey[1],
+            userId,
+          );
+          expect(keyService.setUserKey).toHaveBeenCalledWith(masterKeyEncryptedUserKey[0], userId);
+        });
+
+        it("should NOT set the private key to state", async () => {
+          // Arrange
+          setupMocks({ ...defaultMockConfig, userType });
+
+          // Act
+          await sut.setInitialPasswordOld(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+        });
+
+        it("should set the local master key hash to state", async () => {
+          // Arrange
+          setupMocks({ ...defaultMockConfig, userType });
+
+          // Act
+          await sut.setInitialPasswordOld(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
+            credentials.newLocalMasterKeyHash,
+            userId,
+          );
+        });
+
+        it("should create and set master password unlock data to prevent race condition with sync", async () => {
+          // Arrange
+          setupMocks({ ...defaultMockConfig, userType });
+
+          const mockUnlockData = {
+            salt: credentials.salt,
+            kdf: credentials.kdfConfig,
+            masterKeyWrappedUserKey: "wrapped_key_string",
+          };
+
+          masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(
+            mockUnlockData as any,
+          );
+
+          // Act
+          await sut.setInitialPassword(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+            credentials.newPassword,
+            credentials.kdfConfig,
+            credentials.salt,
+            masterKeyEncryptedUserKey[0],
+          );
+          expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+            mockUnlockData,
+            userId,
+          );
+        });
+
+        describe("given resetPasswordAutoEnroll is true", () => {
+          it(`should handle reset password (account recovery) auto enroll`, async () => {
+            // Arrange
+            credentials.resetPasswordAutoEnroll = true;
+
+            setupMocks({ ...defaultMockConfig, userType, resetPasswordAutoEnroll: true });
+
+            // Act
+            await sut.setInitialPasswordOld(credentials, userType, userId);
+
+            // Assert
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(
+              organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
+            ).toHaveBeenCalledWith(credentials.orgId, userId, enrollmentRequest);
+          });
+        });
+
+        describe("given resetPasswordAutoEnroll is false", () => {
+          it(`should NOT handle reset password (account recovery) auto enroll`, async () => {
+            // Arrange
+            setupMocks({ ...defaultMockConfig, userType });
+
+            // Act
+            await sut.setInitialPasswordOld(credentials, userType, userId);
+
+            // Assert
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(
+              organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
+            ).not.toHaveBeenCalled();
+          });
+        });
+      });
+    });
+  });
+
+  describe("setInitialPassword()", () => {
+    // Mock function parameters
+    let credentials: SetInitialPasswordCredentials;
+    let userType: SetInitialPasswordUserType;
+
+    // Mock other function data
+    let authenticationData: MasterPasswordAuthenticationData;
+    let unlockData: MasterPasswordUnlockData;
+
+    let existingUserPublicKey: UserPublicKey;
+    let existingUserPrivateKey: UserPrivateKey;
+    let userKeyEncryptedPrivateKey: EncString;
+
+    let keyPair: [string, EncString];
+    let keysRequest: KeysRequest;
+
+    let organizationKeys: OrganizationKeysResponse;
+    let orgPublicKeyEncryptedUserKey: EncString;
+
+    let userDecryptionOptions: UserDecryptionOptions;
+    let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
+    let setPasswordRequest: SetPasswordRequest;
+
+    let enrollmentRequest: OrganizationUserResetPasswordEnrollmentRequest;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+
+      // Mock function arguments
+      credentials = {
+        newPassword: "newPassword123!",
+        newPasswordHint: "newPasswordHint",
+        kdfConfig: DEFAULT_KDF_CONFIG,
+        salt: "user@example.com" as MasterPasswordSalt,
+        orgSsoIdentifier: "orgSsoIdentifier",
+        orgId: "orgId",
+        resetPasswordAutoEnroll: false,
+      };
+      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
+
+      // Mock other function data
+      authenticationData = {
+        salt: credentials.salt,
+        kdf: credentials.kdfConfig,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      unlockData = {
+        salt: credentials.salt,
+        kdf: credentials.kdfConfig,
+        masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+
+        toJSON(): any {
+          return {
+            salt: this.salt,
+            kdf: this.kdf,
+            masterKeyWrappedUserKey: this.masterKeyWrappedUserKey,
+          };
+        },
+      };
+
+      existingUserPublicKey = Utils.fromB64ToArray("existingUserPublicKey") as UserPublicKey;
+      existingUserPrivateKey = Utils.fromB64ToArray("existingUserPrivateKey") as UserPrivateKey;
+      userKeyEncryptedPrivateKey = new EncString("userKeyEncryptedPrivateKey");
+
+      keyPair = ["publicKey", new EncString("privateKey")];
+      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
+
+      organizationKeys = {
+        privateKey: "orgPrivateKey",
+        publicKey: "orgPublicKey",
+      } as OrganizationKeysResponse;
+      orgPublicKeyEncryptedUserKey = new EncString("orgPublicKeyEncryptedUserKey");
+
+      userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
+      userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        userDecryptionOptionsSubject,
+      );
+
+      setPasswordRequest = SetPasswordRequest.newConstructor(
+        authenticationData,
+        unlockData,
+        credentials.newPasswordHint,
+        credentials.orgSsoIdentifier,
+        keysRequest,
+      );
+
+      enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
+      enrollmentRequest.masterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
+      enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
+    });
+
+    interface MockConfig {
+      userType: SetInitialPasswordUserType;
+      userHasUserKey: boolean;
+      userHasLocalKeyPair: boolean;
+      resetPasswordAutoEnroll: boolean;
+    }
+
+    const defaultMockConfig: MockConfig = {
+      userType: SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER,
+      userHasUserKey: true,
+      userHasLocalKeyPair: false,
+      resetPasswordAutoEnroll: false,
+    };
+
+    function setupMocks(config: MockConfig = defaultMockConfig) {
+      if (config.userHasUserKey) {
+        keyService.userKey$.mockReturnValue(of(userKey));
+      } else {
+        keyService.userKey$.mockReturnValue(of(null));
+        jest.spyOn(PureCrypto, "make_user_key_aes256_cbc_hmac").mockReturnValue(new Uint8Array(64));
+      }
+
+      // Mock MasterPasswordAuthenticationData and MasterPasswordUnlockData
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        authenticationData,
+      );
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
+
+      // Mock keyPair values
+      if (config.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
+        if (config.userHasLocalKeyPair) {
+          keyService.userPrivateKey$.mockReturnValue(of(existingUserPrivateKey));
+          keyService.userPublicKey$.mockReturnValue(of(existingUserPublicKey));
+          encryptService.wrapDecapsulationKey.mockResolvedValue(userKeyEncryptedPrivateKey);
+        } else {
+          keyService.userPrivateKey$.mockReturnValue(of(null));
+          keyService.userPublicKey$.mockReturnValue(of(null));
+          keyService.makeKeyPair.mockResolvedValue(keyPair);
+        }
+      }
+
+      // Mock handleResetPasswordAutoEnroll() values
+      if (config.resetPasswordAutoEnroll) {
+        organizationApiService.getKeys.mockResolvedValue(organizationKeys);
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue(orgPublicKeyEncryptedUserKey);
+        keyService.userKey$.mockReturnValue(of(userKey));
+      }
+    }
+
+    describe("general error handling", () => {
+      [
+        "newPassword",
+        "newPasswordHint",
+        "kdfConfig",
+        "salt",
+        "orgSsoIdentifier",
+        "orgId",
+        "resetPasswordAutoEnroll",
+      ].forEach((key) => {
+        it(`should throw if ${key} is not provided on the SetInitialPasswordCredentials object`, async () => {
+          // Arrange
+          const invalidCredentials: SetInitialPasswordCredentials = {
+            ...credentials,
+            [key]: null,
+          };
+
+          // Act
+          const promise = sut.setInitialPassword(invalidCredentials, userType, userId);
+
+          // Assert
+          await expect(promise).rejects.toThrow(`${key} not found. Could not set password.`);
+        });
+      });
+
+      ["userId", "userType"].forEach((param) => {
+        it(`should throw if ${param} was not passed in`, async () => {
+          // Arrange & Act
+          const promise = sut.setInitialPassword(
+            credentials,
+            param === "userType" ? null : userType,
+            param === "userId" ? null : userId,
+          );
+
+          // Assert
+          await expect(promise).rejects.toThrow(`${param} not found. Could not set password.`);
+        });
+      });
+    });
+
+    describe("given SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER", () => {
+      beforeEach(() => {
+        userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
+      });
+
+      it("should create MasterPasswordAuthenticationData", async () => {
+        // Arrange
+        setupMocks();
+
+        // Act
+        await sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
+          credentials.newPassword,
+          credentials.kdfConfig,
+          credentials.salt,
+        );
+      });
+
+      it("should create MasterPasswordUnlockData", async () => {
+        // Arrange
+        setupMocks();
+
+        // Act
+        await sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+          credentials.newPassword,
+          credentials.kdfConfig,
+          credentials.salt,
+          userKey,
+        );
+      });
+
+      describe("given the user has an existing local key pair", () => {
+        it("should NOT create a brand new key pair for the user", async () => {
+          // Arrange
+          setPasswordRequest.keys = {
+            encryptedPrivateKey: userKeyEncryptedPrivateKey.encryptedString,
+            publicKey: Utils.fromBufferToB64(existingUserPublicKey),
+          };
+
+          setupMocks({ ...defaultMockConfig, userHasLocalKeyPair: true });
+
+          // Act
+          await sut.setInitialPassword(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(keyService.userPrivateKey$).toHaveBeenCalledWith(userId);
+          expect(keyService.userPublicKey$).toHaveBeenCalledWith(userId);
+          expect(encryptService.wrapDecapsulationKey).toHaveBeenCalledWith(
+            existingUserPrivateKey,
+            userKey,
+          );
+          expect(keyService.makeKeyPair).not.toHaveBeenCalled();
+        });
+      });
+
+      describe("given the user has a userKey", () => {
+        it("should successfully set an initial password", async () => {
+          // Arrange
+          setupMocks();
+
+          // Act
+          await sut.setInitialPassword(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        });
+      });
+
+      describe("given the user does NOT have a userKey", () => {
+        it("should successfully set an initial password", async () => {
+          // Arrange
+          setupMocks({ ...defaultMockConfig, userHasUserKey: false });
+
+          // Act
+          await sut.setInitialPassword(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        });
+      });
+
+      it("should throw if a key pair is not found", async () => {
+        // Arrange
+        keyPair = null;
+
+        setupMocks();
+
+        // Act
+        const promise = sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        await expect(promise).rejects.toThrow("keyPair not found. Could not set password.");
+        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+      });
+
+      it("should throw if an encrypted private key is not found", async () => {
+        // Arrange
+        keyPair[1].encryptedString = "" as EncryptedString;
+
+        setupMocks();
+
+        // Act
+        const promise = sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        await expect(promise).rejects.toThrow(
+          "encrypted private key not found. Could not set password.",
+        );
+        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+      });
+
+      describe("given the initial password has been successfully set", () => {
+        it("should clear the ForceSetPasswordReason by setting it to None", async () => {
+          // Arrange
+          setupMocks();
+
+          // Act
+          await sut.setInitialPassword(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
+            ForceSetPasswordReason.None,
+            userId,
+          );
+        });
+
+        it("should update account decryption properties", async () => {
+          // Arrange
+          setupMocks();
+
+          // Act
+          await sut.setInitialPassword(credentials, userType, userId);
+
+          // Assert
+          expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
+            userId,
+            userDecryptionOptions,
+          );
+          expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+            unlockData,
+            userId,
+          );
+          expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, unlockData.kdf);
+          expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
+        });
+
+        it("should set the private key to state", async () => {
+          // Arrange
+          setupMocks();
+
+          // Act
+          await sut.setInitialPassword(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(keyService.setPrivateKey).toHaveBeenCalledWith(keyPair[1].encryptedString, userId);
+          expect(
+            accountCryptographicStateService.setAccountCryptographicState,
+          ).toHaveBeenCalledWith(
+            {
+              V1: {
+                private_key: keyPair[1].encryptedString as EncryptedString,
+              },
+            },
             userId,
           );
         });
