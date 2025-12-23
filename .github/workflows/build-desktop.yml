@@ -1980,12 +1980,20 @@ jobs:
             exit 1
           fi
 
-  validate-linux-x64-flatpak:
-    name: Install and run Linux x64 Flatpak
-    runs-on: ubuntu-22.04
+  validate-linux-flatpak:
+    name: Install and run Linux ${{ matrix.os }} Flatpak
+    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
     needs:
       - setup
       - linux
+      - linux-arm64
+    env:
+      _NAME: ${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}
     steps:
       - name: Check out repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -1999,7 +2007,7 @@ jobs:
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/flatpak/
-          artifacts: com.bitwarden.desktop.flatpak
+          artifacts: com.bitwarden.${{ env._NAME }}.flatpak
 
       - name: Install deps
         run: |
@@ -2010,12 +2018,12 @@ jobs:
 
       - name: Install flatpak
         working-directory: apps/desktop/artifacts/linux/flatpak
-        run: flatpak install -y --user --bundle com.bitwarden.desktop.flatpak
+        run: flatpak install -y --user --bundle com.bitwarden.${_NAME}.flatpak
 
       - name: Run Flatpak
         run: |
           export $(dbus-launch)
-          xvfb-run -a flatpak run com.bitwarden.desktop &
+          xvfb-run -a flatpak run com.bitwarden.${_NAME} &
           sleep 30
           if pgrep  bitwarden > /dev/null; then
             pkill -9 bitwarden
@@ -2025,14 +2033,21 @@ jobs:
             exit 1
           fi
 
-  validate-linux-x64-snap:
-    name: Install and run Linux x64 snap
-    runs-on: ubuntu-22.04
+  validate-linux-snap:
+    name: Install and run Linux ${{ matrix.os }} Snap
+    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
     needs:
       - setup
       - linux
+      - linux-arm64
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _CPU_ARCH: ${{ matrix.os == 'ubuntu-22.04' && 'amd64' || 'arm64' }}
     steps:
       - name: Check out repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -2046,7 +2061,7 @@ jobs:
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/snap
-          artifacts: bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
+          artifacts: bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.snap
 
       - name: Install deps
         run: |
@@ -2056,7 +2071,7 @@ jobs:
       - name: Install snap
         working-directory: apps/desktop/artifacts/linux/snap
         run: |
-          sudo snap install --dangerous ./bitwarden_${_PACKAGE_VERSION}_amd64.snap
+          sudo snap install --dangerous ./bitwarden_${_PACKAGE_VERSION}_${_CPU_ARCH}.snap
 
       - name: Run Snap
         run: |
