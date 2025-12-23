@@ -1992,8 +1992,6 @@ jobs:
       - setup
       - linux
       - linux-arm64
-    env:
-      _NAME: ${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}
     steps:
       - name: Check out repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -2007,7 +2005,7 @@ jobs:
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/flatpak/
-          artifacts: com.bitwarden.${{ env._NAME }}.flatpak
+          artifacts: com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
 
       - name: Install deps
         run: |
@@ -2018,12 +2016,12 @@ jobs:
 
       - name: Install flatpak
         working-directory: apps/desktop/artifacts/linux/flatpak
-        run: flatpak install -y --user --bundle com.bitwarden.${_NAME}.flatpak
+        run: flatpak install -y --user --bundle com.bitwarden.desktop.flatpak
 
       - name: Run Flatpak
         run: |
           export $(dbus-launch)
-          xvfb-run -a flatpak run com.bitwarden.${_NAME} &
+          xvfb-run -a flatpak run com.bitwarden.desktop &
           sleep 30
           if pgrep  bitwarden > /dev/null; then
             pkill -9 bitwarden
