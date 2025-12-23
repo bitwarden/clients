@@ -227,7 +227,7 @@ export class LockComponent implements OnInit, OnDestroy {
               this.loading = false;
               await this.setDefaultActiveUnlockOption(this.unlockOptions);
             } else if (!prevBiometricsEnabled && this.unlockOptions?.biometrics.enabled) {
-              this.setDefaultActiveUnlockOption(this.unlockOptions);
+              await this.setDefaultActiveUnlockOption(this.unlockOptions);
               if (this.activeUnlockOption === UnlockOption.Biometrics) {
                 await this.handleBiometricsUnlockEnabled();
               }
