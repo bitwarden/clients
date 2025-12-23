@@ -10,7 +10,6 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { VerifyEmailRequest } from "@bitwarden/common/models/request/verify-email.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -18,12 +17,10 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-verify-email-token",
   templateUrl: "verify-email-token.component.html",
-  standalone: false,
 })
 export class VerifyEmailTokenComponent implements OnInit {
   constructor(
     private router: Router,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private apiService: ApiService,

@@ -17,6 +17,7 @@ import {
   isFlatpak,
   isMacAppStore,
   isSnapStore,
+  isWindowsPortable,
   isWindowsStore,
 } from "../utils";
 
@@ -133,6 +134,7 @@ export default {
   isDev: isDev(),
   isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
+  isWindowsPortable: isWindowsPortable(),
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),

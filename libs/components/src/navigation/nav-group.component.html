@@ -23,7 +23,7 @@
           'tw-transform tw-rotate-[90deg]': variantValue === 'tree' && !open(),
         }"
         [bitIconButton]="toggleButtonIcon()"
-        [buttonType]="'nav-contrast'"
+        buttonType="nav-contrast"
         (click)="toggle($event)"
         size="small"
         [attr.aria-expanded]="open().toString()"

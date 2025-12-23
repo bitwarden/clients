@@ -5,6 +5,7 @@
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { PrivateKeysResponseModel } from "../../../key-management/keys/response/private-keys.response";
 import { BaseResponse } from "../../../models/response/base.response";
 
 import { MasterPasswordPolicyResponse } from "./master-password-policy.response";
@@ -18,9 +19,21 @@ export class IdentityTokenResponse extends BaseResponse {
   tokenType: string;
 
   // Decryption Information
-  resetMasterPassword: boolean;
-  privateKey: string; // userKeyEncryptedPrivateKey
-  key?: EncString; // masterKeyEncryptedUserKey
+
+  /**
+   * privateKey is actually userKeyEncryptedPrivateKey
+   * @deprecated Use {@link accountKeysResponseModel} instead
+   */
+  privateKey: string;
+
+  // TODO: https://bitwarden.atlassian.net/browse/PM-30124 - Rename to just accountKeys
+  accountKeysResponseModel: PrivateKeysResponseModel | null = null;
+
+  /**
+   * key is actually masterKeyEncryptedUserKey
+   * @deprecated Use {@link userDecryptionOptions.masterPasswordUnlock.masterKeyWrappedUserKey} instead
+   */
+  key?: EncString;
   twoFactorToken: string;
   kdfConfig: KdfConfig;
   forcePasswordReset: boolean;
@@ -52,8 +65,12 @@ export class IdentityTokenResponse extends BaseResponse {
       this.refreshToken = refreshToken;
     }
 
-    this.resetMasterPassword = this.getResponseProperty("ResetMasterPassword");
     this.privateKey = this.getResponseProperty("PrivateKey");
+    if (this.getResponseProperty("AccountKeys") != null) {
+      this.accountKeysResponseModel = new PrivateKeysResponseModel(
+        this.getResponseProperty("AccountKeys"),
+      );
+    }
     const key = this.getResponseProperty("Key");
     if (key) {
       this.key = new EncString(key);

@@ -6,19 +6,26 @@ import { ReplaySubject, combineLatest, map, Observable } from "rxjs";
 import { Account, AccountInfo, AccountService } from "../src/auth/abstractions/account.service";
 import { UserId } from "../src/types/guid";
 
+/**
+ * Creates a mock AccountInfo object with sensible defaults that can be overridden.
+ * Use this when you need just an AccountInfo object in tests.
+ */
+export function mockAccountInfoWith(info: Partial<AccountInfo> = {}): AccountInfo {
+  return {
+    name: "name",
+    email: "email",
+    emailVerified: true,
+    creationDate: "2024-01-01T00:00:00.000Z",
+    ...info,
+  };
+}
+
 export function mockAccountServiceWith(
   userId: UserId,
   info: Partial<AccountInfo> = {},
   activity: Record<UserId, Date> = {},
 ): FakeAccountService {
-  const fullInfo: AccountInfo = {
-    ...info,
-    ...{
-      name: "name",
-      email: "email",
-      emailVerified: true,
-    },
-  };
+  const fullInfo = mockAccountInfoWith(info);
 
   const fullActivity = { [userId]: new Date(), ...activity };
 
@@ -104,6 +111,10 @@ export class FakeAccountService implements AccountService {
     await this.mock.setAccountEmailVerified(userId, emailVerified);
   }
 
+  async setAccountCreationDate(userId: UserId, creationDate: string): Promise<void> {
+    await this.mock.setAccountCreationDate(userId, creationDate);
+  }
+
   async switchAccount(userId: UserId): Promise<void> {
     const next =
       userId == null ? null : { id: userId, ...this.accountsSubject["_buffer"]?.[0]?.[userId] };
@@ -127,4 +138,5 @@ const loggedOutInfo: AccountInfo = {
   name: undefined,
   email: "",
   emailVerified: false,
+  creationDate: undefined,
 };

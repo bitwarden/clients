@@ -300,6 +300,11 @@ export class DialogService {
     return this.dialog.closeAll();
   }
 
+  /** Close the open drawer */
+  closeDrawer(): void {
+    return this.activeDrawer?.close();
+  }
+
   /** The injector that is passed to the opened dialog */
   private createInjector(opts: { data: unknown; dialogRef: DialogRef }): Injector {
     return Injector.create({

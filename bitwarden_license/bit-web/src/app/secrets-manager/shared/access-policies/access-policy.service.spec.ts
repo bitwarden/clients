@@ -31,7 +31,7 @@ import { PeopleAccessPoliciesRequest } from "./models/requests/people-access-pol
 import { ProjectServiceAccountsAccessPoliciesRequest } from "./models/requests/project-service-accounts-access-policies.request";
 import { ServiceAccountGrantedPoliciesRequest } from "./models/requests/service-account-granted-policies.request";
 
-import { trackEmissions } from "@bitwarden/common/../spec";
+import { trackEmissions, mockAccountInfoWith } from "@bitwarden/common/../spec";
 
 const SomeCsprngArray = new Uint8Array(64) as CsprngArray;
 const SomeOrganization = "some organization" as OrganizationId;
@@ -52,9 +52,10 @@ describe("AccessPolicyService", () => {
   let accountService: MockProxy<AccountService>;
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
     id: "testId" as UserId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
   });
 
   beforeEach(() => {
