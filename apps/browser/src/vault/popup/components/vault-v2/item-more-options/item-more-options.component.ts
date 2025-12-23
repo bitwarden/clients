@@ -12,7 +12,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -36,7 +35,6 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
-import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 import {
   AutofillConfirmationDialogComponent,
@@ -161,8 +159,6 @@ export class ItemMoreOptionsComponent {
     private collectionService: CollectionService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
-    private configService: ConfigService,
-    private vaultPopupItemsService: VaultPopupItemsService,
     private domainSettingsService: DomainSettingsService,
   ) {}
 
