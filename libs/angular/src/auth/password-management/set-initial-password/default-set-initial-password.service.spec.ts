@@ -1095,36 +1095,6 @@ describe("DefaultSetInitialPasswordService", () => {
           );
         });
 
-        it("should create and set master password unlock data to prevent race condition with sync", async () => {
-          // Arrange
-          setupMocks();
-
-          const mockUnlockData = {
-            salt: credentials.salt,
-            kdf: credentials.kdfConfig,
-            masterKeyWrappedUserKey: "wrapped_key_string",
-          };
-
-          masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(
-            mockUnlockData as any,
-          );
-
-          // Act
-          await sut.setInitialPassword(credentials, userType, userId);
-
-          // Assert
-          expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
-            credentials.newPassword,
-            credentials.kdfConfig,
-            credentials.salt,
-            masterKeyEncryptedUserKey[0],
-          );
-          expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
-            mockUnlockData,
-            userId,
-          );
-        });
-
         describe("given resetPasswordAutoEnroll is true", () => {
           it(`should handle reset password (account recovery) auto enroll`, async () => {
             // Arrange
@@ -1133,7 +1103,7 @@ describe("DefaultSetInitialPasswordService", () => {
             setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
 
             // Act
-            await sut.setInitialPasswordOld(credentials, userType, userId);
+            await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
             expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -1150,7 +1120,7 @@ describe("DefaultSetInitialPasswordService", () => {
             setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
 
             // Act
-            const promise = sut.setInitialPasswordOld(credentials, userType, userId);
+            const promise = sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
             await expect(promise).rejects.toThrow(
@@ -1177,7 +1147,7 @@ describe("DefaultSetInitialPasswordService", () => {
                 setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
 
                 // Act
-                const promise = sut.setInitialPasswordOld(credentials, userType, userId);
+                const promise = sut.setInitialPassword(credentials, userType, userId);
 
                 // Assert
                 await expect(promise).rejects.toThrow(
@@ -1202,7 +1172,7 @@ describe("DefaultSetInitialPasswordService", () => {
             setupMocks();
 
             // Act
-            await sut.setInitialPasswordOld(credentials, userType, userId);
+            await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
             expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -1225,7 +1195,7 @@ describe("DefaultSetInitialPasswordService", () => {
         setupMocks({ ...defaultMockConfig, userType });
 
         // Act
-        await sut.setInitialPasswordOld(credentials, userType, userId);
+        await sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
         expect(keyService.userPrivateKey$).not.toHaveBeenCalled();
@@ -1240,7 +1210,7 @@ describe("DefaultSetInitialPasswordService", () => {
           setupMocks({ ...defaultMockConfig, userType });
 
           // Act
-          await sut.setInitialPasswordOld(credentials, userType, userId);
+          await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -1253,7 +1223,7 @@ describe("DefaultSetInitialPasswordService", () => {
           setupMocks({ ...defaultMockConfig, userType });
 
           // Act
-          await sut.setInitialPasswordOld(credentials, userType, userId);
+          await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -1266,7 +1236,7 @@ describe("DefaultSetInitialPasswordService", () => {
           setupMocks({ ...defaultMockConfig, userType });
 
           // Act
-          await sut.setInitialPasswordOld(credentials, userType, userId);
+          await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -1281,7 +1251,7 @@ describe("DefaultSetInitialPasswordService", () => {
           setupMocks({ ...defaultMockConfig, userType });
 
           // Act
-          await sut.setInitialPasswordOld(credentials, userType, userId);
+          await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -1289,15 +1259,11 @@ describe("DefaultSetInitialPasswordService", () => {
             userId,
             userDecryptionOptions,
           );
+          expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+            unlockData,
+            userId,
+          );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-          expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
-            credentials.newMasterKey,
-            userId,
-          );
-          expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-            masterKeyEncryptedUserKey[1],
-            userId,
-          );
           expect(keyService.setUserKey).toHaveBeenCalledWith(masterKeyEncryptedUserKey[0], userId);
         });
 
@@ -1306,56 +1272,11 @@ describe("DefaultSetInitialPasswordService", () => {
           setupMocks({ ...defaultMockConfig, userType });
 
           // Act
-          await sut.setInitialPasswordOld(credentials, userType, userId);
+          await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
           expect(keyService.setPrivateKey).not.toHaveBeenCalled();
-        });
-
-        it("should set the local master key hash to state", async () => {
-          // Arrange
-          setupMocks({ ...defaultMockConfig, userType });
-
-          // Act
-          await sut.setInitialPasswordOld(credentials, userType, userId);
-
-          // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
-            credentials.newLocalMasterKeyHash,
-            userId,
-          );
-        });
-
-        it("should create and set master password unlock data to prevent race condition with sync", async () => {
-          // Arrange
-          setupMocks({ ...defaultMockConfig, userType });
-
-          const mockUnlockData = {
-            salt: credentials.salt,
-            kdf: credentials.kdfConfig,
-            masterKeyWrappedUserKey: "wrapped_key_string",
-          };
-
-          masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(
-            mockUnlockData as any,
-          );
-
-          // Act
-          await sut.setInitialPassword(credentials, userType, userId);
-
-          // Assert
-          expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
-            credentials.newPassword,
-            credentials.kdfConfig,
-            credentials.salt,
-            masterKeyEncryptedUserKey[0],
-          );
-          expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
-            mockUnlockData,
-            userId,
-          );
         });
 
         describe("given resetPasswordAutoEnroll is true", () => {
@@ -1366,7 +1287,7 @@ describe("DefaultSetInitialPasswordService", () => {
             setupMocks({ ...defaultMockConfig, userType, resetPasswordAutoEnroll: true });
 
             // Act
-            await sut.setInitialPasswordOld(credentials, userType, userId);
+            await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
             expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -1382,7 +1303,7 @@ describe("DefaultSetInitialPasswordService", () => {
             setupMocks({ ...defaultMockConfig, userType });
 
             // Act
-            await sut.setInitialPasswordOld(credentials, userType, userId);
+            await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
             expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
