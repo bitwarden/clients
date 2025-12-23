@@ -108,10 +108,6 @@ export class LoginCredentialsViewComponent implements OnChanges {
     return `${dateCreated} ${creationDate}`;
   }
 
-  get hasFido2OrTotpCredentials(): boolean {
-    return this.cipher.login.fido2Credentials?.length > 0 || !!this.cipher.login.totp;
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["cipher"]) {
       if (this.passwordInput?.nativeElement) {
