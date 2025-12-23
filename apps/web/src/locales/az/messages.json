@@ -392,7 +392,7 @@
     "message": "Yeni tətbiqlər incələ"
   },
   "reviewNewAppsDescription": {
-    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "Həssas elementlərə sahib yeni tətbiqləri incələyin və diqqətlə izləmək istədiklərinizi kritik olaraq işarələyin. Sonra, riskləri xaric etmək üçün üzvlərə təhlükəsizlik tapşırıqları təyin edə biləcəksiniz."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Bir tətbiqi kritik olaraq işarələmək üçün ulduz ikonuna klikləyin"
@@ -1970,11 +1970,11 @@
     "message": "Hesab şifrələmə açarları, hər Bitwarden istifadəçi hesabı üçün unikaldır, buna görə də şifrələnmiş bir ixracı, fərqli bir hesaba idxal edə bilməzsiniz."
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Xaricə köçürmə",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Xaricə köçür",
     "description": "The verb form of the word Export"
   },
   "exportFrom": {
@@ -2303,11 +2303,11 @@
     "message": "Alətlər"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Daxilə köçürmə",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Daxilə köçür",
     "description": "The verb form of the word Import"
   },
   "importData": {
@@ -3294,7 +3294,7 @@
     "message": "Bulud Abunəliyini Başlat"
   },
   "launchCloudSubscriptionSentenceCase": {
-    "message": "Launch cloud subscription"
+    "message": "Bulud abunəliyini başlat"
   },
   "storage": {
     "message": "Saxlama"
@@ -4212,10 +4212,10 @@
     }
   },
   "userAcceptedTransfer": {
-    "message": "Accepted transfer to organization ownership."
+    "message": "Təşkilatın sahibliyinə ötürülmə qəbul edildi."
   },
   "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "Təşkilatın sahibliyinə ötürülməyə rədd cavabı verildiyi üçün ləğv edildi."
   },
   "invitedUserId": {
     "message": "$ID$ istifadəçisi dəvət edildi.",
@@ -6758,10 +6758,10 @@
     "message": "Cihaz mühafizəsi barədə daha ətraflı"
   },
   "sessionTimeoutConfirmationOnSystemLockTitle": {
-    "message": "\"System lock\" will only apply to the browser and desktop app"
+    "message": "\"Sistem kilidi\", yalnız brauzer və masaüstü tətbiqi üçün qüvvəyə minəcək"
   },
   "sessionTimeoutConfirmationOnSystemLockDescription": {
-    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
+    "message": "Mobil və veb tətbiqi, dəstəklənməyən bir seçim olduğu üçün icazə verilən maksimum bitmə vaxtı olaraq \"tətbiq başladılanda\"nı istifadə edəcək. "
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Təşkilatınızın siyasətləri, icazə verilən maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
@@ -9905,11 +9905,11 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreePlan": {
-    "message": "Switching to free plan",
+    "message": "Ödənişsiz plana keçilir",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreeOrg": {
-    "message": "Switching to free organization",
+    "message": "Ödənişsiz təşkilata keçilir",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "freeForOneYear": {
@@ -9943,7 +9943,7 @@
     "message": "Tapşırıq təyin et"
   },
   "assignSecurityTasksToMembers": {
-    "message": "Send notifications to change passwords"
+    "message": "Parol dəyişdirmə bildirişlərini göndər"
   },
   "assignToCollections": {
     "message": "Kolleksiyalara təyin et"
@@ -12208,13 +12208,13 @@
     "message": "Ödənişsiz Ailələr sınağını başlat"
   },
   "blockClaimedDomainAccountCreation": {
-    "message": "Block account creation for claimed domains"
+    "message": "Götürülmüş domenlər üçün hesab yaradılmasını əngəllə"
   },
   "blockClaimedDomainAccountCreationDesc": {
-    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+    "message": "İstifadəçilərin, götürülmüş domenlərə aid e-poçt ünvanlarını istifadə edərək təşkilatınızın xaricində hesab yaratmasını önləyin."
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "A domain must be claimed before activating this policy."
+    "message": "Bu siyasət aktivləşdirilməzdən əvvəl bir domen götürülməlidir."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Seyf vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun."
@@ -12433,13 +12433,13 @@
     "message": "Bunu niyə görürəm?"
   },
   "youHaveBitwardenPremium": {
-    "message": "You have Bitwarden Premium"
+    "message": "Sizdə Bitwarden Premium var"
   },
   "viewAndManagePremiumSubscription": {
-    "message": "View and manage your Premium subscription"
+    "message": "Premium abunəliyinizi görün və idarə edin"
   },
   "youNeedToUpdateLicenseFile": {
-    "message": "You'll need to update your license file"
+    "message": "Lisenziya faylınızı güncəlləməlisiniz"
   },
   "youNeedToUpdateLicenseFileDate": {
     "message": "$DATE$.",
@@ -12451,16 +12451,16 @@
     }
   },
   "uploadLicenseFile": {
-    "message": "Upload license file"
+    "message": "Lisenziya faylını yüklə"
   },
   "uploadYourLicenseFile": {
-    "message": "Upload your license file"
+    "message": "Lisenziya faylınızı yükləyin"
   },
   "uploadYourPremiumLicenseFile": {
-    "message": "Upload your Premium license file"
+    "message": "Premium lisenziya faylınızı yükləyin"
   },
   "uploadLicenseFileDesc": {
-    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "message": "Lisenziya faylınızın adı $FILE_NAME$ faylı ilə oxşardır",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -12469,15 +12469,15 @@
     }
   },
   "alreadyHaveSubscriptionQuestion": {
-    "message": "Already have a subscription?"
+    "message": "Artıq abunəliyiniz var?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
-    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+    "message": "Bitwarden bulud hesabınızdakı abunəlik səhifəsini açın və lisenziya faylınızı endirin. Sonra bu ekrana qayıdın və aşağıda yükləyin."
   },
   "viewAllPlans": {
-    "message": "View all plans"
+    "message": "Bütün planlara bax"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Tam onlayn təhlükəsizlik"
   }
 }
