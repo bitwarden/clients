@@ -1895,7 +1895,7 @@ jobs:
           upload_translations: false
 
   validate-linux-x64-deb:
-    name: Install and run Linux x64 .deb
+    name: Validate Linux x64 .deb
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -1939,7 +1939,7 @@ jobs:
           fi
 
   validate-linux-x64-appimage:
-    name: Install and run Linux x64 appimage
+    name: Validate Linux x64 appimage
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -1981,7 +1981,7 @@ jobs:
           fi
 
   validate-linux-flatpak:
-    name: Install and run Linux ${{ matrix.os }} Flatpak
+    name: Validate Linux ${{ matrix.os }} Flatpak
     runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
     strategy:
       matrix:
@@ -2032,7 +2032,7 @@ jobs:
           fi
 
   validate-linux-snap:
-    name: Install and run Linux ${{ matrix.os }} Snap
+    name: Validate Linux ${{ matrix.os }} Snap
     runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
     strategy:
       matrix:
