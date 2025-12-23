@@ -100,10 +100,6 @@ enum CipherType {
 
 Example: `/libs/common/src/vault/enums/cipher-type.ts`
 
-## Color System & Theming
-
-[Color System Documentation](libs/components/src/stories/colors.mdx)
-
 ## References
 
 - [Web Clients Architecture](https://contributing.bitwarden.com/architecture/clients)
