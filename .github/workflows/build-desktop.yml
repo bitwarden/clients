@@ -2098,6 +2098,9 @@ jobs:
       - macos-package-mas
       - crowdin-push
       - validate-linux-x64-deb
+      - validate-linux-x64-appimage
+      - validate-linux-flatpak
+      - validate-linux-snap
     permissions:
       contents: read
       id-token: write
