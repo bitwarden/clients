@@ -2099,7 +2099,7 @@ jobs:
           # mount
           hdiutil attach Bitwarden-${_PACKAGE_VERSION}-universal.dmg
           # install
-          cp -r /Volumes/Bitwarden\ ${_PACKAGE_VERSION}/Bitwarden.app /Applications/
+          cp -r /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal/Bitwarden.app /Applications/
           # unmount
           hdiutil detach /Volumes/Bitwarden\ ${_PACKAGE_VERSION}/Bitwarden.app
 
@@ -2146,8 +2146,8 @@ jobs:
         run: |
           open /Applications/Bitwarden.app/Contents/MacOS/Bitwarden &
           sleep 30
-          if pgrep bitwarden > /dev/null; then
-            pkill -9 bitwarden
+          if pgrep Bitwarden > /dev/null; then
+            pkill -9 Bitwarden
             echo "Bitwarden is running."
           else
             echo "Bitwarden is not running."
