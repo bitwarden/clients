@@ -412,7 +412,6 @@ export class InputPasswordComponent implements OnInit {
         newLocalMasterKeyHash,
         newPasswordHint,
         kdfConfig: this.kdfConfig,
-        newApisFlagEnabled,
       };
 
       if (
