@@ -356,7 +356,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
   }
 
-  private async setDeviceKey(userId: UserId, deviceKey: DeviceKey | null): Promise<void> {
+  async setDeviceKey(userId: UserId, deviceKey: DeviceKey | null): Promise<void> {
     if (!userId) {
       throw new Error("UserId is required. Cannot set device key.");
     }
