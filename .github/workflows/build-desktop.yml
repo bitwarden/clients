@@ -2170,6 +2170,7 @@ jobs:
 
       - name: Run dmg
         run: |
+          sudo purge
           open /Applications/Bitwarden.app/Contents/MacOS/Bitwarden &
           sleep 30
           if pgrep Bitwarden > /dev/null; then
@@ -2209,16 +2210,16 @@ jobs:
 
       - name: Run pkg
         run: |
-          /Applications/Bitwarden.app/Contents/MacOS/Bitwarden
-          # open /Applications/Bitwarden.app/Contents/MacOS/Bitwarden &
-          # sleep 30
-          # if pgrep Bitwarden > /dev/null; then
-          #   pkill -9 Bitwarden
-          #   echo "Bitwarden is running."
-          # else
-          #   echo "Bitwarden is not running."
-          #   exit 1
-          # fi
+          sudo purge
+          open /Applications/Bitwarden.app/Contents/MacOS/Bitwarden &
+          sleep 30
+          if pgrep Bitwarden > /dev/null; then
+            pkill -9 Bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
 
   check-failures:
     name: Check for failures
