@@ -7,7 +7,7 @@ import { firstValueFrom } from "rxjs";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormGenerationService } from "@bitwarden/vault";
 
-import { VaultGeneratorDialogComponent } from "../components/vault-v2/vault-generator-dialog/vault-generator-dialog.component";
+import { VaultGeneratorDialogComponent } from "../components/vault/vault-generator-dialog/vault-generator-dialog.component";
 
 @Injectable()
 export class BrowserCipherFormGenerationService implements CipherFormGenerationService {
