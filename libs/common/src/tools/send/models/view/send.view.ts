@@ -29,6 +29,7 @@ export class SendView implements View {
   emails: string[] = [];
   disabled = false;
   hideEmail = false;
+  // TODO add AuthType enum
 
   constructor(s?: Send) {
     if (!s) {

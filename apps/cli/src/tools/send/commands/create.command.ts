@@ -87,6 +87,7 @@ export class SendCreateCommand {
 
     req.key = null;
     req.maxAccessCount = maxAccessCount;
+    req.emails = emails; //TODO should this be encrypted?
 
     const hasPremium$ = this.accountService.activeAccount$.pipe(
       switchMap(({ id }) => this.accountProfileService.hasPremiumFromAnySource$(id)),
@@ -139,7 +140,7 @@ export class SendCreateCommand {
       // Add dates from template
       encSend.deletionDate = sendView.deletionDate;
       encSend.expirationDate = sendView.expirationDate;
-      encSend.emails = emails && emails.join(",");
+      encSend.emails = emails && emails.join(","); // TODO should this be encrypted
 
       await this.sendApiService.save([encSend, fileData]);
       const newSend = await this.sendService.getFromState(encSend.id);

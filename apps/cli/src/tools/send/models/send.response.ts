@@ -116,6 +116,7 @@ export class SendResponse implements BaseResponse {
     this.deletionDate = o.deletionDate;
     this.expirationDate = o.expirationDate;
     this.passwordSet = o.password != null;
+    this.emails = o.emails ?? [];
     this.disabled = o.disabled;
     this.hideEmail = o.hideEmail;
 

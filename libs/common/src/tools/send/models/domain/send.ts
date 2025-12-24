@@ -33,6 +33,7 @@ export class Send extends Domain {
   emails: string;
   disabled: boolean;
   hideEmail: boolean;
+  // TODO add authType enum
 
   constructor(obj?: SendData) {
     super();

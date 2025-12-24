@@ -59,9 +59,7 @@ export class SendProgram extends BaseProgram {
         new Option(
           "--email <email>",
           "optional emails to access this Send. Can also be specified in JSON.",
-        )
-          .argParser(parseEmail)
-          .hideHelp(),
+        ).argParser(parseEmail),
       )
       .option("-a, --maxAccessCount <amount>", "The amount of max possible accesses.")
       .option("--hidden", "Hide <data> in web by default. Valid only if --file is not set.")
@@ -328,6 +326,7 @@ export class SendProgram extends BaseProgram {
       file: sendFile,
       text: sendText,
       type: type,
+      emails: options.email ?? undefined,
     });
 
     return Buffer.from(JSON.stringify(template), "utf8").toString("base64");
