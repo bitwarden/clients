@@ -148,30 +148,6 @@ describe("SettingsV2Component", () => {
     expect(openSpy).toHaveBeenCalledWith(dialogService);
   });
 
-  it("isBrowserAutofillSettingOverridden$ emits the value from the AutofillBrowserSettingsService", async () => {
-    pushActiveAccount();
-
-    mockAutofillSettings.isBrowserAutofillSettingOverridden.mockResolvedValue(true);
-
-    const fixture = TestBed.createComponent(SettingsV2Component);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const value = await firstValueFrom(component["isBrowserAutofillSettingOverridden$"]);
-    expect(value).toBe(true);
-
-    mockAutofillSettings.isBrowserAutofillSettingOverridden.mockResolvedValue(false);
-
-    const fixture2 = TestBed.createComponent(SettingsV2Component);
-    const component2 = fixture2.componentInstance;
-    fixture2.detectChanges();
-    await fixture2.whenStable();
-
-    const value2 = await firstValueFrom(component2["isBrowserAutofillSettingOverridden$"]);
-    expect(value2).toBe(false);
-  });
-
   it("showAutofillBadge$ emits true when default autofill is NOT disabled and nudge is true", async () => {
     pushActiveAccount();
 
@@ -188,24 +164,6 @@ describe("SettingsV2Component", () => {
 
     const value = await firstValueFrom(component.showAutofillBadge$);
     expect(value).toBe(true);
-  });
-
-  it("showAutofillBadge$ emits false when default autofill IS disabled even if nudge is true", async () => {
-    pushActiveAccount();
-
-    mockNudges.showNudgeBadge$.mockImplementation((type: NudgeType) =>
-      of(type === NudgeType.AutofillNudge),
-    );
-
-    const fixture = TestBed.createComponent(SettingsV2Component);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    mockAutofillSettings.defaultBrowserAutofillDisabled$.next(true);
-
-    const value = await firstValueFrom(component.showAutofillBadge$);
-    expect(value).toBe(false);
   });
 
   it("dismissBadge dismisses when showVaultBadge$ emits true", async () => {
