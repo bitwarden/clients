@@ -1,5 +1,4 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
-import { getByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -87,6 +86,7 @@ export const Default: Story = {
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
+          [popoverOpen]="true"
           #triggerRef="popoverTrigger"
           aria-label="Open popover"
           title="Open popover"
@@ -98,12 +98,6 @@ export const Default: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const OpenLongTitle: Story = {
@@ -116,6 +110,7 @@ export const OpenLongTitle: Story = {
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
+          [popoverOpen]="true"
           aria-label="Open popover"
           title="Open popover"
           bitLink
@@ -135,12 +130,6 @@ export const OpenLongTitle: Story = {
       </bit-popover>
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const RightStart: Story = {
@@ -156,6 +145,7 @@ export const RightStart: Story = {
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
+          [popoverOpen]="true"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
@@ -167,12 +157,6 @@ export const RightStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const RightCenter: Story = {
@@ -188,6 +172,7 @@ export const RightCenter: Story = {
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
+          [popoverOpen]="true"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
@@ -199,12 +184,6 @@ export const RightCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const RightEnd: Story = {
@@ -220,6 +199,7 @@ export const RightEnd: Story = {
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
+          [popoverOpen]="true"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
@@ -231,12 +211,6 @@ export const RightEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const LeftStart: Story = {
@@ -253,6 +227,7 @@ export const LeftStart: Story = {
             class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            [popoverOpen]="true"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
@@ -265,12 +240,6 @@ export const LeftStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const LeftCenter: Story = {
@@ -287,6 +256,7 @@ export const LeftCenter: Story = {
             class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            [popoverOpen]="true"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
@@ -299,12 +269,6 @@ export const LeftCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 export const LeftEnd: Story = {
   args: {
@@ -320,6 +284,7 @@ export const LeftEnd: Story = {
             class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            [popoverOpen]="true"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
@@ -332,12 +297,6 @@ export const LeftEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const BelowStart: Story = {
@@ -354,6 +313,7 @@ export const BelowStart: Story = {
             class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            [popoverOpen]="true"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
@@ -366,12 +326,6 @@ export const BelowStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const BelowCenter: Story = {
@@ -388,6 +342,7 @@ export const BelowCenter: Story = {
             class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            [popoverOpen]="true"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
@@ -400,12 +355,6 @@ export const BelowCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const BelowEnd: Story = {
@@ -422,6 +371,7 @@ export const BelowEnd: Story = {
             class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            [popoverOpen]="true"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
@@ -434,12 +384,6 @@ export const BelowEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const AboveStart: Story = {
@@ -456,6 +400,7 @@ export const AboveStart: Story = {
             class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            [popoverOpen]="true"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
@@ -468,12 +413,6 @@ export const AboveStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const AboveCenter: Story = {
@@ -490,6 +429,7 @@ export const AboveCenter: Story = {
             class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            [popoverOpen]="true"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
@@ -502,12 +442,6 @@ export const AboveCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };
 
 export const AboveEnd: Story = {
@@ -524,6 +458,7 @@ export const AboveEnd: Story = {
             class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            [popoverOpen]="true"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
@@ -536,10 +471,4 @@ export const AboveEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
 };

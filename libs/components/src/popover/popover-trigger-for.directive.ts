@@ -1,12 +1,12 @@
 import { Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
-  AfterViewInit,
   Directive,
   ElementRef,
   HostListener,
   OnDestroy,
   ViewContainerRef,
+  effect,
   input,
   model,
 } from "@angular/core";
@@ -22,7 +22,7 @@ import { PopoverComponent } from "./popover.component";
     "[attr.aria-expanded]": "this.popoverOpen()",
   },
 })
-export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
+export class PopoverTriggerForDirective implements OnDestroy {
   readonly popoverOpen = model(false);
 
   readonly popover = input.required<PopoverComponent>({ alias: "bitPopoverTriggerFor" });
@@ -31,6 +31,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
 
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
+  private hasInitialized = false;
 
   get positions() {
     if (!this.position()) {
@@ -65,7 +66,29 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
     private elementRef: ElementRef<HTMLElement>,
     private viewContainerRef: ViewContainerRef,
     private overlay: Overlay,
-  ) {}
+  ) {
+    effect(() => {
+      if (!this.popoverOpen() || this.overlayRef) {
+        return;
+      }
+
+      if (this.hasInitialized) {
+        this.openPopover();
+        return;
+      }
+
+      // Initial open - wait for layout to stabilize
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (this.popoverOpen() && !this.overlayRef) {
+            this.openPopover();
+          }
+        });
+      });
+
+      this.hasInitialized = true;
+    });
+  }
 
   @HostListener("click")
   togglePopover() {
@@ -117,12 +140,6 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
     this.closedEventsSub = null;
     this.overlayRef?.dispose();
     this.overlayRef = null;
-  }
-
-  ngAfterViewInit() {
-    if (this.popoverOpen()) {
-      this.openPopover();
-    }
   }
 
   ngOnDestroy() {
