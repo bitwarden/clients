@@ -15,8 +15,8 @@
     }
     @if (savedUrls().length > 1) {
       <div class="tw-flex tw-justify-between tw-items-center tw-mt-4 tw-mb-1 tw-pt-2">
-        <p class="tw-text-muted tw-text-xs tw-uppercase tw-font-medium">
-          {{ "savedWebsites" | i18n: savedUrls().length }}
+        <p class="tw-text-muted tw-text-xs tw-uppercase tw-font-medium tw-mb-0">
+          {{ "savedWebsites" | i18n: savedUrls().length.toString() }}
         </p>
         <button
           type="button"
