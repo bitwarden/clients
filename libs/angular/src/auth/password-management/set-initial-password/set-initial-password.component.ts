@@ -196,13 +196,13 @@ export class SetInitialPasswordComponent implements OnInit {
     switch (this.userType) {
       case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER:
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
-        // Remove wrapping "if" check in PM-28143
+        // Remove wrapping "if" check and early return in PM-28143
         if (passwordInputResult.newApisFlagEnabled) {
           await this.setInitialPassword(passwordInputResult);
           return;
         }
 
-        await this.setInitialPasswordOld(passwordInputResult);
+        await this.setInitialPasswordOld(passwordInputResult); // remove in PM-28143
 
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
