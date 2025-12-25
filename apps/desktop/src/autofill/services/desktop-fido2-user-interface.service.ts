@@ -43,7 +43,9 @@ export type NativeWindowObject = {
   windowXy?: { x: number; y: number };
 };
 
-export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction<NativeWindowObject> {
+export class DesktopFido2UserInterfaceService
+  implements Fido2UserInterfaceServiceAbstraction<NativeWindowObject>
+{
   constructor(
     private authService: AuthService,
     private cipherService: CipherService,
