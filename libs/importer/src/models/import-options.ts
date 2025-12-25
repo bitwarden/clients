@@ -46,6 +46,7 @@ export const regularImportOptions = [
   { id: "ascendocsv", name: "Ascendo DataVault (csv)" },
   { id: "meldiumcsv", name: "Meldium (csv)" },
   { id: "passkeepcsv", name: "PassKeep (csv)" },
+  { id: "arccsv", name: "Arc" },
   { id: "edgecsv", name: "Edge" },
   { id: "operacsv", name: "Opera" },
   { id: "vivaldicsv", name: "Vivaldi" },
