@@ -1,9 +1,20 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { getByRole } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-// Wait for popover positioning to complete for Chromatic snapshots
-const waitForPopoverPosition = async () => {
+// Wait for element to render, then open popover programmatically for stable Chromatic snapshots
+const openPopoverAfterRender = async (context: { canvasElement: HTMLElement }) => {
+  const canvasEl = context.canvasElement;
+  const button = getByRole(canvasEl, "button");
+
+  // Wait for layout to stabilize
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  // Programmatically open the popover
+  button.click();
+
+  // Wait for popover positioning to complete
   await new Promise((resolve) => setTimeout(resolve, 100));
 };
 
@@ -38,10 +49,6 @@ export default {
     design: {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40852&t=b5tDKylm5sWm2yKo-4",
-    },
-    chromatic: {
-      // Delay parameter gives extra time for popover positioning to complete
-      delay: 150,
     },
   },
   argTypes: {
@@ -91,7 +98,6 @@ export const Default: Story = {
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
-          [popoverOpen]="true"
           #triggerRef="popoverTrigger"
           aria-label="Open popover"
           title="Open popover"
@@ -103,7 +109,7 @@ export const Default: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const OpenLongTitle: Story = {
@@ -116,7 +122,6 @@ export const OpenLongTitle: Story = {
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
-          [popoverOpen]="true"
           aria-label="Open popover"
           title="Open popover"
           bitLink
@@ -136,7 +141,7 @@ export const OpenLongTitle: Story = {
       </bit-popover>
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const RightStart: Story = {
@@ -152,7 +157,6 @@ export const RightStart: Story = {
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
-          [popoverOpen]="true"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
@@ -164,7 +168,7 @@ export const RightStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const RightCenter: Story = {
@@ -180,7 +184,6 @@ export const RightCenter: Story = {
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
-          [popoverOpen]="true"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
@@ -192,7 +195,7 @@ export const RightCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const RightEnd: Story = {
@@ -208,7 +211,6 @@ export const RightEnd: Story = {
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
-          [popoverOpen]="true"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
@@ -220,7 +222,7 @@ export const RightEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const LeftStart: Story = {
@@ -250,7 +252,7 @@ export const LeftStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const LeftCenter: Story = {
@@ -280,7 +282,7 @@ export const LeftCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 export const LeftEnd: Story = {
   args: {
@@ -309,7 +311,7 @@ export const LeftEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const BelowStart: Story = {
@@ -339,7 +341,7 @@ export const BelowStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const BelowCenter: Story = {
@@ -369,7 +371,7 @@ export const BelowCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const BelowEnd: Story = {
@@ -399,7 +401,7 @@ export const BelowEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const AboveStart: Story = {
@@ -429,7 +431,7 @@ export const AboveStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const AboveCenter: Story = {
@@ -459,7 +461,7 @@ export const AboveCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
 
 export const AboveEnd: Story = {
@@ -489,5 +491,5 @@ export const AboveEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: waitForPopoverPosition,
+  play: openPopoverAfterRender,
 };
