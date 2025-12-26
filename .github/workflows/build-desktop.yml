@@ -2022,7 +2022,7 @@ jobs:
           WAYLAND_DISPLAY: wayland-0
         run: |
           chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
-          ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
+          xvfb-run -a ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
           sleep 30
           if pgrep bitwarden > /dev/null; then
             pkill -9 bitwarden
