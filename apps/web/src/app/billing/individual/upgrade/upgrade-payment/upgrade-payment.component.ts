@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import {
   debounceTime,
@@ -35,7 +35,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { CartSummaryComponent } from "@bitwarden/pricing";
+import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -118,23 +118,38 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   protected readonly selectedPlan = signal<PlanDetails | null>(null);
   protected readonly loading = signal(true);
   protected readonly upgradeToMessage = signal("");
-  // Cart Summary data
-  protected readonly passwordManager = computed(() => {
-    if (!this.selectedPlan()) {
-      return { name: "", cost: 0, quantity: 0, cadence: "year" as const };
-    }
-
-    return {
-      name: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
-      cost: this.selectedPlan()!.details.passwordManager.annualPrice,
-      quantity: 1,
-      cadence: "year" as const,
-    };
-  });
 
   protected hasEnoughAccountCredit$!: Observable<boolean>;
   private pricingTiers$!: Observable<PersonalSubscriptionPricingTier[]>;
-  protected estimatedTax$!: Observable<number>;
+  protected estimatedTax$ = of(0);
+
+  // Convert estimatedTax$ to signal for use in computed cart
+  protected readonly estimatedTax = toSignal(this.estimatedTax$);
+
+  // Cart Summary data
+  protected readonly cart = computed<Cart>(() => {
+    if (!this.selectedPlan()) {
+      return {
+        passwordManager: {
+          seats: { name: "", cost: 0, quantity: 0 },
+        },
+        cadence: "annually",
+        estimatedTax: 0,
+      };
+    }
+
+    return {
+      passwordManager: {
+        seats: {
+          name: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
+          cost: this.selectedPlan()!.details.passwordManager.annualPrice ?? 0,
+          quantity: 1,
+        },
+      },
+      cadence: "annually",
+      estimatedTax: this.estimatedTax() ?? 0,
+    };
+  });
 
   constructor(
     private i18nService: I18nService,
