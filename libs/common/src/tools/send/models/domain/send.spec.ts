@@ -14,7 +14,7 @@ import { UserKey } from "../../../../types/key";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";
 
-import { Send } from "./send";
+import { AuthType, Send } from "./send";
 import { SendText } from "./send-text";
 
 describe("Send", () => {
@@ -42,6 +42,7 @@ describe("Send", () => {
       emails: null!,
       disabled: false,
       hideEmail: true,
+      authType: AuthType.None,
     };
 
     mockContainerService();
@@ -94,6 +95,7 @@ describe("Send", () => {
       emails: null!,
       disabled: false,
       hideEmail: true,
+      authType: AuthType.None,
     });
   });
 
@@ -118,6 +120,7 @@ describe("Send", () => {
     send.password = "password";
     send.disabled = false;
     send.hideEmail = true;
+    send.authType = AuthType.None;
 
     const encryptService = mock<EncryptService>();
     const keyService = mock<KeyService>();
@@ -157,6 +160,7 @@ describe("Send", () => {
       password: "password",
       disabled: false,
       hideEmail: true,
+      authType: AuthType.None,
     });
   });
 });

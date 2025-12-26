@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { AuthType } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 
 import { BaseResponse } from "../../../models/response/base.response";
@@ -92,6 +93,7 @@ export class SendResponse implements BaseResponse {
   emails?: Array<string>;
   disabled: boolean;
   hideEmail: boolean;
+  authType: AuthType;
 
   constructor(o?: SendView, webVaultUrl?: string) {
     if (o == null) {
@@ -119,6 +121,7 @@ export class SendResponse implements BaseResponse {
     this.emails = o.emails ?? [];
     this.disabled = o.disabled;
     this.hideEmail = o.hideEmail;
+    this.authType = o.authType;
 
     if (o.type === SendType.Text && o.text != null) {
       this.text = new SendTextResponse(o.text);

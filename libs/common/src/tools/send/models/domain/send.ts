@@ -15,6 +15,14 @@ import { SendView } from "../view/send.view";
 import { SendFile } from "./send-file";
 import { SendText } from "./send-text";
 
+export const AuthType = Object.freeze({
+  Email: 0,
+  Password: 1,
+  None: 2,
+} as const);
+
+export type AuthType = (typeof AuthType)[keyof typeof AuthType];
+
 export class Send extends Domain {
   id: string;
   accessId: string;
@@ -33,7 +41,7 @@ export class Send extends Domain {
   emails: string;
   disabled: boolean;
   hideEmail: boolean;
-  // TODO add authType enum
+  authType: AuthType;
 
   constructor(obj?: SendData) {
     super();
@@ -64,6 +72,7 @@ export class Send extends Domain {
     this.deletionDate = obj.deletionDate != null ? new Date(obj.deletionDate) : null;
     this.expirationDate = obj.expirationDate != null ? new Date(obj.expirationDate) : null;
     this.hideEmail = obj.hideEmail;
+    this.authType = obj.authType;
 
     switch (this.type) {
       case SendType.Text:
