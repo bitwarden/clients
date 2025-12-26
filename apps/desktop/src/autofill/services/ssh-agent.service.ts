@@ -46,8 +46,6 @@ export class SshAgentService implements OnDestroy {
 
   private authorizedSshKeys: Record<string, Date> = {};
 
-  private isFeatureFlagEnabled = false;
-
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -91,14 +89,14 @@ export class SshAgentService implements OnDestroy {
         filter(({ enabled }) => enabled),
         map(({ message }) => message),
         withLatestFrom(this.authService.activeAccountStatus$, this.accountService.activeAccount$),
-        // This switchMap handles unlocking the vault if it is locked:
-        //   - If the vault is locked, we will wait for it to be unlocked.
-        //   - If the vault is not unlocked within the timeout, we will abort the flow.
+        // This switchMap handles unlocking the vault if it is not unlocked:
+        //   - If the vault is locked or logged out, we will wait for it to be unlocked:
+        //   - If the vault is not unlocked in within the timeout, we will abort the flow.
         //   - If the vault is unlocked, we will continue with the flow.
         // switchMap is used here to prevent multiple requests from being processed at the same time,
         // and will cancel the previous request if a new one is received.
         switchMap(([message, status, account]) => {
-          if (status !== AuthenticationStatus.Unlocked) {
+          if (status !== AuthenticationStatus.Unlocked || account == null) {
             ipc.platform.focusWindow();
             this.toastService.showToast({
               variant: "info",
@@ -127,7 +125,11 @@ export class SshAgentService implements OnDestroy {
 
                 throw error;
               }),
-              map(() => [message, account.id]),
+              concatMap(async () => {
+                // The active account may have switched with account switching during unlock
+                const updatedAccount = await firstValueFrom(this.accountService.activeAccount$);
+                return [message, updatedAccount.id] as const;
+              }),
             );
           }
 
@@ -200,10 +202,6 @@ export class SshAgentService implements OnDestroy {
 
     this.accountService.activeAccount$.pipe(skip(1), takeUntil(this.destroy$)).subscribe({
       next: (account) => {
-        if (!this.isFeatureFlagEnabled) {
-          return;
-        }
-
         this.authorizedSshKeys = {};
         this.logService.info("Active account changed, clearing SSH keys");
         ipc.platform.sshAgent
@@ -211,20 +209,12 @@ export class SshAgentService implements OnDestroy {
           .catch((e) => this.logService.error("Failed to clear SSH keys", e));
       },
       error: (e: unknown) => {
-        if (!this.isFeatureFlagEnabled) {
-          return;
-        }
-
         this.logService.error("Error in active account observable", e);
         ipc.platform.sshAgent
           .clearKeys()
           .catch((e) => this.logService.error("Failed to clear SSH keys", e));
       },
       complete: () => {
-        if (!this.isFeatureFlagEnabled) {
-          return;
-        }
-
         this.logService.info("Active account observable completed, clearing SSH keys");
         this.authorizedSshKeys = {};
         ipc.platform.sshAgent
@@ -239,10 +229,6 @@ export class SshAgentService implements OnDestroy {
     ])
       .pipe(
         concatMap(async ([, enabled]) => {
-          if (!this.isFeatureFlagEnabled) {
-            return;
-          }
-
           if (!enabled) {
             await ipc.platform.sshAgent.clearKeys();
             return;

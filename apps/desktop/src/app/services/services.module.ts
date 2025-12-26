@@ -56,6 +56,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -203,8 +204,16 @@ const safeProviders: SafeProvider[] = [
     // We manually override the value of SUPPORTS_SECURE_STORAGE here to avoid
     // the TokenService having to inject the PlatformUtilsService which introduces a
     // circular dependency on Desktop only.
+    //
+    // For Windows portable builds, we disable secure storage to ensure tokens are
+    // stored on disk (in bitwarden-appdata) rather than in Windows Credential
+    // Manager, making them portable across machines. This allows users to move the USB drive
+    // between computers while maintaining authentication.
+    //
+    // Note: Portable mode does not use secure storage for read/write/clear operations,
+    // preventing any collision with tokens from a regular desktop installation.
     provide: SUPPORTS_SECURE_STORAGE,
-    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE,
+    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE && !ipc.platform.isWindowsPortable,
   }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
@@ -408,6 +417,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
       MessagingServiceAbstraction,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
@@ -481,6 +491,7 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsServiceAbstraction,
       BillingAccountProfileStateService,
       DesktopAutotypeDefaultSettingPolicy,
+      LogService,
     ],
   }),
   safeProvider({
