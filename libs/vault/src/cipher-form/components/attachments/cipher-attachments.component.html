@@ -6,10 +6,12 @@
       <li>
         <bit-item>
           <bit-item-content>
-            <span data-testid="file-name" [title]="attachment.fileName">{{
-              attachment.fileName
-            }}</span>
-            <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
+            <span data-testid="file-name" [title]="getAttachmentFileName(attachment)">
+              {{ getAttachmentFileName(attachment) }}
+            </span>
+            @if (!attachment.hasDecryptionError) {
+              <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
+            }
             <i
               *ngIf="attachment.key == null"
               slot="default-trailing"

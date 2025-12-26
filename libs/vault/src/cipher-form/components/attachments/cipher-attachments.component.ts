@@ -190,6 +190,14 @@ export class CipherAttachmentsComponent {
     }
   }
 
+  getAttachmentFileName(attachment: AttachmentView): string {
+    if (attachment.hasDecryptionError) {
+      return this.i18nService.t("errorCannotDecrypt");
+    }
+
+    return attachment.fileName ?? "";
+  }
+
   /** Save the attachments to the cipher */
   submit = async () => {
     this.onUploadStarted.emit();
