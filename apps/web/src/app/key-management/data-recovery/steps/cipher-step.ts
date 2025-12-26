@@ -10,6 +10,7 @@ export class CipherStep implements RecoveryStep {
   title = "recoveryStepCipherTitle";
 
   private undecryptableCipherIds: string[] = [];
+  private decryptableCipherIds: string[] = [];
 
   constructor(
     private apiService: ApiService,
@@ -27,18 +28,21 @@ export class CipherStep implements RecoveryStep {
     for (const cipher of workingData.ciphers) {
       try {
         await this.cipherService.decrypt(cipher, workingData.userId);
+        this.decryptableCipherIds.push(cipher.id);
       } catch {
         logger.record(`Cipher ID ${cipher.id} was undecryptable`);
         this.undecryptableCipherIds.push(cipher.id);
       }
     }
     logger.record(`Found ${this.undecryptableCipherIds.length} undecryptable ciphers`);
+    logger.record(`Found ${this.decryptableCipherIds.length} decryptable ciphers`);
 
     return this.undecryptableCipherIds.length == 0;
   }
 
   canRecover(workingData: RecoveryWorkingData): boolean {
-    return this.undecryptableCipherIds.length > 0;
+    // If everything fails to decrypt, it's a deeper issue and we shouldn't offer recovery here.
+    return this.undecryptableCipherIds.length > 0 && this.decryptableCipherIds.length > 0;
   }
 
   async runRecovery(workingData: RecoveryWorkingData, logger: LogRecorder): Promise<void> {
