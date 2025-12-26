@@ -1776,19 +1776,19 @@
     "message": "导出自"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "导出",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "导出",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "导入",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "导入",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
