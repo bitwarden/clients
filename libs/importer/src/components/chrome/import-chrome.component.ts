@@ -1,16 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  effect,
-  EventEmitter,
-  input,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { Component, EventEmitter, input, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import {
   AsyncValidatorFn,
   ControlContainer,
@@ -105,21 +96,31 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() csvDataLoaded = new EventEmitter<string>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() error = new EventEmitter<string>();
+
   constructor(
     private formBuilder: FormBuilder,
     private controlContainer: ControlContainer,
     private logService: LogService,
     private i18nService: I18nService,
-  ) {
-    effect(async () => {
-      this.profileList = await this.onLoadProfilesFromBrowser(this.getBrowserName(this.format()));
-      // FIXME: Add error handling and display when profiles could not be loaded/retrieved
-    });
-  }
+  ) {}
 
   async ngOnInit(): Promise<void> {
     this._parentFormGroup = this.controlContainer.control as FormGroup;
     this._parentFormGroup.addControl("chromeOptions", this.formGroup);
+
+    // Load profiles from browser on initialization
+    if (this.onLoadProfilesFromBrowser) {
+      try {
+        this.profileList = await this.onLoadProfilesFromBrowser(this.getBrowserName(this.format()));
+      } catch (error) {
+        this.logService.error("Error loading profiles from browser:", error);
+        const translatedMessage = this.translateValidationError(error);
+        this.error.emit(translatedMessage);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -169,21 +170,40 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
         return null;
       } catch (error) {
         this.logService.error(`Chromium importer error: ${error}`);
+        const translatedMessage = this.translateValidationError(error);
         return {
           errors: {
-            message: this.i18nService.t(this.getValidationErrorI18nKey(error)),
+            message: translatedMessage,
           },
         };
       }
     };
   }
 
-  private getValidationErrorI18nKey(error: any): string {
+  private translateValidationError(error: any): string {
     const message = typeof error === "string" ? error : error?.message;
-    switch (message) {
-      default:
-        return "errorOccurred";
+    if (!message) {
+      return this.i18nService.t("errorOccurred");
     }
+
+    // Check for specific browser not installed error
+    const browserNotInstalledMatch = message.match(/chromiumImporterBrowserNotInstalled:([^:]+)/);
+    if (browserNotInstalledMatch) {
+      return this.i18nService.t("chromiumImporterBrowserNotInstalled", browserNotInstalledMatch[1]);
+    }
+
+    // Generic IPC error
+    if (message.includes("Error invoking remote method")) {
+      return this.i18nService.t("errorOccurred");
+    }
+
+    // Check if it's a known i18n key
+    if (message === "browserAccessDenied") {
+      return this.i18nService.t("browserAccessDenied");
+    }
+
+    // Return raw message as fallback
+    return message;
   }
 
   private getBrowserName(format: ImportType): string {

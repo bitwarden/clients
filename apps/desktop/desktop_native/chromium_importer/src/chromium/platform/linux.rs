@@ -38,7 +38,7 @@ pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
 ];
 
 pub(crate) fn get_crypto_service(
-    browser_name: &String,
+    browser_name: &str,
     _local_state: &LocalState,
 ) -> Result<Box<dyn CryptoService>> {
     let config = KEYRING_CONFIG
