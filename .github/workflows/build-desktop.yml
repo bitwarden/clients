@@ -2169,7 +2169,6 @@ jobs:
 
       - name: Run dmg
         run: |
-          sudo purge
           open /Applications/Bitwarden.app/Contents/MacOS/Bitwarden &
           sleep 30
           if pgrep Bitwarden > /dev/null; then
