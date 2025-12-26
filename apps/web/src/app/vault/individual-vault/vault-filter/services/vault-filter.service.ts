@@ -24,8 +24,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -111,11 +109,8 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   collectionTree$: Observable<TreeNode<CollectionFilter>> = combineLatest([
     this.filteredCollections$,
     this.memberOrganizations$,
-    this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
   ]).pipe(
-    map(([collections, organizations, defaultCollectionsFlagEnabled]) =>
-      this.buildCollectionTree(collections, organizations, defaultCollectionsFlagEnabled),
-    ),
+    map(([collections, organizations]) => this.buildCollectionTree(collections, organizations)),
   );
 
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>> = this.buildCipherTypeTree();
@@ -133,7 +128,6 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected stateProvider: StateProvider,
     protected collectionService: CollectionService,
     protected accountService: AccountService,
-    protected configService: ConfigService,
   ) {}
 
   async getCollectionNodeFromTree(id: string) {
@@ -241,18 +235,13 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   protected buildCollectionTree(
     collections?: CollectionView[],
     orgs?: Organization[],
-    defaultCollectionsFlagEnabled?: boolean,
   ): TreeNode<CollectionFilter> {
     const headNode = this.getCollectionFilterHead();
     if (!collections) {
       return headNode;
     }
     const all: TreeNode<CollectionFilter>[] = [];
-
-    if (defaultCollectionsFlagEnabled) {
-      collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
-    }
-
+    collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
     const groupedByOrg = this.collectionService.groupByOrganization(collections);
 
     for (const group of groupedByOrg.values()) {

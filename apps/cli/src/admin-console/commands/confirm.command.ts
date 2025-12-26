@@ -9,9 +9,7 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -28,7 +26,6 @@ export class ConfirmCommand {
     private encryptService: EncryptService,
     private organizationUserApiService: OrganizationUserApiService,
     private accountService: AccountService,
-    private configService: ConfigService,
     private i18nService: I18nService,
   ) {}
 
@@ -80,11 +77,7 @@ export class ConfirmCommand {
       const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
       const req = new OrganizationUserConfirmRequest();
       req.key = key.encryptedString;
-      if (
-        await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
-      ) {
-        req.defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
-      }
+      req.defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
       await this.organizationUserApiService.postOrganizationUserConfirm(
         options.organizationId,
         id,
