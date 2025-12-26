@@ -1911,7 +1911,6 @@ jobs:
           persist-credentials: false
 
       - name: Download deb artifact
-        id: download-deb
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/deb
@@ -1955,7 +1954,6 @@ jobs:
           persist-credentials: false
 
       - name: Download appimage artifact
-        id: download-appimage
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/appimage
@@ -1997,7 +1995,6 @@ jobs:
           persist-credentials: false
 
       - name: Download appimage artifact
-        id: download-appimage
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/appimage
@@ -2007,7 +2004,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libasound2 libfuse2 xvfb
-          sudo apt-get install -y weston libwayland-client-dev libwayland-server-dev
+          sudo apt-get install -y weston libwayland-client0 libwayland-server0 libwayland-dev
 
       - name: Run headless Wayland compositor
         run: |
@@ -2022,7 +2019,7 @@ jobs:
           WAYLAND_DISPLAY: wayland-0
         run: |
           chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
-          ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
+          xvfb-run -a ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
           sleep 30
           if pgrep bitwarden > /dev/null; then
             pkill -9 bitwarden
@@ -2053,7 +2050,6 @@ jobs:
           persist-credentials: false
 
       - name: Download flatpak artifact
-        id: download-flatpak
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/flatpak/
@@ -2107,7 +2103,6 @@ jobs:
           persist-credentials: false
 
       - name: Download snap artifact
-        id: download-snap
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/snap
