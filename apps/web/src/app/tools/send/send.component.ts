@@ -37,6 +37,7 @@ import {
   SendFormConfig,
   SendAddEditDialogComponent,
   SendItemDialogResult,
+  SendTableComponent,
 } from "@bitwarden/send-ui";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -57,6 +58,7 @@ const BroadcasterSubscriptionId = "SendComponent";
     HeaderModule,
     NewSendDropdownComponent,
     ToggleGroupModule,
+    SendTableComponent,
   ],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],
@@ -163,6 +165,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
 
   ngOnDestroy() {
     this.dialogService.closeAll();
+    this.dialogService.closeDrawer();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
   }
 
