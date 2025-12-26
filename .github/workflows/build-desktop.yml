@@ -1911,7 +1911,6 @@ jobs:
           persist-credentials: false
 
       - name: Download deb artifact
-        id: download-deb
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/deb
@@ -1955,7 +1954,6 @@ jobs:
           persist-credentials: false
 
       - name: Download appimage artifact
-        id: download-appimage
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/appimage
@@ -1997,7 +1995,6 @@ jobs:
           persist-credentials: false
 
       - name: Download appimage artifact
-        id: download-appimage
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/appimage
@@ -2053,7 +2050,6 @@ jobs:
           persist-credentials: false
 
       - name: Download flatpak artifact
-        id: download-flatpak
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/flatpak/
@@ -2107,7 +2103,6 @@ jobs:
           persist-credentials: false
 
       - name: Download snap artifact
-        id: download-snap
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           path: apps/desktop/artifacts/linux/snap
