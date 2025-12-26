@@ -15,7 +15,7 @@ export function mockAccountInfoWith(info: Partial<AccountInfo> = {}): AccountInf
     name: "name",
     email: "email",
     emailVerified: true,
-    creationDate: "2024-01-01T00:00:00.000Z",
+    creationDate: new Date("2024-01-01T00:00:00.000Z"),
     ...info,
   };
 }
@@ -111,7 +111,7 @@ export class FakeAccountService implements AccountService {
     await this.mock.setAccountEmailVerified(userId, emailVerified);
   }
 
-  async setAccountCreationDate(userId: UserId, creationDate: string): Promise<void> {
+  async setAccountCreationDate(userId: UserId, creationDate: Date): Promise<void> {
     await this.mock.setAccountCreationDate(userId, creationDate);
   }
 
