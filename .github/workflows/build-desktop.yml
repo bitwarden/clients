@@ -2194,7 +2194,6 @@ jobs:
       - validate-linux-snap
       - validate-linux-wayland
       - validate-macos-dmg
-      - validate-macos-mas
     permissions:
       contents: read
       id-token: write
