@@ -2007,7 +2007,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libasound2 libfuse2 xvfb
-          sudo apt-get install -y weston libwayland-client-dev libwayland-server-dev
+          sudo apt-get install -y weston libwayland-client0 libwayland-server0 libwayland-dev
 
       - name: Run headless Wayland compositor
         run: |
