@@ -2,6 +2,11 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+// Wait for popover positioning to complete for Chromatic snapshots
+const waitForPopoverPosition = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 100));
+};
+
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
@@ -33,6 +38,10 @@ export default {
     design: {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40852&t=b5tDKylm5sWm2yKo-4",
+    },
+    chromatic: {
+      // Delay parameter gives extra time for popover positioning to complete
+      delay: 150,
     },
   },
   argTypes: {
@@ -94,6 +103,7 @@ export const Default: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const OpenLongTitle: Story = {
@@ -126,6 +136,7 @@ export const OpenLongTitle: Story = {
       </bit-popover>
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const RightStart: Story = {
@@ -153,6 +164,7 @@ export const RightStart: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const RightCenter: Story = {
@@ -180,6 +192,7 @@ export const RightCenter: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const RightEnd: Story = {
@@ -207,6 +220,7 @@ export const RightEnd: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const LeftStart: Story = {
@@ -236,6 +250,7 @@ export const LeftStart: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const LeftCenter: Story = {
@@ -265,6 +280,7 @@ export const LeftCenter: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 export const LeftEnd: Story = {
   args: {
@@ -293,6 +309,7 @@ export const LeftEnd: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const BelowStart: Story = {
@@ -322,6 +339,7 @@ export const BelowStart: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const BelowCenter: Story = {
@@ -351,6 +369,7 @@ export const BelowCenter: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const BelowEnd: Story = {
@@ -380,6 +399,7 @@ export const BelowEnd: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const AboveStart: Story = {
@@ -409,6 +429,7 @@ export const AboveStart: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const AboveCenter: Story = {
@@ -438,6 +459,7 @@ export const AboveCenter: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
 
 export const AboveEnd: Story = {
@@ -467,4 +489,5 @@ export const AboveEnd: Story = {
       ${popoverContent}
       `,
   }),
+  play: waitForPopoverPosition,
 };
