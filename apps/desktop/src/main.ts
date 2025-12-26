@@ -132,7 +132,11 @@ export class Main {
     this.logService = new ElectronLogMainService(null, app.getPath("userData"));
 
     const storageDefaults: any = {};
-    this.storageService = new ElectronStorageService(app.getPath("userData"), storageDefaults);
+    this.storageService = new ElectronStorageService(
+      this.logService,
+      app.getPath("userData"),
+      storageDefaults,
+    );
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(
