@@ -92,6 +92,12 @@ export class NavGroupComponent extends NavBaseComponent {
    */
   readonly hideIfEmpty = input(false, { transform: booleanAttribute });
 
+  /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
+  readonly forceActiveStyles = input(false, { transform: booleanAttribute });
+
+  /** Does not toggle the expanded state on click */
+  readonly disableToggleOnClick = input(false, { transform: booleanAttribute });
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
@@ -129,7 +135,7 @@ export class NavGroupComponent extends NavBaseComponent {
         this.sideNavService.setOpen();
       }
       this.open.set(true);
-    } else {
+    } else if (!this.disableToggleOnClick()) {
       this.toggle();
     }
     this.mainContentClicked.emit();
