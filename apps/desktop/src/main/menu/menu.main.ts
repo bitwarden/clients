@@ -1,9 +1,15 @@
-import { app, Menu } from "electron";
+import { app, Menu, MenuItemConstructorOptions } from "electron";
 import { firstValueFrom } from "rxjs";
 
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+import {
+  APPLICATION_MENU_KEY,
+  SerializableMenu,
+  SerializableMenuItem,
+} from "@bitwarden/desktop-ui";
 
 import { VersionMain } from "../../platform/main/version.main";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -16,6 +22,9 @@ import { Menubar } from "./menubar";
 const cloudWebVaultUrl = "https://vault.bitwarden.com";
 
 export class MenuMain {
+  private currentMenubar: Menubar | null = null;
+  private menuState = this.globalStateProvider.get(APPLICATION_MENU_KEY);
+
   constructor(
     private i18nService: I18nService,
     private messagingService: MessagingService,
@@ -24,6 +33,7 @@ export class MenuMain {
     private updaterMain: UpdaterMain,
     private desktopSettingsService: DesktopSettingsService,
     private versionMain: VersionMain,
+    private globalStateProvider: GlobalStateProvider,
   ) {}
 
   async init() {
@@ -36,20 +46,28 @@ export class MenuMain {
   }
 
   private async setMenu(updateRequest?: MenuUpdateRequest) {
-    Menu.setApplicationMenu(
-      new Menubar(
-        this.i18nService,
-        this.messagingService,
-        this.desktopSettingsService,
-        this.updaterMain,
-        this.windowMain,
-        await this.getWebVaultUrl(),
-        app.getVersion(),
-        await firstValueFrom(this.desktopSettingsService.hardwareAcceleration$),
-        this.versionMain,
-        updateRequest,
-      ).menu,
+    this.currentMenubar = new Menubar(
+      this.i18nService,
+      this.messagingService,
+      this.desktopSettingsService,
+      this.updaterMain,
+      this.windowMain,
+      await this.getWebVaultUrl(),
+      app.getVersion(),
+      await firstValueFrom(this.desktopSettingsService.hardwareAcceleration$),
+      this.versionMain,
+      updateRequest,
     );
+    Menu.setApplicationMenu(this.currentMenubar.menu);
+
+    // Update the state with the serialized menu structure
+    const serializedMenus = this.currentMenubar.items.map((menu) => ({
+      id: menu.id,
+      label: menu.label,
+      visible: menu.visible ?? true,
+      items: this.convertMenuItems(menu.items),
+    }));
+    await this.menuState.update(() => serializedMenus);
   }
 
   private async getWebVaultUrl() {
@@ -135,5 +153,39 @@ export class MenuMain {
         selectionMenu.popup({ window: this.windowMain.win });
       }
     });
+  }
+
+  private convertMenuItems(items: MenuItemConstructorOptions[]): SerializableMenuItem[] {
+    return items
+      .map((item): SerializableMenuItem | null => {
+        // Skip items that shouldn't be visible
+        if (item.visible === false) {
+          return null;
+        }
+
+        // Filter supported types, default to "normal"
+        const supportedTypes = ["normal", "separator", "submenu", "checkbox", "radio"];
+        const menuType =
+          item.type && supportedTypes.includes(item.type) ? item.type : "normal";
+
+        const serializedItem: SerializableMenuItem = {
+          id: item.id,
+          label: item.label,
+          type: menuType as "normal" | "separator" | "submenu" | "checkbox" | "radio",
+          enabled: item.enabled ?? true, // Default to true if not specified
+          visible: item.visible ?? true, // Default to true if not specified
+          checked: item.checked,
+          accelerator: item.accelerator,
+          role: item.role,
+        };
+
+        // Recursively convert submenu items
+        if (item.submenu && Array.isArray(item.submenu)) {
+          serializedItem.submenu = this.convertMenuItems(item.submenu);
+        }
+
+        return serializedItem;
+      })
+      .filter((item): item is SerializableMenuItem => item !== null);
   }
 }

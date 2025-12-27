@@ -117,6 +117,7 @@ export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
 export const CONFIG_DISK = new StateDefinition("config", "disk", {
   web: "disk-local",
 });
+export const APPLICATION_MENU_MEMORY = new StateDefinition("applicationMenu", "memory");
 export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "disk");
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
