@@ -40,6 +40,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   SetInitialPasswordCredentials,
+  SetInitialPasswordCredentialsOld,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordUserType,
@@ -195,7 +196,14 @@ export class SetInitialPasswordComponent implements OnInit {
     switch (this.userType) {
       case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER:
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
-        await this.setInitialPassword(passwordInputResult);
+        // Remove wrapping "if" check in PM-28143
+        if (passwordInputResult.newApisFlagEnabled) {
+          await this.setInitialPassword(passwordInputResult);
+          return;
+        }
+
+        await this.setInitialPasswordOld(passwordInputResult);
+
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
         await this.setInitialPasswordTdeOffboarding(passwordInputResult);
@@ -208,7 +216,10 @@ export class SetInitialPasswordComponent implements OnInit {
     }
   }
 
-  private async setInitialPassword(passwordInputResult: PasswordInputResult) {
+  /**
+   * @deprecated To be removed in PM-28143
+   */
+  private async setInitialPasswordOld(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
     assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
     assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
@@ -224,7 +235,7 @@ export class SetInitialPasswordComponent implements OnInit {
     assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
 
     try {
-      const credentials: SetInitialPasswordCredentials = {
+      const credentials: SetInitialPasswordCredentialsOld = {
         newMasterKey: passwordInputResult.newMasterKey,
         newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
         newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
@@ -235,6 +246,47 @@ export class SetInitialPasswordComponent implements OnInit {
         resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
         newPassword: passwordInputResult.newPassword,
         salt: passwordInputResult.salt,
+      };
+
+      await this.setInitialPasswordService.setInitialPasswordOld(
+        credentials,
+        this.userType,
+        this.userId,
+      );
+
+      this.showSuccessToastByUserType();
+
+      this.submitting = false;
+      await this.router.navigate(["vault"]);
+    } catch (e) {
+      this.logService.error("Error setting initial password", e);
+      this.validationService.showError(e);
+      this.submitting = false;
+    }
+  }
+
+  private async setInitialPassword(passwordInputResult: PasswordInputResult) {
+    const ctx = "Could not set initial password.";
+
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
+    assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
+    assertTruthy(this.orgId, "orgId", ctx);
+    assertTruthy(this.userType, "userType", ctx);
+    assertTruthy(this.userId, "userId", ctx);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
+    assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
+
+    try {
+      const credentials: SetInitialPasswordCredentials = {
+        newPassword: passwordInputResult.newPassword,
+        newPasswordHint: passwordInputResult.newPasswordHint,
+        kdfConfig: passwordInputResult.kdfConfig,
+        salt: passwordInputResult.salt,
+        orgSsoIdentifier: this.orgSsoIdentifier,
+        orgId: this.orgId,
+        resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
       };
 
       await this.setInitialPasswordService.setInitialPassword(

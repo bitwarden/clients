@@ -42,7 +42,10 @@ export const SetInitialPasswordUserType: Readonly<{
   [K in keyof typeof _SetInitialPasswordUserType]: SetInitialPasswordUserType;
 }> = Object.freeze(_SetInitialPasswordUserType);
 
-export interface SetInitialPasswordCredentials {
+/**
+ * @deprecated To be removed in PM-28143
+ */
+export interface SetInitialPasswordCredentialsOld {
   newMasterKey: MasterKey;
   newServerMasterKeyHash: string;
   newLocalMasterKeyHash: string;
@@ -53,6 +56,16 @@ export interface SetInitialPasswordCredentials {
   resetPasswordAutoEnroll: boolean;
   newPassword: string;
   salt: MasterPasswordSalt;
+}
+
+export interface SetInitialPasswordCredentials {
+  newPassword: string;
+  newPasswordHint: string;
+  kdfConfig: KdfConfig;
+  salt: MasterPasswordSalt;
+  orgSsoIdentifier: string;
+  orgId: string;
+  resetPasswordAutoEnroll: boolean;
 }
 
 export interface SetInitialPasswordTdeOffboardingCredentials {
@@ -69,6 +82,8 @@ export interface SetInitialPasswordTdeOffboardingCredentials {
  */
 export abstract class SetInitialPasswordService {
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * Sets an initial password for an existing authed user who is either:
    * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
    * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
@@ -77,8 +92,8 @@ export abstract class SetInitialPasswordService {
    * @throws If any property on the `credentials` object is null or undefined, or if a
    *         masterKeyEncryptedUserKey or newKeyPair could not be created.
    */
-  abstract setInitialPassword: (
-    credentials: SetInitialPasswordCredentials,
+  abstract setInitialPasswordOld: (
+    credentials: SetInitialPasswordCredentialsOld,
     userType: SetInitialPasswordUserType,
     userId: UserId,
   ) => Promise<void>;
@@ -93,6 +108,21 @@ export abstract class SetInitialPasswordService {
    */
   abstract setInitialPasswordTdeOffboarding: (
     credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) => Promise<void>;
+
+  /**
+   * Sets an initial password for an existing authed user who is either:
+   * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
+   * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
+   *
+   * @param credentials An object of the credentials needed to set the initial password
+   * @throws If any property on the `credentials` object is null or undefined, or if a
+   *         masterKeyEncryptedUserKey or newKeyPair could not be created.
+   */
+  abstract setInitialPassword: (
+    credentials: SetInitialPasswordCredentials,
+    userType: SetInitialPasswordUserType,
     userId: UserId,
   ) => Promise<void>;
 }
