@@ -1,6 +1,6 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { AdminAuthRequestUpdateRequest } from "./admin-auth-request-update.request";
 import { BulkDenyAuthRequestsRequest } from "./bulk-deny-auth-requests.request";
@@ -51,12 +51,12 @@ export class OrganizationAuthRequestApiService {
   async approvePendingRequest(
     organizationId: string,
     requestId: string,
-    encryptedKey: EncString,
+    encryptedKey: UnsignedSharedKey,
   ): Promise<void> {
     await this.apiService.send(
       "POST",
       `/organizations/${organizationId}/auth-requests/${requestId}`,
-      new AdminAuthRequestUpdateRequest(true, encryptedKey.encryptedString),
+      new AdminAuthRequestUpdateRequest(true, encryptedKey),
       true,
       false,
     );

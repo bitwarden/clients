@@ -46,7 +46,7 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
 
     return combineLatest([encryptedKey$, encryptedCollectionName$]).pipe(
       map(([key, collectionName]) => ({
-        key: key.encryptedString,
+        key: key,
         defaultUserCollectionName: collectionName.encryptedString,
       })),
     );

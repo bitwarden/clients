@@ -1,3 +1,5 @@
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 import { DeviceType } from "../../../enums";
 import { BaseResponse } from "../../../models/response/base.response";
 
@@ -11,7 +13,7 @@ export class AuthRequestResponse extends BaseResponse {
   requestDeviceIdentifier: string;
   requestIpAddress: string;
   requestCountryName: string;
-  key: string; // could be either an encrypted MasterKey or an encrypted UserKey
+  key: UnsignedSharedKey; // could be either an encrypted MasterKey or an encrypted UserKey
   masterPasswordHash: string; // if hash is present, the `key` above is an encrypted MasterKey (else `key` is an encrypted UserKey)
   creationDate: string;
   requestApproved?: boolean;
