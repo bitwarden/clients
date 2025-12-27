@@ -25,6 +25,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService } from "@bitwarden/components";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
@@ -38,10 +39,7 @@ import {
   BillingAddress,
   MaskedPaymentMethod,
 } from "@bitwarden/web-vault/app/billing/payment/types";
-import {
-  BitwardenSubscriber,
-  mapOrganizationToSubscriber,
-} from "@bitwarden/web-vault/app/billing/types";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -86,7 +84,7 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
   );
 
   private load$: Observable<View> = this.organization$.pipe(
-    mapOrganizationToSubscriber,
+    SubscriptionLibraryMapper.mapOrganization$,
     switchMap(async (organization) => {
       const getTaxIdWarning = firstValueFrom(
         this.organizationWarningsService.getTaxIdWarning$(organization.data as Organization),
@@ -141,7 +139,7 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
           combineLatest([
             of(warning),
             this.organization$.pipe(take(1)).pipe(
-              mapOrganizationToSubscriber,
+              SubscriptionLibraryMapper.mapOrganization$,
               switchMap((organization) =>
                 this.subscriberBillingClient.getBillingAddress(organization),
               ),

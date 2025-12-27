@@ -61,6 +61,7 @@ import {
   getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import { tokenizablePaymentMethodToLegacyEnum } from "@bitwarden/web-vault/app/billing/payment/types";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
@@ -237,10 +238,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       );
       this.billing = await this.organizationApiService.getBilling(this.organizationId);
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
-      const billingAddress = await this.subscriberBillingClient.getBillingAddress({
-        type: "organization",
-        data: this.organization,
-      });
+      const billingAddress = await this.subscriberBillingClient.getBillingAddress(
+        SubscriptionLibraryMapper.mapOrganization(this.organization),
+      );
       this.billingFormGroup.controls.billingAddress.patchValue({
         ...billingAddress,
         taxId: billingAddress?.taxId?.value,
@@ -845,7 +845,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         throw new Error("Payment method validation failed");
       }
       await this.subscriberBillingClient.updatePaymentMethod(
-        { type: "organization", data: this.organization },
+        SubscriptionLibraryMapper.mapOrganization(this.organization),
         paymentMethod,
         {
           country: this.billingFormGroup.value.billingAddress.country,

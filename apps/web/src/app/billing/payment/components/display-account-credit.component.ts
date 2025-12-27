@@ -3,10 +3,10 @@ import { Component, Input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { SharedModule } from "../../../shared";
-import { BitwardenSubscriber } from "../../types";
 
 import { AddAccountCreditDialogComponent } from "./add-account-credit-dialog.component";
 

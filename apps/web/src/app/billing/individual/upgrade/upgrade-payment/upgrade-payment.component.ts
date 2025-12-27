@@ -36,6 +36,7 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { CartSummaryComponent } from "@bitwarden/pricing";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -50,7 +51,6 @@ import {
   TokenizedPaymentMethod,
 } from "../../../payment/types";
 import { BillingServicesModule } from "../../../services";
-import { BitwardenSubscriber } from "../../../types";
 
 import {
   PaymentFormValues,

@@ -1,9 +1,20 @@
-import { CurrencyPipe } from "@angular/common";
-import { Component, computed, input, signal } from "@angular/core";
+import { CurrencyPipe, NgTemplateOutlet } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  TemplateRef,
+} from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 
-import { TypographyModule, IconButtonModule } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { Discount, getDiscountText } from "../../types/discount";
 
 export type LineItem = {
   quantity: number;
@@ -17,23 +28,34 @@ export type LineItem = {
  * This component has no external dependencies and performs minimal logic -
  * it only displays data and allows expanding/collapsing of line items.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "billing-cart-summary",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./cart-summary.component.html",
-  imports: [TypographyModule, IconButtonModule, CurrencyPipe, I18nPipe],
+  imports: [TypographyModule, IconButtonModule, CurrencyPipe, I18nPipe, NgTemplateOutlet],
 })
 export class CartSummaryComponent {
-  // Required inputs
+  private i18nService = inject(I18nService);
+
+  // Inputs
+
+  /* The required Password Manager line item */
   readonly passwordManager = input.required<LineItem>();
+  /* The optional Storage line item */
   readonly additionalStorage = input<LineItem>();
+  /* The optional Secrets Manager line item */
   readonly secretsManager = input<{ seats: LineItem; additionalServiceAccounts?: LineItem }>();
+  /* An optionally applied discount */
+  readonly discount = input<Discount>();
+  /* The required tax estimated for the cart */
   readonly estimatedTax = input.required<number>();
+  /* An optional template for custom header content. Receives total as context. */
+  readonly headerTemplate = input<TemplateRef<{ total: number }>>();
 
   // UI state
   readonly isExpanded = signal(true);
 
+  // Computed
   /**
    * Calculates total for password manager line item
    */
@@ -68,9 +90,48 @@ export class CartSummaryComponent {
   });
 
   /**
+   * Calculates subtotal before discount
+   */
+  readonly subtotal = computed<number>(() => {
+    return (
+      this.passwordManagerTotal() +
+      this.additionalStorageTotal() +
+      this.secretsManagerSeatsTotal() +
+      this.additionalServiceAccountsTotal()
+    );
+  });
+
+  /**
+   * Calculates the applied discount if one exists.
+   */
+  readonly appliedDiscount = computed<{ text: string; value: number } | null>(() => {
+    const discount = this.discount();
+    if (!discount || !discount.active || discount.value <= 0) {
+      return null;
+    }
+    const text = getDiscountText(this.i18nService, discount);
+    switch (discount._tag) {
+      case "amount-off":
+        return { text, value: discount.value };
+      case "percent-off": {
+        const percentValue = discount.value < 1 ? discount.value : discount.value / 100;
+        return {
+          text,
+          value: this.subtotal() * percentValue,
+        };
+      }
+    }
+  });
+
+  /**
    * Calculates the total of all line items
    */
-  readonly total = computed<number>(() => this.getTotalCost());
+  readonly total = computed<number>(() => {
+    const appliedDiscount = this.appliedDiscount();
+    return appliedDiscount
+      ? this.subtotal() - appliedDiscount.value + this.estimatedTax()
+      : this.subtotal() + this.estimatedTax();
+  });
 
   /**
    * Observable of computed total value
@@ -82,19 +143,5 @@ export class CartSummaryComponent {
    */
   toggleExpanded(): void {
     this.isExpanded.update((value: boolean) => !value);
-  }
-
-  /**
-   * Gets the total cost of all line items in the cart
-   * @returns The total cost as a number
-   */
-  private getTotalCost(): number {
-    return (
-      this.passwordManagerTotal() +
-      this.additionalStorageTotal() +
-      this.secretsManagerSeatsTotal() +
-      this.additionalServiceAccountsTotal() +
-      this.estimatedTax()
-    );
   }
 }

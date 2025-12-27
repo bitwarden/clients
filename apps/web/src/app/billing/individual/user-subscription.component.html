@@ -64,9 +64,12 @@
                       (discountedSubscriptionAmount | currency: "$")
                   }}
                 </span>
-                <billing-discount-badge
-                  [discount]="getDiscountInfo(sub?.customerDiscount)"
-                ></billing-discount-badge>
+                @let discount = getDiscount(sub?.customerDiscount);
+                @if (discount) {
+                  <billing-discount-badge
+                    [discount]="getDiscount(sub?.customerDiscount)"
+                  ></billing-discount-badge>
+                }
               </div>
             </ng-container>
             <ng-template #noDiscount>

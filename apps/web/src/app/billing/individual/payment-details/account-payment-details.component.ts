@@ -2,6 +2,8 @@ import { Component } from "@angular/core";
 import { BehaviorSubject, filter, merge, Observable, shareReplay, switchMap, tap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -11,7 +13,6 @@ import {
   DisplayPaymentMethodComponent,
 } from "../../payment/components";
 import { MaskedPaymentMethod } from "../../payment/types";
-import { mapAccountToSubscriber, BitwardenSubscriber } from "../../types";
 
 type View = {
   account: BitwardenSubscriber;
@@ -36,7 +37,7 @@ export class AccountPaymentDetailsComponent {
   private viewState$ = new BehaviorSubject<View | null>(null);
 
   private load$: Observable<View> = this.accountService.activeAccount$.pipe(
-    mapAccountToSubscriber,
+    SubscriptionLibraryMapper.mapAccount$,
     switchMap(async (account) => {
       const [paymentMethod, credit] = await Promise.all([
         this.subscriberBillingClient.getPaymentMethod(account),

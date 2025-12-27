@@ -1,0 +1,137 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs/blocks";
+import * as AdditionalOptionsCardStories from "./additional-options-card.component.stories";
+
+<Meta of={AdditionalOptionsCardStories} />
+
+# Additional Options Card
+
+A reusable UI-only component that displays additional subscription management options with action
+buttons. This component has no external dependencies and performs no logic - it only displays
+content and emits events when buttons are clicked.
+
+<Canvas of={AdditionalOptionsCardStories.Default} />
+
+## Usage
+
+The additional options card component is designed to be used in billing and subscription management
+interfaces to provide users with additional actions they can take to manage their subscription.
+
+```ts
+import { AdditionalOptionsCardComponent } from "@bitwarden/subscription";
+```
+
+```html
+<billing-additional-options-card
+  (downloadLicenseClicked)="handleDownloadLicense()"
+  (cancelSubscriptionClicked)="handleCancelSubscription()"
+/>
+```
+
+## API
+
+### Inputs
+
+This component has no inputs - it displays static content that is internationalized.
+
+### Outputs
+
+| Output                      | Type   | Description                                              |
+| --------------------------- | ------ | -------------------------------------------------------- |
+| `downloadLicenseClicked`    | `void` | Emitted when the "Download license" button is clicked    |
+| `cancelSubscriptionClicked` | `void` | Emitted when the "Cancel subscription" button is clicked |
+
+## Design
+
+The component follows the Bitwarden design system with:
+
+- **Full width/height**: Designed to fill its container (`tw-size-full`)
+- **Action buttons**: Secondary and danger-styled buttons for different actions
+- **Static content**: Title and description are internationalized but not configurable
+- **Modern Angular**: Uses signals for outputs and standalone components
+- **OnPush**: Optimized change detection strategy
+- **Responsive**: Adapts to container size with flexible layout
+
+## Example
+
+### Default
+
+Standard display with title, description, and action buttons:
+
+<Canvas of={AdditionalOptionsCardStories.Default} />
+
+```html
+<billing-additional-options-card
+  (downloadLicenseClicked)="onDownloadLicense()"
+  (cancelSubscriptionClicked)="onCancelSubscription()"
+/>
+```
+
+## Handling Actions
+
+The component emits events when action buttons are clicked:
+
+```ts
+export class BillingComponent {
+  handleDownloadLicense() {
+    this.downloadService.downloadLicense();
+  }
+
+  handleCancelSubscription() {
+    this.openCancelSubscriptionDialog();
+  }
+}
+```
+
+```html
+<billing-additional-options-card
+  (downloadLicenseClicked)="handleDownloadLicense()"
+  (cancelSubscriptionClicked)="handleCancelSubscription()"
+/>
+```
+
+## Do's and Don'ts
+
+### ✅ Do
+
+- Handle both output events appropriately
+- Show the component in a container that allows it to fill available space
+- Provide appropriate confirmation dialogs for destructive actions like cancel subscription
+- Consider user permissions before showing this card
+
+### ❌ Don't
+
+- Modify the component's internal logic or styling
+- Override the card's dimensions - it's designed to be flexible
+- Display the card without handling the action events
+- Allow unauthorized users to access dangerous actions
+
+## Internationalization
+
+The component requires the following i18n keys:
+
+```json
+{
+  "additionalOptions": "Additional options",
+  "additionalOptionsDescription": "For additional help managing your subscription, please contact Customer Support",
+  "downloadLicense": "Download license",
+  "cancelSubscription": "Cancel subscription"
+}
+```
+
+## Accessibility
+
+The component includes:
+
+- **Semantic HTML**: Proper heading hierarchy with `h2` element
+- **Button semantics**: Proper `button` elements with `type="button"`
+- **Visual hierarchy**: Clear distinction between secondary and danger actions
+- **Keyboard navigation**: All interactive buttons are keyboard accessible
+- **Screen reader support**: Descriptive labels and text content
+- **Focus management**: Visible focus states for all interactive elements
+- **Color contrast**: Meets WCAG AA standards for all text and visual elements
+
+## Related Components
+
+- **`SubscriptionCardComponent`** - For displaying subscription membership information
+- **`StorageCardComponent`** - For displaying storage usage information
+- **`PricingCardComponent`** - For displaying subscription plans during selection

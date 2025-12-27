@@ -16,39 +16,48 @@ The discount badge component is designed to be used in billing and subscription 
 display discount information.
 
 ```ts
-import { DiscountBadgeComponent, DiscountInfo } from "@bitwarden/pricing";
+import { DiscountBadgeComponent, Discount } from "@bitwarden/pricing";
 ```
 
 ```html
-<billing-discount-badge [discount]="discountInfo"></billing-discount-badge>
+<billing-discount-badge [discount]="discount"></billing-discount-badge>
 ```
 
 ## API
 
 ### Inputs
 
-| Input      | Type                   | Description                                                                      |
-| ---------- | ---------------------- | -------------------------------------------------------------------------------- |
-| `discount` | `DiscountInfo \| null` | **Optional.** Discount information object. If null or inactive, badge is hidden. |
+| Input      | Type       | Description                                                                                                         |
+| ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------- |
+| `discount` | `Discount` | **Required.** Information about the discount. If the discount is inactive or has a value of 0, the badge is hidden. |
 
-### DiscountInfo Interface
+### Discount Type
+
+The `Discount` type is a discriminated union that represents either a percentage or fixed amount
+discount:
 
 ```ts
-interface DiscountInfo {
-  /** Whether the discount is currently active */
+type AmountOff = {
+  _tag: "amount-off";
+  value: number;
+};
+
+type PercentOff = {
+  _tag: "percent-off";
+  value: number;
+};
+
+type Discount = {
   active: boolean;
-  /** Percentage discount (0-100 or 0-1 scale) */
-  percentOff?: number;
-  /** Fixed amount discount in the base currency */
-  amountOff?: number;
-}
+} & (AmountOff | PercentOff);
 ```
 
 ## Behavior
 
-- The badge is only displayed when `discount` is provided, `active` is `true`, and either
-  `percentOff` or `amountOff` is greater than 0.
-- If both `percentOff` and `amountOff` are provided, `percentOff` takes precedence.
+- The badge is only displayed when `discount.active` is `true` and `discount.value` is greater
+  than 0.
+- Use `_tag: "percent-off"` for percentage discounts and `_tag: "amount-off"` for fixed amount
+  discounts.
 - Percentage values can be provided as 0-100 (e.g., `20` for 20%) or 0-1 (e.g., `0.2` for 20%).
 - Amount values are formatted as currency (USD) with 2 decimal places.
 

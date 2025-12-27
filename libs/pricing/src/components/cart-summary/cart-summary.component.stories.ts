@@ -2,8 +2,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
-
-import { CartSummaryComponent } from "./cart-summary.component";
+import { CartSummaryComponent } from "@bitwarden/pricing";
 
 export default {
   title: "Billing/Cart Summary",
@@ -49,6 +48,8 @@ export default {
                   return "Families membership";
                 case "premiumMembership":
                   return "Premium membership";
+                case "discount":
+                  return "Discount";
                 default:
                   return key;
               }
@@ -188,4 +189,114 @@ export const PremiumPlan: Story = {
     },
     estimatedTax: 2.71,
   },
+};
+
+export const WithPercentDiscount: Story = {
+  args: {
+    passwordManager: {
+      quantity: 1,
+      name: "premiumMembership",
+      cost: 10.0,
+      cadence: "year",
+    },
+    additionalStorage: {
+      quantity: 2,
+      name: "additionalStorageGB",
+      cost: 4.0,
+      cadence: "year",
+    },
+    discount: {
+      _tag: "percent-off",
+      value: 30,
+      active: true,
+    },
+    estimatedTax: 0.0,
+  },
+};
+
+export const WithAmountDiscount: Story = {
+  args: {
+    passwordManager: {
+      quantity: 1,
+      name: "premiumMembership",
+      cost: 10.0,
+      cadence: "year",
+    },
+    additionalStorage: {
+      quantity: 2,
+      name: "additionalStorageGB",
+      cost: 4.0,
+      cadence: "year",
+    },
+    discount: {
+      _tag: "amount-off",
+      value: 3.0,
+      active: true,
+    },
+    estimatedTax: 0.0,
+  },
+};
+
+export const WithCustomHeader: Story = {
+  args: {
+    passwordManager: {
+      quantity: 5,
+      name: "members",
+      cost: 50.0,
+      cadence: "month",
+    },
+    estimatedTax: 9.6,
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <ng-template #customHeader let-total="total">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.25rem; font-weight: 600; color: #175ddc;">
+            Custom Total: {{ total | currency: 'USD' }}
+          </span>
+          <span style="font-size: 0.875rem; color: #6c757d;">per month</span>
+        </div>
+      </ng-template>
+      <billing-cart-summary
+        [passwordManager]="passwordManager"
+        [estimatedTax]="estimatedTax"
+        [headerTemplate]="customHeader"
+      />
+    `,
+  }),
+};
+
+export const WithMinimalCustomHeader: Story = {
+  args: {
+    passwordManager: {
+      quantity: 5,
+      name: "members",
+      cost: 50.0,
+      cadence: "month",
+    },
+    additionalStorage: {
+      quantity: 2,
+      name: "additionalStorageGB",
+      cost: 10.0,
+      cadence: "month",
+    },
+    estimatedTax: 12.0,
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <ng-template #customHeader let-total="total">
+        <h3 style="margin: 0; font-size: 1.125rem;">
+          Pay today: {{ total | currency: 'USD' }}
+        </h3>
+      </ng-template>
+      <billing-cart-summary
+        [passwordManager]="passwordManager"
+        [additionalStorage]="additionalStorage"
+        [estimatedTax]="estimatedTax"
+        [headerTemplate]="customHeader"
+      />
+    `,
+  }),
 };

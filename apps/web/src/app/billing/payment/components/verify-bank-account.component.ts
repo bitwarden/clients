@@ -3,10 +3,10 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { SharedModule } from "../../../shared";
-import { BitwardenSubscriber } from "../../types";
 import { MaskedPaymentMethod } from "../types";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

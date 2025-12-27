@@ -2,10 +2,10 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
 import { DialogService } from "@bitwarden/components";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 import { EditBillingAddressDialogComponent } from "@bitwarden/web-vault/app/billing/payment/components/edit-billing-address-dialog.component";
 import { AddressPipe } from "@bitwarden/web-vault/app/billing/payment/pipes";
 import { BillingAddress } from "@bitwarden/web-vault/app/billing/payment/types";
-import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import {
   TaxIdWarningType,
   TaxIdWarningTypes,

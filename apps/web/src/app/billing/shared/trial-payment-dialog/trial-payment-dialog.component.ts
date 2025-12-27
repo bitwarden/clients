@@ -40,7 +40,7 @@ import {
   EnterPaymentMethodComponent,
   getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
-import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 
 import { PlanCardService } from "../../services/plan-card.service";
 import { PlanCard } from "../plan-card/plan-card.component";
@@ -158,10 +158,9 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
         : PlanInterval.Monthly;
     }
 
-    const billingAddress = await this.subscriberBillingClient.getBillingAddress({
-      type: "organization",
-      data: this.organization,
-    });
+    const billingAddress = await this.subscriberBillingClient.getBillingAddress(
+      SubscriptionLibraryMapper.mapOrganization(this.organization),
+    );
 
     if (billingAddress) {
       const { taxId, ...location } = billingAddress;
@@ -336,7 +335,7 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
 
       const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
 
-      const subscriber: BitwardenSubscriber = { type: "organization", data: this.organization };
+      const subscriber = SubscriptionLibraryMapper.mapOrganization(this.organization);
       await Promise.all([
         this.subscriberBillingClient.updatePaymentMethod(subscriber, paymentMethod, null),
         this.subscriberBillingClient.updateBillingAddress(subscriber, billingAddress),

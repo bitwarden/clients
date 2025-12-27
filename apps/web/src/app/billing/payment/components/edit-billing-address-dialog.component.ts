@@ -1,7 +1,6 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
-import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   CalloutTypes,
@@ -10,9 +9,9 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { BitwardenSubscriber } from "@bitwarden/subscription";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { BillingAddress } from "@bitwarden/web-vault/app/billing/payment/types";
-import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import {
   TaxIdWarningType,
   TaxIdWarningTypes,
@@ -146,11 +145,8 @@ export class EditBillingAddressDialogComponent {
         return false;
       }
       case "organization": {
-        return [
-          ProductTierType.TeamsStarter,
-          ProductTierType.Teams,
-          ProductTierType.Enterprise,
-        ].includes(this.dialogParams.subscriber.data.productTierType);
+        const tier = this.dialogParams.subscriber.data.tier;
+        return tier === "teams-starter" || tier === "teams" || tier === "enterprise";
       }
       case "provider": {
         return true;

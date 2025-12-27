@@ -27,9 +27,10 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule } from "@bitwarden/components";
+import { NonIndividualBitwardenSubscriber } from "@bitwarden/subscription";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
-import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { SubscriptionLibraryMapper } from "@bitwarden/web-vault/app/billing/types/subscription-library-mapper";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 
@@ -51,7 +52,6 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     OrgSwitcherComponent,
     BannerModule,
     TaxIdWarningComponent,
-    TaxIdWarningComponent,
     OrganizationWarningsModule,
   ],
 })
@@ -70,7 +70,7 @@ export class OrganizationLayoutComponent implements OnInit {
 
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
 
-  protected subscriber$: Observable<NonIndividualSubscriber>;
+  protected subscriber$: Observable<NonIndividualBitwardenSubscriber>;
   protected getTaxIdWarning$: () => Observable<TaxIdWarningType | null>;
 
   constructor(
@@ -135,10 +135,7 @@ export class OrganizationLayoutComponent implements OnInit {
     this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
 
     this.subscriber$ = this.organization$.pipe(
-      map((organization) => ({
-        type: "organization",
-        data: organization,
-      })),
+      map((organization) => SubscriptionLibraryMapper.mapOrganization(organization)),
     );
 
     this.getTaxIdWarning$ = () =>
