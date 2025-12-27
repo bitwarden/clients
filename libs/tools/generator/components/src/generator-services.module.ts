@@ -1,14 +1,11 @@
 import { NgModule } from "@angular/core";
-import { from, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { SafeInjectionToken } from "@bitwarden/angular/services/injection-tokens";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -91,7 +88,6 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
         registry: ExtensionRegistry,
         logger: LogService,
         environment: PlatformUtilsService,
-        configService: ConfigService,
       ) => {
         let log: LogProvider;
         if (environment.isDev()) {
@@ -111,7 +107,6 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
           policy,
           extension,
           log,
-          configService,
         };
       },
       deps: [
@@ -121,7 +116,6 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
         ExtensionRegistry,
         LogService,
         PlatformUtilsService,
-        ConfigService,
       ],
     }),
     safeProvider({
@@ -141,18 +135,13 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
           now: Date.now,
         } satisfies UserStateSubjectDependencyProvider;
 
-        const featureFlagObs$ = from(
-          system.configService.getFeatureFlag(FeatureFlag.UseSdkPasswordGenerators),
-        );
-        let featureFlag: boolean = false;
-        featureFlagObs$.pipe(take(1)).subscribe((ff) => (featureFlag = ff));
         const metadata = new providers.GeneratorMetadataProvider(
           userStateDeps,
           system,
           Object.values(BuiltIn),
         );
 
-        const sdkService = featureFlag ? system.sdk : undefined;
+        const sdkService = system.sdk;
         const profile = new providers.GeneratorProfileProvider(userStateDeps, system.policy);
 
         const generator: providers.GeneratorDependencyProvider = {
