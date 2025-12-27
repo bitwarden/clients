@@ -6,6 +6,8 @@
     (onCipherClicked)="viewCipher($event)"
     (onCipherRightClicked)="viewCipherMenu($event)"
     (onAddCipher)="addCipher($event)"
+    [showPremiumCallout]="showPremiumCallout$ | async"
+    [organizationId]="organizationId"
   >
   </app-vault-items-v2>
   <div class="details" *ngIf="!!action">
@@ -21,6 +23,7 @@
       (onCancel)="cancelCipher($event)"
       (onArchiveToggle)="refreshCurrentCipher()"
       [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
+      [submitButtonText]="submitButtonText$ | async"
     ></app-vault-item-footer>
     <div class="content">
       <div class="inner-content">

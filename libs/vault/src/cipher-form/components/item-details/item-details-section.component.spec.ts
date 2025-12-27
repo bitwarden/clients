@@ -8,12 +8,14 @@ import { BehaviorSubject, of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionType, CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
+import { ClientType } from "@bitwarden/client-type";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -62,6 +64,7 @@ describe("ItemDetailsSectionComponent", () => {
   let i18nService: MockProxy<I18nService>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockPolicyService: MockProxy<PolicyService>;
+  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
 
   const activeAccount$ = new BehaviorSubject<{ email: string }>({ email: "test@example.com" });
   const getInitialCipherView = jest.fn<CipherView | null, []>(() => null);
@@ -90,6 +93,7 @@ describe("ItemDetailsSectionComponent", () => {
     mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
     mockPolicyService = mock<PolicyService>();
     mockPolicyService.policiesByType$.mockReturnValue(of([]));
+    mockPlatformUtilsService = mock<PlatformUtilsService>();
 
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
@@ -99,6 +103,7 @@ describe("ItemDetailsSectionComponent", () => {
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: PolicyService, useValue: mockPolicyService },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
       ],
     }).compileComponents();
 
@@ -783,6 +788,29 @@ describe("ItemDetailsSectionComponent", () => {
 
         expect(component.itemDetailsForm.controls.organizationId.disabled).toBe(true);
       });
+    });
+  });
+
+  describe("showArchiveBadge", () => {
+    it("should set showArchiveBadge to true when cipher is archived and client is Desktop", async () => {
+      component.config.organizations = [{ id: "org1" } as Organization];
+
+      const archivedCipher = {
+        name: "archived cipher",
+        organizationId: null,
+        folderId: null,
+        collectionIds: [],
+        favorite: false,
+        isArchived: true,
+      } as unknown as CipherView;
+
+      component.originalCipherView = archivedCipher;
+      getInitialCipherView.mockReturnValueOnce(archivedCipher);
+      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+
+      await component.ngOnInit();
+
+      expect(component["showArchiveBadge"]).toBe(true);
     });
   });
 });

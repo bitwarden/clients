@@ -10,6 +10,7 @@ import { concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/client-type";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -18,10 +19,12 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  BadgeComponent,
   CardComponent,
   FormFieldModule,
   IconButtonModule,
@@ -52,6 +55,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
     IconButtonModule,
     JslibModule,
     CommonModule,
+    BadgeComponent,
   ],
 })
 export class ItemDetailsSectionComponent implements OnInit {
@@ -62,6 +66,8 @@ export class ItemDetailsSectionComponent implements OnInit {
     collectionIds: new FormControl([], [Validators.required]),
     favorite: [false],
   });
+
+  protected showArchiveBadge = false;
 
   /**
    * Collection options available for the selected organization.
@@ -143,6 +149,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     private accountService: AccountService,
     private configService: ConfigService,
     private policyService: PolicyService,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     this.cipherFormContainer.registerChildForm("itemDetails", this.itemDetailsForm);
     this.itemDetailsForm.valueChanges
@@ -244,6 +251,13 @@ export class ItemDetailsSectionComponent implements OnInit {
         }),
       )
       .subscribe();
+
+    if (
+      this.originalCipherView?.isArchived &&
+      this.platformUtilsService.getClientType() === ClientType.Desktop
+    ) {
+      this.showArchiveBadge = true;
+    }
   }
 
   /**
