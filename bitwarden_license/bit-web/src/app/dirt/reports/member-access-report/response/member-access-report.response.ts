@@ -8,6 +8,8 @@ export class MemberAccessResponse extends BaseResponse {
   twoFactorEnabled: boolean;
   accountRecoveryEnabled: boolean;
   userGuid: Guid;
+  userId?: string;
+  avatarColor?: string;
   usesKeyConnector: boolean;
 
   cipherIds: Guid[] = [];
@@ -27,6 +29,8 @@ export class MemberAccessResponse extends BaseResponse {
     this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled");
     this.accountRecoveryEnabled = this.getResponseProperty("AccountRecoveryEnabled");
     this.userGuid = this.getResponseProperty("UserGuid");
+    this.userId = this.getResponseProperty("UserId");
+    this.avatarColor = this.getResponseProperty("AvatarColor");
     this.usesKeyConnector = this.getResponseProperty("UsesKeyConnector");
 
     this.cipherIds = this.getResponseProperty("CipherIds") || [];

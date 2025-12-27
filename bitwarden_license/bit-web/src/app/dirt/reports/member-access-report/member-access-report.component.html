@@ -44,7 +44,13 @@
   <ng-template bitRowDef let-row>
     <td bitCell>
       <div class="tw-flex tw-items-center">
-        <bit-avatar size="small" [text]="row.name" class="tw-mr-3"></bit-avatar>
+        <bit-avatar
+          size="small"
+          [text]="row.name || row.email"
+          [id]="row.userId"
+          [color]="row.avatarColor"
+          class="tw-mr-3"
+        ></bit-avatar>
         <div class="tw-flex tw-flex-col">
           <button type="button" bitLink (click)="edit(row)">
             {{ row.name }}
