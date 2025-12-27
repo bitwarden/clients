@@ -54,6 +54,7 @@ describe("ProductSwitcherService", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     router.url = "/";
     router.events = of({});
