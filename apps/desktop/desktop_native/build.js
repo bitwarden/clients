@@ -36,13 +36,22 @@ function buildProxyBin(target, release = true) {
     const releaseArg = release ? "--release" : "";
     child_process.execSync(`cargo build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
 
+    // Copy the resulting binary to the dist folder
+    const targetFolder = release ? "release" : "debug";
+    const ext = process.platform === "win32" ? ".exe" : "";
+
+    let sourcePath;
+    let nodeArch;
+
     if (target) {
-        // Copy the resulting binary to the dist folder
-        const targetFolder = release ? "release" : "debug";
-        const ext = process.platform === "win32" ? ".exe" : "";
-        const nodeArch = rustTargetsMap[target].nodeArch;
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
+        nodeArch = rustTargetsMap[target].nodeArch;
+        sourcePath = path.join(__dirname, "target", target, targetFolder, `desktop_proxy${ext}`);
+    } else {
+        nodeArch = process.arch;
+        sourcePath = path.join(__dirname, "target", targetFolder, `desktop_proxy${ext}`);
     }
+
+    fs.copyFileSync(sourcePath, path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
 }
 
 function buildImporterBinaries(target, release = true) {
@@ -56,12 +65,21 @@ function buildImporterBinaries(target, release = true) {
     const releaseArg = release ? "--release" : "";
     child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg}`);
 
+    // Copy the resulting binary to the dist folder
+    const targetFolder = release ? "release" : "debug";
+
+    let sourcePath;
+    let nodeArch;
+
     if (target) {
-        // Copy the resulting binary to the dist folder
-        const targetFolder = release ? "release" : "debug";
-        const nodeArch = rustTargetsMap[target].nodeArch;
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}.exe`), path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
+        nodeArch = rustTargetsMap[target].nodeArch;
+        sourcePath = path.join(__dirname, "target", target, targetFolder, `${bin}.exe`);
+    } else {
+        nodeArch = process.arch;
+        sourcePath = path.join(__dirname, "target", targetFolder, `${bin}.exe`);
     }
+
+    fs.copyFileSync(sourcePath, path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
 }
 
 function buildProcessIsolation() {
