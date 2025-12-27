@@ -1,0 +1,11 @@
+<header class="tw-w-full tw-p-5 tw-pb-12">
+  @if (!hideLogo()) {
+    <a
+      [routerLink]="['/']"
+      class="tw-w-32 sm:tw-w-[200px] tw-self-center sm:tw-self-start tw-block [&>*]:tw-align-top"
+    >
+      <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
+    </a>
+  }
+  <ng-content></ng-content>
+</header>
