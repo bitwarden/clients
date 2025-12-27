@@ -10,6 +10,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { AuthType } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { NodeUtils } from "@bitwarden/node/node-utils";
@@ -87,6 +88,15 @@ export class SendCreateCommand {
 
     req.key = null;
     req.maxAccessCount = maxAccessCount;
+    req.emails = emails;
+
+    if (emails != null && emails.length > 0) {
+      req.authType = AuthType.Email;
+    } else if (password != null && password.trim().length > 0) {
+      req.authType = AuthType.Password;
+    } else {
+      req.authType = AuthType.None;
+    }
 
     const hasPremium$ = this.accountService.activeAccount$.pipe(
       switchMap(({ id }) => this.accountProfileService.hasPremiumFromAnySource$(id)),
