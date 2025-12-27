@@ -48,6 +48,12 @@ export class SendView implements View {
     this.password = s.password;
     this.hideEmail = s.hideEmail;
     this.authType = s.authType;
+    this.emails = s.emails
+      ? s.emails
+          .split(",")
+          .map((e) => e.trim())
+          .filter((e) => e)
+      : [];
   }
 
   get urlB64Key(): string {
