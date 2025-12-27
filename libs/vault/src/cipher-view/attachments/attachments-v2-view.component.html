@@ -9,15 +9,17 @@
         <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
       </bit-item-content>
       <ng-container slot="end">
-        <bit-item-action>
-          <app-download-attachment
-            [admin]="admin"
-            [cipher]="cipher"
-            [attachment]="attachment"
-            [checkPwReprompt]="true"
-            [emergencyAccessId]="emergencyAccessId"
-          ></app-download-attachment>
-        </bit-item-action>
+        <div class="tw-pr-4">
+          <bit-item-action>
+            <app-download-attachment
+              [admin]="admin"
+              [cipher]="cipher"
+              [attachment]="attachment"
+              [checkPwReprompt]="true"
+              [emergencyAccessId]="emergencyAccessId"
+            ></app-download-attachment>
+          </bit-item-action>
+        </div>
       </ng-container>
     </bit-item>
   </bit-item-group>
