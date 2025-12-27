@@ -6,7 +6,7 @@ import {
   FileUploadService,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SendType } from "../enums/send-type";
+import { SendType } from "../types/send-type";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendAccessRequest } from "../models/request/send-access.request";

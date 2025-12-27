@@ -8,7 +8,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";
-import { SendType } from "../../enums/send-type";
+import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
 

@@ -24,7 +24,7 @@ import { ContainerService } from "../../../platform/services/container.service";
 import { SelfHostedEnvironment } from "../../../platform/services/default-environment.service";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { SendType } from "../enums/send-type";
+import { SendType } from "../types/send-type";
 import { SendFileApi } from "../models/api/send-file.api";
 import { SendTextApi } from "../models/api/send-text.api";
 import { SendFileData } from "../models/data/send-file.data";
