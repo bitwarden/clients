@@ -51,6 +51,7 @@ export class TooltipDirective implements OnInit {
 
   private readonly isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
+  private showTimeoutId: ReturnType<typeof setTimeout> | undefined;
   private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private overlay = inject(Overlay);
   private viewContainerRef = inject(ViewContainerRef);
@@ -82,12 +83,22 @@ export class TooltipDirective implements OnInit {
   );
 
   private destroyTooltip = () => {
+    // Clear any pending show timeout to prevent tooltip from appearing after hide
+    if (this.showTimeoutId !== undefined) {
+      clearTimeout(this.showTimeoutId);
+      this.showTimeoutId = undefined;
+    }
     this.overlayRef?.dispose();
     this.overlayRef = undefined;
     this.isVisible.set(false);
   };
 
   protected showTooltip = () => {
+    // Clear any existing timeout before starting a new one
+    if (this.showTimeoutId !== undefined) {
+      clearTimeout(this.showTimeoutId);
+    }
+
     if (!this.overlayRef) {
       this.overlayRef = this.overlay.create({
         ...this.defaultPopoverConfig,
@@ -97,8 +108,9 @@ export class TooltipDirective implements OnInit {
       this.overlayRef.attach(this.tooltipPortal);
     }
 
-    setTimeout(() => {
+    this.showTimeoutId = setTimeout(() => {
       this.isVisible.set(true);
+      this.showTimeoutId = undefined;
     }, TOOLTIP_DELAY_MS);
   };
 

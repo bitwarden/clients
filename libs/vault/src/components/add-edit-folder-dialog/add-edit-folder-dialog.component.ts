@@ -32,6 +32,7 @@ import {
   FormFieldModule,
   IconButtonModule,
   ToastService,
+  DialogConfig,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -175,10 +176,17 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     this.dialogRef.close(result);
   }
 
-  static open(dialogService: DialogService, data?: AddEditFolderDialogData) {
+  static open(
+    dialogService: DialogService,
+    data?: AddEditFolderDialogData,
+    dialogConfig?: DialogConfig,
+  ) {
     return dialogService.open<AddEditFolderDialogResult, AddEditFolderDialogData>(
       AddEditFolderDialogComponent,
-      { data },
+      {
+        ...dialogConfig,
+        data,
+      },
     );
   }
 }
