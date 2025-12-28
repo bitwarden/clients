@@ -303,8 +303,15 @@ export class Main {
 
     new ChromiumImporterService();
 
+    
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
-    void this.nativeAutofillMain.init();
+    app
+      .whenReady()
+      .then(async () => {
+        this.logService.debug("Initializing native autofill")
+        await this.nativeAutofillMain.init();
+
+      })
 
     this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
       this.logService,
