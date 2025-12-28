@@ -2498,7 +2498,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+    "message": "Bu səhifə Bitwarden təcrübəsinə müdaxilə edir. Bitwarden daxili menyusu, təhlükəsizlik tədbiri olaraq müvəqqəti sıradan çıxarılıb."
   },
   "setMasterPassword": {
     "message": "Ana parolu ayarla"
@@ -4124,7 +4124,7 @@
     "message": "Avto-doldurula bilmir"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "İlkin uyuşma 'Tam Uyuşur' olaraq ayarlanıb. Hazırkı veb sayt, bu element üçün saxlanılmış giriş məlumatları ilə tam uyuşmur."
   },
   "okay": {
     "message": "Oldu"
