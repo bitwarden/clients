@@ -1,17 +1,14 @@
-<ng-container [ngSwitch]="viewState">
-  <app-send-auth
-    *ngSwitchCase="'auth'"
-    [id]="id"
-    [key]="key"
-    (accessGranted)="onAccessGranted($event)"
-  ></app-send-auth>
-
-  <app-send-view
-    *ngSwitchCase="'view'"
-    [id]="id"
-    [key]="key"
-    [sendResponse]="sendAccessResponse"
-    [accessRequest]="sendAccessRequest"
-    (authRequired)="onAuthRequired()"
-  ></app-send-view>
-</ng-container>
+@switch (viewState) {
+  @case ("auth") {
+    <app-send-auth [id]="id" [key]="key" (accessGranted)="onAccessGranted($event)"></app-send-auth>
+  }
+  @case ("view") {
+    <app-send-view
+      [id]="id"
+      [key]="key"
+      [sendResponse]="sendAccessResponse"
+      [accessRequest]="sendAccessRequest"
+      (authRequired)="onAuthRequired()"
+    ></app-send-view>
+  }
+}
