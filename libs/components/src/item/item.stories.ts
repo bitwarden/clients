@@ -1,16 +1,23 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { RouterTestingModule } from "@angular/router/testing";
-import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@storybook/angular";
+import {
+  Meta,
+  StoryObj,
+  applicationConfig,
+  componentWrapperDecorator,
+  moduleMetadata,
+} from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { AvatarModule } from "../avatar";
 import { BadgeModule } from "../badge";
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
 import { TypographyModule } from "../typography";
-import { I18nMockService } from "../utils/i18n-mock.service";
+import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
 import { ItemActionComponent } from "./item-action.component";
 import { ItemContentComponent } from "./item-content.component";
@@ -47,6 +54,14 @@ export default {
               loading: "Loading",
             });
           },
+        },
+      ],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),

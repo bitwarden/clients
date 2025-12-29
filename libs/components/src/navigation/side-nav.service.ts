@@ -1,15 +1,37 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, Observable, combineLatest, fromEvent, map, startWith } from "rxjs";
+import {
+  BehaviorSubject,
+  Observable,
+  combineLatest,
+  fromEvent,
+  map,
+  startWith,
+  debounceTime,
+  first,
+} from "rxjs";
+
+import { BIT_SIDE_NAV_DISK, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
 
 import { BREAKPOINTS, isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
 type CollapsePreference = "open" | "closed" | null;
 
+const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, "side-nav-width", {
+  deserializer: (s) => s,
+});
+
 @Injectable({
   providedIn: "root",
 })
 export class SideNavService {
+  // Units in rem
+  readonly DEFAULT_OPEN_WIDTH = 18;
+  readonly MIN_OPEN_WIDTH = 15;
+  readonly MAX_OPEN_WIDTH = 24;
+
+  private rootFontSizePx: number;
+
   private _open$ = new BehaviorSubject<boolean>(isAtOrLargerThanBreakpoint("md"));
   open$ = this._open$.asObservable();
 
@@ -21,7 +43,30 @@ export class SideNavService {
     map(([open, isLargeScreen]) => open && !isLargeScreen),
   );
 
+  /**
+   * Local component state width
+   *
+   * This observable has immediate pixel-perfect updates for the sidebar display width to use
+   */
+  private readonly _width$ = new BehaviorSubject<number>(this.DEFAULT_OPEN_WIDTH);
+  readonly width$ = this._width$.asObservable();
+
+  /**
+   * State provider width
+   *
+   * This observable is used to initialize the component state and will be periodically synced
+   * to the local _width$ state to avoid excessive writes
+   */
+  private readonly widthState = inject(GlobalStateProvider).get(BIT_SIDE_NAV_WIDTH_KEY_DEF);
+  readonly widthState$ = this.widthState.state$.pipe(
+    map((width) => width ?? this.DEFAULT_OPEN_WIDTH),
+  );
+
   constructor() {
+    // Get computed root font size to support user-defined a11y font increases
+    this.rootFontSizePx = parseFloat(getComputedStyle(document.documentElement).fontSize || "16");
+
+    // Handle open/close state
     combineLatest([this.isLargeScreen$, this.userCollapsePreference$])
       .pipe(takeUntilDestroyed())
       .subscribe(([isLargeScreen, userCollapsePreference]) => {
@@ -32,6 +77,16 @@ export class SideNavService {
           this.setOpen();
         }
       });
+
+    // Initialize the resizable width from state provider
+    this.widthState$.pipe(first()).subscribe((width: number) => {
+      this._width$.next(width);
+    });
+
+    // Periodically sync to state provider when component state changes
+    this.width$.pipe(debounceTime(200), takeUntilDestroyed()).subscribe((width) => {
+      void this.widthState.update(() => width);
+    });
   }
 
   get open() {
@@ -46,6 +101,9 @@ export class SideNavService {
     this._open$.next(false);
   }
 
+  /**
+   * Toggle the open/close state of the side nav
+   */
   toggle() {
     const curr = this._open$.getValue();
     // Store user's preference based on what state they're toggling TO
@@ -57,8 +115,51 @@ export class SideNavService {
       this.setOpen();
     }
   }
+
+  /**
+   * Set new side nav width from drag event coordinates
+   *
+   * @param eventXCoordinate x coordinate of the pointer's bounding client rect
+   * @param dragElementXCoordinate x coordinate of the drag element's bounding client rect
+   */
+  setWidthFromDrag(eventXPointer: number, dragElementXCoordinate: number) {
+    const newWidthInPixels = eventXPointer - dragElementXCoordinate;
+
+    const newWidthInRem = newWidthInPixels / this.rootFontSizePx;
+
+    this._setWidthWithinMinMax(newWidthInRem);
+  }
+
+  /**
+   * Set new side nav width from arrow key events
+   *
+   * @param key event key, must be either ArrowRight or ArrowLeft
+   */
+  setWidthFromKeys(key: "ArrowRight" | "ArrowLeft") {
+    const currentWidth = this._width$.getValue();
+
+    const delta = key === "ArrowLeft" ? -1 : 1;
+    const newWidth = currentWidth + delta;
+
+    this._setWidthWithinMinMax(newWidth);
+  }
+
+  /**
+   * Calculate and set the new width, not going out of the min/max bounds
+   * @param newWidth desired new width: number
+   */
+  private _setWidthWithinMinMax(newWidth: number) {
+    const width = Math.min(Math.max(newWidth, this.MIN_OPEN_WIDTH), this.MAX_OPEN_WIDTH);
+
+    this._width$.next(width);
+  }
 }
 
+/**
+ * Helper function for subscribing to media query events
+ * @param query media query to validate against
+ * @returns Observable<boolean>
+ */
 export const media = (query: string): Observable<boolean> => {
   const mediaQuery = window.matchMedia(query);
   return fromEvent<MediaQueryList>(mediaQuery, "change").pipe(

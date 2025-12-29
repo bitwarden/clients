@@ -1,12 +1,14 @@
 import { RouterTestingModule } from "@angular/router/testing";
-import { StoryObj, Meta, moduleMetadata } from "@storybook/angular";
+import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavItemComponent } from "./nav-item.component";
 import { NavigationModule } from "./navigation.module";
@@ -31,8 +33,17 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
+        },
+      ],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),
