@@ -392,7 +392,7 @@
     "message": "Yeni tətbiqlər incələ"
   },
   "reviewNewAppsDescription": {
-    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "Həssas elementlərə sahib yeni tətbiqləri incələyin və diqqətlə izləmək istədiklərinizi kritik olaraq işarələyin. Sonra, riskləri xaric etmək üçün üzvlərə təhlükəsizlik tapşırıqları təyin edə biləcəksiniz."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Bir tətbiqi kritik olaraq işarələmək üçün ulduz ikonuna klikləyin"
@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "Hesab şifrələmə açarları, hər Bitwarden istifadəçi hesabı üçün unikaldır, buna görə də şifrələnmiş bir ixracı, fərqli bir hesaba idxal edə bilməzsiniz."
   },
-  "export": {
-    "message": "İxrac et"
+  "exportNoun": {
+    "message": "Xaricə köçürmə",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Xaricə köçür",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Buradan xaricə köçür"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "Alətlər"
   },
-  "import": {
-    "message": "Daxilə köçür"
+  "importNoun": {
+    "message": "Daxilə köçürmə",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Daxilə köçür",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Veriləri daxilə köçür"
@@ -3283,6 +3293,9 @@
   "launchCloudSubscription": {
     "message": "Bulud Abunəliyini Başlat"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Bulud abunəliyini başlat"
+  },
   "storage": {
     "message": "Saxlama"
   },
@@ -4197,6 +4210,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Təşkilatın sahibliyinə ötürülmə qəbul edildi."
+  },
+  "userDeclinedTransfer": {
+    "message": "Təşkilatın sahibliyinə ötürülməyə rədd cavabı verildiyi üçün ləğv edildi."
   },
   "invitedUserId": {
     "message": "$ID$ istifadəçisi dəvət edildi.",
@@ -5852,7 +5871,7 @@
     "description": "This is the policy description shown in the policy list."
   },
   "organizationDataOwnershipDescContent": {
-    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "message": "Bütün elementlər bir təşkilata məxsus olacaq və orada saxlanılacaq, bu da təşkilat üzrə kontrollar, görünürlük və hesabatları mümkün edəcək. İşə salındığı zaman, hər üzv üçün elementləri saxlaya biləcəyi ilkin bir kolleksiya mövcud olacaq. Daha ətraflı ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
@@ -6733,16 +6752,16 @@
     "message": "Bütün üzvlər üçün maksimum bitmə vaxtını \"Heç vaxt\" olaraq icazə vermək istədiyinizə əminsiniz?"
   },
   "sessionTimeoutConfirmationNeverDescription": {
-    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+    "message": "Bu seçim, üzvlərinizin şifrələmə açarlarını onların cihazlarında saxlayacaq. Bu seçimi seçsəniz, onların cihazlarının lazımi səviyyədə qorunduğuna əmin olun."
   },
   "learnMoreAboutDeviceProtection": {
     "message": "Cihaz mühafizəsi barədə daha ətraflı"
   },
   "sessionTimeoutConfirmationOnSystemLockTitle": {
-    "message": "\"System lock\" will only apply to the browser and desktop app"
+    "message": "\"Sistem kilidi\", yalnız brauzer və masaüstü tətbiqi üçün qüvvəyə minəcək"
   },
   "sessionTimeoutConfirmationOnSystemLockDescription": {
-    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
+    "message": "Mobil və veb tətbiqi, dəstəklənməyən bir seçim olduğu üçün icazə verilən maksimum bitmə vaxtı olaraq \"tətbiq başladılanda\"nı istifadə edəcək. "
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Təşkilatınızın siyasətləri, icazə verilən maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
@@ -9886,11 +9905,11 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreePlan": {
-    "message": "Switching to free plan",
+    "message": "Ödənişsiz plana keçilir",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreeOrg": {
-    "message": "Switching to free organization",
+    "message": "Ödənişsiz təşkilata keçilir",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "freeForOneYear": {
@@ -9924,7 +9943,7 @@
     "message": "Tapşırıq təyin et"
   },
   "assignSecurityTasksToMembers": {
-    "message": "Send notifications to change passwords"
+    "message": "Parol dəyişdirmə bildirişlərini göndər"
   },
   "assignToCollections": {
     "message": "Kolleksiyalara təyin et"
@@ -12189,13 +12208,13 @@
     "message": "Ödənişsiz Ailələr sınağını başlat"
   },
   "blockClaimedDomainAccountCreation": {
-    "message": "Block account creation for claimed domains"
+    "message": "Götürülmüş domenlər üçün hesab yaradılmasını əngəllə"
   },
   "blockClaimedDomainAccountCreationDesc": {
-    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+    "message": "İstifadəçilərin, götürülmüş domenlərə aid e-poçt ünvanlarını istifadə edərək təşkilatınızın xaricində hesab yaratmasını önləyin."
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "A domain must be claimed before activating this policy."
+    "message": "Bu siyasət aktivləşdirilməzdən əvvəl bir domen götürülməlidir."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Seyf vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun."
@@ -12412,5 +12431,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Bunu niyə görürəm?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Sizdə Bitwarden Premium var"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Premium abunəliyinizi görün və idarə edin"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Lisenziya faylınızı güncəlləməlisiniz"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Lisenziya faylını yüklə"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Lisenziya faylınızı yükləyin"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Premium lisenziya faylınızı yükləyin"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Lisenziya faylınızın adı $FILE_NAME$ faylı ilə oxşardır",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Artıq abunəliyiniz var?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Bitwarden bulud hesabınızdakı abunəlik səhifəsini açın və lisenziya faylınızı endirin. Sonra bu ekrana qayıdın və aşağıda yükləyin."
+  },
+  "viewAllPlans": {
+    "message": "Bütün planlara bax"
+  },
+  "planDescPremium": {
+    "message": "Tam onlayn təhlükəsizlik"
   }
 }
