@@ -8,7 +8,7 @@ import { Vendor } from "@bitwarden/common/tools/extension/vendor/data";
 import { SemanticLogger, ifEnabledSemanticLoggerProvider } from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { awaitAsync } from "../../../../../common/spec";
+import { awaitAsync, mockAccountInfoWith } from "../../../../../common/spec";
 import {
   Algorithm,
   CredentialAlgorithm,
@@ -56,9 +56,10 @@ describe("DefaultCredentialGeneratorService", () => {
     // Use a hard-coded value for mockAccount
     account = {
       id: "test-account-id" as UserId,
-      emailVerified: true,
-      email: "test@example.com",
-      name: "Test User",
+      ...mockAccountInfoWith({
+        email: "test@example.com",
+        name: "Test User",
+      }),
     };
 
     system = {

@@ -136,8 +136,60 @@ describe("DesktopLoginComponentService", () => {
             codeChallenge,
             state,
             email,
+            undefined,
           );
         } else {
+          expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
+          expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+          expect(platformUtilsService.launchUri).toHaveBeenCalled();
+        }
+      });
+    });
+  });
+
+  describe("redirectToSsoLoginWithOrganizationSsoIdentifier", () => {
+    // Array of all permutations of isAppImage and isDev
+    const permutations = [
+      [true, false], // Case 1: isAppImage true
+      [false, true], // Case 2: isDev true
+      [true, true], // Case 3: all true
+      [false, false], // Case 4: all false
+    ];
+
+    permutations.forEach(([isAppImage, isDev]) => {
+      it("calls redirectToSso with orgSsoIdentifier", async () => {
+        (global as any).ipc.platform.isAppImage = isAppImage;
+        (global as any).ipc.platform.isDev = isDev;
+
+        const email = "test@bitwarden.com";
+        const state = "testState";
+        const codeVerifier = "testCodeVerifier";
+        const codeChallenge = "testCodeChallenge";
+        const orgSsoIdentifier = "orgSsoId";
+
+        passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
+        passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
+        jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+
+        await service.redirectToSsoLoginWithOrganizationSsoIdentifier(email, orgSsoIdentifier);
+
+        if (isAppImage || isDev) {
+          expect(ipc.platform.localhostCallbackService.openSsoPrompt).toHaveBeenCalledWith(
+            codeChallenge,
+            state,
+            email,
+            orgSsoIdentifier,
+          );
+        } else {
+          expect(ssoUrlService.buildSsoUrl).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.any(String),
+            expect.any(String),
+            expect.any(String),
+            expect.any(String),
+            email,
+            orgSsoIdentifier,
+          );
           expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
           expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
           expect(platformUtilsService.launchUri).toHaveBeenCalled();
