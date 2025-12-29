@@ -67,8 +67,12 @@ export class DesktopAutotypeService implements OnDestroy {
     AUTOTYPE_KEYBOARD_SHORTCUT,
   );
 
+  // if the user's account is Premium
+  private readonly isPremiumAccount$: Observable<boolean>;
+
+  // The enabled/disabled state from the user settings menu
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
-  resolvedAutotypeEnabled$: Observable<boolean> = of(false);
+
   autotypeKeyboardShortcut$: Observable<string[]> = of(DEFAULT_KEYBOARD_SHORTCUT);
 
   private destroy$ = new Subject<void>();
