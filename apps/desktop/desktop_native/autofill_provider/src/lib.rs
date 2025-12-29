@@ -52,6 +52,7 @@ static INIT: Once = Once::new();
 #[cfg_attr(target_os = "macos", derive(uniffi::Enum))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// User verification preference for WebAuthn requests.
 pub enum UserVerification {
     Preferred,
     Required,
@@ -61,6 +62,7 @@ pub enum UserVerification {
 #[cfg_attr(target_os = "macos", derive(uniffi::Record))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// Coordinates representing a point on the screen.
 pub struct Position {
     pub x: i32,
     pub y: i32,
@@ -100,6 +102,49 @@ pub enum ConnectionStatus {
 }
 
 #[cfg_attr(target_os = "macos", derive(uniffi::Object))]
+/// A client to send and receive messages to the autofill service on the desktop
+/// client.
+///
+/// # Usage
+///
+/// In order to accommodate desktop app startup delays and non-blocking
+/// requirements for native providers, this initialization of the client is
+/// non-blocking. When calling [`AutofillProviderClient::connect()`], the
+/// connection is not established immediately, but may be established later in
+/// the background or may fail to be established.
+///
+/// Before calling [`AutofillProviderClient::connect()`], first check whether
+/// the desktop app is running with [`AutofillProviderClient::is_available`],
+/// and attempt to start it if it is not running. Then, attempt to connect, retrying as necessary.
+/// Before calling any other methods, check the connection status using
+/// [`AutofillProviderClient::get_connection_status()`].
+///
+/// # Example
+///
+/// ```no_run
+/// fn establish_connection() -> Option<Client> {
+///     if !AutofillProviderClient::is_available() {
+///         // Start application
+///     }
+///     let max_attempts = 20;
+///     let delay_ms = Duration::from_millis(300);
+///
+///     for attempt in 0..=max_attempts {
+///         let client = AutofillProviderClient::connect();
+///         if attempt != 0 {
+///             // Use whatever sleep method is appropriate
+///             std::thread::sleep(delay + 100 * attempt);
+///         }
+///         if let ConnectionStatus::Connected = client.get_connection_status() {
+///             return client;
+///         }
+///     };
+/// }
+///
+/// if let Some(client) = establish_connection() {
+///     // use client here
+/// }
+/// ```
 pub struct AutofillProviderClient {
     to_server_send: tokio::sync::mpsc::Sender<String>,
 
@@ -127,14 +172,17 @@ const NO_CALLBACK_INDICATOR: u32 = 0;
 
 // These methods are not currently needed in macOS and/or cannot be exported via FFI
 impl AutofillProviderClient {
+    /// Whether the client is immediately available for connection.
     pub fn is_available() -> bool {
         desktop_core::ipc::path("af").exists()
     }
 
+    /// Request the desktop client's lock status.
     pub fn get_lock_status(&self, callback: Arc<dyn GetLockStatusCallback>) {
         self.send_message(LockStatusRequest {}, Some(Box::new(callback)));
     }
 
+    /// Requests details about the desktop client's native window.
     pub fn get_window_handle(&self, callback: Arc<dyn GetWindowHandleQueryCallback>) {
         self.send_message(
             WindowHandleQueryRequest::default(),
@@ -146,6 +194,9 @@ impl AutofillProviderClient {
 #[cfg_attr(target_os = "macos", uniffi::export)]
 impl AutofillProviderClient {
     #[cfg_attr(target_os = "macos", uniffi::constructor)]
+    /// Asynchronously initiates a connection to the autofill service on the desktop client.
+    ///
+    /// See documentation at the top-level of [this struct][AutofillProviderClient] for usage information.
     pub fn connect() -> Self {
         #[cfg(target_os = "macos")]
         INIT.call_once(|| {
@@ -163,7 +214,7 @@ impl AutofillProviderClient {
                 .init();
         });
 
-        tracing::debug!("Autofill provider attempting to connect to Electron IPC...");
+        tracing::trace!("Autofill provider attempting to connect to Electron IPC...");
 
         let (from_server_send, mut from_server_recv) = tokio::sync::mpsc::channel(32);
         let (to_server_send, to_server_recv) = tokio::sync::mpsc::channel(32);
@@ -220,12 +271,12 @@ impl AutofillProviderClient {
                                     }
                                     Err(e) => {
                                         error!(error = ?e, "Error processing message");
-                                        cb.error(e)
+                                        cb.error(e);
                                     }
                                 }
                             }
                             None => {
-                                error!(sequence_number, "No callback found for sequence number")
+                                error!(sequence_number, "No callback found for sequence number");
                             }
                         },
                         Err(e) => {
@@ -239,11 +290,13 @@ impl AutofillProviderClient {
         client
     }
 
+    /// Send a one-way key-value message to the desktop client.
     pub fn send_native_status(&self, key: String, value: String) {
         let status = NativeStatus { key, value };
         self.send_message(status, None);
     }
 
+    /// Send a request to create a new passkey to the desktop client.
     pub fn prepare_passkey_registration(
         &self,
         request: PasskeyRegistrationRequest,
@@ -252,6 +305,7 @@ impl AutofillProviderClient {
         self.send_message(request, Some(Box::new(callback)));
     }
 
+    /// Send a request to assert a passkey to the desktop client.
     pub fn prepare_passkey_assertion(
         &self,
         request: PasskeyAssertionRequest,
@@ -260,6 +314,7 @@ impl AutofillProviderClient {
         self.send_message(request, Some(Box::new(callback)));
     }
 
+    /// Send a request to assert a passkey, without prompting the user, to the desktop client.
     pub fn prepare_passkey_assertion_without_user_interface(
         &self,
         request: PasskeyAssertionWithoutUserInterfaceRequest,
@@ -268,6 +323,7 @@ impl AutofillProviderClient {
         self.send_message(request, Some(Box::new(callback)));
     }
 
+    /// Return the status this client's connection to the desktop client.
     pub fn get_connection_status(&self) -> ConnectionStatus {
         let is_connected = self
             .connection_status
@@ -322,24 +378,7 @@ impl AutofillProviderClient {
             NO_CALLBACK_INDICATOR
         };
 
-        fn inner(
-            sequence_number: u32,
-            message: impl Serialize + DeserializeOwned,
-            tx: &tokio::sync::mpsc::Sender<String>,
-        ) -> Result<(), String> {
-            let value = serde_json::to_value(message)
-                .map_err(|err| format!("Could not represent message as JSON: {err}"))?;
-            let message = SerializedMessage::Message {
-                sequence_number,
-                value: Ok(value),
-            };
-            let json = serde_json::to_string(&message)
-                .map_err(|err| format!("Could not serialize message as JSON: {err}"))?;
-            tx.blocking_send(json)
-                .map_err(|err| format!("Error sending message: {err}"))?;
-            Ok(())
-        }
-        if let Err(e) = inner(sequence_number, message, &self.to_server_send) {
+        if let Err(e) = send_message_helper(sequence_number, message, &self.to_server_send) {
             // Make sure we remove the callback from the queue if we can't send the message
             if sequence_number != NO_CALLBACK_INDICATOR {
                 if let Some((callback, _)) = self
@@ -357,7 +396,27 @@ impl AutofillProviderClient {
     }
 }
 
+// Wrapped in Result<> to allow using ? for clarity.
+fn send_message_helper(
+    sequence_number: u32,
+    message: impl Serialize + DeserializeOwned,
+    tx: &tokio::sync::mpsc::Sender<String>,
+) -> Result<(), String> {
+    let value = serde_json::to_value(message)
+        .map_err(|err| format!("Could not represent message as JSON: {err}"))?;
+    let message = SerializedMessage::Message {
+        sequence_number,
+        value: Ok(value),
+    };
+    let json = serde_json::to_string(&message)
+        .map_err(|err| format!("Could not serialize message as JSON: {err}"))?;
+    tx.blocking_send(json)
+        .map_err(|err| format!("Error sending message: {err}"))?;
+    Ok(())
+}
+
 #[derive(Debug)]
+/// Types of errors for callbacks.
 pub enum CallbackError {
     Timeout,
     Cancelled,
@@ -375,6 +434,7 @@ impl std::error::Error for CallbackError {}
 
 type CallbackResponse<T> = Result<T, BitwardenError>;
 
+/// An implementation of a callback handler that can take a deadline.
 pub struct TimedCallback<T> {
     tx: Arc<Mutex<Option<Sender<CallbackResponse<T>>>>>,
     rx: Arc<Mutex<Receiver<CallbackResponse<T>>>>,
@@ -387,6 +447,7 @@ impl<T: Send + 'static> Default for TimedCallback<T> {
 }
 
 impl<T: Send + 'static> TimedCallback<T> {
+    /// Instantiates a new callback handler.
     pub fn new() -> Self {
         let (tx, rx) = mpsc::channel();
         Self {
@@ -395,6 +456,19 @@ impl<T: Send + 'static> TimedCallback<T> {
         }
     }
 
+    /// Block the current thread until either a response is received, or the
+    /// specified timeout has passed.
+    ///
+    /// # Usage
+    /// ```
+    /// let callback = Arc::new(TimedCallback::new());
+    /// client.get_lock_status(callback.clone());
+    /// match callback.wait_for_response(Duration::from_secs(3), None) {
+    ///     Ok(Ok(response)) => Ok(response),
+    ///     Ok(Err(err)) => Err(format!("GetLockStatus() call failed: {err}").into()),
+    ///     Err(_) => Err(format!("GetLockStatus() call timed out").into()),
+    /// }
+    /// ```
     pub fn wait_for_response(
         &self,
         timeout: Duration,
@@ -432,7 +506,7 @@ impl<T: Send + 'static> TimedCallback<T> {
                 err
             }
             Ok(err @ Err(CallbackError::Timeout)) => {
-                tracing::debug!("Request timed out, dropping.");
+                tracing::warn!("Request timed out, dropping.");
                 err
             }
             Err(RecvTimeoutError::Timeout) => Err(CallbackError::Timeout),
@@ -444,7 +518,7 @@ impl<T: Send + 'static> TimedCallback<T> {
         match self.tx.lock().expect("not poisoned").take() {
             Some(tx) => {
                 if tx.send(response).is_err() {
-                    tracing::error!("Windows provider channel closed before receiving IPC response from Electron")
+                    tracing::error!("Windows provider channel closed before receiving IPC response from Electron");
                 }
             }
             None => {
@@ -460,6 +534,8 @@ impl PreparePasskeyRegistrationCallback for TimedCallback<PasskeyRegistrationRes
     }
 
     fn on_error(&self, error: BitwardenError) {
-        self.send(Err(error))
+        self.send(Err(error));
+    }
+}
     }
 }

@@ -7,7 +7,7 @@ pub(crate) fn deserialize_b64<'de, D: Deserializer<'de>>(
 }
 
 struct Base64Visitor;
-impl<'de> Visitor<'de> for Base64Visitor {
+impl Visitor<'_> for Base64Visitor {
     type Value = Vec<u8>;
 
     fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
