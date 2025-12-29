@@ -452,6 +452,12 @@ export class EventService {
           this.getShortId(ev.organizationId),
         );
         break;
+      case EventType.Organization_ItemOrganization_Accepted:
+        msg = humanReadableMsg = this.i18nService.t("userAcceptedTransfer");
+        break;
+      case EventType.Organization_ItemOrganization_Declined:
+        msg = humanReadableMsg = this.i18nService.t("userDeclinedTransfer");
+        break;
 
       // Policies
       case EventType.Policy_Updated: {
