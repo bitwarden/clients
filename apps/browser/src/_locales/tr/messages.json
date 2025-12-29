@@ -1322,11 +1322,21 @@
   "exportFrom": {
     "message": "Dışa aktarılacak konum"
   },
-  "export": {
-    "message": "Dışa aktar"
+  "exportVerb": {
+    "message": "Dışa aktar",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "İçe aktar"
+  "exportNoun": {
+    "message": "Dışa aktar",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "İçe aktar",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "İçe aktar",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Dosya biçimi"
