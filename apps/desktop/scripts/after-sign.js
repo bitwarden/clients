@@ -16,7 +16,9 @@ async function run(context) {
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
   const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
-  const copyAutofillExtension = ["darwin"].includes(context.electronPlatformName); // Disabled for mas builds
+  const isMasDevBuild =
+    context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
+  const copyAutofillExtension = ["darwin"].includes(context.electronPlatformName) || isMasDevBuild;
 
   let shouldResign = false;
 
