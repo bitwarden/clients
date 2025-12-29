@@ -11,6 +11,7 @@ use std::{
     collections::HashMap,
     error::Error,
     fmt::Display,
+    path::PathBuf,
     sync::{
         atomic::AtomicU32,
         mpsc::{self, Receiver, RecvTimeoutError, Sender},
@@ -170,11 +171,16 @@ pub struct NativeStatus {
 // have a callback.
 const NO_CALLBACK_INDICATOR: u32 = 0;
 
+#[cfg(not(test))]
+static IPC_PATH: &str = "af";
+#[cfg(test)]
+static IPC_PATH: &str = "af-test";
+
 // These methods are not currently needed in macOS and/or cannot be exported via FFI
 impl AutofillProviderClient {
     /// Whether the client is immediately available for connection.
     pub fn is_available() -> bool {
-        desktop_core::ipc::path("af").exists()
+        desktop_core::ipc::path(IPC_PATH).exists()
     }
 
     /// Request the desktop client's lock status.
@@ -189,17 +195,8 @@ impl AutofillProviderClient {
             Some(Box::new(callback)),
         );
     }
-}
 
-#[cfg_attr(target_os = "macos", uniffi::export)]
-impl AutofillProviderClient {
-    #[cfg_attr(target_os = "macos", uniffi::constructor)]
-    /// Asynchronously initiates a connection to the autofill service on the desktop client.
-    ///
-    /// See documentation at the top-level of [this struct][AutofillProviderClient] for usage information.
-    pub fn connect() -> Self {
-        tracing::trace!("Autofill provider attempting to connect to Electron IPC...");
-
+    fn connect_to_path(path: PathBuf) -> Self {
         let (from_server_send, mut from_server_recv) = tokio::sync::mpsc::channel(32);
         let (to_server_send, to_server_recv) = tokio::sync::mpsc::channel(32);
 
@@ -211,8 +208,6 @@ impl AutofillProviderClient {
             connection_status: Arc::new(std::sync::atomic::AtomicBool::new(false)),
         };
 
-        let path = desktop_core::ipc::path("af");
-
         let queue = client.response_callbacks_queue.clone();
         let connection_status = client.connection_status.clone();
 
@@ -223,8 +218,15 @@ impl AutofillProviderClient {
                 .expect("Can't create runtime");
 
             rt.spawn(
-                desktop_core::ipc::client::connect(path, from_server_send, to_server_recv)
-                    .map(|r| r.map_err(|e| e.to_string())),
+                desktop_core::ipc::client::connect(path.clone(), from_server_send, to_server_recv)
+                    .map(move |r| {
+                        if let Err(err) = r {
+                            tracing::error!(
+                                ?path,
+                                "Failed to connect to autofill IPC server: {err}"
+                            );
+                        }
+                    }),
             );
 
             rt.block_on(async move {
@@ -264,7 +266,7 @@ impl AutofillProviderClient {
                             }
                         },
                         Err(e) => {
-                            error!(error = %e, "Error deserializing message");
+                            error!(error = %e, %message, "Error deserializing message");
                         }
                     };
                 }
@@ -272,6 +274,20 @@ impl AutofillProviderClient {
         });
 
         client
+    }
+}
+
+#[cfg_attr(target_os = "macos", uniffi::export)]
+impl AutofillProviderClient {
+    #[cfg_attr(target_os = "macos", uniffi::constructor)]
+    /// Asynchronously initiates a connection to the autofill service on the desktop client.
+    ///
+    /// See documentation at the top-level of [this struct][AutofillProviderClient] for usage
+    /// information.
+    pub fn connect() -> Self {
+        tracing::trace!("Autofill provider attempting to connect to Electron IPC...");
+        let path = desktop_core::ipc::path(IPC_PATH);
+        Self::connect_to_path(path)
     }
 
     /// Send a one-way key-value message to the desktop client.
@@ -540,5 +556,117 @@ impl PreparePasskeyRegistrationCallback for TimedCallback<PasskeyRegistrationRes
         self.send(Err(error));
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::{
+        sync::{atomic::AtomicU32, Arc},
+        time::Duration,
+    };
+
+    use desktop_core::ipc::server::MessageType;
+    use serde_json::{json, Value};
+    use tokio::sync::mpsc;
+    use tracing::Level;
+
+    use crate::{
+        AutofillProviderClient, BitwardenError, ConnectionStatus, LockStatusRequest,
+        SerializedMessage, TimedCallback, IPC_PATH,
+    };
+
+    fn get_client<
+        F: Fn(Result<Value, BitwardenError>) -> Result<Value, BitwardenError> + Send + 'static,
+    >(
+        handler: F,
+    ) -> AutofillProviderClient {
+        static SERVER_COUNTER: AtomicU32 = AtomicU32::new(0);
+        let (signal_tx, signal_rx) = std::sync::mpsc::channel();
+        // use a counter to allow tests to run in parallel without interfering with each other.
+        let counter = SERVER_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let name = format!("{}-{}", IPC_PATH, counter);
+        let path = desktop_core::ipc::path(&name);
+        let server_path = path.clone();
+        std::thread::spawn(move || {
+            let _span = tracing::span!(Level::DEBUG, "server").entered();
+            tracing::info!("[server] Starting server thread");
+            let (tx, mut rx) = mpsc::channel(8);
+            let rt = tokio::runtime::Builder::new_current_thread()
+                .enable_io()
+                .build()
+                .unwrap();
+            rt.block_on(async move {
+                tracing::debug!("[server] starting server at {server_path:?}");
+                let server = desktop_core::ipc::server::Server::start(&server_path, tx).unwrap();
+                tracing::debug!("[server] Server started");
+                signal_tx.send(()).unwrap();
+                tracing::debug!("[server] Waiting for messages");
+                while let Some(data) = rx.recv().await {
+                    match data.kind {
+                        MessageType::Connected => tracing::debug!("[server] Connected"),
+                        MessageType::Disconnected => tracing::debug!("[server] Disconnected"),
+                        MessageType::Message => {
+                            tracing::debug!(
+                                "[server] received {}",
+                                data.message.as_ref().unwrap().to_string()
+                            );
+                            let msg: SerializedMessage =
+                                serde_json::from_str(&data.message.unwrap()).unwrap();
+
+                            if let SerializedMessage::Message {
+                                sequence_number,
+                                value,
+                            } = msg
+                            {
+                                let response = serde_json::to_string(&SerializedMessage::Message {
+                                    sequence_number,
+                                    value: handler(value),
+                                })
+                                .unwrap();
+                                server.send(response).unwrap();
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        tracing::debug!("[client] waiting for server...");
+        signal_rx.recv_timeout(Duration::from_millis(1000)).unwrap();
+        tracing::debug!("[client] Starting client...");
+        let client = AutofillProviderClient::connect_to_path(path.to_path_buf());
+        tracing::debug!("[client] Client connecting...");
+        for _ in 0..10 {
+            if let ConnectionStatus::Connected = client.get_connection_status() {
+                break;
+            }
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        assert!(matches!(
+            client.get_connection_status(),
+            ConnectionStatus::Connected
+        ));
+        client
+    }
+
+    #[test]
+    fn test_get_lock_status() {
+        // tracing_subscriber::fmt().init();
+        let handler = |value: Result<Value, BitwardenError>| {
+            let value = value.unwrap();
+            if let Ok(LockStatusRequest {}) = serde_json::from_value(value.clone()) {
+                Ok(json!({"isUnlocked": true}))
+            } else {
+                Err(BitwardenError::Internal(format!(
+                    "Expected LockStatusRequest, received: {value:?}"
+                )))
+            }
+        };
+        let client = get_client(handler);
+        let callback = Arc::new(TimedCallback::new());
+        client.get_lock_status(callback.clone());
+        let response = callback
+            .wait_for_response(Duration::from_millis(3000), None)
+            .unwrap()
+            .unwrap();
+        assert!(response.is_unlocked);
     }
 }
