@@ -16,6 +16,7 @@ import { UserId } from "@bitwarden/user-core";
 import { emptyAccountEncrypted } from "../spec-data/bitwarden-json/account-encrypted.json";
 import { emptyUnencryptedExport } from "../spec-data/bitwarden-json/unencrypted.json";
 
+import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
 import { BitwardenJsonImporter } from "./bitwarden-json-importer";
 import { BitwardenPasswordProtectedImporter } from "./bitwarden-password-protected-importer";
 
@@ -92,7 +93,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
 
   describe("Account encrypted", () => {
     beforeAll(() => {
-      jest.spyOn(BitwardenJsonImporter.prototype, "parse");
+      jest.spyOn(BitwardenEncryptedJsonImporter.prototype, "parse");
     });
 
     beforeEach(() => {
@@ -114,9 +115,11 @@ describe("BitwardenPasswordProtectedImporter", () => {
       );
     });
 
-    it("Should call BitwardenJsonImporter", async () => {
-      expect((await importer.parse(emptyAccountEncrypted)).success).toEqual(true);
-      expect(BitwardenJsonImporter.prototype.parse).toHaveBeenCalledWith(emptyAccountEncrypted);
+    it("Should call BitwardenEncryptedJsonImporter", async () => {
+      expect((await importer.parse(emptyAccountEncrypted)).success).toEqual(false);
+      expect(BitwardenEncryptedJsonImporter.prototype.parse).toHaveBeenCalledWith(
+        emptyAccountEncrypted,
+      );
     });
   });
 
