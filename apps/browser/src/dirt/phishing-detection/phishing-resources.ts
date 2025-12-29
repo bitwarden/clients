@@ -61,37 +61,26 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
 
         const normalizedEntry = decodeHtml(entry.trim()).toLowerCase().replace(/\/$/, "");
 
-        // Normalize URL for comparison
+        // Normalize URL for comparison - always strip protocol for consistent matching
         const normalizedUrl = decodeHtml(url.href).toLowerCase().replace(/\/$/, "");
         const urlNoProto = normalizedUrl.replace(/^https?:\/\//, "");
 
-        // If entry includes a scheme, compare full URL (exact or prefix)
-        if (normalizedEntry.startsWith("http://") || normalizedEntry.startsWith("https://")) {
-          if (normalizedEntry === normalizedUrl) {
-            return true;
-          }
-          if (
-            normalizedUrl.startsWith(normalizedEntry + "/") ||
-            normalizedUrl.startsWith(normalizedEntry + "?") ||
-            normalizedUrl.startsWith(normalizedEntry + "#")
-          ) {
-            return true;
-          }
-        } else {
-          // Entry without scheme: could be hostname or host+path
-          if (normalizedEntry === url.hostname.toLowerCase()) {
-            return true;
-          }
-          if (urlNoProto === normalizedEntry) {
-            return true;
-          }
-          if (
-            urlNoProto.startsWith(normalizedEntry + "/") ||
-            urlNoProto.startsWith(normalizedEntry + "?") ||
-            urlNoProto.startsWith(normalizedEntry + "#")
-          ) {
-            return true;
-          }
+        // Strip protocol from entry if present (http:// and https:// should be treated as equivalent)
+        const entryNoProto = normalizedEntry.replace(/^https?:\/\//, "");
+
+        // Compare full path (without protocol) - exact match
+        if (urlNoProto === entryNoProto) {
+          return true;
+        }
+
+        // Check if URL starts with entry (prefix match for subpaths/query/hash)
+        // e.g., entry "site.com/phish" matches "site.com/phish/subpage" or "site.com/phish?id=1"
+        if (
+          urlNoProto.startsWith(entryNoProto + "/") ||
+          urlNoProto.startsWith(entryNoProto + "?") ||
+          urlNoProto.startsWith(entryNoProto + "#")
+        ) {
+          return true;
         }
 
         return false;
