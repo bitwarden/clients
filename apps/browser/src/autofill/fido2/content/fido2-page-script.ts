@@ -1,12 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { WebauthnUtils } from "../utils/webauthn-utils";
 
 import { MessageTypes } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
 
 (function (globalContext) {
-  if (globalContext.document.currentScript) {
+  if (globalContext.document.currentScript?.parentNode) {
     globalContext.document.currentScript.parentNode.removeChild(
       globalContext.document.currentScript,
     );
@@ -86,7 +84,7 @@ import { Messenger } from "./messaging/messenger";
    */
   async function createWebAuthnCredential(
     options?: CredentialCreationOptions,
-  ): Promise<Credential> {
+  ): Promise<Credential | null> {
     if (!isWebauthnCall(options)) {
       return await browserCredentials.create(options);
     }
@@ -101,7 +99,7 @@ import { Messenger } from "./messaging/messenger";
       const response = await messenger.request(
         {
           type: MessageTypes.CredentialCreationRequest,
-          data: WebauthnUtils.mapCredentialCreationOptions(options, fallbackSupported),
+          data: WebauthnUtils.mapCredentialCreationOptions(options!, fallbackSupported),
         },
         options?.signal,
       );
@@ -112,7 +110,12 @@ import { Messenger } from "./messaging/messenger";
 
       return WebauthnUtils.mapCredentialRegistrationResult(response.result);
     } catch (error) {
-      if (error && error.fallbackRequested && fallbackSupported) {
+      if (
+        fallbackSupported &&
+        error instanceof Object &&
+        "fallbackRequested" in error &&
+        error.fallbackRequested
+      ) {
         await waitForFocus();
         return await browserCredentials.create(options);
       }
@@ -127,7 +130,9 @@ import { Messenger } from "./messaging/messenger";
    * @param options Options for creating new credentials.
    * @returns Promise that resolves to the new credential object.
    */
-  async function getWebAuthnCredential(options?: CredentialRequestOptions): Promise<Credential> {
+  async function getWebAuthnCredential(
+    options?: CredentialRequestOptions,
+  ): Promise<Credential | null> {
     if (!isWebauthnCall(options)) {
       return await browserCredentials.get(options);
     }
@@ -176,14 +181,14 @@ import { Messenger } from "./messaging/messenger";
       abortSignal.removeEventListener("abort", abortListener);
       internalAbortControllers.forEach((controller) => controller.abort());
 
-      return response;
+      return response ?? null;
     }
 
     try {
       const response = await messenger.request(
         {
           type: MessageTypes.CredentialGetRequest,
-          data: WebauthnUtils.mapCredentialRequestOptions(options, fallbackSupported),
+          data: WebauthnUtils.mapCredentialRequestOptions(options!, fallbackSupported),
         },
         options?.signal,
       );
@@ -194,7 +199,12 @@ import { Messenger } from "./messaging/messenger";
 
       return WebauthnUtils.mapCredentialAssertResult(response.result);
     } catch (error) {
-      if (error && error.fallbackRequested && fallbackSupported) {
+      if (
+        fallbackSupported &&
+        error instanceof Object &&
+        "fallbackRequested" in error &&
+        error.fallbackRequested
+      ) {
         await waitForFocus();
         return await browserCredentials.get(options);
       }
@@ -217,7 +227,7 @@ import { Messenger } from "./messaging/messenger";
    */
   async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
     try {
-      if (globalContext.top.document.hasFocus()) {
+      if (globalContext.top?.document.hasFocus()) {
         return;
       }
     } catch {
@@ -225,9 +235,13 @@ import { Messenger } from "./messaging/messenger";
       return await new Promise((resolve) => globalContext.setTimeout(resolve, fallbackWait));
     }
 
+    if (!globalContext.top) {
+      return await new Promise((resolve) => globalContext.setTimeout(resolve, fallbackWait));
+    }
+
     const focusPromise = new Promise<void>((resolve) => {
       focusListenerHandler = () => resolve();
-      globalContext.top.addEventListener("focus", focusListenerHandler);
+      globalContext.top!.addEventListener("focus", focusListenerHandler);
     });
 
     const timeoutPromise = new Promise<void>((_, reject) => {
@@ -248,7 +262,7 @@ import { Messenger } from "./messaging/messenger";
   }
 
   function clearWaitForFocus() {
-    globalContext.top.removeEventListener("focus", focusListenerHandler);
+    globalContext.top?.removeEventListener("focus", focusListenerHandler);
     if (waitForFocusTimeout) {
       globalContext.clearTimeout(waitForFocusTimeout);
     }
