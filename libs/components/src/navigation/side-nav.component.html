@@ -5,47 +5,64 @@
   };
   as data
 ) {
-  <nav
-    id="bit-side-nav"
-    class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-background-alt3 tw-outline-none"
-    [ngClass]="{ 'tw-w-60': data.open }"
-    [ngStyle]="
-      variant() === 'secondary' && {
-        '--color-text-alt2': 'var(--color-text-main)',
-        '--color-background-alt3': 'var(--color-secondary-100)',
-        '--color-background-alt4': 'var(--color-secondary-300)',
-        '--color-hover-contrast': 'var(--color-hover-default)',
-      }
-    "
-    [cdkTrapFocus]="data.isOverlay"
-    [attr.role]="data.isOverlay ? 'dialog' : null"
-    [attr.aria-modal]="data.isOverlay ? 'true' : null"
-    (keydown)="handleKeyDown($event)"
-  >
-    <ng-content></ng-content>
-    <!-- 53rem = ~850px -->
-    <!-- This is a magic number. This number was selected by going to the UI and finding the number that felt the best to me and design. No real rhyme or reason :) -->
-    <div
-      class="[@media(min-height:53rem)]:tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full tw-bg-background-alt3"
+  <div class="tw-relative tw-h-full">
+    <nav
+      id="bit-side-nav"
+      class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-background-alt3 tw-outline-none"
+      [style.width.rem]="data.open ? (sideNavService.width$ | async) : undefined"
+      [ngStyle]="
+        variant() === 'secondary' && {
+          '--color-text-alt2': 'var(--color-text-main)',
+          '--color-background-alt3': 'var(--color-secondary-100)',
+          '--color-background-alt4': 'var(--color-secondary-300)',
+          '--color-hover-contrast': 'var(--color-hover-default)',
+        }
+      "
+      [cdkTrapFocus]="data.isOverlay"
+      [attr.role]="data.isOverlay ? 'dialog' : null"
+      [attr.aria-modal]="data.isOverlay ? 'true' : null"
+      (keydown)="handleKeyDown($event)"
     >
-      <bit-nav-divider></bit-nav-divider>
-      @if (data.open) {
-        <ng-content select="[slot=footer]"></ng-content>
-      }
-      <div class="tw-mx-0.5 tw-my-4 tw-w-[3.75rem]">
-        <button
-          #toggleButton
-          type="button"
-          class="tw-mx-auto tw-block tw-max-w-fit"
-          [bitIconButton]="data.open ? 'bwi-angle-left' : 'bwi-angle-right'"
-          buttonType="nav-contrast"
-          size="small"
-          (click)="sideNavService.toggle()"
-          [label]="'toggleSideNavigation' | i18n"
-          [attr.aria-expanded]="data.open"
-          aria-controls="bit-side-nav"
-        ></button>
+      <ng-content></ng-content>
+      <!-- 53rem = ~850px -->
+      <!-- This is a magic number. This number was selected by going to the UI and finding the number that felt the best to me and design. No real rhyme or reason :) -->
+      <div
+        class="[@media(min-height:53rem)]:tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full tw-bg-background-alt3"
+      >
+        <bit-nav-divider></bit-nav-divider>
+        @if (data.open) {
+          <ng-content select="[slot=footer]"></ng-content>
+        }
+        <div class="tw-mx-0.5 tw-my-4 tw-w-[3.75rem]">
+          <button
+            #toggleButton
+            type="button"
+            class="tw-mx-auto tw-block tw-max-w-fit"
+            [bitIconButton]="data.open ? 'bwi-angle-left' : 'bwi-angle-right'"
+            buttonType="nav-contrast"
+            size="small"
+            (click)="sideNavService.toggle()"
+            [label]="'toggleSideNavigation' | i18n"
+            [attr.aria-expanded]="data.open"
+            aria-controls="bit-side-nav"
+          ></button>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
+    <div
+      cdkDrag
+      (cdkDragMoved)="onDragMoved($event)"
+      class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-200 hover:tw-ease-in-out hover:tw-delay-500 hover:tw-bg-primary-300 focus:tw-outline-none focus-visible:tw-bg-primary-300 before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
+      [class.tw-hidden]="!data.open"
+      tabindex="0"
+      (keydown)="onKeydown($event)"
+      role="separator"
+      [attr.aria-valuenow]="sideNavService.width$ | async"
+      [attr.aria-valuemax]="sideNavService.MAX_OPEN_WIDTH"
+      [attr.aria-valuemin]="sideNavService.MIN_OPEN_WIDTH"
+      aria-orientation="vertical"
+      aria-controls="bit-side-nav"
+      [attr.aria-label]="'resizeSideNavigation' | i18n"
+    ></div>
+  </div>
 }
