@@ -13,9 +13,11 @@ import {
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../../utils/state-mock";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
 
 import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
@@ -65,8 +67,13 @@ export default {
               yes: "Yes",
               no: "No",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
+        },
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),
