@@ -148,7 +148,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   );
 
   readonly disabled = model<boolean>(false);
-  private el = inject(ElementRef<HTMLButtonElement>);
+  readonly el = inject(ElementRef<HTMLButtonElement>);
 
   constructor() {
     ariaDisableElement(this.el.nativeElement, this.disabledAttr);

@@ -62,7 +62,7 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
 
 export type DialogConfig<D = unknown, R = unknown> = Pick<
   CdkDialogConfig<D, R>,
-  "data" | "disableClose" | "ariaModal" | "positionStrategy" | "height" | "width"
+  "data" | "disableClose" | "ariaModal" | "positionStrategy" | "height" | "width" | "restoreFocus"
 >;
 
 /**
