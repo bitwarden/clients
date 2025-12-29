@@ -50,6 +50,9 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40852&t=b5tDKylm5sWm2yKo-4",
     },
+    chromatic: {
+      diffThreshold: 0.2,
+    },
   },
   argTypes: {
     position: {
