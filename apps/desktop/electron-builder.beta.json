@@ -5,7 +5,7 @@
   "productName": "Bitwarden Beta",
   "appId": "com.bitwarden.desktop.beta",
   "buildDependenciesFromSource": true,
-  "copyright": "Copyright © 2015-2025 Bitwarden Inc.",
+  "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
   "directories": {
     "buildResources": "resources",
     "output": "dist",
