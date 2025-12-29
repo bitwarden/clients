@@ -69,7 +69,6 @@ export class SendSuccessDrawerDialogComponent {
     this.platformUtilsService.copyToClipboard(link);
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
     });
   }
