@@ -49,9 +49,54 @@ export class NodeApiService extends ApiService {
 
   nativeFetch(request: Request): Promise<Response> {
     const proxy = process.env.http_proxy || process.env.https_proxy;
-    if (proxy) {
+    if (proxy && !this.shouldBypassProxy(request.url)) {
       (request as any).agent = new HttpsProxyAgent(proxy);
     }
     return fetch(request);
+  }
+
+  private shouldBypassProxy(urlString: string): boolean {
+    const noProxy = process.env.no_proxy || process.env.NO_PROXY;
+    if (!noProxy) {
+      return false;
+    }
+
+    let hostname: string;
+    try {
+      const url = new URL(urlString);
+      hostname = url.hostname.toLowerCase();
+    } catch {
+      return false;
+    }
+
+    const noProxyList = noProxy.split(",").map((entry) => entry.trim().toLowerCase());
+
+    for (const entry of noProxyList) {
+      if (!entry) {
+        continue;
+      }
+
+      // Match "*" which means bypass proxy for all hosts
+      if (entry === "*") {
+        return true;
+      }
+
+      // Match exact hostname
+      if (hostname === entry) {
+        return true;
+      }
+
+      // Match domain suffix (e.g., ".example.com" matches "api.example.com")
+      if (entry.startsWith(".") && hostname.endsWith(entry)) {
+        return true;
+      }
+
+      // Match domain suffix without leading dot (e.g., "example.com" matches "api.example.com")
+      if (!entry.startsWith(".") && (hostname === entry || hostname.endsWith("." + entry))) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
