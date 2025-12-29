@@ -1,4 +1,5 @@
 import { ApiService } from "../../../abstractions/api.service";
+import { StorageRequest } from "../../../models/request/storage.request";
 import { AccountBillingApiServiceAbstraction } from "../../abstractions/account/account-billing-api.service.abstraction";
 import {
   BillingInvoiceResponse,
@@ -44,5 +45,13 @@ export class AccountBillingApiService implements AccountBillingApiServiceAbstrac
       true,
     );
     return r?.map((i: any) => new BillingTransactionResponse(i)) || [];
+  }
+
+  async getUserLicense(): Promise<any> {
+    return await this.apiService.send("GET", "/account/billing/vnext/license", null, true, true);
+  }
+
+  async putAccountStorage(request: StorageRequest): Promise<any> {
+    return await this.apiService.send("PUT", "/account/billing/vnext/storage", request, true, true);
   }
 }

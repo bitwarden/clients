@@ -1,0 +1,20 @@
+<bit-card>
+  <h3 bitTypography="h3" class="tw-mt-0">{{ "storage" | i18n }}</h3>
+  <p bitTypography="body1">
+    {{ "subscriptionStorage" | i18n: maxStorageGb() || 0 : storageName() || "0 MB" }}
+  </p>
+  <bit-progress [barWidth]="storagePercentage()" bgColor="success" size="default"></bit-progress>
+
+  <ng-container *ngIf="showActions() && !isSubscriptionCancelled()">
+    <div class="tw-mt-3">
+      <div class="tw-flex tw-gap-4">
+        <button bitButton type="button" buttonType="secondary" (click)="onAddStorage()">
+          {{ "addStorage" | i18n }}
+        </button>
+        <button bitButton type="button" buttonType="secondary" (click)="onRemoveStorage()">
+          {{ "removeStorage" | i18n }}
+        </button>
+      </div>
+    </div>
+  </ng-container>
+</bit-card>

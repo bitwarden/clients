@@ -1,0 +1,27 @@
+<bit-card>
+  <h3 bitTypography="h3" class="tw-mt-0">{{ "additionalOptions" | i18n }}</h3>
+  <p bitTypography="body1">{{ "additionalOptionsDesc" | i18n }}</p>
+  <div class="tw-flex tw-gap-4 tw-mt-3">
+    <button
+      bitButton
+      type="button"
+      buttonType="secondary"
+      (click)="onDownloadLicense()"
+      *ngIf="showDownloadLicense()"
+    >
+      {{ "downloadLicense" | i18n }}
+    </button>
+    <button
+      bitButton
+      #cancelBtn
+      type="button"
+      buttonType="danger"
+      (click)="onCancelSubscription()"
+      [appApiAction]="cancelPromise()"
+      [disabled]="$any(cancelBtn).loading()"
+      *ngIf="showCancelSubscription()"
+    >
+      {{ "cancelSubscription" | i18n }}
+    </button>
+  </div>
+</bit-card>
