@@ -430,6 +430,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.bitwarden.desktop.autofill-extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Bitwarden Desktop Autofill Development 2024";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "Bitwarden Desktop Autofill Development 2024";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
