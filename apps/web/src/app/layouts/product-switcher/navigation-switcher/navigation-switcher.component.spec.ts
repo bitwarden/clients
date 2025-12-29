@@ -7,10 +7,12 @@ import { BehaviorSubject } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { IconButtonModule, NavigationModule } from "@bitwarden/components";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { NavItemComponent } from "@bitwarden/components/src/navigation/nav-item.component";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-switcher.service";
 
@@ -59,6 +61,8 @@ describe("NavigationProductSwitcherComponent", () => {
     productSwitcherService.shouldShowPremiumUpgradeButton$ = mockShouldShowPremiumUpgradeButton$;
     mockProducts$.next({ bento: [], other: [] });
 
+    const fakeGlobalStateProvider = new FakeGlobalStateProvider();
+
     await TestBed.configureTestingModule({
       imports: [RouterModule, NavigationModule, IconButtonModule, MockUpgradeNavButtonComponent],
       declarations: [NavigationProductSwitcherComponent, I18nPipe],
@@ -71,6 +75,10 @@ describe("NavigationProductSwitcherComponent", () => {
         {
           provide: ActivatedRoute,
           useValue: mock<ActivatedRoute>(),
+        },
+        {
+          provide: GlobalStateProvider,
+          useValue: fakeGlobalStateProvider,
         },
       ],
     }).compileComponents();

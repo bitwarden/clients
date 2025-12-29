@@ -3,11 +3,13 @@ import { RouterModule } from "@angular/router";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { LayoutComponent } from "../layout";
 import { SharedModule } from "../shared/shared.module";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
@@ -42,6 +44,7 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
         },
@@ -58,6 +61,10 @@ export default {
             { useHash: true },
           ),
         ),
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
       ],
     }),
   ],
