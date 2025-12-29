@@ -709,7 +709,7 @@
     "message": "添加附件"
   },
   "itemsTransferred": {
-    "message": "项目已传输"
+    "message": "项目已转移"
   },
   "fixEncryption": {
     "message": "修复加密"
@@ -4454,7 +4454,7 @@
     "message": "我该如何管理我的密码库？"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "传输项目到 $ORGANIZATION$",
+    "message": "转移项目到 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4463,7 +4463,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以传输您的项目的所有权。",
+    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4472,7 +4472,7 @@
     }
   },
   "acceptTransfer": {
-    "message": "接受传输"
+    "message": "接受转移"
   },
   "declineAndLeave": {
     "message": "拒绝并退出"
