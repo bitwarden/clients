@@ -12308,6 +12308,9 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Delete unrecoverable vault items"
   },
