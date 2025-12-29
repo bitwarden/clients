@@ -103,6 +103,7 @@ export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "d
 export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanner", "disk", {
   web: "disk-local",
 });
+export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
 
 // DIRT
 

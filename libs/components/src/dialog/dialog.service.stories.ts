@@ -6,13 +6,14 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { getAllByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
 import { SharedModule } from "../shared";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
-import { I18nMockService } from "../utils/i18n-mock.service";
+import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
 import { DialogModule } from "./dialog.module";
 import { DialogService } from "./dialog.service";
@@ -160,6 +161,10 @@ export default {
               loading: "Loading",
             });
           },
+        },
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),

@@ -207,9 +207,13 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * Update the local store of CipherData with the provided data. Values are upserted into the existing store.
    *
    * @param cipher The cipher data to upsert. Can be a single CipherData object or an array of CipherData objects.
+   * @param userId Optional user ID for whom the cipher data is being upserted.
    * @returns A promise that resolves to a record of updated cipher store, keyed by their cipher ID. Returns all ciphers, not just those updated
    */
-  abstract upsert(cipher: CipherData | CipherData[]): Promise<Record<CipherId, CipherData>>;
+  abstract upsert(
+    cipher: CipherData | CipherData[],
+    userId?: UserId,
+  ): Promise<Record<CipherId, CipherData>>;
   abstract replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any>;
   abstract clear(userId?: string): Promise<void>;
   abstract moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any>;

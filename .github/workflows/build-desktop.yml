@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -90,7 +90,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: true
@@ -185,7 +185,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 1
           ref: ${{  github.event.pull_request.head.sha }}
@@ -365,7 +365,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -523,7 +523,7 @@ jobs:
       NODE_OPTIONS: --max_old_space_size=4096
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -801,7 +801,7 @@ jobs:
       NODE_OPTIONS: --max_old_space_size=4096
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -1056,7 +1056,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -1306,7 +1306,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -1591,7 +1591,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -1932,7 +1932,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false

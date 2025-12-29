@@ -1943,7 +1943,7 @@
     "message": "Copiar UUID"
   },
   "errorRefreshingAccessToken": {
-    "message": "Erro de recarregamento do token de acesso"
+    "message": "Erro de Recarregamento do Token de Acesso"
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Nenhum token de atualização ou chave de API foi encontrado. Tente se desconectar e se conectar novamente."
@@ -3294,7 +3294,7 @@
     "message": "Iniciar Assinatura na Nuvem"
   },
   "launchCloudSubscriptionSentenceCase": {
-    "message": "Launch cloud subscription"
+    "message": "Executar assinatura na nuvem"
   },
   "storage": {
     "message": "Armazenamento"

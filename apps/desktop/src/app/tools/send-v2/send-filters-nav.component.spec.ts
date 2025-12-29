@@ -5,9 +5,11 @@ import { RouterTestingHarness } from "@angular/router/testing";
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { NavigationModule } from "@bitwarden/components";
 import { SendListFiltersService } from "@bitwarden/send-ui";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { SendFiltersNavComponent } from "./send-filters-nav.component";
 
@@ -34,6 +36,8 @@ describe("SendFiltersNavComponent", () => {
   let harness: RouterTestingHarness;
   let filterFormValueSubject: BehaviorSubject<{ sendType: SendType | null }>;
   let mockSendListFiltersService: Partial<SendListFiltersService>;
+
+  const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
   beforeEach(async () => {
     filterFormValueSubject = new BehaviorSubject<{ sendType: SendType | null }>({
@@ -71,6 +75,10 @@ describe("SendFiltersNavComponent", () => {
           useValue: {
             t: jest.fn((key) => key),
           },
+        },
+        {
+          provide: GlobalStateProvider,
+          useValue: fakeGlobalStateProvider,
         },
       ],
     }).compileComponents();
