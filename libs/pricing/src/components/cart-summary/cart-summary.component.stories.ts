@@ -2,9 +2,9 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
+import { CartSummaryComponent } from "@bitwarden/pricing";
 
 import { Cart } from "../../types/cart";
-import { CartSummaryComponent } from "@bitwarden/pricing";
 
 export default {
   title: "Billing/Cart Summary",
