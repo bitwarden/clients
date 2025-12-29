@@ -2634,6 +2634,9 @@
   "key": {
     "message": "Key"
   },
+  "unnamedKey": {
+    "message": "Unnamed key"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Verification code"
   },
