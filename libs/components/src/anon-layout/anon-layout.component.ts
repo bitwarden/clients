@@ -70,24 +70,6 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
 
   protected hideYearAndVersion = false;
 
-  get maxWidthClass(): string {
-    const maxWidth = this.maxWidth();
-    switch (maxWidth) {
-      case "md":
-        return "tw-max-w-md";
-      case "lg":
-        return "tw-max-w-lg";
-      case "xl":
-        return "tw-max-w-xl";
-      case "2xl":
-        return "tw-max-w-2xl";
-      case "3xl":
-        return "tw-max-w-3xl";
-      case "4xl":
-        return "tw-max-w-4xl";
-    }
-  }
-
   constructor(
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,

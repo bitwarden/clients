@@ -22,7 +22,7 @@ export type LandingContainerMaxWidthType =
 })
 export class LandingMaxWidthContainerComponent {
   /**
-   * Max width of the anon layout title, subtitle, and content areas.
+   * Max width of the landing layout container.
    *
    * @default LandingContainerMaxWidth.Md
    */

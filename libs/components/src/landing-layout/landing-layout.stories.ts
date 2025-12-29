@@ -38,11 +38,13 @@ export default {
         <bit-landing-layout
           [hideBackgroundIllustration]="hideBackgroundIllustration"
         >
-          <div slot="landing-header" *ngIf="includeHeader" class="tw-p-4">
-            <div class="tw-flex tw-items-center tw-gap-4">
-              <div class="tw-text-xl tw-font-semibold">Header Content</div>
+          <bit-landing-header *ngIf="includeHeader">
+            <div class="tw-p-4">
+              <div class="tw-flex tw-items-center tw-gap-4">
+                <div class="tw-text-xl tw-font-semibold">Header Content</div>
+              </div>
             </div>
-          </div>
+          </bit-landing-header>
 
           <div>
             <ng-container [ngSwitch]="contentLength">
@@ -61,9 +63,11 @@ export default {
             </ng-container>
           </div>
 
-          <div slot="landing-footer" *ngIf="includeFooter" class="tw-text-center tw-text-sm tw-text-muted">
-            <div>Footer Content</div>
-          </div>
+          <bit-landing-footer *ngIf="includeFooter">
+            <div class="tw-text-center tw-text-sm tw-text-muted">
+              <div>Footer Content</div>
+            </div>
+          </bit-landing-footer>
         </bit-landing-layout>
       `,
     };
