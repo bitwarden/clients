@@ -76,11 +76,14 @@ const decorators = (options: {
         {
           provide: AccountService,
           useValue: {
+            // We can't use mockAccountInfoWith() here because we can't take a dependency on @bitwarden/common/spec.
+            // This is because that package relies on jest dependencies that aren't available here.
             activeAccount$: of({
               id: "test-user-id" as UserId,
               name: "Test User 1",
               email: "test@email.com",
               emailVerified: true,
+              creationDate: "2024-01-01T00:00:00.000Z",
             }),
           },
         },
