@@ -5,16 +5,38 @@ use serde::{Deserialize, Serialize};
 use crate::{BitwardenError, Callback, TimedCallback};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
+/// Request to get the window handle of the desktop client.
 pub(super) struct WindowHandleQueryRequest {
     #[serde(rename = "windowHandle")]
+    /// base64-encoded byte string representing native window handle.
+    /// # Operating System Differences
+    ///
+    /// ## macOS
+    /// Unused.
+    ///
+    /// ## Windows
+    /// On Windows, this is an HWND.
     window_handle: String,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// Response to window handle request.
 pub struct WindowHandleQueryResponse {
+    /// Whether the desktop client is currently visible.
     pub is_visible: bool,
+
+    /// Whether the desktop client is currently focused.
     pub is_focused: bool,
+
+    /// Byte string representing the native OS window handle for the desktop client.
+    /// # Operating System Differences
+    ///
+    /// ## macOS
+    /// Unused.
+    ///
+    /// ## Windows
+    /// On Windows, this is a HWND.
     #[serde(deserialize_with = "crate::util::deserialize_b64")]
     pub handle: Vec<u8>,
 }
@@ -31,8 +53,12 @@ impl Callback for Arc<dyn GetWindowHandleQueryCallback> {
     }
 }
 
+/// Callback to process a response to a window handle query request.
 pub trait GetWindowHandleQueryCallback: Send + Sync {
+    /// Function to call if a successful response is returned.
     fn on_complete(&self, response: WindowHandleQueryResponse);
+
+    /// Function to call if an error response is returned.
     fn on_error(&self, error: BitwardenError);
 }
 
@@ -42,6 +68,6 @@ impl GetWindowHandleQueryCallback for TimedCallback<WindowHandleQueryResponse> {
     }
 
     fn on_error(&self, error: BitwardenError) {
-        self.send(Err(error))
+        self.send(Err(error));
     }
 }
