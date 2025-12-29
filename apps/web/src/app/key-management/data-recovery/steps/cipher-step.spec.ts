@@ -132,7 +132,10 @@ describe("CipherStep", () => {
         userKey: null,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
-        ciphers: [{ id: "cipher-1", organizationId: null } as Cipher],
+        ciphers: [
+          { id: "cipher-1", organizationId: null } as Cipher,
+          { id: "cipher-2", organizationId: null } as Cipher,
+        ],
         folders: [],
       };
 
@@ -144,14 +147,39 @@ describe("CipherStep", () => {
       expect(result).toBe(false);
     });
 
-    it("returns true when there are undecryptable ciphers", async () => {
+    it("returns true when there are undecryptable ciphers but at least one decryptable cipher", async () => {
       const userId = "user-id" as UserId;
       const workingData: RecoveryWorkingData = {
         userId,
         userKey: null,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
-        ciphers: [{ id: "cipher-1", organizationId: null } as Cipher],
+        ciphers: [
+          { id: "cipher-1", organizationId: null } as Cipher,
+          { id: "cipher-2", organizationId: null } as Cipher,
+        ],
+        folders: [],
+      };
+
+      cipherEncryptionService.decrypt.mockRejectedValueOnce(new Error("Decryption failed"));
+
+      await cipherStep.runDiagnostics(workingData, logger);
+      const result = cipherStep.canRecover(workingData);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false when all ciphers are undecryptable", async () => {
+      const userId = "user-id" as UserId;
+      const workingData: RecoveryWorkingData = {
+        userId,
+        userKey: null,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [
+          { id: "cipher-1", organizationId: null } as Cipher,
+          { id: "cipher-2", organizationId: null } as Cipher,
+        ],
         folders: [],
       };
 
@@ -160,7 +188,7 @@ describe("CipherStep", () => {
       await cipherStep.runDiagnostics(workingData, logger);
       const result = cipherStep.canRecover(workingData);
 
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
   });
 
