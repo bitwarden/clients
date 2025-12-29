@@ -1,15 +1,13 @@
 import { Cart } from "@bitwarden/pricing";
 
+import { Storage } from "./storage";
+
 type HasCart = {
   cart: Cart;
 };
 
 type HasStorage = {
-  storage: {
-    available: number;
-    readableUsed: string;
-    used: number;
-  };
+  storage: Storage;
 };
 
 type Suspension = {
