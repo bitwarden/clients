@@ -148,7 +148,7 @@ describe("SettingsV2Component", () => {
     expect(openSpy).toHaveBeenCalledWith(dialogService);
   });
 
-  it("showAutofillBadge$ emits true when default autofill is NOT disabled and nudge is true", async () => {
+  it("showAutofillBadge$ emits true when showNudgeBadge is true", async () => {
     pushActiveAccount();
 
     mockNudges.showNudgeBadge$.mockImplementation((type: NudgeType) =>
@@ -159,8 +159,6 @@ describe("SettingsV2Component", () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
     await fixture.whenStable();
-
-    mockAutofillSettings.defaultBrowserAutofillDisabled$.next(false);
 
     const value = await firstValueFrom(component.showAutofillBadge$);
     expect(value).toBe(true);
