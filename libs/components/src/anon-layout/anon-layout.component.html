@@ -1,9 +1,11 @@
 <bit-landing-layout [hideBackgroundIllustration]="hideBackgroundIllustration()">
-  <bit-landing-header class="tw-bg-background-alt" [hideLogo]="hideLogo()">
-    <div class="tw-ms-auto">
-      <ng-content select="[slot=header-actions]"></ng-content>
-    </div>
-  </bit-landing-header>
+  @if (!hideLogo()) {
+    <bit-landing-header class="tw-bg-background-alt" [hideLogo]="hideLogo()">
+      <div class="tw-ms-auto">
+        <ng-content select="[slot=header-actions]"></ng-content>
+      </div>
+    </bit-landing-header>
+  }
   <div
     [class]="
       'tw-flex tw-flex-col tw-items-center tw-flex-1 tw-bg-background-alt tw-p-5 tw-text-main'
@@ -26,7 +28,9 @@
             <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
           </bit-landing-card>
         }
-        <ng-content select="[slot=secondary]"></ng-content>
+        <div class="tw-flex tw-flex-col tw-items-center">
+          <ng-content select="[slot=secondary]"></ng-content>
+        </div>
       </bit-landing-content>
     </bit-landing-max-width-container>
   </div>
