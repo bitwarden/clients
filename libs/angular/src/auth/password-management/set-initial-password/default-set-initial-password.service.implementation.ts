@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { concatMap, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -15,17 +15,38 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import {
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import {
+  SignedPublicKey,
+  SignedSecurityState,
+  WrappedSigningKey,
+} from "@bitwarden/common/key-management/types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
+import {
+  KdfConfigService,
+  KeyService,
+  KdfConfig,
+  fromSdkKdfConfig,
+} from "@bitwarden/key-management";
+
+import { UserId as SdkUserId } from "../../../../../../../sdk-internal/crates/bitwarden-wasm-internal/npm";
 
 import {
   SetInitialPasswordService,
@@ -47,9 +68,138 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected accountCryptographicStateService: AccountCryptographicStateService,
+    protected configService: ConfigService,
+    protected registerSdkService: RegisterSdkService,
+    protected securityStateService: SecurityStateService,
   ) {}
 
   async setInitialPassword(
+    credentials: SetInitialPasswordCredentials,
+    userType: SetInitialPasswordUserType,
+    userId: UserId,
+  ): Promise<void> {
+    const accountEncryptionV2 = await this.configService.getFeatureFlag(
+      FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration,
+    );
+
+    if (
+      accountEncryptionV2 &&
+      userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER
+    ) {
+      await this.setInitialPasswordV2(credentials, userType, userId);
+    } else {
+      await this.setInitialPasswordV1(credentials, userType, userId);
+    }
+  }
+
+  private async setInitialPasswordV2(
+    credentials: SetInitialPasswordCredentials,
+    userType: SetInitialPasswordUserType,
+    userId: UserId,
+  ): Promise<void> {
+    const {
+      newServerMasterKeyHash,
+      newLocalMasterKeyHash,
+      newPasswordHint,
+      orgSsoIdentifier,
+      orgId,
+      resetPasswordAutoEnroll,
+      newPassword,
+      salt,
+    } = credentials;
+
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} not found. Could not set password.`);
+      }
+    }
+    if (userId == null) {
+      throw new Error("userId not found. Could not set password.");
+    }
+    if (userType == null) {
+      throw new Error("userType not found. Could not set password.");
+    }
+
+    const registerResult = await firstValueFrom(
+      this.registerSdkService.registerClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+          return await ref.value
+            .auth()
+            .registration()
+            .post_keys_for_jit_password_registration({
+              master_password: newPassword,
+              master_password_hint: newPasswordHint,
+              salt: salt,
+              organization_sso_identifier: orgSsoIdentifier,
+              user_id: asUuid<SdkUserId>(userId),
+            });
+        }),
+      ),
+    );
+
+    if (!("V2" in registerResult.account_cryptographic_state)) {
+      throw new Error("Unexpected V2 account cryptographic state");
+    }
+
+    // Set the private key only for new JIT provisioned users in MP encryption orgs.
+    // (Existing TDE users will have their private key set on sync or on login.)
+    if (userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
+      // Set account cryptography state
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        registerResult.account_cryptographic_state,
+        userId,
+      );
+      // Legacy individual states
+      await this.keyService.setPrivateKey(
+        registerResult.account_cryptographic_state.V2.private_key,
+        userId,
+      );
+      await this.keyService.setSignedPublicKey(
+        registerResult.account_cryptographic_state.V2.signed_public_key as SignedPublicKey,
+        userId,
+      );
+      await this.keyService.setUserSigningKey(
+        registerResult.account_cryptographic_state.V2.signing_key as WrappedSigningKey,
+        userId,
+      );
+      await this.securityStateService.setAccountSecurityState(
+        registerResult.account_cryptographic_state.V2.security_state as SignedSecurityState,
+        userId,
+      );
+    }
+
+    // Clear force set password reason to allow navigation back to vault.
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+
+    await this.updateAccountDecryptionProperties(
+      SymmetricCryptoKey.fromString(registerResult.master_key) as MasterKey,
+      fromSdkKdfConfig(registerResult.master_password_unlock.kdf),
+      [
+        SymmetricCryptoKey.fromString(registerResult.user_key) as UserKey,
+        new EncString(registerResult.master_password_unlock.masterKeyWrappedUserKey),
+      ],
+      userId,
+    );
+
+    await this.masterPasswordService.setMasterPasswordUnlockData(
+      MasterPasswordUnlockData.fromSdk(registerResult.master_password_unlock),
+      userId,
+    );
+
+    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
+    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
+
+    if (resetPasswordAutoEnroll) {
+      await this.handleResetPasswordAutoEnroll(newServerMasterKeyHash, orgId, userId);
+    }
+  }
+
+  private async setInitialPasswordV1(
     credentials: SetInitialPasswordCredentials,
     userType: SetInitialPasswordUserType,
     userId: UserId,
