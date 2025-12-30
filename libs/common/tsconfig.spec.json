@@ -2,7 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "isolatedModules": true,
-    "emitDecoratorMetadata": false
+    "emitDecoratorMetadata": false,
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
   },
   "files": ["./test.setup.ts"]
 }
