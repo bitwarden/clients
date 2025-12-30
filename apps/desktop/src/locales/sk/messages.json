@@ -1414,7 +1414,7 @@
     "message": "Zobraziť Bitwarden v Docku aj keď je minimalizovaný na panel úloh."
   },
   "confirmTrayTitle": {
-    "message": "Potvrdiť vypnutie systémovej lišty"
+    "message": "Potvrdiť skrývanie systémovej lišty"
   },
   "confirmTrayDesc": {
     "message": "Vypnutím tohto nastavenia vypnete aj ostatné nastavenia súvisiace so systémovou lištou."
@@ -2849,10 +2849,10 @@
     "message": "Použiť možnosti subadresovania svojho poskytovateľa e-mailu."
   },
   "catchallEmail": {
-    "message": "E-mail Catch-all"
+    "message": "Doménový kôš"
   },
   "catchallEmailDesc": {
-    "message": "Použiť doručenú poštu typu catch-all nastavenú na doméne."
+    "message": "Použiť nastavený doménový kôš."
   },
   "useThisEmail": {
     "message": "Použiť tento e-mail"
