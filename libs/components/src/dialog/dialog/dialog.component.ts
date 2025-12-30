@@ -25,6 +25,7 @@ import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { DialogRef } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
+import { getDialogWidthStyles, DialogSize } from "../get-dialog-width-styles";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -71,7 +72,7 @@ export class DialogComponent {
   /**
    * Dialog size, more complex dialogs should use large, otherwise default is fine.
    */
-  readonly dialogSize = input<"small" | "default" | "large">("default");
+  readonly dialogSize = input<DialogSize>("default");
 
   /**
    * Title to show in the dialog's header
@@ -104,7 +105,7 @@ export class DialogComponent {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
     const baseClasses = ["tw-flex", "tw-flex-col", "tw-w-screen"];
     const sizeClasses = this.dialogRef?.isDrawer
-      ? ["tw-h-full", "md:tw-w-[23rem]"]
+      ? ["tw-size-full"]
       : ["md:tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"];
 
     const animationClasses =
@@ -125,17 +126,7 @@ export class DialogComponent {
   }
 
   get width() {
-    switch (this.dialogSize()) {
-      case "small": {
-        return "md:tw-max-w-sm";
-      }
-      case "large": {
-        return "md:tw-max-w-3xl";
-      }
-      default: {
-        return "md:tw-max-w-xl";
-      }
-    }
+    return getDialogWidthStyles(this.dialogSize());
   }
 
   onAnimationEnd() {
