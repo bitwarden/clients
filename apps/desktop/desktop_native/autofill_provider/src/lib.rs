@@ -198,22 +198,6 @@ impl AutofillProviderClient {
     ///
     /// See documentation at the top-level of [this struct][AutofillProviderClient] for usage information.
     pub fn connect() -> Self {
-        #[cfg(target_os = "macos")]
-        INIT.call_once(|| {
-            let filter = EnvFilter::builder()
-                // Everything logs at `INFO`
-                .with_default_directive(LevelFilter::INFO.into())
-                .from_env_lossy();
-
-            tracing_subscriber::registry()
-                .with(filter)
-                .with(tracing_oslog::OsLogger::new(
-                    "com.bitwarden.desktop.autofill-extension",
-                    "default",
-                ))
-                .init();
-        });
-
         tracing::trace!("Autofill provider attempting to connect to Electron IPC...");
 
         let (from_server_send, mut from_server_recv) = tokio::sync::mpsc::channel(32);
@@ -334,6 +318,25 @@ impl AutofillProviderClient {
             ConnectionStatus::Disconnected
         }
     }
+}
+
+#[cfg(target_os = "macos")]
+#[uniffi::export]
+pub fn initialize_logging() {
+    INIT.call_once(|| {
+        let filter = EnvFilter::builder()
+            // Everything logs at `INFO`
+            .with_default_directive(LevelFilter::INFO.into())
+            .from_env_lossy();
+
+        tracing_subscriber::registry()
+            .with(filter)
+            .with(tracing_oslog::OsLogger::new(
+                "com.bitwarden.desktop.autofill-extension",
+                "default",
+            ))
+            .init();
+    });
 }
 
 #[derive(Serialize, Deserialize)]
