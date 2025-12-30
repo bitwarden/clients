@@ -11,6 +11,27 @@ $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $true
 $startTime = Get-Date
 $originalLocation = Get-Location
+if (!(Get-Command makemsix -ErrorAction SilentlyContinue)) {
+    Write-Error "The `makemsix` tool from the msix-packaging project is required to construct Appx package."
+    Write-Error "On macOS, you can install with Homebrew:"
+    Write-Error "  brew install iinuwa/msix-packaging-tap/msix-packaging"
+    Exit 1
+}
+
+if (!(Get-Command osslsigncode -ErrorAction SilentlyContinue)) {
+    Write-Error "The `osslsigncode` tool is required to sign the Appx package."
+    Write-Error "On macOS, you can install with Homebrew:"
+    Write-Error "  brew install osslsigncode"
+    Exit 1
+}
+
+if (!(Get-Command cargo-xwin -ErrorAction SilentlyContinue)) {
+    Write-Error "The `cargo-xwin` tool is required to cross-compile Windows native code."
+    Write-Error "You can install with cargo:"
+    Write-Error "  cargo install --version 0.20.2 --locked cargo-xwin"
+    Exit 1
+}
+
 try {
 
 cd $PSScriptRoot
