@@ -127,23 +127,28 @@ pub enum ConnectionStatus {
 /// # Example
 ///
 /// ```no_run
-/// fn establish_connection() -> Option<Client> {
+/// use std::{sync::Arc, time::Duration};
+///
+/// use autofill_provider::{AutofillProviderClient, ConnectionStatus, TimedCallback};
+///
+/// fn establish_connection() -> Option<AutofillProviderClient> {
 ///     if !AutofillProviderClient::is_available() {
 ///         // Start application
 ///     }
 ///     let max_attempts = 20;
-///     let delay_ms = Duration::from_millis(300);
+///     let delay = Duration::from_millis(300);
 ///
 ///     for attempt in 0..=max_attempts {
 ///         let client = AutofillProviderClient::connect();
 ///         if attempt != 0 {
 ///             // Use whatever sleep method is appropriate
-///             std::thread::sleep(delay + 100 * attempt);
+///             std::thread::sleep(delay + Duration::from_millis(100 * attempt));
 ///         }
 ///         if let ConnectionStatus::Connected = client.get_connection_status() {
-///             return client;
+///             return Some(client);
 ///         }
 ///     };
+///     None
 /// }
 ///
 /// if let Some(client) = establish_connection() {
@@ -491,14 +496,19 @@ impl<T: Send + 'static> TimedCallback<T> {
     /// specified timeout has passed.
     ///
     /// # Usage
-    /// ```
+    /// ```no_run
+    /// use std::{sync::Arc, time::Duration};
+    ///
+    /// use autofill_provider::{AutofillProviderClient, TimedCallback};
+    ///
+    /// let client = AutofillProviderClient::connect();
     /// let callback = Arc::new(TimedCallback::new());
     /// client.get_lock_status(callback.clone());
     /// match callback.wait_for_response(Duration::from_secs(3), None) {
     ///     Ok(Ok(response)) => Ok(response),
     ///     Ok(Err(err)) => Err(format!("GetLockStatus() call failed: {err}")),
     ///     Err(_) => Err(format!("GetLockStatus() call timed out")),
-    /// }
+    /// }.unwrap();
     /// ```
     pub fn wait_for_response(
         &self,
