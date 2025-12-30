@@ -67,26 +67,25 @@ export class NewSendDropdownComponent {
       return;
     }
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
-
-    const dialogRef = SendAddEditDialogComponent.open(this.dialogService, { formConfig });
-    const result = await lastValueFrom(dialogRef.closed);
     const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
 
-    if (
-      typeof result === "object" &&
-      result.result === SendItemDialogResult.Saved &&
-      result.send &&
-      useRefresh
-    ) {
-      this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
-        data: result.send,
-      });
-    } else {
-      if (useRefresh) {
-        SendAddEditDialogComponent.openDrawer(this.dialogService, { formConfig });
-      } else {
-        SendAddEditDialogComponent.open(this.dialogService, { formConfig });
+    if (useRefresh) {
+      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, { formConfig });
+      if (dialogRef) {
+        const result = await lastValueFrom(dialogRef.closed);
+        if (
+          result &&
+          typeof result === "object" &&
+          result.result === SendItemDialogResult.Saved &&
+          result.send
+        ) {
+          this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
+            data: result.send,
+          });
+        }
       }
+    } else {
+      SendAddEditDialogComponent.open(this.dialogService, { formConfig });
     }
   }
 }
