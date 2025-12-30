@@ -73,12 +73,16 @@ pub struct Position {
 #[derive(Debug, Serialize, Deserialize)]
 pub enum BitwardenError {
     Internal(String),
+    Disconnected,
 }
 
 impl Display for BitwardenError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Internal(msg) => write!(f, "Internal error occurred: {msg}"),
+            Self::Disconnected => {
+                write!(f, "Client is disconnected from autofill IPC service")
+            }
         }
     }
 }
@@ -391,6 +395,12 @@ impl AutofillProviderClient {
         message: impl Serialize + DeserializeOwned,
         callback: Option<Box<dyn Callback>>,
     ) {
+        if let ConnectionStatus::Disconnected = self.get_connection_status() {
+            if let Some(callback) = callback {
+                callback.error(BitwardenError::Disconnected);
+            }
+            return;
+        }
         let sequence_number = if let Some(callback) = callback {
             self.add_callback(callback)
         } else {
@@ -420,17 +430,19 @@ fn send_message_helper(
     sequence_number: u32,
     message: impl Serialize + DeserializeOwned,
     tx: &tokio::sync::mpsc::Sender<String>,
-) -> Result<(), String> {
-    let value = serde_json::to_value(message)
-        .map_err(|err| format!("Could not represent message as JSON: {err}"))?;
+) -> Result<(), BitwardenError> {
+    let value = serde_json::to_value(message).map_err(|err| {
+        BitwardenError::Internal(format!("Could not represent message as JSON: {err}"))
+    })?;
     let message = SerializedMessage::Message {
         sequence_number,
         value: Ok(value),
     };
-    let json = serde_json::to_string(&message)
-        .map_err(|err| format!("Could not serialize message as JSON: {err}"))?;
+    let json = serde_json::to_string(&message).map_err(|err| {
+        BitwardenError::Internal(format!("Could not serialize message as JSON: {err}"))
+    })?;
     tx.blocking_send(json)
-        .map_err(|err| format!("Error sending message: {err}"))?;
+        .map_err(|_| BitwardenError::Disconnected)?;
     Ok(())
 }
 
@@ -484,8 +496,8 @@ impl<T: Send + 'static> TimedCallback<T> {
     /// client.get_lock_status(callback.clone());
     /// match callback.wait_for_response(Duration::from_secs(3), None) {
     ///     Ok(Ok(response)) => Ok(response),
-    ///     Ok(Err(err)) => Err(format!("GetLockStatus() call failed: {err}").into()),
-    ///     Err(_) => Err(format!("GetLockStatus() call timed out").into()),
+    ///     Ok(Err(err)) => Err(format!("GetLockStatus() call failed: {err}")),
+    ///     Err(_) => Err(format!("GetLockStatus() call timed out")),
     /// }
     /// ```
     pub fn wait_for_response(
@@ -645,6 +657,17 @@ mod tests {
             ConnectionStatus::Connected
         ));
         client
+    }
+
+    #[test]
+    fn test_disconnected_gives_error() {
+        let client = AutofillProviderClient::connect();
+        let callback = Arc::new(TimedCallback::new());
+        client.get_lock_status(callback.clone());
+        let response = callback
+            .wait_for_response(Duration::from_millis(10), None)
+            .unwrap();
+        assert!(matches!(response, Err(BitwardenError::Disconnected)));
     }
 
     #[test]
