@@ -60,6 +60,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     "button",
     "image",
     "file",
+    "search",
+    "url",
+    "date",
+    "time",
+    "datetime", // Note: datetime is deprecated in HTML5; keeping here for backwards compatibility
+    "datetime-local",
+    "week",
+    "color",
+    "range",
   ]);
 
   constructor(
