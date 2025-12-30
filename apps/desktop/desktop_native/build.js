@@ -50,20 +50,22 @@ function buildProxyBin(target, release = true) {
 
 function buildImporterBinaries(target, release = true) {
     // These binaries are only built for Windows, so we can skip them on other platforms
-    if (process.platform !== "win32") {
+    const xwin = target && target.includes('windows') && process.platform !== "win32" ? "xwin" : "";
+    if (process.platform !== "win32" && !xwin) {
         return;
     }
 
     const bin = "bitwarden_chromium_import_helper";
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
-    child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg}`);
+    child_process.execSync(`cargo ${xwin} build --bin ${bin} ${releaseArg} ${targetArg}`);
 
     if (target) {
         // Copy the resulting binary to the dist folder
         const targetFolder = release ? "release" : "debug";
-        const nodeArch = rustTargetsMap[target].nodeArch;
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}.exe`), path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
+        const { nodeArch, platform } = rustTargetsMap[target];
+        const ext = platform === "win32" ? ".exe" : "";
+        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}${ext}`), path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`));
     }
 }
 
@@ -99,7 +101,7 @@ if (target) {
     installTarget(target);
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
-    buildImporterBinaries(false, isRelease);
+    buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
     return;
 }
