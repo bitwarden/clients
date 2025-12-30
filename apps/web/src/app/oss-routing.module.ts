@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
@@ -49,6 +50,7 @@ import {
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
@@ -641,6 +643,13 @@ const routes: Routes = [
         path: "sends",
         component: SendComponent,
         data: { titleId: "send" } satisfies RouteDataProperties,
+        canActivate: [
+          organizationPolicyGuard((userId, _configService, policyService) =>
+            policyService
+              .policyAppliesToUser$(PolicyType.DisableSend, userId)
+              .pipe(map((policyApplies) => !policyApplies)),
+          ),
+        ],
       },
       {
         path: "sm-landing",
