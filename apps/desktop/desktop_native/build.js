@@ -33,39 +33,37 @@ function buildNapiModule(target, release = true) {
     child_process.execSync(`npm run build -- ${crossCompileArg} ${releaseArg} ${targetArg}`, { stdio: 'inherit', cwd: path.join(__dirname, "napi") });
 }
 
-function buildProxyBin(target, release = true) {
-    const targetArg = target ? `--target ${target}` : "";
-    const releaseArg = release ? "--release" : "";
+/**
+ * Build a Rust binary with Cargo.
+ * 
+ * If {@link target} is specified, cross-compilation helpers are used to build if necessary, and the resulting
+ * binary is copied to the `dist` folder.
+ * @param {string} bin Name of cargo binary package in `desktop_native` workspace.
+ * @param {string?} target Rust compiler target, e.g. `aarch64-pc-windows-msvc`.
+ * @param {boolean} release Whether to build in release mode.
+ */
+function cargoBuild(bin, target, release) {
     const xwin = target && target.includes('windows') && process.platform !== "win32" ? "xwin" : "";
-    child_process.execSync(`cargo ${xwin} build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
-
+    const targetArg = target ? `--target=${target}` : "";
+    const releaseArg = release ? "--release" : "";
+    child_process.execSync(`cargo ${xwin} build --bin ${bin} ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: __dirname});
     if (target) {
         // Copy the resulting binary to the dist folder
-        const targetFolder = release ? "release" : "debug";
+        const targetFolder = isRelease ? "release" : "debug";
         const { nodeArch, platform } = rustTargetsMap[target];
         const ext = platform === "win32" ? ".exe" : "";
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${platform}-${nodeArch}${ext}`));
+        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}${ext}`), path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`));
     }
+}
+
+function buildProxyBin(target, release = true) {
+    cargoBuild("desktop_proxy", target, release)
 }
 
 function buildImporterBinaries(target, release = true) {
     // These binaries are only built for Windows, so we can skip them on other platforms
-    const xwin = target && target.includes('windows') && process.platform !== "win32" ? "xwin" : "";
-    if (process.platform !== "win32" && !xwin) {
-        return;
-    }
-
-    const bin = "bitwarden_chromium_import_helper";
-    const targetArg = target ? `--target ${target}` : "";
-    const releaseArg = release ? "--release" : "";
-    child_process.execSync(`cargo ${xwin} build --bin ${bin} ${releaseArg} ${targetArg}`);
-
-    if (target) {
-        // Copy the resulting binary to the dist folder
-        const targetFolder = release ? "release" : "debug";
-        const { nodeArch, platform } = rustTargetsMap[target];
-        const ext = platform === "win32" ? ".exe" : "";
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}${ext}`), path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`));
+    if (process.platform === "win32" || (target && target.includes('windows'))) {
+        cargoBuild("bitwarden_chromium_import_helper", target, release)
     }
 }
 
