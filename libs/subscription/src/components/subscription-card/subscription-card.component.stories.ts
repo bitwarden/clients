@@ -57,7 +57,7 @@ export default {
                 reinstateSubscription: "Reinstate subscription",
                 upgradeYourPlan: "Upgrade your plan",
                 premiumShareEvenMore:
-                  "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise",
+                  "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise.",
                 upgradeNow: "Upgrade now",
                 youHaveAGracePeriod: `You have a grace period of ${args[0]} days from your subscription expiration date. Please resolve the past due invoices by ${args[1]}.`,
                 manageInvoices: "Manage invoices",

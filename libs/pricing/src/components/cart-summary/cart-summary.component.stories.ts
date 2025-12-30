@@ -1,8 +1,10 @@
+import { DatePipe } from "@angular/common";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { CartSummaryComponent } from "@bitwarden/pricing";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Cart } from "../../types/cart";
 
@@ -12,9 +14,10 @@ export default {
   description: "A summary of the items in the cart, including pricing details.",
   decorators: [
     moduleMetadata({
-      imports: [TypographyModule, IconButtonModule],
+      imports: [TypographyModule, IconButtonModule, I18nPipe],
       // Return the same value for all keys for simplicity
       providers: [
+        DatePipe,
         {
           provide: I18nService,
           useValue: {
@@ -50,6 +53,10 @@ export default {
                   return "Families membership";
                 case "premiumMembership":
                   return "Premium membership";
+                case "yourNextChargeIsFor":
+                  return "Your next charge is for";
+                case "dueOn":
+                  return "due on";
                 default:
                   return key;
               }
@@ -247,42 +254,38 @@ export const CustomHeaderTemplate: Story = {
     cart: {
       passwordManager: {
         seats: {
-          quantity: 5,
-          name: "members",
-          cost: 50.0,
-        },
-        additionalStorage: {
-          quantity: 2,
-          name: "additionalStorageGB",
+          quantity: 1,
+          name: "premiumMembership",
           cost: 10.0,
         },
       },
-      secretsManager: {
-        seats: {
-          quantity: 3,
-          name: "members",
-          cost: 30.0,
-        },
-      },
-      cadence: "monthly",
-      estimatedTax: 19.2,
+      cadence: "annually",
+      estimatedTax: 2.71,
     } satisfies Cart,
   },
   render: (args) => ({
-    props: args,
+    props: {
+      ...args,
+      nextChargeDate: new Date("2025-06-04"),
+    },
     template: `
-      <billing-cart-summary [cart]="cart" [header]="customHeader">
+      <div>
         <ng-template #customHeader let-total="total">
-          <div class="tw-flex tw-flex-col tw-gap-1">
-            <h3 bitTypography="h3" class="!tw-m-0 tw-text-primary">
-              Your Total: {{ total | currency: 'USD' : 'symbol' }}
-            </h3>
-            <p bitTypography="body2" class="!tw-m-0 tw-text-muted">
-              Custom header with enhanced styling
-            </p>
-          </div>
+          <h2
+            bitTypography="h4"
+            class="!tw-m-0"
+            id="cart-summary-header-custom"
+            data-test-id="cart-summary-header-custom"
+          >
+            {{ "yourNextChargeIsFor" | i18n }}
+            <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+            {{ "dueOn" | i18n }}
+            <span class="tw-font-bold">{{ nextChargeDate | date: "MMM. d, y" }}</span>
+          </h2>
         </ng-template>
-      </billing-cart-summary>
+
+        <billing-cart-summary [cart]="cart" [header]="customHeader" />
+      </div>
     `,
   }),
 };

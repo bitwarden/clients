@@ -12505,7 +12505,7 @@
     }
   },
   "premiumShareEvenMore": {
-    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
   },
   "youHaveAGracePeriod": {
     "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
