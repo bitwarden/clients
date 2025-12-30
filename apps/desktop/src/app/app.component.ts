@@ -70,6 +70,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -198,6 +199,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private readonly tokenService: TokenService,
     private desktopAutotypeDefaultSettingPolicy: DesktopAutotypeDefaultSettingPolicy,
     private readonly lockService: LockService,
+    private premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -305,7 +307,7 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
             break;
           case "openPremium":
-            this.dialogService.open(PremiumComponent);
+            await this.premiumUpgradePromptService.promptForPremium();
             break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
