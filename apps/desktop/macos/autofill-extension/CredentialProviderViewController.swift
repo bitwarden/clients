@@ -130,7 +130,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             
             // If we just disconnected, try to cancel the request
             if currentStatus == .disconnected {
-                self.extensionContext.cancelRequest(withError: BitwardenError.Internal("Bitwarden desktop app disconnected"))
+                self.extensionContext.cancelRequest(withError: BitwardenError.Disconnected)
             }
         }
     }
