@@ -371,14 +371,23 @@ export class InputPasswordComponent implements OnInit {
       if (newApisFlagEnabled) {
         // 4. Build a PasswordInputResult object
         const passwordInputResult: PasswordInputResult = {
-          currentPassword,
           newPassword,
           kdfConfig: this.kdfConfig,
           salt,
           newPasswordHint,
-          rotateUserKey: this.formGroup.controls.rotateUserKey?.value ?? false,
           newApisFlagEnabled, // To be removed in PM-28143
         };
+
+        if (
+          this.flow === InputPasswordFlow.ChangePassword ||
+          this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+        ) {
+          passwordInputResult.currentPassword = currentPassword;
+        }
+
+        if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
+          passwordInputResult.rotateUserKey = this.formGroup.controls.rotateUserKey?.value;
+        }
 
         // 5. Emit and return PasswordInputResult object
         this.onPasswordFormSubmit.emit(passwordInputResult);
