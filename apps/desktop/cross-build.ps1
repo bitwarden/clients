@@ -66,7 +66,7 @@ $rustTarget = switch ($Architecture) {
 npm run build-native -- cross-platform $buildConfiguration "--target=$rustTarget"
 
 Write-Host "Building Javascript code"
-if ($target -eq "release") {
+if ($Release) {
     npm run build
 }
 else {
