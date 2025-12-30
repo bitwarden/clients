@@ -26,6 +26,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private fadeInTimeout: number | NodeJS.Timeout | null = null;
   private readonly fadeInOpacityTransition = "opacity 125ms ease-out 0s";
   private readonly fadeOutOpacityTransition = "opacity 65ms ease-out 0s";
+  private shouldReduceMotion: boolean = false;
   private iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
@@ -91,6 +92,11 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     this.iframe = globalThis.document.createElement("iframe");
     for (const [attribute, value] of Object.entries(this.defaultIframeAttributes)) {
       this.iframe.setAttribute(attribute, value);
+    }
+
+    this.shouldReduceMotion = globalThis.matchMedia("(prefers-reduced-motion)").matches;
+    if (this.shouldReduceMotion) {
+      delete this.iframeStyles.transition;
     }
     this.iframeStyles = { ...this.iframeStyles, ...this.initStyles };
     this.setElementStyles(this.iframe, this.iframeStyles, true);
@@ -392,8 +398,19 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    */
   private handleFadeInInlineMenuIframe() {
     this.clearFadeInTimeout();
+
+    const styles: Partial<CSSStyleDeclaration> = {
+      display: "block",
+      opacity: "1",
+    };
+
+    if (this.shouldReduceMotion) {
+      this.updateElementStyles(this.iframe, styles);
+      return;
+    }
+
     this.fadeInTimeout = globalThis.setTimeout(() => {
-      this.updateElementStyles(this.iframe, { display: "block", opacity: "1" });
+      this.updateElementStyles(this.iframe, styles);
       this.clearFadeInTimeout();
     }, 10);
   }
@@ -417,13 +434,19 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       clearTimeout(this.delayedCloseTimeout);
     }
 
-    this.updateElementStyles(this.iframe, {
-      transition: this.fadeOutOpacityTransition,
+    const styles: Partial<CSSStyleDeclaration> = {
       opacity: "0",
-    });
+    };
+    if (!this.shouldReduceMotion) {
+      styles.transition = this.fadeOutOpacityTransition;
+    }
+    this.updateElementStyles(this.iframe, styles);
 
     this.delayedCloseTimeout = globalThis.setTimeout(() => {
-      this.updateElementStyles(this.iframe, { transition: this.fadeInOpacityTransition });
+      if (!this.shouldReduceMotion) {
+        this.updateElementStyles(this.iframe, { transition: this.fadeInOpacityTransition });
+      }
+
       this.port?.disconnect();
       this.port = null;
       this.forceCloseInlineMenu();
