@@ -83,6 +83,10 @@ function buildProcessIsolation() {
 
 function installTarget(target) {
     child_process.execSync(`rustup target add ${target}`, { stdio: 'inherit', cwd: __dirname });
+    // Install cargo-xwin for cross-platform builds targeting Windows
+    if (target.includes('windows') && process.platform !== 'win32') {
+        child_process.execSync("cargo install --version 0.20.2 --locked cargo-xwin", { stdio: 'inherit', cwd: __dirname });
+    }
 }
 
 if (!crossPlatform && !target) {
