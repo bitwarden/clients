@@ -1,12 +1,13 @@
 import {
   catchError,
   EMPTY,
+  filter,
+  finalize,
   first,
   firstValueFrom,
   map,
   retry,
-  share,
-  startWith,
+  shareReplay,
   Subject,
   switchMap,
   tap,
@@ -62,14 +63,43 @@ export class PhishingDataService {
   // How often are new web addresses added to the remote?
   readonly UPDATE_INTERVAL_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
+  // Minimum time between updates when triggered by account switch (5 minutes)
+  private readonly MIN_UPDATE_INTERVAL = 5 * 60 * 1000;
+
   private _triggerUpdate$ = new Subject<void>();
+  private _updateInProgress = false;
+
+  /**
+   * Observable that handles phishing data updates.
+   *
+   * Updates are triggered explicitly via triggerUpdateIfNeeded() or the 24-hour scheduler.
+   * The observable includes safeguards to prevent redundant updates:
+   * - Skips if an update is already in progress
+   * - Skips if cache was updated within MIN_UPDATE_INTERVAL (5 min)
+   */
   update$ = this._triggerUpdate$.pipe(
-    startWith(undefined), // Always emit once
+    // Don't use startWith - initial update is handled by triggerUpdateIfNeeded()
     tap(() => this.logService.info(`[PhishingDataService] Update triggered...`)),
+    filter(() => {
+      if (this._updateInProgress) {
+        this.logService.info(`[PhishingDataService] Update already in progress, skipping...`);
+        return false;
+      }
+      return true;
+    }),
+    tap(() => {
+      this._updateInProgress = true;
+    }),
     switchMap(() =>
       this._cachedState.state$.pipe(
         first(), // Only take the first value to avoid an infinite loop when updating the cache below
         switchMap(async (cachedState) => {
+          // Early exit if cache is fresh (updated within MIN_UPDATE_INTERVAL)
+          if (cachedState && Date.now() - cachedState.timestamp < this.MIN_UPDATE_INTERVAL) {
+            this.logService.info(`[PhishingDataService] Cache is fresh, skipping update...`);
+            return;
+          }
+
           const next = await this.getNextWebAddresses(cachedState);
           if (next) {
             await this._cachedState.update(() => next);
@@ -98,9 +128,14 @@ export class PhishingDataService {
             return EMPTY;
           },
         ),
+        // Use finalize() to ensure _updateInProgress is reset on success, error, OR completion
+        // Per ADR: "Use finalize() operator to ensure cleanup code always runs"
+        finalize(() => {
+          this._updateInProgress = false;
+        }),
       ),
     ),
-    share(),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   constructor(
@@ -118,6 +153,14 @@ export class PhishingDataService {
       ScheduledTaskNames.phishingDomainUpdate,
       this.UPDATE_INTERVAL_DURATION,
     );
+  }
+
+  /**
+   * Triggers an update if the cache is stale or empty.
+   * Should be called when phishing detection is enabled for an account.
+   */
+  triggerUpdateIfNeeded(): void {
+    this._triggerUpdate$.next();
   }
 
   /**
