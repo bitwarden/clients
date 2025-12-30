@@ -267,7 +267,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     timer(0, 1000)
       .pipe(
         switchMap(async () => {
-          const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           const biometricSettingAvailable = await this.biometricsService.canEnableBiometricUnlock();
           if (!biometricSettingAvailable) {
             this.form.controls.biometric.disable({ emitEvent: false });
@@ -275,6 +274,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.form.controls.biometric.enable({ emitEvent: false });
           }
 
+          // Biometrics status can't be checked if the nativeMessaging permission hasn't been granted.
+          const needsPermissionPrompt =
+            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
+            !this.platformUtilsService.isSafari();
+          if (needsPermissionPrompt) {
+            return;
+          }
+
+          const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
             this.biometricUnavailabilityReason = this.i18nService.t(
               "biometricsStatusHelptextDesktopDisconnected",
