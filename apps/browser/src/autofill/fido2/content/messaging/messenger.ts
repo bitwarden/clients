@@ -25,7 +25,9 @@ type Handler = (
  * handling aborts and exceptions across separate execution contexts.
  */
 export class Messenger {
-  private messageEventListener: (event: MessageEvent<MessageWithMetadata>) => void | null = null;
+  private messageEventListener:
+    | ((event: MessageEvent<MessageWithMetadata>) => void | Promise<void>)
+    | null = null;
   private onDestroy = new EventTarget();
 
   /**
