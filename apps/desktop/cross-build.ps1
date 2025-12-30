@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory=$true)]
     [System.Runtime.InteropServices.Architecture]$Architecture,
     $CertificatePath,
-    $CertificatePassword,
+    [SecureString]$CertificatePassword,
     $ElectronConfigFile="electron-builder.json",
     [Switch]$Release=$false
 )
@@ -116,13 +116,20 @@ Write-Host "Creating unsigned Appx"
 makemsix pack -d appx -p $unsignedArtifactpath
 
 $outfile = Join-Path $outDir $unsignedArtifactPath
-if ($null -eq $CertificatePath || $null -eq $CertificatePassword) {
+if ($null -eq $CertificatePath) {
     Write-Warning "No Certificate specified. Not signing Appx."
 }
+elseif ($null -eq $CertificatePassword -and $null -eq $env:CERTIFICATE_PASSWORD) {
+    Write-Warning "No certificate password specified in CertificatePassword argument nor CERTIFICATE_PASSWORD environment variable. Not signing Appx."
+}
 else {
-
     $cert = (Get-Item $CertificatePath).FullName
-    $pw = $CertificatePassword
+    $pw = $null
+    if ($null -ne $CertificatePassword) {
+        $pw = ConvertFrom-SecureString -SecureString $CertificatePassword -AsPlainText
+    } else {
+        $pw = $env:CERTIFICATE_PASSWORD
+    }
     $unsigned = $outfile
     $outfile = (Join-Path $outDir $artifactName)
     Write-Host "Signing $artifactName with $cert"
