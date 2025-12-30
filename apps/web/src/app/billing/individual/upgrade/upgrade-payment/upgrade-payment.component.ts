@@ -22,6 +22,7 @@ import {
   combineLatest,
   map,
   shareReplay,
+  defer,
 } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -121,10 +122,20 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
   protected hasEnoughAccountCredit$!: Observable<boolean>;
   private pricingTiers$!: Observable<PersonalSubscriptionPricingTier[]>;
-  protected estimatedTax$ = of(0);
+
+  // Use defer to lazily create the observable when subscribed to
+  protected estimatedTax$ = defer(() =>
+    this.formGroup.controls.billingAddress.valueChanges.pipe(
+      startWith(this.formGroup.controls.billingAddress.value),
+      debounceTime(1000),
+      switchMap(() => this.refreshSalesTax$()),
+    ),
+  );
 
   // Convert estimatedTax$ to signal for use in computed cart
-  protected readonly estimatedTax = toSignal(this.estimatedTax$);
+  protected readonly estimatedTax = toSignal(this.estimatedTax$, {
+    initialValue: this.INITIAL_TAX_VALUE,
+  });
 
   // Cart Summary data
   protected readonly cart = computed<Cart>(() => {
@@ -200,13 +211,6 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
           return;
         }
       });
-
-    this.estimatedTax$ = this.formGroup.controls.billingAddress.valueChanges.pipe(
-      startWith(this.formGroup.controls.billingAddress.value),
-      debounceTime(1000),
-      // Only proceed when form has required values
-      switchMap(() => this.refreshSalesTax$()),
-    );
 
     this.loading.set(false);
   }
