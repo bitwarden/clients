@@ -187,12 +187,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the position of the inline menu button.
    */
   private async appendButtonElement(): Promise<void> {
-    if (!this.inlineMenuEnabled) {
-      return;
-    }
-
     if (!this.buttonElement) {
-      this.createButtonElement();
+      this.buttonElement = this.createButtonElement();
       this.updateCustomElementDefaultStyles(this.buttonElement);
     }
 
@@ -207,12 +203,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the position of the inline menu list.
    */
   private async appendListElement(): Promise<void> {
-    if (!this.inlineMenuEnabled) {
-      return;
-    }
-
     if (!this.listElement) {
-      this.createListElement();
+      this.listElement = this.createListElement();
       this.updateCustomElementDefaultStyles(this.listElement);
     }
 
@@ -263,16 +255,12 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * to create the element if it already exists in the DOM.
    */
   private createButtonElement() {
-    if (!this.inlineMenuEnabled) {
-      return;
-    }
-
     if (this.isFirefoxBrowser) {
       this.buttonElement = globalThis.document.createElement("div");
       this.buttonElement.setAttribute("popover", "manual");
       new AutofillInlineMenuButtonIframe(this.buttonElement);
 
-      return;
+      return this.buttonElement;
     }
 
     const customElementName = this.generateRandomCustomElementName();
@@ -288,6 +276,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     this.buttonElement = globalThis.document.createElement(customElementName);
     this.buttonElement.setAttribute("popover", "manual");
+    return this.buttonElement;
   }
 
   /**
@@ -295,16 +284,12 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * to create the element if it already exists in the DOM.
    */
   private createListElement() {
-    if (!this.inlineMenuEnabled) {
-      return;
-    }
-
     if (this.isFirefoxBrowser) {
       this.listElement = globalThis.document.createElement("div");
       this.listElement.setAttribute("popover", "manual");
       new AutofillInlineMenuListIframe(this.listElement);
 
-      return;
+      return this.listElement;
     }
 
     const customElementName = this.generateRandomCustomElementName();
@@ -320,6 +305,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     this.listElement = globalThis.document.createElement(customElementName);
     this.listElement.setAttribute("popover", "manual");
+    return this.listElement;
   }
 
   /**
