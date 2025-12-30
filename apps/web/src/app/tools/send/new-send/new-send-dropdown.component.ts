@@ -73,12 +73,7 @@ export class NewSendDropdownComponent {
       const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, { formConfig });
       if (dialogRef) {
         const result = await lastValueFrom(dialogRef.closed);
-        if (
-          result &&
-          typeof result === "object" &&
-          result.result === SendItemDialogResult.Saved &&
-          result.send
-        ) {
+        if (result?.result === SendItemDialogResult.Saved && result?.send) {
           this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
             data: result.send,
           });

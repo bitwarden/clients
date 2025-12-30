@@ -173,18 +173,20 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       });
     }
 
-    const result = await lastValueFrom(this.sendItemDialogRef.closed);
+    const result: SendItemDialogResult = await lastValueFrom(this.sendItemDialogRef.closed);
     this.sendItemDialogRef = undefined;
 
     // If the dialog was closed by deleting the cipher, refresh the vault.
-    if (result === SendItemDialogResult.Deleted || result === SendItemDialogResult.Saved) {
+    if (
+      result?.result === SendItemDialogResult.Deleted ||
+      result?.result === SendItemDialogResult.Saved
+    ) {
       await this.load();
     }
 
     if (
-      typeof result === "object" &&
-      result.result === SendItemDialogResult.Saved &&
-      result.send &&
+      result?.result === SendItemDialogResult.Saved &&
+      result?.send &&
       (await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh))
     ) {
       this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
