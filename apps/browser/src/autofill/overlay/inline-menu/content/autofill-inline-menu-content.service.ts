@@ -60,8 +60,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    */
   private inlineMenuEnabled = true;
   private mutationObserverIterations = 0;
-  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
-  private handlePersistentLastChildOverrideTimeout: number | NodeJS.Timeout;
+  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout | null = null;
+  private handlePersistentLastChildOverrideTimeout: number | NodeJS.Timeout | null = null;
   private lastElementOverrides: WeakMap<Element, number> = new WeakMap();
   private readonly customElementDefaultStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
