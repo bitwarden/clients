@@ -15,15 +15,16 @@
         data-testid="toggle-privateKey-visibility"
         bitPasswordInputToggle
       ></button>
-      <button
-        type="button"
-        bitIconButton="bwi-import"
-        bitSuffix
-        data-testid="import-privateKey"
-        *ngIf="showImport"
-        label="{{ 'importSshKeyFromClipboard' | i18n }}"
-        (click)="importSshKeyFromClipboard()"
-      ></button>
+      @if (showImport()) {
+        <button
+          type="button"
+          bitIconButton="bwi-import"
+          bitSuffix
+          data-testid="import-privateKey"
+          label="{{ 'importSshKeyFromClipboard' | i18n }}"
+          (click)="importSshKeyFromClipboard()"
+        ></button>
+      }
     </bit-form-field>
 
     <bit-form-field>
