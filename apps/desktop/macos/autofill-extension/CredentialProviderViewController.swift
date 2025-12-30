@@ -30,6 +30,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             return client
         }
         
+        initializeLogging()
         let logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
 
         // Check if the Electron app is running
