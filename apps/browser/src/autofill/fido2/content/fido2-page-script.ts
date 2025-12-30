@@ -104,7 +104,7 @@ import { Messenger } from "./messaging/messenger";
         options?.signal,
       );
 
-      if (response.type !== MessageTypes.CredentialCreationResponse) {
+      if (response.type !== MessageTypes.CredentialCreationResponse || !response.result) {
         throw new Error("Something went wrong.");
       }
 
@@ -158,7 +158,7 @@ import { Messenger } from "./messaging/messenger";
             internalAbortController.signal,
           );
           internalAbortController.signal.removeEventListener("abort", abortListener);
-          if (response.type !== MessageTypes.CredentialGetResponse) {
+          if (response.type !== MessageTypes.CredentialGetResponse || !response.result) {
             throw new Error("Something went wrong.");
           }
 
@@ -193,7 +193,7 @@ import { Messenger } from "./messaging/messenger";
         options?.signal,
       );
 
-      if (response.type !== MessageTypes.CredentialGetResponse) {
+      if (response.type !== MessageTypes.CredentialGetResponse || !response.result) {
         throw new Error("Something went wrong.");
       }
 
