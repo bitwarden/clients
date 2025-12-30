@@ -86,6 +86,10 @@ function installTarget(target) {
     // Install cargo-xwin for cross-platform builds targeting Windows
     if (target.includes('windows') && process.platform !== 'win32') {
         child_process.execSync("cargo install --version 0.20.2 --locked cargo-xwin", { stdio: 'inherit', cwd: __dirname });
+        // install tools needed for packaging Appx, only supported on macOS for now.
+        if (process.platform === "darwin") {
+            child_process.execSync("brew install iinuwa/msix-packaging-tap/msix-packaging osslsigncode", { stdio: 'inherit', cwd: __dirname });
+        }
     }
 }
 
