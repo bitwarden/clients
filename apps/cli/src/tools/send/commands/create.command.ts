@@ -150,6 +150,7 @@ export class SendCreateCommand {
       encSend.deletionDate = sendView.deletionDate;
       encSend.expirationDate = sendView.expirationDate;
       encSend.emails = emails && emails.join(",");
+      encSend.authType = req.authType;
 
       await this.sendApiService.save([encSend, fileData]);
       const newSend = await this.sendService.getFromState(encSend.id);

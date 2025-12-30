@@ -55,6 +55,7 @@ export class SendResponse implements BaseResponse {
     view.emails = send.emails ?? [];
     view.disabled = send.disabled;
     view.hideEmail = send.hideEmail;
+    view.authType = send.authType;
     return view;
   }
 

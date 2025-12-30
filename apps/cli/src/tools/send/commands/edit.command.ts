@@ -6,6 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { AuthType } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 
@@ -53,12 +54,28 @@ export class SendEditCommand {
     req.id = normalizedOptions.itemId || req.id;
     if (normalizedOptions.emails) {
       req.emails = normalizedOptions.emails;
-      req.password = undefined;
-    } else if (normalizedOptions.password) {
-      req.emails = undefined;
+    }
+    if (normalizedOptions.password) {
       req.password = normalizedOptions.password;
-    } else if (req.password && (typeof req.password !== "string" || req.password === "")) {
+    }
+    if (req.password && (typeof req.password !== "string" || req.password === "")) {
       req.password = undefined;
+    }
+
+    // Infer authType based on emails/password (mutually exclusive)
+    const hasEmails = req.emails != null && req.emails.length > 0;
+    const hasPassword = req.password != null && req.password !== "";
+
+    if (hasEmails && hasPassword) {
+      return Response.badRequest("--password and --emails are mutually exclusive.");
+    }
+
+    if (hasEmails) {
+      req.authType = AuthType.Email;
+    } else if (hasPassword) {
+      req.authType = AuthType.Password;
+    } else {
+      req.authType = AuthType.None;
     }
 
     if (!req.id) {
@@ -93,6 +110,8 @@ export class SendEditCommand {
       // Add dates from template
       encSend.deletionDate = sendView.deletionDate;
       encSend.expirationDate = sendView.expirationDate;
+      encSend.emails = req.emails && req.emails.join(",");
+      encSend.authType = req.authType;
 
       await this.sendApiService.save([encSend, encFileData]);
     } catch (e) {
