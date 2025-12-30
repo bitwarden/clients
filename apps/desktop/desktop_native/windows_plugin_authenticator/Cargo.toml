@@ -6,6 +6,7 @@ license = { workspace = true }
 publish = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
+hex = { workspace = true }
 windows = { workspace = true, features = [
     "Win32_Foundation",
     "Win32_Security",
@@ -13,7 +14,6 @@ windows = { workspace = true, features = [
     "Win32_System_LibraryLoader",
 ] }
 windows-core = { workspace = true }
-hex = { workspace = true }
 
 [lints]
 workspace = true

@@ -128,7 +128,7 @@ jobs:
           RUSTFLAGS: "-D warnings"
 
       - name: Install cargo-sort
-        run: cargo install cargo-sort --locked --git https://github.com/DevinR528/cargo-sort.git --rev f5047967021cbb1f822faddc355b3b07674305a1
+        run: cargo install cargo-sort --locked --git https://github.com/DevinR528/cargo-sort.git --rev ac6e328faf467a39e38ab48dc60dcf4f6a46d7a5 # v2.0.2
 
       - name: Cargo sort
         working-directory: ./apps/desktop/desktop_native
