@@ -293,10 +293,11 @@ module.exports.buildConfig = function buildConfig(params) {
         path: require.resolve("path-browserify"),
         fs: false,
       },
+      plugins: [new TsconfigPathsPlugin({ configFile: params.renderer.tsConfig })],
     },
     plugins: [
       new AngularWebpackPlugin({
-        tsConfigPath: params.renderer.tsConfig,
+        tsconfig: params.renderer.tsConfig,
         entryModule: params.renderer.entryModule,
         sourceMap: true,
       }),

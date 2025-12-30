@@ -1,0 +1,8 @@
+{
+  "extends": "../../apps/desktop/tsconfig.renderer.json",
+  "include": [
+    "src/app/main.ts",
+    "src/global.d.ts",
+    "../../bitwarden_license/bit-common/src/platform/sdk/sdk-alias.d.ts"
+  ]
+}
