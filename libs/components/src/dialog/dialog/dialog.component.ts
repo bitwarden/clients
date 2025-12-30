@@ -126,7 +126,7 @@ export class DialogComponent {
   }
 
   get width() {
-    return getDialogWidthStyles(this.dialogSize());
+    return getDialogWidthStyles(this.dialogSize(), this.dialogRef?.isDrawer);
   }
 
   onAnimationEnd() {
