@@ -99,7 +99,7 @@ import { Messenger } from "./messaging/messenger";
       const response = await messenger.request(
         {
           type: MessageTypes.CredentialCreationRequest,
-          data: WebauthnUtils.mapCredentialCreationOptions(options!, fallbackSupported),
+          data: WebauthnUtils.mapCredentialCreationOptions(options, fallbackSupported),
         },
         options?.signal,
       );
@@ -188,7 +188,7 @@ import { Messenger } from "./messaging/messenger";
       const response = await messenger.request(
         {
           type: MessageTypes.CredentialGetRequest,
-          data: WebauthnUtils.mapCredentialRequestOptions(options!, fallbackSupported),
+          data: WebauthnUtils.mapCredentialRequestOptions(options, fallbackSupported),
         },
         options?.signal,
       );
@@ -213,8 +213,10 @@ import { Messenger } from "./messaging/messenger";
     }
   }
 
-  function isWebauthnCall(options?: CredentialCreationOptions | CredentialRequestOptions) {
-    return options && "publicKey" in options;
+  function isWebauthnCall(
+    options?: CredentialCreationOptions | CredentialRequestOptions,
+  ): options is CredentialCreationOptions | CredentialRequestOptions {
+    return options != null && "publicKey" in options;
   }
 
   /**
