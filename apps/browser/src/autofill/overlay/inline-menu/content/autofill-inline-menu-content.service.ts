@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   InlineMenuElementPosition,
   InlineMenuPosition,
@@ -77,7 +75,15 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   constructor() {
-    this.setupMutationObserver();
+    this.htmlMutationObserver = new MutationObserver(this.handlePageMutations);
+    this.bodyMutationObserver = new MutationObserver(this.handlePageMutations);
+    this.inlineMenuElementsMutationObserver = new MutationObserver(
+      this.handleInlineMenuElementMutationObserverUpdate,
+    );
+    this.containerElementMutationObserver = new MutationObserver(
+      this.handleContainerElementMutationObserverUpdate,
+    );
+    this.observePageAttributes();
   }
 
   /**
@@ -329,27 +335,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     this.observeCustomElements();
   }
-
-  /**
-   * Sets up mutation observers for the inline menu elements, the menu container, and
-   * the document element. The mutation observers are used to remove any styles that
-   * are added to the inline menu elements by the website. They are also used to ensure
-   * that the inline menu elements are always present at the bottom of the menu container.
-   */
-  private setupMutationObserver = () => {
-    this.htmlMutationObserver = new MutationObserver(this.handlePageMutations);
-    this.bodyMutationObserver = new MutationObserver(this.handlePageMutations);
-
-    this.inlineMenuElementsMutationObserver = new MutationObserver(
-      this.handleInlineMenuElementMutationObserverUpdate,
-    );
-
-    this.containerElementMutationObserver = new MutationObserver(
-      this.handleContainerElementMutationObserverUpdate,
-    );
-
-    this.observePageAttributes();
-  };
 
   /**
    * Sets up mutation observers to verify that the inline menu
