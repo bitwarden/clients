@@ -334,13 +334,14 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   /**
-   * Maps CipherView to SdkCipherView
+   * Maps CipherView to an SDK CipherCreateRequest
    *
-   * @returns {SdkCipherView} The SDK cipher view object
+   * @returns {CipherCreateRequest} The SDK cipher create request object
    */
   toSdkCreateCipherRequest(): CipherCreateRequest {
     const sdkCipherCreateRequest: CipherCreateRequest = {
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
+      collectionIds: this.collectionIds ? this.collectionIds.map((i) => asUuid(i)) : [],
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       name: this.name ?? "",
       notes: this.notes,
@@ -354,9 +355,9 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   /**
-   * Maps CipherView to SdkCipherView
+   * Maps CipherView to an SDK CipherEditRequest
    *
-   * @returns {SdkCipherView} The SDK cipher view object
+   * @returns {CipherEditRequest} The SDK cipher edit request object
    */
   toSdkUpdateCipherRequest(): CipherEditRequest {
     const sdkCipherEditRequest: CipherEditRequest = {
@@ -378,6 +379,11 @@ export class CipherView implements View, InitializerMetadata {
     return sdkCipherEditRequest;
   }
 
+  /**
+   * Returns the SDK CipherViewType object for the cipher.
+   *
+   * @returns {CipherViewType} The SDK CipherViewType for the cipher.
+   */
   getSdkCipherViewType(): CipherViewType {
     let viewType: CipherViewType;
     switch (this.type) {

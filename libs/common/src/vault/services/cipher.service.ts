@@ -960,6 +960,7 @@ export class CipherService implements CipherServiceAbstraction {
   async updateWithServer(
     cipherView: CipherView,
     userId: UserId,
+    originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
     // const sdkCipherEncryptionEnabled = false;
@@ -968,7 +969,7 @@ export class CipherService implements CipherServiceAbstraction {
     );
 
     if (sdkCipherEncryptionEnabled) {
-      return await this.updateWithServer_sdk(cipherView, userId, orgAdmin);
+      return await this.updateWithServer_sdk(cipherView, userId, originalCipherView, orgAdmin);
     } else {
       const encrypted = await this.encrypt(cipherView, userId);
       const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
@@ -980,6 +981,7 @@ export class CipherService implements CipherServiceAbstraction {
   async updateWithServer_sdk(
     cipher: CipherView,
     userId: UserId,
+    originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
     return firstValueFrom(
@@ -996,8 +998,7 @@ export class CipherService implements CipherServiceAbstraction {
               .vault()
               .ciphers()
               .admin()
-              // TODO: Need to take actual "origCipher" instead of passing the literal same object.
-              .edit(sdkUpdateRequest, cipher.toSdkCipherView());
+              .edit(sdkUpdateRequest, originalCipherView?.toSdkCipherView());
           } else {
             result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
           }

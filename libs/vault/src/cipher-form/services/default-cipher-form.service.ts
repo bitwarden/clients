@@ -43,6 +43,7 @@ export class DefaultCipherFormService implements CipherFormService {
     if (config.originalCipher == null) {
       throw new Error("Original cipher is required for updating an existing cipher");
     }
+    const originalCipherView = await this.decryptCipher(config.originalCipher);
 
     // Updating an existing cipher
 
@@ -67,6 +68,7 @@ export class DefaultCipherFormService implements CipherFormService {
       const savedCipherView = await this.cipherService.updateWithServer(
         cipher,
         activeUserId,
+        originalCipherView,
         config.admin,
       );
       // Temporary
@@ -80,6 +82,7 @@ export class DefaultCipherFormService implements CipherFormService {
       const newCipher = await this.cipherService.updateWithServer(
         cipher,
         activeUserId,
+        originalCipherView,
         config.admin || originalCollectionIds.size === 0,
       );
 

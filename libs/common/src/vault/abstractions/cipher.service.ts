@@ -126,6 +126,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract updateWithServer(
     cipherView: CipherView,
     userId: UserId,
+    originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView>;
 
