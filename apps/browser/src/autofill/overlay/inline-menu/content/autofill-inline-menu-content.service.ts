@@ -623,6 +623,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
+    if (!this.buttonElement) {
+      return;
+    }
+
     const lastChild = containerElement.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;
@@ -638,7 +642,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       this.lastElementOverrides.set(lastChild, lastChildEncounterCount + 1);
     }
 
-    if (this.lastElementOverrides.get(lastChild) >= 3) {
+    const lastChildEncounterCountAfterUpdate = this.lastElementOverrides.get(lastChild) || 0;
+    if (lastChildEncounterCountAfterUpdate >= 3) {
       this.handlePersistentLastChildOverride(lastChild);
 
       return;
@@ -657,6 +662,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       (lastChildIsInlineMenuList && !secondToLastChildIsInlineMenuButton) ||
       (lastChildIsInlineMenuButton && isInlineMenuListVisible)
     ) {
+      if (!this.listElement) {
+        return;
+      }
       containerElement.insertBefore(this.buttonElement, this.listElement);
       return;
     }
