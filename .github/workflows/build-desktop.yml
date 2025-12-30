@@ -179,18 +179,8 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
-      - name: Free disk space for build
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/local/.ghcup
-          sudo rm -rf /usr/share/miniconda
-          sudo rm -rf /usr/share/az_*
-          sudo rm -rf /usr/local/julia*
-          sudo rm -rf /usr/lib/mono
-          sudo rm -rf /usr/lib/heroku
-          sudo rm -rf /usr/local/aws-cli
-          sudo rm -rf /usr/local/aws-sam-cli
+      - name: Free disk space
+        uses: bitwarden/gh-actions/free-disk-space@main
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
