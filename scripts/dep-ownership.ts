@@ -8,7 +8,7 @@ import path from "path";
 import JSON5 from "json5";
 
 const renovateConfig = JSON5.parse(
-  fs.readFileSync(path.join(__dirname, "..", ".github", "renovate.json5"), "utf8"),
+  fs.readFileSync(path.join(__dirname, "..", "..", ".github", "renovate.json5"), "utf8"),
 );
 
 // Extract all packages with owners from renovate config
@@ -21,14 +21,24 @@ function hasOwner(packageName: string): boolean {
 }
 
 // Collect npm dependencies
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8"));
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf8"),
+);
 const npmDependencies = [
   ...Object.keys(packageJson.dependencies || {}),
   ...Object.keys(packageJson.devDependencies || {}),
 ];
 
 // Collect Cargo dependencies from workspace Cargo.toml
-const cargoTomlPath = path.join(__dirname, "..", "apps", "desktop", "desktop_native", "Cargo.toml");
+const cargoTomlPath = path.join(
+  __dirname,
+  "..",
+  "..",
+  "apps",
+  "desktop",
+  "desktop_native",
+  "Cargo.toml",
+);
 const cargoTomlContent = fs.existsSync(cargoTomlPath) ? fs.readFileSync(cargoTomlPath, "utf8") : "";
 
 const cargoDependencies = new Set<string>();
