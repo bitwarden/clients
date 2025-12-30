@@ -241,9 +241,12 @@ import { Messenger } from "./messaging/messenger";
       return await new Promise((resolve) => globalContext.setTimeout(resolve, fallbackWait));
     }
 
+    const topWindow = globalContext.top;
     const focusPromise = new Promise<void>((resolve) => {
       focusListenerHandler = () => resolve();
-      globalContext.top!.addEventListener("focus", focusListenerHandler);
+      if (topWindow) {
+        topWindow.addEventListener("focus", focusListenerHandler);
+      }
     });
 
     const timeoutPromise = new Promise<void>((_, reject) => {
