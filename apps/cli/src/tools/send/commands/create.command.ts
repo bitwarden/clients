@@ -82,7 +82,10 @@ export class SendCreateCommand {
     const emails = req.emails ?? options.emails ?? undefined;
     const maxAccessCount = req.maxAccessCount ?? options.maxAccessCount;
 
-    if (emails !== undefined && password !== undefined) {
+    const hasEmails = emails != null && emails.length > 0;
+    const hasPassword = password != null && password.trim().length > 0;
+
+    if (hasEmails && hasPassword) {
       return Response.badRequest("--password and --emails are mutually exclusive.");
     }
 
