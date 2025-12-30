@@ -177,7 +177,7 @@ describe("SendEditCommand", () => {
         const requestJson = encodeRequest(requestData);
 
         sendService.encrypt.mockResolvedValue([
-          { id: mockSendId, authType: AuthType.Password } as any,
+          { id: mockSendId, authType: AuthType.Email } as any,
           null as any,
         ]);
         sendApiService.save.mockResolvedValue(undefined as any);

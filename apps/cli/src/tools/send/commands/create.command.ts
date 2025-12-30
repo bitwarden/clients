@@ -93,9 +93,9 @@ export class SendCreateCommand {
     req.maxAccessCount = maxAccessCount;
     req.emails = emails;
 
-    if (emails != null && emails.length > 0) {
+    if (hasEmails) {
       req.authType = AuthType.Email;
-    } else if (password != null && password.trim().length > 0) {
+    } else if (hasPassword) {
       req.authType = AuthType.Password;
     } else {
       req.authType = AuthType.None;
@@ -149,12 +149,6 @@ export class SendCreateCommand {
 
       const sendView = SendResponse.toView(req);
       const [encSend, fileData] = await this.sendService.encrypt(sendView, fileBuffer, password);
-      // Add dates from template
-      encSend.deletionDate = sendView.deletionDate;
-      encSend.expirationDate = sendView.expirationDate;
-      encSend.emails = emails && emails.join(",");
-      encSend.authType = req.authType;
-
       await this.sendApiService.save([encSend, fileData]);
       const newSend = await this.sendService.getFromState(encSend.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

@@ -84,6 +84,9 @@ describe("SendCreateCommand", () => {
           null,
           undefined,
         );
+        const savedCall = sendApiService.save.mock.calls[0][0];
+        expect(savedCall[0].authType).toBe(AuthType.Email);
+        expect(savedCall[0].emails).toBe("test@example.com");
       });
 
       it("should set authType to Password when password is provided via CLI", async () => {
@@ -114,6 +117,8 @@ describe("SendCreateCommand", () => {
           null as any,
           "testPassword123",
         );
+        const savedCall = sendApiService.save.mock.calls[0][0];
+        expect(savedCall[0].authType).toBe(AuthType.Password);
       });
 
       it("should set authType to None when neither emails nor password provided", async () => {
@@ -138,6 +143,8 @@ describe("SendCreateCommand", () => {
 
         expect(response.success).toBe(true);
         expect(sendService.encrypt).toHaveBeenCalledWith(expect.any(Object), null, undefined);
+        const savedCall = sendApiService.save.mock.calls[0][0];
+        expect(savedCall[0].authType).toBe(AuthType.None);
       });
 
       it("should return error when both emails and password provided via CLI", async () => {
@@ -184,6 +191,9 @@ describe("SendCreateCommand", () => {
         const response = await command.run(requestJson, {});
 
         expect(response.success).toBe(true);
+        const savedCall = sendApiService.save.mock.calls[0][0];
+        expect(savedCall[0].authType).toBe(AuthType.Email);
+        expect(savedCall[0].emails).toBe("test@example.com,another@example.com");
       });
 
       it("should set authType to Password when password provided in JSON", async () => {
@@ -206,6 +216,8 @@ describe("SendCreateCommand", () => {
         const response = await command.run(requestJson, {});
 
         expect(response.success).toBe(true);
+        const savedCall = sendApiService.save.mock.calls[0][0];
+        expect(savedCall[0].authType).toBe(AuthType.Password);
       });
 
       it("should return error when both emails and password provided in JSON", async () => {
@@ -285,6 +297,9 @@ describe("SendCreateCommand", () => {
         const response = await command.run(requestJson, cmdOptions);
 
         expect(response.success).toBe(true);
+        const savedCall = sendApiService.save.mock.calls[0][0];
+        expect(savedCall[0].authType).toBe(AuthType.Email);
+        expect(savedCall[0].emails).toBe("cli@example.com");
       });
     });
 
@@ -309,6 +324,8 @@ describe("SendCreateCommand", () => {
         const response = await command.run(requestJson, {});
 
         expect(response.success).toBe(true);
+        const savedCall = sendApiService.save.mock.calls[0][0];
+        expect(savedCall[0].authType).toBe(AuthType.None);
       });
 
       it("should set authType to None when password is empty string", async () => {
@@ -334,6 +351,8 @@ describe("SendCreateCommand", () => {
         const response = await command.run(requestJson, cmdOptions);
 
         expect(response.success).toBe(true);
+        const savedCall = sendApiService.save.mock.calls[0][0];
+        expect(savedCall[0].authType).toBe(AuthType.None);
       });
 
       it("should set authType to None when password is whitespace only", async () => {
@@ -359,6 +378,8 @@ describe("SendCreateCommand", () => {
         const response = await command.run(requestJson, cmdOptions);
 
         expect(response.success).toBe(true);
+        const savedCall = sendApiService.save.mock.calls[0][0];
+        expect(savedCall[0].authType).toBe(AuthType.None);
       });
     });
   });

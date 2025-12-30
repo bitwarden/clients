@@ -107,12 +107,6 @@ export class SendEditCommand {
 
     try {
       const [encSend, encFileData] = await this.sendService.encrypt(sendView, null, req.password);
-      // Add dates from template
-      encSend.deletionDate = sendView.deletionDate;
-      encSend.expirationDate = sendView.expirationDate;
-      encSend.emails = req.emails && req.emails.join(",");
-      encSend.authType = req.authType;
-
       await this.sendApiService.save([encSend, encFileData]);
     } catch (e) {
       return Response.error(e);
