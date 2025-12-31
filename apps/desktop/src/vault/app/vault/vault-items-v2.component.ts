@@ -9,6 +9,7 @@ import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angul
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -31,7 +32,7 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 })
 export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultItemsComponent<C> {
   readonly showPremiumCallout = input<boolean>(false);
-  readonly organizationId = input<string | undefined>(undefined);
+  readonly organizationId = input<OrganizationId | undefined>(undefined);
 
   protected CipherViewLikeUtils = CipherViewLikeUtils;
 

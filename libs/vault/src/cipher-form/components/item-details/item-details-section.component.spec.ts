@@ -214,9 +214,10 @@ describe("ItemDetailsSectionComponent", () => {
   describe("allowOwnershipChange", () => {
     it("should not allow ownership change if in edit mode and the cipher is owned by an organization", () => {
       component.config.mode = "edit";
-      component.originalCipherView = {
+      fixture.componentRef.setInput("originalCipherView", {
         organizationId: "org1",
-      } as CipherView;
+      } as CipherView);
+
       expect(component.allowOwnershipChange).toBe(false);
     });
 
@@ -256,7 +257,7 @@ describe("ItemDetailsSectionComponent", () => {
     it("should show organization data ownership when the configuration allows", () => {
       component.config.mode = "edit";
       component.config.organizationDataOwnershipDisabled = true;
-      component.originalCipherView = {} as CipherView;
+      fixture.componentRef.setInput("originalCipherView", {} as CipherView);
       component.config.organizations = [{ id: "134-433-22" } as Organization];
       fixture.detectChanges();
 
@@ -270,7 +271,7 @@ describe("ItemDetailsSectionComponent", () => {
     it("should show organization data ownership when the control is disabled", async () => {
       component.config.mode = "edit";
       component.config.organizationDataOwnershipDisabled = false;
-      component.originalCipherView = {} as CipherView;
+      fixture.componentRef.setInput("originalCipherView", {} as CipherView);
       component.config.organizations = [{ id: "134-433-22" } as Organization];
       await component.ngOnInit();
       fixture.detectChanges();
@@ -365,18 +366,20 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("should select the first organization if organization data ownership is enabled", async () => {
-      component.config.organizationDataOwnershipDisabled = false;
-      component.config.organizations = [
-        { id: "org1", name: "org1" } as Organization,
-        { id: "org2", name: "org2" } as Organization,
-      ];
-      component.originalCipherView = {
+      const updatedCipher = {
         name: "cipher1",
         organizationId: null,
         folderId: null,
         collectionIds: [],
         favorite: false,
       } as CipherView;
+      component.config.organizationDataOwnershipDisabled = false;
+      component.config.organizations = [
+        { id: "org1", name: "org1" } as Organization,
+        { id: "org2", name: "org2" } as Organization,
+      ];
+
+      fixture.componentRef.setInput("originalCipherView", updatedCipher);
 
       await component.ngOnInit();
 
@@ -474,20 +477,17 @@ describe("ItemDetailsSectionComponent", () => {
 
     it("should show readonly hint if readonly collections are present", async () => {
       component.config.mode = "edit";
-      getInitialCipherView.mockReturnValueOnce({
-        name: "cipher1",
-        organizationId: "org1",
-        folderId: "folder1",
-        collectionIds: ["col1", "col2", "col3"],
-        favorite: true,
-      } as CipherView);
-      component.originalCipherView = {
+      const updatedCipher = {
         name: "cipher1",
         organizationId: "org1",
         folderId: "folder1",
         collectionIds: ["col1", "col2", "col3"],
         favorite: true,
       } as CipherView;
+      getInitialCipherView.mockReturnValueOnce(updatedCipher);
+
+      fixture.componentRef.setInput("originalCipherView", updatedCipher);
+
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
         createMockCollection("col1", "Collection 1", "org1", true, false) as CollectionView,
@@ -544,13 +544,16 @@ describe("ItemDetailsSectionComponent", () => {
               i < 4 ? CollectionTypes.SharedCollection : CollectionTypes.DefaultUserCollection,
             ) as CollectionView,
         );
-      component.originalCipherView = {
+      const updatedCipher = {
         name: "cipher1",
         organizationId: "org1",
         folderId: "folder1",
         collectionIds: ["col2", "col3"],
         favorite: true,
       } as CipherView;
+
+      fixture.componentRef.setInput("originalCipherView", updatedCipher);
+
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -572,7 +575,8 @@ describe("ItemDetailsSectionComponent", () => {
         createMockCollection("col2", "Collection 2", "org1", false, true) as CollectionView,
         createMockCollection("col3", "Collection 3", "org1", true, false) as CollectionView,
       ];
-      component.originalCipherView = {
+
+      const currentCipher = {
         name: "cipher1",
         organizationId: "org1",
         folderId: "folder1",
@@ -580,7 +584,9 @@ describe("ItemDetailsSectionComponent", () => {
         favorite: true,
       } as CipherView;
 
-      getInitialCipherView.mockReturnValue(component.originalCipherView);
+      fixture.componentRef.setInput("originalCipherView", currentCipher);
+
+      getInitialCipherView.mockReturnValue(component.originalCipherView());
 
       component.config.organizations = [{ id: "org1" } as Organization];
     });
@@ -609,7 +615,8 @@ describe("ItemDetailsSectionComponent", () => {
         { id: "org2", name: "org2" } as Organization,
         { id: "org1", name: "org1" } as Organization,
       ];
-      component.originalCipherView = {} as CipherView;
+
+      fixture.componentRef.setInput("originalCipherView", {} as CipherView);
 
       await component.ngOnInit();
       fixture.detectChanges();
@@ -689,13 +696,16 @@ describe("ItemDetailsSectionComponent", () => {
     beforeEach(() => {
       component.config.mode = "edit";
       component.config.originalCipher = new Cipher();
-      component.originalCipherView = {
+
+      const updatedCipher = {
         name: "cipher1",
         organizationId: null,
         folderId: "folder1",
         collectionIds: ["col1", "col2", "col3"],
         favorite: true,
       } as unknown as CipherView;
+
+      fixture.componentRef.setInput("originalCipherView", updatedCipher);
     });
 
     describe("when personal ownership is not allowed", () => {
@@ -725,8 +735,11 @@ describe("ItemDetailsSectionComponent", () => {
 
       describe("cipher belongs to an organization", () => {
         beforeEach(() => {
-          component.originalCipherView.organizationId = "org-id";
-          getInitialCipherView.mockReturnValue(component.originalCipherView);
+          fixture.componentRef.setInput("originalCipherView", {
+            ...component.originalCipherView(),
+            organizationId: "org-id",
+          } as CipherView);
+          getInitialCipherView.mockReturnValue(component.originalCipherView());
         });
 
         it("enables the rest of the form", async () => {
@@ -804,13 +817,14 @@ describe("ItemDetailsSectionComponent", () => {
         isArchived: true,
       } as unknown as CipherView;
 
-      component.originalCipherView = archivedCipher;
+      fixture.componentRef.setInput("originalCipherView", archivedCipher);
+
       getInitialCipherView.mockReturnValueOnce(archivedCipher);
       mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
 
       await component.ngOnInit();
 
-      expect(component["showArchiveBadge"]).toBe(true);
+      expect(component["showArchiveBadge"]()).toBe(true);
     });
   });
 });

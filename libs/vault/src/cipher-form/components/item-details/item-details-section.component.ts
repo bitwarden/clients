@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, Input, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, input, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
@@ -67,7 +67,12 @@ export class ItemDetailsSectionComponent implements OnInit {
     favorite: [false],
   });
 
-  protected showArchiveBadge = false;
+  protected readonly showArchiveBadge = computed(() => {
+    return (
+      this.originalCipherView()?.isArchived &&
+      this.platformUtilsService.getClientType() === ClientType.Desktop
+    );
+  });
 
   /**
    * Collection options available for the selected organization.
@@ -97,10 +102,7 @@ export class ItemDetailsSectionComponent implements OnInit {
   @Input({ required: true })
   config: CipherFormConfig;
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  originalCipherView: CipherView;
+  readonly originalCipherView = input<CipherView>();
 
   get readOnlyCollectionsNames(): string[] {
     return this.readOnlyCollections.map((c) => c.name);
@@ -185,7 +187,7 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   get allowOwnershipChange() {
     // Do not allow ownership change in edit mode and the cipher is owned by an organization
-    if (this.config.mode === "edit" && this.originalCipherView?.organizationId != null) {
+    if (this.config.mode === "edit" && this.originalCipherView()?.organizationId != null) {
       return false;
     }
 
@@ -251,13 +253,6 @@ export class ItemDetailsSectionComponent implements OnInit {
         }),
       )
       .subscribe();
-
-    if (
-      this.originalCipherView?.isArchived &&
-      this.platformUtilsService.getClientType() === ClientType.Desktop
-    ) {
-      this.showArchiveBadge = true;
-    }
   }
 
   /**
@@ -374,7 +369,7 @@ export class ItemDetailsSectionComponent implements OnInit {
           (c) =>
             c.organizationId === orgId &&
             c.readOnly &&
-            this.originalCipherView.collectionIds.includes(c.id as CollectionId),
+            this.originalCipherView().collectionIds.includes(c.id as CollectionId),
         );
       }
     }
@@ -431,8 +426,8 @@ export class ItemDetailsSectionComponent implements OnInit {
      * Note: `.every` will return true for an empty array
      */
     const cipherIsOnlyInOrgCollections =
-      (this.originalCipherView?.collectionIds ?? []).length > 0 &&
-      this.originalCipherView.collectionIds.every(
+      (this.originalCipherView()?.collectionIds ?? []).length > 0 &&
+      this.originalCipherView().collectionIds.every(
         (cId) =>
           this.collections.find((c) => c.id === cId)?.type === CollectionTypes.SharedCollection,
       );
