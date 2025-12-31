@@ -2,9 +2,11 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   NgZone,
   OnDestroy,
   OnInit,
+  signal,
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
@@ -196,9 +198,10 @@ export class VaultV2Component<C extends CipherViewLike>
   );
   activeUserId: UserId | null = null;
   cipherRepromptId: string | null = null;
-  cipher: CipherView | null = new CipherView();
+  readonly cipher = signal<CipherView | null>(null);
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
+  readonly userHasPremium = signal<boolean>(false);
 
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
@@ -209,28 +212,11 @@ export class VaultV2Component<C extends CipherViewLike>
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
-  protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
-    filter((account): account is Account => !!account),
-    switchMap((account) =>
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-    ),
-  );
-
-  protected userHasPremium$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) =>
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-    ),
-  );
-
-  protected get submitButtonText$(): Observable<string> {
-    return this.userHasPremium$.pipe(
-      map((hasPremium) =>
-        this.cipher?.isArchived && !hasPremium
-          ? this.i18nService.t("unArchiveAndSave")
-          : this.i18nService.t("save"),
-      ),
-    );
-  }
+  protected readonly submitButtonText = computed(() => {
+    return this.cipher()?.isArchived && !this.userHasPremium()
+      ? this.i18nService.t("unArchiveAndSave")
+      : this.i18nService.t("save");
+  });
 
   private componentIsDestroyed$ = new Subject<boolean>();
   private allOrganizations: Organization[] = [];
@@ -279,6 +265,7 @@ export class VaultV2Component<C extends CipherViewLike>
       )
       .subscribe((canAccessPremium: boolean) => {
         this.userHasPremiumAccess = canAccessPremium;
+        this.userHasPremium.set(canAccessPremium);
       });
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -326,30 +313,40 @@ export class VaultV2Component<C extends CipherViewLike>
                 this.showingModal = false;
                 break;
               case "copyUsername": {
-                if (this.cipher?.login?.username) {
-                  this.copyValue(this.cipher, this.cipher?.login?.username, "username", "Username");
+                if (this.cipher()?.login?.username) {
+                  this.copyValue(
+                    this.cipher(),
+                    this.cipher()?.login?.username,
+                    "username",
+                    "Username",
+                  );
                 }
                 break;
               }
               case "copyPassword": {
-                if (this.cipher?.login?.password && this.cipher.viewPassword) {
-                  this.copyValue(this.cipher, this.cipher.login.password, "password", "Password");
+                if (this.cipher()?.login?.password && this.cipher().viewPassword) {
+                  this.copyValue(
+                    this.cipher(),
+                    this.cipher().login.password,
+                    "password",
+                    "Password",
+                  );
                   await this.eventCollectionService
-                    .collect(EventType.Cipher_ClientCopiedPassword, this.cipher.id)
+                    .collect(EventType.Cipher_ClientCopiedPassword, this.cipher().id)
                     .catch(() => {});
                 }
                 break;
               }
               case "copyTotp": {
                 if (
-                  this.cipher?.login?.hasTotp &&
-                  (this.cipher.organizationUseTotp || this.userHasPremiumAccess)
+                  this.cipher()?.login?.hasTotp &&
+                  (this.cipher()?.organizationUseTotp || this.userHasPremiumAccess)
                 ) {
                   const value = await firstValueFrom(
-                    this.totpService.getCode$(this.cipher.login.totp),
+                    this.totpService.getCode$(this.cipher()?.login.totp),
                   ).catch((): any => null);
                   if (value) {
-                    this.copyValue(this.cipher, value.code, "verificationCodeTotp", "TOTP");
+                    this.copyValue(this.cipher(), value.code, "verificationCodeTotp", "TOTP");
                   }
                 }
                 break;
@@ -479,7 +476,7 @@ export class VaultV2Component<C extends CipherViewLike>
       return;
     }
     this.cipherId = cipher.id;
-    this.cipher = cipher;
+    this.cipher.set(cipher);
     this.collections =
       this.vaultFilterComponent?.collections?.fullList.filter((c) =>
         cipher.collectionIds.includes(c.id),
@@ -718,7 +715,7 @@ export class VaultV2Component<C extends CipherViewLike>
       return;
     }
     this.cipherId = cipher.id;
-    this.cipher = cipher;
+    this.cipher.set(cipher);
     await this.buildFormConfig("edit");
     if (!cipher.edit && this.config) {
       this.config.mode = "partial-edit";
@@ -732,7 +729,7 @@ export class VaultV2Component<C extends CipherViewLike>
       return;
     }
     this.cipherId = cipher.id;
-    this.cipher = cipher;
+    this.cipher.set(cipher);
     await this.buildFormConfig("clone");
     this.action = "clone";
     await this.go().catch(() => {});
@@ -781,7 +778,7 @@ export class VaultV2Component<C extends CipherViewLike>
       return;
     }
     this.addType = type || this.activeFilter.cipherType;
-    this.cipher = new CipherView();
+    this.cipher.set(new CipherView());
     this.cipherId = null;
     await this.buildFormConfig("add");
     this.action = "add";
@@ -813,14 +810,14 @@ export class VaultV2Component<C extends CipherViewLike>
     );
 
     this.cipherId = cipher.id;
-    this.cipher = cipher;
+    this.cipher.set(cipher);
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
   }
 
   async deleteCipher() {
     this.cipherId = null;
-    this.cipher = null;
+    this.cipher.set(null);
     this.action = null;
     await this.go().catch(() => {});
     await this.vaultItemsComponent?.refresh().catch(() => {});
@@ -835,7 +832,7 @@ export class VaultV2Component<C extends CipherViewLike>
 
   async cancelCipher(cipher: CipherView) {
     this.cipherId = cipher.id;
-    this.cipher = cipher;
+    this.cipher.set(cipher);
     this.action = this.cipherId ? "view" : null;
     await this.go().catch(() => {});
   }
@@ -927,14 +924,16 @@ export class VaultV2Component<C extends CipherViewLike>
 
   /** Refresh the current cipher object */
   protected async refreshCurrentCipher() {
-    if (!this.cipher) {
+    if (!this.cipher()) {
       return;
     }
 
-    this.cipher = await firstValueFrom(
-      this.cipherService.cipherViews$(this.activeUserId!).pipe(
-        filter((c) => !!c),
-        map((ciphers) => ciphers.find((c) => c.id === this.cipherId) ?? null),
+    this.cipher.set(
+      await firstValueFrom(
+        this.cipherService.cipherViews$(this.activeUserId!).pipe(
+          filter((c) => !!c),
+          map((ciphers) => ciphers.find((c) => c.id === this.cipherId) ?? null),
+        ),
       ),
     );
   }
