@@ -3,11 +3,13 @@ import { RouterModule } from "@angular/router";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { LayoutComponent } from "../layout";
 import { SharedModule } from "../shared/shared.module";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
@@ -42,6 +44,7 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
         },
@@ -58,6 +61,10 @@ export default {
             { useHash: true },
           ),
         ),
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
       ],
     }),
   ],
@@ -144,8 +151,8 @@ export const Tree: StoryObj<NavGroupComponent> = {
     template: /*html*/ `
       <bit-side-nav>
         <bit-nav-group text="Tree example" icon="bwi-collection-shared" [open]="true">
-          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection-shared" [variant]="'tree'"></bit-nav-item>
-          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection-shared" [variant]="'tree'" [open]="true">
+          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection-shared" variant="tree"></bit-nav-item>
+          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection-shared" variant="tree" [open]="true">
             <bit-nav-group text="Level 2 - with children" route="t4" icon="bwi-collection-shared" variant="tree" [open]="true">
               <bit-nav-item text="Level 3 - no children, no icon" route="t5" variant="tree"></bit-nav-item>
               <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection-shared" variant="tree" [open]="true">

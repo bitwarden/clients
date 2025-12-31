@@ -1198,8 +1198,8 @@
   "followUs": {
     "message": "Follow us"
   },
-  "syncVault": {
-    "message": "Sync vault"
+  "syncNow": {
+    "message": "Sync now"
   },
   "changeMasterPass": {
     "message": "Change master password"
@@ -1775,8 +1775,21 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Export vault"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "File format"
@@ -3492,10 +3505,6 @@
   "aliasDomain": {
     "message": "Alias domain"
   },
-  "importData": {
-    "message": "Import data",
-    "description": "Used for the desktop menu item and the header of the import dialog"
-  },
   "importError": {
     "message": "Import error"
   },
@@ -4378,6 +4387,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "This setting is managed by your organization."

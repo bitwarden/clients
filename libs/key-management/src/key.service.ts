@@ -694,7 +694,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         // the VaultTimeoutSettingsSvc and this service.
         // This should be fixed as part of the PM-7082 - Auto Key Service work.
         const vaultTimeout = await firstValueFrom(
-          this.stateProvider.getUserState$(VAULT_TIMEOUT, userId),
+          this.stateProvider
+            .getUserState$(VAULT_TIMEOUT, userId)
+            .pipe(filter((timeout) => timeout != null)),
         );
 
         shouldStoreKey = vaultTimeout == VaultTimeoutStringType.Never;
