@@ -920,7 +920,12 @@ export class CipherService implements CipherServiceAbstraction {
           }
           using ref = sdk.take();
           const sdkCreateRequest = cipherView.toSdkCreateCipherRequest();
-          const result: SdkCipherView = await ref.value.vault().ciphers().create(sdkCreateRequest);
+          let result: SdkCipherView;
+          if (orgAdmin) {
+            result = await ref.value.vault().ciphers().admin().create(sdkCreateRequest);
+          } else {
+            result = await ref.value.vault().ciphers().create(sdkCreateRequest);
+          }
           return CipherView.fromSdkCipherView(result);
         }),
         catchError((error: unknown) => {
