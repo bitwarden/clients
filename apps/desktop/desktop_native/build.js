@@ -80,6 +80,7 @@ function cargoBuild(bin, target, release) {
     const ext = platform === "win32" ? ".exe" : "";
     const src = path.join(__dirname, "target", target ? target : "", profileFolder, `${bin}${ext}`)
     const dst = path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`)
+    console.log(`Copying ${src} to ${dst}`);
     fs.copyFileSync(src, dst);
 }
 
