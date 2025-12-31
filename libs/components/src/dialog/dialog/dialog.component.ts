@@ -25,7 +25,23 @@ import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { DialogRef } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
-import { getDialogWidthStyles, DialogSize } from "../get-dialog-width-styles";
+
+type DialogSize = "small" | "default" | "large";
+
+const dialogSizeToWidthMap = new Map<DialogSize, string>([
+  ["small", "md:tw-max-w-sm"],
+  ["default", "md:tw-max-w-xl"],
+  ["large", "md:tw-max-w-3xl"],
+]);
+
+const drawerSizeToWidthMap = new Map<DialogSize, string>([
+  ["small", "md:tw-max-w-sm"],
+  ["default", "md:tw-max-w-lg"],
+  ["large", "md:tw-max-w-2xl"],
+]);
+
+const getDialogWidthStyles = (size: DialogSize = "default", isDrawer: boolean = false) =>
+  isDrawer ? drawerSizeToWidthMap.get(size) : dialogSizeToWidthMap.get(size);
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
