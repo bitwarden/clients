@@ -116,7 +116,7 @@ export abstract class SetInitialPasswordService {
    *
    * @param credentials An object of the credentials needed to set the initial password
    * @throws If any property on the `credentials` object is null or undefined, or if a
-   *         masterKeyEncryptedUserKey or newKeyPair could not be created.
+   *         keyPair could not be found/created for a JIT_PROVISIONED_MP_ORG_USER
    */
   abstract setInitialPassword: (
     credentials: SetInitialPasswordCredentials,

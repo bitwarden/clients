@@ -237,7 +237,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("userType not found. Could not set password.");
     }
 
-    let userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    let userKey: UserKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (userKey == null) {
       userKey = new SymmetricCryptoKey(PureCrypto.make_user_key_aes256_cbc_hmac()) as UserKey;
