@@ -68,7 +68,8 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
 
-  readonly submitButtonText = input.required<string>();
+  readonly submitButtonText = input<string>(this.i18nService.t("save"));
+
   activeUserId: UserId | null = null;
   passwordReprompted: boolean = false;
 
