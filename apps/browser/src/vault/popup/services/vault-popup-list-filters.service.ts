@@ -29,8 +29,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -191,7 +189,6 @@ export class VaultPopupListFiltersService {
     private accountService: AccountService,
     private viewCacheService: ViewCacheService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private configService: ConfigService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -455,19 +452,15 @@ export class VaultPopupListFiltersService {
           ),
           this.collectionService.decryptedCollections$(userId),
           this.organizationService.memberOrganizations$(userId),
-          this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
         ]),
       ),
-      map(([filters, allCollections, orgs, defaultVaultEnabled]) => {
+      map(([filters, allCollections, orgs]) => {
         const orgFilterId = filters.organization?.id ?? null;
         // When the organization filter is selected, filter out collections that do not belong to the selected organization
         const filtered = orgFilterId
           ? allCollections.filter((c) => c.organizationId === orgFilterId)
           : allCollections;
 
-        if (!defaultVaultEnabled) {
-          return filtered;
-        }
         return sortDefaultCollections(filtered, orgs, this.i18nService.collator);
       }),
       map((fullList) => {

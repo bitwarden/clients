@@ -1,10 +1,9 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, switchMap, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
-  OrganizationUserConfirmRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
@@ -12,14 +11,10 @@ import {
   OrganizationUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
@@ -38,15 +33,10 @@ export interface BulkActionResult {
 
 @Injectable()
 export class MemberActionsService {
-  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
-
   constructor(
     private organizationUserApiService: OrganizationUserApiService,
     private organizationUserService: OrganizationUserService,
-    private keyService: KeyService,
-    private encryptService: EncryptService,
     private configService: ConfigService,
-    private accountService: AccountService,
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
   ) {}
 
@@ -128,37 +118,9 @@ export class MemberActionsService {
     organization: Organization,
   ): Promise<MemberActionResult> {
     try {
-      if (
-        await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
-      ) {
-        await firstValueFrom(
-          this.organizationUserService.confirmUser(organization, user.id, publicKey),
-        );
-      } else {
-        const request = await firstValueFrom(
-          this.userId$.pipe(
-            switchMap((userId) => this.keyService.orgKeys$(userId)),
-            map((orgKeys) => {
-              if (orgKeys == null || orgKeys[organization.id] == null) {
-                throw new Error("Organization keys not found for provided User.");
-              }
-              return orgKeys[organization.id];
-            }),
-            switchMap((orgKey) => this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey)),
-            map((encKey) => {
-              const req = new OrganizationUserConfirmRequest();
-              req.key = encKey.encryptedString;
-              return req;
-            }),
-          ),
-        );
-
-        await this.organizationUserApiService.postOrganizationUserConfirm(
-          organization.id,
-          user.id,
-          request,
-        );
-      }
+      await firstValueFrom(
+        this.organizationUserService.confirmUser(organization, user.id, publicKey),
+      );
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };

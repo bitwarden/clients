@@ -14,8 +14,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -45,7 +43,6 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     protected policyService: PolicyService,
     protected stateProvider: StateProvider,
     protected accountService: AccountService,
-    protected configService: ConfigService,
     protected i18nService: I18nService,
   ) {}
 
@@ -116,18 +113,13 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
       ),
     );
     const orgs = await this.buildOrganizations();
-    const defaulCollectionsFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CreateDefaultLocation,
-    );
 
     let collections =
       organizationId == null
         ? storedCollections
         : storedCollections.filter((c) => c.organizationId === organizationId);
 
-    if (defaulCollectionsFlagEnabled) {
-      collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
-    }
+    collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
 
     const nestedCollections = await this.collectionService.getAllNested(collections);
     return new DynamicTreeNode<CollectionView>({
