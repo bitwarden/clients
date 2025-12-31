@@ -26,11 +26,23 @@ const target = targetArg ? targetArg.split("=")[1] : null;
 
 let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platform";
 
+/**
+ * Execute a command.
+ * @param {string} bin Executable to run.
+ * @param {string[]} args Arguments for executable.
+ * @param {string} [workingDirectory] Path to working directory, relative to the script directory. Defaults to the script directory.
+ */
+function runCommand(bin, args, workingDirectory = "") {
+    const options = { stdio: 'inherit', cwd: path.resolve(__dirname, workingDirectory) }
+    console.debug("Running command:", bin, args, options)
+    child_process.execFileSync(bin, args, options)
+}
+
 function buildNapiModule(target, release = true) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
     const crossCompileArg = target ? "--cross-compile" : "";
-    child_process.execSync(`npm run build -- ${crossCompileArg} ${releaseArg} ${targetArg}`, { stdio: 'inherit', cwd: path.join(__dirname, "napi") });
+    runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg], "./napi")
 }
 
 /**
@@ -43,10 +55,14 @@ function buildNapiModule(target, release = true) {
  * @param {boolean} release Whether to build in release mode.
  */
 function cargoBuild(bin, target, release) {
-    const xwin = target && target.includes('windows') && process.platform !== "win32" ? "xwin" : "";
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
-    child_process.execSync(`cargo ${xwin} build --bin ${bin} ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: __dirname});
+    const args = ["build", "--bin", bin, releaseArg, targetArg]
+    // Use cross-compilation helper if necessary
+    if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
+        args.unshift("xwin")
+    }
+    runCommand("cargo", args)
     if (target) {
         // Copy the resulting binary to the dist folder
         const targetFolder = isRelease ? "release" : "debug";
@@ -72,25 +88,29 @@ function buildProcessIsolation() {
         return;
     }
 
-    child_process.execSync(`cargo build --release`, {
-        stdio: 'inherit',
-        cwd: path.join(__dirname, "process_isolation")
-    });
+    runCommand("cargo", ["build", "--lib", "process_isolation", "--release"]);
 
     console.log("Copying process isolation library to dist folder");
     fs.copyFileSync(path.join(__dirname, "target", "release", "libprocess_isolation.so"), path.join(__dirname, "dist", `libprocess_isolation.so`));
 }
 
 function installTarget(target) {
-    child_process.execSync(`rustup target add ${target}`, { stdio: 'inherit', cwd: __dirname });
+    runCommand("rustup", ["target", "add", target]);
     // Install cargo-xwin for cross-platform builds targeting Windows
     if (target.includes('windows') && process.platform !== 'win32') {
-        child_process.execSync("cargo install --version 0.20.2 --locked cargo-xwin", { stdio: 'inherit', cwd: __dirname });
+        runCommand("cargo", ["install", "--version", "0.20.2", "--locked", "cargo-xwin"]);
         // install tools needed for packaging Appx, only supported on macOS for now.
         if (process.platform === "darwin") {
-            child_process.execSync("brew install iinuwa/msix-packaging-tap/msix-packaging osslsigncode", { stdio: 'inherit', cwd: __dirname });
+            runCommand("brew", ["install", "iinuwa/msix-packaging-tap/msix-packaging", "osslsigncode"]);
         }
     }
+}
+
+function effectivePlatform(target) {
+    if (target) {
+        return rustTargetsMap[target].platform
+    }
+    return process.platform
 }
 
 if (!crossPlatform && !target) {
