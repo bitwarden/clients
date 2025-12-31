@@ -42,7 +42,7 @@ function buildNapiModule(target, release = true) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
     const crossCompileArg = target ? "--cross-compile" : "";
-    runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg], "./napi")
+    runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg].filter(s => s != ''), "./napi")
 }
 
 /**
@@ -62,7 +62,7 @@ function cargoBuild(bin, target, release) {
     if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
         args.unshift("xwin")
     }
-    runCommand("cargo", args)
+    runCommand("cargo", args.filter(s => s != ''))
     if (target) {
         // Copy the resulting binary to the dist folder
         const targetFolder = isRelease ? "release" : "debug";
