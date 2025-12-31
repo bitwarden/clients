@@ -14,6 +14,7 @@
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
   "files": [
+    "!node_modules/@bitwarden/desktop-napi/scripts",
     "!node_modules/@bitwarden/desktop-napi/src",
     "!node_modules/@bitwarden/desktop-napi/Cargo.toml",
     "!node_modules/@bitwarden/desktop-napi/build.rs",
@@ -31,6 +32,10 @@
     "signtoolOptions": {
       "sign": "./sign.js"
     },
+    "files": [
+      "!node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*",
+      "!node_modules/@bitwarden/desktop-napi/desktop_napi.linux-*"
+    ],
     "extraFiles": [
       {
         "from": "desktop_native/dist/desktop_proxy.win32-${arch}.exe",
