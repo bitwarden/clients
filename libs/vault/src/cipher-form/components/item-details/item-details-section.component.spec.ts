@@ -716,7 +716,7 @@ describe("ItemDetailsSectionComponent", () => {
 
       describe("cipher does not belong to an organization", () => {
         beforeEach(() => {
-          getInitialCipherView.mockReturnValue(component.originalCipherView!);
+          getInitialCipherView.mockReturnValue(component.originalCipherView()!);
         });
 
         it("enables organizationId", async () => {
@@ -752,8 +752,8 @@ describe("ItemDetailsSectionComponent", () => {
 
       describe("setFormState behavior with null/undefined", () => {
         it("calls disableFormFields when organizationId value is null", async () => {
-          component.originalCipherView.organizationId = null as any;
-          getInitialCipherView.mockReturnValue(component.originalCipherView);
+          component.originalCipherView().organizationId = null as any;
+          getInitialCipherView.mockReturnValue(component.originalCipherView());
 
           await component.ngOnInit();
 
@@ -761,8 +761,8 @@ describe("ItemDetailsSectionComponent", () => {
         });
 
         it("calls disableFormFields when organizationId value is undefined", async () => {
-          component.originalCipherView.organizationId = undefined;
-          getInitialCipherView.mockReturnValue(component.originalCipherView);
+          component.originalCipherView().organizationId = undefined;
+          getInitialCipherView.mockReturnValue(component.originalCipherView());
 
           await component.ngOnInit();
 
@@ -770,8 +770,8 @@ describe("ItemDetailsSectionComponent", () => {
         });
 
         it("calls enableFormFields when organizationId has a string value", async () => {
-          component.originalCipherView.organizationId = "org-id" as any;
-          getInitialCipherView.mockReturnValue(component.originalCipherView);
+          component.originalCipherView().organizationId = "org-id" as any;
+          getInitialCipherView.mockReturnValue(component.originalCipherView());
 
           await component.ngOnInit();
 
@@ -783,11 +783,11 @@ describe("ItemDetailsSectionComponent", () => {
     describe("when an ownership change is not allowed", () => {
       beforeEach(() => {
         component.config.organizationDataOwnershipDisabled = true; // allow personal ownership
-        component.originalCipherView!.organizationId = undefined;
+        component.originalCipherView()!.organizationId = undefined;
       });
 
       it("disables organizationId when the cipher is owned by an organization", async () => {
-        component.originalCipherView!.organizationId = "orgId";
+        component.originalCipherView()!.organizationId = "orgId";
 
         await component.ngOnInit();
 
