@@ -78,7 +78,7 @@ function buildProxyBin(target, release = true) {
 
 function buildImporterBinaries(target, release = true) {
     // These binaries are only built for Windows, so we can skip them on other platforms
-    if (process.platform === "win32" || (target && target.includes('windows'))) {
+    if (effectivePlatform(target) == "win32") {
         cargoBuild("bitwarden_chromium_import_helper", target, release)
     }
 }
