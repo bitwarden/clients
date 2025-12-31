@@ -149,6 +149,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
+  private readonly BIOMETRICS_POLLING_INTERVAL = 2000;
 
   constructor(
     private accountService: AccountService,
@@ -264,7 +265,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
-    timer(0, 1000)
+    timer(0, this.BIOMETRICS_POLLING_INTERVAL)
       .pipe(
         switchMap(async () => {
           const biometricSettingAvailable = await this.biometricsService.canEnableBiometricUnlock();
@@ -274,7 +275,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.form.controls.biometric.enable({ emitEvent: false });
           }
 
-          // Biometrics status can't be checked if the nativeMessaging permission hasn't been granted.
+          // Biometrics status shouldn't be checked if permissions are needed.
           const needsPermissionPrompt =
             !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
             !this.platformUtilsService.isSafari();
