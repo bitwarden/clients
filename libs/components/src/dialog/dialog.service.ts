@@ -43,10 +43,9 @@ class CustomBlockScrollStrategy implements ScrollStrategy {
   detach() {}
 }
 
-export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
-  CdkDialogRef<R, C>,
-  "close" | "closed" | "disableClose" | "componentInstance"
-> {
+export abstract class DialogRef<R = unknown, C = unknown>
+  implements Pick<CdkDialogRef<R, C>, "close" | "closed" | "disableClose" | "componentInstance">
+{
   abstract readonly isDrawer?: boolean;
 
   // --- From CdkDialogRef ---
@@ -298,6 +297,11 @@ export class DialogService {
   /** Close all open dialogs */
   closeAll(): void {
     return this.dialog.closeAll();
+  }
+
+  /** Close the open drawer */
+  closeDrawer(): void {
+    return this.activeDrawer?.close();
   }
 
   /** The injector that is passed to the opened dialog */

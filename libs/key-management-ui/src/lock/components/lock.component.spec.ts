@@ -119,7 +119,7 @@ describe("LockComponent", () => {
     mockSyncService.fullSync.mockResolvedValue(true);
     mockDeviceTrustService.trustDeviceIfRequired.mockResolvedValue();
     mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded.mockResolvedValue();
-    mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData.mockImplementation(() => { });
+    mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData.mockImplementation(() => {});
 
     await TestBed.configureTestingModule({
       imports: [
@@ -669,8 +669,8 @@ describe("LockComponent", () => {
           policyOptions:
             masterPasswordPolicyOptions != null
               ? new MasterPasswordPolicyResponse({
-                EnforceOnLogin: masterPasswordPolicyOptions.enforceOnLogin,
-              })
+                  EnforceOnLogin: masterPasswordPolicyOptions.enforceOnLogin,
+                })
               : null,
         } as MasterPasswordVerificationResponse);
         const passwordStrengthResult = { score: 1 } as ZXCVBNResult;

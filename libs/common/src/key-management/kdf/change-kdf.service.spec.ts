@@ -171,6 +171,20 @@ describe("ChangeKdfService", () => {
       expect(changeKdfApiService.updateUserKdfParams).toHaveBeenCalledWith(expectedRequest);
     });
 
+    it("should set master key and hash after KDF update", async () => {
+      const masterPassword = "masterPassword";
+      const mockMasterKey = {} as any;
+      const mockHash = "localHash";
+
+      keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
+      keyService.hashMasterKey.mockResolvedValue(mockHash);
+
+      await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
+
+      expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(mockMasterKey, mockUserId);
+      expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(mockHash, mockUserId);
+    });
+
     it("should properly dispose of SDK resources", async () => {
       const masterPassword = "masterPassword";
       jest.spyOn(mockNewKdfConfig, "toSdkConfig").mockReturnValue({} as any);
