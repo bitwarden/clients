@@ -905,8 +905,6 @@ export class CipherService implements CipherServiceAbstraction {
     }
   }
 
-  // TODO: Find a cleaner way to do this to replace the existing `createWitHServer`
-  // - should we do a new SErvice, or hijack existing service & change interfaces??
   private async createWithServer_sdk(
     cipherView: CipherView,
     userId: UserId,
@@ -968,7 +966,6 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    // const sdkCipherEncryptionEnabled = false;
     const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );

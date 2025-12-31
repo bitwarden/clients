@@ -71,7 +71,6 @@ export class DefaultCipherFormService implements CipherFormService {
         originalCipherView,
         config.admin,
       );
-      // Temporary
       savedCipher = await this.cipherService
         .encrypt(savedCipherView, activeUserId)
         .then((res) => res.cipher);
