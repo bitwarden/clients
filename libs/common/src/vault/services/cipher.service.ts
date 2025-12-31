@@ -893,7 +893,7 @@ export class CipherService implements CipherServiceAbstraction {
     orgAdmin?: boolean,
   ): Promise<CipherView> {
     const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.SdkCipherOperations,
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
 
     if (sdkCipherEncryptionEnabled) {
@@ -965,7 +965,7 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<CipherView> {
     // const sdkCipherEncryptionEnabled = false;
     const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.SdkCipherOperations,
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
 
     if (sdkCipherEncryptionEnabled) {
