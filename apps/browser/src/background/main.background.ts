@@ -578,7 +578,7 @@ export default class MainBackground {
           "ephemeral",
           "bitwarden-ephemeral",
         );
-        await sessionStorage.save("session-key", derivedKey);
+        await sessionStorage.save("session-key", derivedKey.toJSON());
         return derivedKey;
       });
 
