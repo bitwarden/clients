@@ -40,9 +40,6 @@ const drawerSizeToWidthMap = new Map<DialogSize, string>([
   ["large", "md:tw-max-w-2xl"],
 ]);
 
-const getDialogWidthStyles = (size: DialogSize = "default", isDrawer: boolean = false) =>
-  isDrawer ? drawerSizeToWidthMap.get(size) : dialogSizeToWidthMap.get(size);
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -117,11 +114,22 @@ export class DialogComponent {
 
   private readonly animationCompleted = signal(false);
 
+  protected readonly width = computed(() => {
+    const size = this.dialogSize();
+    const isDrawer = this.dialogRef?.isDrawer;
+
+    if (isDrawer) {
+      return drawerSizeToWidthMap.get(size);
+    }
+
+    return dialogSizeToWidthMap.get(size);
+  });
+
   protected readonly classes = computed(() => {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
     const baseClasses = ["tw-flex", "tw-flex-col", "tw-w-screen"];
     const sizeClasses = this.dialogRef?.isDrawer
-      ? ["tw-size-full"]
+      ? ["tw-h-full"]
       : ["md:tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"];
 
     const animationClasses =
@@ -131,7 +139,7 @@ export class DialogComponent {
           ? ["tw-animate-slide-down"]
           : ["tw-animate-slide-up", "md:tw-animate-slide-down"];
 
-    return [...baseClasses, this.width, ...sizeClasses, ...animationClasses];
+    return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
 
   handleEsc(event: Event) {
@@ -139,10 +147,6 @@ export class DialogComponent {
       this.dialogRef?.close();
       event.stopPropagation();
     }
-  }
-
-  get width() {
-    return getDialogWidthStyles(this.dialogSize(), this.dialogRef?.isDrawer);
   }
 
   onAnimationEnd() {
