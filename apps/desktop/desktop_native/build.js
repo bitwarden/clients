@@ -41,8 +41,8 @@ function runCommand(bin, args, workingDirectory = "") {
 function buildNapiModule(target, release = true) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
-    const crossCompileArg = target ? "--cross-compile" : "";
     runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg].filter(s => s != ''), "./napi")
+    const crossCompileArg = effectivePlatform(target) !== process.platform ? "--cross-compile" : "";
 }
 
 /**
