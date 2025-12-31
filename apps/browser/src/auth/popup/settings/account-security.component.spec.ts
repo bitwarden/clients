@@ -483,8 +483,7 @@ describe("AccountSecurityComponent", () => {
       biometricsService.canEnableBiometricUnlock.mockResolvedValue(false);
 
       await component.ngOnInit();
-      tick(0);
-      await Promise.resolve();
+      tick();
 
       expect(component.form.controls.biometric.disabled).toBe(true);
     }));
@@ -493,8 +492,7 @@ describe("AccountSecurityComponent", () => {
       biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
 
       await component.ngOnInit();
-      tick(0);
-      await Promise.resolve();
+      tick();
 
       expect(component.form.controls.biometric.disabled).toBe(false);
     }));
@@ -505,8 +503,7 @@ describe("AccountSecurityComponent", () => {
       platformUtilsService.isSafari.mockReturnValue(false);
 
       await component.ngOnInit();
-      tick(0);
-      await Promise.resolve();
+      tick();
 
       expect(biometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
       expect(component.biometricUnavailabilityReason).toBeUndefined();
@@ -521,8 +518,7 @@ describe("AccountSecurityComponent", () => {
       );
 
       await component.ngOnInit();
-      tick(0);
-      await Promise.resolve();
+      tick();
 
       expect(biometricsService.getBiometricsStatusForUser).toHaveBeenCalledWith(mockUserId);
     }));
@@ -536,8 +532,7 @@ describe("AccountSecurityComponent", () => {
       );
 
       await component.ngOnInit();
-      tick(0);
-      await Promise.resolve();
+      tick();
 
       expect(biometricsService.getBiometricsStatusForUser).toHaveBeenCalledWith(mockUserId);
     }));
@@ -564,8 +559,7 @@ describe("AccountSecurityComponent", () => {
         biometricsService.getBiometricsStatusForUser.mockResolvedValue(biometricStatus);
 
         await component.ngOnInit();
-        tick(0);
-        await Promise.resolve();
+        tick();
 
         expect(component.biometricUnavailabilityReason).toBe(expected);
       }),
@@ -580,8 +574,7 @@ describe("AccountSecurityComponent", () => {
       );
 
       await component.ngOnInit();
-      tick(0);
-      await Promise.resolve();
+      tick();
 
       // Status is DesktopDisconnected but biometric IS available, so don't show error
       expect(component.biometricUnavailabilityReason).toBe("");
