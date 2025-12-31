@@ -174,7 +174,7 @@ export class VaultV2Component<C extends CipherViewLike>
   type: CipherType | null = null;
   folderId: string | null = null;
   collectionId: string | null = null;
-  organizationId: string | null = null;
+  organizationId: OrganizationId | null = null;
   myVaultOnly = false;
   addType: CipherType | undefined = undefined;
   addOrganizationId: string | null = null;
