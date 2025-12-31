@@ -101,7 +101,7 @@ function buildProcessIsolation() {
         return;
     }
 
-    runCommand("cargo", ["build", "--lib", "process_isolation", "--release"]);
+    runCommand("cargo", ["build", "--package", "process_isolation", "--release"]);
 
     console.log("Copying process isolation library to dist folder");
     fs.copyFileSync(path.join(__dirname, "target", "release", "libprocess_isolation.so"), path.join(__dirname, "dist", `libprocess_isolation.so`));
