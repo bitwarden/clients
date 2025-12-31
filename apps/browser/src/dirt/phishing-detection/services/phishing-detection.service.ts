@@ -130,7 +130,7 @@ export class PhishingDetectionService {
             return EMPTY;
           } else {
             logService.debug("[PhishingDetectionService] Enabling phishing detection service");
-            // Trigger cache update asynchronously using RxJS delay(0) instead of setTimeout
+            // Trigger cache update asynchronously using RxJS delay(0)
             // This defers to the next event loop tick, preventing UI blocking during account switch
             of(null)
               .pipe(delay(0))
