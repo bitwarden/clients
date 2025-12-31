@@ -14,14 +14,21 @@ import {
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
-import { BitwardenPasswordProtectedFileFormat } from "@bitwarden/vault-export-core";
+import {
+  BitwardenJsonExport,
+  BitwardenPasswordProtectedFileFormat,
+  isPasswordProtected,
+} from "@bitwarden/vault-export-core";
 
 import { ImportResult } from "../../models/import-result";
 import { Importer } from "../importer";
 
-import { BitwardenJsonImporter } from "./bitwarden-json-importer";
+import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
 
-export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter implements Importer {
+export class BitwardenPasswordProtectedImporter
+  extends BitwardenEncryptedJsonImporter
+  implements Importer
+{
   private key: SymmetricCryptoKey;
 
   constructor(
@@ -38,20 +45,14 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
 
   async parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();
-    const parsedData: BitwardenPasswordProtectedFileFormat = JSON.parse(data);
+    const parsedData: BitwardenPasswordProtectedFileFormat | BitwardenJsonExport = JSON.parse(data);
 
     if (!parsedData) {
       result.success = false;
       return result;
     }
 
-    // File is unencrypted
-    if (!parsedData?.encrypted) {
-      return await super.parse(data);
-    }
-
-    // File is account-encrypted
-    if (!parsedData?.passwordProtected) {
+    if (!isPasswordProtected(parsedData)) {
       return await super.parse(data);
     }
 
