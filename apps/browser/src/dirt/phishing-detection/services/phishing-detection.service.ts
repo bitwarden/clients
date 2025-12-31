@@ -1,10 +1,12 @@
 import {
   concatMap,
+  delay,
   distinctUntilChanged,
   EMPTY,
   filter,
   map,
   merge,
+  of,
   Subject,
   switchMap,
   tap,
@@ -124,6 +126,11 @@ export class PhishingDetectionService {
             return EMPTY;
           } else {
             logService.debug("[PhishingDetectionService] Enabling phishing detection service");
+            // Trigger cache update asynchronously using RxJS delay(0) instead of setTimeout
+            // This defers to the next event loop tick, preventing UI blocking during account switch
+            of(null)
+              .pipe(delay(0))
+              .subscribe(() => phishingDataService.triggerUpdateIfNeeded());
             return merge(
               phishingDataService.update$,
               onContinueCommand$,
