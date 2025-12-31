@@ -31,9 +31,10 @@ let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platfo
  * @param {string} bin Executable to run.
  * @param {string[]} args Arguments for executable.
  * @param {string} [workingDirectory] Path to working directory, relative to the script directory. Defaults to the script directory.
+ * @param {string} [useShell] Whether to use a shell to execute the command. Defaults to false.
  */
-function runCommand(bin, args, workingDirectory = "") {
-    const options = { stdio: 'inherit', cwd: path.resolve(__dirname, workingDirectory) }
+function runCommand(bin, args, workingDirectory = "", useShell = false) {
+    const options = { stdio: 'inherit', cwd: path.resolve(__dirname, workingDirectory), shell: useShell }
     console.debug("Running command:", bin, args, options)
     child_process.execFileSync(bin, args, options)
 }
@@ -41,8 +42,8 @@ function runCommand(bin, args, workingDirectory = "") {
 function buildNapiModule(target, release = true) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
-    runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg].filter(s => s != ''), "./napi")
     const crossCompileArg = effectivePlatform(target) !== process.platform ? "--cross-compile" : "";
+    runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg].filter(s => s != ''), "./napi", true);
 }
 
 /**
