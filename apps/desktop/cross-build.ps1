@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 param(
     [Parameter(Mandatory=$true)]
-    [System.Runtime.InteropServices.Architecture]$Architecture,
+    [ValidateSet("X64", "ARM64")]$Architecture,
     $CertificatePath,
     [SecureString]$CertificatePassword,
     $ElectronConfigFile="electron-builder.json",
@@ -55,9 +55,9 @@ $productName = $builderConfig.productName
 $artifactName = "${productName}-$($packageConfig.version)-${arch}.$ext"
 
 Write-Host "Building native code"
-$rustTarget = switch ($Architecture) {
-    X64 { "x86_64-pc-windows-msvc" }
-    ARM64 { "aarch64-pc-windows-msvc" }
+$rustTarget = switch ($arch) {
+    x64 { "x86_64-pc-windows-msvc" }
+    arm64 { "aarch64-pc-windows-msvc" }
     default {
         Write-Error "Unsupported architecture: $Architecture. Supported architectures are x64 and arm64"
         Exit(1)
