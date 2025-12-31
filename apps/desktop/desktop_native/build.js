@@ -63,13 +63,24 @@ function cargoBuild(bin, target, release) {
         args.unshift("xwin")
     }
     runCommand("cargo", args.filter(s => s != ''))
+
+    // Infer the architecture and platform if not passed explicitly
+    let nodeArch, platform;
     if (target) {
-        // Copy the resulting binary to the dist folder
-        const targetFolder = isRelease ? "release" : "debug";
-        const { nodeArch, platform } = rustTargetsMap[target];
-        const ext = platform === "win32" ? ".exe" : "";
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}${ext}`), path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`));
+        nodeArch = rustTargetsMap[target].nodeArch;
+        platform = rustTargetsMap[target].platform;
     }
+    else {
+        nodeArch = process.arch;
+        platform = process.platform;
+    }
+
+    // Copy the resulting binary to the dist folder
+    const profileFolder = isRelease ? "release" : "debug";
+    const ext = platform === "win32" ? ".exe" : "";
+    const src = path.join(__dirname, "target", target ? target : "", profileFolder, `${bin}${ext}`)
+    const dst = path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`)
+    fs.copyFileSync(src, dst);
 }
 
 function buildProxyBin(target, release = true) {
