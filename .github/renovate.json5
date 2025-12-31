@@ -290,6 +290,7 @@
         "@types/jsdom",
         "@types/papaparse",
         "@types/zxcvbn",
+        "aes-gcm",
         "async-trait",
         "clap",
         "jsdom",
@@ -340,7 +341,6 @@
       matchPackageNames: [
         "@types/node-forge",
         "aes",
-        "aes-gcm",
         "big-integer",
         "cbc",
         "chacha20poly1305",
