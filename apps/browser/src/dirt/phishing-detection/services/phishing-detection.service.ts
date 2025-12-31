@@ -115,6 +115,10 @@ export class PhishingDetectionService {
 
     const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
+    // Subscribe to update$ once at initialization - runs in background, doesn't block popup
+    // This subscription lives for the lifetime of the service worker
+    const updateSub = phishingDataService.update$.subscribe();
+
     const initSub = phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
@@ -131,12 +135,9 @@ export class PhishingDetectionService {
             of(null)
               .pipe(delay(0))
               .subscribe(() => phishingDataService.triggerUpdateIfNeeded());
-            return merge(
-              phishingDataService.update$,
-              onContinueCommand$,
-              onTabUpdated$,
-              onCancelCommand$,
-            );
+            // update$ removed from merge - popup no longer blocks waiting for update
+            // The actual update runs via updateSub above
+            return merge(onContinueCommand$, onTabUpdated$, onCancelCommand$);
           }
         }),
       )
@@ -144,6 +145,7 @@ export class PhishingDetectionService {
 
     this._didInit = true;
     return () => {
+      updateSub.unsubscribe();
       initSub.unsubscribe();
       this._didInit = false;
 
