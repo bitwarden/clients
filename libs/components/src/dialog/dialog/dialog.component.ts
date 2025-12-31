@@ -115,7 +115,7 @@ export class DialogComponent {
   private readonly animationCompleted = signal(false);
 
   protected readonly width = computed(() => {
-    const size = this.dialogSize();
+    const size = this.dialogSize() ?? "default";
     const isDrawer = this.dialogRef?.isDrawer;
 
     if (isDrawer) {
@@ -130,10 +130,11 @@ export class DialogComponent {
     const baseClasses = ["tw-flex", "tw-flex-col", "tw-w-screen"];
     const sizeClasses = this.dialogRef?.isDrawer ? ["tw-h-full"] : ["md:tw-p-4", "tw-max-h-[90vh]"];
 
+    const size = this.dialogSize() ?? "default";
     const animationClasses =
       this.disableAnimations() || this.animationCompleted() || this.dialogRef?.isDrawer
         ? []
-        : this.dialogSize() === "small"
+        : size === "small"
           ? ["tw-animate-slide-down"]
           : ["tw-animate-slide-up", "md:tw-animate-slide-down"];
 
