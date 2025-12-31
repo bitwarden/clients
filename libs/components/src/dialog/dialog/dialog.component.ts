@@ -28,17 +28,17 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
 
 type DialogSize = "small" | "default" | "large";
 
-const dialogSizeToWidthMap = new Map<DialogSize, string>([
-  ["small", "md:tw-max-w-sm"],
-  ["default", "md:tw-max-w-xl"],
-  ["large", "md:tw-max-w-3xl"],
-]);
+const dialogSizeToWidth = {
+  small: "md:tw-max-w-sm",
+  default: "md:tw-max-w-xl",
+  large: "md:tw-max-w-3xl",
+} as const;
 
-const drawerSizeToWidthMap = new Map<DialogSize, string>([
-  ["small", "md:tw-max-w-sm"],
-  ["default", "md:tw-max-w-lg"],
-  ["large", "md:tw-max-w-2xl"],
-]);
+const drawerSizeToWidth = {
+  small: "md:tw-max-w-sm",
+  default: "md:tw-max-w-lg",
+  large: "md:tw-max-w-2xl",
+} as const;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -119,10 +119,10 @@ export class DialogComponent {
     const isDrawer = this.dialogRef?.isDrawer;
 
     if (isDrawer) {
-      return drawerSizeToWidthMap.get(size);
+      return drawerSizeToWidth[size];
     }
 
-    return dialogSizeToWidthMap.get(size);
+    return dialogSizeToWidth[size];
   });
 
   protected readonly classes = computed(() => {
