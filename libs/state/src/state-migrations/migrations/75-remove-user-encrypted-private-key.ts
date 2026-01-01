@@ -1,9 +1,3 @@
-export const accountSecurityState: KeyDefinitionLike = {
-  key: "accountSecurityState",
-  stateDefinition: {
-    name: "CRYPTO_DISK",
-  },
-};
 import { KeyDefinitionLike, MigrationHelper } from "../migration-helper";
 import { IRREVERSIBLE, Migrator } from "../migrator";
 
@@ -25,6 +19,13 @@ export const userKeyEncryptedSigningKey: KeyDefinitionLike = {
 
 export const userSignedPublicKey: KeyDefinitionLike = {
   key: "userSignedPublicKey",
+  stateDefinition: {
+    name: "CRYPTO_DISK",
+  },
+};
+
+export const accountSecurityState: KeyDefinitionLike = {
+  key: "accountSecurityState",
   stateDefinition: {
     name: "CRYPTO_DISK",
   },

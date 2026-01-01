@@ -27,6 +27,8 @@ describe("RemoveUserEncryptedPrivateKey", () => {
         user_user2_CRYPTO_DISK_userSigningKey: "sign2",
         user_user1_CRYPTO_DISK_userSignedPublicKey: "pub1",
         user_user2_CRYPTO_DISK_userSignedPublicKey: "pub2",
+        user_user1_CRYPTO_DISK_accountSecurityState: "security1",
+        user_user2_CRYPTO_DISK_accountSecurityState: "security2",
       });
 
       expect(output).toEqual({
