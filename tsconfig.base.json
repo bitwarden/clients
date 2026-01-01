@@ -12,6 +12,7 @@
     "emitDecoratorMetadata": true,
     "declaration": false,
     "outDir": "dist",
+    "baseUrl": ".",
     "resolveJsonModule": true,
     "allowJs": true,
     "sourceMap": true,
@@ -64,8 +65,7 @@
       "@bitwarden/vault": ["./libs/vault/src"],
       "@bitwarden/vault-export-core": ["./libs/tools/export/vault-export/vault-export-core/src"],
       "@bitwarden/vault-export-ui": ["./libs/tools/export/vault-export/vault-export-ui/src"],
-      "@bitwarden/web-vault/*": ["./apps/web/src/*"],
-      "*": ["../../*"]
+      "@bitwarden/web-vault/*": ["./apps/web/src/*"]
     },
     "plugins": [
       {
