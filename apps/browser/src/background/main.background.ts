@@ -1654,6 +1654,15 @@ export default class MainBackground {
   }
 
   /**
+   * Triggers a phishing cache update in the background.
+   * Called on extension install/update to pre-populate the cache
+   * so it's ready when a premium user logs in.
+   */
+  triggerPhishingCacheUpdate(): void {
+    this.phishingDataService.triggerUpdateIfNeeded();
+  }
+
+  /**
    * Switch accounts to indicated userId -- null is no active user
    */
   async switchAccount(userId: UserId) {

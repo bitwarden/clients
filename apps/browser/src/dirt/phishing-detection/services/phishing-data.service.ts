@@ -6,7 +6,7 @@ import {
   finalize,
   first,
   firstValueFrom,
-  map,
+  from,
   retry,
   shareReplay,
   Subject,
@@ -58,27 +58,13 @@ export class PhishingDataService {
   private _webAddresses$ = this._cachedState.state$.pipe(
     // Only rebuild Set when checksum changes (actual data change)
     distinctUntilChanged((prev, curr) => prev?.checksum === curr?.checksum),
-    map((state) => {
+    switchMap((state) => {
       // Return cached Set if checksum matches
       if (this._cachedSet && state?.checksum === this._cachedSetChecksum) {
-        this.logService.info(`[PhishingDataService] Using cached Set (checksum unchanged)`);
-        return this._cachedSet;
+        return from(Promise.resolve(this._cachedSet));
       }
-
-      const startTime = Date.now();
-      const set = new Set(state?.webAddresses);
-      set.delete(""); // Safety: remove empty string
-      this._testWebAddresses.forEach((addr) => set.add(addr));
-      set.add("phishing.testcategory.com"); // For QA testing
-
-      // Cache for future use
-      this._cachedSet = set;
-      this._cachedSetChecksum = state?.checksum ?? "";
-
-      this.logService.info(
-        `[PhishingDataService] Built Set with ${set.size} entries in ${Date.now() - startTime}ms`,
-      );
-      return set;
+      // Build Set in chunks to avoid blocking UI
+      return from(this.buildSetInChunks(state?.webAddresses ?? [], state?.checksum ?? ""));
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -102,10 +88,10 @@ export class PhishingDataService {
    */
   update$ = this._triggerUpdate$.pipe(
     // Don't use startWith - initial update is handled by triggerUpdateIfNeeded()
-    tap(() => this.logService.info(`[PhishingDataService] Update triggered...`)),
+    tap(() => this.logService.debug(`[PhishingDataService] Update triggered`)),
     filter(() => {
       if (this._updateInProgress) {
-        this.logService.info(`[PhishingDataService] Update already in progress, skipping...`);
+        this.logService.debug(`[PhishingDataService] Update already in progress, skipping`);
         return false;
       }
       return true;
@@ -120,8 +106,8 @@ export class PhishingDataService {
           // Early exit if we checked recently (using in-memory tracking)
           const timeSinceLastCheck = Date.now() - this._lastCheckTime;
           if (timeSinceLastCheck < this.MIN_UPDATE_INTERVAL) {
-            this.logService.info(
-              `[PhishingDataService] Checked ${timeSinceLastCheck}ms ago, skipping...`,
+            this.logService.debug(
+              `[PhishingDataService] Checked ${Math.round(timeSinceLastCheck / 1000)}s ago, skipping`,
             );
             return;
           }
@@ -129,26 +115,20 @@ export class PhishingDataService {
           // Update last check time in memory (not state - avoids expensive write)
           this._lastCheckTime = Date.now();
 
-          const fetchStart = Date.now();
           const result = await this.getNextWebAddresses(cachedState);
-          this.logService.info(
-            `[PhishingDataService] getNextWebAddresses took ${Date.now() - fetchStart}ms`,
-          );
 
           // result is null when checksum matched - skip state update entirely
           if (result === null) {
-            this.logService.info(`[PhishingDataService] Checksum matched, no state update needed`);
+            this.logService.debug(`[PhishingDataService] Checksum matched, skipping state update`);
             return;
           }
 
           if (result) {
             // Yield to event loop before state update
             await new Promise((resolve) => setTimeout(resolve, 0));
-
-            const updateStart = Date.now();
             await this._cachedState.update(() => result);
-            this.logService.info(
-              `[PhishingDataService] State update took ${Date.now() - updateStart}ms (${result.webAddresses.length} entries)`,
+            this.logService.debug(
+              `[PhishingDataService] State updated with ${result.webAddresses.length} entries`,
             );
           }
         }),
@@ -242,7 +222,7 @@ export class PhishingDataService {
    * - Domains: https://raw.githubusercontent.com/Phishing-Database/checksums/.../phishing-domains-ACTIVE.txt.md5
    *
    * PURPOSE: The checksum allows us to quickly check if the list has changed without
-   * downloading the entire 100MB+ file. If checksums match, we know the data is identical.
+   * downloading the entire file (~63MB uncompressed). If checksums match, data is identical.
    *
    * FLOW:
    * 1. Fetch remote checksum (~62 bytes) - fast
@@ -257,39 +237,23 @@ export class PhishingDataService {
     const timestamp = Date.now();
     const prevAge = timestamp - prev.timestamp;
 
-    this.logService.info(`[PhishingDataService] === CHECKSUM COMPARISON START ===`);
-    this.logService.info(
-      `[PhishingDataService] Cache age: ${prevAge}ms (${Math.round(prevAge / 1000 / 60)} minutes)`,
+    this.logService.debug(
+      `[PhishingDataService] Cache: ${prev.webAddresses.length} entries, age ${Math.round(prevAge / 1000 / 60)}min`,
     );
-    this.logService.info(`[PhishingDataService] Cached entries: ${prev.webAddresses.length}`);
-    this.logService.info(`[PhishingDataService] Cached checksum: ${prev.checksum || "(empty)"}`);
 
     const applicationVersion = await this.platformUtilsService.getApplicationVersion();
 
     // STEP 1: Fetch the remote checksum (tiny file, ~32 bytes)
-    this.logService.info(`[PhishingDataService] Fetching remote checksum...`);
-    const checksumStart = Date.now();
     const remoteChecksum = await this.fetchPhishingChecksum(this.resourceType);
-    this.logService.info(
-      `[PhishingDataService] Remote checksum: ${remoteChecksum} (fetched in ${Date.now() - checksumStart}ms)`,
-    );
 
     // STEP 2: Compare checksums
     if (remoteChecksum && prev.checksum === remoteChecksum) {
-      this.logService.info(`[PhishingDataService] ✅ CHECKSUM MATCH - Data unchanged!`);
-      this.logService.info(
-        `[PhishingDataService] Skipping state update (avoids rewriting ${prev.webAddresses.length} entries)`,
-      );
-      this.logService.info(
-        `[PhishingDataService] === CHECKSUM COMPARISON END (no update needed) ===`,
-      );
+      this.logService.debug(`[PhishingDataService] Checksum match, no update needed`);
       return null; // Signal to skip state update - no UI blocking!
     }
 
     // STEP 3: Checksum different - data needs to be updated
-    this.logService.info(`[PhishingDataService] ❌ CHECKSUM MISMATCH - Data has changed!`);
-    this.logService.info(`[PhishingDataService] Local: ${prev.checksum || "(empty)"}`);
-    this.logService.info(`[PhishingDataService] Remote: ${remoteChecksum}`);
+    this.logService.debug(`[PhishingDataService] Checksum mismatch, fetching new data`);
 
     // Approach 1: Fetch only today's new entries (if cache is less than 24h old)
     const isOneDayOldMax = prevAge <= this.UPDATE_INTERVAL_DURATION;
@@ -298,16 +262,11 @@ export class PhishingDataService {
       applicationVersion === prev.applicationVersion &&
       prev.webAddresses.length > 0
     ) {
-      this.logService.info(
-        `[PhishingDataService] Cache < 24h old, fetching daily additions only...`,
-      );
       const webAddressesTodayUrl = getPhishingResources(this.resourceType)!.todayUrl;
-      const dailyWebAddresses: string[] =
-        await this.fetchPhishingWebAddresses(webAddressesTodayUrl);
+      const dailyWebAddresses = await this.fetchPhishingWebAddresses(webAddressesTodayUrl);
       this.logService.info(
-        `[PhishingDataService] Appending ${dailyWebAddresses.length} new entries to existing ${prev.webAddresses.length}`,
+        `[PhishingDataService] Daily update: +${dailyWebAddresses.length} entries`,
       );
-      this.logService.info(`[PhishingDataService] === CHECKSUM COMPARISON END (daily update) ===`);
       return {
         webAddresses: prev.webAddresses.concat(dailyWebAddresses),
         checksum: remoteChecksum,
@@ -317,16 +276,9 @@ export class PhishingDataService {
     }
 
     // Approach 2: Fetch entire list (cache is stale or empty)
-    this.logService.info(
-      `[PhishingDataService] Fetching FULL phishing list (cache stale or empty)...`,
-    );
     const remoteUrl = getPhishingResources(this.resourceType)!.remoteUrl;
-    const fetchStart = Date.now();
     const remoteWebAddresses = await this.fetchPhishingWebAddresses(remoteUrl);
-    this.logService.info(
-      `[PhishingDataService] Fetched ${remoteWebAddresses.length} entries in ${Date.now() - fetchStart}ms`,
-    );
-    this.logService.info(`[PhishingDataService] === CHECKSUM COMPARISON END (full update) ===`);
+    this.logService.info(`[PhishingDataService] Full update: ${remoteWebAddresses.length} entries`);
     return {
       webAddresses: remoteWebAddresses,
       timestamp,
@@ -364,7 +316,7 @@ export class PhishingDataService {
     }
 
     // Stream the response to avoid loading entire file into memory at once
-    // This prevents Firefox from freezing on large phishing lists (~100MB)
+    // This prevents Firefox from freezing on large phishing lists (~63MB uncompressed)
     const reader = response.body?.getReader();
     if (!reader) {
       // Fallback for environments without streaming support
@@ -395,12 +347,15 @@ export class PhishingDataService {
         const lines = buffer.split(/\r?\n/);
         buffer = lines.pop() || ""; // Keep incomplete last line in buffer
 
-        for (const line of lines) {
-          const trimmed = line.trim();
+        for (let i = 0; i < lines.length; i++) {
+          const trimmed = lines[i].trim();
           if (trimmed.length > 0) {
             addresses.push(trimmed);
           }
         }
+        // Yield after processing each network chunk to keep service worker responsive
+        // This allows popup messages to be handled between chunks
+        await new Promise((resolve) => setTimeout(resolve, 0));
       }
 
       // Process any remaining buffer content
@@ -413,9 +368,53 @@ export class PhishingDataService {
       reader.releaseLock();
     }
 
-    this.logService.info(`[PhishingDataService] Streamed ${addresses.length} web addresses`);
-
+    this.logService.debug(`[PhishingDataService] Streamed ${addresses.length} addresses`);
     return addresses;
+  }
+
+  /**
+   * Builds a Set from an array of web addresses in chunks to avoid blocking the UI.
+   * Yields to the event loop every CHUNK_SIZE entries, keeping the UI responsive
+   * even when processing 700K+ entries.
+   *
+   * @param addresses Array of web addresses to add to the Set
+   * @param checksum The checksum to associate with this cached Set
+   * @returns Promise that resolves to the built Set
+   */
+  private async buildSetInChunks(addresses: string[], checksum: string): Promise<Set<string>> {
+    const CHUNK_SIZE = 50000; // Process 50K entries per chunk (fast, fewer iterations)
+    const startTime = Date.now();
+    const set = new Set<string>();
+
+    this.logService.debug(`[PhishingDataService] Building Set (${addresses.length} entries)`);
+
+    for (let i = 0; i < addresses.length; i += CHUNK_SIZE) {
+      const chunk = addresses.slice(i, Math.min(i + CHUNK_SIZE, addresses.length));
+      for (const addr of chunk) {
+        if (addr) {
+          // Skip empty strings
+          set.add(addr);
+        }
+      }
+
+      // Yield to event loop after each chunk
+      if (i + CHUNK_SIZE < addresses.length) {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+    }
+
+    // Add test addresses
+    this._testWebAddresses.forEach((addr) => set.add(addr));
+    set.add("phishing.testcategory.com"); // For QA testing
+
+    // Cache for future use
+    this._cachedSet = set;
+    this._cachedSetChecksum = checksum;
+
+    this.logService.debug(
+      `[PhishingDataService] Set built: ${set.size} entries in ${Date.now() - startTime}ms`,
+    );
+    return set;
   }
 
   private getTestWebAddresses() {
