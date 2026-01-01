@@ -689,7 +689,9 @@ export default class MainBackground {
       logoutCallback,
     );
 
-    this.securityStateService = new DefaultSecurityStateService(this.stateProvider);
+    this.securityStateService = new DefaultSecurityStateService(
+      this.accountCryptographicStateService,
+    );
 
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
       messageListener,
