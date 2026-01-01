@@ -120,20 +120,14 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     }
   }
 
-  protected override async setPrivateKey(
+  protected override async setAccountCryptographicState(
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.keyService.setPrivateKey(
-      response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
       userId,
     );
-    if (response.accountKeysResponseModel) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-        userId,
-      );
-    }
   }
 
   exportCache(): CacheData {

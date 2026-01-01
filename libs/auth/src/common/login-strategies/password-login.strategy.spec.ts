@@ -216,7 +216,10 @@ describe("PasswordLoginStrategy", () => {
       userId,
     );
     expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
-    expect(keyService.setPrivateKey).toHaveBeenCalledWith(tokenResponse.privateKey, userId);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      { V1: { private_key: tokenResponse.privateKey } },
+      userId,
+    );
   });
 
   it("does not force the user to update their master password when there are no requirements", async () => {

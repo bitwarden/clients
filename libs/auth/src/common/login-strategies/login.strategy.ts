@@ -265,7 +265,7 @@ export abstract class LoginStrategy {
 
     await this.setMasterKey(response, userId);
     await this.setUserKey(response, userId);
-    await this.setPrivateKey(response, userId);
+    await this.setAccountCryptographicState(response, userId);
 
     // This needs to run after the keys are set because it checks for the existence of the encrypted private key
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
@@ -283,7 +283,10 @@ export abstract class LoginStrategy {
 
   protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
-  protected abstract setPrivateKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+  protected abstract setAccountCryptographicState(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void>;
 
   // Old accounts used master key for encryption. We are forcing migrations but only need to
   // check on password logins

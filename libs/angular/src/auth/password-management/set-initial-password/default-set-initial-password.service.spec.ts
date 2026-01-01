@@ -397,7 +397,6 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(keyService.setPrivateKey).toHaveBeenCalledWith(keyPair[1].encryptedString, userId);
           expect(
             accountCryptographicStateService.setAccountCryptographicState,
           ).toHaveBeenCalledWith(
@@ -640,7 +639,9 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+          expect(
+            accountCryptographicStateService.setAccountCryptographicState,
+          ).not.toHaveBeenCalled();
         });
 
         it("should set the local master key hash to state", async () => {
