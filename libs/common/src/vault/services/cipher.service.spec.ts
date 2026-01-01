@@ -113,7 +113,7 @@ describe("Cipher Service", () => {
   const sdkService = mock<SdkService>();
 
   const userId = "TestUserId" as UserId;
-  const orgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b2" as OrganizationId;
+  const orgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
 
   let cipherService: CipherService;
   let encryptionContext: EncryptionContext;
