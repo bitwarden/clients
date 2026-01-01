@@ -61,9 +61,4 @@ module.exports = {
     "<rootDir>/libs/vault/jest.config.js",
     "<rootDir>/libs/subscription/jest.config.js",
   ],
-
-  // Workaround for a memory leak that crashes tests in CI:
-  // https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
-  // Also anecdotally improves performance when run locally
-  maxWorkers: 3,
 };
