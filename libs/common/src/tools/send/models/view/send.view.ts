@@ -5,7 +5,7 @@ import { Utils } from "../../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
 import { SendType } from "../../enums/send-type";
-import { Send } from "../domain/send";
+import { AuthType, Send } from "../domain/send";
 
 import { SendFileView } from "./send-file.view";
 import { SendTextView } from "./send-text.view";
@@ -29,6 +29,7 @@ export class SendView implements View {
   emails: string[] = [];
   disabled = false;
   hideEmail = false;
+  authType: AuthType = null;
 
   constructor(s?: Send) {
     if (!s) {
@@ -46,6 +47,8 @@ export class SendView implements View {
     this.disabled = s.disabled;
     this.password = s.password;
     this.hideEmail = s.hideEmail;
+    this.authType = s.authType;
+    this.emails = s.emails ? s.emails.split(",").map((e) => e.trim()) : [];
   }
 
   get urlB64Key(): string {

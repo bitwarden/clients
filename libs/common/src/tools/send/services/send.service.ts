@@ -127,6 +127,8 @@ export class SendService implements InternalSendServiceAbstraction {
       }
     }
 
+    send.authType = model.authType;
+
     return [send, fileData];
   }
 
