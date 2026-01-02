@@ -13,8 +13,7 @@ import { mockPorts } from "../../../spec/mock-port.spec-util";
 import { BackgroundMemoryStorageService } from "./background-memory-storage.service";
 import { ForegroundMemoryStorageService } from "./foreground-memory-storage.service";
 
-// These are succeeding individually but failing in a batch run - skipping for now
-describe.skip("foreground background memory storage interaction", () => {
+describe("foreground background memory storage interaction", () => {
   let foreground: ForegroundMemoryStorageService;
   let background: BackgroundMemoryStorageService;
   let logService: MockProxy<LogService>;
@@ -28,7 +27,7 @@ describe.skip("foreground background memory storage interaction", () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   test.each(["has", "get"])(
