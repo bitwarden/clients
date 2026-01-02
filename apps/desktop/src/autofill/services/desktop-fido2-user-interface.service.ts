@@ -302,9 +302,10 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     const encCipher = await this.cipherService.encrypt(cipher, activeUserId);
 
     try {
-      const createdCipher = await this.cipherService.createWithServer(encCipher);
+      const createdCipher = await this.cipherService.createWithServer(cipher, activeUserId);
+      const encryptedCreatedCipher = await this.cipherService.encrypt(createdCipher, activeUserId);
 
-      return createdCipher;
+      return encryptedCreatedCipher.cipher;
     } catch {
       throw new Error("Unable to create cipher");
     }
@@ -316,8 +317,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       this.accountService.activeAccount$.pipe(
         map(async (a) => {
           if (a) {
-            const encCipher = await this.cipherService.encrypt(cipher, a.id);
-            await this.cipherService.updateWithServer(encCipher);
+            await this.cipherService.updateWithServer(cipher, a.id);
           }
         }),
       ),
