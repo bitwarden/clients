@@ -99,6 +99,7 @@ export class AttachmentView implements View {
     // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
     view.key = obj.decryptedKey ? SymmetricCryptoKey.fromString(obj.decryptedKey) : undefined;
     view.encryptedKey = obj.key ? new EncString(obj.key) : undefined;
+    view._hasDecryptionError = obj.decryptionFailure;
 
     return view;
   }
