@@ -115,7 +115,7 @@ export class AcceptOrganizationInviteService {
       orgKey,
     );
 
-    request.key = encryptedOrgKey.encryptedString;
+    request.key = encryptedOrgKey;
     request.keys = new OrganizationKeysRequest(
       orgPublicKey,
       encryptedOrgPrivateKey.encryptedString,
@@ -159,7 +159,7 @@ export class AcceptOrganizationInviteService {
       const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
       // Add reset password key to accept request
-      request.resetPasswordKey = encryptedKey.encryptedString;
+      request.resetPasswordKey = encryptedKey;
     }
     return request;
   }

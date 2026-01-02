@@ -44,7 +44,6 @@ describe("EncString", () => {
         const encString = new EncString("3.data");
 
         expect(encString).toEqual({
-          data: "data",
           encryptedString: "3.data",
           encryptionType: 3,
         });
@@ -63,10 +62,6 @@ describe("EncString", () => {
         "aXY=|Y3Q=", // AesCbc256_B64 w/out header
         "0.QmFzZTY0UGFydA==|QmFzZTY0UGFydA==", // AesCbc256_B64 with header
         "2.QmFzZTY0UGFydA==|QmFzZTY0UGFydA==|QmFzZTY0UGFydA==", // AesCbc256_HmacSha256_B64
-        "3.QmFzZTY0UGFydA==", // Rsa2048_OaepSha256_B64
-        "4.QmFzZTY0UGFydA==", // Rsa2048_OaepSha1_B64
-        "5.QmFzZTY0UGFydA==|QmFzZTY0UGFydA==", // Rsa2048_OaepSha256_HmacSha256_B64
-        "6.QmFzZTY0UGFydA==|QmFzZTY0UGFydA==", // Rsa2048_OaepSha1_HmacSha256_B64
       ];
 
       it.each(cases)("can retrieve data bytes for %s", (encryptedString) => {

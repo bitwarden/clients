@@ -13,7 +13,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -21,6 +20,7 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 
@@ -264,7 +264,7 @@ describe("MemberActionsService", () => {
       const mockOrgKeys = { [organizationId]: mockOrgKey };
       keyService.orgKeys$.mockReturnValue(of(mockOrgKeys));
 
-      const mockEncryptedKey = new EncString("encrypted-key-data");
+      const mockEncryptedKey = "encrypted-key-data" as UnsignedSharedKey;
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(mockEncryptedKey);
 
       organizationUserApiService.postOrganizationUserConfirm.mockResolvedValue(undefined);

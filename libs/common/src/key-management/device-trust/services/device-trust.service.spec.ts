@@ -13,6 +13,7 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeActiveUserState } from "../../../../spec/fake-state";
@@ -350,7 +351,7 @@ describe("deviceTrustService", () => {
 
       const deviceRsaKeyLength = 2048;
       let mockDeviceRsaKeyPair: [Uint8Array, Uint8Array];
-      let mockDevicePublicKeyEncryptedUserKey: EncString;
+      let mockDevicePublicKeyEncryptedUserKey: UnsignedSharedKey;
       let mockUserKeyEncryptedDevicePublicKey: EncString;
       let mockDeviceKeyEncryptedDevicePrivateKey: EncString;
 
@@ -386,10 +387,8 @@ describe("deviceTrustService", () => {
           new Uint8Array(deviceRsaKeyLength),
         ];
 
-        mockDevicePublicKeyEncryptedUserKey = new EncString(
-          EncryptionType.Rsa2048_OaepSha1_B64,
-          "mockDevicePublicKeyEncryptedUserKey",
-        );
+        mockDevicePublicKeyEncryptedUserKey =
+          "4.mockDevicePublicKeyEncryptedUserKey" as UnsignedSharedKey;
 
         mockUserKeyEncryptedDevicePublicKey = new EncString(
           EncryptionType.AesCbc256_HmacSha256_B64,
@@ -460,7 +459,7 @@ describe("deviceTrustService", () => {
         expect(devicesApiServiceUpdateTrustedDeviceKeysSpy).toHaveBeenCalledTimes(1);
         expect(devicesApiServiceUpdateTrustedDeviceKeysSpy).toHaveBeenCalledWith(
           mockDeviceId,
-          mockDevicePublicKeyEncryptedUserKey.encryptedString,
+          mockDevicePublicKeyEncryptedUserKey,
           mockUserKeyEncryptedDevicePublicKey.encryptedString,
           mockDeviceKeyEncryptedDevicePrivateKey.encryptedString,
         );
@@ -493,11 +492,6 @@ describe("deviceTrustService", () => {
           method: "rsaGenerateKeyPair",
           spy: () => rsaGenerateKeyPairSpy,
           errorText: "rsaGenerateKeyPair error",
-        },
-        {
-          method: "rsaEncrypt",
-          spy: () => cryptoSvcRsaEncryptSpy,
-          errorText: "rsaEncrypt error",
         },
         {
           method: "encryptService.wrapEncapsulationKey",
@@ -542,7 +536,7 @@ describe("deviceTrustService", () => {
     describe("decryptUserKeyWithDeviceKey", () => {
       let mockDeviceKey: DeviceKey;
       let mockEncryptedDevicePrivateKey: EncString;
-      let mockEncryptedUserKey: EncString;
+      let mockEncryptedUserKey: UnsignedSharedKey;
       let mockUserKey: UserKey;
 
       beforeEach(() => {
@@ -557,10 +551,7 @@ describe("deviceTrustService", () => {
           "mockEncryptedDevicePrivateKey",
         );
 
-        mockEncryptedUserKey = new EncString(
-          EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockEncryptedUserKey",
-        );
+        mockEncryptedUserKey = "2.mockEncryptedUserKey" as UnsignedSharedKey;
 
         jest.clearAllMocks();
       });
@@ -698,7 +689,7 @@ describe("deviceTrustService", () => {
         encryptService.decryptBytes.mockResolvedValue(null);
         encryptService.encryptString.mockResolvedValue(new EncString("test_encrypted_data"));
         encryptService.encapsulateKeyUnsigned.mockResolvedValue(
-          new EncString("test_encrypted_data"),
+          "test_encrypted_data" as UnsignedSharedKey,
         );
 
         const protectedDeviceResponse = new ProtectedDeviceResponse({
@@ -708,7 +699,7 @@ describe("deviceTrustService", () => {
           name: "Firefox",
           type: DeviceType.FirefoxBrowser,
           encryptedPublicKey: "",
-          encryptedUserKey: "",
+          encryptedUserKey: "" as UnsignedSharedKey,
         });
         devicesApiService.getDeviceKeys.mockResolvedValue(protectedDeviceResponse);
 
@@ -746,7 +737,7 @@ describe("deviceTrustService", () => {
         encryptService.unwrapEncapsulationKey.mockResolvedValue(new Uint8Array(64));
         encryptService.wrapEncapsulationKey.mockResolvedValue(new EncString("test_encrypted_data"));
         encryptService.encapsulateKeyUnsigned.mockResolvedValue(
-          new EncString("test_encrypted_data"),
+          "test_encrypted_data" as UnsignedSharedKey,
         );
 
         const protectedDeviceResponse = new ProtectedDeviceResponse({
@@ -756,7 +747,7 @@ describe("deviceTrustService", () => {
           name: "Firefox",
           type: DeviceType.FirefoxBrowser,
           encryptedPublicKey: "",
-          encryptedUserKey: "",
+          encryptedUserKey: "" as UnsignedSharedKey,
         });
         devicesApiService.getDeviceKeys.mockResolvedValue(protectedDeviceResponse);
         const fakeOldUserKeyData = new Uint8Array(64);
@@ -823,7 +814,7 @@ describe("deviceTrustService", () => {
 
         it("rotates current device keys and calls api service when the current device is trusted", async () => {
           const currentEncryptedPublicKey = new EncString("2.cHVibGlj|cHVibGlj|cHVibGlj");
-          const currentEncryptedUserKey = new EncString("4.dXNlcg==");
+          const currentEncryptedUserKey = "4.dXNlcg==" as UnsignedSharedKey;
 
           const fakeOldUserKeyData = new Uint8Array(new Uint8Array(64));
           // Fill the first byte with something identifiable
@@ -849,7 +840,7 @@ describe("deviceTrustService", () => {
                 name: "Firefox",
                 type: DeviceType.FirefoxBrowser,
                 encryptedPublicKey: currentEncryptedPublicKey.encryptedString,
-                encryptedUserKey: currentEncryptedUserKey.encryptedString,
+                encryptedUserKey: currentEncryptedUserKey,
               }),
             );
           });
@@ -871,7 +862,7 @@ describe("deviceTrustService", () => {
             expect(new Uint8Array(data.toEncoded())[0]).toBe(FakeNewUserKeyMarker); // New key should have the first byte be '1';
 
             expect(new Uint8Array(publicKey)[0]).toBe(FakeDecryptedPublicKeyMarker);
-            return Promise.resolve(new EncString("4.ZW5jcnlwdGVkdXNlcg=="));
+            return Promise.resolve("4.ZW5jcnlwdGVkdXNlcg==" as UnsignedSharedKey);
           });
 
           // Mock the reencryption of the device public key with the new user key
