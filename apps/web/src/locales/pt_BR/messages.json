@@ -1519,7 +1519,7 @@
     "message": "Pressione sua YubiKey para autenticar-se"
   },
   "authenticationTimeout": {
-    "message": "Tempo limite da autenticação atingido"
+    "message": "Limite de tempo da autenticação atingido"
   },
   "authenticationSessionTimedOut": {
     "message": "A sessão de autenticação expirou. Reinicie o processo de autenticação."
@@ -1943,7 +1943,7 @@
     "message": "Copiar UUID"
   },
   "errorRefreshingAccessToken": {
-    "message": "Erro de recarregamento do token de acesso"
+    "message": "Erro de Recarregamento do Token de Acesso"
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Nenhum token de atualização ou chave de API foi encontrado. Tente se desconectar e se conectar novamente."
@@ -1969,17 +1969,16 @@
   "encExportAccountWarningDesc": {
     "message": "Chaves de criptografia da conta são únicas para cada conta de usuário do Bitwarden, então você não pode importar uma exportação criptografada para uma conta diferente."
   },
-  "export": {
-    "message": "Exportar"
+  "exportNoun": {
+    "message": "Exportação",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exportar",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Exportar de"
-  },
-  "exportVault": {
-    "message": "Exportar cofre"
-  },
-  "exportSecrets": {
-    "message": "Exportar segredos"
   },
   "fileFormat": {
     "message": "Formato do arquivo"
@@ -1992,9 +1991,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirmar senha principal"
-  },
-  "confirmFormat": {
-    "message": "Confirmar formato"
   },
   "filePassword": {
     "message": "Senha do arquivo"
@@ -2305,6 +2301,14 @@
   },
   "tools": {
     "message": "Ferramentas"
+  },
+  "importNoun": {
+    "message": "Importação",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importar",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Importar dados"
@@ -2871,7 +2875,7 @@
     }
   },
   "noExposedPasswords": {
-    "message": "Nenhum item em seu cofre tem senhas expostas em vazamentos de dados conhecidos."
+    "message": "Nenhum item no seu cofre tem senhas expostas em vazamentos de dados conhecidos."
   },
   "checkExposedPasswords": {
     "message": "Conferir senhas expostas"
@@ -3078,7 +3082,7 @@
     "message": "Acesso de emergência"
   },
   "premiumSignUpReports": {
-    "message": "Higiene de senhas, saúde da conta, e relatórios sobre vazamentos de dados para manter o seu cofre seguro."
+    "message": "Relatórios de higiene de senha, saúde da conta, e vazamentos de dados para manter o seu cofre seguro."
   },
   "premiumSignUpTotp": {
     "message": "Gerador de código de verificação TOTP (2FA) para credenciais no seu cofre."
@@ -3288,6 +3292,9 @@
   },
   "launchCloudSubscription": {
     "message": "Iniciar Assinatura na Nuvem"
+  },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Executar assinatura na nuvem"
   },
   "storage": {
     "message": "Armazenamento"
@@ -4204,6 +4211,12 @@
       }
     }
   },
+  "userAcceptedTransfer": {
+    "message": "Aceitou a transferência da propriedade da organização."
+  },
+  "userDeclinedTransfer": {
+    "message": "Não aceitou a transferência da propriedade da organização."
+  },
   "invitedUserId": {
     "message": "Convidou o usuário $ID$.",
     "placeholders": {
@@ -5045,13 +5058,13 @@
     "message": "Filtros"
   },
   "vaultTimeout": {
-    "message": "Tempo limite do cofre"
+    "message": "Limite de tempo do cofre"
   },
   "vaultTimeout1": {
-    "message": "Tempo limite"
+    "message": "Limite de tempo"
   },
   "vaultTimeoutDesc": {
-    "message": "Escolha quando o seu cofre executará a ação do tempo limite do cofre."
+    "message": "Escolha quando o seu cofre executará a ação do limite de tempo do cofre."
   },
   "vaultTimeoutLogoutDesc": {
     "message": "Escolha quando seu cofre será desconectado."
@@ -5332,7 +5345,7 @@
     "message": "Preferência do usuário"
   },
   "vaultTimeoutAction": {
-    "message": "Ação do tempo limite do cofre"
+    "message": "Ação do limite de tempo do cofre"
   },
   "vaultTimeoutActionLockDesc": {
     "message": "A senha principal ou outro método de desbloqueio é necessário para acessar seu cofre novamente."
@@ -5409,10 +5422,10 @@
     }
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Desconectar-se irá remover todo o acesso ao seu cofre e requirirá autenticação on-line após o período de tempo limite. Tem certeza de que deseja usar esta configuração?"
+    "message": "Desconectar-se irá remover todo o acesso ao seu cofre e requirirá autenticação on-line após o período de limite de tempo. Tem certeza de que deseja usar esta configuração?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
-    "message": "Confirmação de ação do tempo limite"
+    "message": "Confirmação de ação do limite de tempo"
   },
   "hidePasswords": {
     "message": "Ocultar senhas"
@@ -6703,22 +6716,22 @@
     "message": "Sua organização atualizou suas opções de descriptografia. Configure uma senha principal para acessar seu cofre."
   },
   "sessionTimeoutPolicyTitle": {
-    "message": "Tempo limite da sessão"
+    "message": "Limite de tempo da sessão"
   },
   "sessionTimeoutPolicyDescription": {
-    "message": "Configure um tempo limite máximo para a sessão de todos os membros, exceto os proprietários."
+    "message": "Configure um limite de tempo máximo para a sessão de todos os membros, exceto os proprietários."
   },
   "maximumAllowedTimeout": {
-    "message": "Tempo limite máximo permitido"
+    "message": "Limite de tempo máximo permitido"
   },
   "maximumAllowedTimeoutRequired": {
-    "message": "Tempo limite máximo permitido é necessário."
+    "message": "Limite de tempo máximo permitido é necessário."
   },
   "sessionTimeoutPolicyInvalidTime": {
     "message": "Tempo é inválido. Altere pelo menos um valor."
   },
   "sessionTimeoutAction": {
-    "message": "Ação do tempo limite da sessão"
+    "message": "Ação do limite de tempo da sessão"
   },
   "immediately": {
     "message": "Imediatamente"
@@ -6736,7 +6749,7 @@
     "message": "Minutos"
   },
   "sessionTimeoutConfirmationNeverTitle": {
-    "message": "Você tem certeza de que deseja permitir um tempo limite máximo de \"Nunca\" para todos os membros?"
+    "message": "Você tem certeza de que deseja permitir um limite de tempo máximo de \"Nunca\" para todos os membros?"
   },
   "sessionTimeoutConfirmationNeverDescription": {
     "message": "Esta opção salvará as chaves criptográficas dos seus membros em seus dispositivos. Se escolher esta opção, certifique-se de que seus dispositivos estão adequadamente protegidos."
@@ -6751,7 +6764,7 @@
     "message": "O aplicativo móvel e web usarão \"no reinício do aplicativo\" como tempo máximo permitido, já que a opção não é suportada."
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "As políticas da sua organização configuraram o seu máximo permitido do tempo limite do cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+    "message": "As políticas da sua organização configuraram o seu máximo permitido do limite de tempo do cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6777,7 +6790,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "As políticas da sua organização estão afetando o tempo limite do seu cofre. \nO tempo limite máximo permitido para o cofre é $HOURS$ hora(s) e $MINUTES$ minuto(s). A ação de tempo limite do seu cofre está configurada como $ACTION$.",
+    "message": "As políticas da sua organização estão afetando o limite de tempo do seu cofre. \nO limite de tempo máximo permitido para o cofre é $HOURS$ hora(s) e $MINUTES$ minuto(s). A ação de limite de tempo do seu cofre está configurada como $ACTION$.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6794,7 +6807,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "As políticas da sua organização configuraram a ação do tempo limite do seu cofre para $ACTION$.",
+    "message": "As políticas da sua organização configuraram a ação do limite de tempo do seu cofre para $ACTION$.",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -6803,13 +6816,13 @@
     }
   },
   "vaultTimeoutToLarge": {
-    "message": "O tempo limite do seu cofre excede as restrições estabelecidas pela sua organização."
+    "message": "O limite de tempo do seu cofre excede as restrições estabelecidas pela sua organização."
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "O mínimo do tempo limite personalizado é de 1 minuto."
+    "message": "O mínimo do limite de tempo personalizado é de 1 minuto."
   },
   "vaultTimeoutRangeError": {
-    "message": "Tempo limite do cofre não está dentro do intervalo permitido."
+    "message": "Limite de tempo do cofre não está dentro do intervalo permitido."
   },
   "disableExport": {
     "message": "Remover exportação"
@@ -8753,9 +8766,6 @@
   "server": {
     "message": "Servidor"
   },
-  "exportData": {
-    "message": "Exportar dados"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exportando dados de segredos da organização"
   },
@@ -9188,7 +9198,7 @@
     "message": "Remover acesso"
   },
   "checkForBreaches": {
-    "message": "Conferir vazamentos de dados conhecidos por esta senha"
+    "message": "Conferir se esta senha vazou ao público"
   },
   "exposedMasterPassword": {
     "message": "Senha principal exposta"
@@ -11596,6 +11606,9 @@
   "unArchive": {
     "message": "Desarquivar"
   },
+  "unArchiveAndSave": {
+    "message": "Desarquivar e salvar"
+  },
   "itemsInArchive": {
     "message": "Itens no arquivo"
   },
@@ -12204,28 +12217,28 @@
     "message": "Um domínio deve ser reivindicado antes de ativar esta política."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação do tempo limite do cofre."
+    "message": "Configure um método de desbloqueio para alterar a ação do limite de tempo do cofre."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos de política empresarial foram aplicados às suas opções de tempo limite"
+    "message": "Os requisitos de política empresarial foram aplicados às suas opções de limite de tempo"
   },
   "vaultTimeoutTooLarge": {
-    "message": "O tempo limite do seu cofre excede as restrições estabelecidas pela sua organização."
+    "message": "O limite de tempo do seu cofre excede as restrições estabelecidas pela sua organização."
   },
   "neverLockWarning": {
     "message": "Você tem certeza que deseja usar a opção \"Nunca\"? Ao usar o \"Nunca\", a chave de criptografia do seu cofre é armazenada no seu dispositivo. Se você usar esta opção, deve garantir que mantém seu dispositivo devidamente protegido."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Ação do tempo limite"
+    "message": "Ação do limite de tempo"
   },
   "sessionTimeoutHeader": {
-    "message": "Tempo limite da sessão"
+    "message": "Limite de tempo da sessão"
   },
   "appearance": {
     "message": "Aparência"
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "O tempo limite excede a restrição configurada pela sua organização: máximo de $HOURS$ hora(s) e $MINUTES$ minuto(s)",
+    "message": "O limite de tempo excede a restrição configurada pela sua organização: máximo de $HOURS$ hora(s) e $MINUTES$ minuto(s)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -12350,10 +12363,10 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "A sua organização configurou o tempo de limite máximo padrão da sessão para ser no recarregar do navegador."
+    "message": "A sua organização configurou o limite de tempo padrão da sessão para ser no recarregar do navegador."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "O tempo limite máximo não pode exceder $HOURS$ hora(s) e $MINUTES$ minuto(s)",
+    "message": "O limite de tempo máximo não pode exceder $HOURS$ hora(s) e $MINUTES$ minuto(s)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -12369,7 +12382,7 @@
     "message": "No recarregar do navegador"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "Configure um método de desbloqueio para alterar a ação do tempo limite"
+    "message": "Configure um método de desbloqueio para alterar a ação do limite de tempo"
   },
   "leaveConfirmationDialogTitle": {
     "message": "Tem certeza de que quer sair?"
@@ -12418,5 +12431,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Por que estou vendo isso?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Você tem o Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Veja e gerencie sua assinatura Premium"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Você precisará atualizar seu arquivo de licença"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Enviar arquivo de licença"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Envie seu arquivo de licença"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Envie seu arquivo de licença Premium"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "O nome do seu arquivo de licença será parecido com: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Já possui uma assinatura?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Abra a página de assinatura na sua conta da nuvem do Bitwarden e baixe o arquivo da sua licença. E então, volte nesta tela e o envie abaixo."
+  },
+  "viewAllPlans": {
+    "message": "Ver todos os planos"
+  },
+  "planDescPremium": {
+    "message": "Segurança on-line completa"
   }
 }

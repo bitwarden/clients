@@ -6,9 +6,11 @@ import { mock } from "jest-mock-extended";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { DialogService, NavigationModule } from "@bitwarden/components";
+import { GlobalStateProvider } from "@bitwarden/state";
 import {
   RoutedVaultFilterService,
   VaultFilterServiceAbstraction as VaultFilterService,
@@ -44,6 +46,8 @@ Object.defineProperty(window, "matchMedia", {
 describe("DesktopLayoutComponent", () => {
   let component: DesktopLayoutComponent;
   let fixture: ComponentFixture<DesktopLayoutComponent>;
+
+  const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -84,6 +88,10 @@ describe("DesktopLayoutComponent", () => {
         {
           provide: DialogService,
           useValue: mock<DialogService>(),
+        },
+        {
+          provide: GlobalStateProvider,
+          useValue: fakeGlobalStateProvider,
         },
       ],
     })
