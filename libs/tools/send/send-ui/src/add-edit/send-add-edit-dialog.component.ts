@@ -44,8 +44,10 @@ export const SendItemDialogResult = Object.freeze({
 } as const);
 
 /** A result of the Send add/edit dialog. */
-export type SendItemDialogResult = (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
-
+export type SendItemDialogResult = {
+  result: (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
+  send?: SendView;
+};
 /**
  * Component for adding or editing a send item.
  */
@@ -93,7 +95,7 @@ export class SendAddEditDialogComponent {
    */
   async onSendCreated(send: SendView) {
     // FIXME Add dialogService.open send-created dialog
-    this.dialogRef.close(SendItemDialogResult.Saved);
+    this.dialogRef.close({ result: SendItemDialogResult.Saved, send });
     return;
   }
 
@@ -101,14 +103,14 @@ export class SendAddEditDialogComponent {
    * Handles the event when the send is updated.
    */
   async onSendUpdated(send: SendView) {
-    this.dialogRef.close(SendItemDialogResult.Saved);
+    this.dialogRef.close({ result: SendItemDialogResult.Saved });
   }
 
   /**
    * Handles the event when the send is deleted.
    */
   async onSendDeleted() {
-    this.dialogRef.close(SendItemDialogResult.Deleted);
+    this.dialogRef.close({ result: SendItemDialogResult.Deleted });
 
     this.toastService.showToast({
       variant: "success",
