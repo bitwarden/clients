@@ -423,6 +423,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
           queryParamsHandling: "merge",
           replaceUrl: true,
+          state: {
+            focusMainAfterNav: false,
+          },
         }),
       );
 

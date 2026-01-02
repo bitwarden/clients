@@ -1970,11 +1970,11 @@
     "message": "Le chiavi di cifratura dell'account sono uniche per ogni account utente Bitwarden, quindi non è possibile importare un'esportazione cifrata in un account diverso."
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Esporta",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Esporta",
     "description": "The verb form of the word Export"
   },
   "exportFrom": {
@@ -2303,11 +2303,11 @@
     "message": "Strumenti"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Importa",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importa",
     "description": "The verb form of the word Import"
   },
   "importData": {
@@ -3294,7 +3294,7 @@
     "message": "Avvia abbonamento cloud"
   },
   "launchCloudSubscriptionSentenceCase": {
-    "message": "Launch cloud subscription"
+    "message": "Avvia abbonamento cloud"
   },
   "storage": {
     "message": "Spazio di archiviazione"
@@ -4212,10 +4212,10 @@
     }
   },
   "userAcceptedTransfer": {
-    "message": "Accepted transfer to organization ownership."
+    "message": "Trasferimento di proprietà all'organizzazione accettato."
   },
   "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "Revocato per il rifiuto di trasferimento di proprietà all'organizzazione."
   },
   "invitedUserId": {
     "message": "Utente $ID$ invitato.",
@@ -11607,7 +11607,7 @@
     "message": "Togli dall'archivio"
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Togli dall'archivio e salva"
   },
   "itemsInArchive": {
     "message": "Elementi archiviati"
@@ -12251,43 +12251,43 @@
     }
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "La tua organizzazione non utilizza più le password principali per accedere a Bitwarden. Per continuare, verifica l'organizzazione e il dominio."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Accedi e continua"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Non continuare"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Dominio"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Questo dominio memorizzerà le chiavi di crittografia del tuo account, quindi assicurati di impostarlo come affidabile. Se non hai la certezza che lo sia, verifica con l'amministratore."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Verifica la tua organizzazione per accedere"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organizzazione verificata"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Dominio verificato"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Se non verifichi l'organizzazione, il tuo accesso sarà revocato."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Abbandona"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Verifica il tuo dominio per accedere"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Per continuare con l'accesso, verifica questo dominio."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Per continuare con l'accesso, verifica l'organizzazione e il dominio."
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Non ci sono applicazioni contrassegnate come critiche"
@@ -12433,13 +12433,13 @@
     "message": "Perché vedo questo avviso?"
   },
   "youHaveBitwardenPremium": {
-    "message": "You have Bitwarden Premium"
+    "message": "Hai Bitwarden Premium"
   },
   "viewAndManagePremiumSubscription": {
-    "message": "View and manage your Premium subscription"
+    "message": "Visualizza e gestisci il tuo abbonamento Premium"
   },
   "youNeedToUpdateLicenseFile": {
-    "message": "You'll need to update your license file"
+    "message": "Dovrai aggiornare il tuo file di licenza"
   },
   "youNeedToUpdateLicenseFileDate": {
     "message": "$DATE$.",
@@ -12451,16 +12451,16 @@
     }
   },
   "uploadLicenseFile": {
-    "message": "Upload license file"
+    "message": "Carica il file di licenza"
   },
   "uploadYourLicenseFile": {
-    "message": "Upload your license file"
+    "message": "Carica il file di licenza"
   },
   "uploadYourPremiumLicenseFile": {
-    "message": "Upload your Premium license file"
+    "message": "Carica il tuo file di licenza Premium"
   },
   "uploadLicenseFileDesc": {
-    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "message": "Il nome del file di licenza sarà simile a $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -12469,15 +12469,15 @@
     }
   },
   "alreadyHaveSubscriptionQuestion": {
-    "message": "Already have a subscription?"
+    "message": "Hai già un abbonamento?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
-    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+    "message": "Vai alla pagina degli abbonamenti del tuo account Bitwarden e scarica il file di licenza, poi torna a caricarlo qui."
   },
   "viewAllPlans": {
-    "message": "View all plans"
+    "message": "Visualizza tutti i piani"
   },
   "planDescPremium": {
-    "message": "Complete online security"
+    "message": "Sicurezza online completa"
   }
 }
