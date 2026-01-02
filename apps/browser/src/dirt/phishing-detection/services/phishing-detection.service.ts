@@ -1,10 +1,12 @@
 import {
   concatMap,
+  delay,
   distinctUntilChanged,
   EMPTY,
   filter,
   map,
   merge,
+  of,
   Subject,
   switchMap,
   tap,
@@ -51,17 +53,17 @@ export class PhishingDetectionService {
     messageListener: MessageListener,
   ) {
     if (this._didInit) {
-      logService.debug("[PhishingDetectionService] Initialize already called. Aborting.");
+      logService.info("[PhishingDetectionService] Initialize already called. Aborting.");
       return;
     }
 
-    logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
+    logService.info("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
     BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
 
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
       tap((message) =>
-        logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
+        logService.info(`[PhishingDetectionService] user selected continue for ${message.url}`),
       ),
       concatMap(async (message) => {
         const url = new URL(message.url);
@@ -87,7 +89,7 @@ export class PhishingDetectionService {
           prev.tabId === curr.tabId &&
           prev.ignored === curr.ignored,
       ),
-      tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
+      tap((event) => logService.info(`[PhishingDetectionService] processing event:`, event)),
       concatMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
           // The next time this host is visited, block again
@@ -113,23 +115,29 @@ export class PhishingDetectionService {
 
     const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
+    // Subscribe to update$ once at initialization - runs in background, doesn't block popup
+    // This subscription lives for the lifetime of the service worker
+    const updateSub = phishingDataService.update$.subscribe();
+
     const initSub = phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
           if (!activeUserHasAccess) {
-            logService.debug(
+            logService.info(
               "[PhishingDetectionService] User does not have access to phishing detection service.",
             );
             return EMPTY;
           } else {
-            logService.debug("[PhishingDetectionService] Enabling phishing detection service");
-            return merge(
-              phishingDataService.update$,
-              onContinueCommand$,
-              onTabUpdated$,
-              onCancelCommand$,
-            );
+            logService.info("[PhishingDetectionService] Enabling phishing detection service");
+            // Trigger cache update asynchronously using RxJS delay(0)
+            // This defers to the next event loop tick, preventing UI blocking during account switch
+            of(null)
+              .pipe(delay(0))
+              .subscribe(() => phishingDataService.triggerUpdateIfNeeded());
+            // update$ removed from merge - popup no longer blocks waiting for update
+            // The actual update runs via updateSub above
+            return merge(onContinueCommand$, onTabUpdated$, onCancelCommand$);
           }
         }),
       )
@@ -137,6 +145,7 @@ export class PhishingDetectionService {
 
     this._didInit = true;
     return () => {
+      updateSub.unsubscribe();
       initSub.unsubscribe();
       this._didInit = false;
 
