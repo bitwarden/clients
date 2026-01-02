@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Истек сесије"
   },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Овим подешавањем управља ваша организација."
   },

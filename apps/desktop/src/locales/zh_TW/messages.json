@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "工作階段逾時"
   },
+  "resizeSideNavigation": {
+    "message": "調整側邊欄大小"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "此設定由您的組織管理。"
   },
