@@ -1,0 +1,21 @@
+<!-- <div class="tw-contain-layout tw-contain-style"> -->
+<bit-header [title]="resolvedTitle()" [icon]="icon()">
+  <ng-container slot="breadcrumbs">
+    <ng-content select="[slot=breadcrumbs]"></ng-content>
+  </ng-container>
+
+  <ng-content></ng-content>
+
+  <ng-container slot="title-suffix">
+    <ng-content select="[slot=title-suffix]"></ng-content>
+  </ng-container>
+
+  <ng-container slot="secondary">
+    <ng-content select="[slot=secondary]"></ng-content>
+  </ng-container>
+
+  <ng-container slot="tabs">
+    <ng-content select="[slot=tabs]"></ng-content>
+  </ng-container>
+</bit-header>
+<!-- </div> -->
