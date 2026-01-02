@@ -74,7 +74,7 @@ import { BillingHistoryResponse } from "../billing/models/response/billing-histo
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
-import { ClientType, DeviceType } from "../enums";
+import { ClientType, DeviceType, HttpStatusCode } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
@@ -1252,8 +1252,8 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
 
@@ -1283,8 +1283,8 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
   }
@@ -1301,13 +1301,11 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
   }
-
-  // Helpers
 
   async getActiveBearerToken(userId: UserId): Promise<string> {
     let accessToken = await this.tokenService.getAccessToken(userId);
@@ -1370,7 +1368,7 @@ export class ApiService implements ApiServiceAbstraction {
       const body = await response.json();
       return new SsoPreValidateResponse(body);
     } else {
-      const error = await this.handleError(response, false, true);
+      const error = await this.handleApiRequestError(response, false);
       return Promise.reject(error);
     }
   }
@@ -1525,7 +1523,7 @@ export class ApiService implements ApiServiceAbstraction {
       );
       return refreshedTokens.accessToken;
     } else {
-      const error = await this.handleError(response, true, true);
+      const error = await this.handleTokenRefreshRequestError(response);
       return Promise.reject(error);
     }
   }
@@ -1580,6 +1578,89 @@ export class ApiService implements ApiServiceAbstraction {
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
+    // We assume that if there is a UserId making the request, it is also an authenticated
+    // request and we will attempt to add an access token to the request.
+    const userIdMakingRequest = await this.getUserIdMakingRequest(authedOrUserId);
+
+    const environment = await firstValueFrom(
+      userIdMakingRequest == null
+        ? this.environmentService.environment$
+        : this.environmentService.getEnvironment$(userIdMakingRequest),
+    );
+    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? environment.getApiUrl() : apiUrl;
+
+    const requestUrl = await this.buildSafeApiRequestUrl(apiUrl, path);
+
+    let request = await this.buildRequest(
+      method,
+      userIdMakingRequest,
+      environment,
+      hasResponse,
+      body,
+      alterHeaders,
+    );
+
+    let response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
+
+    // First, check to see if we were making an authenticated request and received an Unauthorized (401)
+    // response.  This could mean that we attempted to make a request with an expired access token.
+    // If so, attempt to refresh the token and try again.
+    if (
+      hasResponse &&
+      userIdMakingRequest != null &&
+      response.status === HttpStatusCode.Unauthorized
+    ) {
+      this.logService.warning(
+        "Unauthorized response received for request to " + path + ". Attempting request again.",
+      );
+      request = await this.buildRequest(
+        method,
+        userIdMakingRequest,
+        environment,
+        hasResponse,
+        body,
+        alterHeaders,
+      );
+      response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
+    }
+
+    // At this point we are processing either the initial response or the response for the retry with the refreshed
+    // access token.
+    const responseType = response.headers.get("content-type");
+    const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
+    const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
+    if (hasResponse && response.status === HttpStatusCode.Ok && responseIsJson) {
+      const responseJson = await response.json();
+      return responseJson;
+    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsCsv) {
+      return await response.text();
+    } else if (
+      response.status !== HttpStatusCode.Ok &&
+      response.status !== HttpStatusCode.NoContent
+    ) {
+      const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
+      return Promise.reject(error);
+    }
+  }
+
+  private buildSafeApiRequestUrl(apiUrl: string, path: string): string {
+    const pathParts = path.split("?");
+
+    // Check for path traversal patterns from any URL.
+    const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+
+    const isInvalidUrl = Utils.invalidUrlPatterns(fullUrlPath);
+    if (isInvalidUrl) {
+      throw new Error("The request URL contains dangerous patterns.");
+    }
+
+    const requestUrl =
+      apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+
+    return requestUrl;
+  }
+
+  private async getUserIdMakingRequest(authedOrUserId: UserId | boolean): Promise<UserId> {
     if (authedOrUserId == null) {
       throw new Error("A user id was given but it was null, cannot complete API request.");
     }
@@ -1591,29 +1672,19 @@ export class ApiService implements ApiServiceAbstraction {
     } else if (typeof authedOrUserId === "string") {
       userId = authedOrUserId;
     }
+    return userId;
+  }
 
-    const env = await firstValueFrom(
-      userId == null
-        ? this.environmentService.environment$
-        : this.environmentService.getEnvironment$(userId),
-    );
-    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? env.getApiUrl() : apiUrl;
-
-    const pathParts = path.split("?");
-    // Check for path traversal patterns from any URL.
-    const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
-
-    const isInvalidUrl = Utils.invalidUrlPatterns(fullUrlPath);
-    if (isInvalidUrl) {
-      throw new Error("The request URL contains dangerous patterns.");
-    }
-
-    // Prevent directory traversal from malicious paths
-    const requestUrl =
-      apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
-
+  private async buildRequest(
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    userForAccessToken: UserId | null,
+    environment: Environment,
+    hasResponse: boolean,
+    body: string,
+    alterHeaders?: (headers: Headers) => void,
+  ): Promise<RequestInit> {
     const [requestHeaders, requestBody] = await this.buildHeadersAndBody(
-      userId,
+      userForAccessToken,
       hasResponse,
       body,
       alterHeaders,
@@ -1621,29 +1692,17 @@ export class ApiService implements ApiServiceAbstraction {
 
     const requestInit: RequestInit = {
       cache: "no-store",
-      credentials: await this.getCredentials(env),
+      credentials: await this.getCredentials(environment),
       method: method,
     };
     requestInit.headers = requestHeaders;
     requestInit.body = requestBody;
-    const response = await this.fetch(this.httpOperations.createRequest(requestUrl, requestInit));
 
-    const responseType = response.headers.get("content-type");
-    const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
-    const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
-    if (hasResponse && response.status === 200 && responseIsJson) {
-      const responseJson = await response.json();
-      return responseJson;
-    } else if (hasResponse && response.status === 200 && responseIsCsv) {
-      return await response.text();
-    } else if (response.status !== 200 && response.status !== 204) {
-      const error = await this.handleError(response, false, userId != null);
-      return Promise.reject(error);
-    }
+    return requestInit;
   }
 
   private async buildHeadersAndBody(
-    userToAuthenticate: UserId | null,
+    userForAccessToken: UserId | null,
     hasResponse: boolean,
     body: any,
     alterHeaders: (headers: Headers) => void,
@@ -1665,8 +1724,8 @@ export class ApiService implements ApiServiceAbstraction {
     if (alterHeaders != null) {
       alterHeaders(headers);
     }
-    if (userToAuthenticate != null) {
-      const authHeader = await this.getActiveBearerToken(userToAuthenticate);
+    if (userForAccessToken != null) {
+      const authHeader = await this.getActiveBearerToken(userForAccessToken);
       headers.set("Authorization", "Bearer " + authHeader);
     } else {
       // For unauthenticated requests, we need to tell the server what the device is for flag targeting,
@@ -1692,32 +1751,59 @@ export class ApiService implements ApiServiceAbstraction {
     return [headers, requestBody];
   }
 
-  private async handleError(
+  /**
+   * Handle an error response from a request to the Bitwarden API.
+   * If the request is made with an access token (aka the user is authenticated),
+   * and we receive a 401 or 403 response, we will log the user out, as this indicates
+   * that the access token used on the request is either expired or does not have the appropriate permissions.
+   * It is unlikely that it is expired, as we attempt to refresh the token on initial failure.
+   * @param response The response from the API request
+   * @param userIsAuthenticated A boolean indicating whether this is an authenticated request.
+   * @returns An ErrorResponse with a message based on the response status.
+   */
+  private async handleApiRequestError(
     response: Response,
-    tokenError: boolean,
-    authed: boolean,
+    userIsAuthenticated: boolean,
   ): Promise<ErrorResponse> {
+    if (
+      userIsAuthenticated &&
+      (response.status === HttpStatusCode.Unauthorized ||
+        response.status === HttpStatusCode.Forbidden)
+    ) {
+      await this.logoutCallback("invalidAccessToken");
+    }
+
+    const responseJson = await this.getJsonResponse(response);
+    return new ErrorResponse(responseJson, response.status);
+  }
+
+  /**
+   * Handle an error response when trying to refresh an access token.
+   * If the error indicates that the user's session has expired, it will log the user out.
+   * @param response The response from the token refresh request.
+   * @returns An ErrorResponse with a message based on the response status.
+   */
+  private async handleTokenRefreshRequestError(response: Response): Promise<ErrorResponse> {
+    const responseJson = await this.getJsonResponse(response);
+
+    // IdentityServer will return an invalid_grant response if the refresh token has expired.
+    // This means that the user's session has expired, and they need to log out.
+    // We issue the logoutCallback() to log the user out through messaging.
+    if (response.status === HttpStatusCode.BadRequest && responseJson?.error === "invalid_grant") {
+      await this.logoutCallback("sessionExpired");
+    }
+
+    return new ErrorResponse(responseJson, response.status, true);
+  }
+
+  private async getJsonResponse(response: Response): Promise<any> {
     let responseJson: any = null;
     if (this.isJsonResponse(response)) {
       responseJson = await response.json();
     } else if (this.isTextPlainResponse(response)) {
       responseJson = { Message: await response.text() };
     }
-
-    if (authed) {
-      if (
-        response.status === 401 ||
-        response.status === 403 ||
-        (tokenError &&
-          response.status === 400 &&
-          responseJson != null &&
-          responseJson.error === "invalid_grant")
-      ) {
-        await this.logoutCallback("invalidGrantError");
-      }
-    }
-
-    return new ErrorResponse(responseJson, response.status, tokenError);
+    return responseJson;
   }
 
   private qsStringify(params: any): string {
