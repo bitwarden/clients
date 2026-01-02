@@ -53,17 +53,17 @@ export class PhishingDetectionService {
     messageListener: MessageListener,
   ) {
     if (this._didInit) {
-      logService.debug("[PhishingDetectionService] Initialize already called. Aborting.");
+      logService.info("[PhishingDetectionService] Initialize already called. Aborting.");
       return;
     }
 
-    logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
+    logService.info("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
     BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
 
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
       tap((message) =>
-        logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
+        logService.info(`[PhishingDetectionService] user selected continue for ${message.url}`),
       ),
       concatMap(async (message) => {
         const url = new URL(message.url);
@@ -89,7 +89,7 @@ export class PhishingDetectionService {
           prev.tabId === curr.tabId &&
           prev.ignored === curr.ignored,
       ),
-      tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
+      tap((event) => logService.info(`[PhishingDetectionService] processing event:`, event)),
       concatMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
           // The next time this host is visited, block again
@@ -124,12 +124,12 @@ export class PhishingDetectionService {
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
           if (!activeUserHasAccess) {
-            logService.debug(
+            logService.info(
               "[PhishingDetectionService] User does not have access to phishing detection service.",
             );
             return EMPTY;
           } else {
-            logService.debug("[PhishingDetectionService] Enabling phishing detection service");
+            logService.info("[PhishingDetectionService] Enabling phishing detection service");
             // Trigger cache update asynchronously using RxJS delay(0)
             // This defers to the next event loop tick, preventing UI blocking during account switch
             of(null)

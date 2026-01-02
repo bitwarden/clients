@@ -95,10 +95,10 @@ export class PhishingDataService {
    */
   update$ = this._triggerUpdate$.pipe(
     // Don't use startWith - initial update is handled by triggerUpdateIfNeeded()
-    tap(() => this.logService.debug(`[PhishingDataService] Update triggered`)),
+    tap(() => this.logService.info(`[PhishingDataService] Update triggered`)),
     filter(() => {
       if (this._updateInProgress) {
-        this.logService.debug(`[PhishingDataService] Update already in progress, skipping`);
+        this.logService.info(`[PhishingDataService] Update already in progress, skipping`);
         return false;
       }
       return true;
@@ -113,7 +113,7 @@ export class PhishingDataService {
           // Early exit if we checked recently (using in-memory tracking)
           const timeSinceLastCheck = Date.now() - this._lastCheckTime;
           if (timeSinceLastCheck < this.MIN_UPDATE_INTERVAL) {
-            this.logService.debug(
+            this.logService.info(
               `[PhishingDataService] Checked ${Math.round(timeSinceLastCheck / 1000)}s ago, skipping`,
             );
             return;
@@ -126,7 +126,7 @@ export class PhishingDataService {
 
           // result is null when checksum matched - skip state update entirely
           if (result === null) {
-            this.logService.debug(`[PhishingDataService] Checksum matched, skipping state update`);
+            this.logService.info(`[PhishingDataService] Checksum matched, skipping state update`);
             return;
           }
 
@@ -134,7 +134,7 @@ export class PhishingDataService {
             // Yield to event loop before state update
             await new Promise((resolve) => setTimeout(resolve, 0));
             await this._cachedState.update(() => result);
-            this.logService.debug(
+            this.logService.info(
               `[PhishingDataService] State updated with ${result.webAddresses.length} entries`,
             );
           }
@@ -207,7 +207,7 @@ export class PhishingDataService {
     // This protects against false positives in upstream phishing databases
     const isBareUrl = url.pathname === "/" && !url.search && !url.hash;
     if (isBareUrl && this.BARE_DOMAIN_ALLOWLIST.has(url.hostname.toLowerCase())) {
-      this.logService.debug(`[PhishingDataService] Allowlisted bare domain: ${url.hostname}`);
+      this.logService.info(`[PhishingDataService] Allowlisted bare domain: ${url.hostname}`);
       return false;
     }
 
@@ -218,7 +218,7 @@ export class PhishingDataService {
     if (resource && resource.match) {
       for (const entry of entries) {
         if (resource.match(url, entry)) {
-          this.logService.debug(`[PhishingDataService] Match: ${url.href} matched entry: ${entry}`);
+          this.logService.info(`[PhishingDataService] Match: ${url.href} matched entry: ${entry}`);
           return true;
         }
       }
@@ -253,7 +253,7 @@ export class PhishingDataService {
     const timestamp = Date.now();
     const prevAge = timestamp - prev.timestamp;
 
-    this.logService.debug(
+    this.logService.info(
       `[PhishingDataService] Cache: ${prev.webAddresses.length} entries, age ${Math.round(prevAge / 1000 / 60)}min`,
     );
 
@@ -264,12 +264,12 @@ export class PhishingDataService {
 
     // STEP 2: Compare checksums
     if (remoteChecksum && prev.checksum === remoteChecksum) {
-      this.logService.debug(`[PhishingDataService] Checksum match, no update needed`);
+      this.logService.info(`[PhishingDataService] Checksum match, no update needed`);
       return null; // Signal to skip state update - no UI blocking!
     }
 
     // STEP 3: Checksum different - data needs to be updated
-    this.logService.debug(`[PhishingDataService] Checksum mismatch, fetching new data`);
+    this.logService.info(`[PhishingDataService] Checksum mismatch, fetching new data`);
 
     // Approach 1: Fetch only today's new entries (if cache is less than 24h old)
     const isOneDayOldMax = prevAge <= this.UPDATE_INTERVAL_DURATION;
@@ -310,7 +310,7 @@ export class PhishingDataService {
    */
   private async fetchPhishingChecksum(type: PhishingResourceType = PhishingResourceType.Domains) {
     const checksumUrl = getPhishingResources(type)!.checksumUrl;
-    this.logService.debug(`[PhishingDataService] Checksum URL: ${checksumUrl}`);
+    this.logService.info(`[PhishingDataService] Checksum URL: ${checksumUrl}`);
     const response = await this.apiService.nativeFetch(new Request(checksumUrl));
     if (!response.ok) {
       throw new Error(`[PhishingDataService] Failed to fetch checksum: ${response.status}`);
@@ -384,7 +384,7 @@ export class PhishingDataService {
       reader.releaseLock();
     }
 
-    this.logService.debug(`[PhishingDataService] Streamed ${addresses.length} addresses`);
+    this.logService.info(`[PhishingDataService] Streamed ${addresses.length} addresses`);
     return addresses;
   }
 
@@ -402,7 +402,7 @@ export class PhishingDataService {
     const startTime = Date.now();
     const set = new Set<string>();
 
-    this.logService.debug(`[PhishingDataService] Building Set (${addresses.length} entries)`);
+    this.logService.info(`[PhishingDataService] Building Set (${addresses.length} entries)`);
 
     for (let i = 0; i < addresses.length; i += CHUNK_SIZE) {
       const chunk = addresses.slice(i, Math.min(i + CHUNK_SIZE, addresses.length));
@@ -427,7 +427,7 @@ export class PhishingDataService {
     this._cachedSet = set;
     this._cachedSetChecksum = checksum;
 
-    this.logService.debug(
+    this.logService.info(
       `[PhishingDataService] Set built: ${set.size} entries in ${Date.now() - startTime}ms`,
     );
     return set;
@@ -441,7 +441,7 @@ export class PhishingDataService {
 
     const webAddresses = devFlagValue("testPhishingUrls") as unknown[];
     if (webAddresses && webAddresses instanceof Array) {
-      this.logService.debug(
+      this.logService.info(
         "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
         webAddresses,
       );
