@@ -7,12 +7,16 @@ import {
   HostBinding,
   HostListener,
   OnDestroy,
+  OnInit,
   ViewContainerRef,
   input,
+  inject,
+  model,
 } from "@angular/core";
 import { merge, Subscription } from "rxjs";
 import { filter, skip, takeUntil } from "rxjs/operators";
 
+import { MenuPositionIdentifier, menuPositions } from "./menu-positions";
 import { MenuComponent } from "./menu.component";
 
 /**
@@ -56,8 +60,12 @@ const CONTEXT_MENU_POSITIONS: ConnectedPosition[] = [
   standalone: true,
   host: { "[attr.role]": "this.role()" },
 })
-export class MenuTriggerForDirective implements OnDestroy {
-  @HostBinding("attr.aria-expanded") isOpen = false;
+export class MenuTriggerForDirective implements OnDestroy, OnInit {
+  readonly isOpen = model(false);
+
+  @HostBinding("attr.aria-expanded") get ariaExpanded() {
+    return this.isOpen();
+  }
   @HostBinding("attr.aria-haspopup") get hasPopup(): "menu" | "dialog" {
     return this.menu()?.ariaRole() || "menu";
   }
@@ -66,28 +74,26 @@ export class MenuTriggerForDirective implements OnDestroy {
 
   readonly menu = input.required<MenuComponent>({ alias: "bitMenuTriggerFor" });
 
+  /**
+   * The preferred position for the menu overlay.
+   * The menu will try this position first, then fallback to other positions if it doesn't fit.
+   * @default "below-left"
+   */
+  readonly menuPosition = input<MenuPositionIdentifier>("below-left");
+
   private overlayRef: OverlayRef | null = null;
-  private defaultMenuConfig: OverlayConfig = {
-    panelClass: "bit-menu-panel",
-    hasBackdrop: true,
-    backdropClass: ["cdk-overlay-transparent-backdrop", "bit-menu-panel-backdrop"],
-    scrollStrategy: this.overlay.scrollStrategies.reposition(),
-    positionStrategy: this.overlay
-      .position()
-      .flexibleConnectedTo(this.elementRef)
-      .withPositions([
-        { originX: "start", originY: "bottom", overlayX: "start", overlayY: "top" },
-        { originX: "end", originY: "bottom", overlayX: "end", overlayY: "top" },
-        { originX: "start", originY: "top", overlayX: "start", overlayY: "bottom" },
-        { originX: "end", originY: "top", overlayX: "end", overlayY: "bottom" },
-      ])
-      .withLockedPosition(true)
-      .withFlexibleDimensions(false)
-      .withPush(true),
-  };
+  private positionStrategy = this.overlay
+    .position()
+    .flexibleConnectedTo(this.elementRef)
+    .withLockedPosition(true)
+    .withFlexibleDimensions(false)
+    .withPush(true);
   private closedEventsSub: Subscription | null = null;
   private keyDownEventsSub: Subscription | null = null;
   private menuCloseListenerSub: Subscription | null = null;
+
+  // Detect if this trigger is inside a parent menu (for submenu scenario)
+  private parentMenu = inject(MenuComponent, { optional: true, skipSelf: true });
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -95,8 +101,28 @@ export class MenuTriggerForDirective implements OnDestroy {
     private overlay: Overlay,
   ) {}
 
+  ngOnInit() {
+    this.positionStrategy.withPositions(this.computePositions(this.menuPosition()));
+  }
+
+  private computePositions(menuPosition: MenuPositionIdentifier): ConnectedPosition[] {
+    const chosenPosition = menuPositions.find((position) => position.id === menuPosition);
+
+    return chosenPosition ? [chosenPosition, ...menuPositions] : menuPositions;
+  }
+
+  private get defaultMenuConfig(): OverlayConfig {
+    return {
+      panelClass: "bit-menu-panel",
+      hasBackdrop: true,
+      backdropClass: ["cdk-overlay-transparent-backdrop", "bit-menu-panel-backdrop"],
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
+      positionStrategy: this.positionStrategy,
+    };
+  }
+
   @HostListener("click") toggleMenu() {
-    this.isOpen ? this.destroyMenu() : this.openMenu();
+    this.isOpen() ? this.destroyMenu() : this.openMenu();
   }
 
   /**
@@ -106,7 +132,7 @@ export class MenuTriggerForDirective implements OnDestroy {
    */
   toggleMenuOnRightClick(event: MouseEvent) {
     event.preventDefault(); // Prevent default context menu
-    this.isOpen ? this.updateMenuPosition(event) : this.openMenu(event);
+    this.isOpen() ? this.updateMenuPosition(event) : this.openMenu(event);
   }
 
   ngOnDestroy() {
@@ -119,7 +145,7 @@ export class MenuTriggerForDirective implements OnDestroy {
       throw new Error("Cannot find bit-menu element");
     }
 
-    this.isOpen = true;
+    this.isOpen.set(true);
 
     const positionStrategy = event
       ? this.overlay
@@ -178,11 +204,11 @@ export class MenuTriggerForDirective implements OnDestroy {
   }
 
   private destroyMenu() {
-    if (this.overlayRef == null || !this.isOpen) {
+    if (this.overlayRef == null || !this.isOpen()) {
       return;
     }
 
-    this.isOpen = false;
+    this.isOpen.set(false);
     this.disposeAll();
     this.menu().closed.emit();
   }
@@ -218,6 +244,12 @@ export class MenuTriggerForDirective implements OnDestroy {
         if (event instanceof KeyboardEvent && (event.key === "Tab" || event.key === "Escape")) {
           this.elementRef.nativeElement.focus();
         }
+
+        // If this is a submenu (has a parent menu), close the parent too
+        if (this.parentMenu) {
+          this.parentMenu.closed.emit();
+        }
+
         this.destroyMenu();
       });
   }
