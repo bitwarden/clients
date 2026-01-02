@@ -1,0 +1,94 @@
+<bit-card class="tw-size-full tw-flex tw-flex-col">
+  <!-- Title Section with Badge -->
+  <div class="tw-flex tw-items-center tw-justify-between tw-mb-4">
+    <h2 bitTypography="h3" class="tw-m-0">{{ title() }}</h2>
+
+    <!-- Status Badge -->
+    <span bitBadge [variant]="badge().variant" class="tw-ml-3">
+      {{ badge().text }}
+    </span>
+  </div>
+
+  <!-- Cart Summary -->
+  <div class="tw-mb-4">
+    <billing-cart-summary [cart]="subscription().cart" [header]="cartSummaryHeader" />
+  </div>
+
+  <!-- Status-Based Callout -->
+  @if (callout(); as callout) {
+    <bit-callout [type]="callout.type" [icon]="callout.icon" [title]="callout.title">
+      <div class="tw-flex tw-flex-col tw-gap-2">
+        <p class="tw-m-0">{{ callout.description }}</p>
+        @if (callout.callsToAction) {
+          <div class="tw-flex tw-flex-row tw-gap-2">
+            @for (cta of callout.callsToAction; track cta.action) {
+              <button
+                bitButton
+                [buttonType]="cta.buttonType"
+                (click)="callToActionClicked.emit(cta.action)"
+                type="button"
+              >
+                {{ cta.text }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </bit-callout>
+  }
+</bit-card>
+
+<ng-template #cartSummaryHeader let-total="total">
+  <h2
+    bitTypography="h4"
+    class="!tw-m-0"
+    id="cart-summary-header-custom"
+    data-test-id="cart-summary-header-custom"
+  >
+    @let status = subscription().status;
+    @switch (status) {
+      @case ("incomplete") {
+        {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
+        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
+      }
+      @case ("incomplete_expired") {
+        {{ "yourSubscriptionWasSuspendedOn" | i18n }}
+        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
+      }
+      @case ("trialing") {
+        @if (cancelAt(); as cancelAt) {
+          {{ "yourSubscriptionWillBeCanceledOn" | i18n }}
+          <span class="tw-font-bold">{{ cancelAt | date: dateFormat }}</span>
+        } @else {
+          {{ "yourNextChargeIsFor" | i18n }}
+          <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+          {{ "dueOn" | i18n }}
+          <span class="tw-font-bold">{{ nextCharge() | date: dateFormat }}</span>
+        }
+      }
+      @case ("active") {
+        @if (cancelAt(); as cancelAt) {
+          {{ "yourSubscriptionWillBeCanceledOn" | i18n }}
+          <span class="tw-font-bold">{{ cancelAt | date: dateFormat }}</span>
+        } @else {
+          {{ "yourNextChargeIsFor" | i18n }}
+          <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+          {{ "dueOn" | i18n }}
+          <span class="tw-font-bold">{{ nextCharge() | date: dateFormat }}</span>
+        }
+      }
+      @case ("past_due") {
+        {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
+        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
+      }
+      @case ("canceled") {
+        {{ "yourSubscriptionWasCanceledOn" | i18n }}
+        <span class="tw-font-bold">{{ canceled() | date: dateFormat }}</span>
+      }
+      @case ("unpaid") {
+        {{ "yourSubscriptionWasSuspendedOn" | i18n }}
+        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
+      }
+    }
+  </h2>
+</ng-template>
