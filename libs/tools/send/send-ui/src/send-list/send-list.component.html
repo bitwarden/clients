@@ -1,0 +1,31 @@
+@if (loading()) {
+  <bit-spinner />
+} @else {
+  @if (showSearchBar()) {
+    <!-- Search Bar - hidden when no Sends exist -->
+    <tools-send-search></tools-send-search>
+  }
+  <tools-send-table
+    [dataSource]="dataSource"
+    [disableSend]="disableSend()"
+    (editSend)="onEditSend($event)"
+    (copySend)="onCopySend($event)"
+    (removePassword)="onRemovePassword($event)"
+    (deleteSend)="onDeleteSend($event)"
+  />
+  @if (noSearchResults()) {
+    <!-- No Sends from Search results -->
+    <bit-no-items [icon]="noItemIcon">
+      <ng-container slot="title">{{ "sendsTitleNoSearchResults" | i18n }}</ng-container>
+      <ng-container slot="description">{{ "sendsBodyNoSearchResults" | i18n }}</ng-container>
+    </bit-no-items>
+  } @else if (listState() === sendListState.NoResults || listState() === sendListState.Empty) {
+    <!-- No Sends from Filter results ( File/Text ) -->
+    <!-- No Sends exist at all -->
+    <bit-no-items [icon]="noItemIcon">
+      <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
+      <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
+      <ng-content select="[slot='empty-button']" slot="button" />
+    </bit-no-items>
+  }
+}
