@@ -1,5 +1,6 @@
-import { Component, computed, HostBinding, input } from "@angular/core";
+import { Component, computed, HostBinding, HostListener, inject, input } from "@angular/core";
 
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 type CharacterType = "letter" | "emoji" | "special" | "number";
@@ -43,6 +44,8 @@ export class ColorPasswordComponent {
     return ["tw-min-w-0", "tw-whitespace-pre-wrap", "tw-break-words"];
   }
 
+  private platformUtilsService = inject(PlatformUtilsService);
+
   getCharacterClass(character: string) {
     const charType = this.getCharacterType(character);
     const charClass = this.characterStyles[charType];
@@ -77,5 +80,18 @@ export class ColorPasswordComponent {
     }
 
     return "letter";
+  }
+
+  @HostListener("copy", ["$event"])
+  onCopy(event: ClipboardEvent) {
+    event.preventDefault();
+    const selection = window.getSelection();
+    if (!selection) {
+      return;
+    }
+
+    const text = selection.toString();
+    const cleanedText = text.replace(/[\n\r]+/g, "").trim();
+    this.platformUtilsService.copyToClipboard(cleanedText);
   }
 }
