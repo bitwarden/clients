@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -39,14 +39,23 @@ export interface ApproveSshRequestParams {
     CalloutModule,
   ],
 })
-export class ApproveSshRequestComponent {
+export class ApproveSshRequestComponent implements OnInit {
   approveSshRequestForm = this.formBuilder.group({});
+  authorizeEnabled = false;
+
+  private static readonly AUTHORIZE_DELAY_MS = 1500;
 
   constructor(
     @Inject(DIALOG_DATA) protected params: ApproveSshRequestParams,
     private dialogRef: DialogRef<boolean>,
     private formBuilder: FormBuilder,
   ) {}
+
+  ngOnInit(): void {
+    setTimeout(() => {
+      this.authorizeEnabled = true;
+    }, ApproveSshRequestComponent.AUTHORIZE_DELAY_MS);
+  }
 
   static open(
     dialogService: DialogService,
@@ -69,10 +78,15 @@ export class ApproveSshRequestComponent {
         isAgentForwarding,
         action: actioni18nKey,
       },
+      disableClose: true,
     });
   }
 
   submit = async () => {
     this.dialogRef.close(true);
   };
+
+  deny(): void {
+    this.dialogRef.close(false);
+  }
 }
