@@ -34,7 +34,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -161,7 +161,7 @@ export class VaultV2Component<C extends CipherViewLike>
   cipherId: string | null = null;
   favorites = false;
   type: CipherType | null = null;
-  folderId: string | null = null;
+  folderId: string | null | undefined = null;
   collectionId: string | null = null;
   organizationId: string | null = null;
   myVaultOnly = false;
@@ -983,9 +983,7 @@ export class VaultV2Component<C extends CipherViewLike>
       // clear out organizationId when the user switches to a personal vault filter
       this.addOrganizationId = null;
     }
-    if (this.activeFilter.selectedFolderId && this.activeFilter.selectedFolder) {
-      this.folderId = this.activeFilter.selectedFolderId;
-    }
+    this.folderId = this.activeFilter.selectedFolderId;
 
     if (this.config == null) {
       return;
@@ -994,6 +992,8 @@ export class VaultV2Component<C extends CipherViewLike>
     this.config.initialValues = {
       ...this.config.initialValues,
       organizationId: this.addOrganizationId as OrganizationId,
+      folderId: this.folderId,
+      collectionIds: this.addCollectionIds as CollectionId[],
     };
   }
 
