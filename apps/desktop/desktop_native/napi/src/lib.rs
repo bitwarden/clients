@@ -290,7 +290,7 @@ pub mod sshagent {
 
     use napi::{
         bindgen_prelude::Promise,
-        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
+        threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
     };
     use tokio::{self, sync::Mutex};
     use tracing::error;
@@ -326,15 +326,13 @@ pub mod sshagent {
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn serve(
-        callback: ThreadsafeFunction<SshUIRequest, Promise<bool>>,
+        callback: ThreadsafeFunction<SshUIRequest, CalleeHandled>,
     ) -> napi::Result<SshAgentState> {
         let (auth_request_tx, mut auth_request_rx) =
             tokio::sync::mpsc::channel::<desktop_core::ssh_agent::SshAgentUIRequest>(32);
         let (auth_response_tx, auth_response_rx) =
             tokio::sync::broadcast::channel::<(u32, bool)>(32);
         let auth_response_tx_arc = Arc::new(Mutex::new(auth_response_tx));
-        // Wrap callback in Arc so it can be shared across spawned tasks
-        let callback = Arc::new(callback);
         tokio::spawn(async move {
             let _ = auth_response_rx;
 
@@ -344,50 +342,42 @@ pub mod sshagent {
                 tokio::spawn(async move {
                     let auth_response_tx_arc = cloned_response_tx_arc;
                     let callback = cloned_callback;
-                    // In NAPI v3, obtain the JS callback return as a Promise<boolean> and await it
-                    // in Rust
-                    let (tx, rx) = std::sync::mpsc::channel::<Promise<bool>>();
-                    let status = callback.call_with_return_value(
-                        Ok(SshUIRequest {
+                    let promise_result: Result<Promise<bool>, napi::Error> = callback
+                        .call_async(Ok(SshUIRequest {
                             cipher_id: request.cipher_id,
                             is_list: request.is_list,
                             process_name: request.process_name,
                             is_forwarding: request.is_forwarding,
                             namespace: request.namespace,
-                        }),
-                        ThreadsafeFunctionCallMode::Blocking,
-                        move |ret: Result<Promise<bool>, napi::Error>, _env| {
-                            if let Ok(p) = ret {
-                                let _ = tx.send(p);
+                        }))
+                        .await;
+                    match promise_result {
+                        Ok(promise_result) => match promise_result.await {
+                            Ok(result) => {
+                                let _ = auth_response_tx_arc
+                                    .lock()
+                                    .await
+                                    .send((request.request_id, result))
+                                    .expect("should be able to send auth response to agent");
                             }
-                            Ok(())
-                        },
-                    );
-
-                    let result = if status == napi::Status::Ok {
-                        match rx.recv() {
-                            Ok(promise) => match promise.await {
-                                Ok(v) => v,
-                                Err(e) => {
-                                    error!(error = %e, "UI callback promise rejected");
-                                    false
-                                }
-                            },
                             Err(e) => {
-                                error!(error = %e, "Failed to receive UI callback promise");
-                                false
+                                error!(error = %e, "Calling UI callback promise was rejected");
+                                let _ = auth_response_tx_arc
+                                    .lock()
+                                    .await
+                                    .send((request.request_id, false))
+                                    .expect("should be able to send auth response to agent");
                             }
+                        },
+                        Err(e) => {
+                            error!(error = %e, "Calling UI callback could not create promise");
+                            let _ = auth_response_tx_arc
+                                .lock()
+                                .await
+                                .send((request.request_id, false))
+                                .expect("should be able to send auth response to agent");
                         }
-                    } else {
-                        error!(error = ?status, "Calling UI callback failed");
-                        false
-                    };
-
-                    let _ = auth_response_tx_arc
-                        .lock()
-                        .await
-                        .send((request.request_id, result))
-                        .expect("should be able to send auth response to agent");
+                    }
                 });
             }
         });
@@ -475,12 +465,14 @@ pub mod processisolations {
 #[napi]
 pub mod powermonitors {
     use napi::{
-        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
+        threadsafe_function::{
+            ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
+        },
         tokio,
     };
 
     #[napi]
-    pub async fn on_lock(callback: ThreadsafeFunction<()>) -> napi::Result<()> {
+    pub async fn on_lock(callback: ThreadsafeFunction<(), CalleeHandled>) -> napi::Result<()> {
         let (tx, mut rx) = tokio::sync::mpsc::channel::<()>(32);
         desktop_core::powermonitor::on_lock(tx)
             .await
@@ -519,7 +511,9 @@ pub mod windows_registry {
 #[napi]
 pub mod ipc {
     use desktop_core::ipc::server::{Message, MessageType};
-    use napi::threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode};
+    use napi::threadsafe_function::{
+        ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode,
+    };
 
     #[napi(object)]
     pub struct IpcMessage {
@@ -556,12 +550,12 @@ pub mod ipc {
     }
 
     #[napi]
-    pub struct NativeIpcServer {
+    pub struct IpcServer {
         server: desktop_core::ipc::server::Server,
     }
 
     #[napi]
-    impl NativeIpcServer {
+    impl IpcServer {
         /// Create and start the IPC server without blocking.
         ///
         /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
@@ -572,7 +566,7 @@ pub mod ipc {
         pub async fn listen(
             name: String,
             #[napi(ts_arg_type = "(error: null | Error, message: IpcMessage) => void")]
-            callback: ThreadsafeFunction<IpcMessage>,
+            callback: ThreadsafeFunction<IpcMessage, ErrorStrategy::CalleeHandled>,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -589,7 +583,7 @@ pub mod ipc {
                 ))
             })?;
 
-            Ok(NativeIpcServer { server })
+            Ok(IpcServer { server })
         }
 
         /// Return the path to the IPC server.
@@ -636,9 +630,8 @@ pub mod autostart {
 #[napi]
 pub mod autofill {
     use desktop_core::ipc::server::{Message, MessageType};
-    use napi::{
-        bindgen_prelude::FnArgs,
-        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
+    use napi::threadsafe_function::{
+        ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
     use serde::{de::DeserializeOwned, Deserialize, Serialize};
     use tracing::error;
@@ -753,14 +746,14 @@ pub mod autofill {
     }
 
     #[napi]
-    pub struct AutofillIpcServer {
+    pub struct IpcServer {
         server: desktop_core::ipc::server::Server,
     }
 
     // FIXME: Remove unwraps! They panic and terminate the whole application.
     #[allow(clippy::unwrap_used)]
     #[napi]
-    impl AutofillIpcServer {
+    impl IpcServer {
         /// Create and start the IPC server without blocking.
         ///
         /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
@@ -776,24 +769,30 @@ pub mod autofill {
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void"
             )]
             registration_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyRegistrationRequest)>,
+                (u32, u32, PasskeyRegistrationRequest),
+                ErrorStrategy::CalleeHandled,
             >,
             #[napi(
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void"
             )]
             assertion_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyAssertionRequest)>,
+                (u32, u32, PasskeyAssertionRequest),
+                ErrorStrategy::CalleeHandled,
             >,
             #[napi(
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
             )]
             assertion_without_user_interface_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyAssertionWithoutUserInterfaceRequest)>,
+                (u32, u32, PasskeyAssertionWithoutUserInterfaceRequest),
+                ErrorStrategy::CalleeHandled,
             >,
             #[napi(
                 ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void"
             )]
-            native_status_callback: ThreadsafeFunction<(u32, u32, NativeStatus)>,
+            native_status_callback: ThreadsafeFunction<
+                (u32, u32, NativeStatus),
+                ErrorStrategy::CalleeHandled,
+            >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -818,7 +817,7 @@ pub mod autofill {
                                 Ok(msg) => {
                                     let value = msg
                                         .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
+                                        .map(|value| (client_id, msg.sequence_number, value))
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_callback
@@ -837,7 +836,7 @@ pub mod autofill {
                                 Ok(msg) => {
                                     let value = msg
                                         .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
+                                        .map(|value| (client_id, msg.sequence_number, value))
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_without_user_interface_callback
@@ -855,7 +854,7 @@ pub mod autofill {
                                 Ok(msg) => {
                                     let value = msg
                                         .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
+                                        .map(|value| (client_id, msg.sequence_number, value))
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
                                     registration_callback
                                         .call(value, ThreadsafeFunctionCallMode::NonBlocking);
@@ -895,7 +894,7 @@ pub mod autofill {
                 ))
             })?;
 
-            Ok(AutofillIpcServer { server })
+            Ok(IpcServer { server })
         }
 
         /// Return the path to the IPC server.
@@ -988,9 +987,8 @@ pub mod logging {
 
     use std::{fmt::Write, sync::OnceLock};
 
-    use napi::{
-        bindgen_prelude::FnArgs,
-        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
+    use napi::threadsafe_function::{
+        ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
     use tracing::Level;
     use tracing_subscriber::{
@@ -1001,7 +999,7 @@ pub mod logging {
         Layer,
     };
 
-    struct JsLogger(OnceLock<ThreadsafeFunction<FnArgs<(LogLevel, String)>>>);
+    struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
     static JS_LOGGER: JsLogger = JsLogger(OnceLock::new());
 
     #[napi]
@@ -1073,13 +1071,13 @@ pub mod logging {
             let msg = (event.metadata().level().into(), buffer);
 
             if let Some(logger) = JS_LOGGER.0.get() {
-                let _ = logger.call(Ok(msg.into()), ThreadsafeFunctionCallMode::NonBlocking);
+                let _ = logger.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
             };
         }
     }
 
     #[napi]
-    pub fn init_napi_log(js_log_fn: ThreadsafeFunction<FnArgs<(LogLevel, String)>>) {
+    pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
         let _ = JS_LOGGER.0.set(js_log_fn);
 
         // the log level hierarchy is determined by:
@@ -1150,8 +1148,8 @@ pub mod chromium_importer {
     #[napi(object)]
     pub struct NativeImporterMetadata {
         pub id: String,
-        pub loaders: Vec<String>,
-        pub instructions: String,
+        pub loaders: Vec<&'static str>,
+        pub instructions: &'static str,
     }
 
     impl From<_LoginImportResult> for LoginImportResult {
@@ -1228,7 +1226,7 @@ pub mod chromium_importer {
 #[napi]
 pub mod autotype {
     #[napi]
-    pub fn get_foreground_window_title() -> napi::Result<String> {
+    pub fn get_foreground_window_title() -> napi::Result<String, napi::Status> {
         autotype::get_foreground_window_title().map_err(|_| {
             napi::Error::from_reason(
                 "Autotype Error: failed to get foreground window title".to_string(),

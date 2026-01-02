@@ -14,7 +14,7 @@ import { isDev } from "../utils";
 import { WindowMain } from "./window.main";
 
 export class NativeMessagingMain {
-  private ipcServer: ipc.NativeIpcServer | null;
+  private ipcServer: ipc.IpcServer | null;
   private connected: number[] = [];
 
   constructor(
@@ -78,7 +78,7 @@ export class NativeMessagingMain {
       this.ipcServer.stop();
     }
 
-    this.ipcServer = await ipc.NativeIpcServer.listen("bw", (error, msg) => {
+    this.ipcServer = await ipc.IpcServer.listen("bw", (error, msg) => {
       switch (msg.kind) {
         case ipc.IpcMessageType.Connected: {
           this.connected.push(msg.clientId);
