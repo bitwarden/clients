@@ -251,25 +251,15 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
       case NotificationType.AuthRequest: {
-        // Only Extension and Desktop implement the AuthRequestAnsweringService
-        if (this.authRequestAnsweringService.receivedPendingAuthRequest) {
-          try {
-            await this.authRequestAnsweringService.receivedPendingAuthRequest(
-              notification.payload.userId,
-              notification.payload.id,
-            );
-          } catch (error) {
-            this.logService.error(`Failed to process auth request notification: ${error}`);
-          }
-        } else {
-          // This call is necessary for Web, which uses a NoopAuthRequestAnsweringService
-          // that does not have a receivedPendingAuthRequest() method
-          this.messagingService.send("openLoginApproval", {
-            // Include the authRequestId so the DeviceManagementComponent can upsert the correct device.
-            // This will only matter if the user is on the /device-management screen when the auth request is received.
-            notificationId: notification.payload.id,
-          });
+        try {
+          await this.authRequestAnsweringService.receivedPendingAuthRequest(
+            notification.payload.userId,
+            notification.payload.id,
+          );
+        } catch (error) {
+          this.logService.error(`Failed to process auth request notification: ${error}`);
         }
+
         break;
       }
       case NotificationType.SyncOrganizationStatusChanged:

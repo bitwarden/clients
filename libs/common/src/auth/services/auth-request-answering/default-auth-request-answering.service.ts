@@ -29,7 +29,7 @@ import {
   PendingAuthUserMarker,
 } from "./pending-auth-requests.state";
 
-export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringService {
+export abstract class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringService {
   constructor(
     protected readonly accountService: AccountService,
     protected readonly authService: AuthService,
@@ -37,6 +37,11 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
     protected readonly messagingService: MessagingService,
     protected readonly pendingAuthRequestsState: PendingAuthRequestsStateService,
   ) {}
+
+  abstract receivedPendingAuthRequest(
+    authRequestUserId: UserId,
+    authRequestId: string,
+  ): Promise<void>;
 
   async activeUserMeetsConditionsToShowApprovalDialog(authRequestUserId: UserId): Promise<boolean> {
     // If the active user is not the intended recipient of the auth request, return false
