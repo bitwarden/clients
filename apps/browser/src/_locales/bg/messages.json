@@ -6039,5 +6039,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Защо виждам това?"
+  },
+  "resizeSideNavigation": {
+    "message": "Преоразмеряване на страничната навигация"
   }
 }
