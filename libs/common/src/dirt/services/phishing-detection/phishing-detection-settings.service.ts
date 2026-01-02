@@ -23,7 +23,9 @@ const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
   },
 );
 
-export class PhishingDetectionSettingsService implements PhishingDetectionSettingsServiceAbstraction {
+export class PhishingDetectionSettingsService
+  implements PhishingDetectionSettingsServiceAbstraction
+{
   readonly available$: Observable<boolean>;
   readonly enabled$: Observable<boolean>;
   readonly on$: Observable<boolean>;
