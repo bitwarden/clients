@@ -1,7 +1,22 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
-import { getByRole, userEvent } from "storybook/test";
+import { getByRole } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+// Wait for element to render, then open popover programmatically for stable Chromatic snapshots
+const openPopoverAfterRender = async (context: { canvasElement: HTMLElement }) => {
+  const canvasEl = context.canvasElement;
+  const button = getByRole(canvasEl, "button");
+
+  // Wait for layout to stabilize
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  // Programmatically open the popover
+  button.click();
+
+  // Wait for popover positioning to complete
+  await new Promise((resolve) => setTimeout(resolve, 100));
+};
 
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
@@ -35,9 +50,8 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40852&t=b5tDKylm5sWm2yKo-4",
     },
-    // TODO fix flakiness of popover positioning https://bitwarden.atlassian.net/browse/CL-822
     chromatic: {
-      disableSnapshot: true,
+      diffThreshold: 0.3,
     },
   },
   argTypes: {
@@ -98,12 +112,7 @@ export const Default: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const OpenLongTitle: Story = {
@@ -135,12 +144,7 @@ export const OpenLongTitle: Story = {
       </bit-popover>
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const RightStart: Story = {
@@ -167,12 +171,7 @@ export const RightStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const RightCenter: Story = {
@@ -199,12 +198,7 @@ export const RightCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const RightEnd: Story = {
@@ -231,12 +225,7 @@ export const RightEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const LeftStart: Story = {
@@ -265,12 +254,7 @@ export const LeftStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const LeftCenter: Story = {
@@ -299,12 +283,7 @@ export const LeftCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 export const LeftEnd: Story = {
   args: {
@@ -332,12 +311,7 @@ export const LeftEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const BelowStart: Story = {
@@ -366,12 +340,7 @@ export const BelowStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const BelowCenter: Story = {
@@ -400,12 +369,7 @@ export const BelowCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const BelowEnd: Story = {
@@ -434,12 +398,7 @@ export const BelowEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const AboveStart: Story = {
@@ -468,12 +427,7 @@ export const AboveStart: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const AboveCenter: Story = {
@@ -502,12 +456,7 @@ export const AboveCenter: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
 
 export const AboveEnd: Story = {
@@ -536,10 +485,5 @@ export const AboveEnd: Story = {
       ${popoverContent}
       `,
   }),
-  play: async (context) => {
-    const canvasEl = context.canvasElement;
-    const button = getByRole(canvasEl, "button");
-
-    await userEvent.click(button);
-  },
+  play: openPopoverAfterRender,
 };
