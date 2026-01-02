@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, input, OnInit, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  input,
+  OnInit,
+  output,
+} from "@angular/core";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -46,6 +53,7 @@ export class SendViewComponent implements OnInit {
     private toastService: ToastService,
     private i18nService: I18nService,
     private layoutWrapperDataService: AnonLayoutWrapperDataService,
+    private cdRef: ChangeDetectorRef,
   ) {}
 
   get expirationDate() {
@@ -117,5 +125,7 @@ export class SendViewComponent implements OnInit {
         },
       });
     }
+
+    this.cdRef.markForCheck();
   }
 }
