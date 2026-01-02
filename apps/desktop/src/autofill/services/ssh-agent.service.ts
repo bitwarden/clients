@@ -135,14 +135,11 @@ export class SshAgentService implements OnDestroy {
 
           return of([message, account.id]);
         }),
-        // This switchMap handles fetching the ciphers from the vault.
-        switchMap(([message, userId]: [Record<string, unknown>, UserId]) =>
-          from(this.cipherService.getAllDecrypted(userId)).pipe(
-            map((ciphers) => [message, ciphers] as const),
-          ),
-        ),
         // This concatMap handles showing the dialog to approve the request.
-        concatMap(async ([message, ciphers]) => {
+        concatMap(async ([message, userId]: [Record<string, unknown>, UserId]) => {
+          const ciphers = await firstValueFrom(
+            this.cipherService.cipherViews$(userId).pipe(filter((ciphers) => ciphers !== null)),
+          );
           const cipherId = message.cipherId as string;
           const isListRequest = message.isListRequest as boolean;
           const requestId = message.requestId as number;
@@ -235,6 +232,10 @@ export class SshAgentService implements OnDestroy {
           }
 
           const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+          if (activeAccount == null) {
+            await ipc.platform.sshAgent.clearKeys();
+            return;
+          }
           const authStatus = await firstValueFrom(
             this.authService.authStatusFor$(activeAccount.id),
           );
@@ -242,7 +243,11 @@ export class SshAgentService implements OnDestroy {
             return;
           }
 
-          const ciphers = await this.cipherService.getAllDecrypted(activeAccount.id);
+          const ciphers = await firstValueFrom(
+            this.cipherService
+              .cipherViews$(activeAccount.id)
+              .pipe(filter((ciphers) => ciphers !== null)),
+          );
           if (ciphers == null) {
             await ipc.platform.sshAgent.lock();
             return;
