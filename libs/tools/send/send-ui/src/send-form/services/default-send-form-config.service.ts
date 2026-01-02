@@ -7,8 +7,8 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 
 import {
