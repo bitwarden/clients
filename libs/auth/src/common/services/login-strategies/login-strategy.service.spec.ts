@@ -13,6 +13,7 @@ import { PreloginResponse } from "@bitwarden/common/auth/models/response/prelogi
 import { UserDecryptionOptionsResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
@@ -84,6 +85,7 @@ describe("LoginStrategyService", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
   let configService: MockProxy<ConfigService>;
+  let accountCryptographicStateService: MockProxy<DefaultAccountCryptographicStateService>;
 
   let stateProvider: FakeGlobalStateProvider;
   let loginStrategyCacheExpirationState: FakeGlobalState<Date | null>;
@@ -117,6 +119,7 @@ describe("LoginStrategyService", () => {
     kdfConfigService = mock<KdfConfigService>();
     taskSchedulerService = mock<TaskSchedulerService>();
     configService = mock<ConfigService>();
+    accountCryptographicStateService = mock<DefaultAccountCryptographicStateService>();
 
     sut = new LoginStrategyService(
       accountService,
@@ -145,6 +148,7 @@ describe("LoginStrategyService", () => {
       kdfConfigService,
       taskSchedulerService,
       configService,
+      accountCryptographicStateService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
@@ -491,7 +495,6 @@ describe("LoginStrategyService", () => {
         KdfParallelism: 1,
         Key: "KEY",
         PrivateKey: "PRIVATE_KEY",
-        ResetMasterPassword: false,
         access_token: "ACCESS_TOKEN",
         expires_in: 3600,
         refresh_token: "REFRESH_TOKEN",
@@ -559,7 +562,6 @@ describe("LoginStrategyService", () => {
         KdfParallelism: 1,
         Key: "KEY",
         PrivateKey: "PRIVATE_KEY",
-        ResetMasterPassword: false,
         access_token: "ACCESS_TOKEN",
         expires_in: 3600,
         refresh_token: "REFRESH_TOKEN",
@@ -625,7 +627,6 @@ describe("LoginStrategyService", () => {
         KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1,
         Key: "KEY",
         PrivateKey: "PRIVATE_KEY",
-        ResetMasterPassword: false,
         access_token: "ACCESS_TOKEN",
         expires_in: 3600,
         refresh_token: "REFRESH_TOKEN",
@@ -689,7 +690,6 @@ describe("LoginStrategyService", () => {
         KdfParallelism: 1,
         Key: "KEY",
         PrivateKey: "PRIVATE_KEY",
-        ResetMasterPassword: false,
         access_token: "ACCESS_TOKEN",
         expires_in: 3600,
         refresh_token: "REFRESH_TOKEN",

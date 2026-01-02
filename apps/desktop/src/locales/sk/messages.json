@@ -709,7 +709,7 @@
     "message": "Priložiť prílohu"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Položky boli prenesené"
   },
   "fixEncryption": {
     "message": "Opraviť šifrovanie"
@@ -1414,7 +1414,7 @@
     "message": "Zobraziť Bitwarden v Docku aj keď je minimalizovaný na panel úloh."
   },
   "confirmTrayTitle": {
-    "message": "Potvrdiť vypnutie systémovej lišty"
+    "message": "Potvrdiť skrývanie systémovej lišty"
   },
   "confirmTrayDesc": {
     "message": "Vypnutím tohto nastavenia vypnete aj ostatné nastavenia súvisiace so systémovou lištou."
@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "Exportovať z"
   },
-  "export": {
-    "message": "Exportovať"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Importovať"
+  "exportVerb": {
+    "message": "Exportovať",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importovať",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formát súboru"
@@ -2839,10 +2849,10 @@
     "message": "Použiť možnosti subadresovania svojho poskytovateľa e-mailu."
   },
   "catchallEmail": {
-    "message": "E-mail Catch-all"
+    "message": "Doménový kôš"
   },
   "catchallEmailDesc": {
-    "message": "Použiť doručenú poštu typu catch-all nastavenú na doméne."
+    "message": "Použiť nastavený doménový kôš."
   },
   "useThisEmail": {
     "message": "Použiť tento e-mail"
@@ -4462,7 +4472,7 @@
     }
   },
   "acceptTransfer": {
-    "message": "Prijať prevody"
+    "message": "Prijať prenos"
   },
   "declineAndLeave": {
     "message": "Zamietnuť a odísť"

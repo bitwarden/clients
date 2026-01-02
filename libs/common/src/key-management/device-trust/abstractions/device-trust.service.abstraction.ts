@@ -39,6 +39,7 @@ export abstract class DeviceTrustServiceAbstraction {
 
   /** Retrieves the device key if it exists from state or secure storage if supported for the active user. */
   abstract getDeviceKey(userId: UserId): Promise<DeviceKey | null>;
+  abstract setDeviceKey(userId: UserId, deviceKey: DeviceKey | null): Promise<void>;
   abstract decryptUserKeyWithDeviceKey(
     userId: UserId,
     encryptedDevicePrivateKey: EncString,
