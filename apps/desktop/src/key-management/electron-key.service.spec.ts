@@ -1,5 +1,6 @@
 import { mock } from "jest-mock-extended";
 
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -36,6 +37,7 @@ describe("ElectronKeyService", () => {
   const kdfConfigService = mock<KdfConfigService>();
   const biometricStateService = mock<BiometricStateService>();
   const biometricService = mock<DesktopBiometricsService>();
+  const accountCryptographicStateService = mock<AccountCryptographicStateService>();
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -62,6 +64,7 @@ describe("ElectronKeyService", () => {
       biometricStateService,
       kdfConfigService,
       biometricService,
+      accountCryptographicStateService,
     );
   });
 
