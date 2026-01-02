@@ -217,12 +217,20 @@ export class LockComponent implements OnInit, OnDestroy {
       .pipe(
         mergeMap(async () => {
           if (this.activeAccount?.id != null) {
+            const prevBiometricsEnabled = this.unlockOptions?.biometrics.enabled;
+
             this.unlockOptions = await firstValueFrom(
               this.lockComponentService.getAvailableUnlockOptions$(this.activeAccount.id),
             );
+
             if (this.activeUnlockOption == null) {
               this.loading = false;
               await this.setDefaultActiveUnlockOption(this.unlockOptions);
+            } else if (!prevBiometricsEnabled && this.unlockOptions?.biometrics.enabled) {
+              await this.setDefaultActiveUnlockOption(this.unlockOptions);
+              if (this.activeUnlockOption === UnlockOption.Biometrics) {
+                await this.handleBiometricsUnlockEnabled();
+              }
             }
           }
         }),
