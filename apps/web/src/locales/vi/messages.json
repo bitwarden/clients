@@ -2634,6 +2634,9 @@
   "key": {
     "message": "Khóa"
   },
+  "unnamedKey": {
+    "message": "Unnamed key"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Mã xác minh"
   },
@@ -12297,6 +12300,9 @@
   },
   "userVerificationFailed": {
     "message": "Xác minh người dùng thất bại."
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Xóa các mục kho không thể khôi phục"

@@ -2634,6 +2634,9 @@
   "key": {
     "message": "密钥"
   },
+  "unnamedKey": {
+    "message": "未命名的密钥"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "验证码"
   },
@@ -5422,7 +5425,7 @@
     }
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "超时后注销将解除对密码库的所有访问权限，并需要进行在线身份验证。确定使用此设置吗？"
+    "message": "超时后注销账户将解除对密码库的所有访问权限，并需要进行在线身份验证。确定要使用此设置吗？"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "超时动作确认"
@@ -6118,7 +6121,7 @@
     "message": "组织策略已阻止将项目导入您的个人密码库。"
   },
   "personalOwnershipCheckboxDesc": {
-    "message": "移除组织用户的个人所有权"
+    "message": "禁用组织用户的个人所有权"
   },
   "send": {
     "message": "Send",
@@ -6359,7 +6362,7 @@
     "message": "重置密码"
   },
   "resetPasswordLoggedOutWarning": {
-    "message": "继续操作会将 $NAME$ 登出当前会话，要求他们重新登录。在其他设备上的活动会话可能继续活动长达一个小时。",
+    "message": "继续操作会将 $NAME$ 登出当前会话，并要求他们重新登录。在其他设备上的活动会话可能继续活动长达一个小时。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6368,7 +6371,7 @@
     }
   },
   "emergencyAccessLoggedOutWarning": {
-    "message": "继续操作会将 $NAME$ 登出当前会话，要求他们重新登录。在其他设备上的活动会话可能继续活动长达一个小时。",
+    "message": "继续操作会将 $NAME$ 登出当前会话，并要求他们重新登录。在其他设备上的活动会话可能继续活动长达一个小时。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -8878,7 +8881,7 @@
     "message": "群组/用户"
   },
   "kdfSettingsChangeLogoutWarning": {
-    "message": "接下来将会注销您所有的活动会话。您需要重新登录并完成两步登录（如果有）。我们建议您在更改加密设置前导出密码库，以防止数据丢失。"
+    "message": "继续操作将会注销您所有的活动会话。您需要重新登录并完成两步登录（如果有）。我们建议您在更改加密设置前导出密码库，以防止数据丢失。"
   },
   "secretsManager": {
     "message": "机密管理器"
@@ -10545,7 +10548,7 @@
     "description": "Button text to navigate back"
   },
   "removeItem": {
-    "message": "删除 $NAME$",
+    "message": "移除 $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -11170,7 +11173,7 @@
     }
   },
   "organizationUserDeletedDesc": {
-    "message": "该用户已从组织中删除，所有关联的用户数据也已删除。"
+    "message": "该用户已从组织中移除，所有关联的用户数据也已被删除。"
   },
   "deletedUserIdEventMessage": {
     "message": "删除了用户 $ID$",
@@ -12297,6 +12300,9 @@
   },
   "userVerificationFailed": {
     "message": "用户验证失败。"
+  },
+  "resizeSideNavigation": {
+    "message": "调整侧边导航栏大小"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "删除无法恢复的密码库项目"

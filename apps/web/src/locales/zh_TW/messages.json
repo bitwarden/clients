@@ -2634,6 +2634,9 @@
   "key": {
     "message": "金鑰"
   },
+  "unnamedKey": {
+    "message": "未命名金鑰"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "驗證碼"
   },
@@ -12297,6 +12300,9 @@
   },
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "刪除無法復原的密碼庫項目"
