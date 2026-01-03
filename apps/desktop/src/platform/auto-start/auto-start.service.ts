@@ -6,7 +6,8 @@ import { app } from "electron";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { autostart } from "@bitwarden/desktop-napi";
 
-import { isFlatpak, isSnapStore, isWindowsStore } from "../../utils";
+import { isFlatpak, isSnapStore } from "../../utils";
+import { DesktopSettingsService } from "../services/desktop-settings.service";
 
 import { AutoStartService, AutoStartStatus } from "./auto-start.service.abstraction";
 
@@ -20,7 +21,10 @@ import { AutoStartService, AutoStartStatus } from "./auto-start.service.abstract
  * - **macOS/Windows**: Uses Electron's app.setLoginItemSettings() API
  */
 export class DefaultAutoStartService implements AutoStartService {
-  constructor(private logService: LogService) {}
+  constructor(
+    private logService: LogService,
+    private desktopSettingsService: DesktopSettingsService,
+  ) {}
 
   async enable(): Promise<void> {
     if (process.platform === "linux") {
@@ -108,17 +112,6 @@ Terminal=false`;
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
-  }
-
-  shouldDisplaySetting(): boolean {
-    // Windows Store apps don't support auto-start functionality.
-    // On Snap, auto-start is managed by the snap configuration (electron-builder.json).
-    if (isWindowsStore() || isSnapStore()) {
-      return false;
-    }
-
-    // All other platforms support user-configurable auto-start
-    return true;
   }
 
   /**

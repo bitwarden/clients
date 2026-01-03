@@ -19,6 +19,7 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
+import { isSnapStore, isWindowsStore } from "../../utils";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
@@ -353,5 +354,23 @@ export class DesktopSettingsService {
    */
   async setPreventScreenshots(value: boolean) {
     await this.preventScreenshotState.update(() => value);
+  }
+
+  /**
+   * Determines whether the auto-start setting should be displayed in the application UI.
+   * Some platforms (e.g., Windows Store, Snap) manage auto-start externally via
+   * package configuration, so the setting should be hidden from users on those platforms.
+   *
+   * @returns `true` if the setting should be shown, `false` if it should be hidden.
+   */
+  shouldDisplayAutoStartSetting(): boolean {
+    // Windows Store apps don't support auto-start functionality.
+    // On Snap, auto-start is managed by the snap configuration (electron-builder.json).
+    if (isWindowsStore() || isSnapStore()) {
+      return false;
+    }
+
+    // All other platforms support user-configurable auto-start
+    return true;
   }
 }

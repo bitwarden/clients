@@ -31,12 +31,4 @@ export abstract class AutoStartService {
    * @returns The auto-start status: `Enabled`, `Disabled`, or `Unknown` if the state cannot be determined.
    */
   abstract isEnabled(): Promise<AutoStartStatus>;
-
-  /**
-   * Determines whether the auto-start setting should be displayed in the application UI.
-   * Some platforms (e.g., Snap) manage auto-start externally via package configuration,
-   * so the setting should be hidden from the user.
-   * @returns `true` if the setting should be shown, `false` if it should be hidden.
-   */
-  abstract shouldDisplaySetting(): boolean;
 }

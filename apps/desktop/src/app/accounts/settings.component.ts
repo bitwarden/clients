@@ -66,7 +66,6 @@ import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
-import { AutoStartService } from "../../platform/auto-start";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -221,7 +220,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private toastService: ToastService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private autoStartService: AutoStartService,
   ) {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
@@ -247,8 +245,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
 
     // Only show the auto-start setting if it's supported on this platform.
-    // The service handles platform-specific checks (Windows Store, Snap, etc.)
-    this.showOpenAtLoginOption = this.autoStartService.shouldDisplaySetting();
+    // Windows Store apps and Snap packages don't support user-configurable auto-start.
+    this.showOpenAtLoginOption = this.desktopSettingsService.shouldDisplayAutoStartSetting();
 
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = this.isMac;

@@ -8,6 +8,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { autostart } from "@bitwarden/desktop-napi";
 
 import * as utils from "../../utils";
+import { DesktopSettingsService } from "../services/desktop-settings.service";
 
 import { DefaultAutoStartService } from "./auto-start.service";
 import { AutoStartStatus } from "./auto-start.service.abstraction";
@@ -36,19 +37,25 @@ jest.mock("../../utils", () => ({
 describe("DefaultAutoStartService", () => {
   let service: DefaultAutoStartService;
   let logService: MockProxy<LogService>;
+  let desktopSettingsService: MockProxy<DesktopSettingsService>;
   let originalPlatform: NodeJS.Platform;
 
   beforeEach(() => {
     logService = mock<LogService>();
-    service = new DefaultAutoStartService(logService);
+    desktopSettingsService = mock<DesktopSettingsService>();
+    service = new DefaultAutoStartService(logService, desktopSettingsService);
     originalPlatform = process.platform;
     jest.clearAllMocks();
 
     // Default mock implementations
     (app.getVersion as jest.Mock).mockReturnValue("1.0.0");
     (app.getPath as jest.Mock).mockImplementation((name: string) => {
-      if (name === "exe") {return "/usr/bin/bitwarden";}
-      if (name === "home") {return "/home/user";}
+      if (name === "exe") {
+        return "/usr/bin/bitwarden";
+      }
+      if (name === "home") {
+        return "/home/user";
+      }
       return "";
     });
     (utils.isFlatpak as jest.Mock).mockReturnValue(false);
@@ -116,12 +123,6 @@ describe("DefaultAutoStartService", () => {
 
       expect(result).toBe(AutoStartStatus.Unknown);
     });
-
-    it("should display setting in UI", () => {
-      const result = service.shouldDisplaySetting();
-
-      expect(result).toBe(true);
-    });
   });
 
   describe("Linux (Snap)", () => {
@@ -150,12 +151,6 @@ describe("DefaultAutoStartService", () => {
       const result = await service.isEnabled();
 
       expect(result).toBe(AutoStartStatus.Unknown);
-    });
-
-    it("should hide setting from UI (snap manages autostart)", () => {
-      const result = service.shouldDisplaySetting();
-
-      expect(result).toBe(false);
     });
   });
 
@@ -229,12 +224,6 @@ Terminal=false`;
 
       expect(result).toBe(AutoStartStatus.Disabled);
     });
-
-    it("should display setting in UI", () => {
-      const result = service.shouldDisplaySetting();
-
-      expect(result).toBe(true);
-    });
   });
 
   describe("macOS", () => {
@@ -276,12 +265,6 @@ Terminal=false`;
       const result = await service.isEnabled();
 
       expect(result).toBe(AutoStartStatus.Disabled);
-    });
-
-    it("should display setting in UI", () => {
-      const result = service.shouldDisplaySetting();
-
-      expect(result).toBe(true);
     });
   });
 
@@ -326,27 +309,6 @@ Terminal=false`;
       const result = await service.isEnabled();
 
       expect(result).toBe(AutoStartStatus.Disabled);
-    });
-
-    it("should display setting in UI", () => {
-      const result = service.shouldDisplaySetting();
-
-      expect(result).toBe(true);
-    });
-  });
-
-  describe("Windows Store", () => {
-    beforeEach(() => {
-      Object.defineProperty(process, "platform", {
-        value: "win32",
-      });
-      (utils.isWindowsStore as jest.Mock).mockReturnValue(true);
-    });
-
-    it("should hide setting from UI (Windows Store doesn't support auto-start)", () => {
-      const result = service.shouldDisplaySetting();
-
-      expect(result).toBe(false);
     });
   });
 });

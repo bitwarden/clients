@@ -222,7 +222,10 @@ export class Main {
       this.mainCryptoFunctionService,
     );
 
-    this.autoStartService = new DefaultAutoStartService(this.logService);
+    this.autoStartService = new DefaultAutoStartService(
+      this.logService,
+      this.desktopSettingsService,
+    );
     this.messagingMain = new MessagingMain(
       this,
       this.desktopSettingsService,
