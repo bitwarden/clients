@@ -245,7 +245,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
 
     // Only show the auto-start setting if it's supported on this platform.
-    // Windows Store apps and Snap packages don't support user-configurable auto-start.
     this.showOpenAtLoginOption = this.desktopSettingsService.shouldDisplayAutoStartSetting();
 
     // DuckDuckGo browser is only for macos initially

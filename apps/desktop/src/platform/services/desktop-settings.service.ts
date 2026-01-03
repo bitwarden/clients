@@ -19,7 +19,6 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
-import { isSnapStore, isWindowsStore } from "../../utils";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
@@ -366,7 +365,7 @@ export class DesktopSettingsService {
   shouldDisplayAutoStartSetting(): boolean {
     // Windows Store apps don't support auto-start functionality.
     // On Snap, auto-start is managed by the snap configuration (electron-builder.json).
-    if (isWindowsStore() || isSnapStore()) {
+    if (ipc.platform.isWindowsStore || ipc.platform.isSnapStore) {
       return false;
     }
 
