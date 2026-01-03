@@ -63,7 +63,7 @@ import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -71,7 +71,10 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  MasterPasswordServiceAbstraction,
+} from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeout,
@@ -144,6 +147,7 @@ import {
   WebTwoFactorAuthDuoComponentService,
   LinkSsoService,
   WebSetInitialPasswordService,
+  WebAuthRequestAnsweringService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { WebPremiumInterestStateService } from "../billing/services/premium-interest/web-premium-interest-state.service";
@@ -487,8 +491,14 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: AuthRequestAnsweringService,
-    useClass: NoopAuthRequestAnsweringService,
-    deps: [],
+    useClass: WebAuthRequestAnsweringService,
+    deps: [
+      AccountService,
+      AuthService,
+      MasterPasswordServiceAbstraction,
+      MessagingService,
+      PendingAuthRequestsStateService,
+    ],
   }),
 ];
 

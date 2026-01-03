@@ -21,6 +21,16 @@ import {
   PendingAuthUserMarker,
 } from "./pending-auth-requests.state";
 
+// Concrete test implementation of the abstract service
+class TestAuthRequestAnsweringService extends DefaultAuthRequestAnsweringService {
+  async receivedPendingAuthRequest(
+    authRequestUserId: UserId,
+    authRequestId: string,
+  ): Promise<void> {
+    // Test implementation - can be overridden in specific tests if needed
+  }
+}
+
 describe("DefaultAuthRequestAnsweringService", () => {
   let accountService: MockProxy<AccountService>;
   let authService: MockProxy<AuthService>;
@@ -67,7 +77,7 @@ describe("DefaultAuthRequestAnsweringService", () => {
       [otherUserId]: otherUserAccountInfo,
     });
 
-    sut = new DefaultAuthRequestAnsweringService(
+    sut = new TestAuthRequestAnsweringService(
       accountService,
       authService,
       masterPasswordService,

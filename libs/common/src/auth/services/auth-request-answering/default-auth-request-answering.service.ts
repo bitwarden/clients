@@ -38,6 +38,17 @@ export class DefaultAuthRequestAnsweringService implements AuthRequestAnsweringS
     protected readonly pendingAuthRequestsState: PendingAuthRequestsStateService,
   ) {}
 
+  async receivedPendingAuthRequest(
+    authRequestUserId: UserId,
+    authRequestId: string,
+  ): Promise<void> {
+    this.messagingService.send("openLoginApproval", {
+      // Include the authRequestId so the DeviceManagementComponent can upsert the correct device.
+      // This will only matter if the user is on the /device-management screen when the auth request is received.
+      notificationId: authRequestId,
+    });
+  }
+
   async activeUserMeetsConditionsToShowApprovalDialog(authRequestUserId: UserId): Promise<boolean> {
     // If the active user is not the intended recipient of the auth request, return false
     const activeUserId: UserId | null = await firstValueFrom(
