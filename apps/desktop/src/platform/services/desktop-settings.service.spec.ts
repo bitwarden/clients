@@ -3,15 +3,15 @@ import { of } from "rxjs";
 
 import { StateProvider, GlobalState } from "@bitwarden/common/platform/state";
 
-import * as utils from "../../utils";
-
 import { DesktopSettingsService } from "./desktop-settings.service";
 
-// Mock the utils module
-jest.mock("../../utils", () => ({
-  isWindowsStore: jest.fn(),
-  isSnapStore: jest.fn(),
-}));
+// Mock the global ipc object
+(global as any).ipc = {
+  platform: {
+    isWindowsStore: false,
+    isSnapStore: false,
+  },
+};
 
 describe("DesktopSettingsService", () => {
   let service: DesktopSettingsService;
@@ -33,9 +33,9 @@ describe("DesktopSettingsService", () => {
     service = new DesktopSettingsService(stateProvider);
     jest.clearAllMocks();
 
-    // Default: not Windows Store, not Snap
-    (utils.isWindowsStore as jest.Mock).mockReturnValue(false);
-    (utils.isSnapStore as jest.Mock).mockReturnValue(false);
+    // Reset ipc platform values to defaults
+    (global as any).ipc.platform.isWindowsStore = false;
+    (global as any).ipc.platform.isSnapStore = false;
   });
 
   describe("shouldDisplayAutoStartSetting", () => {
@@ -46,7 +46,7 @@ describe("DesktopSettingsService", () => {
     });
 
     it("should return false for Windows Store", () => {
-      (utils.isWindowsStore as jest.Mock).mockReturnValue(true);
+      (global as any).ipc.platform.isWindowsStore = true;
 
       const result = service.shouldDisplayAutoStartSetting();
 
@@ -54,7 +54,7 @@ describe("DesktopSettingsService", () => {
     });
 
     it("should return false for Snap", () => {
-      (utils.isSnapStore as jest.Mock).mockReturnValue(true);
+      (global as any).ipc.platform.isSnapStore = true;
 
       const result = service.shouldDisplayAutoStartSetting();
 
@@ -62,8 +62,8 @@ describe("DesktopSettingsService", () => {
     });
 
     it("should return false when both Windows Store and Snap are true", () => {
-      (utils.isWindowsStore as jest.Mock).mockReturnValue(true);
-      (utils.isSnapStore as jest.Mock).mockReturnValue(true);
+      (global as any).ipc.platform.isWindowsStore = true;
+      (global as any).ipc.platform.isSnapStore = true;
 
       const result = service.shouldDisplayAutoStartSetting();
 
