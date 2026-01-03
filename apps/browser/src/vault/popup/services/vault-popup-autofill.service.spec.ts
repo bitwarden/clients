@@ -378,8 +378,7 @@ describe("VaultPopupAutofillService", () => {
         expect(result).toBe(true);
         expect(mockCipher.login.uris).toHaveLength(1);
         expect(mockCipher.login.uris[0].uri).toBe(mockCurrentTab.url);
-        expect(mockCipherService.encrypt).toHaveBeenCalledWith(mockCipher, mockUserId);
-        expect(mockCipherService.updateWithServer).toHaveBeenCalledWith(mockEncryptedCipher);
+        expect(mockCipherService.updateWithServer).toHaveBeenCalledWith(mockCipher, mockUserId);
       });
 
       it("should add a URI to the cipher when there are no existing URIs", async () => {

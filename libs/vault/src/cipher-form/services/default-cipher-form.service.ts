@@ -37,14 +37,13 @@ export class DefaultCipherFormService implements CipherFormService {
 
     // Creating a new cipher
     if (cipher.id == null || cipher.id === "") {
-      const encrypted = await this.cipherService.encrypt(cipher, activeUserId);
-      savedCipher = await this.cipherService.createWithServer(encrypted, config.admin);
-      return await this.cipherService.decrypt(savedCipher, activeUserId);
+      return await this.cipherService.createWithServer(cipher, activeUserId, config.admin);
     }
 
     if (config.originalCipher == null) {
       throw new Error("Original cipher is required for updating an existing cipher");
     }
+    const originalCipherView = await this.decryptCipher(config.originalCipher);
 
     // Updating an existing cipher
 
@@ -66,35 +65,31 @@ export class DefaultCipherFormService implements CipherFormService {
       );
       // If the collectionIds are the same, update the cipher normally
     } else if (isSetEqual(originalCollectionIds, newCollectionIds)) {
-      const encrypted = await this.cipherService.encrypt(
+      const savedCipherView = await this.cipherService.updateWithServer(
         cipher,
         activeUserId,
-        null,
-        null,
-        config.originalCipher,
+        originalCipherView,
+        config.admin,
       );
-      savedCipher = await this.cipherService.updateWithServer(encrypted, config.admin);
+      savedCipher = await this.cipherService
+        .encrypt(savedCipherView, activeUserId)
+        .then((res) => res.cipher);
     } else {
-      const encrypted = await this.cipherService.encrypt(
-        cipher,
-        activeUserId,
-        null,
-        null,
-        config.originalCipher,
-      );
-      const encryptedCipher = encrypted.cipher;
-
       // Updating a cipher with collection changes is not supported with a single request currently
       // First update the cipher with the original collectionIds
-      encryptedCipher.collectionIds = config.originalCipher.collectionIds;
-      await this.cipherService.updateWithServer(
-        encrypted,
+      cipher.collectionIds = config.originalCipher.collectionIds;
+      const newCipher = await this.cipherService.updateWithServer(
+        cipher,
+        activeUserId,
+        originalCipherView,
         config.admin || originalCollectionIds.size === 0,
       );
 
       // Then save the new collection changes separately
-      encryptedCipher.collectionIds = cipher.collectionIds;
+      newCipher.collectionIds = cipher.collectionIds;
 
+      // TODO: Remove after migrating all SDK ops
+      const { cipher: encryptedCipher } = await this.cipherService.encrypt(newCipher, activeUserId);
       if (config.admin || originalCollectionIds.size === 0) {
         // When using an admin config or the cipher was unassigned, update collections as an admin
         savedCipher = await this.cipherService.saveCollectionsWithServerAdmin(encryptedCipher);

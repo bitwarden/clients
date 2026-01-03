@@ -254,17 +254,17 @@ describe("FidoAuthenticatorService", () => {
       }
 
       it("should save credential to vault if request confirmed by user", async () => {
-        const encryptedCipher = Symbol();
         userInterfaceSession.confirmNewCredential.mockResolvedValue({
           cipherId: existingCipher.id,
           userVerified: false,
         });
-        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as EncryptionContext);
 
         await authenticator.makeCredential(params, windowReference);
 
-        const saved = cipherService.encrypt.mock.lastCall?.[0];
-        expect(saved).toEqual(
+        const savedCipher = cipherService.updateWithServer.mock.lastCall?.[0];
+        const actualUserId = cipherService.updateWithServer.mock.lastCall?.[1];
+        expect(actualUserId).toEqual(userId);
+        expect(savedCipher).toEqual(
           expect.objectContaining({
             type: CipherType.Login,
             name: existingCipher.name,
@@ -288,7 +288,6 @@ describe("FidoAuthenticatorService", () => {
             }),
           }),
         );
-        expect(cipherService.updateWithServer).toHaveBeenCalledWith(encryptedCipher);
       });
 
       /** Spec: If the user does not consent or if user verification fails, return an error code equivalent to "NotAllowedError" and terminate the operation. */
@@ -361,17 +360,14 @@ describe("FidoAuthenticatorService", () => {
 
         cipherService.getAllDecrypted.mockResolvedValue([await cipher]);
         cipherService.decrypt.mockResolvedValue(cipher);
-        cipherService.encrypt.mockImplementation(async (cipher) => {
-          cipher.login.fido2Credentials[0].credentialId = credentialId; // Replace id for testability
-          return { cipher: {} as any as Cipher, encryptedFor: userId };
-        });
-        cipherService.createWithServer.mockImplementation(async ({ cipher }) => {
-          cipher.id = cipherId;
+        cipherService.createWithServer.mockImplementation(async (cipherView, _userId) => {
+          cipherView.id = cipherId;
           return cipher;
         });
-        cipherService.updateWithServer.mockImplementation(async ({ cipher }) => {
-          cipher.id = cipherId;
-          return cipher;
+        cipherService.updateWithServer.mockImplementation(async (cipherView, _userId) => {
+          cipherView.id = cipherId;
+          cipherView.login.fido2Credentials[0].credentialId = credentialId; // Replace id for testability
+          return cipherView;
         });
       });
 
@@ -701,14 +697,11 @@ describe("FidoAuthenticatorService", () => {
 
       /** Spec: Increment the credential associated signature counter */
       it("should increment counter and save to server when stored counter is larger than zero", async () => {
-        const encrypted = Symbol();
-        cipherService.encrypt.mockResolvedValue(encrypted as any);
         ciphers[0].login.fido2Credentials[0].counter = 9000;
 
         await authenticator.getAssertion(params, windowReference);
 
-        expect(cipherService.updateWithServer).toHaveBeenCalledWith(encrypted);
-        expect(cipherService.encrypt).toHaveBeenCalledWith(
+        expect(cipherService.updateWithServer).toHaveBeenCalledWith(
           expect.objectContaining({
             id: ciphers[0].id,
             login: expect.objectContaining({
@@ -725,8 +718,6 @@ describe("FidoAuthenticatorService", () => {
 
       /** Spec: Authenticators that do not implement a signature counter leave the signCount in the authenticator data constant at zero. */
       it("should not save to server when stored counter is zero", async () => {
-        const encrypted = Symbol();
-        cipherService.encrypt.mockResolvedValue(encrypted as any);
         ciphers[0].login.fido2Credentials[0].counter = 0;
 
         await authenticator.getAssertion(params, windowReference);

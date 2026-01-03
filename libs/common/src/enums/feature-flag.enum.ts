@@ -68,6 +68,7 @@ export enum FeatureFlag {
   VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
+  PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -127,6 +128,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
+  [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
 
   /* Auth */
