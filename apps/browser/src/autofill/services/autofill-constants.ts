@@ -31,6 +31,7 @@ export class AutoFillConstants {
     "totp",
     "totpcode",
     "2facode",
+    "tfa_code",
     "approvals_code",
     "mfacode",
     "otc-code",
@@ -43,6 +44,7 @@ export class AutoFillConstants {
     "twofactor",
     "twofa",
     "twofactorcode",
+    "twofactor_token",
     "verificationcode",
     "verification code",
   ];
