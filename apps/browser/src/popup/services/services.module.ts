@@ -23,6 +23,8 @@ import {
   WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
+import { AUTOFILL_NUDGE_SERVICE } from "@bitwarden/angular/vault";
+import { SingleNudgeService } from "@bitwarden/angular/vault/services/default-single-nudge.service";
 import {
   LoginComponentService,
   TwoFactorAuthComponentService,
@@ -208,6 +210,7 @@ import {
 } from "../../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
+import { BrowserAutofillNudgeService } from "../../vault/popup/services/browser-autofill-nudge.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
@@ -755,6 +758,11 @@ const safeProviders: SafeProvider[] = [
       PolicyService,
       MessagingServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: AUTOFILL_NUDGE_SERVICE as SafeInjectionToken<SingleNudgeService>,
+    useClass: BrowserAutofillNudgeService,
+    deps: [],
   }),
 ];
 
