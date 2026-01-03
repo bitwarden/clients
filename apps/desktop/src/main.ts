@@ -47,6 +47,7 @@ import { PowerMonitorMain } from "./main/power-monitor.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
+import { AutoStartService, AutoStartStatus, DefaultAutoStartService } from "./platform/auto-start";
 import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
@@ -91,6 +92,7 @@ export class Main {
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
+  autoStartService: AutoStartService;
 
   constructor() {
     // Set paths for portable builds
@@ -220,7 +222,12 @@ export class Main {
       this.mainCryptoFunctionService,
     );
 
-    this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
+    this.autoStartService = new DefaultAutoStartService(this.logService);
+    this.messagingMain = new MessagingMain(
+      this,
+      this.desktopSettingsService,
+      this.autoStartService,
+    );
     this.updaterMain = new UpdaterMain(this.i18nService, this.logService, this.windowMain);
 
     const messageSubject = new Subject<Message<Record<string, unknown>>>();
@@ -323,11 +330,13 @@ export class Main {
     this.migrationRunner.run().then(
       async () => {
         await this.toggleHardwareAcceleration();
-        // Reset modal mode to make sure main window is displayed correctly
-        await this.desktopSettingsService.resetModalMode();
+
+        // Initialize and reset desktop settings to ensure consistency
+        await this.initializeDesktopSettings();
+
         await this.windowMain.init();
         await this.i18nService.init();
-        await this.messagingMain.init();
+        this.messagingMain.init();
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
@@ -409,6 +418,29 @@ export class Main {
       .forEach((s) => {
         this.messagingService.send("deepLink", { urlString: s });
       });
+  }
+
+  /**
+   * Initializes desktop settings to ensure consistency between stored values and system state.
+   * This includes:
+   * - Resetting modal mode to prevent the app from being stuck in modal mode after force-close
+   * - Synchronizing openAtLogin with the actual system auto-start state (when queryable)
+   */
+  private async initializeDesktopSettings(): Promise<void> {
+    // Reset modal mode to make sure main window is displayed correctly
+    await this.desktopSettingsService.resetModalMode();
+
+    // Initialize the openAtLogin setting based on the current system state.
+    // This allows for cases where the user modifies the system state outside of our application.
+    const autoStartStatus = await this.autoStartService.isEnabled();
+
+    // Only sync when we can reliably determine the system state.
+    // For platforms like Flatpak/Snap where the state is unknown, trust the stored value
+    // and don't update from the system.
+    if (autoStartStatus !== AutoStartStatus.Unknown) {
+      const isEnabled = autoStartStatus === AutoStartStatus.Enabled;
+      await this.desktopSettingsService.setOpenAtLogin(isEnabled);
+    }
   }
 
   private async toggleHardwareAcceleration(): Promise<void> {

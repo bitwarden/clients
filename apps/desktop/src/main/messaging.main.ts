@@ -1,16 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as fs from "fs";
-import * as path from "path";
-
-import { app, ipcMain } from "electron";
+import { ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
-import { autostart } from "@bitwarden/desktop-napi";
-
 import { Main } from "../main";
+import { AutoStartService } from "../platform/auto-start";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { isFlatpak, isLinux, isSnapStore } from "../utils";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
@@ -22,19 +17,11 @@ export class MessagingMain {
   constructor(
     private main: Main,
     private desktopSettingsService: DesktopSettingsService,
+    private autoStartService: AutoStartService,
   ) {}
 
-  async init() {
+  init() {
     this.scheduleNextSync();
-    if (isLinux()) {
-      // Flatpak and snap don't have access to or use the startup file. On flatpak, the autostart portal is used
-      if (!isFlatpak() && !isSnapStore()) {
-        await this.desktopSettingsService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
-      }
-    } else {
-      const loginSettings = app.getLoginItemSettings();
-      await this.desktopSettingsService.setOpenAtLogin(loginSettings.openAtLogin);
-    }
     ipcMain.on(
       "messagingService",
       async (event: any, message: any) => await this.onMessage(message),
@@ -78,10 +65,10 @@ export class MessagingMain {
         this.main.trayMain.hideToTray();
         break;
       case "addOpenAtLogin":
-        this.addOpenAtLogin();
+        await this.autoStartService.enable();
         break;
       case "removeOpenAtLogin":
-        this.removeOpenAtLogin();
+        await this.autoStartService.disable();
         break;
       case "setFocus":
         this.setFocus();
@@ -124,49 +111,6 @@ export class MessagingMain {
       lockVaultTrayMenuItem.enabled = activeAccount.isAuthenticated && !activeAccount.isLocked;
     }
     this.main.trayMain.updateContextMenu();
-  }
-
-  private addOpenAtLogin() {
-    if (process.platform === "linux") {
-      if (isFlatpak()) {
-        autostart.setAutostart(true, []).catch((e) => {});
-      } else {
-        const data = `[Desktop Entry]
-  Type=Application
-  Version=${app.getVersion()}
-  Name=Bitwarden
-  Comment=Bitwarden startup script
-  Exec=${app.getPath("exe")}
-  StartupNotify=false
-  Terminal=false`;
-
-        const dir = path.dirname(this.linuxStartupFile());
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir);
-        }
-        fs.writeFileSync(this.linuxStartupFile(), data);
-      }
-    } else {
-      app.setLoginItemSettings({ openAtLogin: true });
-    }
-  }
-
-  private removeOpenAtLogin() {
-    if (process.platform === "linux") {
-      if (isFlatpak()) {
-        autostart.setAutostart(false, []).catch((e) => {});
-      } else {
-        if (fs.existsSync(this.linuxStartupFile())) {
-          fs.unlinkSync(this.linuxStartupFile());
-        }
-      }
-    } else {
-      app.setLoginItemSettings({ openAtLogin: false });
-    }
-  }
-
-  private linuxStartupFile(): string {
-    return path.join(app.getPath("home"), ".config", "autostart", "bitwarden.desktop");
   }
 
   private setFocus() {
