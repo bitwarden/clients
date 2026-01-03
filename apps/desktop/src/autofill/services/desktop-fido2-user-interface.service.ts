@@ -299,8 +299,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       throw new Error("No active user ID found!");
     }
 
-    const encCipher = await this.cipherService.encrypt(cipher, activeUserId);
-
     try {
       const createdCipher = await this.cipherService.createWithServer(cipher, activeUserId);
       const encryptedCreatedCipher = await this.cipherService.encrypt(createdCipher, activeUserId);
