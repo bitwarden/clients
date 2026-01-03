@@ -3,7 +3,18 @@ import { ImportResult } from "../models/import-result";
 import { BaseImporter } from "./base-importer";
 import { Importer } from "./importer";
 
-const OfficialProps = ["!group_id", "!group_name", "title", "username", "password", "URL", "id"];
+const OfficialProps = [
+  "!group_id",
+  "!group_name",
+  "!type",
+  "title",
+  "username",
+  "password",
+  "URL",
+  "url",
+  "note",
+  "id",
+];
 
 export class ButtercupCsvImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
@@ -21,16 +32,24 @@ export class ButtercupCsvImporter extends BaseImporter implements Importer {
       cipher.name = this.getValueOrDefault(value.title, "--");
       cipher.login.username = this.getValueOrDefault(value.username);
       cipher.login.password = this.getValueOrDefault(value.password);
-      cipher.login.uris = this.makeUriArray(value.URL);
 
-      let processingCustomFields = false;
+      // Handle URL field (case-insensitive)
+      const urlValue = value.URL || value.url || value.Url;
+      cipher.login.uris = this.makeUriArray(urlValue);
+
+      // Handle note field (case-insensitive)
+      const noteValue = value.note || value.Note || value.notes || value.Notes;
+      if (noteValue) {
+        cipher.notes = noteValue;
+      }
+
+      // Process custom fields, excluding official props (case-insensitive)
       for (const prop in value) {
         // eslint-disable-next-line
         if (value.hasOwnProperty(prop)) {
-          if (!processingCustomFields && OfficialProps.indexOf(prop) === -1) {
-            processingCustomFields = true;
-          }
-          if (processingCustomFields) {
+          const lowerProp = prop.toLowerCase();
+          const isOfficialProp = OfficialProps.some((p) => p.toLowerCase() === lowerProp);
+          if (!isOfficialProp && value[prop]) {
             this.processKvp(cipher, prop, value[prop]);
           }
         }
