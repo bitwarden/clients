@@ -361,7 +361,7 @@ export class CipherView implements View, InitializerMetadata {
    */
   toSdkUpdateCipherRequest(): CipherEditRequest {
     const sdkCipherEditRequest: CipherEditRequest = {
-      id: this.id ? asUuid(this.id) : undefined,
+      id: asUuid(this.id),
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       name: this.name ?? "",
@@ -382,7 +382,7 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Returns the SDK CipherViewType object for the cipher.
    *
-   * @returns {CipherViewType} The SDK CipherViewType for the cipher.
+   * @returns {CipherViewType} The SDK CipherViewType for the cipher.t
    */
   getSdkCipherViewType(): CipherViewType {
     let viewType: CipherViewType;
@@ -403,6 +403,10 @@ export class CipherView implements View, InitializerMetadata {
         viewType = { sshKey: this.sshKey?.toSdkSshKeyView() };
         break;
       default:
+        viewType = {
+          // Default to empty login - should not be valid code path.
+          login: new LoginView().toSdkLoginView(),
+        };
         break;
     }
     return viewType;
