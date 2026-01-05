@@ -6039,5 +6039,8 @@
   },
   "whyAmISeeingThis": {
     "message": "為什麼我會看到此訊息？"
+  },
+  "resizeSideNavigation": {
+    "message": "調整側邊欄大小"
   }
 }
