@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Тайм-аут сессии"
   },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Эта настройка управляется вашей организацией."
   },
