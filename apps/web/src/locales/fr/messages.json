@@ -2634,6 +2634,9 @@
   "key": {
     "message": "Clé"
   },
+  "unnamedKey": {
+    "message": "Clé sans nom"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Code de vérification"
   },
@@ -12297,6 +12300,9 @@
   },
   "userVerificationFailed": {
     "message": "La vérification de l'utilisateur a échoué."
+  },
+  "resizeSideNavigation": {
+    "message": "Redimensionner la navigation latérale"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Supprimer les éléments non récupérables du coffre"

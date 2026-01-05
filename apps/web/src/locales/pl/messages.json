@@ -2634,6 +2634,9 @@
   "key": {
     "message": "Klucz"
   },
+  "unnamedKey": {
+    "message": "Klucz bez nazwy"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Kod weryfikacyjny"
   },
@@ -12297,6 +12300,9 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "resizeSideNavigation": {
+    "message": "Zmień rozmiar nawigacji bocznej"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Delete unrecoverable vault items"

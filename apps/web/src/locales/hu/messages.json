@@ -2634,6 +2634,9 @@
   "key": {
     "message": "Kulcs"
   },
+  "unnamedKey": {
+    "message": "Névtelen kulcs"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Ellenőrző kód"
   },
@@ -12297,6 +12300,9 @@
   },
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
+  },
+  "resizeSideNavigation": {
+    "message": "Oldalnavigáció átméretezés"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Helyreállíthatatlan széf elemek törlése"
