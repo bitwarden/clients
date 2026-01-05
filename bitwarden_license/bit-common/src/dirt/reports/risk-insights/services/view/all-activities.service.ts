@@ -74,11 +74,6 @@ export class AllActivitiesService {
       totalAtRiskMemberCount: summary.totalAtRiskMemberCount,
       totalApplicationCount: summary.totalApplicationCount,
       totalAtRiskApplicationCount: summary.totalAtRiskApplicationCount,
-
-      totalCriticalApplicationCount: summary.totalCriticalApplicationCount,
-      totalCriticalAtRiskApplicationCount: summary.totalCriticalAtRiskApplicationCount,
-      totalCriticalMemberCount: summary.totalCriticalMemberCount,
-      totalCriticalAtRiskMemberCount: summary.totalCriticalAtRiskMemberCount,
     });
   }
 
