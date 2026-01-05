@@ -6039,5 +6039,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Perché vedo questo avviso?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

@@ -6039,5 +6039,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Proč se mi toto zobrazuje?"
+  },
+  "resizeSideNavigation": {
+    "message": "Změnit velikost boční navigace"
   }
 }

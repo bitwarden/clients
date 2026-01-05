@@ -4856,7 +4856,7 @@
     "message": "新增"
   },
   "removeItem": {
-    "message": "删除 $NAME$",
+    "message": "移除 $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -6039,5 +6039,8 @@
   },
   "whyAmISeeingThis": {
     "message": "为什么我会看到这个？"
+  },
+  "resizeSideNavigation": {
+    "message": "调整侧边导航栏大小"
   }
 }

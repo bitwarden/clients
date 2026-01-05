@@ -6039,5 +6039,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Чому я це бачу?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }
