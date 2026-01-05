@@ -6,6 +6,7 @@ import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { emptyGuid, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -15,6 +16,7 @@ import { UserId } from "@bitwarden/user-core";
 import { emptyAccountEncrypted } from "../spec-data/bitwarden-json/account-encrypted.json";
 import { emptyUnencryptedExport } from "../spec-data/bitwarden-json/unencrypted.json";
 
+import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
 import { BitwardenJsonImporter } from "./bitwarden-json-importer";
 import { BitwardenPasswordProtectedImporter } from "./bitwarden-password-protected-importer";
 
@@ -41,9 +43,10 @@ describe("BitwardenPasswordProtectedImporter", () => {
 
     accountService.activeAccount$ = of({
       id: emptyGuid as UserId,
-      email: "test@example.com",
-      emailVerified: true,
-      name: "Test User",
+      ...mockAccountInfoWith({
+        email: "test@example.com",
+        name: "Test User",
+      }),
     });
 
     const mockOrgId = emptyGuid as OrganizationId;
@@ -90,15 +93,16 @@ describe("BitwardenPasswordProtectedImporter", () => {
 
   describe("Account encrypted", () => {
     beforeAll(() => {
-      jest.spyOn(BitwardenJsonImporter.prototype, "parse");
+      jest.spyOn(BitwardenEncryptedJsonImporter.prototype, "parse");
     });
 
     beforeEach(() => {
       accountService.activeAccount$ = of({
         id: emptyGuid as UserId,
-        email: "test@example.com",
-        emailVerified: true,
-        name: "Test User",
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       });
       importer = new BitwardenPasswordProtectedImporter(
         keyService,
@@ -111,9 +115,11 @@ describe("BitwardenPasswordProtectedImporter", () => {
       );
     });
 
-    it("Should call BitwardenJsonImporter", async () => {
-      expect((await importer.parse(emptyAccountEncrypted)).success).toEqual(true);
-      expect(BitwardenJsonImporter.prototype.parse).toHaveBeenCalledWith(emptyAccountEncrypted);
+    it("Should call BitwardenEncryptedJsonImporter", async () => {
+      expect((await importer.parse(emptyAccountEncrypted)).success).toEqual(false);
+      expect(BitwardenEncryptedJsonImporter.prototype.parse).toHaveBeenCalledWith(
+        emptyAccountEncrypted,
+      );
     });
   });
 

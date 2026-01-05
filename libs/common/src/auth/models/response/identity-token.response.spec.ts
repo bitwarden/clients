@@ -116,4 +116,36 @@ describe("IdentityTokenResponse", () => {
     const identityTokenResponse = new IdentityTokenResponse(response);
     expect(identityTokenResponse.userDecryptionOptions).toBeDefined();
   });
+
+  it("should create response with accountKeys not present", () => {
+    const response = {
+      access_token: accessToken,
+      token_type: tokenType,
+      AccountKeys: null as unknown,
+    };
+
+    const identityTokenResponse = new IdentityTokenResponse(response);
+    expect(identityTokenResponse.accountKeysResponseModel).toBeNull();
+  });
+
+  it("should create response with accountKeys present", () => {
+    const accountKeysData = {
+      publicKeyEncryptionKeyPair: {
+        publicKey: "testPublicKey",
+        wrappedPrivateKey: "testPrivateKey",
+      },
+    };
+
+    const response = {
+      access_token: accessToken,
+      token_type: tokenType,
+      AccountKeys: accountKeysData,
+    };
+
+    const identityTokenResponse = new IdentityTokenResponse(response);
+    expect(identityTokenResponse.accountKeysResponseModel).toBeDefined();
+    expect(
+      identityTokenResponse.accountKeysResponseModel?.publicKeyEncryptionKeyPair,
+    ).toBeDefined();
+  });
 });

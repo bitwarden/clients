@@ -1969,17 +1969,16 @@
   "encExportAccountWarningDesc": {
     "message": "கணக்கு என்க்ரிப்ஷன் சாவிகள் ஒவ்வொரு Bitwarden பயனர் கணக்கிற்கும் தனித்துவமானவை, எனவே நீங்கள் என்க்ரிப்ட் செய்யப்பட்ட ஏற்றுமதியை வேறு கணக்கில் இறக்குமதி செய்ய முடியாது."
   },
-  "export": {
-    "message": "ஏற்றுமதி"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "இதிலிருந்து ஏற்றுமதி"
-  },
-  "exportVault": {
-    "message": "பெட்டகத்தை ஏற்றுமதி செய்"
-  },
-  "exportSecrets": {
-    "message": "ரகசியங்களை ஏற்றுமதி செய்"
   },
   "fileFormat": {
     "message": "கோப்பு வடிவம்"
@@ -1992,9 +1991,6 @@
   },
   "confirmMasterPassword": {
     "message": "முதன்மை கடவுச்சொல்லை உறுதிப்படுத்தவும்"
-  },
-  "confirmFormat": {
-    "message": "வடிவத்தை உறுதிப்படுத்தவும்"
   },
   "filePassword": {
     "message": "கோப்பு கடவுச்சொல்"
@@ -2305,6 +2301,14 @@
   },
   "tools": {
     "message": "கருவிகள்"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "தரவை இம்போர்ட் செய்யவும்"
@@ -2629,6 +2633,9 @@
   },
   "key": {
     "message": "கீ"
+  },
+  "unnamedKey": {
+    "message": "Unnamed key"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "சரிபார்ப்புக் குறியீடு"
@@ -3288,6 +3295,9 @@
   },
   "launchCloudSubscription": {
     "message": "கிளவுட் சந்தாவைத் தொடங்கவும்"
+  },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Launch cloud subscription"
   },
   "storage": {
     "message": "சேமிப்பகம்"
@@ -4203,6 +4213,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Accepted transfer to organization ownership."
+  },
+  "userDeclinedTransfer": {
+    "message": "Revoked for declining transfer to organization ownership."
   },
   "invitedUserId": {
     "message": "பயனர் $ID$ அழைக்கப்பட்டார்.",
@@ -5169,8 +5185,20 @@
     "message": "சரிசெய்",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "உங்கள் வால்ட்டில் பழைய கோப்பு இணைப்புகள் உள்ளன, அவை உங்கள் கணக்கின் என்க்ரிப்ஷன் கீயைச் சுழற்றுவதற்கு முன் சரிசெய்யப்பட வேண்டும்."
+  },
+  "itemsTransferred": {
+    "message": "Items transferred"
   },
   "yourAccountsFingerprint": {
     "message": "உங்கள் கணக்கின் ஃபிங்கர்பிரிண்ட் ஃபிரேஸ்",
@@ -6453,6 +6481,32 @@
   "bulkReinviteMessage": {
     "message": "வெற்றிகரமாக மீண்டும் அழைக்கப்பட்டது"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ users re-invited",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "வெற்றிகரமாக அகற்றப்பட்டது"
   },
@@ -6773,8 +6827,8 @@
   "vaultTimeoutRangeError": {
     "message": "பெட்டக காலக்கெடு அனுமதிக்கப்பட்ட வரம்பிற்குள் இல்லை."
   },
-  "disablePersonalVaultExport": {
-    "message": "தனிப்பட்ட பெட்டக ஏற்றுமதியை அகற்று"
+  "disableExport": {
+    "message": "Remove export"
   },
   "disablePersonalVaultExportDescription": {
     "message": "உறுப்பினர்கள் தங்கள் தனிப்பட்ட பெட்டகத்திலிருந்து தரவை ஏற்றுமதி செய்ய அனுமதிக்க வேண்டாம்."
@@ -7094,9 +7148,6 @@
   "invalidVerificationCode": {
     "message": "தவறான சரிபார்ப்புக் குறியீடு"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "பின்வரும் நிறுவனத்தின் உறுப்பினர்களுக்கு மாஸ்டர் கடவுச்சொல் இனி தேவையில்லை. தயவுசெய்து கீழே உள்ள டொமைனை உங்கள் நிறுவன நிர்வாகியுடன் உறுதிப்படுத்தவும்."
-  },
   "keyConnectorDomain": {
     "message": "கீ கனெக்டர் டொமைன்"
   },
@@ -7154,8 +7205,8 @@
   "enabledSso": {
     "message": "SSO இயக்கப்பட்டது"
   },
-  "disabledSso": {
-    "message": "SSO இயக்கப்பட்டது"
+  "ssoTurnedOff": {
+    "message": "SSO turned off"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ must login with Single Sign-on",
@@ -8718,9 +8769,6 @@
   "server": {
     "message": "சேவையகம்"
   },
-  "exportData": {
-    "message": "தரவை ஏற்றுமதி செய்"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "நிறுவன இரகசிய தரவை ஏற்றுமதி செய்தல்"
   },
@@ -9447,6 +9495,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "SSO உள்நுழைவு தேவை"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Email is required for SSO"
   },
   "selectedRegionFlag": {
     "message": "தேர்ந்தெடுக்கப்பட்ட பிராந்திய கொடி"
@@ -11558,6 +11609,9 @@
   "unArchive": {
     "message": "Unarchive"
   },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "Items in archive"
   },
@@ -11961,8 +12015,8 @@
   "familiesMembership": {
     "message": "Families membership"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "planDescFamiliesV2": {
     "message": "Premium security for your family"
@@ -12199,6 +12253,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "No critical applications are selected"
   },
@@ -12207,5 +12300,190 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Delete unrecoverable vault items"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Some of your vault items could not be recovered. Do you want to delete these unrecoverable items from your vault?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Delete unrecoverable folders"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Some of your folders could not be recovered. Do you want to delete these unrecoverable folders from your vault?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Replace encryption key"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Synchronizing data"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Verifying encryption key integrity"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Verifying user information"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Verifying vault item integrity"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Verifying folder integrity"
+  },
+  "dataRecoveryTitle": {
+    "message": "Data Recovery and Diagnostics"
+  },
+  "dataRecoveryDescription": {
+    "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
+  },
+  "runDiagnostics": {
+    "message": "Run Diagnostics"
+  },
+  "repairIssues": {
+    "message": "Repair Issues"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Save Diagnostic Logs"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser refresh."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser refresh"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "You have Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "View and manage your Premium subscription"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "You'll need to update your license file"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Upload license file"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Upload your license file"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Upload your Premium license file"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Already have a subscription?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+  },
+  "viewAllPlans": {
+    "message": "View all plans"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
   }
 }
