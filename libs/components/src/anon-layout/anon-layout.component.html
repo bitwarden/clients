@@ -11,28 +11,26 @@
       'tw-flex tw-flex-col tw-items-center tw-flex-1 tw-bg-background-alt tw-p-5 tw-text-main'
     "
   >
-    <bit-landing-max-width-container [maxWidth]="maxWidth()">
+    <bit-landing-content [maxWidth]="maxWidth()">
       <bit-landing-hero
         class="tw-bg-background-alt"
         [icon]="icon()"
         [title]="title()"
         [subtitle]="subtitle()"
       ></bit-landing-hero>
-      <bit-landing-content>
-        @if (hideCardWrapper()) {
-          <div class="tw-mb-6 sm:tw-mb-10">
-            <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
-          </div>
-        } @else {
-          <bit-landing-card>
-            <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
-          </bit-landing-card>
-        }
-        <div class="tw-flex tw-flex-col tw-items-center">
-          <ng-content select="[slot=secondary]"></ng-content>
+      @if (hideCardWrapper()) {
+        <div class="tw-mb-6 sm:tw-mb-10">
+          <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
         </div>
-      </bit-landing-content>
-    </bit-landing-max-width-container>
+      } @else {
+        <bit-landing-card>
+          <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+        </bit-landing-card>
+      }
+      <div class="tw-flex tw-flex-col tw-items-center">
+        <ng-content select="[slot=secondary]"></ng-content>
+      </div>
+    </bit-landing-content>
   </div>
 
   @if (!hideFooter()) {

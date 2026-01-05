@@ -16,13 +16,11 @@ import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { CardComponent } from "../card";
 import { IconModule } from "../icon";
+import { LandingContentMaxWidth, LandingContentMaxWidthType } from "../landing-layout";
 import { LandingLayoutModule } from "../landing-layout/landing-layout.module";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
-
-export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -35,7 +33,6 @@ export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
     TypographyModule,
     SharedModule,
     RouterModule,
-    CardComponent,
     LandingLayoutModule,
   ],
 })
@@ -60,7 +57,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    *
    * @default 'md'
    */
-  readonly maxWidth = model<AnonLayoutMaxWidth>("md");
+  readonly maxWidth = model<LandingContentMaxWidthType>(LandingContentMaxWidth.Md);
 
   protected logo = BitwardenLogo;
   protected year: string;
