@@ -35,7 +35,7 @@ export class NetwrixPasswordSecureCsvImporter extends BaseImporter implements Im
 
       const notes = this.getValueOrDefault(row.Informationen);
       if (notes) {
-        cipher.notes = `${notes}\n`;
+        cipher.notes = notes.trimEnd();
       }
 
       cipher.name = this.getValueOrDefault(row.Beschreibung, "--");
