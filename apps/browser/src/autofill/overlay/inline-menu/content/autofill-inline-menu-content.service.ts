@@ -75,6 +75,12 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   constructor() {
+    /**
+     * Sets up mutation observers for the inline menu elements, the menu container, and
+     * the document element. The mutation observers are used to remove any styles that
+     * are added to the inline menu elements by the website. They are also used to ensure
+     * that the inline menu elements are always present at the bottom of the menu container.
+     */
     this.htmlMutationObserver = new MutationObserver(this.handlePageMutations);
     this.bodyMutationObserver = new MutationObserver(this.handlePageMutations);
     this.inlineMenuElementsMutationObserver = new MutationObserver(
