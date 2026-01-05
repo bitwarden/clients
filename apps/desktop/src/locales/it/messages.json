@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Timeout della sessione"
   },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Questa impostazione è gestita dalla tua organizzazione."
   },
