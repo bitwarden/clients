@@ -6,6 +6,8 @@
     variant="tree"
     [appA11yTitle]="displayName()"
     (click)="applyFilter($event)"
+    [forceActiveStyles]="isActive()"
+    [disableToggleOnClick]="true"
   >
     @if (folder()?.node.id) {
       <button

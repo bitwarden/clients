@@ -18,6 +18,8 @@
         [text]="'collections' | i18n"
         variant="tree"
         [appA11yTitle]="'collections' | i18n"
+        [forceActiveStyles]="activeFilter()?.selectedCollectionNode"
+        [disableToggleOnClick]="true"
       >
         @for (collection of (collections$ | async)?.children ?? []; track collection.node.id) {
           <app-collection-filter [activeFilter]="activeFilter()" [collection]="collection" />
@@ -29,6 +31,8 @@
       [text]="'folders' | i18n"
       variant="tree"
       [appA11yTitle]="'folders' | i18n"
+      [forceActiveStyles]="activeFilter()?.selectedFolderNode"
+      [disableToggleOnClick]="true"
     >
       @for (folder of (folders$ | async)?.children ?? []; track folder.node.id) {
         <app-folder-filter

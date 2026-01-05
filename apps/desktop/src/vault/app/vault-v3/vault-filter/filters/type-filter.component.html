@@ -6,6 +6,8 @@
   [appA11yTitle]="'allItems' | i18n"
   variant="tree"
   [open]="true"
+  [forceActiveStyles]="activeFilter()?.selectedCipherTypeNode?.node?.id === 'AllItems'"
+  [disableToggleOnClick]="true"
 >
   @for (typeFilter of typeFilters$ | async; track typeFilter) {
     <bit-nav-item
