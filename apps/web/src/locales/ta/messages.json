@@ -2634,6 +2634,9 @@
   "key": {
     "message": "கீ"
   },
+  "unnamedKey": {
+    "message": "Unnamed key"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "சரிபார்ப்புக் குறியீடு"
   },
@@ -12297,6 +12300,9 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Delete unrecoverable vault items"

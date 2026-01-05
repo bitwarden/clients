@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -37,7 +37,12 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
-import { BiometricStateService, BiometricsService, KeyService } from "@bitwarden/key-management";
+import {
+  BiometricStateService,
+  BiometricsService,
+  BiometricsStatus,
+  KeyService,
+} from "@bitwarden/key-management";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -64,6 +69,7 @@ describe("AccountSecurityComponent", () => {
   const apiService = mock<ApiService>();
   const billingService = mock<BillingAccountProfileStateService>();
   const biometricStateService = mock<BiometricStateService>();
+  const biometricsService = mock<BiometricsService>();
   const configService = mock<ConfigService>();
   const dialogService = mock<DialogService>();
   const keyService = mock<KeyService>();
@@ -75,6 +81,7 @@ describe("AccountSecurityComponent", () => {
   const validationService = mock<ValidationService>();
   const vaultNudgesService = mock<NudgesService>();
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
+  const mockI18nService = mock<I18nService>();
 
   // Mock subjects to control the phishing detection observables
   let phishingAvailableSubject: BehaviorSubject<boolean>;
@@ -91,14 +98,14 @@ describe("AccountSecurityComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: billingService,
         },
-        { provide: BiometricsService, useValue: mock<BiometricsService>() },
+        { provide: BiometricsService, useValue: biometricsService },
         { provide: BiometricStateService, useValue: biometricStateService },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: dialogService },
         { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
-        { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: I18nService, useValue: mockI18nService },
         { provide: KeyService, useValue: keyService },
         { provide: LockService, useValue: lockService },
         { provide: LogService, useValue: mock<LogService>() },
@@ -153,6 +160,7 @@ describe("AccountSecurityComponent", () => {
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     configService.getFeatureFlag$.mockReturnValue(of(false));
     billingService.hasPremiumPersonally$.mockReturnValue(of(true));
+    mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
 
     policyService.policiesByType$.mockReturnValue(of([null]));
 
@@ -458,5 +466,119 @@ describe("AccountSecurityComponent", () => {
         expect(trySetupBiometricsSpy).not.toHaveBeenCalled();
       });
     });
+  });
+
+  describe("biometrics polling timer", () => {
+    let browserApiSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      browserApiSpy = jest.spyOn(BrowserApi, "permissionsGranted");
+    });
+
+    afterEach(() => {
+      component.ngOnDestroy();
+    });
+
+    it("disables biometric control when canEnableBiometricUnlock is false", fakeAsync(async () => {
+      biometricsService.canEnableBiometricUnlock.mockResolvedValue(false);
+
+      await component.ngOnInit();
+      tick();
+
+      expect(component.form.controls.biometric.disabled).toBe(true);
+    }));
+
+    it("enables biometric control when canEnableBiometricUnlock is true", fakeAsync(async () => {
+      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
+
+      await component.ngOnInit();
+      tick();
+
+      expect(component.form.controls.biometric.disabled).toBe(false);
+    }));
+
+    it("skips status check when nativeMessaging permission is not granted and not Safari", fakeAsync(async () => {
+      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
+      browserApiSpy.mockResolvedValue(false);
+      platformUtilsService.isSafari.mockReturnValue(false);
+
+      await component.ngOnInit();
+      tick();
+
+      expect(biometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
+      expect(component.biometricUnavailabilityReason).toBeUndefined();
+    }));
+
+    it("checks biometrics status when nativeMessaging permission is granted", fakeAsync(async () => {
+      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
+      browserApiSpy.mockResolvedValue(true);
+      platformUtilsService.isSafari.mockReturnValue(false);
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.DesktopDisconnected,
+      );
+
+      await component.ngOnInit();
+      tick();
+
+      expect(biometricsService.getBiometricsStatusForUser).toHaveBeenCalledWith(mockUserId);
+    }));
+
+    it("should check status on Safari", fakeAsync(async () => {
+      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
+      browserApiSpy.mockResolvedValue(false);
+      platformUtilsService.isSafari.mockReturnValue(true);
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.DesktopDisconnected,
+      );
+
+      await component.ngOnInit();
+      tick();
+
+      expect(biometricsService.getBiometricsStatusForUser).toHaveBeenCalledWith(mockUserId);
+    }));
+
+    test.each([
+      [
+        BiometricsStatus.DesktopDisconnected,
+        "biometricsStatusHelptextDesktopDisconnected-used-i18n",
+      ],
+      [
+        BiometricsStatus.NotEnabledInConnectedDesktopApp,
+        "biometricsStatusHelptextNotEnabledInDesktop-used-i18n",
+      ],
+      [
+        BiometricsStatus.HardwareUnavailable,
+        "biometricsStatusHelptextHardwareUnavailable-used-i18n",
+      ],
+    ])(
+      "sets expected unavailability reason for %s status when biometric not available",
+      fakeAsync(async (biometricStatus: BiometricsStatus, expected: string) => {
+        biometricsService.canEnableBiometricUnlock.mockResolvedValue(false);
+        browserApiSpy.mockResolvedValue(true);
+        platformUtilsService.isSafari.mockReturnValue(false);
+        biometricsService.getBiometricsStatusForUser.mockResolvedValue(biometricStatus);
+
+        await component.ngOnInit();
+        tick();
+
+        expect(component.biometricUnavailabilityReason).toBe(expected);
+      }),
+    );
+
+    it("should not set unavailability reason for error statuses when biometric is available", fakeAsync(async () => {
+      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
+      browserApiSpy.mockResolvedValue(true);
+      platformUtilsService.isSafari.mockReturnValue(false);
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.DesktopDisconnected,
+      );
+
+      await component.ngOnInit();
+      tick();
+
+      // Status is DesktopDisconnected but biometric IS available, so don't show error
+      expect(component.biometricUnavailabilityReason).toBe("");
+      component.ngOnDestroy();
+    }));
   });
 });
