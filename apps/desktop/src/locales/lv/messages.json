@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Sesijas noildze"
   },
+  "resizeSideNavigation": {
+    "message": "Mainīt sānu pārvietošanās joslas izmēru"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Šo iestatījumu pārvalda apvienība."
   },

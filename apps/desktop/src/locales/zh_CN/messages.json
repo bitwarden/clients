@@ -3785,7 +3785,7 @@
     "description": "Button text to navigate back"
   },
   "removeItem": {
-    "message": "删除 $NAME$",
+    "message": "移除 $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -4387,6 +4387,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "会话超时"
+  },
+  "resizeSideNavigation": {
+    "message": "调整侧边导航栏大小"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "此设置由您的组织管理。"

@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Munkamenet időkifutás"
   },
+  "resizeSideNavigation": {
+    "message": "Oldalnavigáció átméretezés"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Ezt a beállítást a szervezet lezeli."
   },
