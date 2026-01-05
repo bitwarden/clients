@@ -1,30 +1,26 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  ViewEncapsulation,
-} from "@angular/core";
-// import { toSignal } from "@angular/core/rxjs-interop";
-// import { ActivatedRoute, Data } from "@angular/router";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
+import { map } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HeaderComponent, BannerModule } from "@bitwarden/components";
 
-import { SharedModule } from "../../shared/shared.module";
-
-// interface HeaderRouteData extends Data {
-//   titleId?: string;
-// }
-
 @Component({
   selector: "app-header",
   templateUrl: "./desktop-header.component.html",
-  encapsulation: ViewEncapsulation.ShadowDom,
-  imports: [SharedModule, BannerModule, HeaderComponent],
+  imports: [BannerModule, HeaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [
+    `
+      /* Manually apply bitTypography h1 styles since HeaderComponent doesn't import TypographyDirective */
+      :host ::ng-deep bit-header h1 {
+        font-size: 1.875rem !important;
+        color: rgb(var(--color-text-main)) !important;
+        font-weight: 500 !important;
+      }
+    `,
+  ],
 })
 export class DesktopHeaderComponent {
   private route = inject(ActivatedRoute);
@@ -40,32 +36,22 @@ export class DesktopHeaderComponent {
    */
   readonly icon = input<string>();
 
-  // /**
-  //  * Route data as signal with safe defaults
-  //  */
-  // private readonly routeData = toSignal<Data, RouteDataProperties>(this.route.data, {
-  //   initialValue: {},
-  // });
+  private readonly routeData = toSignal(
+    this.route.data.pipe(
+      map((params) => ({
+        titleId: params["pageTitle"]?.["key"] as string | undefined,
+      })),
+    ),
+    { initialValue: { titleId: undefined } },
+  );
 
-  // /**
-  //  * Resolved title: prioritizes direct input, falls back to route titleId
-  //  */
   protected readonly resolvedTitle = computed(() => {
-    // const directTitle = this.title();
-    // if (directTitle) {
-    //   // console.log("[DesktopHeader] Using direct title:", directTitle);
-    //   alert("[DesktopHeader] Using direct title: " + directTitle);
-    //   return directTitle;
-    // }
+    const directTitle = this.title();
+    if (directTitle) {
+      return directTitle;
+    }
 
-    // const data = this.routeData();
-    // const titleId = data?.pageTitle?.key;
-    // // console.log("[DesktopHeader] Route data:", data, "titleId:", titleId);
-    // alert("[DesktopHeader] Route data: " + JSON.stringify(data) + " titleId: " + titleId);
-
-    // const translated = titleId ? this.i18nService.t(titleId) : "";
-    // // console.log("[DesktopHeader] Translated title:", translated);
-    // alert("[DesktopHeader] Translated title: " + translated);
-    return "translated";
+    const titleId = this.routeData().titleId;
+    return titleId ? this.i18nService.t(titleId) : "";
   });
 }

@@ -2298,6 +2298,10 @@
     "message": "All Sends",
     "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "new-sends": {
+    "message": "Send",
+    "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendTypeFile": {
     "message": "File"
   },
