@@ -14,13 +14,9 @@ import { IconModule } from "../icon";
 export class LandingLayoutComponent {
   readonly hideBackgroundIllustration = input<boolean>(false);
 
-  protected readonly clientType: string;
   protected readonly leftIllustration = BackgroundLeftIllustration;
   protected readonly rightIllustration = BackgroundRightIllustration;
 
   private readonly platformUtilsService: PlatformUtilsService = inject(PlatformUtilsService);
-
-  constructor() {
-    this.clientType = this.platformUtilsService.getClientType();
-  }
+  protected readonly clientType = this.platformUtilsService.getClientType();
 }
