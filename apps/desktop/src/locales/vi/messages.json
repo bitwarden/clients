@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Thời gian hết phiên"
   },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Cài đặt này do tổ chức của bạn quản lý."
   },

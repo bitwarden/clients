@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "פסק זמן להפעלה"
   },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "This setting is managed by your organization."
   },

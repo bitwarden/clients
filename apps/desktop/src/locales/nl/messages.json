@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Sessietime-out"
   },
+  "resizeSideNavigation": {
+    "message": "Formaat zijnavigatie wijzigen"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Deze instelling wordt beheerd door je organisatie."
   },

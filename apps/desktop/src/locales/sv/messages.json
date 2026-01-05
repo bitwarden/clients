@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Sessionstidsgräns"
   },
+  "resizeSideNavigation": {
+    "message": "Ändra storlek på sidnavigering"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Den här inställningen hanteras av din organisation."
   },

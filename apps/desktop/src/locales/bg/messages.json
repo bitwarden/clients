@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Изтичане на времето за сесията"
   },
+  "resizeSideNavigation": {
+    "message": "Преоразмеряване на страничната навигация"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Тази настройка се управлява от организацията Ви."
   },
