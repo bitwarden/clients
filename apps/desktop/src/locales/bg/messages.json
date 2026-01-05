@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "Изнасяне от"
   },
-  "export": {
-    "message": "Изнасяне"
+  "exportNoun": {
+    "message": "Изнасяне",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Внасяне"
+  "exportVerb": {
+    "message": "Изнасяне",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Внасяне",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Внасяне",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат на файла"
@@ -4377,6 +4387,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "Изтичане на времето за сесията"
+  },
+  "resizeSideNavigation": {
+    "message": "Преоразмеряване на страничната навигация"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Тази настройка се управлява от организацията Ви."

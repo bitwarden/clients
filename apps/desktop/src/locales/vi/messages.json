@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "Xuất từ"
   },
-  "export": {
-    "message": "Export"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Import"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Định dạng tập tin"
@@ -4377,6 +4387,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "Thời gian hết phiên"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Cài đặt này do tổ chức của bạn quản lý."

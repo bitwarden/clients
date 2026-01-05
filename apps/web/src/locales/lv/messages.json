@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "Katram Bitwarden kontam ir neatkārtojamas šifrēšanas atslēgas, tādēļ nav iespējams ievietot šifrētu izguvi citā kontā."
   },
-  "export": {
-    "message": "Izgūšana"
+  "exportNoun": {
+    "message": "Izgūšana",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Izgūt",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Izgūt no"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "Rīki"
   },
-  "import": {
-    "message": "Ievietot"
+  "importNoun": {
+    "message": "Ievietošana",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Ievietot",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Ievietot datus"
@@ -2623,6 +2633,9 @@
   },
   "key": {
     "message": "Atslēga"
+  },
+  "unnamedKey": {
+    "message": "Nenodēvēta atslēga"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Apliecinājuma kods"
@@ -3281,6 +3294,9 @@
     "message": "Pārvaldīt abonementus"
   },
   "launchCloudSubscription": {
+    "message": "Uzsākt mākoņa abonēšanu"
+  },
+  "launchCloudSubscriptionSentenceCase": {
     "message": "Uzsākt mākoņa abonēšanu"
   },
   "storage": {
@@ -4197,6 +4213,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Pieņemta īpašumtiesību nodošana apvienībai."
+  },
+  "userDeclinedTransfer": {
+    "message": "Atsaukts īpašumtiesību nodošanas apvienībai noraidīšanas dēļ."
   },
   "invitedUserId": {
     "message": "Uzaicināts lietotājs $ID$.",
@@ -11587,6 +11609,9 @@
   "unArchive": {
     "message": "Atcelt arhivēšanu"
   },
+  "unArchiveAndSave": {
+    "message": "Atcelt arhivēšanu un saglabāt"
+  },
   "itemsInArchive": {
     "message": "Vienumi arhīvā"
   },
@@ -12276,6 +12301,9 @@
   "userVerificationFailed": {
     "message": "Lietotāja apliecināšana neizdevās."
   },
+  "resizeSideNavigation": {
+    "message": "Mainīt sānu pārvietošanās joslas izmēru"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Izdzēst neatkopjamos glabātavas vienumus"
   },
@@ -12409,5 +12437,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Tev ir Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Apskatīt un pārvaldīt savu Premium abonementu"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Būs nepieciešams atjaunināt savu licences datni"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Augšupielādēt licences datni"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Jāaugšupielādē sava licences datne"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Jāaugšupielādē sava Premium licences datne"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Licences datnes nosaukums būs līdzīgs šim: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Jau ir abonements?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Jāatver abonementu lapa Bitwarden mākoņa kontā un jālejupielādē licences datne. Tad jāatgriežas šajā skatā un zemāk jāaugšupielādē."
+  },
+  "viewAllPlans": {
+    "message": "Apskatīt visus plānus"
+  },
+  "planDescPremium": {
+    "message": "Pilnīga drošība tiešsaistē"
   }
 }
