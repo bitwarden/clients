@@ -6039,5 +6039,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Varför ser jag det här?"
+  },
+  "resizeSideNavigation": {
+    "message": "Ändra storlek på sidnavigering"
   }
 }
