@@ -1,11 +1,12 @@
 @if (collection().children.length) {
   <bit-nav-group
     [icon]="collection().node.icon"
-    [class.active]="isActive()"
     [text]="displayName()"
     variant="tree"
     [appA11yTitle]="displayName()"
     (click)="applyFilter($event)"
+    [forceActiveStyles]="isActive()"
+    [disableToggleOnClick]="true"
   >
     @for (childCollection of collection().children; track childCollection.node.id) {
       <app-collection-filter [collection]="childCollection" [activeFilter]="activeFilter()" />

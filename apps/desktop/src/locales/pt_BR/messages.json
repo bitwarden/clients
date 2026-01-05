@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Limite de tempo da sessão"
   },
+  "resizeSideNavigation": {
+    "message": "Redimensionar navegação lateral"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Esta configuração é gerenciada pela sua organização."
   },

@@ -41,7 +41,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LayoutComponent, StorybookGlobalStateProvider } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { RoutedVaultFilterService } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/services/routed-vault-filter.service";
+import { RoutedVaultFilterService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";

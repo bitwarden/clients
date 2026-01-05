@@ -3,10 +3,12 @@
     icon="bwi-filter"
     (click)="applyAllVaultsFilter()"
     [text]="'allVaults' | i18n"
-    [attr.aria-pressed]="activeFilter()?.organizationId === null"
+    [attr.aria-pressed]="!activeFilter()?.selectedOrganizationNode"
     [appA11yTitle]="'allVaults' | i18n"
     variant="tree"
     [open]="true"
+    [forceActiveStyles]="!activeFilter()?.selectedOrganizationNode"
+    [disableToggleOnClick]="true"
   >
     @for (organization of organizations().children ?? []; track organization.node.id) {
       <bit-nav-item
