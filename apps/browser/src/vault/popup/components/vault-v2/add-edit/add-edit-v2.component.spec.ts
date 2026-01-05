@@ -1,4 +1,5 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
@@ -70,6 +71,7 @@ describe("AddEditV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [AddEditV2Component],
       providers: [
+        provideNoopAnimations(),
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: PopupRouterCacheService, useValue: { back, setHistory } },
@@ -374,12 +376,45 @@ describe("AddEditV2Component", () => {
       expect(deleteCipherSpy).toHaveBeenCalled();
     });
 
-    it("navigates to vault tab after deletion", async () => {
+    it("navigates to vault tab after deletion by default", async () => {
       jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
       await component.delete();
 
       expect(navigate).toHaveBeenCalledWith(["/tabs/vault"]);
     });
+
+    it("navigates to custom route after deletion when routeAfterDeletion query param is provided", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { edit: true, id: "123" } as Cipher;
+      queryParams$.next({
+        cipherId: "123",
+        routeAfterDeletion: "/archive",
+      });
+
+      tick();
+
+      jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
+
+      void component.delete();
+      tick();
+
+      expect(navigate).toHaveBeenCalledWith(["/archive"]);
+    }));
+
+    it("ignores invalid routeAfterDeletion query param and uses default route", fakeAsync(() => {
+      // Reset the component's routeAfterDeletion to default before this test
+      component.routeAfterDeletion = "/tabs/vault";
+
+      buildConfigResponse.originalCipher = { edit: true, id: "456" } as Cipher;
+      queryParams$.next({
+        cipherId: "456",
+        routeAfterDeletion: "/invalid/route",
+      });
+
+      tick();
+
+      // The invalid route should be ignored, routeAfterDeletion should remain default
+      expect(component.routeAfterDeletion).toBe("/tabs/vault");
+    }));
   });
 
   describe("reloadAddEditCipherData", () => {
