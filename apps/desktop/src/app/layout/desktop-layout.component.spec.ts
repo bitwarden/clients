@@ -3,20 +3,12 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
-import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { DialogService, NavigationModule } from "@bitwarden/components";
+import { NavigationModule } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
-import {
-  RoutedVaultFilterService,
-  VaultFilterServiceAbstraction as VaultFilterService,
-} from "@bitwarden/vault";
 
-import { DesktopRoutedVaultFilterBridgeService } from "../services/desktop-routed-vault-filter-bridge.service";
+import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
@@ -28,6 +20,13 @@ import { DesktopLayoutComponent } from "./desktop-layout.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockSendFiltersNavComponent {}
+
+@Component({
+  selector: "app-vault-filter",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockVaultFiltersNavComponent {}
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -58,46 +57,14 @@ describe("DesktopLayoutComponent", () => {
           useValue: mock<I18nService>(),
         },
         {
-          provide: DesktopRoutedVaultFilterBridgeService,
-          useValue: mock<DesktopRoutedVaultFilterBridgeService>(),
-        },
-        {
-          provide: RoutedVaultFilterService,
-          useValue: mock<RoutedVaultFilterService>(),
-        },
-        {
-          provide: VaultFilterService,
-          useValue: mock<VaultFilterService>(),
-        },
-        {
-          provide: AccountService,
-          useValue: mock<AccountService>(),
-        },
-        {
-          provide: CipherArchiveService,
-          useValue: mock<CipherArchiveService>(),
-        },
-        {
-          provide: FolderService,
-          useValue: mock<FolderService>(),
-        },
-        {
-          provide: PolicyService,
-          useValue: mock<PolicyService>(),
-        },
-        {
-          provide: DialogService,
-          useValue: mock<DialogService>(),
-        },
-        {
           provide: GlobalStateProvider,
           useValue: fakeGlobalStateProvider,
         },
       ],
     })
       .overrideComponent(DesktopLayoutComponent, {
-        remove: { imports: [SendFiltersNavComponent] },
-        add: { imports: [MockSendFiltersNavComponent] },
+        remove: { imports: [SendFiltersNavComponent, VaultFilterComponent] },
+        add: { imports: [MockSendFiltersNavComponent, MockVaultFiltersNavComponent] },
       })
       .compileComponents();
 
@@ -129,5 +96,12 @@ describe("DesktopLayoutComponent", () => {
     const sendFiltersNav = compiled.querySelector("app-send-filters-nav");
 
     expect(sendFiltersNav).toBeTruthy();
+  });
+
+  it("renders vault filters navigation component", () => {
+    const compiled = fixture.nativeElement;
+    const vaultFiltersNav = compiled.querySelector("app-vault-filter");
+
+    expect(vaultFiltersNav).toBeTruthy();
   });
 });
