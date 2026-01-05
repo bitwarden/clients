@@ -6,7 +6,6 @@ import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
-  OrganizationUserBulkConfirmRequest,
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
   OrganizationUserService,
@@ -15,10 +14,8 @@ import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enum
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -54,7 +51,6 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
     protected i18nService: I18nService,
     private stateProvider: StateProvider,
     private organizationUserService: OrganizationUserService,
-    private configService: ConfigService,
   ) {
     super(keyService, encryptService, i18nService);
 
@@ -84,19 +80,9 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
   protected postConfirmRequest = async (
     userIdsWithKeys: { id: string; key: string }[],
   ): Promise<ListResponse<OrganizationUserBulkResponse | ProviderUserBulkResponse>> => {
-    if (
-      await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
-    ) {
-      return await firstValueFrom(
-        this.organizationUserService.bulkConfirmUsers(this.organization, userIdsWithKeys),
-      );
-    } else {
-      const request = new OrganizationUserBulkConfirmRequest(userIdsWithKeys);
-      return await this.organizationUserApiService.postOrganizationUserBulkConfirm(
-        this.organization.id,
-        request,
-      );
-    }
+    return await firstValueFrom(
+      this.organizationUserService.bulkConfirmUsers(this.organization, userIdsWithKeys),
+    );
   };
 
   static open(dialogService: DialogService, config: DialogConfig<BulkConfirmDialogParams>) {

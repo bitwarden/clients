@@ -14,8 +14,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -75,7 +73,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     private formBuilder: FormBuilder,
     protected dialogRef: DialogRef<PolicyEditDialogResult>,
     protected toastService: ToastService,
-    private configService: ConfigService,
     private keyService: KeyService,
   ) {}
 
@@ -132,10 +129,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     try {
-      if (
-        this.policyComponent instanceof vNextOrganizationDataOwnershipPolicyComponent &&
-        (await this.isVNextEnabled())
-      ) {
+      if (this.policyComponent instanceof vNextOrganizationDataOwnershipPolicyComponent) {
         await this.handleVNextSubmission(this.policyComponent);
       } else {
         await this.handleStandardSubmission();
@@ -153,14 +147,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       });
     }
   };
-
-  private async isVNextEnabled(): Promise<boolean> {
-    const isVNextFeatureEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
-    );
-
-    return isVNextFeatureEnabled;
-  }
 
   private async handleStandardSubmission(): Promise<void> {
     if (!this.policyComponent) {

@@ -822,7 +822,6 @@ function createSeededVaultPopupListFiltersService(
       accountServiceMock,
       viewCacheServiceMock,
       restrictedItemTypesServiceMock,
-      configService,
     );
   });
 
