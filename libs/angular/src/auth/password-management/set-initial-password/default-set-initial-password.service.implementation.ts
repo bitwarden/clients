@@ -43,8 +43,8 @@ import {
   InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordUserType,
+  SetInitialPasswordTdeOffboardingCredentialsOld,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
@@ -217,8 +217,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
   }
 
-  async setInitialPasswordTdeOffboarding(
-    credentials: SetInitialPasswordTdeOffboardingCredentials,
+  /**
+   * @deprecated To be removed in PM-28143
+   */
+  async setInitialPasswordTdeOffboardingOld(
+    credentials: SetInitialPasswordTdeOffboardingCredentialsOld,
     userId: UserId,
   ) {
     const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;
