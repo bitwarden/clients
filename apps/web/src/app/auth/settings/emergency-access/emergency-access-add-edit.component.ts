@@ -3,6 +3,7 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -14,6 +15,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { SharedModule } from "../../../shared/shared.module";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
 
@@ -33,10 +35,11 @@ export enum EmergencyAccessAddEditDialogResult {
   Canceled = "canceled",
   Deleted = "deleted",
 }
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "emergency-access-add-edit",
   templateUrl: "emergency-access-add-edit.component.html",
-  standalone: false,
+  imports: [SharedModule, PremiumBadgeComponent],
 })
 export class EmergencyAccessAddEditComponent implements OnInit {
   loading = true;

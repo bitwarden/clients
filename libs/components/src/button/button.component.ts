@@ -1,10 +1,21 @@
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Input, HostBinding, Component, model, computed, input } from "@angular/core";
+import {
+  input,
+  HostBinding,
+  Component,
+  model,
+  computed,
+  booleanAttribute,
+  inject,
+  ElementRef,
+} from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
+import { AriaDisableDirective } from "../a11y";
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
+import { SpinnerComponent } from "../spinner";
+import { ariaDisableElement } from "../utils";
 
 const focusRing = [
   "focus-visible:tw-ring-2",
@@ -31,9 +42,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "tw-bg-transparent",
     "tw-border-primary-600",
     "!tw-text-primary-600",
-    "hover:tw-bg-primary-600",
-    "hover:tw-border-primary-600",
-    "hover:!tw-text-contrast",
+    "hover:tw-bg-hover-default",
     ...focusRing,
   ],
   danger: [
@@ -45,23 +54,30 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "hover:!tw-text-contrast",
     ...focusRing,
   ],
+  dangerPrimary: [
+    "tw-border-danger-600",
+    "tw-bg-danger-600",
+    "!tw-text-contrast",
+    "hover:tw-bg-danger-700",
+    "hover:tw-border-danger-700",
+    ...focusRing,
+  ],
   unstyled: [],
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
-  standalone: true,
-  imports: [NgClass],
-  host: {
-    "[attr.disabled]": "disabledAttr()",
-  },
+  imports: [NgClass, SpinnerComponent],
+  hostDirectives: [AriaDisableDirective],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
     return [
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-rounded-full",
       "tw-transition",
       "tw-border-2",
@@ -71,28 +87,28 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       "hover:tw-no-underline",
       "focus:tw-outline-none",
     ]
-      .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(buttonStyles[this.buttonType ?? "secondary"])
+      .concat(this.block() ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
+      .concat(buttonStyles[this.buttonType() ?? "secondary"])
       .concat(
         this.showDisabledStyles() || this.disabled()
           ? [
-              "disabled:tw-bg-secondary-300",
-              "disabled:hover:tw-bg-secondary-300",
-              "disabled:tw-border-secondary-300",
-              "disabled:hover:tw-border-secondary-300",
-              "disabled:!tw-text-muted",
-              "disabled:hover:!tw-text-muted",
-              "disabled:tw-cursor-not-allowed",
-              "disabled:hover:tw-no-underline",
+              "aria-disabled:!tw-bg-secondary-300",
+              "hover:tw-bg-secondary-300",
+              "aria-disabled:tw-border-secondary-300",
+              "hover:tw-border-secondary-300",
+              "aria-disabled:!tw-text-muted",
+              "hover:!tw-text-muted",
+              "aria-disabled:tw-cursor-not-allowed",
+              "hover:tw-no-underline",
             ]
           : [],
       )
       .concat(buttonSizeStyles[this.size() || "default"]);
   }
 
-  protected disabledAttr = computed(() => {
+  protected readonly disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
-    return disabled || this.loading() ? true : null;
+    return disabled || this.loading();
   });
 
   /**
@@ -103,26 +119,17 @@ export class ButtonComponent implements ButtonLikeAbstraction {
    * We can't use `disabledAttr` for this, because it returns `true` when `loading` is `true`.
    * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
    */
-  protected showDisabledStyles = computed(() => {
+  protected readonly showDisabledStyles = computed(() => {
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
-  @Input() buttonType: ButtonType = "secondary";
+  readonly buttonType = input<ButtonType>("secondary");
 
-  size = input<ButtonSize>("default");
+  readonly size = input<ButtonSize>("default");
 
-  private _block = false;
+  readonly block = input(false, { transform: booleanAttribute });
 
-  @Input()
-  get block(): boolean {
-    return this._block;
-  }
-
-  set block(value: boolean | "") {
-    this._block = coerceBooleanProperty(value);
-  }
-
-  loading = model<boolean>(false);
+  readonly loading = model<boolean>(false);
 
   /**
    * Determine whether it is appropriate to display a loading spinner. We only want to show
@@ -136,9 +143,14 @@ export class ButtonComponent implements ButtonLikeAbstraction {
    * This pattern of converting a signal to an observable and back to a signal is not
    * recommended. TODO -- find better way to use debounce with signals (CL-596)
    */
-  protected showLoadingStyle = toSignal(
+  protected readonly showLoadingStyle = toSignal(
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
 
-  disabled = model<boolean>(false);
+  readonly disabled = model<boolean>(false);
+  private el = inject(ElementRef<HTMLButtonElement>);
+
+  constructor() {
+    ariaDisableElement(this.el.nativeElement, this.disabledAttr);
+  }
 }

@@ -1,6 +1,6 @@
 <bit-section *ngIf="sends?.length > 0" disableMargin>
   <bit-section-header>
-    <h2 class="tw-font-bold" bitTypography="h6">
+    <h2 class="tw-font-medium" bitTypography="h6">
       {{ headerText }}
     </h2>
     <span bitTypography="body1" slot="end">{{ sends.length }}</span>
@@ -48,7 +48,7 @@
             size="small"
             type="button"
             (click)="copySendLink(send)"
-            appA11yTitle="{{ 'copyLink' | i18n }} - {{ send.name }}"
+            label="{{ 'copyLink' | i18n }} - {{ send.name }}"
           ></button>
         </bit-item-action>
         <bit-item-action>
@@ -57,7 +57,7 @@
             size="small"
             type="button"
             (click)="deleteSend(send)"
-            appA11yTitle="{{ 'delete' | i18n }} - {{ send.name }}"
+            label="{{ 'delete' | i18n }} - {{ send.name }}"
           ></button>
         </bit-item-action>
       </ng-container>

@@ -1,10 +1,13 @@
-import { Component, importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { MenuModule } from "../menu";
+import { I18nMockService } from "../utils";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
@@ -17,6 +20,7 @@ interface Breadcrumb {
 
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class EmptyComponent {}
 
@@ -26,6 +30,17 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [LinkModule, MenuModule, IconButtonModule, RouterModule, BreadcrumbComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              moreBreadcrumbs: "More breadcrumbs",
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
     applicationConfig({
       providers: [

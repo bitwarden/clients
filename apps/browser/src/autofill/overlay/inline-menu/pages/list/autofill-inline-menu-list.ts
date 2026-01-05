@@ -10,7 +10,7 @@ import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/au
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
-import { InlineMenuFillTypes } from "../../../../enums/autofill-overlay.enum";
+import { InlineMenuFillType } from "../../../../enums/autofill-overlay.enum";
 import { buildSvgDomElement, specialCharacterToKeyMap, throttle } from "../../../../utils";
 import {
   creditCardIcon,
@@ -42,7 +42,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private cipherListScrollIsDebounced = false;
   private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
-  private inlineMenuFillType: InlineMenuFillTypes;
+  private inlineMenuFillType: InlineMenuFillType;
   private showInlineMenuAccountCreation: boolean;
   private showPasskeysLabels: boolean;
   private newItemButtonElement: HTMLButtonElement;
@@ -1105,8 +1105,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
       const svgElement = buildSvgDomElement(`
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29">
-          <circle fill="none" cx="14.5" cy="14.5" r="12.5" 
-                  stroke-width="3" stroke-dasharray="78.5" 
+          <circle fill="none" cx="14.5" cy="14.5" r="12.5"
+                  stroke-width="3" stroke-dasharray="78.5"
                   stroke-dashoffset="78.5" transform="rotate(-90 14.5 14.5)"></circle>
           <circle fill="none" cx="14.5" cy="14.5" r="14" stroke-width="1"></circle>
       </svg>

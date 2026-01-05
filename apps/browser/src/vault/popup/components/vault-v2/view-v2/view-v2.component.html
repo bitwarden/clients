@@ -17,11 +17,7 @@
     </button>
 
     <button
-      *ngIf="
-        (limitItemDeletion$ | async)
-          ? cipher.isDeleted && cipher.permissions.restore
-          : cipher.isDeleted && cipher.edit
-      "
+      *ngIf="cipher.isDeleted && cipher.permissions.restore"
       buttonType="primary"
       type="button"
       bitButton
@@ -37,7 +33,7 @@
       type="button"
       buttonType="danger"
       bitIconButton="bwi-trash"
-      [appA11yTitle]="(cipher.isDeleted ? 'deleteForever' : 'delete') | i18n"
+      [label]="(cipher.isDeleted ? 'deleteForever' : 'delete') | i18n"
     ></button>
   </popup-footer>
 </popup-page>

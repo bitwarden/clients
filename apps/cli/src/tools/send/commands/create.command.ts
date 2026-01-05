@@ -6,6 +6,7 @@ import * as path from "path";
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
@@ -76,8 +77,13 @@ export class SendCreateCommand {
     const filePath = req.file?.fileName ?? options.file;
     const text = req.text?.text ?? options.text;
     const hidden = req.text?.hidden ?? options.hidden;
-    const password = req.password ?? options.password;
+    const password = req.password ?? options.password ?? undefined;
+    const emails = req.emails ?? options.emails ?? undefined;
     const maxAccessCount = req.maxAccessCount ?? options.maxAccessCount;
+
+    if (emails !== undefined && password !== undefined) {
+      return Response.badRequest("--password and --emails are mutually exclusive.");
+    }
 
     req.key = null;
     req.maxAccessCount = maxAccessCount;
@@ -133,10 +139,12 @@ export class SendCreateCommand {
       // Add dates from template
       encSend.deletionDate = sendView.deletionDate;
       encSend.expirationDate = sendView.expirationDate;
+      encSend.emails = emails && emails.join(",");
 
       await this.sendApiService.save([encSend, fileData]);
       const newSend = await this.sendService.getFromState(encSend.id);
-      const decSend = await newSend.decrypt();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const decSend = await newSend.decrypt(activeUserId);
       const env = await firstValueFrom(this.environmentService.environment$);
       const res = new SendResponse(decSend, env.getWebVaultUrl());
       return Response.success(res);
@@ -151,12 +159,14 @@ class Options {
   text: string;
   maxAccessCount: number;
   password: string;
+  emails: Array<string>;
   hidden: boolean;
 
   constructor(passedOptions: Record<string, any>) {
     this.file = passedOptions?.file;
     this.text = passedOptions?.text;
     this.password = passedOptions?.password;
+    this.emails = passedOptions?.email;
     this.hidden = CliUtils.convertBooleanOption(passedOptions?.hidden);
     this.maxAccessCount =
       passedOptions?.maxAccessCount != null ? parseInt(passedOptions.maxAccessCount, null) : null;

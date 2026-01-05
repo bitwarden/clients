@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, OnDestroy } from "@angular/core";
 import {
   BehaviorSubject,
@@ -36,7 +34,7 @@ import {
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 @Directive()
-export class CipherReportComponent implements OnDestroy {
+export abstract class CipherReportComponent implements OnDestroy {
   isAdminConsoleActive = false;
 
   loading = false;
@@ -44,16 +42,16 @@ export class CipherReportComponent implements OnDestroy {
   ciphers: CipherView[] = [];
   allCiphers: CipherView[] = [];
   dataSource = new TableDataSource<CipherView>();
-  organization: Organization;
-  organizations: Organization[];
+  organization: Organization | undefined = undefined;
+  organizations: Organization[] = [];
   organizations$: Observable<Organization[]>;
 
   filterStatus: any = [0];
   showFilterToggle: boolean = false;
   vaultMsg: string = "vault";
-  currentFilterStatus: number | string;
+  currentFilterStatus: number | string = 0;
   protected filterOrgStatus$ = new BehaviorSubject<number | string>(0);
-  private destroyed$: Subject<void> = new Subject();
+  protected destroyed$: Subject<void> = new Subject();
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   constructor(
@@ -107,7 +105,7 @@ export class CipherReportComponent implements OnDestroy {
     if (filterId === 0) {
       cipherCount = this.allCiphers.length;
     } else if (filterId === 1) {
-      cipherCount = this.allCiphers.filter((c) => c.organizationId === null).length;
+      cipherCount = this.allCiphers.filter((c) => !c.organizationId).length;
     } else {
       this.organizations.filter((org: Organization) => {
         if (org.id === filterId) {
@@ -121,9 +119,9 @@ export class CipherReportComponent implements OnDestroy {
   }
 
   async filterOrgToggle(status: any) {
-    let filter = null;
+    let filter = (c: CipherView) => true;
     if (typeof status === "number" && status === 1) {
-      filter = (c: CipherView) => c.organizationId == null;
+      filter = (c: CipherView) => !c.organizationId;
     } else if (typeof status === "string") {
       const orgId = status as OrganizationId;
       filter = (c: CipherView) => c.organizationId === orgId;
@@ -185,7 +183,7 @@ export class CipherReportComponent implements OnDestroy {
     cipher: CipherView,
     activeCollectionId?: CollectionId,
   ) {
-    const disableForm = cipher ? !cipher.edit && !this.organization.canEditAllCiphers : false;
+    const disableForm = cipher ? !cipher.edit && !this.organization?.canEditAllCiphers : false;
 
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
       mode,
@@ -213,8 +211,69 @@ export class CipherReportComponent implements OnDestroy {
     this.allCiphers = [];
   }
 
-  protected async refresh(result: VaultItemDialogResult, cipher: CipherView) {
-    await this.load();
+  async refresh(result: VaultItemDialogResult, cipher: CipherView) {
+    if (result === VaultItemDialogResult.Deleted) {
+      // update downstream report status if the cipher was deleted
+      await this.determinedUpdatedCipherReportStatus(result, cipher);
+
+      // the cipher was deleted, filter it out from the report.
+      this.ciphers = this.ciphers.filter((ciph) => ciph.id !== cipher.id);
+      this.filterCiphersByOrg(this.ciphers);
+      return;
+    }
+
+    if (result == VaultItemDialogResult.Saved) {
+      // Ensure we have the latest cipher data after saving.
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      let updatedCipher = await this.cipherService.get(cipher.id, activeUserId);
+
+      if (this.isAdminConsoleActive) {
+        updatedCipher =
+          (await this.adminConsoleCipherFormConfigService.getCipher(
+            cipher.id as CipherId,
+            this.organization!,
+          )) ?? updatedCipher;
+      }
+
+      // convert cipher to cipher view model
+      const updatedCipherView = await updatedCipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
+      );
+
+      // request downstream report status if the cipher was updated
+      // this will return a null if the updated cipher does not meet the criteria for the report
+      const updatedReportResult = await this.determinedUpdatedCipherReportStatus(
+        result,
+        updatedCipherView,
+      );
+
+      // determine the index of the updated cipher in the report
+      const index = this.ciphers.findIndex((c) => c.id === updatedCipherView.id);
+
+      // the updated cipher does not meet the criteria for the report, it returns a null
+      if (updatedReportResult === null) {
+        this.ciphers.splice(index, 1);
+      }
+
+      // the cipher is already in the report, update it.
+      if (updatedReportResult !== null && index > -1) {
+        this.ciphers[index] = updatedReportResult;
+      }
+
+      // apply filters and set the data source
+      this.filterCiphersByOrg(this.ciphers);
+    }
+  }
+
+  async determinedUpdatedCipherReportStatus(
+    result: VaultItemDialogResult,
+    updatedCipherView: CipherView,
+  ): Promise<CipherView | null> {
+    // Implement the logic to determine if the updated cipher is still in the report.
+    // This could be checking if the password is still weak or exposed, etc.
+    // For now, we will return the updated cipher view as is.
+    // Replace this with your actual logic in the child classes.
+    return updatedCipherView;
   }
 
   protected async repromptCipher(c: CipherView) {

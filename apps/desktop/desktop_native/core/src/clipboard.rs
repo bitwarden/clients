@@ -30,10 +30,14 @@ fn clipboard_set(set: Set, password: bool) -> Set {
 
 // Wait for clipboard to be available on linux
 #[cfg(target_os = "linux")]
-fn clipboard_set(set: Set, _password: bool) -> Set {
+fn clipboard_set(set: Set, password: bool) -> Set {
     use arboard::SetExtLinux;
 
-    set.wait()
+    if password {
+        set.exclude_from_history().wait()
+    } else {
+        set.wait()
+    }
 }
 
 #[cfg(target_os = "macos")]

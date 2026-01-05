@@ -12,6 +12,7 @@ export type ButtonRowProps = {
   theme: Theme;
   primaryButton: {
     text: string;
+    isLoading?: boolean;
     handlePrimaryButtonClick: (args: any) => void;
   };
   selectButtons?: {
@@ -29,6 +30,7 @@ export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProp
       ${ActionButton({
         handleClick: primaryButton.handlePrimaryButtonClick,
         buttonText: primaryButton.text,
+        isLoading: primaryButton.isLoading,
         theme,
       })}
       <div class=${optionSelectionsStyles}>

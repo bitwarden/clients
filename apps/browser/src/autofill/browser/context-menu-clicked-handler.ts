@@ -30,8 +30,12 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import {
   openAddEditVaultItemPopout,
   openVaultItemPasswordRepromptPopout,
@@ -187,9 +191,11 @@ export class ContextMenuClickedHandler {
           });
         } else {
           this.copyToClipboard({ text: cipher.login.password, tab: tab });
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, cipher.id);
+
+          void this.eventCollectionService.collect(
+            EventType.Cipher_ClientCopiedPassword,
+            cipher.id,
+          );
         }
 
         break;

@@ -16,6 +16,7 @@ export type NotificationFooterProps = {
   collections?: CollectionView[];
   folders?: FolderView[];
   i18n: I18n;
+  isLoading?: boolean;
   notificationType?: NotificationType;
   organizations?: OrgView[];
   personalVaultIsAllowed: boolean;
@@ -27,6 +28,7 @@ export function NotificationFooter({
   collections,
   folders,
   i18n,
+  isLoading,
   notificationType,
   organizations,
   personalVaultIsAllowed,
@@ -52,6 +54,7 @@ export function NotificationFooter({
             i18n,
             primaryButton: {
               handlePrimaryButtonClick: handleSaveAction,
+              isLoading,
               text: primaryButtonText,
             },
             personalVaultIsAllowed,

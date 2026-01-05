@@ -4,7 +4,7 @@ import { firstValueFrom, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { NotificationId, UserId } from "@bitwarden/common/types/guid";
 
@@ -20,7 +20,7 @@ import {
 describe("End User Notification Center Service", () => {
   let fakeStateProvider: FakeStateProvider;
   let mockApiService: jest.Mocked<ApiService>;
-  let mockNotificationsService: jest.Mocked<NotificationsService>;
+  let mockNotificationsService: jest.Mocked<ServerNotificationsService>;
   let mockAuthService: jest.Mocked<AuthService>;
   let mockLogService: jest.Mocked<LogService>;
   let service: DefaultEndUserNotificationService;
@@ -48,7 +48,7 @@ describe("End User Notification Center Service", () => {
   });
 
   describe("notifications$", () => {
-    it("should return notifications from state when not null", async () => {
+    it("should return server notifications from state when not null", async () => {
       fakeStateProvider.singleUser.mockFor("user-id" as UserId, NOTIFICATIONS, [
         {
           id: "notification-id" as NotificationId,
@@ -62,7 +62,7 @@ describe("End User Notification Center Service", () => {
       expect(mockLogService.warning).not.toHaveBeenCalled();
     });
 
-    it("should return notifications API when state is null", async () => {
+    it("should return server notifications API when state is null", async () => {
       mockApiService.send.mockResolvedValue({
         data: [
           {
@@ -86,7 +86,7 @@ describe("End User Notification Center Service", () => {
       expect(mockLogService.warning).not.toHaveBeenCalled();
     });
 
-    it("should log a warning if there are more notifications available", async () => {
+    it("should log a warning if there are more server notifications available", async () => {
       mockApiService.send.mockResolvedValue({
         data: [
           ...new Array(DEFAULT_NOTIFICATION_PAGE_SIZE + 1).fill({ id: "notification-id" }),
@@ -120,7 +120,7 @@ describe("End User Notification Center Service", () => {
   });
 
   describe("unreadNotifications$", () => {
-    it("should return unread notifications from state when read value is null", async () => {
+    it("should return unread server notifications from state when read value is null", async () => {
       fakeStateProvider.singleUser.mockFor("user-id" as UserId, NOTIFICATIONS, [
         {
           id: "notification-id" as NotificationId,
@@ -136,7 +136,7 @@ describe("End User Notification Center Service", () => {
   });
 
   describe("getNotifications", () => {
-    it("should call getNotifications returning notifications from API", async () => {
+    it("should call getNotifications returning server notifications from API", async () => {
       mockApiService.send.mockResolvedValue({
         data: [
           {
@@ -156,7 +156,7 @@ describe("End User Notification Center Service", () => {
       );
     });
 
-    it("should update local state when notifications are updated", async () => {
+    it("should update local state when server notifications are updated", async () => {
       mockApiService.send.mockResolvedValue({
         data: [
           {

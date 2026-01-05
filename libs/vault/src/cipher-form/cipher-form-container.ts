@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { Observable } from "rxjs";
+
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherFormConfig } from "@bitwarden/vault";
 
@@ -70,4 +72,14 @@ export abstract class CipherFormContainer {
 
   /** Returns true when the `CipherFormContainer` was initialized with a cached cipher available. */
   abstract initializedWithCachedCipher(): boolean;
+
+  abstract disableFormFields(): void;
+
+  abstract enableFormFields(): void;
+
+  /**
+   * An observable that emits when the form status changes between enabled/disabled.
+   * This can be used for child forms to react to changes in the form status.
+   */
+  formStatusChange$: Observable<"enabled" | "disabled">;
 }

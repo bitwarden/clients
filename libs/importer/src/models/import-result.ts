@@ -6,12 +6,15 @@ import { CollectionView } from "@bitwarden/admin-console/common";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
+export type FolderRelationship = [cipherIndex: number, folderIndex: number];
+export type CollectionRelationship = [cipherIndex: number, collectionIndex: number];
+
 export class ImportResult {
   success = false;
   errorMessage: string;
   ciphers: CipherView[] = [];
   folders: FolderView[] = [];
-  folderRelationships: [number, number][] = [];
+  folderRelationships: FolderRelationship[] = [];
   collections: CollectionView[] = [];
-  collectionRelationships: [number, number][] = [];
+  collectionRelationships: CollectionRelationship[] = [];
 }

@@ -2,31 +2,39 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { ChangePasswordComponent, InputPasswordFlow } from "@bitwarden/auth/angular";
+import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
+import { InputPasswordFlow } from "@bitwarden/auth/angular";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CalloutModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { WebauthnLoginSettingsModule } from "../../webauthn-login-settings";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "app-password-settings",
   templateUrl: "password-settings.component.html",
   imports: [CalloutModule, ChangePasswordComponent, I18nPipe, WebauthnLoginSettingsModule],
 })
 export class PasswordSettingsComponent implements OnInit {
   inputPasswordFlow = InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation;
+  changePasswordFeatureFlag = false;
 
   constructor(
     private router: Router,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const userHasMasterPassword = await firstValueFrom(
-      this.userDecryptionOptionsService.hasMasterPassword$,
+      this.userDecryptionOptionsService.hasMasterPasswordById$(userId),
     );
+
     if (!userHasMasterPassword) {
       await this.router.navigate(["/settings/security/two-factor"]);
       return;

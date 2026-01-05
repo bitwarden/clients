@@ -1,14 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, Observable, Subject } from "rxjs";
+import { firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { RotateableKeySet, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
+import { AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices-api.service.abstraction";
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
@@ -20,19 +21,20 @@ import {
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../../platform/enums";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey, DeviceKey } from "../../../types/key";
+import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
+import { EncString } from "../../crypto/models/enc-string";
+import { RotateableKeySet } from "../../keys/models/rotateable-key-set";
 import { DeviceTrustServiceAbstraction } from "../abstractions/device-trust.service.abstraction";
 
 /** Uses disk storage so that the device key can persist after log out and tab removal. */
@@ -86,12 +88,18 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private logService: LogService,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {
-    this.supportsDeviceTrust$ = this.userDecryptionOptionsService.userDecryptionOptions$.pipe(
-      map((options) => {
-        // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
-        // eslint-disable-next-line no-constant-binary-expression
-        return options?.trustedDeviceOption != null ?? false;
+    this.supportsDeviceTrust$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (account == null) {
+          return [false];
+        }
+        return this.userDecryptionOptionsService.userDecryptionOptionsById$(account.id).pipe(
+          map((options) => {
+            return options?.trustedDeviceOption != null;
+          }),
+        );
       }),
     );
   }
@@ -99,9 +107,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   supportsDeviceTrustByUserId$(userId: UserId): Observable<boolean> {
     return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId).pipe(
       map((options) => {
-        // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
-        // eslint-disable-next-line no-constant-binary-expression
-        return options?.trustedDeviceOption != null ?? false;
+        return options?.trustedDeviceOption != null;
       }),
     );
   }
@@ -149,7 +155,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
 
     // Attempt to get user key
-    const userKey: UserKey = await this.keyService.getUserKey(userId);
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     // If user key is not found, throw error
     if (!userKey) {
@@ -200,7 +206,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     oldUserKey: UserKey,
     newUserKey: UserKey,
     userId: UserId,
-  ): Promise<DeviceKeysUpdateRequest[]> {
+  ): Promise<OtherDeviceKeysUpdateRequest[]> {
     if (!userId) {
       throw new Error("UserId is required. Cannot get rotated data.");
     }
@@ -244,7 +250,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
           const request = new OtherDeviceKeysUpdateRequest();
           request.encryptedPublicKey = newRotateableKeySet.encryptedPublicKey.encryptedString;
-          request.encryptedUserKey = newRotateableKeySet.encryptedUserKey.encryptedString;
+          request.encryptedUserKey = newRotateableKeySet.encapsulatedDownstreamKey.encryptedString;
           request.deviceId = device.id;
           return request;
         })
@@ -350,7 +356,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
   }
 
-  private async setDeviceKey(userId: UserId, deviceKey: DeviceKey | null): Promise<void> {
+  async setDeviceKey(userId: UserId, deviceKey: DeviceKey | null): Promise<void> {
     if (!userId) {
       throw new Error("UserId is required. Cannot set device key.");
     }

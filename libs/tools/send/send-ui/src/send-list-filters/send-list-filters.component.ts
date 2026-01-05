@@ -10,8 +10,9 @@ import { ChipSelectComponent } from "@bitwarden/components";
 
 import { SendListFiltersService } from "../services/send-list-filters.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "app-send-list-filters",
   templateUrl: "./send-list-filters.component.html",
   imports: [CommonModule, JslibModule, ChipSelectComponent, ReactiveFormsModule],

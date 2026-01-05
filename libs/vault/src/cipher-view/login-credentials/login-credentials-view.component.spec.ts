@@ -11,6 +11,7 @@ import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -34,9 +35,10 @@ describe("LoginCredentialsViewComponent", () => {
   const hasPremiumFromAnySource$ = new BehaviorSubject<boolean>(true);
   const mockAccount = {
     id: "test-user-id" as UserId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
     type: 0,
     status: 0,
     kdf: 0,
@@ -102,7 +104,7 @@ describe("LoginCredentialsViewComponent", () => {
       const usernameCopyButton = usernameField.query(By.directive(CopyClickDirective));
       const usernameCopyClickDirective = usernameCopyButton.injector.get(CopyClickDirective);
 
-      expect(usernameCopyClickDirective.valueToCopy).toBe(cipher.login.username);
+      expect(usernameCopyClickDirective.valueToCopy()).toBe(cipher.login.username);
     });
   });
 
@@ -136,7 +138,7 @@ describe("LoginCredentialsViewComponent", () => {
         const passwordCopyButton = passwordField.query(By.directive(CopyClickDirective));
         const passwordCopyClickDirective = passwordCopyButton.injector.get(CopyClickDirective);
 
-        expect(passwordCopyClickDirective.valueToCopy).toBe(cipher.login.password);
+        expect(passwordCopyClickDirective.valueToCopy()).toBe(cipher.login.password);
       });
     });
 

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SshKey as SshKeyDomain } from "../../vault/models/domain/ssh-key";
 import { SshKeyView as SshKeyView } from "../../vault/models/view/ssh-key.view";
 
@@ -16,7 +16,22 @@ export class SshKeyExport {
     return req;
   }
 
-  static toView(req: SshKeyExport, view = new SshKeyView()) {
+  static toView(req?: SshKeyExport, view = new SshKeyView()): SshKeyView | undefined {
+    if (req == null) {
+      return undefined;
+    }
+
+    // Validate required fields
+    if (!req.privateKey || req.privateKey.trim() === "") {
+      throw new Error("SSH key private key is required.");
+    }
+    if (!req.publicKey || req.publicKey.trim() === "") {
+      throw new Error("SSH key public key is required.");
+    }
+    if (!req.keyFingerprint || req.keyFingerprint.trim() === "") {
+      throw new Error("SSH key fingerprint is required.");
+    }
+
     view.privateKey = req.privateKey;
     view.publicKey = req.publicKey;
     view.keyFingerprint = req.keyFingerprint;

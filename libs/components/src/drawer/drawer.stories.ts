@@ -1,9 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { RouterTestingModule } from "@angular/router/testing";
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { ButtonModule } from "../button";
 import { CalloutModule } from "../callout";
@@ -11,7 +10,7 @@ import { LayoutComponent } from "../layout";
 import { mockLayoutI18n } from "../layout/mocks";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { TypographyModule } from "../typography";
-import { I18nMockService } from "../utils";
+import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
 import { DrawerBodyComponent } from "./drawer-body.component";
 import { DrawerHeaderComponent } from "./drawer-header.component";
@@ -43,8 +42,17 @@ export default {
             return new I18nMockService({
               ...mockLayoutI18n,
               close: "Close",
+              loading: "Loading",
             });
           },
+        },
+      ],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),

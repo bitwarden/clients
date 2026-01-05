@@ -1,4 +1,5 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { testData as TestData } from "../spec-data/keeper-json/testdata.json";
 
@@ -39,7 +40,7 @@ describe("Keeper Json Importer", () => {
     expect(cipher3.login.username).toEqual("someUserName");
     expect(cipher3.login.password).toEqual("w4k4k1wergf$^&@#*%2");
     expect(cipher3.notes).toBeNull();
-    expect(cipher3.fields).toBeNull();
+    expect(cipher3.fields.length).toBe(0);
     expect(cipher3.login.uris.length).toEqual(1);
     const uriView3 = cipher3.login.uris.shift();
     expect(uriView3.uri).toEqual("https://example.com");
@@ -50,7 +51,7 @@ describe("Keeper Json Importer", () => {
     expect(result != null).toBe(true);
 
     const cipher = result.ciphers.shift();
-    expect(cipher.login.totp).toBeNull();
+    expect(cipher.login.totp).toBeUndefined();
 
     // 2nd Cipher
     const cipher2 = result.ciphers.shift();
@@ -93,7 +94,7 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should create collections if part of an organization", async () => {
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(testDataJson);
     expect(result != null).toBe(true);
 

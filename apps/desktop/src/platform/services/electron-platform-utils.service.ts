@@ -55,11 +55,15 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
+  isChromium(): boolean {
+    return true;
+  }
+
   isMacAppStore(): boolean {
     return ipc.platform.isMacAppStore;
   }
 
-  isViewOpen(): Promise<boolean> {
+  isPopupOpen(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
@@ -84,6 +88,14 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
   }
 
   showToast(
@@ -138,5 +150,21 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
 
   getAutofillKeyboardShortcut(): Promise<string> {
     return null;
+  }
+
+  async packageType(): Promise<string> {
+    if (ipc.platform.isMacAppStore) {
+      return "MacAppStore";
+    } else if (ipc.platform.isWindowsStore) {
+      return "WindowsStore";
+    } else if (ipc.platform.isAppImage) {
+      return "AppImage";
+    } else if (ipc.platform.isSnapStore) {
+      return "Snap";
+    } else if (ipc.platform.isFlatpak) {
+      return "Flatpak";
+    } else {
+      return "Unknown";
+    }
   }
 }

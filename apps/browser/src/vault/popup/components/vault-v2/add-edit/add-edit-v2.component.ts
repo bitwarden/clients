@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -17,7 +17,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
@@ -42,7 +43,7 @@ import {
 
 import { BrowserFido2UserInterfaceSession } from "../../../../../autofill/fido2/services/browser-fido2-user-interface.service";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
@@ -50,6 +51,7 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 import { BrowserCipherFormGenerationService } from "../../../services/browser-cipher-form-generation.service";
+import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
 import {
   fido2PopoutSessionData$,
@@ -64,7 +66,7 @@ import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-a
 class QueryParams {
   constructor(params: Params) {
     this.cipherId = params.cipherId;
-    this.type = params.type != undefined ? parseInt(params.type, null) : undefined;
+    this.type = toCipherType(params.type);
     this.clone = params.clone === "true";
     this.folderId = params.folderId;
     this.organizationId = params.organizationId;
@@ -129,14 +131,16 @@ class QueryParams {
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
-  standalone: true,
   providers: [
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
     { provide: TotpCaptureService, useClass: BrowserTotpCaptureService },
     { provide: CipherFormGenerationService, useClass: BrowserCipherFormGenerationService },
+    { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
   ],
   imports: [
     CommonModule,
@@ -154,7 +158,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     IconButtonModule,
   ],
 })
-export class AddEditV2Component implements OnInit {
+export class AddEditV2Component implements OnInit, OnDestroy {
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
@@ -196,11 +200,57 @@ export class AddEditV2Component implements OnInit {
     this.subscribeToParams();
   }
 
+  private messageListener: (message: any) => void;
+
   async ngOnInit() {
     this.fido2PopoutSessionData = await firstValueFrom(this.fido2PopoutSessionData$);
 
     if (BrowserPopupUtils.inPopout(window)) {
       this.popupCloseWarningService.enable();
+    }
+
+    // Listen for messages to reload cipher data when the pop up is already open
+    this.messageListener = async (message: any) => {
+      if (message?.command === "reloadAddEditCipherData") {
+        try {
+          await this.reloadCipherData();
+        } catch (error) {
+          this.logService.error("Failed to reload cipher data", error);
+        }
+      }
+    };
+    BrowserApi.addListener(chrome.runtime.onMessage, this.messageListener);
+  }
+
+  ngOnDestroy() {
+    if (this.messageListener) {
+      BrowserApi.removeListener(chrome.runtime.onMessage, this.messageListener);
+    }
+  }
+
+  /**
+   * Reloads the cipher data when the popup is already open and new form data is submitted.
+   * This completely replaces the initialValues to clear any stale data from the previous submission.
+   */
+  private async reloadCipherData() {
+    if (!this.config) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const latestCipherInfo = await firstValueFrom(
+      this.cipherService.addEditCipherInfo$(activeUserId),
+    );
+
+    if (latestCipherInfo != null) {
+      this.config = {
+        ...this.config,
+        initialValues: mapAddEditCipherInfoToInitialValues(latestCipherInfo),
+      };
+
+      // Be sure to clear the "cached" cipher info, so it doesn't get used again
+      await this.cipherService.setAddEditCipherInfo(null, activeUserId);
     }
   }
 
@@ -266,7 +316,10 @@ export class AddEditV2Component implements OnInit {
         replaceUrl: true,
         queryParams: { cipherId: cipher.id },
       });
+      // Clear popup history so after closing/reopening, Back won’t return to the add-edit form
+      await this.popupRouterCacheService.setHistory([]);
     }
+    await BrowserApi.sendMessage("addEditCipherSubmitted");
   }
 
   subscribeToParams(): void {
@@ -366,20 +419,15 @@ export class AddEditV2Component implements OnInit {
   }
 
   setHeader(mode: CipherFormMode, type: CipherType) {
-    const partOne = mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
-
-    switch (type) {
-      case CipherType.Login:
-        return this.i18nService.t(partOne, this.i18nService.t("typeLogin"));
-      case CipherType.Card:
-        return this.i18nService.t(partOne, this.i18nService.t("typeCard"));
-      case CipherType.Identity:
-        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity"));
-      case CipherType.SecureNote:
-        return this.i18nService.t(partOne, this.i18nService.t("note"));
-      case CipherType.SshKey:
-        return this.i18nService.t(partOne, this.i18nService.t("typeSshKey"));
-    }
+    const isEditMode = mode === "edit" || mode === "partial-edit";
+    const translation = {
+      [CipherType.Login]: isEditMode ? "editItemHeaderLogin" : "newItemHeaderLogin",
+      [CipherType.Card]: isEditMode ? "editItemHeaderCard" : "newItemHeaderCard",
+      [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
+      [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
+      [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
+    };
+    return this.i18nService.t(translation[type]);
   }
 
   delete = async () => {

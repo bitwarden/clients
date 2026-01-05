@@ -18,10 +18,11 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-autofill-options-view",
   templateUrl: "autofill-options-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -33,7 +34,11 @@ import {
   ],
 })
 export class AutofillOptionsViewComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() loginUris: LoginUriView[];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipherId: string;
 
   constructor(

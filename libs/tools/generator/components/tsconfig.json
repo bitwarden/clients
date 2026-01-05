@@ -1,20 +1,5 @@
 {
-  "extends": "../../../shared/tsconfig",
-  "compilerOptions": {
-    "paths": {
-      "@bitwarden/admin-console/common": ["../../../admin-console/src/common"],
-      "@bitwarden/angular/*": ["../../../angular/src/*"],
-      "@bitwarden/auth/common": ["../../../auth/src/common"],
-      "@bitwarden/common/*": ["../../../common/src/*"],
-      "@bitwarden/components": ["../../../components/src"],
-      "@bitwarden/generator-core": ["../../../tools/generator/core/src"],
-      "@bitwarden/generator-history": ["../../../tools/generator/extensions/history/src"],
-      "@bitwarden/key-management": ["../../../key-management/src"],
-      "@bitwarden/platform": ["../../../platform/src"],
-      "@bitwarden/ui-common": ["../../../ui/common/src"],
-      "@bitwarden/vault": ["../../../vault/src"]
-    }
-  },
+  "extends": "../../../../tsconfig.base",
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

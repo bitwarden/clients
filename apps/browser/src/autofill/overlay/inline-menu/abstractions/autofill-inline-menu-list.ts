@@ -1,7 +1,7 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
-import { InlineMenuFillTypes } from "../../../enums/autofill-overlay.enum";
+import { InlineMenuFillType } from "../../../enums/autofill-overlay.enum";
 
 type AutofillInlineMenuListMessage = { command: string };
 
@@ -23,10 +23,11 @@ export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & 
   theme: string;
   translations: Record<string, string>;
   ciphers?: InlineMenuCipherData[];
-  inlineMenuFillType?: InlineMenuFillTypes;
+  inlineMenuFillType?: InlineMenuFillType;
   showInlineMenuAccountCreation?: boolean;
   showPasskeysLabels?: boolean;
   portKey: string;
+  token: string;
   generatedPassword?: string;
   showSaveLoginMenu?: boolean;
 };

@@ -1,4 +1,11 @@
+import { Unassigned } from "@bitwarden/admin-console/common";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+
+/**
+ * A constant used to represent viewing "all" of a particular filter.
+ */
 export const All = "all";
+export type All = typeof All;
 
 // TODO: Remove `All` when moving to vertical navigation.
 const itemTypes = [
@@ -8,6 +15,7 @@ const itemTypes = [
   "identity",
   "note",
   "sshKey",
+  "archive",
   "trash",
   All,
 ] as const;
@@ -19,9 +27,9 @@ export function isRoutedVaultFilterItemType(value: unknown): value is RoutedVaul
 }
 
 export interface RoutedVaultFilterModel {
-  collectionId?: string;
+  collectionId?: CollectionId | All | Unassigned;
   folderId?: string;
-  organizationId?: string;
+  organizationId?: OrganizationId | Unassigned;
   type?: RoutedVaultFilterItemType;
 
   organizationIdParamType?: "path" | "query";

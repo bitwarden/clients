@@ -1,8 +1,10 @@
 import { Observable } from "rxjs";
 
+import { NewSsoUserKeyConnectorConversion } from "@bitwarden/common/key-management/key-connector/models/new-sso-user-key-connector-conversion";
+
 import { Organization } from "../../../admin-console/models/domain/organization";
-import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
 import { UserId } from "../../../types/guid";
+import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
 
 export abstract class KeyConnectorService {
   abstract setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId): Promise<void>;
@@ -13,13 +15,18 @@ export abstract class KeyConnectorService {
 
   abstract migrateUser(keyConnectorUrl: string, userId: UserId): Promise<void>;
 
-  abstract convertNewSsoUserToKeyConnector(
-    tokenResponse: IdentityTokenResponse,
-    orgId: string,
+  abstract convertNewSsoUserToKeyConnector(userId: UserId): Promise<void>;
+
+  abstract setUsesKeyConnector(enabled: boolean, userId: UserId): Promise<void>;
+
+  abstract setNewSsoUserKeyConnectorConversionData(
+    conversion: NewSsoUserKeyConnectorConversion,
     userId: UserId,
   ): Promise<void>;
 
-  abstract setUsesKeyConnector(enabled: boolean, userId: UserId): Promise<void>;
+  abstract requiresDomainConfirmation$(
+    userId: UserId,
+  ): Observable<KeyConnectorDomainConfirmation | null>;
 
   abstract convertAccountRequired$: Observable<boolean>;
 }

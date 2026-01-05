@@ -1,9 +1,11 @@
 import { Component } from "@angular/core";
 import { Params } from "@angular/router";
 
-import { BitwardenLogo } from "@bitwarden/auth/angular";
+import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-setup-provider",
   templateUrl: "setup-provider.component.html",
@@ -17,6 +19,8 @@ export class SetupProviderComponent extends BaseAcceptComponent {
   requiredParameters = ["providerId", "email", "token"];
 
   async authedHandler(qParams: Params) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/providers/setup"], { queryParams: qParams });
   }
 
@@ -25,6 +29,8 @@ export class SetupProviderComponent extends BaseAcceptComponent {
   }
 
   login() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/login"], { queryParams: { email: this.email } });
   }
 }

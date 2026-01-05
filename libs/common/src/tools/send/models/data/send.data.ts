@@ -21,6 +21,7 @@ export class SendData {
   expirationDate: string;
   deletionDate: string;
   password: string;
+  emails: string;
   disabled: boolean;
   hideEmail: boolean;
 
@@ -41,6 +42,7 @@ export class SendData {
     this.expirationDate = response.expirationDate;
     this.deletionDate = response.deletionDate;
     this.password = response.password;
+    this.emails = response.emails;
     this.disabled = response.disable;
     this.hideEmail = response.hideEmail;
 

@@ -38,7 +38,7 @@ describe("WebAuthnLoginService", () => {
 
     // We must do this to make the mocked classes available for all the
     // assertCredential(...) tests.
-    global.PublicKeyCredential = MockPublicKeyCredential;
+    global.PublicKeyCredential = MockPublicKeyCredential as any;
     global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
 
     // Save the original navigator
@@ -315,6 +315,10 @@ class MockPublicKeyCredential implements PublicKeyCredential {
 
   static isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean> {
     return Promise.resolve(false);
+  }
+
+  toJSON() {
+    throw new Error("Method not implemented.");
   }
 }
 

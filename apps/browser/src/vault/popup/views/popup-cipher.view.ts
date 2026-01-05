@@ -1,25 +1,17 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
-/**
- * Extended cipher view for the popup. Includes the associated collections and organization
- * if applicable.
- */
-export class PopupCipherView extends CipherView {
+interface CommonPopupCipherView {
   collections?: CollectionView[];
   organization?: Organization;
-
-  constructor(
-    cipher: CipherView,
-    collections: CollectionView[] = null,
-    organization: Organization = null,
-  ) {
-    super();
-    Object.assign(this, cipher);
-    this.collections = collections;
-    this.organization = organization;
-  }
 }
+
+/** Extended view for the popup based off of `CipherView`  */
+interface PopupCipherView extends CipherView, CommonPopupCipherView {}
+
+/** Extended view for the popup based off of `CipherListView` from the SDK. */
+interface PopupCipherListView extends CipherListView, CommonPopupCipherView {}
+
+export type PopupCipherViewLike = PopupCipherListView | PopupCipherView;

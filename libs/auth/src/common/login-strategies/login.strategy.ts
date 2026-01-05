@@ -3,7 +3,6 @@ import { BehaviorSubject, filter, firstValueFrom, timeout, Observable } from "rx
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -14,10 +13,12 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/webauthn-login-token.request";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "@bitwarden/common/auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ClientType } from "@bitwarden/common/enums";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -26,20 +27,15 @@ import {
 } from "@bitwarden/common/key-management/vault-timeout";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
-import {
-  KeyService,
-  Argon2KdfConfig,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KdfType,
-} from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
@@ -55,7 +51,8 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 type IdentityResponse =
   | IdentityTokenResponse
   | IdentityTwoFactorResponse
-  | IdentityDeviceVerificationResponse;
+  | IdentityDeviceVerificationResponse
+  | IdentitySsoRequiredResponse;
 
 export abstract class LoginStrategyData {
   tokenRequest:
@@ -92,6 +89,8 @@ export abstract class LoginStrategy {
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected KdfConfigService: KdfConfigService,
     protected environmentService: EnvironmentService,
+    protected configService: ConfigService,
+    protected accountCryptographicStateService: AccountCryptographicStateService,
   ) {}
 
   abstract exportCache(): CacheData;
@@ -113,6 +112,8 @@ export abstract class LoginStrategy {
     data.tokenRequest.setTwoFactor(twoFactor);
     this.cache.next(data);
     const [authResult] = await this.startLogIn();
+    // There is an import cycle between PasswordLoginStrategyData and LoginStrategy, which means this cast is necessary, which is solved by extracting the data classes.
+    authResult.masterPassword = (this.cache.value as any)["masterPassword"] ?? null;
     return authResult;
   }
 
@@ -131,6 +132,8 @@ export abstract class LoginStrategy {
       return [await this.processTokenResponse(response), response];
     } else if (response instanceof IdentityDeviceVerificationResponse) {
       return [await this.processDeviceVerificationResponse(response), response];
+    } else if (response instanceof IdentitySsoRequiredResponse) {
+      return [await this.processSsoRequiredResponse(response), response];
     }
 
     throw new Error("Invalid response object.");
@@ -188,6 +191,7 @@ export abstract class LoginStrategy {
       name: accountInformation.name,
       email: accountInformation.email ?? "",
       emailVerified: accountInformation.email_verified ?? false,
+      creationDate: undefined, // We don't get a creation date in the token. See https://bitwarden.atlassian.net/browse/PM-29551 for consolidation plans.
     });
 
     // User env must be seeded from currently set env before switching to the account
@@ -196,26 +200,23 @@ export abstract class LoginStrategy {
 
     await this.accountService.switchAccount(userId);
 
-    await this.stateService.addAccount(
-      new Account({
-        profile: {
-          ...new AccountProfile(),
-          ...{
-            userId,
-            name: accountInformation.name,
-            email: accountInformation.email,
-          },
-        },
-      }),
-    );
-
     await this.verifyAccountAdded(userId);
 
     // We must set user decryption options before retrieving vault timeout settings
     // as the user decryption options help determine the available timeout actions.
-    await this.userDecryptionOptionsService.setUserDecryptionOptions(
-      UserDecryptionOptions.fromResponse(tokenResponse),
+    await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+      userId,
+      UserDecryptionOptions.fromIdentityTokenResponse(tokenResponse),
     );
+
+    if (tokenResponse.userDecryptionOptions?.masterPasswordUnlock != null) {
+      const masterPasswordUnlockData =
+        tokenResponse.userDecryptionOptions.masterPasswordUnlock.toMasterPasswordUnlockData();
+      await this.masterPasswordService.setMasterPasswordUnlockData(
+        masterPasswordUnlockData,
+        userId,
+      );
+    }
 
     const vaultTimeoutAction = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
@@ -232,16 +233,7 @@ export abstract class LoginStrategy {
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
 
-    await this.KdfConfigService.setKdfConfig(
-      userId as UserId,
-      tokenResponse.kdf === KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(tokenResponse.kdfIterations)
-        : new Argon2KdfConfig(
-            tokenResponse.kdfIterations,
-            tokenResponse.kdfMemory,
-            tokenResponse.kdfParallelism,
-          ),
-    );
+    await this.KdfConfigService.setKdfConfig(userId as UserId, tokenResponse.kdfConfig);
 
     await this.billingAccountProfileStateService.setHasPremium(
       accountInformation.premium ?? false,
@@ -254,22 +246,15 @@ export abstract class LoginStrategy {
   protected async processTokenResponse(response: IdentityTokenResponse): Promise<AuthResult> {
     const result = new AuthResult();
 
-    // Old encryption keys must be migrated, but is currently only available on web.
-    // Other clients shouldn't continue the login process.
+    // Encryption key migration of legacy users (with no userkey) is not supported anymore
     if (this.encryptionKeyMigrationRequired(response)) {
       result.requiresEncryptionKeyMigration = true;
-      if (this.platformUtilsService.getClientType() !== ClientType.Web) {
-        return result;
-      }
+      return result;
     }
 
     // Must come before setting keys, user key needs email to update additional keys.
     const userId = await this.saveAccountInformation(response);
     result.userId = userId;
-
-    result.resetMasterPassword = response.resetMasterPassword;
-
-    await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
 
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
@@ -282,7 +267,13 @@ export abstract class LoginStrategy {
     await this.setUserKey(response, userId);
     await this.setPrivateKey(response, userId);
 
+    // This needs to run after the keys are set because it checks for the existence of the encrypted private key
+    await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
+
     this.messagingService.send("loggedIn");
+    // There is an import cycle between PasswordLoginStrategyData and LoginStrategy, which means this cast is necessary, which is solved by extracting the data classes.
+    // TODO: https://bitwarden.atlassian.net/browse/PM-27573
+    result.masterPassword = (this.cache.value as any)["masterPassword"] ?? null;
 
     return result;
   }
@@ -326,7 +317,15 @@ export abstract class LoginStrategy {
 
   protected async createKeyPairForOldAccount(userId: UserId) {
     try {
-      const userKey = await this.keyService.getUserKeyWithLegacySupport(userId);
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      if (userKey === null) {
+        throw new Error("User key is null when creating key pair for old account");
+      }
+
+      if (userKey.inner().type == EncryptionType.CoseEncrypt0) {
+        throw new Error("Cannot create key pair for account on V2 encryption");
+      }
+
       const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
       if (!privateKey.encryptedString) {
         throw new Error("Failed to create encrypted private key");
@@ -402,6 +401,21 @@ export abstract class LoginStrategy {
   ): Promise<AuthResult> {
     const result = new AuthResult();
     result.requiresDeviceVerification = true;
+    return result;
+  }
+
+  /**
+   * Handles the response from the server when a SSO Authentication is required.
+   * It hydrates the AuthResult with the SSO organization identifier.
+   *
+   * @param {IdentitySsoRequiredResponse} response - The response from the server indicating that SSO is required.
+   * @returns {Promise<AuthResult>} - A promise that resolves to an AuthResult object
+   */
+  protected async processSsoRequiredResponse(
+    response: IdentitySsoRequiredResponse,
+  ): Promise<AuthResult> {
+    const result = new AuthResult();
+    result.ssoOrganizationIdentifier = response.ssoOrganizationIdentifier;
     return result;
   }
 }

@@ -3,7 +3,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import {
@@ -61,87 +60,26 @@ describe("TwoFactorAuthEmailComponentCacheService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("init", () => {
-    it("sets featureEnabled to true when flag is enabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
-
-      await service.init();
-
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.PM9115_TwoFactorExtensionDataPersistence,
-      );
-
-      service.cacheData({ emailSent: true });
-      expect(mockSignal.set).toHaveBeenCalled();
-    });
-
-    it("sets featureEnabled to false when flag is disabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-
-      await service.init();
-
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.PM9115_TwoFactorExtensionDataPersistence,
-      );
-
-      service.cacheData({ emailSent: true });
-      expect(mockSignal.set).not.toHaveBeenCalled();
-    });
-  });
-
   describe("cacheData", () => {
-    beforeEach(async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
-      await service.init();
-    });
-
-    it("caches email sent state when feature is enabled", () => {
+    it("caches email sent state", () => {
       service.cacheData({ emailSent: true });
 
       expect(mockSignal.set).toHaveBeenCalledWith({
         emailSent: true,
       });
     });
-
-    it("does not cache data when feature is disabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-      await service.init();
-
-      service.cacheData({ emailSent: true });
-
-      expect(mockSignal.set).not.toHaveBeenCalled();
-    });
   });
 
   describe("clearCachedData", () => {
-    beforeEach(async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
-      await service.init();
-    });
-
-    it("clears cached data when feature is enabled", () => {
+    it("clears cached data", () => {
       service.clearCachedData();
 
       expect(mockSignal.set).toHaveBeenCalledWith(null);
     });
-
-    it("does not clear cached data when feature is disabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-      await service.init();
-
-      service.clearCachedData();
-
-      expect(mockSignal.set).not.toHaveBeenCalled();
-    });
   });
 
   describe("getCachedData", () => {
-    beforeEach(async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
-      await service.init();
-    });
-
-    it("returns cached data when feature is enabled", () => {
+    it("returns cached data", () => {
       const testData = new TwoFactorAuthEmailComponentCache();
       testData.emailSent = true;
       cacheData.next(testData);
@@ -150,16 +88,6 @@ describe("TwoFactorAuthEmailComponentCacheService", () => {
 
       expect(result).toEqual(testData);
       expect(mockSignal).toHaveBeenCalled();
-    });
-
-    it("returns null when feature is disabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-      await service.init();
-
-      const result = service.getCachedData();
-
-      expect(result).toBeNull();
-      expect(mockSignal).not.toHaveBeenCalled();
     });
   });
 });

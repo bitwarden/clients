@@ -1,17 +1,15 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
-  AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
+  effect,
   inject,
+  input,
+  output,
+  signal,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -57,9 +55,9 @@ type CipherAttachmentForm = FormGroup<{
 }>;
 
 @Component({
-  standalone: true,
   selector: "app-cipher-attachments",
   templateUrl: "./cipher-attachments.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
     ButtonModule,
@@ -73,44 +71,50 @@ type CipherAttachmentForm = FormGroup<{
     DownloadAttachmentComponent,
   ],
 })
-export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
+export class CipherAttachmentsComponent {
   /** `id` associated with the form element */
   static attachmentFormID = "attachmentForm";
 
   /** Reference to the file HTMLInputElement */
-  @ViewChild("fileInput", { read: ElementRef }) private fileInput: ElementRef<HTMLInputElement>;
+  private readonly fileInput = viewChild("fileInput", { read: ElementRef<HTMLInputElement> });
 
   /** Reference to the BitSubmitDirective */
-  @ViewChild(BitSubmitDirective) bitSubmit: BitSubmitDirective;
+  readonly bitSubmit = viewChild(BitSubmitDirective);
 
   /** The `id` of the cipher in context */
-  @Input({ required: true }) cipherId: CipherId;
+  readonly cipherId = input.required<CipherId>();
 
   /** The organization ID if this cipher belongs to an organization */
-  @Input() organizationId?: OrganizationId;
+  readonly organizationId = input<OrganizationId>();
 
   /** Denotes if the action is occurring from within the admin console */
-  @Input() admin: boolean = false;
+  readonly admin = input<boolean>(false);
 
   /** An optional submit button, whose loading/disabled state will be tied to the form state. */
-  @Input() submitBtn?: ButtonComponent;
+  readonly submitBtn = input<ButtonComponent>();
+
+  /** Emits when a file upload is started */
+  readonly onUploadStarted = output<void>();
 
   /** Emits after a file has been successfully uploaded */
-  @Output() onUploadSuccess = new EventEmitter<void>();
+  readonly onUploadSuccess = output<void>();
+
+  /** Emits when a file upload fails */
+  readonly onUploadFailed = output<void>();
 
   /** Emits after a file has been successfully removed */
-  @Output() onRemoveSuccess = new EventEmitter<void>();
+  readonly onRemoveSuccess = output<void>();
 
-  organization: Organization;
-  cipher: CipherView;
+  protected readonly organization = signal<Organization | null>(null);
+  protected readonly cipher = signal<CipherView | null>(null);
 
   attachmentForm: CipherAttachmentForm = this.formBuilder.group({
-    file: new FormControl<File>(null, [Validators.required]),
+    file: new FormControl<File | null>(null, [Validators.required]),
   });
 
-  private cipherDomain: Cipher;
-  private activeUserId: UserId;
-  private destroy$ = inject(DestroyRef);
+  private cipherDomain: Cipher | null = null;
+  private activeUserId: UserId | null = null;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private cipherService: CipherService,
@@ -123,43 +127,52 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
     private organizationService: OrganizationService,
   ) {
     this.attachmentForm.statusChanges.pipe(takeUntilDestroyed()).subscribe((status) => {
-      if (!this.submitBtn) {
+      const btn = this.submitBtn();
+      if (!btn) {
         return;
       }
 
-      this.submitBtn.disabled.set(status !== "VALID");
-    });
-  }
-
-  async ngOnInit(): Promise<void> {
-    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    // Get the organization to check admin permissions
-    this.organization = await this.getOrganization();
-    this.cipherDomain = await this.getCipher(this.cipherId);
-
-    this.cipher = await this.cipherService.decrypt(this.cipherDomain, this.activeUserId);
-
-    // Update the initial state of the submit button
-    if (this.submitBtn) {
-      this.submitBtn.disabled.set(!this.attachmentForm.valid);
-    }
-  }
-
-  ngAfterViewInit(): void {
-    this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroy$)).subscribe((loading) => {
-      if (!this.submitBtn) {
-        return;
-      }
-
-      this.submitBtn.loading.set(loading);
+      btn.disabled.set(status !== "VALID");
     });
 
-    this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroy$)).subscribe((disabled) => {
-      if (!this.submitBtn) {
+    // Initialize data when cipherId input is available
+    effect(async () => {
+      const cipherId = this.cipherId();
+      if (!cipherId) {
         return;
       }
 
-      this.submitBtn.disabled.set(disabled);
+      this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      // Get the organization to check admin permissions
+      this.organization.set(await this.getOrganization());
+      this.cipherDomain = await this.getCipher(cipherId);
+
+      if (this.cipherDomain && this.activeUserId) {
+        this.cipher.set(await this.cipherService.decrypt(this.cipherDomain, this.activeUserId));
+      }
+
+      // Update the initial state of the submit button
+      const btn = this.submitBtn();
+      if (btn) {
+        btn.disabled.set(!this.attachmentForm.valid);
+      }
+    });
+
+    // Sync bitSubmit loading/disabled state with submitBtn
+    effect(() => {
+      const bitSubmit = this.bitSubmit();
+      const btn = this.submitBtn();
+      if (!bitSubmit || !btn) {
+        return;
+      }
+
+      bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
+        btn.loading.set(loading);
+      });
+
+      bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
+        btn.disabled.set(disabled);
+      });
     });
   }
 
@@ -179,8 +192,10 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
 
   /** Save the attachments to the cipher */
   submit = async () => {
+    this.onUploadStarted.emit();
+
     const file = this.attachmentForm.value.file;
-    if (file === null) {
+    if (file == null) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
@@ -199,39 +214,68 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    if (!this.cipherDomain || !this.activeUserId) {
+      return;
+    }
+
     try {
       this.cipherDomain = await this.cipherService.saveAttachmentWithServer(
         this.cipherDomain,
         file,
         this.activeUserId,
-        this.organization?.canEditAllCiphers,
+        this.organization()?.canEditAllCiphers,
       );
 
       // re-decrypt the cipher to update the attachments
-      this.cipher = await this.cipherService.decrypt(this.cipherDomain, this.activeUserId);
+      this.cipher.set(await this.cipherService.decrypt(this.cipherDomain, this.activeUserId));
 
       // Reset reactive form and input element
-      this.fileInput.nativeElement.value = "";
+      const fileInputEl = this.fileInput();
+      if (fileInputEl) {
+        fileInputEl.nativeElement.value = "";
+      }
       this.attachmentForm.controls.file.setValue(null);
 
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("attachmentSaved"),
       });
 
       this.onUploadSuccess.emit();
     } catch (e) {
       this.logService.error(e);
+
+      // Extract error message from server response, fallback to generic message
+      let errorMessage = this.i18nService.t("unexpectedError");
+      if (typeof e === "string") {
+        errorMessage = e;
+      } else if (e instanceof Error && e?.message) {
+        errorMessage = e.message;
+      }
+
+      this.toastService.showToast({
+        variant: "error",
+        message: errorMessage,
+      });
+      this.onUploadFailed.emit();
     }
   };
 
   /** Removes the attachment from the cipher */
   removeAttachment(attachment: AttachmentView) {
-    const index = this.cipher.attachments.indexOf(attachment);
+    const currentCipher = this.cipher();
+    if (!currentCipher?.attachments) {
+      return;
+    }
+
+    const index = currentCipher.attachments.indexOf(attachment);
 
     if (index > -1) {
-      this.cipher.attachments.splice(index, 1);
+      currentCipher.attachments.splice(index, 1);
+      // Trigger signal update by creating a new reference
+      this.cipher.set(
+        Object.assign(Object.create(Object.getPrototypeOf(currentCipher)), currentCipher),
+      );
     }
 
     this.onRemoveSuccess.emit();
@@ -243,7 +287,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
    * it will retrieve the cipher using the admin endpoint.
    */
   private async getCipher(id: CipherId): Promise<Cipher | null> {
-    if (id == null) {
+    if (id == null || !this.activeUserId) {
       return null;
     }
 
@@ -251,12 +295,13 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
     const localCipher = await this.cipherService.get(id, this.activeUserId);
 
     // If we got the cipher or there's no organization context, return the result
-    if (localCipher != null || !this.organizationId) {
+    if (localCipher != null || !this.organizationId()) {
       return localCipher;
     }
 
     // Only try the admin API if the user has admin permissions
-    if (this.organization != null && this.organization.canEditAllCiphers) {
+    const org = this.organization();
+    if (org != null && org.canEditAllCiphers) {
       const cipherResponse = await this.apiService.getCipherAdmin(id);
       const cipherData = new CipherData(cipherResponse);
       return new Cipher(cipherData);
@@ -269,7 +314,8 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
    * Gets the organization for the given organization ID
    */
   private async getOrganization(): Promise<Organization | null> {
-    if (!this.organizationId) {
+    const orgId = this.organizationId();
+    if (!orgId || !this.activeUserId) {
       return null;
     }
 
@@ -277,6 +323,41 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
       this.organizationService.organizations$(this.activeUserId),
     );
 
-    return organizations.find((o) => o.id === this.organizationId) || null;
+    return organizations.find((o) => o.id === orgId) || null;
   }
+
+  protected fixOldAttachment = (attachment: AttachmentView) => {
+    return async () => {
+      const cipher = this.cipher();
+      const userId = this.activeUserId;
+
+      if (!attachment.id || !userId || !cipher) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("errorOccurred"),
+        });
+        return;
+      }
+
+      try {
+        const updatedCipher = await this.cipherService.upgradeOldCipherAttachments(
+          cipher,
+          userId,
+          attachment.id,
+        );
+
+        this.cipher.set(updatedCipher);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("attachmentUpdated"),
+        });
+        this.onUploadSuccess.emit();
+      } catch {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("errorOccurred"),
+        });
+      }
+    };
+  };
 }

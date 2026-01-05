@@ -3,7 +3,7 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { filter, map, switchMap } from "rxjs/operators";
 
-import { BitwardenLogo } from "@bitwarden/auth/angular";
+import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -17,6 +17,8 @@ import { KeyService } from "@bitwarden/key-management";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./setup-business-unit.component.html",
   standalone: false,
@@ -80,8 +82,9 @@ export class SetupBusinessUnitComponent extends BaseAcceptComponent {
       map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
     );
 
+    const userId = await firstValueFrom(activeUserId$);
     const [{ encryptedString: encryptedProviderKey }, providerKey] =
-      await this.keyService.makeOrgKey<ProviderKey>();
+      await this.keyService.makeOrgKey<ProviderKey>(userId);
 
     const organizationKey = await firstValueFrom(organizationKey$);
 
@@ -91,8 +94,6 @@ export class SetupBusinessUnitComponent extends BaseAcceptComponent {
     if (!encryptedProviderKey || !encryptedOrganizationKey) {
       return await fail();
     }
-
-    const userId = await firstValueFrom(activeUserId$);
 
     const request = {
       userId,

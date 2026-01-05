@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Message, MessageType } from "./message";
+import { Message, MessageTypes } from "./message";
 
 const SENDER = "bitwarden-webauthn";
 
@@ -25,7 +23,7 @@ type Handler = (
  * handling aborts and exceptions across separate execution contexts.
  */
 export class Messenger {
-  private messageEventListener: (event: MessageEvent<MessageWithMetadata>) => void | null = null;
+  private messageEventListener: ((event: MessageEvent<MessageWithMetadata>) => void) | null = null;
   private onDestroy = new EventTarget();
 
   /**
@@ -60,6 +58,12 @@ export class Messenger {
     this.broadcastChannel.addEventListener(this.messageEventListener);
   }
 
+  private stripMetadata({ SENDER, senderId, ...message }: MessageWithMetadata): Message {
+    void SENDER;
+    void senderId;
+    return message;
+  }
+
   /**
    * Sends a request to the content script and returns the response.
    * AbortController signals will be forwarded to the content script.
@@ -74,13 +78,15 @@ export class Messenger {
 
     try {
       const promise = new Promise<Message>((resolve) => {
-        localPort.onmessage = (event: MessageEvent<MessageWithMetadata>) => resolve(event.data);
+        localPort.onmessage = (event: MessageEvent<MessageWithMetadata>) => {
+          resolve(this.stripMetadata(event.data));
+        };
       });
 
       const abortListener = () =>
         localPort.postMessage({
           metadata: { SENDER },
-          type: MessageType.AbortRequest,
+          type: MessageTypes.AbortRequest,
         });
       abortSignal?.addEventListener("abort", abortListener);
 
@@ -92,7 +98,7 @@ export class Messenger {
 
       abortSignal?.removeEventListener("abort", abortListener);
 
-      if (response.type === MessageType.ErrorResponse) {
+      if (response.type === MessageTypes.ErrorResponse) {
         const error = new Error();
         Object.assign(error, JSON.parse(response.error));
         throw error;
@@ -119,7 +125,7 @@ export class Messenger {
 
       const abortController = new AbortController();
       port.onmessage = (event: MessageEvent<MessageWithMetadata>) => {
-        if (event.data.type === MessageType.AbortRequest) {
+        if (event.data.type === MessageTypes.AbortRequest) {
           abortController.abort();
         }
       };
@@ -129,11 +135,13 @@ export class Messenger {
 
       try {
         const handlerResponse = await this.handler(message, abortController);
-        port.postMessage({ ...handlerResponse, SENDER });
+        if (handlerResponse !== undefined) {
+          port.postMessage({ ...handlerResponse, SENDER });
+        }
       } catch (error) {
         port.postMessage({
           SENDER,
-          type: MessageType.ErrorResponse,
+          type: MessageTypes.ErrorResponse,
           error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
         });
       } finally {
@@ -157,7 +165,7 @@ export class Messenger {
   }
 
   private async sendDisconnectCommand() {
-    await this.request({ type: MessageType.DisconnectRequest });
+    await this.request({ type: MessageTypes.DisconnectRequest });
   }
 
   private generateUniqueId() {

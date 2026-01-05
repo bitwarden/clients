@@ -10,6 +10,7 @@ Thumbs.db
 *.launch
 .settings/
 *.sublime-workspace
+.serena
 
 # Visual Studio Code
 .vscode/*
@@ -26,6 +27,7 @@ npm-debug.log
 # Build directories
 dist
 build
+target
 .angular/cache
 .flatpak
 .flatpak-repo
@@ -34,6 +36,9 @@ build
 # Testing
 coverage
 junit.xml
+## The "base" root level folder is expected for some local tests that do
+## comparisons between the current branch and a base branch (usually main)
+base/
 
 # Misc
 *.crx

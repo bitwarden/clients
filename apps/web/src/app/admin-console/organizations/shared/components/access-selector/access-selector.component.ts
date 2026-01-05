@@ -45,6 +45,8 @@ export enum PermissionMode {
   Edit = "edit",
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-access-selector",
   templateUrl: "access-selector.component.html",
@@ -126,7 +128,6 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
 
   protected itemType = AccessItemType;
   protected permissionList: Permission[];
-  protected initialPermission = CollectionPermission.View;
 
   /**
    * When disabled, the access selector will make the assumption that a readonly state is desired.
@@ -140,6 +141,8 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
   /**
    * List of all selectable items that. Sorted internally.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get items(): AccessItemView[] {
     return this.selectionList.allItems;
@@ -161,6 +164,8 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
   /**
    * Permission mode that controls if the permission form controls and column should be present.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get permissionMode(): PermissionMode {
     return this._permissionMode;
@@ -176,37 +181,66 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
   /**
    * Column header for the selected items table
    */
-  @Input() columnHeader: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  columnHeader: string;
 
   /**
    * Label used for the ng selector
    */
-  @Input() selectorLabelText: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  selectorLabelText: string;
 
   /**
    * Helper text displayed under the ng selector
    */
-  @Input() selectorHelpText: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  selectorHelpText: string;
 
   /**
    * Text that is shown in the table when no items are selected
    */
-  @Input() emptySelectionText: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  emptySelectionText: string;
 
   /**
    * Flag for if the member roles column should be present
    */
-  @Input() showMemberRoles: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  showMemberRoles: boolean;
 
   /**
    * Flag for if the group column should be present
    */
-  @Input() showGroupColumn: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  showGroupColumn: boolean;
 
   /**
    * Hide the multi-select so that new items cannot be added
    */
-  @Input() hideMultiSelect = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  hideMultiSelect = false;
+
+  /**
+   * The initial permission that will be selected in the dialog, defaults to View.
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  protected initialPermission: CollectionPermission = CollectionPermission.View;
 
   constructor(
     private readonly formBuilder: FormBuilder,

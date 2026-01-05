@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Употребити једнократну пријаву"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Ваша организација захтева јединствену пријаву."
+  },
   "welcomeBack": {
     "message": "Добродошли назад"
   },
@@ -433,8 +436,8 @@
   "sync": {
     "message": "Синхронизација"
   },
-  "syncVaultNow": {
-    "message": "Одмах синхронизуј сеф"
+  "syncNow": {
+    "message": "Синхронизуј сада"
   },
   "lastSync": {
     "message": "Задња синронизација:"
@@ -451,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden веб апликација"
-  },
-  "importItems": {
-    "message": "Увоз ставки"
   },
   "select": {
     "message": "Изабери"
@@ -547,11 +547,61 @@
   "searchVault": {
     "message": "Претражи сеф"
   },
+  "resetSearch": {
+    "message": "Ресетовати претрагу"
+  },
+  "archiveNoun": {
+    "message": "Архива",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Архива",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Врати из архиве"
+  },
+  "itemsInArchive": {
+    "message": "Ставке у архиви"
+  },
+  "noItemsInArchive": {
+    "message": "Нема ставка у архиви"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
+  },
+  "itemWasSentToArchive": {
+    "message": "Ставка је послата у архиву"
+  },
+  "itemUnarchived": {
+    "message": "Ставка враћена из архиве"
+  },
+  "archiveItem": {
+    "message": "Архивирај ставку"
+  },
+  "archiveItemConfirmDesc": {
+    "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
+  },
+  "upgradeToUseArchive": {
+    "message": "Премијум чланство је неопходно за употребу Архиве."
+  },
   "edit": {
     "message": "Уреди"
   },
   "view": {
     "message": "Приказ"
+  },
+  "viewAll": {
+    "message": "Прегледај све"
+  },
+  "showAll": {
+    "message": "Прикажи све"
+  },
+  "viewLess": {
+    "message": "Прикажи мање"
+  },
+  "viewLogin": {
+    "message": "Преглед пријаве"
   },
   "noItemsInList": {
     "message": "Нема ставке у листи."
@@ -695,6 +745,15 @@
   "invalidMasterPassword": {
     "message": "Погрешна главна лозинка"
   },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Неважећа главна лозинка. Потврдите да је ваш имејл тачан и ваш рачун је креиран на $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
+  },
   "vaultTimeout": {
     "message": "Тајмаут сефа"
   },
@@ -742,6 +801,12 @@
   },
   "onLocked": {
     "message": "На закључавање система"
+  },
+  "onIdle": {
+    "message": "На мировање система"
+  },
+  "onSleep": {
+    "message": "Након спавања система"
   },
   "onRestart": {
     "message": "На покретање прегледача"
@@ -981,6 +1046,18 @@
   "editedItem": {
     "message": "Ставка уређена"
   },
+  "savedWebsite": {
+    "message": "Сачувана веб локација"
+  },
+  "savedWebsites": {
+    "message": "Сачувана веб локација ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "Сигурно послати ову ставку у отпад?"
   },
@@ -1173,6 +1250,12 @@
     "message": "Ох не! Нисмо могли да то сачувамо. Покушајте да ручно унесете детаље.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "Након промене лозинке, мораћете да се пријавите са новом лозинком. Активне сесије на другим уређајима биће одјављене у року од једног сата."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Промените главну лозинку да бисте завршили опоравак налога."
+  },
   "enableChangedPasswordNotification": {
     "message": "Питај за ажурирање постојеће пријаве"
   },
@@ -1239,8 +1322,21 @@
   "exportFrom": {
     "message": "Извоз од"
   },
-  "exportVault": {
-    "message": "Извоз сефа"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат датотеке"
@@ -1320,6 +1416,27 @@
   "learnMore": {
     "message": "Сазнај више"
   },
+  "migrationsFailed": {
+    "message": "Дошло је до грешке при ажурирању подешавања шифровања."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Ажурирај своје поставке за шифровање"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Нова препоручена подешавања шифрирања побољшаће вашу сигурност налога. Унесите своју главну лозинку за ажурирање."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Да бисте наставили потврдите ваш идентитет"
+  },
+  "enterYourMasterPassword": {
+    "message": "Унети вашу главну лозинку"
+  },
+  "updateSettings": {
+    "message": "Ажурирај подешавања"
+  },
+  "later": {
+    "message": "Касније"
+  },
   "authenticatorKeyTotp": {
     "message": "Једнократни код"
   },
@@ -1350,6 +1467,15 @@
   "attachmentSaved": {
     "message": "Прилог је сачуван."
   },
+  "fixEncryption": {
+    "message": "Поправи шифровање"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Ова датотека користи застарели метод шифровања."
+  },
+  "attachmentUpdated": {
+    "message": "Прилог је ажуриран"
+  },
   "file": {
     "message": "Датотека"
   },
@@ -1359,14 +1485,17 @@
   "selectFile": {
     "message": "Изабери датотеку."
   },
+  "itemsTransferred": {
+    "message": "Пренете ставке"
+  },
   "maxFileSize": {
     "message": "Максимална величина је 500МБ."
   },
   "featureUnavailable": {
     "message": "Функција је недоступна"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Потребна је миграција кључа за шифровање. Пријавите се преко веб сефа да бисте ажурирали кључ за шифровање."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy енкрипција више није подржана. Молимо контактирајте подршку за повраћај налога."
   },
   "premiumMembership": {
     "message": "Премијум чланство"
@@ -1388,6 +1517,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1ГБ шифровано складиште за прилоге."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ шифровано складиште за прилоге.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Хитан приступ."
@@ -1452,12 +1590,6 @@
   "enableAutoBiometricsPrompt": {
     "message": "Захтевај биометрију при покретању"
   },
-  "premiumRequired": {
-    "message": "Потребан Премијум"
-  },
-  "premiumRequiredDesc": {
-    "message": "Премијум чланство је неопходно за употребу ове опције."
-  },
   "authenticationTimeout": {
     "message": "Истекло је време аутентификације"
   },
@@ -1495,6 +1627,15 @@
   "readSecurityKey": {
     "message": "Читај сигурносни кључ"
   },
+  "readingPasskeyLoading": {
+    "message": "Читање притупачног кључа..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Потврда приступачног кључа"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Користи други начин пријављивања"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Чека се интеракција сигурносног кључа..."
   },
@@ -1512,9 +1653,6 @@
   },
   "selectTwoStepLoginMethod": {
     "message": "Одабрати методу пријављивања у два корака"
-  },
-  "recoveryCodeDesc": {
-    "message": "Изгубили сте приступ свим својим двофакторским добављачима? Употребите код за опоравак да онемогућите све двофакторске добављаче из налога."
   },
   "recoveryCodeTitle": {
     "message": "Шифра за опоравак"
@@ -1564,6 +1702,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Морате додати или основни УРЛ сервера или бар једно прилагођено окружење."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Везе морају да користе HTTPS."
+  },
   "customEnvironment": {
     "message": "Прилагођено окружење"
   },
@@ -1606,7 +1747,7 @@
     "message": "Искључите подешавања ауто-пуњења прегледача, тако да се не сукобљавај са Bitwarden."
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "Угасити ауто-пуњење $BROWSER$-а",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1615,10 +1756,31 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Turn off autofill"
+    "message": "Угасити ауто-пуњење"
+  },
+  "confirmAutofill": {
+    "message": "Потврди аутопуњење"
+  },
+  "confirmAutofillDesc": {
+    "message": "Овај сајт се не подудара са вашим сачуваним подацима за пријаву. Пре него што унесете своје акредитиве за пријаву, уверите се да је то поуздан сајт."
   },
   "showInlineMenuLabel": {
     "message": "Прикажи предлоге за ауто-попуњавање у пољима обрасца"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Како Bitwarden штити ваше податке од фишинга?"
+  },
+  "currentWebsite": {
+    "message": "Тренутни сајт"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Ауто-попуни и додај овај сајт"
+  },
+  "autofillWithoutAdding": {
+    "message": "Ауто-попуни без додавања"
+  },
+  "doNotAutofill": {
+    "message": "Не попуни"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Приказати идентитете као предлоге"
@@ -1673,9 +1835,6 @@
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Након што омогућите ауто-попуњавање странице, можете омогућити или онемогућити функцију за појединачне ставке за пријаву. Ово је подразумевана поставка за ставке за пријаву које нису различито конфигурисане."
-  },
-  "itemAutoFillOnPageLoad": {
-    "message": "Ауто-попуњавање након учитавања странице (ако је омогућено у опцијама)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Користи подразумевано подешавање"
@@ -1748,23 +1907,8 @@
   "popup2faCloseMessage": {
     "message": "Ако кликнете изван искачућег прозора да бисте проверили имејл за верификациони код, овај прозор ће се затворити. Да ли желите да отворите овај прозор у новом прозору да се не би затворио?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Овај прегледач не може да обрађује U2F захтеве у овом искачућем прозору. Да ли желите да отворите овај искачући прозор у новом прозору како бисте могли да се пријавите користећи U2F?"
-  },
-  "enableFavicon": {
-    "message": "Прикажи иконе сајтова"
-  },
-  "faviconDesc": {
-    "message": "Прикажи препознатљиву слику поред сваке ставке за пријаву."
-  },
-  "faviconDescAlt": {
-    "message": "Приказује препознатљиву слику поред сваке пријаве. Важи за све пријављене налоге."
-  },
-  "enableBadgeCounter": {
-    "message": "Прикажи бедж са бројачем"
-  },
-  "badgeCounterDesc": {
-    "message": "Означи број пријава које се могу користити на тренутној Web страници."
+  "showIconsChangePasswordUrls": {
+    "message": "Прикажи иконе веб локација и преузмите линкове промене лозинке"
   },
   "cardholderName": {
     "message": "Име Власника Картице"
@@ -1780,6 +1924,9 @@
   },
   "expirationYear": {
     "message": "Година истека"
+  },
+  "monthly": {
+    "message": "месец"
   },
   "expiration": {
     "message": "Истек"
@@ -1822,6 +1969,9 @@
   },
   "securityCode": {
     "message": "Сигурносни код"
+  },
+  "cardNumber": {
+    "message": "број картице"
   },
   "ex": {
     "message": "нпр."
@@ -1922,32 +2072,84 @@
   "typeSshKey": {
     "message": "SSH кључ"
   },
-  "newItemHeader": {
-    "message": "Нови $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "typeNote": {
+    "message": "Белешка"
   },
-  "editItemHeader": {
-    "message": "Уреди $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "Ново пријављивање",
+    "description": "Header for new login item type"
   },
-  "viewItemHeader": {
-    "message": "Видети $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "Нова картица",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Нови идентитет",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Нова белешка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Нов SSH кљич",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Нови текст Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Нова датотека Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Уреди пријаву",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Уреди картицу",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Уреди идентитет",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Уреди белешку",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Уреди SSH кључ",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Уреди текст Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Уреди датотеку Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Преглед пријаве",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Преглед картице",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Преглед идентитета",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Преглед белешке",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Преглед SSH кључа",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Историја Лозинке"
@@ -2153,8 +2355,8 @@
   "setYourPinCode": {
     "message": "Поставите свој ПИН код за откључавање Bitwarden-а. Поставке ПИН-а ће се ресетовати ако се икада потпуно одјавите из апликације."
   },
-  "setYourPinCode1": {
-    "message": "Ваш ПИН ће се користити за откључавање Bitwarden-а уместо ваше главне лозинке. Ваш ПИН ће се ресетовати ако се икада потпуно одјавите са Bitwarden-а."
+  "setPinCode": {
+    "message": "Можете употребити овај ПИН да би деблокирали Bitwarden. Ваш ПИН ће се ресетовати ако се икада у потпуности одјавите из апликације."
   },
   "pinRequired": {
     "message": "ПИН је обавезан."
@@ -2294,6 +2496,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Постави Главну Лозинку"
@@ -2484,6 +2689,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Политика организације је блокирала увоз ставки у ваш појединачни сеф."
   },
+  "restrictCardTypeImport": {
+    "message": "Не могу увозити врсте картица"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика која је поставила 1 или више организација спречава вас да се увозе картице у сефу."
+  },
   "domainsTitle": {
     "message": "Домени",
     "description": "A category title describing the concept of web domains"
@@ -2515,6 +2726,10 @@
   "change": {
     "message": "Промени"
   },
+  "changePassword": {
+    "message": "Промени лозинку",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Промена лозинке - $ITEMNAME$",
     "placeholders": {
@@ -2523,6 +2738,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "Лозинка под ризиком"
   },
   "atRiskPasswords": {
     "message": "Лозинке под ризиком"
@@ -2557,6 +2775,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Ваша лозинка за ову страницу је ризична. $ORGANIZATION$ је затражио да је промените.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ жели да промените ову лозинку јер је ризична. Идите до поставки вашег налога да бисте променили лозинку.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Прегледајте и промените једну лозинку за ризик"
@@ -2883,6 +3121,9 @@
   "emailVerificationRequiredDesc": {
     "message": "Морате да потврдите е-пошту да бисте користили ову функцију. Можете да потврдите е-пошту у веб сефу."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Главна лозинка успешно постављена"
+  },
   "updatedMasterPassword": {
     "message": "Главна лозинка ажурирана"
   },
@@ -3021,9 +3262,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Није пронађен ниједан јединствени идентификатор."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Главна лозинка више није потребна за чланове следеће организације. Молимо потврдите домен са администратором организације."
-  },
   "organizationName": {
     "message": "Назив организације"
   },
@@ -3084,11 +3322,32 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезана са $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Извешће се само сеф организације повезан са $ORGANIZATION$. Колекције мојих предмета неће бити укључене.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Грешка"
   },
   "decryptionError": {
     "message": "Грешка при декрипцији"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Грешка при преузимању података за ауто-попуњавање"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden није могао да декриптује ставке из трезора наведене испод."
@@ -3415,6 +3674,31 @@
   "logInRequestSent": {
     "message": "Захтев је послат"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Захтев за пријаву одобрен за $EMAIL$ на $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Одбили сте покушај пријаве са другог уређаја. Ако сте то били ви, покушајте поново да се пријавите помоћу уређаја."
+  },
+  "device": {
+    "message": "Уређај"
+  },
+  "loginStatus": {
+    "message": "Статус пријаве"
+  },
+  "masterPasswordChanged": {
+    "message": "Главна лозинка сачувана"
+  },
   "exposedMasterPassword": {
     "message": "Изложена главна лозинка"
   },
@@ -3447,9 +3731,6 @@
   },
   "autofillPageLoadPolicyActivated": {
     "message": "Смернице ваше организације су укључиле ауто-пуњење при учитавању странице."
-  },
-  "howToAutofill": {
-    "message": "Како ауто-попуњавати"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Изаберите ставку са овог екрана, користите пречицу $COMMAND$, или истражите друге опције у подешавањима.",
@@ -3508,6 +3789,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Запамтити овај уређај да би будуће пријаве биле беспрекорне"
   },
+  "manageDevices": {
+    "message": "Управљање уређајима"
+  },
+  "currentSession": {
+    "message": "Тренутна сесија"
+  },
+  "mobile": {
+    "message": "Мобилни",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Додатак",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Десктоп",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Интернет Сеф"
+  },
+  "webApp": {
+    "message": "Веб апликација"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Захтев је на чекању"
+  },
+  "firstLogin": {
+    "message": "Прва пријава"
+  },
+  "trusted": {
+    "message": "Поуздан"
+  },
+  "needsApproval": {
+    "message": "Потребно је одобрење"
+  },
+  "devices": {
+    "message": "Уређаји"
+  },
+  "accessAttemptBy": {
+    "message": "Покушај приступа са $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Потврди приступ"
+  },
+  "denyAccess": {
+    "message": "Одбиј приступ"
+  },
+  "time": {
+    "message": "Време"
+  },
+  "deviceType": {
+    "message": "Тип уређаја"
+  },
+  "loginRequest": {
+    "message": "Захтев за пријаву"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Овај захтев више није важећи."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Захтев за пријаву је већ истекао."
+  },
+  "justNow": {
+    "message": "Управо сада"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Затражено пре $MINUTES$ минута",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Потребно је одобрење уређаја. Изаберите опцију одобрења испод:"
   },
@@ -3528,6 +3897,12 @@
   },
   "requestAdminApproval": {
     "message": "Затражити одобрење администратора"
+  },
+  "unableToCompleteLogin": {
+    "message": "Није могуће завршити пријаву"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Потребно је да се пријавите на поузданом уређају или да замолите администратора да вам додели лозинку."
   },
   "ssoIdentifierRequired": {
     "message": "Потребан је SSO идентификатор организације."
@@ -3609,18 +3984,10 @@
     "message": "За сигурност вашег рачуна, наставите само ако сте члан ове организације, омогућили опоравак рачуна и отисак који се приказује испод одговара прстима организације."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "Ова организација има политику за предузећа која ће вас уписати у опоравак налога. Упис ће омогућити администраторима организације да промене вашу лозинку. Наставите само ако препознајете ову организацију и ако се фраза отиска приказана испод поклапа са отиском организације."
   },
   "trustUser": {
     "message": "Повери кориснику"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Нема активних Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Употребите Send да безбедно делите шифроване информације са било ким.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Шаљите безбедно осетљиве информације",
@@ -3749,17 +4116,18 @@
   "aliasDomain": {
     "message": "Домен алијаса"
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Ставке са упитом за поновно постављање главне лозинке не могу се ауто-попунити при учитавању странице. Ауто-попуњавање при учитавању странице је искључено.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
-  },
   "autofillOnPageLoadSetToDefault": {
     "message": "Ауто-попуњавање при учитавању странице је подешено да користи подразумевано подешавање.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Искључите поновни упит главне лозинке да бисте уредили ово поље",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  "cannotAutofill": {
+    "message": "Не може да се ауто-попуни"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Подразумевано подударање је подешено на „Тачно подударање“. Тренутна веб локација не одговара тачно сачуваним детаљима за пријаву за ову ставку."
+  },
+  "okay": {
+    "message": "У реду"
   },
   "toggleSideNavigation": {
     "message": "Укључите бочну навигацију"
@@ -3856,10 +4224,6 @@
   },
   "ignore": {
     "message": "Игнориши"
-  },
-  "importData": {
-    "message": "Увези податке",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Грешка при увозу"
@@ -3969,15 +4333,11 @@
   "selectImportCollection": {
     "message": "Изабери колекцију"
   },
-  "importTargetHint": {
-    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке премести у $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у колекцију"
+  },
+  "importTargetHintFolder": {
+    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у фасцикли"
   },
   "importUnassignedItemsError": {
     "message": "Датотека садржи недодељене ставке."
@@ -4033,9 +4393,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Приступни кључ неће бити копиран на клонирану ставку. Да ли желите да наставите са клонирањем ставке?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Верификацију захтева сајт који покреће. Ова функција још увек није имплементирана за налоге без главне лозинке."
   },
   "logInWithPasskeyQuestion": {
     "message": "Пријавите се са приступним кључем?"
@@ -4215,6 +4572,26 @@
   "commonImportFormats": {
     "message": "Уобичајени формати",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Детекција подударања URI-ја је начин на који Bitwarden идентификује предлоге за ауто-попуњавање.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "„Регуларни израз“ је напредна опција са повећаним ризиком од откривања акредитива.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "„Почни са“ је напредна опција са повећаним ризиком од откривања акредитива.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Више о откривању подударања",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Напредне опције",
+    "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Желите ли да наставите на подешавања претраживача?",
@@ -4399,17 +4776,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Копирај $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Копирај $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4433,6 +4810,15 @@
   },
   "accountSecurity": {
     "message": "Безбедност налога"
+  },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
     "message": "Обавештења"
@@ -4579,6 +4965,9 @@
   "premium": {
     "message": "Премијум"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Откључајте извештавање, приступ хитним случајевима и више безбедносних функција уз Премиум."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Бесплатне организације не могу да користе прилоге"
   },
@@ -4663,6 +5052,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Подразумевано ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Прикажи откривање подударања $WEBSITE$",
     "placeholders": {
@@ -4701,9 +5100,6 @@
         "example": "Visa"
       }
     }
-  },
-  "enableAnimations": {
-    "message": "Омогући анимације"
   },
   "showAnimations": {
     "message": "Прикажи анимације"
@@ -4917,14 +5313,8 @@
   "itemLocation": {
     "message": "Смештај ставке"
   },
-  "fileSend": {
-    "message": "Датотека „Send“"
-  },
   "fileSends": {
     "message": "Датотека „Send“"
-  },
-  "textSend": {
-    "message": "Текст „Send“"
   },
   "textSends": {
     "message": "Текст „Send“"
@@ -4934,6 +5324,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Прикажи број предлога за ауто-попуњавање пријаве на икони додатка"
+  },
+  "accountAccessRequested": {
+    "message": "Приступ рачуна је затражен"
+  },
+  "confirmAccessAttempt": {
+    "message": "Потврдити приступ за $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Приказати брзе радње копирања у Сефу"
@@ -4973,9 +5375,6 @@
   },
   "vaultCustomTimeoutMinimum": {
     "message": "Минимално прилагођено временско ограничење је 1 минут."
-  },
-  "additionalContentAvailable": {
-    "message": "Додатни садржај је доступан"
   },
   "fileSavedToDevice": {
     "message": "Датотека је сачувана на уређају. Управљајте преузимањима са свог уређаја."
@@ -5042,6 +5441,9 @@
   },
   "unlockPinSet": {
     "message": "Постављен ПИН деблокирања"
+  },
+  "unlockWithBiometricSet": {
+    "message": "Откључај биометријом"
   },
   "authenticating": {
     "message": "Аутентификација"
@@ -5259,6 +5661,12 @@
   "changeAtRiskPassword": {
     "message": "Променити ризичну лозинку"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ова пријава је ризична и недостаје веб локација. Додајте веб страницу и промените лозинку за јачу сигурност."
+  },
+  "missingWebsite": {
+    "message": "Недостаје веб страница"
+  },
   "settingsVaultOptions": {
     "message": "Опције сефа"
   },
@@ -5307,6 +5715,38 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Добродошли у ваш сеф!"
   },
+  "phishingPageTitleV2": {
+    "message": "Откривен је покушај „пецања“"
+  },
+  "phishingPageSummary": {
+    "message": "Сајт који покушавате да посетите је позната злонамерна локација и представља безбедносни ризик."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Затвори ову картицу"
+  },
+  "phishingPageContinueV2": {
+    "message": "Настави до овог сајта (не препоручује се)"
+  },
+  "phishingPageExplanation1": {
+    "message": "Овај сајт је нађен у ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", листа отвореног кода познатих сајтова за крађу идентитета који се користе за крађу личних и осетљивих информација.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Сазнајте више о откривању „пецања“"
+  },
+  "protectedBy": {
+    "message": "Заштићено са $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Ауто-пуњење предмета за тренутну страницу"
   },
@@ -5335,7 +5775,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Лако онлајн плачање"
   },
   "newCardNudgeBody": {
     "message": "Са картицама, лако и сигурносно попуните формуларе за плаћање."
@@ -5382,7 +5822,225 @@
     "message": "Лако креирајте снажне и јединствене лозинке кликом на дугме „Генерирате лозинку“ да вам помогне да чувате своје пријаве на сигурно.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "О овом подешавању"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden ће користити сачуване URI-јеве за пријаву да би одредио коју икону или URL за промену лозинке треба користити како би побољшао ваше искуство. Никакви подаци нису сакупљени нити сачувани приликом коришћења ове услуге."
+  },
   "noPermissionsViewPage": {
     "message": "Немате дозволе за преглед ове странице. Покушајте да се пријавите са другим налогом."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly није подржано или није уапљено на вашем прегледачу. WebAssembly је потребно да би се користила апликација Bitwarden.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Прикажи више"
+  },
+  "showLess": {
+    "message": "Прикажи мање"
+  },
+  "next": {
+    "message": "Следеће"
+  },
+  "moreBreadcrumbs": {
+    "message": "Више мрвица",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потврдите домен конектора кључа"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Сјајан посао обезбеђивања ваших ризичних пријава!"
+  },
+  "upgradeNow": {
+    "message": "Надогради сада"
+  },
+  "builtInAuthenticator": {
+    "message": "Уграђени аутентификатор"
+  },
+  "secureFileStorage": {
+    "message": "Сигурно складиштење датотека"
+  },
+  "emergencyAccess": {
+    "message": "Хитан приступ"
+  },
+  "breachMonitoring": {
+    "message": "Праћење повreda безбедности"
+  },
+  "andMoreFeatures": {
+    "message": "И још више!"
+  },
+  "advancedOnlineSecurity": {
+    "message": "Напредна онлајн безбедност"
+  },
+  "upgradeToPremium": {
+    "message": "Надоградите на Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Откључајте напредне безбедносне функције"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Премиум претплата вам даје више алата да останете сигурни и под контролом"
+  },
+  "explorePremium": {
+    "message": "Прегледати Премијум"
+  },
+  "loadingVault": {
+    "message": "Учитавање сефа"
+  },
+  "vaultLoaded": {
+    "message": "Сеф учитан"
+  },
+  "settingDisabledByPolicy": {
+    "message": "Ово подешавање је онемогућено смерницама ваше организације.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP/Поштански број"
+  },
+  "cardNumberLabel": {
+    "message": "Број картице"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Ваша организација више не користи главне лозинке за пријаву на Bitwarden. Да бисте наставили, верификујте организацију и домен."
+  },
+  "continueWithLogIn": {
+    "message": "Наставити са пријавом"
+  },
+  "doNotContinue": {
+    "message": "Не настави"
+  },
+  "domain": {
+    "message": "Домен"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Овај домен ће чувати кључеве за шифровање вашег налога, па се уверите да му верујете. Ако нисте сигурни, проверите код свог администратора."
+  },
+  "verifyYourOrganization": {
+    "message": "Верификујте своју организацију да бисте се пријавили"
+  },
+  "organizationVerified": {
+    "message": "Организација верификована"
+  },
+  "domainVerified": {
+    "message": "Домен верификован"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ако не верификујете своју организацију, ваш приступ организацији ће бити опозван."
+  },
+  "leaveNow": {
+    "message": "Напусти сада"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Верификујте домен да бисте се пријавили"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Да бисте наставили са пријављивањем, верификујте овај домен."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Да бисте наставили са пријављивањем, верификујте организацију и домен."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Акција тајмаута"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Овим подешавањем управља ваша организација."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Ваша организација је подесила максимално временско ограничење сесије на $HOURS$ сати и $MINUTES$ минута.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Ваша организација је поставила подразумевано временско ограничење сесије на Одмах."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Ваша организација је поставила подразумевано временско ограничење сесије на Блокирање система."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Ваша организација је поставила подразумевано временско ограничење сесије на При рестартовању прегледача."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Максимално временско ограничење не може да пређе $HOURS$ сат(а) и $MINUTES$ минут(а)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "На покретање прегледача"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Подесите метод откључавања да бисте променили радњу временског ограничења"
+  },
+  "upgrade": {
+    "message": "Надогради"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Да ли сте сигурни да желите да напустите?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Ако одбијете, ваши лични предмети ће остати на вашем налогу, али ћете изгубити приступ дељеним ставкама и организационим функцијама."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Контактирајте свог администратора да бисте поново добили приступ."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Напустити $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Како да управљам својим сефом?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Премести ставке у $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ захтева да све ставке буду у власништву организације ради безбедности и усклађености. Кликните на прихвати да бисте пренели власништво над својим ставкама.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Прихвати трансфер"
+  },
+  "declineAndLeave": {
+    "message": "Одбиј и напусти"
+  },
+  "whyAmISeeingThis": {
+    "message": "Зашто видите ово?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

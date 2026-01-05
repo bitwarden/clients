@@ -1,25 +1,38 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { Component, EventEmitter, Input, OnDestroy, Output, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { TableDataSource, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, TableDataSource, ToastService } from "@bitwarden/components";
+import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 
 import { SecretListView } from "../models/view/secret-list.view";
+import { SecretView } from "../models/view/secret.view";
 import { SecretService } from "../secrets/secret.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-secrets-list",
   templateUrl: "./secrets-list.component.html",
   standalone: false,
 })
-export class SecretsListComponent implements OnDestroy {
+export class SecretsListComponent implements OnDestroy, OnInit {
   protected dataSource = new TableDataSource<SecretListView>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get secrets(): SecretListView[] {
     return this._secrets;
@@ -31,36 +44,92 @@ export class SecretsListComponent implements OnDestroy {
   }
   private _secrets: SecretListView[];
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set search(search: string) {
     this.selection.clear();
     this.dataSource.filter = search;
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() trash: boolean;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() editSecretEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() viewSecretEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() copySecretNameEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() copySecretValueEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() copySecretUuidEvent = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSecretCheckedEvent = new EventEmitter<string[]>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() deleteSecretsEvent = new EventEmitter<SecretListView[]>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() newSecretEvent = new EventEmitter();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() restoreSecretsEvent = new EventEmitter();
 
   private destroy$: Subject<void> = new Subject<void>();
 
   selection = new SelectionModel<string>(true, []);
+  protected viewEventsAllowed$: Observable<boolean>;
+  protected isAdmin$: Observable<boolean>;
 
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
+    private dialogService: DialogService,
+    private organizationService: OrganizationService,
+    private activatedRoute: ActivatedRoute,
+    private accountService: AccountService,
+    private logService: LogService,
   ) {
     this.selection.changed
       .pipe(takeUntil(this.destroy$))
       .subscribe((_) => this.onSecretCheckedEvent.emit(this.selection.selected));
+  }
+
+  ngOnInit(): void {
+    this.viewEventsAllowed$ = this.activatedRoute.params.pipe(
+      concatMap((params) =>
+        getUserId(this.accountService.activeAccount$).pipe(
+          switchMap((userId) =>
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          ),
+        ),
+      ),
+      map((org) => org.canAccessEventLogs),
+      catchError((error: unknown) => {
+        if (typeof error === "string") {
+          this.toastService.showToast({
+            message: error,
+            variant: "error",
+            title: "",
+          });
+        } else {
+          this.logService.error(error);
+        }
+        return of(false);
+      }),
+      takeUntil(this.destroy$),
+    );
   }
 
   ngOnDestroy(): void {
@@ -76,6 +145,15 @@ export class SecretsListComponent implements OnDestroy {
     }
     return false;
   }
+  openEventsDialog = (secret: SecretView): DialogRef<void> =>
+    openEntityEventsDialog(this.dialogService, {
+      data: {
+        name: secret.name,
+        organizationId: secret.organizationId,
+        entityId: secret.id,
+        entity: "secret",
+      },
+    });
 
   toggleAll() {
     if (this.isAllSelected()) {
@@ -179,23 +257,5 @@ export class SecretsListComponent implements OnDestroy {
       null,
       i18nService.t("valueCopied", i18nService.t("uuid")),
     );
-  }
-
-  /**
-   * TODO: Remove in favor of updating `PlatformUtilsService.copyToClipboard`
-   */
-  private static copyToClipboardAsync(
-    text: Promise<string>,
-    platformUtilsService: PlatformUtilsService,
-  ) {
-    if (platformUtilsService.isSafari()) {
-      return navigator.clipboard.write([
-        new ClipboardItem({
-          ["text/plain"]: text,
-        }),
-      ]);
-    }
-
-    return text.then((t) => platformUtilsService.copyToClipboard(t));
   }
 }

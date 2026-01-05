@@ -360,6 +360,18 @@ form,
   }
 }
 
+.help-block a.settings-link {
+  text-decoration: none;
+  @include themify($themes) {
+    color: themed("primaryColor");
+
+    &:hover,
+    &:focus {
+      color: darken(themed("primaryColor"), 6%);
+    }
+  }
+}
+
 app-root > #loading,
 .loading {
   display: flex;
@@ -439,10 +451,6 @@ img,
 .help-block,
 .form-text.text-muted {
   user-select: none;
-}
-
-app-vault-view .box-footer {
-  user-select: auto;
 }
 
 /* override for vault icon in desktop */

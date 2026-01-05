@@ -1,8 +1,6 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, map, Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   GlobalState,
   KeyDefinition,
@@ -28,17 +26,9 @@ export class IntroCarouselService {
     map((x) => x ?? false),
   );
 
-  constructor(
-    private stateProvider: StateProvider,
-    private configService: ConfigService,
-  ) {}
+  constructor(private stateProvider: StateProvider) {}
 
   async setIntroCarouselDismissed(): Promise<void> {
-    const hasVaultNudgeFlag = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge),
-    );
-    if (hasVaultNudgeFlag) {
-      await this.introCarouselState.update(() => true);
-    }
+    await this.introCarouselState.update(() => true);
   }
 }

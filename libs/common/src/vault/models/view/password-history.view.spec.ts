@@ -33,4 +33,17 @@ describe("PasswordHistoryView", () => {
       });
     });
   });
+
+  describe("toSdkPasswordHistoryView", () => {
+    it("should return a SdkPasswordHistoryView", () => {
+      const passwordHistoryView = new PasswordHistoryView();
+      passwordHistoryView.password = "password";
+      passwordHistoryView.lastUsedDate = new Date("2023-10-01T00:00:00.000Z");
+
+      expect(passwordHistoryView.toSdkPasswordHistoryView()).toMatchObject({
+        password: "password",
+        lastUsedDate: "2023-10-01T00:00:00.000Z",
+      });
+    });
+  });
 });

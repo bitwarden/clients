@@ -11,59 +11,75 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
-  SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
-  OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
+  CreateDefaultLocation = "pm-19467-create-default-location",
+  AutoConfirm = "pm-19934-auto-confirm-organization-users",
+  BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
+  IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
 
   /* Auth */
-  PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
-  PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
+  PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
 
   /* Autofill */
-  BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
-  DelayFido2PageScriptInitWithinMv2 = "delay-fido2-page-script-init-within-mv2",
-  EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
-  IdpAutoSubmitLogin = "idp-auto-submit-login",
-  NotificationRefresh = "notification-refresh",
-  UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
+  WindowsDesktopAutotype = "windows-desktop-autotype",
+  WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
-  PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
-  PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
-  PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
-  PM19956_RequireProviderPaymentMethodDuringSetup = "pm-19956-require-provider-payment-method-during-setup",
-  UseOrganizationWarningsService = "use-organization-warnings-service",
-
-  /* Data Insights and Reporting */
-  CriticalApps = "pm-14466-risk-insights-critical-application",
-  EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
+  PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
+  PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
+  PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
+  PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
+  PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
+  PM26462_Milestone_3 = "pm-26462-milestone-3",
+  PM23341_Milestone_2 = "pm-23341-milestone-2",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
-  UserKeyRotationV2 = "userkey-rotation-v2",
-  PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
-  UseSDKForDecryption = "use-sdk-for-decryption",
-  PM17987_BlockType0 = "pm-17987-block-type-0",
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
+  ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
+  PM25174_DisableType0Decryption = "pm-25174-disable-type-0-decryption",
+  LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
+  UnlockWithMasterPasswordUnlockData = "pm-23246-unlock-with-master-password-unlock-data",
+  NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
+  DataRecoveryTool = "pm-28813-data-recovery-tool",
+  ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
+  PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
+  EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
 
   /* Tools */
-  ItemShare = "item-share",
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
+  UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
+  ChromiumImporterWithABE = "pm-25855-chromium-importer-abe",
+  SendUIRefresh = "pm-28175-send-ui-refresh",
+  SendEmailOTP = "pm-19051-send-email-verification",
+
+  /* DIRT */
+  EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
+  PhishingDetection = "phishing-detection",
+  PM22887_RiskInsightsActivityTab = "pm-22887-risk-insights-activity-tab",
 
   /* Vault */
-  PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
-  PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
-  SecurityTasks = "security-tasks",
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
+  PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
+  PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
-  PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
-  EndUserNotifications = "pm-10609-end-user-notifications",
-  RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
+  RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
+  VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
+  BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
+  MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
+
+  /* Innovation */
+  PM19148_InnovationArchive = "pm-19148-innovation-archive",
+
+  /* Desktop */
+  DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
+
+  /* UIF */
+  RouterFocusManagement = "router-focus-management",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -81,59 +97,75 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.LimitItemDeletion]: FALSE,
-  [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
-  [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
+  [FeatureFlag.CreateDefaultLocation]: FALSE,
+  [FeatureFlag.AutoConfirm]: FALSE,
+  [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
+  [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
-  [FeatureFlag.DelayFido2PageScriptInitWithinMv2]: FALSE,
-  [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
-  [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
-  [FeatureFlag.NotificationRefresh]: FALSE,
-  [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-
-  /* Data Insights and Reporting */
-  [FeatureFlag.CriticalApps]: FALSE,
-  [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotype]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
 
   /* Tools */
-  [FeatureFlag.ItemShare]: FALSE,
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
+  [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
+  [FeatureFlag.ChromiumImporterWithABE]: FALSE,
+  [FeatureFlag.SendUIRefresh]: FALSE,
+  [FeatureFlag.SendEmailOTP]: FALSE,
+
+  /* DIRT */
+  [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
+  [FeatureFlag.PhishingDetection]: FALSE,
+  [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
   /* Vault */
-  [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
-  [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
-  [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
-  [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
-  [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
+  [FeatureFlag.PM22134SdkCipherListView]: FALSE,
+  [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
+  [FeatureFlag.RiskInsightsForPremium]: FALSE,
+  [FeatureFlag.VaultLoadingSkeletons]: FALSE,
+  [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
+  [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
-  [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
+  [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
-  [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
-  [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
-  [FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup]: FALSE,
-  [FeatureFlag.UseOrganizationWarningsService]: FALSE,
+  [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
+  [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
+  [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
+  [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
+  [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
+  [FeatureFlag.PM26462_Milestone_3]: FALSE,
+  [FeatureFlag.PM23341_Milestone_2]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.UserKeyRotationV2]: FALSE,
-  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
-  [FeatureFlag.UseSDKForDecryption]: FALSE,
-  [FeatureFlag.PM17987_BlockType0]: FALSE,
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
+  [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
+  [FeatureFlag.PM25174_DisableType0Decryption]: FALSE,
+  [FeatureFlag.LinuxBiometricsV2]: FALSE,
+  [FeatureFlag.UnlockWithMasterPasswordUnlockData]: FALSE,
+  [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.DataRecoveryTool]: FALSE,
+  [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
+  [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
+  [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
+
+  /* Innovation */
+  [FeatureFlag.PM19148_InnovationArchive]: FALSE,
+
+  /* Desktop */
+  [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
+
+  /* UIF */
+  [FeatureFlag.RouterFocusManagement]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

@@ -63,7 +63,9 @@ export class UserApiLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
+    if (response.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    }
 
     if (response.apiUseKeyConnector) {
       const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
@@ -85,6 +87,12 @@ export class UserApiLoginStrategy extends LoginStrategy {
       response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
       userId,
     );
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
   }
 
   // Overridden to save client ID and secret to token service

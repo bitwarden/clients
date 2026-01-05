@@ -1,4 +1,9 @@
 {
   "extends": "./tsconfig.json",
-  "files": ["./test.setup.ts"]
+  "compilerOptions": {
+    "isolatedModules": true,
+    "emitDecoratorMetadata": false
+  },
+  "files": ["./test.setup.ts"],
+  "include": ["src/**/*.spec.ts"]
 }

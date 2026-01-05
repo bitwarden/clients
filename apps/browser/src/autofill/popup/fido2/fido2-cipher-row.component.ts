@@ -17,7 +17,6 @@ import {
   selector: "app-fido2-cipher-row",
   templateUrl: "fido2-cipher-row.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [
     BadgeModule,
     ButtonModule,
@@ -29,9 +28,17 @@ import {
   ],
 })
 export class Fido2CipherRowComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSelected = new EventEmitter<CipherView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipher: CipherView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() last: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() title: string;
 
   protected selectCipher(c: CipherView) {

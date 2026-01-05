@@ -41,4 +41,14 @@ export class PasswordHistoryView implements View {
 
     return view;
   }
+
+  /**
+   * Converts the PasswordHistoryView to an SDK PasswordHistoryView.
+   */
+  toSdkPasswordHistoryView(): SdkPasswordHistoryView {
+    return {
+      password: this.password ?? "",
+      lastUsedDate: this.lastUsedDate.toISOString(),
+    };
+  }
 }

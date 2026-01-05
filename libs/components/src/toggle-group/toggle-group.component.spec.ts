@@ -1,28 +1,23 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ChangeDetectionStrategy, Component, signal, WritableSignal } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { ToggleGroupModule } from "./toggle-group.module";
 import { ToggleComponent } from "./toggle.component";
 
 describe("Button", () => {
-  let fixture: ComponentFixture<TestApp>;
-  let testAppComponent: TestApp;
-  let buttonElements: ToggleComponent[];
+  let fixture: ComponentFixture<TestAppComponent>;
+  let testAppComponent: TestAppComponent;
+  let buttonElements: ToggleComponent<unknown>[];
   let radioButtons: HTMLInputElement[];
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [ToggleGroupModule],
-      declarations: [TestApp],
+      imports: [TestAppComponent],
     });
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.compileComponents();
-    fixture = TestBed.createComponent(TestApp);
+    await TestBed.compileComponents();
+    fixture = TestBed.createComponent(TestAppComponent);
     testAppComponent = fixture.debugElement.componentInstance;
     buttonElements = fixture.debugElement
       .queryAll(By.css("bit-toggle"))
@@ -32,29 +27,29 @@ describe("Button", () => {
       .map((e) => e.nativeElement);
 
     fixture.detectChanges();
-  }));
+  });
 
   it("should select second element when setting selected to second", () => {
-    testAppComponent.selected = "second";
+    testAppComponent.selected.set("second");
     fixture.detectChanges();
 
-    expect(buttonElements[1].selected).toBe(true);
+    expect(buttonElements[1].selected()).toBe(true);
   });
 
   it("should not select second element when setting selected to third", () => {
-    testAppComponent.selected = "third";
+    testAppComponent.selected.set("third");
     fixture.detectChanges();
 
-    expect(buttonElements[1].selected).toBe(false);
+    expect(buttonElements[1].selected()).toBe(false);
   });
 
   it("should emit new value when changing selection by clicking on radio button", () => {
-    testAppComponent.selected = "first";
+    testAppComponent.selected.set("first");
     fixture.detectChanges();
 
     radioButtons[1].click();
 
-    expect(testAppComponent.selected).toBe("second");
+    expect(testAppComponent.selected()).toBe("second");
   });
 });
 
@@ -67,7 +62,9 @@ describe("Button", () => {
       <bit-toggle value="third">Third</bit-toggle>
     </bit-toggle-group>
   `,
+  imports: [ToggleGroupModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class TestApp {
-  selected?: string;
+class TestAppComponent {
+  readonly selected: WritableSignal<string | undefined> = signal(undefined);
 }

@@ -51,6 +51,25 @@ export abstract class PolicyService {
   ) => Observable<MasterPasswordPolicyOptions | undefined>;
 
   /**
+   * Combines all Master Password policies that are passed in and returns
+   * back the strongest combination of all the policies in the form of a
+   * MasterPasswordPolicyOptions.
+   * @param policies
+   */
+  abstract combinePoliciesIntoMasterPasswordPolicyOptions(
+    policies: Policy[],
+  ): MasterPasswordPolicyOptions | undefined;
+
+  /**
+   * Takes an arbitrary amount of Master Password Policy options in any form and merges them
+   * together using the strictest combination of all of them.
+   * @param masterPasswordPolicyOptions
+   */
+  abstract combineMasterPasswordPolicyOptions(
+    ...masterPasswordPolicyOptions: MasterPasswordPolicyOptions[]
+  ): MasterPasswordPolicyOptions | undefined;
+
+  /**
    * Evaluates whether a proposed Master Password complies with all Master Password policies that apply to the user.
    */
   abstract evaluateMasterPassword: (
@@ -82,4 +101,9 @@ export abstract class InternalPolicyService extends PolicyService {
    * Replace a policy in the local sync data. This does not update any policies on the server.
    */
   abstract replace: (policies: { [id: string]: PolicyData }, userId: UserId) => Promise<void>;
+  /**
+   * Wrapper around upsert that uses account service to sync policies for the logged in user. This comes from
+   * the server push notification to update local policies.
+   */
+  abstract syncPolicy: (payload: PolicyData) => Promise<void>;
 }

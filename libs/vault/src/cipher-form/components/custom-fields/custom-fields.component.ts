@@ -68,8 +68,9 @@ export type CustomField = {
   newField: boolean;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-custom-fields",
   templateUrl: "./custom-fields.component.html",
   imports: [
@@ -89,10 +90,16 @@ export type CustomField = {
   ],
 })
 export class CustomFieldsComponent implements OnInit, AfterViewInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() numberOfFieldsChange = new EventEmitter<number>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren("customFieldRow") customFieldRows: QueryList<ElementRef<HTMLDivElement>>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disableSectionMargin: boolean;
 
   customFieldsForm = this.formBuilder.group({
@@ -114,6 +121,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   /** Emits when a new custom field should be focused */
   private focusOnNewInput$ = new Subject<void>();
 
+  /** Tracks the disabled status of the edit cipher form */
+  protected parentFormDisabled: boolean = false;
+
   disallowHiddenField?: boolean;
 
   destroyed$: DestroyRef;
@@ -134,6 +144,10 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       // getRawValue ensures disabled fields are included
       this.updateCipher(this.fields.getRawValue());
     });
+
+    this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
+      this.parentFormDisabled = status === "disabled";
+    });
   }
 
   /** Fields form array, referenced via a getter to avoid type-casting in multiple places  */
@@ -144,7 +158,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   canEdit(type: FieldType): boolean {
     return (
       !this.isPartialEdit &&
-      (type !== FieldType.Hidden || this.cipherFormContainer.originalCipherView?.viewPassword)
+      (type !== FieldType.Hidden ||
+        this.cipherFormContainer.originalCipherView === null ||
+        this.cipherFormContainer.originalCipherView.viewPassword)
     );
   }
 
@@ -156,7 +172,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     // Populate options for linked custom fields
     this.linkedFieldOptions = optionsArray.map(([id, linkedFieldOption]) => ({
       name: this.i18nService.t(linkedFieldOption.i18nKey),
-      value: id,
+      value: id as LinkedIdType,
     }));
 
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
@@ -378,7 +394,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       fieldView.type = field.type;
       fieldView.name = field.name;
       fieldView.value = value;
-      fieldView.linkedId = field.linkedId;
+      fieldView.linkedId = field.linkedId ?? undefined;
       return fieldView;
     });
 

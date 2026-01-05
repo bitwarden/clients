@@ -1,11 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
+import { newGuid } from "@bitwarden/guid";
 import {
   BiometricsService,
   BiometricsStatus,
@@ -15,9 +17,9 @@ import {
 import { WindowMain } from "../../main/window.main";
 
 import { MainBiometricsService } from "./main-biometrics.service";
+import { WindowsBiometricsSystem } from "./native-v2";
 import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
 import OsBiometricsServiceMac from "./os-biometrics-mac.service";
-import OsBiometricsServiceWindows from "./os-biometrics-windows.service";
 import { OsBiometricService } from "./os-biometrics.service";
 
 jest.mock("@bitwarden/desktop-napi", () => {
@@ -27,29 +29,22 @@ jest.mock("@bitwarden/desktop-napi", () => {
   };
 });
 
+jest.mock("./native-v2", () => ({
+  WindowsBiometricsSystem: jest.fn(),
+  biometrics_v2: {
+    initBiometricSystem: jest.fn(),
+  },
+}));
+
+const unlockKey = new SymmetricCryptoKey(new Uint8Array(64));
+
 describe("MainBiometricsService", function () {
   const i18nService = mock<I18nService>();
   const windowMain = mock<WindowMain>();
   const logService = mock<LogService>();
-  const messagingService = mock<MessagingService>();
   const biometricStateService = mock<BiometricStateService>();
-
-  it("Should call the platformspecific methods", async () => {
-    const sut = new MainBiometricsService(
-      i18nService,
-      windowMain,
-      logService,
-      messagingService,
-      process.platform,
-      biometricStateService,
-    );
-
-    const mockService = mock<OsBiometricService>();
-    (sut as any).osBiometricsService = mockService;
-
-    await sut.authenticateBiometric();
-    expect(mockService.authenticateBiometric).toBeCalled();
-  });
+  const cryptoFunctionService = mock<CryptoFunctionService>();
+  const encryptService = mock<EncryptService>();
 
   describe("Should create a platform specific service", function () {
     it("Should create a biometrics service specific for Windows", () => {
@@ -57,14 +52,15 @@ describe("MainBiometricsService", function () {
         i18nService,
         windowMain,
         logService,
-        messagingService,
         "win32",
         biometricStateService,
+        encryptService,
+        cryptoFunctionService,
       );
 
       const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(OsBiometricsServiceWindows);
+      expect(internalService).toBeInstanceOf(WindowsBiometricsSystem);
     });
 
     it("Should create a biometrics service specific for MacOs", () => {
@@ -72,9 +68,10 @@ describe("MainBiometricsService", function () {
         i18nService,
         windowMain,
         logService,
-        messagingService,
         "darwin",
         biometricStateService,
+        encryptService,
+        cryptoFunctionService,
       );
       const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
@@ -86,9 +83,10 @@ describe("MainBiometricsService", function () {
         i18nService,
         windowMain,
         logService,
-        messagingService,
         "linux",
         biometricStateService,
+        encryptService,
+        cryptoFunctionService,
       );
 
       const internalService = (sut as any).osBiometricsService;
@@ -106,9 +104,10 @@ describe("MainBiometricsService", function () {
         i18nService,
         windowMain,
         logService,
-        messagingService,
         process.platform,
         biometricStateService,
+        encryptService,
+        cryptoFunctionService,
       );
 
       innerService = mock();
@@ -131,9 +130,9 @@ describe("MainBiometricsService", function () {
       ];
 
       for (const [supportsBiometric, needsSetup, canAutoSetup, expected] of testCases) {
-        innerService.osSupportsBiometric.mockResolvedValue(supportsBiometric as boolean);
-        innerService.osBiometricsNeedsSetup.mockResolvedValue(needsSetup as boolean);
-        innerService.osBiometricsCanAutoSetup.mockResolvedValue(canAutoSetup as boolean);
+        innerService.supportsBiometrics.mockResolvedValue(supportsBiometric as boolean);
+        innerService.needsSetup.mockResolvedValue(needsSetup as boolean);
+        innerService.canAutoSetup.mockResolvedValue(canAutoSetup as boolean);
 
         const actual = await sut.getBiometricsStatus();
         expect(actual).toBe(expected);
@@ -175,87 +174,26 @@ describe("MainBiometricsService", function () {
         biometricStateService.getRequirePasswordOnStart.mockResolvedValue(
           requirePasswordOnStart as boolean,
         );
-        (sut as any).clientKeyHalves = new Map();
-        const userId = "test" as UserId;
-        if (hasKeyHalf) {
-          (sut as any).clientKeyHalves.set(userId, "test");
+        if (!requirePasswordOnStart) {
+          (sut as any).osBiometricsService.getBiometricsFirstUnlockStatusForUser = jest
+            .fn()
+            .mockResolvedValue(BiometricsStatus.Available);
+        } else {
+          if (hasKeyHalf) {
+            (sut as any).osBiometricsService.getBiometricsFirstUnlockStatusForUser = jest
+              .fn()
+              .mockResolvedValue(BiometricsStatus.Available);
+          } else {
+            (sut as any).osBiometricsService.getBiometricsFirstUnlockStatusForUser = jest
+              .fn()
+              .mockResolvedValue(BiometricsStatus.UnlockNeeded);
+          }
         }
 
+        const userId = "test" as UserId;
         const actual = await sut.getBiometricsStatusForUser(userId);
         expect(actual).toBe(expected);
       }
-    });
-  });
-
-  describe("setupBiometrics", () => {
-    it("should call the platform specific setup method", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        messagingService,
-        process.platform,
-        biometricStateService,
-      );
-      const osBiometricsService = mock<OsBiometricService>();
-      (sut as any).osBiometricsService = osBiometricsService;
-
-      await sut.setupBiometrics();
-
-      expect(osBiometricsService.osBiometricsSetup).toHaveBeenCalled();
-    });
-  });
-
-  describe("setClientKeyHalfForUser", () => {
-    let sut: MainBiometricsService;
-
-    beforeEach(() => {
-      sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        messagingService,
-        process.platform,
-        biometricStateService,
-      );
-    });
-
-    it("should set the client key half for the user", async () => {
-      const userId = "test" as UserId;
-      const keyHalf = "testKeyHalf";
-
-      await sut.setClientKeyHalfForUser(userId, keyHalf);
-
-      expect((sut as any).clientKeyHalves.has(userId)).toBe(true);
-      expect((sut as any).clientKeyHalves.get(userId)).toBe(keyHalf);
-    });
-
-    it("should reset the client key half for the user", async () => {
-      const userId = "test" as UserId;
-
-      await sut.setClientKeyHalfForUser(userId, null);
-
-      expect((sut as any).clientKeyHalves.has(userId)).toBe(true);
-      expect((sut as any).clientKeyHalves.get(userId)).toBe(null);
-    });
-  });
-
-  describe("authenticateWithBiometrics", () => {
-    it("should call the platform specific authenticate method", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        messagingService,
-        process.platform,
-        biometricStateService,
-      );
-      const osBiometricsService = mock<OsBiometricService>();
-      (sut as any).osBiometricsService = osBiometricsService;
-
-      await sut.authenticateWithBiometrics();
-
-      expect(osBiometricsService.authenticateBiometric).toHaveBeenCalled();
     });
   });
 
@@ -268,9 +206,10 @@ describe("MainBiometricsService", function () {
         i18nService,
         windowMain,
         logService,
-        messagingService,
         process.platform,
         biometricStateService,
+        encryptService,
+        cryptoFunctionService,
       );
       osBiometricsService = mock<OsBiometricService>();
       (sut as any).osBiometricsService = osBiometricsService;
@@ -278,101 +217,24 @@ describe("MainBiometricsService", function () {
 
     it("should return null if no biometric key is returned ", async () => {
       const userId = "test" as UserId;
-      (sut as any).clientKeyHalves.set(userId, "testKeyHalf");
-
+      osBiometricsService.getBiometricKey.mockResolvedValue(null);
       const userKey = await sut.unlockWithBiometricsForUser(userId);
 
       expect(userKey).toBeNull();
-      expect(osBiometricsService.getBiometricKey).toHaveBeenCalledWith(
-        "Bitwarden_biometric",
-        `${userId}_user_biometric`,
-        "testKeyHalf",
-      );
+      expect(osBiometricsService.getBiometricKey).toHaveBeenCalledWith(userId);
     });
 
     it("should return the biometric key if a valid key is returned", async () => {
       const userId = "test" as UserId;
-      (sut as any).clientKeyHalves.set(userId, "testKeyHalf");
-      const biometricKey = Utils.fromBufferToB64(new Uint8Array(64));
+      const biometricKey = new SymmetricCryptoKey(new Uint8Array(64));
       osBiometricsService.getBiometricKey.mockResolvedValue(biometricKey);
 
       const userKey = await sut.unlockWithBiometricsForUser(userId);
 
       expect(userKey).not.toBeNull();
-      expect(userKey!.keyB64).toBe(biometricKey);
+      expect(userKey!.keyB64).toBe(biometricKey.toBase64());
       expect(userKey!.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
-      expect(osBiometricsService.getBiometricKey).toHaveBeenCalledWith(
-        "Bitwarden_biometric",
-        `${userId}_user_biometric`,
-        "testKeyHalf",
-      );
-    });
-  });
-
-  describe("setBiometricProtectedUnlockKeyForUser", () => {
-    let sut: MainBiometricsService;
-    let osBiometricsService: MockProxy<OsBiometricService>;
-
-    beforeEach(() => {
-      sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        messagingService,
-        process.platform,
-        biometricStateService,
-      );
-      osBiometricsService = mock<OsBiometricService>();
-      (sut as any).osBiometricsService = osBiometricsService;
-    });
-
-    it("should throw an error if no client key half is provided", async () => {
-      const userId = "test" as UserId;
-      const unlockKey = "testUnlockKey";
-
-      await expect(sut.setBiometricProtectedUnlockKeyForUser(userId, unlockKey)).rejects.toThrow(
-        "No client key half provided for user",
-      );
-    });
-
-    it("should call the platform specific setBiometricKey method", async () => {
-      const userId = "test" as UserId;
-      const unlockKey = "testUnlockKey";
-
-      (sut as any).clientKeyHalves.set(userId, "testKeyHalf");
-
-      await sut.setBiometricProtectedUnlockKeyForUser(userId, unlockKey);
-
-      expect(osBiometricsService.setBiometricKey).toHaveBeenCalledWith(
-        "Bitwarden_biometric",
-        `${userId}_user_biometric`,
-        unlockKey,
-        "testKeyHalf",
-      );
-    });
-  });
-
-  describe("deleteBiometricUnlockKeyForUser", () => {
-    it("should call the platform specific deleteBiometricKey method", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        messagingService,
-        process.platform,
-        biometricStateService,
-      );
-      const osBiometricsService = mock<OsBiometricService>();
-      (sut as any).osBiometricsService = osBiometricsService;
-
-      const userId = "test" as UserId;
-
-      await sut.deleteBiometricUnlockKeyForUser(userId);
-
-      expect(osBiometricsService.deleteBiometricKey).toHaveBeenCalledWith(
-        "Bitwarden_biometric",
-        `${userId}_user_biometric`,
-      );
+      expect(osBiometricsService.getBiometricKey).toHaveBeenCalledWith(userId);
     });
   });
 
@@ -384,9 +246,10 @@ describe("MainBiometricsService", function () {
         i18nService,
         windowMain,
         logService,
-        messagingService,
         process.platform,
         biometricStateService,
+        encryptService,
+        cryptoFunctionService,
       );
     });
 
@@ -413,14 +276,77 @@ describe("MainBiometricsService", function () {
         i18nService,
         windowMain,
         logService,
-        messagingService,
         process.platform,
         biometricStateService,
+        encryptService,
+        cryptoFunctionService,
       );
 
       const shouldAutoPrompt = await sut.getShouldAutopromptNow();
 
       expect(shouldAutoPrompt).toBe(true);
+    });
+  });
+
+  describe("pass through methods that call platform specific osBiometricsService methods", () => {
+    const userId = newGuid() as UserId;
+    let sut: MainBiometricsService;
+    let osBiometricsService: MockProxy<OsBiometricService>;
+
+    beforeEach(() => {
+      sut = new MainBiometricsService(
+        i18nService,
+        windowMain,
+        logService,
+        process.platform,
+        biometricStateService,
+        encryptService,
+        cryptoFunctionService,
+      );
+      osBiometricsService = mock<OsBiometricService>();
+      (sut as any).osBiometricsService = osBiometricsService;
+    });
+
+    it("calls the platform specific setBiometricKey method", async () => {
+      await sut.setBiometricProtectedUnlockKeyForUser(userId, unlockKey);
+
+      expect(osBiometricsService.setBiometricKey).toHaveBeenCalledWith(userId, unlockKey);
+    });
+
+    it("calls the platform specific enrollPersistent method", async () => {
+      await sut.enrollPersistent(userId, unlockKey);
+
+      expect(osBiometricsService.enrollPersistent).toHaveBeenCalledWith(userId, unlockKey);
+    });
+
+    it("calls the platform specific hasPersistentKey method", async () => {
+      await sut.hasPersistentKey(userId);
+
+      expect(osBiometricsService.hasPersistentKey).toHaveBeenCalledWith(userId);
+    });
+
+    it("calls the platform specific deleteBiometricUnlockKeyForUser method", async () => {
+      await sut.deleteBiometricUnlockKeyForUser(userId);
+
+      expect(osBiometricsService.deleteBiometricKey).toHaveBeenCalledWith(userId);
+    });
+
+    it("calls the platform specific authenticateWithBiometrics method", async () => {
+      await sut.authenticateWithBiometrics();
+
+      expect(osBiometricsService.authenticateBiometric).toHaveBeenCalled();
+    });
+
+    it("calls the platform specific authenticateBiometric method", async () => {
+      await sut.authenticateBiometric();
+
+      expect(osBiometricsService.authenticateBiometric).toHaveBeenCalled();
+    });
+
+    it("calls the platform specific setupBiometrics method", async () => {
+      await sut.setupBiometrics();
+
+      expect(osBiometricsService.runSetup).toHaveBeenCalled();
     });
   });
 });

@@ -22,6 +22,7 @@ import {
   LinkModule,
   MenuModule,
   MultiSelectModule,
+  NoItemsModule,
   ProgressModule,
   RadioButtonModule,
   SectionComponent,
@@ -31,9 +32,6 @@ import {
   ToggleGroupModule,
   TypographyModule,
 } from "@bitwarden/components";
-
-// Register the locales for the application
-import "./locales";
 
 /**
  * This NgModule should contain the most basic shared directives, pipes, and components. They
@@ -69,6 +67,7 @@ import "./locales";
     LinkModule,
     MenuModule,
     MultiSelectModule,
+    NoItemsModule,
     ProgressModule,
     RadioButtonModule,
     SectionComponent,
@@ -104,6 +103,7 @@ import "./locales";
     LinkModule,
     MenuModule,
     MultiSelectModule,
+    NoItemsModule,
     ProgressModule,
     RadioButtonModule,
     SectionComponent,

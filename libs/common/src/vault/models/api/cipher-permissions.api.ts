@@ -4,7 +4,7 @@ import { CipherPermissions as SdkCipherPermissions } from "@bitwarden/sdk-intern
 
 import { BaseResponse } from "../../../models/response/base.response";
 
-export class CipherPermissionsApi extends BaseResponse {
+export class CipherPermissionsApi extends BaseResponse implements SdkCipherPermissions {
   delete: boolean = false;
   restore: boolean = false;
 
@@ -24,7 +24,9 @@ export class CipherPermissionsApi extends BaseResponse {
   /**
    * Converts the SDK CipherPermissionsApi to a CipherPermissionsApi.
    */
-  static fromSdkCipherPermissions(obj: SdkCipherPermissions): CipherPermissionsApi | undefined {
+  static fromSdkCipherPermissions(
+    obj: SdkCipherPermissions | undefined,
+  ): CipherPermissionsApi | undefined {
     if (!obj) {
       return undefined;
     }
@@ -34,5 +36,12 @@ export class CipherPermissionsApi extends BaseResponse {
     permissions.restore = obj.restore;
 
     return permissions;
+  }
+
+  /**
+   * Converts the CipherPermissionsApi to an SdkCipherPermissions
+   */
+  toSdkCipherPermissions(): SdkCipherPermissions {
+    return this;
   }
 }

@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 
 import {
   CipherTypeFilter,
@@ -15,15 +16,16 @@ export type VaultFilterType =
   | FolderFilter
   | CollectionFilter;
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum VaultFilterLabel {
-  OrganizationFilter = "organizationFilter",
-  TypeFilter = "typeFilter",
-  FolderFilter = "folderFilter",
-  CollectionFilter = "collectionFilter",
-  TrashFilter = "trashFilter",
-}
+export const VaultFilterLabel = {
+  OrganizationFilter: "organizationFilter",
+  TypeFilter: "typeFilter",
+  FolderFilter: "folderFilter",
+  CollectionFilter: "collectionFilter",
+  ArchiveFilter: "archiveFilter",
+  TrashFilter: "trashFilter",
+} as const;
+
+type VaultFilterLabel = UnionOfValues<typeof VaultFilterLabel>;
 
 export type VaultFilterSection = {
   data$: Observable<TreeNode<VaultFilterType>>;
@@ -45,6 +47,16 @@ export type VaultFilterSection = {
     component: any;
   };
   divider?: boolean;
+  premiumOptions?: {
+    /**  When true, the premium badge will show on the filter for non-premium users. */
+    showBadgeForNonPremium?: true;
+    /**
+     * Action to be called instead of applying the filter.
+     * Useful when the user does not have access to a filter (e.g., premium feature)
+     * and custom behavior is needed when invoking the filter.
+     */
+    blockFilterAction?: () => Promise<void>;
+  };
 };
 
 export type VaultFilterList = {

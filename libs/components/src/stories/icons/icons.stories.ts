@@ -37,7 +37,7 @@ export const StatusIcons = {
           @for (row of rows$ | async; track row.id) {
             <tr bitRow alignContent="middle">
               <td bitCell><i class="bwi" [ngClass]="row.id"></i> </td>
-              <td bitCell><code>{{row.id}}</code></td>
+              <td bitCell><code class="tw-text-danger-700">{{row.id}}</code></td>
               <td bitCell>{{row.usage}}</td>
             </tr>
           }
@@ -152,7 +152,7 @@ export const SizeVariants = {
           @for (row of rows$ | async; track row.size) {
             <tr bitRow alignContent="middle">
               <td bitCell><i class="bwi bwi-plus" [ngClass]="row.size"></i> </td>
-              <td bitCell><code>{{row.size}}</code></td>
+              <td bitCell><code class="tw-text-danger-700">{{row.size}}</code></td>
               <td bitCell>{{row.usage}}</td>
             </tr>
           }
@@ -201,7 +201,7 @@ export const RotationVariants = {
           @for (row of rows$ | async; track row.class) {
             <tr bitRow alignContent="middle">
               <td bitCell><i class="bwi bwi-lock" [ngClass]="row.class"></i> </td>
-              <td bitCell><code>{{row.class}}</code></td>
+              <td bitCell><code class="tw-text-danger-700">{{row.class}}</code></td>
               <td bitCell>{{row.usage}}</td>
             </tr>
           }

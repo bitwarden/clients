@@ -1,11 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,26 +16,26 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   selector: "app-download-attachment",
   templateUrl: "./download-attachment.component.html",
   imports: [AsyncActionsModule, CommonModule, JslibModule, IconButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DownloadAttachmentComponent {
   /** Attachment to download */
-  @Input({ required: true }) attachment: AttachmentView;
+  readonly attachment = input.required<AttachmentView>();
 
   /** The cipher associated with the attachment */
-  @Input({ required: true }) cipher: CipherView;
+  readonly cipher = input.required<CipherView>();
 
-  // When in view mode, we will want to check for the master password reprompt
-  @Input() checkPwReprompt?: boolean = false;
+  /** When in view mode, we will want to check for the master password reprompt */
+  readonly checkPwReprompt = input<boolean>(false);
 
-  // Required for fetching attachment data when viewed from cipher via emergency access
-  @Input() emergencyAccessId?: EmergencyAccessId;
+  /** Required for fetching attachment data when viewed from cipher via emergency access */
+  readonly emergencyAccessId = input<EmergencyAccessId>();
 
-  /** When owners/admins can mange all items and when accessing from the admin console, use the admin endpoint */
-  @Input() admin?: boolean = false;
+  /** When owners/admins can manage all items and when accessing from the admin console, use the admin endpoint */
+  readonly admin = input<boolean>(false);
 
   constructor(
     private i18nService: I18nService,
@@ -47,22 +46,36 @@ export class DownloadAttachmentComponent {
     private cipherService: CipherService,
   ) {}
 
+  protected readonly isDecryptionFailure = computed(
+    () => this.attachment().fileName === DECRYPT_ERROR,
+  );
+
   /** Download the attachment */
   download = async () => {
-    let url: string;
+    const attachment = this.attachment();
+    const cipher = this.cipher();
+    let url: string | undefined;
+
+    if (!attachment.id) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+      return;
+    }
 
     try {
-      const attachmentDownloadResponse = this.admin
-        ? await this.apiService.getAttachmentDataAdmin(this.cipher.id, this.attachment.id)
+      const attachmentDownloadResponse = this.admin()
+        ? await this.apiService.getAttachmentDataAdmin(cipher.id, attachment.id)
         : await this.apiService.getAttachmentData(
-            this.cipher.id,
-            this.attachment.id,
-            this.emergencyAccessId,
+            cipher.id,
+            attachment.id,
+            this.emergencyAccessId(),
           );
       url = attachmentDownloadResponse.url;
     } catch (e) {
       if (e instanceof ErrorResponse && (e as ErrorResponse).statusCode === 404) {
-        url = this.attachment.url;
+        url = attachment.url;
       } else if (e instanceof ErrorResponse) {
         throw new Error((e as ErrorResponse).getSingleMessage());
       } else {
@@ -70,11 +83,18 @@ export class DownloadAttachmentComponent {
       }
     }
 
+    if (!url) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+      return;
+    }
+
     const response = await fetch(new Request(url, { cache: "no-store" }));
     if (response.status !== 200) {
       this.toastService.showToast({
         variant: "error",
-        title: null,
         message: this.i18nService.t("errorOccurred"),
       });
       return;
@@ -83,23 +103,31 @@ export class DownloadAttachmentComponent {
     try {
       const userId = await firstValueFrom(this.stateProvider.activeUserId$);
 
+      if (!userId || !attachment.fileName) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("errorOccurred"),
+        });
+        return;
+      }
+
       const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
-        this.cipher.id as CipherId,
-        this.attachment,
+        cipher.id as CipherId,
+        attachment,
         response,
         userId,
+        // When the emergency access ID is present, the cipher is being viewed via emergency access.
+        // Force legacy decryption in these cases.
+        Boolean(this.emergencyAccessId()),
       );
 
       this.fileDownloadService.download({
-        fileName: this.attachment.fileName,
+        fileName: attachment.fileName,
         blobData: decBuf,
       });
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
+    } catch {
       this.toastService.showToast({
         variant: "error",
-        title: null,
         message: this.i18nService.t("errorOccurred"),
       });
     }

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Login as LoginDomain } from "../../vault/models/domain/login";
 import { LoginView } from "../../vault/models/view/login.view";
 

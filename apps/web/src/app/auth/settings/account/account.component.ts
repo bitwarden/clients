@@ -1,11 +1,10 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { firstValueFrom, from, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -19,9 +18,10 @@ import { DeleteAccountDialogComponent } from "./delete-account-dialog.component"
 import { ProfileComponent } from "./profile.component";
 import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-devices-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "account.component.html",
-  standalone: true,
   imports: [
     SharedModule,
     HeaderModule,
@@ -41,8 +41,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private dialogService: DialogService,
-    private userVerificationService: UserVerificationService,
-    private configService: ConfigService,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private organizationService: OrganizationService,
   ) {}
 
@@ -55,7 +54,7 @@ export class AccountComponent implements OnInit, OnDestroy {
         map((organizations) => organizations.some((o) => o.userIsManagedByOrganization === true)),
       );
 
-    const hasMasterPassword$ = from(this.userVerificationService.hasMasterPassword());
+    const hasMasterPassword$ = this.userDecryptionOptionsService.hasMasterPasswordById$(userId);
 
     this.showChangeEmail$ = hasMasterPassword$;
 

@@ -13,19 +13,18 @@ import { DrawerCloseDirective } from "./drawer-close.directive";
  **/
 @Component({
   selector: "bit-drawer-header",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, DrawerCloseDirective, TypographyModule, IconButtonModule, I18nPipe],
   templateUrl: "drawer-header.component.html",
   host: {
-    class: "tw-block tw-pl-4 tw-pr-2 tw-py-2",
+    class: "tw-block tw-ps-4 tw-pe-2 tw-py-2",
   },
 })
 export class DrawerHeaderComponent {
   /**
    * The title to display
    */
-  title = input.required<string>();
+  readonly title = input.required<string>();
 
   /** We don't want to set the HTML title attribute with `this.title` */
   @HostBinding("attr.title")

@@ -7,10 +7,10 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -19,6 +19,7 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -28,6 +29,7 @@ import {
   PopupListFilter,
   VaultPopupListFiltersService,
 } from "../../../../../vault/popup/services/vault-popup-list-filters.service";
+import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 
 import { VaultHeaderV2Component } from "./vault-header-v2.component";
 
@@ -76,6 +78,10 @@ describe("VaultHeaderV2Component", () => {
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: LogService, useValue: mock<LogService>() },
         {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn(() => new BehaviorSubject(true)) },
+        },
+        {
           provide: VaultPopupItemsService,
           useValue: mock<VaultPopupItemsService>({ searchText$: new BehaviorSubject("") }),
         },
@@ -98,6 +104,10 @@ describe("VaultHeaderV2Component", () => {
         {
           provide: StateProvider,
           useValue: { getGlobal: () => ({ state$, update }) },
+        },
+        {
+          provide: VaultPopupLoadingService,
+          useValue: { loading$: new BehaviorSubject(false) },
         },
       ],
     }).compileComponents();

@@ -16,7 +16,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { BrowserPlatformUtilsService } from "../../../platform/services/platform-utils/browser-platform-utils.service";
-import { ExtensionAnonLayoutWrapperDataService } from "../extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
+import { ExtensionAnonLayoutWrapperDataService } from "../../../popup/components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { ExtensionLoginComponentService } from "./extension-login-component.service";
 
@@ -96,6 +96,36 @@ describe("ExtensionLoginComponentService", () => {
 
       await service.redirectToSsoLogin(email);
 
+      expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(expectedState);
+      expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+      expect(platformUtilsService.launchUri).toHaveBeenCalled();
+    });
+  });
+
+  describe("redirectToSsoLoginWithOrganizationSsoIdentifier", () => {
+    it("launches SSO browser window with correct Url", async () => {
+      const email = "test@bitwarden.com";
+      const state = "testState";
+      const expectedState = "testState:clientId=browser";
+      const codeVerifier = "testCodeVerifier";
+      const codeChallenge = "testCodeChallenge";
+      const orgSsoIdentifier = "org-sso-identifier";
+
+      passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
+      passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
+      jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+
+      await service.redirectToSsoLoginWithOrganizationSsoIdentifier(email, orgSsoIdentifier);
+
+      expect(ssoUrlService.buildSsoUrl).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        email,
+        orgSsoIdentifier,
+      );
       expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(expectedState);
       expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
       expect(platformUtilsService.launchUri).toHaveBeenCalled();

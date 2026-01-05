@@ -3,12 +3,6 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import {
-  AddAccountCreditDialogComponent,
-  InvoicesComponent,
-  NoInvoicesComponent,
-  ManageTaxInformationComponent,
-} from "@bitwarden/angular/billing/components";
-import {
   AsyncActionsModule,
   AutofocusDirective,
   ButtonModule,
@@ -27,11 +21,11 @@ import {
   TypographyModule,
   CopyClickDirective,
   A11yTitleDirective,
+  NoItemsModule,
 } from "@bitwarden/components";
 
 import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
 import { NotPremiumDirective } from "./billing/directives/not-premium.directive";
-import { DeprecatedCalloutComponent } from "./components/callout.component";
 import { A11yInvalidDirective } from "./directives/a11y-invalid.directive";
 import { ApiActionDirective } from "./directives/api-action.directive";
 import { BoxRowDirective } from "./directives/box-row.directive";
@@ -54,7 +48,6 @@ import { UserTypePipe } from "./pipes/user-type.pipe";
 import { EllipsisPipe } from "./platform/pipes/ellipsis.pipe";
 import { FingerprintPipe } from "./platform/pipes/fingerprint.pipe";
 import { I18nPipe } from "./platform/pipes/i18n.pipe";
-import { PasswordStrengthComponent } from "./tools/password-strength/password-strength.component";
 import { IconComponent } from "./vault/components/icon.component";
 
 @NgModule({
@@ -78,6 +71,7 @@ import { IconComponent } from "./vault/components/icon.component";
     TypographyModule,
     TableModule,
     MenuModule,
+    NoItemsModule,
     IconButtonModule,
     IconModule,
     LinkModule,
@@ -85,13 +79,12 @@ import { IconComponent } from "./vault/components/icon.component";
     TextDragDirective,
     CopyClickDirective,
     A11yTitleDirective,
+    AutofocusDirective,
   ],
   declarations: [
     A11yInvalidDirective,
     ApiActionDirective,
-    AutofocusDirective,
     BoxRowDirective,
-    DeprecatedCalloutComponent,
     CopyTextDirective,
     CreditCardNumberPipe,
     EllipsisPipe,
@@ -108,14 +101,9 @@ import { IconComponent } from "./vault/components/icon.component";
     TrueFalseValueDirective,
     LaunchClickDirective,
     UserNamePipe,
-    PasswordStrengthComponent,
     UserTypePipe,
     IfFeatureDirective,
     FingerprintPipe,
-    AddAccountCreditDialogComponent,
-    InvoicesComponent,
-    NoInvoicesComponent,
-    ManageTaxInformationComponent,
     TwoFactorIconComponent,
   ],
   exports: [
@@ -125,7 +113,6 @@ import { IconComponent } from "./vault/components/icon.component";
     AutofocusDirective,
     ToastModule,
     BoxRowDirective,
-    DeprecatedCalloutComponent,
     CopyTextDirective,
     CreditCardNumberPipe,
     EllipsisPipe,
@@ -143,14 +130,9 @@ import { IconComponent } from "./vault/components/icon.component";
     CopyClickDirective,
     LaunchClickDirective,
     UserNamePipe,
-    PasswordStrengthComponent,
     UserTypePipe,
     IfFeatureDirective,
     FingerprintPipe,
-    AddAccountCreditDialogComponent,
-    InvoicesComponent,
-    NoInvoicesComponent,
-    ManageTaxInformationComponent,
     TwoFactorIconComponent,
     TextDragDirective,
   ],

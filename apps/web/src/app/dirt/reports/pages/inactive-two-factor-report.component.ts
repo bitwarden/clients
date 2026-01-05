@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from "@angular/core";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -13,12 +11,14 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/components/vault-item-dialog/vault-item-dialog.component";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 import { CipherReportComponent } from "./cipher-report.component";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-inactive-two-factor-report",
   templateUrl: "inactive-two-factor-report.component.html",
   standalone: false,
@@ -39,6 +39,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected changeDetectorRef: ChangeDetectorRef,
   ) {
     super(
       cipherService,
@@ -71,39 +72,64 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       this.filterStatus = [0];
 
       allCiphers.forEach((ciph) => {
-        const { type, login, isDeleted, edit, id, viewPassword } = ciph;
-        if (
-          type !== CipherType.Login ||
-          (login.totp != null && login.totp !== "") ||
-          !login.hasUris ||
-          isDeleted ||
-          (!this.organization && !edit) ||
-          !viewPassword
-        ) {
-          return;
-        }
+        const [docFor2fa, isInactive2faCipher] = this.isInactive2faCipher(ciph);
 
-        for (let i = 0; i < login.uris.length; i++) {
-          const u = login.uris[i];
-          if (u.uri != null && u.uri !== "") {
-            const uri = u.uri.replace("www.", "");
-            const domain = Utils.getDomain(uri);
-            if (domain != null && this.services.has(domain)) {
-              if (this.services.get(domain) != null) {
-                docs.set(id, this.services.get(domain));
-              }
-              // If the uri is in the 2fa list. Add the cipher to the inactive
-              // collection. No need to check any additional uris for the cipher.
-              inactive2faCiphers.push(ciph);
-              return;
-            }
+        if (isInactive2faCipher) {
+          inactive2faCiphers.push(ciph);
+          if (docFor2fa !== "") {
+            docs.set(ciph.id, docFor2fa);
           }
         }
       });
 
       this.filterCiphersByOrg(inactive2faCiphers);
       this.cipherDocs = docs;
+      this.changeDetectorRef.markForCheck();
     }
+  }
+
+  private isInactive2faCipher(cipher: CipherView): [string, boolean] {
+    let docFor2fa: string = "";
+    let isInactive2faCipher: boolean = false;
+
+    const { type, login, isDeleted, edit, viewPassword } = cipher;
+    if (
+      type !== CipherType.Login ||
+      (login.totp != null && login.totp !== "") ||
+      !login.hasUris ||
+      isDeleted ||
+      (!this.organization && !edit) ||
+      !viewPassword
+    ) {
+      return [docFor2fa, isInactive2faCipher];
+    }
+
+    for (let i = 0; i < login.uris.length; i++) {
+      const u = login.uris[i];
+      if (u.uri != null && u.uri !== "") {
+        const uri = u.uri.replace("www.", "");
+        const host = Utils.getHost(uri);
+        const domain = Utils.getDomain(uri);
+        // check host first
+        if (host != null && this.services.has(host)) {
+          if (this.services.get(host) != null) {
+            docFor2fa = this.services.get(host) || "";
+          }
+          isInactive2faCipher = true;
+          break;
+        }
+
+        // then check domain
+        if (domain != null && this.services.has(domain)) {
+          if (this.services.get(domain) != null) {
+            docFor2fa = this.services.get(domain) || "";
+          }
+          isInactive2faCipher = true;
+          break;
+        }
+      }
+    }
+    return [docFor2fa, isInactive2faCipher];
   }
 
   private async load2fa() {
@@ -130,6 +156,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       }
       this.services.set(serviceData.domain, serviceData.documentation);
     }
+    this.changeDetectorRef.markForCheck();
   }
 
   /**
@@ -141,5 +168,23 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
   protected canManageCipher(c: CipherView): boolean {
     // this will only ever be false from the org view;
     return true;
+  }
+
+  async determinedUpdatedCipherReportStatus(
+    result: VaultItemDialogResult,
+    updatedCipherView: CipherView,
+  ): Promise<CipherView | null> {
+    if (result === VaultItemDialogResult.Deleted) {
+      return null;
+    }
+
+    const [docFor2fa, isInactive2faCipher] = this.isInactive2faCipher(updatedCipherView);
+
+    if (isInactive2faCipher) {
+      this.cipherDocs.set(updatedCipherView.id, docFor2fa);
+      return updatedCipherView;
+    }
+
+    return null;
   }
 }

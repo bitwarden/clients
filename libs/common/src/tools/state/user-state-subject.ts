@@ -30,7 +30,7 @@ import {
 } from "rxjs";
 
 import { Account } from "../../auth/abstractions/account.service";
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SingleUserState, UserKeyDefinition } from "../../platform/state";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 import { SemanticLogger } from "../log";
@@ -79,11 +79,11 @@ const DEFAULT_FRAME_SIZE = 32;
  * @template Dependencies use-specific dependencies provided by the user.
  */
 export class UserStateSubject<
-    State extends object,
-    Secret = State,
-    Disclosed = Record<string, never>,
-    Dependencies = null,
-  >
+  State extends object,
+  Secret = State,
+  Disclosed = Record<string, never>,
+  Dependencies = null,
+>
   extends Observable<State>
   implements SubjectLike<State>
 {
@@ -161,6 +161,14 @@ export class UserStateSubject<
     this.outputSubscription = userState$
       .pipe(
         switchMap((userState) => userState.state$),
+        map((stored) => {
+          if (stored && typeof stored === "object" && ALWAYS_UPDATE_KLUDGE in stored) {
+            // related: ALWAYS_UPDATE_KLUDGE FIXME
+            delete stored[ALWAYS_UPDATE_KLUDGE];
+          }
+
+          return stored;
+        }),
         this.declassify(encryptor$),
         this.adjust(combineLatestWith(constraints$)),
         takeUntil(anyComplete(account$)),

@@ -1,4 +1,6 @@
-<div class="tw-inline-grid tw-grid-cols-3 tw-gap-4">
+<div
+  class="tw-inline-grid tw-place-items-stretch tw-place-content-center tw-grid-cols-1 @xl:tw-grid-cols-2 @4xl:tw-grid-cols-3 tw-gap-4 [&_a]:tw-max-w-none @5xl:[&_a]:tw-max-w-72"
+>
   <div *ngFor="let report of reports">
     <app-report-card
       [title]="report.title | i18n"

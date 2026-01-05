@@ -1,7 +1,7 @@
+import { CURRENT_VERSION, currentVersion, MigrationHelper } from "@bitwarden/state";
+
 import { ClientType } from "../../enums";
 import { waitForMigrations } from "../../state-migrations";
-import { CURRENT_VERSION, currentVersion } from "../../state-migrations/migrate";
-import { MigrationHelper } from "../../state-migrations/migration-helper";
 import { LogService } from "../abstractions/log.service";
 import { AbstractStorageService } from "../abstractions/storage.service";
 

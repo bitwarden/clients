@@ -5,6 +5,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -30,17 +31,18 @@ export interface GeneratorDialogResult {
   generatedValue?: string;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum GeneratorDialogAction {
-  Selected = "selected",
-  Canceled = "canceled",
-}
+export const GeneratorDialogAction = {
+  Selected: "selected",
+  Canceled: "canceled",
+} as const;
 
+type GeneratorDialogAction = UnionOfValues<typeof GeneratorDialogAction>;
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-generator-dialog",
   templateUrl: "./vault-generator-dialog.component.html",
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,

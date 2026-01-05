@@ -17,6 +17,7 @@ export type NotificationsExtensionMessage = {
     error?: string;
     closedByUser?: boolean;
     fadeOutNotification?: boolean;
+    params: object;
   };
 };
 

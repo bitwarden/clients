@@ -17,10 +17,11 @@ import {
 
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-card-details-view",
   templateUrl: "card-details-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -32,6 +33,8 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
   ],
 })
 export class CardDetailsComponent implements OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipher: CipherView;
   EventType = EventType;
 

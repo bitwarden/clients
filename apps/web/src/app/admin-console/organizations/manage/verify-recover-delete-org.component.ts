@@ -12,9 +12,10 @@ import { ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared/shared.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "verify-recover-delete-org.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class VerifyRecoverDeleteOrgComponent implements OnInit {

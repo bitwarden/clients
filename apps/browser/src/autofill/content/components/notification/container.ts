@@ -29,6 +29,7 @@ export type NotificationContainerProps = NotificationBarIframeInitData & {
   folders?: FolderView[];
   headerMessage?: string;
   i18n: I18n;
+  isLoading?: boolean;
   organizations?: OrgView[];
   personalVaultIsAllowed?: boolean;
   notificationTestId: string;
@@ -44,6 +45,7 @@ export function NotificationContainer({
   folders,
   headerMessage,
   i18n,
+  isLoading,
   organizations,
   personalVaultIsAllowed = true,
   notificationTestId,
@@ -74,6 +76,7 @@ export function NotificationContainer({
         collections,
         folders,
         i18n,
+        isLoading,
         notificationType: type,
         organizations,
         personalVaultIsAllowed,

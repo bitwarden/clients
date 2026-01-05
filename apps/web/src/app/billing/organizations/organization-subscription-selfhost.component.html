@@ -12,7 +12,7 @@
   ></app-org-subscription-hidden>
 
   <ng-container *ngIf="subscription && firstLoaded">
-    <dl>
+    <dl class="tw-mb-2">
       <dt>{{ "billingPlan" | i18n }}</dt>
       <dd>{{ subscription.planName }}</dd>
       <ng-container *ngIf="billingSyncSetUp">
@@ -44,7 +44,7 @@
         }}
         <div
           *ngIf="subscription.hasSeparateGracePeriod && !subscription.isInTrial"
-          class="tw-text-muted"
+          class="tw-text-muted tw-break-words tw-whitespace-normal tw-max-w-fit tw-inline-block"
         >
           {{
             "selfHostGracePeriodHelp"
@@ -61,6 +61,7 @@
       href="{{ this.cloudWebVaultUrl }}"
       target="_blank"
       rel="noreferrer"
+      class="tw-mb-4"
     >
       {{ "launchCloudSubscription" | i18n }}
     </a>
@@ -93,7 +94,7 @@
           </bit-hint>
         </bit-radio-button>
         <ng-container *ngIf="updateMethod === licenseOptions.SYNC">
-          <div class="tw-mt-6">
+          <div class="tw-mt-6 tw-flex tw-gap-2">
             <button
               bitButton
               buttonType="secondary"
@@ -129,7 +130,7 @@
           <bit-label class="tw-mb-6 tw-block" *ngIf="!showAutomaticSyncAndManualUpload">
             {{ "licenseAndBillingManagementDesc" | i18n }}
           </bit-label>
-          <h3 *ngIf="showAutomaticSyncAndManualUpload" class="tw-font-semibold tw-mt-6">
+          <h3 *ngIf="showAutomaticSyncAndManualUpload" class="tw-font-medium tw-mt-6">
             {{ "uploadLicense" | i18n }}
           </h3>
           <app-update-license

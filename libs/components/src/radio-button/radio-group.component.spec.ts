@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 
@@ -11,22 +11,19 @@ import { RadioButtonComponent } from "./radio-button.component";
 import { RadioButtonModule } from "./radio-button.module";
 
 describe("RadioGroupComponent", () => {
-  let fixture: ComponentFixture<TestApp>;
-  let testAppComponent: TestApp;
+  let fixture: ComponentFixture<TestAppComponent>;
+  let testAppComponent: TestAppComponent;
   let buttonElements: RadioButtonComponent[];
   let radioButtons: HTMLInputElement[];
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [FormsModule, RadioButtonModule],
-      declarations: [TestApp],
+      imports: [TestAppComponent],
       providers: [{ provide: I18nService, useValue: new I18nMockService({}) }],
     });
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.compileComponents();
-    fixture = TestBed.createComponent(TestApp);
+    await TestBed.compileComponents();
+    fixture = TestBed.createComponent(TestAppComponent);
     fixture.detectChanges();
     testAppComponent = fixture.debugElement.componentInstance;
     buttonElements = fixture.debugElement
@@ -37,7 +34,7 @@ describe("RadioGroupComponent", () => {
       .map((e) => e.nativeElement);
 
     fixture.detectChanges();
-  }));
+  });
 
   it("should select second element when setting selected to second", async () => {
     testAppComponent.selected = "second";
@@ -66,6 +63,8 @@ describe("RadioGroupComponent", () => {
   });
 });
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-app",
   template: `
@@ -75,7 +74,8 @@ describe("RadioGroupComponent", () => {
       <bit-radio-button value="third">Third</bit-radio-button>
     </bit-radio-group>
   `,
+  imports: [FormsModule, RadioButtonModule],
 })
-class TestApp {
+class TestAppComponent {
   selected?: string;
 }

@@ -1,3 +1,13 @@
+/*
+    -- Note --
+    
+    As of June 2025, settings should only be added here if they are owned
+    by the platform team. Other settings should be added to the relevant service
+    owned by the team that owns the setting.
+
+    More info: https://bitwarden.atlassian.net/browse/PM-23126
+*/
+
 import { Observable, map } from "rxjs";
 
 import {
@@ -108,7 +118,7 @@ export class DesktopSettingsService {
 
   private readonly closeToTrayState = this.stateProvider.getGlobal(CLOSE_TO_TRAY_KEY);
   /**
-   * Tha applications setting for whether or not to close the application into the system tray.
+   * The applications setting for whether or not to close the application into the system tray.
    */
   closeToTray$ = this.closeToTrayState.state$.pipe(map(Boolean));
 
@@ -325,9 +335,14 @@ export class DesktopSettingsService {
    * Sets the modal mode of the application. Setting this changes the windows-size and other properties.
    * @param value `true` if the application is in modal mode, `false` if it is not.
    */
-  async setModalMode(value: boolean, modalPosition?: { x: number; y: number }) {
+  async setModalMode(
+    value: boolean,
+    showTrafficButtons?: boolean,
+    modalPosition?: { x: number; y: number },
+  ) {
     await this.modalModeState.update(() => ({
       isModalModeActive: value,
+      showTrafficButtons,
       modalPosition,
     }));
   }

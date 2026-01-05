@@ -1,13 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
@@ -34,7 +37,21 @@ export class ServiceAccountService {
     private keyService: KeyService,
     private apiService: ApiService,
     private encryptService: EncryptService,
+    private accountService: AccountService,
   ) {}
+
+  private getOrganizationKey$(organizationId: string) {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      filter((orgKeys) => !!orgKeys),
+      map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
+    );
+  }
+
+  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
+    return await firstValueFrom(this.getOrganizationKey$(organizationId));
+  }
 
   async getServiceAccounts(
     organizationId: string,
@@ -91,7 +108,10 @@ export class ServiceAccountService {
     );
   }
 
-  async create(organizationId: string, serviceAccountView: ServiceAccountView) {
+  async create(
+    organizationId: string,
+    serviceAccountView: ServiceAccountView,
+  ): Promise<ServiceAccountView> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = await this.getServiceAccountRequest(orgKey, serviceAccountView);
     const r = await this.apiService.send(
@@ -101,9 +121,14 @@ export class ServiceAccountService {
       true,
       true,
     );
-    this._serviceAccount.next(
-      await this.createServiceAccountView(orgKey, new ServiceAccountResponse(r)),
+
+    const serviceAccount = await this.createServiceAccountView(
+      orgKey,
+      new ServiceAccountResponse(r),
     );
+    this._serviceAccount.next(serviceAccount);
+
+    return serviceAccount;
   }
 
   async delete(serviceAccounts: ServiceAccountView[]): Promise<BulkOperationStatus[]> {
@@ -119,10 +144,6 @@ export class ServiceAccountService {
       bulkOperationStatus.errorMessage = element.error;
       return bulkOperationStatus;
     });
-  }
-
-  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.keyService.getOrgKey(organizationId);
   }
 
   private async getServiceAccountRequest(

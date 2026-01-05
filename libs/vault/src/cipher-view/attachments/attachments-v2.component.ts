@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { Component, HostListener, Inject } from "@angular/core";
 
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   ButtonModule,
   DialogModule,
@@ -24,13 +25,13 @@ export interface AttachmentsDialogParams {
 /**
  * Enum representing the possible results of the attachment dialog.
  */
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum AttachmentDialogResult {
-  Uploaded = "uploaded",
-  Removed = "removed",
-  Closed = "closed",
-}
+export const AttachmentDialogResult = {
+  Uploaded: "uploaded",
+  Removed: "removed",
+  Closed: "closed",
+} as const;
+
+export type AttachmentDialogResult = UnionOfValues<typeof AttachmentDialogResult>;
 
 export interface AttachmentDialogCloseResult {
   action: AttachmentDialogResult;
@@ -39,10 +40,11 @@ export interface AttachmentDialogCloseResult {
 /**
  * Component for the attachments dialog.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-attachments-v2",
   templateUrl: "attachments-v2.component.html",
-  standalone: true,
   imports: [ButtonModule, CommonModule, DialogModule, I18nPipe, CipherAttachmentsComponent],
 })
 export class AttachmentsV2Component {
@@ -50,6 +52,7 @@ export class AttachmentsV2Component {
   admin: boolean = false;
   organizationId?: OrganizationId;
   attachmentFormId = CipherAttachmentsComponent.attachmentFormID;
+  private isUploading = false;
 
   /**
    * Constructor for AttachmentsV2Component.
@@ -81,13 +84,51 @@ export class AttachmentsV2Component {
   }
 
   /**
+   * Prevent browser tab from closing/refreshing during upload.
+   * Shows a confirmation dialog if user tries to leave during an active upload.
+   * This provides additional protection beyond dialogRef.disableClose.
+   * Using arrow function to preserve 'this' context when used as event listener.
+   */
+  @HostListener("window:beforeunload", ["$event"])
+  private handleBeforeUnloadEvent = (event: BeforeUnloadEvent): string | undefined => {
+    if (this.isUploading) {
+      event.preventDefault();
+      // The custom message is not displayed in modern browsers, but MDN docs still recommend setting it for legacy support.
+      const message = "Upload in progress. Are you sure you want to leave?";
+      event.returnValue = message;
+      return message;
+    }
+    return undefined;
+  };
+
+  /**
+   * Called when an attachment upload is started.
+   * Disables closing the dialog to prevent accidental interruption.
+   */
+  uploadStarted() {
+    this.isUploading = true;
+    this.dialogRef.disableClose = true;
+  }
+
+  /**
    * Called when an attachment is successfully uploaded.
-   * Closes the dialog with an 'uploaded' result.
+   * Re-enables dialog closing and closes the dialog with an 'uploaded' result.
    */
   uploadSuccessful() {
+    this.isUploading = false;
+    this.dialogRef.disableClose = false;
     this.dialogRef.close({
       action: AttachmentDialogResult.Uploaded,
     });
+  }
+
+  /**
+   * Called when an attachment upload fails.
+   * Re-enables closing the dialog.
+   */
+  uploadFailed() {
+    this.isUploading = false;
+    this.dialogRef.disableClose = false;
   }
 
   /**

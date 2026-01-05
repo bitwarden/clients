@@ -8,7 +8,7 @@ import { SecurityTask, SecurityTaskStatus, SecurityTaskType } from "@bitwarden/c
  */
 export type CreateTasksRequest = Readonly<{
   cipherId?: CipherId;
-  type: SecurityTaskType.UpdateAtRiskCredential;
+  type: typeof SecurityTaskType.UpdateAtRiskCredential;
 }>;
 
 export abstract class AdminTaskService {

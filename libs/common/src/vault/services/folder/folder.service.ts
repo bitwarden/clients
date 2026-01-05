@@ -1,6 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Observable, Subject, firstValueFrom, map, shareReplay, switchMap, merge } from "rxjs";
+import {
+  Observable,
+  Subject,
+  firstValueFrom,
+  map,
+  shareReplay,
+  switchMap,
+  merge,
+  filter,
+  combineLatest,
+} from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -69,8 +79,12 @@ export class FolderService implements InternalFolderServiceAbstraction {
 
       const observable = merge(
         this.forceFolderViews[userId],
-        this.encryptedFoldersState(userId).state$.pipe(
-          switchMap((folderData) => {
+        combineLatest([
+          this.encryptedFoldersState(userId).state$,
+          this.keyService.userKey$(userId),
+        ]).pipe(
+          filter(([folderData, userKey]) => folderData != null && userKey != null),
+          switchMap(([folderData, _]) => {
             return this.decryptFolders(userId, folderData);
           }),
         ),
@@ -258,11 +272,16 @@ export class FolderService implements InternalFolderServiceAbstraction {
       return [];
     }
 
-    const decryptFolderPromises = folders.map((f) =>
-      f.decryptWithKey(userKey, this.encryptService),
-    );
-    const decryptedFolders = await Promise.all(decryptFolderPromises);
-    decryptedFolders.sort(Utils.getSortFunction(this.i18nService, "name"));
+    const decryptFolderPromises = folders.map(async (f) => {
+      try {
+        return await f.decryptWithKey(userKey, this.encryptService);
+      } catch {
+        return null;
+      }
+    });
+    const decryptedFolders = (await Promise.all(decryptFolderPromises))
+      .filter((p) => p !== null)
+      .sort(Utils.getSortFunction(this.i18nService, "name"));
 
     const noneFolder = new FolderView();
     noneFolder.name = this.i18nService.t("noneFolder");

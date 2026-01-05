@@ -50,11 +50,12 @@ export enum BulkCollectionsDialogResult {
   Canceled = "canceled",
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [SharedModule, AccessSelectorModule],
   selector: "app-bulk-collections-dialog",
   templateUrl: "bulk-collections-dialog.component.html",
-  standalone: true,
 })
 export class BulkCollectionsDialogComponent implements OnDestroy {
   protected readonly PermissionMode = PermissionMode;

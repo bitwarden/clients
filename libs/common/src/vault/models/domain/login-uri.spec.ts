@@ -1,18 +1,25 @@
-import { MockProxy, mock } from "jest-mock-extended";
+import { MockProxy } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 import { UriMatchType } from "@bitwarden/sdk-internal";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
+import {
+  makeSymmetricCryptoKey,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { LoginUriApi } from "../api/login-uri.api";
 import { LoginUriData } from "../data/login-uri.data";
 
 import { LoginUri } from "./login-uri";
 
 describe("LoginUri", () => {
   let data: LoginUriData;
+  let encryptService: MockProxy<EncryptService>;
 
   beforeEach(() => {
     data = {
@@ -20,6 +27,9 @@ describe("LoginUri", () => {
       uriChecksum: "encUriChecksum",
       match: UriMatchStrategy.Domain,
     };
+
+    const containerService = mockContainerService();
+    encryptService = containerService.getEncryptService();
   });
 
   it("Convert from empty", () => {
@@ -27,10 +37,13 @@ describe("LoginUri", () => {
     const loginUri = new LoginUri(data);
 
     expect(loginUri).toEqual({
-      match: null,
-      uri: null,
-      uriChecksum: null,
+      match: undefined,
+      uri: undefined,
+      uriChecksum: undefined,
     });
+    expect(data.uri).toBeUndefined();
+    expect(data.uriChecksum).toBeUndefined();
+    expect(data.match).toBeUndefined();
   });
 
   it("Convert", () => {
@@ -56,32 +69,36 @@ describe("LoginUri", () => {
     const view = await loginUri.decrypt(null);
 
     expect(view).toEqual({
-      _canLaunch: null,
-      _domain: null,
-      _host: null,
-      _hostname: null,
       _uri: "uri",
       match: 3,
     });
   });
 
-  describe("validateChecksum", () => {
-    let encryptService: MockProxy<EncryptService>;
-
-    beforeEach(() => {
-      encryptService = mock();
-      global.bitwardenContainerService = {
-        getEncryptService: () => encryptService,
-        getKeyService: () => null,
-      };
+  it("handle null match", () => {
+    const apiData = Object.assign(new LoginUriApi(), {
+      uri: "testUri",
+      uriChecksum: "testChecksum",
+      match: null,
     });
 
+    const loginUriData = new LoginUriData(apiData);
+
+    // The data model stores it as-is (null or undefined)
+    expect(loginUriData.match).toBeNull();
+
+    // But the domain model converts null to undefined
+    const loginUri = new LoginUri(loginUriData);
+    expect(loginUri.match).toBeUndefined();
+  });
+
+  describe("validateChecksum", () => {
     it("returns true if checksums match", async () => {
       const loginUri = new LoginUri();
       loginUri.uriChecksum = mockEnc("checksum");
       encryptService.hash.mockResolvedValue("checksum");
 
-      const actual = await loginUri.validateChecksum("uri", null, null);
+      const key = makeSymmetricCryptoKey(64);
+      const actual = await loginUri.validateChecksum("uri", key);
 
       expect(actual).toBe(true);
       expect(encryptService.hash).toHaveBeenCalledWith("uri", "sha256");
@@ -92,7 +109,7 @@ describe("LoginUri", () => {
       loginUri.uriChecksum = mockEnc("checksum");
       encryptService.hash.mockResolvedValue("incorrect checksum");
 
-      const actual = await loginUri.validateChecksum("uri", null, null);
+      const actual = await loginUri.validateChecksum("uri", undefined);
 
       expect(actual).toBe(false);
     });
@@ -116,13 +133,13 @@ describe("LoginUri", () => {
       expect(actual).toBeInstanceOf(LoginUri);
     });
 
-    it("returns null if object is null", () => {
-      expect(LoginUri.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(LoginUri.fromJSON(null)).toBeUndefined();
     });
   });
 
   describe("SDK Login Uri Mapping", () => {
-    it("should map to SDK login uri", () => {
+    it("maps to SDK login uri", () => {
       const loginUri = new LoginUri(data);
       const sdkLoginUri = loginUri.toSdkLoginUri();
 

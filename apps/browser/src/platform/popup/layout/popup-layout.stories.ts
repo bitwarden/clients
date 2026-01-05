@@ -1,10 +1,19 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import {
+  GeneratorActive,
+  GeneratorInactive,
+  SendActive,
+  SendInactive,
+  SettingsActive,
+  SettingsInactive,
+  VaultActive,
+  VaultInactive,
+} from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -14,14 +23,15 @@ import {
   BannerModule,
   ButtonModule,
   I18nMockService,
-  Icons,
   IconButtonModule,
   ItemModule,
   NoItemsModule,
   SearchModule,
   SectionComponent,
+  ScrollLayoutDirective,
 } from "@bitwarden/components";
 
+import { VaultLoadingSkeletonComponent } from "../../../vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
 import { PopupFooterComponent } from "./popup-footer.component";
@@ -29,6 +39,8 @@ import { PopupHeaderComponent } from "./popup-header.component";
 import { PopupPageComponent } from "./popup-page.component";
 import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "extension-container",
   template: `
@@ -36,10 +48,24 @@ import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
       <ng-content></ng-content>
     </div>
   `,
-  standalone: true,
 })
 class ExtensionContainerComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "extension-popped-container",
+  template: `
+    <div class="tw-h-[640px] tw-w-[900px] tw-border tw-border-solid tw-border-secondary-300">
+      <ng-content></ng-content>
+    </div>
+  `,
+  standalone: true,
+})
+class ExtensionPoppedContainerComponent {}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-placeholder",
   template: /*html*/ `
@@ -57,27 +83,24 @@ class ExtensionContainerComponent {}
               <button type="button" bitBadge variant="primary">Fill</button>
             </bit-item-action>
             <bit-item-action>
-              <button type="button" bitIconButton="bwi-clone" aria-label="Copy item"></button>
+              <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
             </bit-item-action>
             <bit-item-action>
-              <button
-                type="button"
-                bitIconButton="bwi-ellipsis-v"
-                aria-label="More options"
-              ></button>
+              <button type="button" bitIconButton="bwi-ellipsis-v" label="More options"></button>
             </bit-item-action>
           </ng-container>
         </bit-item>
       </bit-item-group>
     </bit-section>
   `,
-  standalone: true,
   imports: [CommonModule, ItemModule, BadgeModule, IconButtonModule, SectionComponent],
 })
 class VaultComponent {
   protected data = Array.from(Array(20).keys());
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-add-button",
   template: `
@@ -86,47 +109,45 @@ class VaultComponent {
       Add
     </button>
   `,
-  standalone: true,
   imports: [ButtonModule],
 })
 class MockAddButtonComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-popout-button",
   template: `
-    <button
-      bitIconButton="bwi-popout"
-      size="small"
-      type="button"
-      title="Pop out"
-      aria-label="Pop out"
-    ></button>
+    <button bitIconButton="bwi-popout" size="small" type="button" label="Pop out"></button>
   `,
-  standalone: true,
   imports: [IconButtonModule],
 })
 class MockPopoutButtonComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-current-account",
   template: `
-    <button class="tw-bg-transparent tw-border-none" type="button">
+    <button class="tw-bg-transparent tw-border-none tw-p-0 tw-me-1 tw-align-middle" type="button">
       <bit-avatar text="Ash Ketchum" size="small"></bit-avatar>
     </button>
   `,
-  standalone: true,
   imports: [AvatarModule],
 })
 class MockCurrentAccountComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-search",
   template: ` <bit-search placeholder="Search"> </bit-search> `,
-  standalone: true,
   imports: [SearchModule],
 })
 class MockSearchComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-banner",
   template: `
@@ -134,11 +155,12 @@ class MockSearchComponent {}
       This is an important note about these ciphers
     </bit-banner>
   `,
-  standalone: true,
   imports: [BannerModule],
 })
 class MockBannerComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-page",
   template: `
@@ -154,7 +176,6 @@ class MockBannerComponent {}
       <vault-placeholder></vault-placeholder>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -167,6 +188,8 @@ class MockBannerComponent {}
 })
 class MockVaultPageComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-page-popped",
   template: `
@@ -180,7 +203,6 @@ class MockVaultPageComponent {}
       <vault-placeholder></vault-placeholder>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -191,6 +213,8 @@ class MockVaultPageComponent {}
 })
 class MockVaultPagePoppedComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-generator-page",
   template: `
@@ -205,7 +229,6 @@ class MockVaultPagePoppedComponent {}
       <div class="tw-text-main">Generator content here</div>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -216,6 +239,8 @@ class MockVaultPagePoppedComponent {}
 })
 class MockGeneratorPageComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-send-page",
   template: `
@@ -230,7 +255,6 @@ class MockGeneratorPageComponent {}
       <div class="tw-text-main">Send content here</div>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -241,6 +265,8 @@ class MockGeneratorPageComponent {}
 })
 class MockSendPageComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-settings-page",
   template: `
@@ -255,7 +281,6 @@ class MockSendPageComponent {}
       <div class="tw-text-main">Settings content here</div>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -266,6 +291,8 @@ class MockSendPageComponent {}
 })
 class MockSettingsPageComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-subpage",
   template: `
@@ -279,11 +306,16 @@ class MockSettingsPageComponent {}
       <popup-footer slot="footer">
         <button type="button" bitButton buttonType="primary">Save</button>
         <button type="button" bitButton buttonType="secondary">Cancel</button>
-        <button slot="end" type="button" buttonType="danger" bitIconButton="bwi-trash"></button>
+        <button
+          slot="end"
+          type="button"
+          buttonType="danger"
+          bitIconButton="bwi-trash"
+          label="Delete"
+        ></button>
       </popup-footer>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -308,6 +340,7 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [
+        ScrollLayoutDirective,
         PopupTabNavigationComponent,
         PopupHeaderComponent,
         PopupPageComponent,
@@ -315,6 +348,7 @@ export default {
         CommonModule,
         RouterModule,
         ExtensionContainerComponent,
+        ExtensionPoppedContainerComponent,
         MockBannerComponent,
         MockSearchComponent,
         MockVaultSubpageComponent,
@@ -325,6 +359,12 @@ export default {
         MockVaultPagePoppedComponent,
         NoItemsModule,
         VaultComponent,
+        ScrollingModule,
+        ItemModule,
+        SectionComponent,
+        IconButtonModule,
+        BadgeModule,
+        VaultLoadingSkeletonComponent,
       ],
       providers: [
         {
@@ -338,7 +378,7 @@ export default {
               generator: "Generator",
               send: "Send",
               settings: "Settings",
-              labelWithNotification: (label: string) => `${label}: New Notification`,
+              labelWithNotification: (label: string | undefined) => `${label}: New Notification`,
             });
           },
         },
@@ -403,26 +443,26 @@ const navButtons = (showBerry = false) => [
   {
     label: "vault",
     page: "/tabs/vault",
-    icon: Icons.VaultInactive,
-    iconActive: Icons.VaultActive,
+    icon: VaultInactive,
+    iconActive: VaultActive,
   },
   {
     label: "generator",
     page: "/tabs/generator",
-    icon: Icons.GeneratorInactive,
-    iconActive: Icons.GeneratorActive,
+    icon: GeneratorInactive,
+    iconActive: GeneratorActive,
   },
   {
     label: "send",
     page: "/tabs/send",
-    icon: Icons.SendInactive,
-    iconActive: Icons.SendActive,
+    icon: SendInactive,
+    iconActive: SendActive,
   },
   {
     label: "settings",
     page: "/tabs/settings",
-    icon: Icons.SettingsInactive,
-    iconActive: Icons.SettingsActive,
+    icon: SettingsInactive,
+    iconActive: SettingsActive,
     showBerry: showBerry,
   },
 ];
@@ -508,7 +548,21 @@ export const CompactMode: Story = {
       const compact = canvasEl.querySelector(
         `#${containerId} [data-testid=popup-layout-scroll-region]`,
       );
+
+      if (!compact) {
+        // eslint-disable-next-line
+        console.error(`#${containerId} [data-testid=popup-layout-scroll-region] not found`);
+        return;
+      }
+
       const label = canvasEl.querySelector(`#${containerId} .example-label`);
+
+      if (!label) {
+        // eslint-disable-next-line
+        console.error(`#${containerId} .example-label not found`);
+        return;
+      }
+
       const percentVisible =
         100 -
         Math.round((100 * (compact.scrollHeight - compact.clientHeight)) / compact.scrollHeight);
@@ -523,9 +577,9 @@ export const PoppedOut: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <div class="tw-h-[640px] tw-w-[900px] tw-border tw-border-solid tw-border-secondary-300">
+      <extension-popped-container>
         <mock-vault-page-popped></mock-vault-page-popped>
-      </div>
+      </extension-popped-container>
     `,
   }),
 };
@@ -538,7 +592,10 @@ export const CenteredContent: Story = {
         <popup-tab-navigation>
           <popup-page>
             <popup-header slot="header" pageTitle="Centered Content"></popup-header>
-            <div class="tw-h-full tw-flex tw-items-center tw-justify-center tw-text-main">
+            <div
+              class="tw-h-full tw-flex tw-items-center tw-justify-center tw-text-main tw-flex-col"
+            >
+              <h2 bitTypography="h2" class="tw-mb-6">Page with no content</h2>
               <bit-no-items>
                 <ng-container slot="title">Before centering a div</ng-container>
                 <ng-container slot="description">One must first center oneself</ng-container>
@@ -567,16 +624,31 @@ export const Loading: Story = {
   }),
 };
 
+export const SkeletonLoading: Story = {
+  render: (args) => ({
+    props: { ...args, data: Array(8) },
+    template: /* HTML */ `
+      <extension-container>
+        <popup-tab-navigation>
+          <popup-page hideOverflow>
+            <popup-header slot="header" pageTitle="Page Header"></popup-header>
+            <vault-loading-skeleton></vault-loading-skeleton>
+          </popup-page>
+        </popup-tab-navigation>
+      </extension-container>
+    `,
+  }),
+};
+
 export const TransparentHeader: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
       <extension-container>
         <popup-page>
-          <popup-header slot="header" background="alt"
-            ><span class="tw-italic tw-text-main">🤠 Custom Content</span></popup-header
-          >
-
+          <popup-header slot="header" background="alt">
+            <span class="tw-italic tw-text-main">🤠 Custom Content</span>
+          </popup-header>
           <vault-placeholder></vault-placeholder>
         </popup-page>
       </extension-container>
@@ -618,6 +690,55 @@ export const WidthOptions: Story = {
           <mock-vault-page></mock-vault-page>
         </div>
       </div>
+    `,
+  }),
+};
+
+export const WithVirtualScrollChild: Story = {
+  render: (args) => ({
+    props: { ...args, data: Array.from(Array(20).keys()) },
+    template: /* HTML */ `
+      <extension-popped-container>
+        <popup-page>
+          <popup-header slot="header" pageTitle="Test"> </popup-header>
+          <mock-search slot="above-scroll-area"></mock-search>
+          <bit-section>
+            @defer (on immediate) {
+            <bit-item-group aria-label="Mock Vault Items">
+              <cdk-virtual-scroll-viewport itemSize="59" bitScrollLayout>
+                <bit-item *cdkVirtualFor="let item of data; index as i">
+                  <button type="button" bit-item-content>
+                    <i
+                      slot="start"
+                      class="bwi bwi-globe tw-text-3xl tw-text-muted"
+                      aria-hidden="true"
+                    ></i>
+                    {{ i }} of {{ data.length - 1 }}
+                    <span slot="secondary">Bar</span>
+                  </button>
+
+                  <ng-container slot="end">
+                    <bit-item-action>
+                      <button type="button" bitBadge variant="primary">Fill</button>
+                    </bit-item-action>
+                    <bit-item-action>
+                      <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
+                    </bit-item-action>
+                    <bit-item-action>
+                      <button
+                        type="button"
+                        bitIconButton="bwi-ellipsis-v"
+                        label="More options"
+                      ></button>
+                    </bit-item-action>
+                  </ng-container>
+                </bit-item>
+              </cdk-virtual-scroll-viewport>
+            </bit-item-group>
+            }
+          </bit-section>
+        </popup-page>
+      </extension-popped-container>
     `,
   }),
 };

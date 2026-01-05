@@ -8,6 +8,7 @@ import {
   firstValueFrom,
   from,
   lastValueFrom,
+  map,
   of,
   Subject,
   switchMap,
@@ -25,11 +26,10 @@ import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/model
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -38,6 +38,8 @@ import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.compone
 
 import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-account",
   templateUrl: "account.component.html",
@@ -50,8 +52,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   canUseApi = false;
   org: OrganizationResponse;
   taxFormPromise: Promise<unknown>;
-
-  limitItemDeletionFeatureFlagIsEnabled: boolean;
 
   // FormGroup validators taken from server Organization domain object
   protected formGroup = this.formBuilder.group({
@@ -95,16 +95,10 @@ export class AccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
     this.selfHosted = this.platformUtilsService.isSelfHost();
-
-    this.configService
-      .getFeatureFlag$(FeatureFlag.LimitItemDeletion)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((isAble) => (this.limitItemDeletionFeatureFlagIsEnabled = isAble));
 
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.route.params
@@ -174,22 +168,21 @@ export class AccountComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const request = new OrganizationUpdateRequest();
-
-    /*
-     * When you disable a FormControl, it is removed from formGroup.values, so we have to use
-     * the original value.
-     * */
-    request.name = this.formGroup.get("orgName").disabled
-      ? this.org.name
-      : this.formGroup.value.orgName;
-    request.billingEmail = this.formGroup.get("billingEmail").disabled
-      ? this.org.billingEmail
-      : this.formGroup.value.billingEmail;
+    // The server ignores any undefined values, so it's ok to reference disabled form fields here
+    const request: OrganizationUpdateRequest = {
+      name: this.formGroup.value.orgName,
+      billingEmail: this.formGroup.value.billingEmail,
+    };
 
     // Backfill pub/priv key if necessary
     if (!this.org.hasPublicAndPrivateKeys) {
-      const orgShareKey = await this.keyService.getOrgKey(this.organizationId);
+      const orgShareKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.orgKeys$(userId)),
+          map((orgKeys) => orgKeys[this.organizationId as OrganizationId] ?? null),
+        ),
+      );
       const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }

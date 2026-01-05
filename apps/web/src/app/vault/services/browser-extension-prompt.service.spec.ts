@@ -1,19 +1,22 @@
 import { TestBed } from "@angular/core/testing";
+import { firstValueFrom, Observable } from "rxjs";
 
-import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 
 import {
   BrowserExtensionPromptService,
   BrowserPromptState,
 } from "./browser-extension-prompt.service";
+import { WebBrowserInteractionService } from "./web-browser-interaction.service";
 
 describe("BrowserExtensionPromptService", () => {
   let service: BrowserExtensionPromptService;
   const setAnonLayoutWrapperData = jest.fn();
   const isFirefox = jest.fn().mockReturnValue(false);
+  const openExtensionMock = jest.fn().mockResolvedValue(undefined);
   const postMessage = jest.fn();
   window.postMessage = postMessage;
 
@@ -21,12 +24,14 @@ describe("BrowserExtensionPromptService", () => {
     setAnonLayoutWrapperData.mockClear();
     postMessage.mockClear();
     isFirefox.mockClear();
+    openExtensionMock.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
         BrowserExtensionPromptService,
         { provide: AnonLayoutWrapperDataService, useValue: { setAnonLayoutWrapperData } },
         { provide: PlatformUtilsService, useValue: { isFirefox } },
+        { provide: WebBrowserInteractionService, useValue: { openExtension: openExtensionMock } },
       ],
     });
     jest.useFakeTimers();
@@ -45,23 +50,17 @@ describe("BrowserExtensionPromptService", () => {
     });
   });
 
-  describe("start", () => {
+  describe("registerPopupUrl", () => {
     it("posts message to check for extension", () => {
-      service.start();
+      service.registerPopupUrl(VaultMessages.OpenAtRiskPasswords);
 
       expect(window.postMessage).toHaveBeenCalledWith({
         command: VaultMessages.checkBwInstalled,
       });
     });
 
-    it("sets timeout for error state", () => {
-      service.start();
-
-      expect(service["extensionCheckTimeout"]).not.toBeNull();
-    });
-
     it("attempts to open the extension when installed", () => {
-      service.start();
+      service.registerPopupUrl(VaultMessages.OpenAtRiskPasswords);
 
       window.dispatchEvent(
         new MessageEvent("message", { data: { command: VaultMessages.HasBwInstalled } }),
@@ -69,14 +68,24 @@ describe("BrowserExtensionPromptService", () => {
 
       expect(window.postMessage).toHaveBeenCalledTimes(2);
       expect(window.postMessage).toHaveBeenCalledWith({
+        command: VaultMessages.checkBwInstalled,
+      });
+      expect(window.postMessage).toHaveBeenCalledWith({
         command: VaultMessages.OpenAtRiskPasswords,
       });
     });
   });
 
-  describe("success state", () => {
-    beforeEach(() => {
+  describe("start", () => {
+    it("sets timeout for error state", () => {
       service.start();
+      expect(service["extensionCheckTimeout"]).not.toBeNull();
+    });
+  });
+
+  describe("success registerPopupUrl", () => {
+    beforeEach(() => {
+      service.registerPopupUrl(VaultMessages.OpenAtRiskPasswords);
 
       window.dispatchEvent(
         new MessageEvent("message", { data: { command: VaultMessages.PopupOpened } }),
@@ -155,7 +164,7 @@ describe("BrowserExtensionPromptService", () => {
 
   describe("error state", () => {
     beforeEach(() => {
-      service.start();
+      service.registerPopupUrl(VaultMessages.OpenAtRiskPasswords);
       jest.advanceTimersByTime(1000);
     });
 
@@ -172,19 +181,17 @@ describe("BrowserExtensionPromptService", () => {
       });
     });
 
-    it("sets manual open state when open extension is called", (done) => {
-      service.openExtension(true);
+    it("sets manual open state when open extension is called", async () => {
+      const pageState$: Observable<BrowserPromptState> = service.pageState$;
 
+      await service.openExtension(VaultMessages.OpenAtRiskPasswords, true);
       jest.advanceTimersByTime(1000);
 
-      service.pageState$.subscribe((state) => {
-        expect(state).toBe(BrowserPromptState.ManualOpen);
-        done();
-      });
+      expect(await firstValueFrom(pageState$)).toBe(BrowserPromptState.ManualOpen);
     });
 
-    it("shows success state when extension auto opens", (done) => {
-      service.openExtension(true);
+    it("shows success state when extension auto opens", async () => {
+      await service.openExtension(VaultMessages.OpenAtRiskPasswords, true);
 
       jest.advanceTimersByTime(500); // don't let timeout occur
 
@@ -192,11 +199,9 @@ describe("BrowserExtensionPromptService", () => {
         new MessageEvent("message", { data: { command: VaultMessages.PopupOpened } }),
       );
 
-      service.pageState$.subscribe((state) => {
-        expect(state).toBe(BrowserPromptState.Success);
-        expect(service["extensionCheckTimeout"]).toBeUndefined();
-        done();
-      });
+      const pageState$: Observable<BrowserPromptState> = service.pageState$;
+      expect(await firstValueFrom(pageState$)).toBe(BrowserPromptState.Success);
+      expect(service["extensionCheckTimeout"]).toBeUndefined();
     });
   });
 });

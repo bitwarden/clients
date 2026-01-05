@@ -5,6 +5,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { openTwoFactorAuthDuoPopout } from "../../auth/popup/utils/auth-popout-window";
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
 

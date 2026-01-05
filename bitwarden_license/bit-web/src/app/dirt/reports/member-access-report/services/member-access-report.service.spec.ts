@@ -1,7 +1,13 @@
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { newGuid } from "@bitwarden/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
 import {
@@ -9,9 +15,14 @@ import {
   memberAccessWithoutAccessDetailsReportsMock,
 } from "./member-access-report.mock";
 import { MemberAccessReportService } from "./member-access-report.service";
+
 describe("ImportService", () => {
   const mockOrganizationId = "mockOrgId" as OrganizationId;
   const reportApiService = mock<MemberAccessReportApiService>();
+  const mockEncryptService = mock<EncryptService>();
+  const userId = newGuid() as UserId;
+  const mockAccountService = mockAccountServiceWith(userId);
+  const mockKeyService = mock<KeyService>();
   let memberAccessReportService: MemberAccessReportService;
   const i18nMock = mock<I18nService>({
     t(key) {
@@ -20,10 +31,19 @@ describe("ImportService", () => {
   });
 
   beforeEach(() => {
+    mockKeyService.orgKeys$.mockReturnValue(
+      of({ mockOrgId: new SymmetricCryptoKey(new Uint8Array(64)) }),
+    );
     reportApiService.getMemberAccessData.mockImplementation(() =>
       Promise.resolve(memberAccessReportsMock),
     );
-    memberAccessReportService = new MemberAccessReportService(reportApiService, i18nMock);
+    memberAccessReportService = new MemberAccessReportService(
+      reportApiService,
+      i18nMock,
+      mockEncryptService,
+      mockKeyService,
+      mockAccountService,
+    );
   });
 
   describe("generateMemberAccessReportView", () => {
@@ -35,36 +55,36 @@ describe("ImportService", () => {
         {
           name: "Sarah Johnson",
           email: "sjohnson@email.com",
-          collectionsCount: 4,
-          groupsCount: 2,
-          itemsCount: 20,
+          collectionsCount: 3,
+          groupsCount: 1,
+          itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
         },
         {
           name: "James Lull",
           email: "jlull@email.com",
-          collectionsCount: 4,
-          groupsCount: 2,
-          itemsCount: 20,
+          collectionsCount: 2,
+          groupsCount: 1,
+          itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
         },
         {
           name: "Beth Williams",
           email: "bwilliams@email.com",
-          collectionsCount: 4,
-          groupsCount: 2,
-          itemsCount: 20,
+          collectionsCount: 2,
+          groupsCount: 1,
+          itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
         },
         {
           name: "Ray Williams",
           email: "rwilliams@email.com",
-          collectionsCount: 4,
-          groupsCount: 2,
-          itemsCount: 20,
+          collectionsCount: 3,
+          groupsCount: 3,
+          itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
         },
@@ -82,8 +102,8 @@ describe("ImportService", () => {
           (item) =>
             (item.name === "Sarah Johnson" &&
               item.group === "Group 1" &&
-              item.totalItems === "20") ||
-            (item.name === "James Lull" && item.group === "Group 4" && item.totalItems === "5"),
+              item.totalItems === "0") ||
+            (item.name === "James Lull" && item.group === "Group 4" && item.totalItems === "0"),
         )
         .map((item) => ({
           name: item.name,
@@ -102,7 +122,7 @@ describe("ImportService", () => {
             twoStepLogin: "memberAccessReportTwoFactorEnabledTrue",
             accountRecovery: "memberAccessReportAuthenticationEnabledTrue",
             group: "Group 1",
-            totalItems: "20",
+            totalItems: "0",
           }),
           expect.objectContaining({
             email: "jlull@email.com",
@@ -110,7 +130,7 @@ describe("ImportService", () => {
             twoStepLogin: "memberAccessReportTwoFactorEnabledFalse",
             accountRecovery: "memberAccessReportAuthenticationEnabledFalse",
             group: "Group 4",
-            totalItems: "5",
+            totalItems: "0",
           }),
         ]),
       );
@@ -131,7 +151,7 @@ describe("ImportService", () => {
             twoStepLogin: "memberAccessReportTwoFactorEnabledTrue",
             accountRecovery: "memberAccessReportAuthenticationEnabledTrue",
             group: "Alice Group 1",
-            totalItems: "10",
+            totalItems: "0",
           }),
           expect.objectContaining({
             email: "rbrown@email.com",

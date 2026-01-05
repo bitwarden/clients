@@ -35,26 +35,24 @@ export interface SendItemDialogParams {
   disableForm?: boolean;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum SendItemDialogResult {
-  /**
-   * A Send was saved (created or updated).
-   */
-  Saved = "saved",
+/** A result of the Send add/edit dialog. */
+export const SendItemDialogResult = Object.freeze({
+  /** The send item was created or updated. */
+  Saved: "saved",
+  /** The send item was deleted. */
+  Deleted: "deleted",
+} as const);
 
-  /**
-   * A Send was deleted.
-   */
-  Deleted = "deleted",
-}
+/** A result of the Send add/edit dialog. */
+export type SendItemDialogResult = (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
 
 /**
  * Component for adding or editing a send item.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "send-add-edit-dialog.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     SearchModule,
@@ -154,15 +152,12 @@ export class SendAddEditDialogComponent {
    * @returns The header text.
    */
   private getHeaderText(mode: SendFormMode, type: SendType) {
-    const headerKey =
-      mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
-
-    switch (type) {
-      case SendType.Text:
-        return this.i18nService.t(headerKey, this.i18nService.t("textSend"));
-      case SendType.File:
-        return this.i18nService.t(headerKey, this.i18nService.t("fileSend"));
-    }
+    const isEditMode = mode === "edit" || mode === "partial-edit";
+    const translation = {
+      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
+      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
+    };
+    return this.i18nService.t(translation[type]);
   }
 
   /**
@@ -173,6 +168,21 @@ export class SendAddEditDialogComponent {
    */
   static open(dialogService: DialogService, params: SendItemDialogParams) {
     return dialogService.open<SendItemDialogResult, SendItemDialogParams>(
+      SendAddEditDialogComponent,
+      {
+        data: params,
+      },
+    );
+  }
+
+  /**
+   * Opens the send add/edit dialog in a drawer
+   * @param dialogService Instance of the DialogService.
+   * @param params The parameters for the drawer.
+   * @returns The drawer result.
+   */
+  static openDrawer(dialogService: DialogService, params: SendItemDialogParams) {
+    return dialogService.openDrawer<SendItemDialogResult, SendItemDialogParams>(
       SendAddEditDialogComponent,
       {
         data: params,

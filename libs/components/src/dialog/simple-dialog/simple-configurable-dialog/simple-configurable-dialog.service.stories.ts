@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { provideAnimations } from "@angular/platform-browser/animations";
+import { Meta, StoryObj, applicationConfig } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -10,6 +10,8 @@ import { CalloutModule } from "../../../callout";
 import { I18nMockService } from "../../../utils/i18n-mock.service";
 import { DialogModule } from "../../dialog.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     @for (group of dialogs; track group) {
@@ -31,6 +33,7 @@ import { DialogModule } from "../../dialog.module";
       </bit-callout>
     }
   `,
+  imports: [ButtonModule, CalloutModule, DialogModule],
 })
 class StoryDialogComponent {
   protected dialogs: { title: string; dialogs: SimpleDialogOptions[] }[] = [
@@ -146,11 +149,9 @@ export default {
   title: "Component Library/Dialogs/Service/SimpleConfigurable",
   component: StoryDialogComponent,
   decorators: [
-    moduleMetadata({
-      imports: [ButtonModule, BrowserAnimationsModule, DialogModule, CalloutModule],
-    }),
     applicationConfig({
       providers: [
+        provideAnimations(),
         {
           provide: I18nService,
           useFactory: () => {

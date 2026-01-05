@@ -44,7 +44,7 @@ export class BitwardenCsvImporter extends BaseImporter implements Importer {
         cipher.reprompt = parseInt(
           this.getValueOrDefault(value.reprompt, CipherRepromptType.None.toString()),
           10,
-        );
+        ) as CipherRepromptType;
       } catch (e) {
         // eslint-disable-next-line
         console.error("Unable to parse reprompt value", e);

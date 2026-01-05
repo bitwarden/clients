@@ -13,14 +13,16 @@ import {
   DialogModule,
   DialogService,
   TypographyModule,
+  CenterPositionStrategy,
 } from "@bitwarden/components";
 
 export type DecryptionFailureDialogParams = {
   cipherIds: CipherId[];
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-decryption-failure-dialog",
   templateUrl: "./decryption-failure-dialog.component.html",
   imports: [
@@ -55,6 +57,9 @@ export class DecryptionFailureDialogComponent {
   }
 
   static open(dialogService: DialogService, params: DecryptionFailureDialogParams) {
-    return dialogService.open(DecryptionFailureDialogComponent, { data: params });
+    return dialogService.open(DecryptionFailureDialogComponent, {
+      data: params,
+      positionStrategy: new CenterPositionStrategy(),
+    });
   }
 }

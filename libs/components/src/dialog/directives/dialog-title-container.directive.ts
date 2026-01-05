@@ -1,17 +1,16 @@
 import { CdkDialogContainer, DialogRef } from "@angular/cdk/dialog";
-import { Directive, HostBinding, Input, OnInit, Optional } from "@angular/core";
+import { Directive, HostBinding, OnInit, Optional, input } from "@angular/core";
 
 // Increments for each instance of this component
 let nextId = 0;
 
 @Directive({
   selector: "[bitDialogTitleContainer]",
-  standalone: true,
 })
 export class DialogTitleContainerDirective implements OnInit {
   @HostBinding("id") id = `bit-dialog-title-${nextId++}`;
 
-  @Input() simple = false;
+  readonly simple = input(false);
 
   constructor(@Optional() private dialogRef: DialogRef<any>) {}
 

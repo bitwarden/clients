@@ -5,6 +5,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import { UserEncryptor } from "@bitwarden/common/tools/cryptography/user-encryptor.abstraction";
 import {
@@ -22,8 +23,13 @@ import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subje
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
 import { deepFreeze } from "@bitwarden/common/tools/util";
 import { UserId } from "@bitwarden/common/types/guid";
+import { BitwardenClient } from "@bitwarden/sdk-internal";
 
-import { FakeAccountService, FakeStateProvider } from "../../../../../common/spec";
+import {
+  FakeAccountService,
+  FakeStateProvider,
+  mockAccountInfoWith,
+} from "../../../../../common/spec";
 import { Algorithm, AlgorithmsByType, CredentialAlgorithm, Type, Types } from "../metadata";
 import catchall from "../metadata/email/catchall";
 import plusAddress from "../metadata/email/plus-address";
@@ -38,9 +44,10 @@ import { GeneratorMetadataProvider } from "./generator-metadata-provider";
 const SomeUser = "some user" as UserId;
 const SomeAccount = {
   id: SomeUser,
-  email: "someone@example.com",
-  emailVerified: true,
-  name: "Someone",
+  ...mockAccountInfoWith({
+    email: "someone@example.com",
+    name: "Someone",
+  }),
 };
 const SomeAccount$ = new BehaviorSubject<Account>(SomeAccount);
 
@@ -89,6 +96,10 @@ const SomePolicyService = mock<PolicyService>();
 
 const SomeExtensionService = mock<ExtensionService>();
 
+const SomeConfigService = mock<ConfigService>;
+
+const SomeSdkService = mock<BitwardenClient>;
+
 const ApplicationProvider = {
   /** Policy configured by the administrative console */
   policy: SomePolicyService,
@@ -98,7 +109,13 @@ const ApplicationProvider = {
 
   /** Event monitoring and diagnostic interfaces */
   log: disabledSemanticLoggerProvider,
-} as SystemServiceProvider;
+
+  /** Feature flag retrieval */
+  configService: SomeConfigService,
+
+  /** SDK access for password generation */
+  sdk: SomeSdkService,
+} as unknown as SystemServiceProvider;
 
 describe("GeneratorMetadataProvider", () => {
   beforeEach(() => {

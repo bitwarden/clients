@@ -144,7 +144,7 @@ Utilizza Bitwarden per proteggere i tuoi dipendenti e condividere informazioni s
 Altri motivi per scegliere Bitwarden:
 
 Crittografia di livello mondiale
-Le password sono protette con crittografia end-to-end avanzata (AES-256 bit, salted hashtag, e PBKDF2 SHA-256) in modo che i tuoi dati rimangano sicuri e privati.
+Le password sono protette con crittografia end-to-end avanzata (AES-256 bit, salted hashing, e PBKDF2 SHA-256) in modo che i tuoi dati rimangano sicuri e privati.
 
 Controlli di terze parti
 Bitwarden conduce regolarmente controlli di sicurezza completi di terze parti con importanti società di sicurezza. Questi controlli annuali includono valutazioni del codice sorgente e test di penetrazione su IP, server, e applicazioni web di Bitwarden.

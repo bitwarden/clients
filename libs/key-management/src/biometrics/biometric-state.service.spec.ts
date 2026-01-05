@@ -1,12 +1,11 @@
 import { firstValueFrom } from "rxjs";
 
-import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   makeEncString,
   trackEmissions,
   FakeStateProvider,
   FakeGlobalState,
-  FakeSingleUserState,
   FakeAccountService,
   mockAccountServiceWith,
 } from "@bitwarden/common/spec";
@@ -15,12 +14,10 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricStateService, DefaultBiometricStateService } from "./biometric-state.service";
 import {
   BIOMETRIC_UNLOCK_ENABLED,
-  DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT,
   ENCRYPTED_CLIENT_KEY_HALF,
   FINGERPRINT_VALIDATED,
   PROMPT_AUTOMATICALLY,
   PROMPT_CANCELLED,
-  REQUIRE_PASSWORD_ON_START,
 } from "./biometric.state";
 
 describe("BiometricStateService", () => {
@@ -40,22 +37,6 @@ describe("BiometricStateService", () => {
 
   afterEach(() => {
     jest.resetAllMocks();
-  });
-
-  describe("requirePasswordOnStart$", () => {
-    it("emits when the require password on start state changes", async () => {
-      const state = stateProvider.activeUser.getFake(REQUIRE_PASSWORD_ON_START);
-      state.nextState(true);
-
-      expect(await firstValueFrom(sut.requirePasswordOnStart$)).toBe(true);
-    });
-
-    it("emits false when the require password on start state is undefined", async () => {
-      const state = stateProvider.activeUser.getFake(REQUIRE_PASSWORD_ON_START);
-      state.nextState(undefined as unknown as boolean);
-
-      expect(await firstValueFrom(sut.requirePasswordOnStart$)).toBe(false);
-    });
   });
 
   describe("encryptedClientKeyHalf$", () => {
@@ -92,61 +73,6 @@ describe("BiometricStateService", () => {
       await sut.setEncryptedClientKeyHalf(encClientKeyHalf);
 
       expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toEqual(encClientKeyHalf);
-    });
-  });
-
-  describe("setRequirePasswordOnStart", () => {
-    it("updates the requirePasswordOnStart$", async () => {
-      await sut.setRequirePasswordOnStart(true);
-
-      expect(await firstValueFrom(sut.requirePasswordOnStart$)).toBe(true);
-    });
-
-    it("removes the encryptedClientKeyHalf when the set value is false", async () => {
-      await sut.setEncryptedClientKeyHalf(encClientKeyHalf, userId);
-      await sut.setRequirePasswordOnStart(false);
-
-      const keyHalfState = stateProvider.getUser(
-        userId,
-        ENCRYPTED_CLIENT_KEY_HALF,
-      ) as FakeSingleUserState<EncryptedString>;
-      expect(await firstValueFrom(keyHalfState.state$)).toBe(null);
-      expect(keyHalfState.nextMock).toHaveBeenCalledWith(null);
-    });
-
-    it("does not remove the encryptedClientKeyHalf when the value is true", async () => {
-      await sut.setEncryptedClientKeyHalf(encClientKeyHalf);
-      await sut.setRequirePasswordOnStart(true);
-
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toEqual(encClientKeyHalf);
-    });
-  });
-
-  describe("getRequirePasswordOnStart", () => {
-    it("returns the requirePasswordOnStart state value", async () => {
-      stateProvider.singleUser.mockFor(userId, REQUIRE_PASSWORD_ON_START, true);
-
-      expect(await sut.getRequirePasswordOnStart(userId)).toBe(true);
-    });
-  });
-
-  describe("require password on start callout", () => {
-    it("is false when not set", async () => {
-      expect(await firstValueFrom(sut.dismissedRequirePasswordOnStartCallout$)).toBe(false);
-    });
-
-    it("is true when set", async () => {
-      await sut.setDismissedRequirePasswordOnStartCallout();
-
-      expect(await firstValueFrom(sut.dismissedRequirePasswordOnStartCallout$)).toBe(true);
-    });
-
-    it("updates disk state when called", async () => {
-      await sut.setDismissedRequirePasswordOnStartCallout();
-
-      expect(
-        stateProvider.activeUser.getFake(DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT).nextMock,
-      ).toHaveBeenCalledWith([userId, true]);
     });
   });
 

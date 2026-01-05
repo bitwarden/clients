@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
 import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
@@ -29,6 +30,7 @@ export class OrganizationData {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
+  useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
   seats: number;
@@ -60,9 +62,12 @@ export class OrganizationData {
   limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
   userIsManagedByOrganization: boolean;
-  useRiskInsights: boolean;
+  useAccessIntelligence: boolean;
   useAdminSponsoredFamilies: boolean;
   isAdminInitiated: boolean;
+  ssoEnabled: boolean;
+  ssoMemberDecryptionType?: MemberDecryptionType;
+  usePhishingBlocker: boolean;
 
   constructor(
     response?: ProfileOrganizationResponse,
@@ -96,6 +101,7 @@ export class OrganizationData {
     this.useSecretsManager = response.useSecretsManager;
     this.usePasswordManager = response.usePasswordManager;
     this.useActivateAutofillPolicy = response.useActivateAutofillPolicy;
+    this.useAutomaticUserConfirmation = response.useAutomaticUserConfirmation;
     this.selfHost = response.selfHost;
     this.usersGetPremium = response.usersGetPremium;
     this.seats = response.seats;
@@ -125,9 +131,12 @@ export class OrganizationData {
     this.limitItemDeletion = response.limitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = response.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = response.userIsManagedByOrganization;
-    this.useRiskInsights = response.useRiskInsights;
+    this.useAccessIntelligence = response.useAccessIntelligence;
     this.useAdminSponsoredFamilies = response.useAdminSponsoredFamilies;
     this.isAdminInitiated = response.isAdminInitiated;
+    this.ssoEnabled = response.ssoEnabled;
+    this.ssoMemberDecryptionType = response.ssoMemberDecryptionType;
+    this.usePhishingBlocker = response.usePhishingBlocker;
 
     this.isMember = options.isMember;
     this.isProviderUser = options.isProviderUser;

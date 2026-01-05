@@ -3,12 +3,13 @@ import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
@@ -16,6 +17,7 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -54,6 +56,8 @@ describe("WebAuthnLoginStrategy", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
+  let configService: MockProxy<ConfigService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   let webAuthnLoginStrategy!: WebAuthnLoginStrategy;
 
@@ -73,7 +77,7 @@ describe("WebAuthnLoginStrategy", () => {
 
     // We must do this to make the mocked classes available for all the
     // assertCredential(...) tests.
-    global.PublicKeyCredential = MockPublicKeyCredential;
+    global.PublicKeyCredential = MockPublicKeyCredential as any;
     global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
   });
 
@@ -98,6 +102,8 @@ describe("WebAuthnLoginStrategy", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
+    configService = mock<ConfigService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     tokenService.getTwoFactorToken.mockResolvedValue(null);
     appIdService.getAppId.mockResolvedValue(deviceId);
@@ -124,6 +130,8 @@ describe("WebAuthnLoginStrategy", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
+      configService,
+      accountCryptographicStateService,
     );
 
     // Create credentials
@@ -208,7 +216,6 @@ describe("WebAuthnLoginStrategy", () => {
 
     expect(authResult).toBeInstanceOf(AuthResult);
     expect(authResult).toMatchObject({
-      resetMasterPassword: false,
       twoFactorProviders: null,
       requiresTwoFactor: false,
     });
@@ -237,8 +244,8 @@ describe("WebAuthnLoginStrategy", () => {
 
     // Assert
     // Master key encrypted user key should be set
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledTimes(1);
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledTimes(1);
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
       idTokenResponse.key,
       userId,
     );
@@ -337,6 +344,53 @@ describe("WebAuthnLoginStrategy", () => {
     // Assert
     expect(keyService.setUserKey).not.toHaveBeenCalled();
   });
+
+  it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+    // Arrange
+    const accountKeysData = {
+      publicKeyEncryptionKeyPair: {
+        publicKey: "testPublicKey",
+        wrappedPrivateKey: "testPrivateKey",
+      },
+    };
+
+    const idTokenResponse: IdentityTokenResponse = identityTokenResponseFactory(
+      null,
+      userDecryptionOptsServerResponseWithWebAuthnPrfOption,
+    );
+    // Add accountKeysResponseModel to the response
+    (idTokenResponse as any).accountKeysResponseModel = {
+      publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+      toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      }),
+    };
+
+    apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
+
+    const mockPrfPrivateKey: Uint8Array = randomBytes(32);
+    const mockUserKeyArray: Uint8Array = randomBytes(32);
+    encryptService.unwrapDecapsulationKey.mockResolvedValue(mockPrfPrivateKey);
+    encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+      new SymmetricCryptoKey(mockUserKeyArray),
+    );
+
+    // Act
+    await webAuthnLoginStrategy.logIn(webAuthnCredentials);
+
+    // Assert
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(1);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      {
+        V1: {
+          private_key: "testPrivateKey",
+        },
+      },
+      userId,
+    );
+  });
 });
 
 // Helpers and mocks
@@ -392,5 +446,9 @@ export class MockPublicKeyCredential implements PublicKeyCredential {
 
   static isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean> {
     return Promise.resolve(false);
+  }
+
+  toJSON() {
+    throw new Error("Method not implemented.");
   }
 }

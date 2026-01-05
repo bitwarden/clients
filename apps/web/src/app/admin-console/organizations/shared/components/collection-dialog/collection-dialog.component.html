@@ -103,6 +103,7 @@
             [selectorLabelText]="'selectGroupsAndMembers' | i18n"
             [selectorHelpText]="'userPermissionOverrideHelperDesc' | i18n"
             [emptySelectionText]="'noMembersOrGroupsAdded' | i18n"
+            [initialPermission]="initialPermission"
           ></bit-access-selector>
           <bit-access-selector
             *ngIf="!organization.useGroups"
@@ -143,7 +144,7 @@
         buttonType="danger"
         class="tw-ml-auto"
         bitFormButton
-        [appA11yTitle]="'delete' | i18n"
+        [label]="'delete' | i18n"
         [bitAction]="delete"
         [disabled]="loading"
       ></button>

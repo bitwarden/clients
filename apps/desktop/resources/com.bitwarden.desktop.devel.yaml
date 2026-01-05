@@ -8,6 +8,9 @@ command: bitwarden.sh
 finish-args:
   - --share=ipc
   - --share=network
+  - --socket=wayland
+  # This should be fallback-x11, but on gnome/mutter, zwlr_data_control_manager_v1 is not implemented
+  # so we need to use x11 as a fallback to make copy paste work
   - --socket=x11
   - --device=dri
   - --env=XDG_CURRENT_DESKTOP=Unity
@@ -30,7 +33,10 @@ modules:
       - mkdir -p /app/bin
       - mkdir -p /app/bin/Bitwarden/
       - cp -r ./* /app/bin/
+      - mkdir -p ${FLATPAK_DEST}/share/applications/
+      - cp com.bitwarden.desktop.desktop ${FLATPAK_DEST}/share/applications/
       - install bitwarden.sh /app/bin/bitwarden.sh
+      - desktop-file-edit --set-key=Exec --set-value="bitwarden.sh %U" ${FLATPAK_DEST}/share/applications/com.bitwarden.desktop.desktop
     sources:
       - type: dir
         only-arches: [x86_64]
@@ -38,9 +44,13 @@ modules:
       - type: dir
         only-arches: [aarch64]
         path: ../dist/linux-arm64-unpacked
+      - type: file
+        path: ./com.bitwarden.desktop.desktop
       - type: script
         dest-filename: bitwarden.sh
         commands:
           - ulimit -c 0
           - export TMPDIR="$XDG_RUNTIME_DIR/app/$FLATPAK_ID"
+          - export ZYPAK_LD_PRELOAD="/app/bin/libprocess_isolation.so"
+          - export PROCESS_ISOLATION_LD_PRELOAD="/app/bin/libprocess_isolation.so"
           - exec zypak-wrapper /app/bin/bitwarden-app "$@"

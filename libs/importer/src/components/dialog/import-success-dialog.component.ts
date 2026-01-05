@@ -20,9 +20,10 @@ export interface ResultList {
   count: number;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./import-success-dialog.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, DialogModule, TableModule, ButtonModule],
 })
 export class ImportSuccessDialogComponent implements OnInit {

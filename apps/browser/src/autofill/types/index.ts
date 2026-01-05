@@ -54,4 +54,7 @@ export type FormFieldElement = FillableFormFieldElement | HTMLSpanElement;
 
 export type FormElementWithAttribute = FormFieldElement & Record<string, string | null | undefined>;
 
-export type AutofillCipherTypeId = CipherType.Login | CipherType.Card | CipherType.Identity;
+export type AutofillCipherTypeId =
+  | typeof CipherType.Login
+  | typeof CipherType.Card
+  | typeof CipherType.Identity;

@@ -1,6 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, ContentChildren, Input, QueryList } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  contentChildren,
+  input,
+} from "@angular/core";
 import { RouterModule } from "@angular/router";
+
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
@@ -16,37 +24,36 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
 @Component({
   selector: "bit-breadcrumbs",
   templateUrl: "./breadcrumbs.component.html",
-  standalone: true,
-  imports: [CommonModule, LinkModule, RouterModule, IconButtonModule, MenuModule],
+  imports: [I18nPipe, CommonModule, LinkModule, RouterModule, IconButtonModule, MenuModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BreadcrumbsComponent {
-  @Input()
-  show = 3;
+  /**
+   * The maximum number of breadcrumbs to show before overflow.
+   */
+  readonly show = input(3);
 
-  private breadcrumbs: BreadcrumbComponent[] = [];
+  protected readonly breadcrumbs = contentChildren(BreadcrumbComponent);
 
-  @ContentChildren(BreadcrumbComponent)
-  protected set breadcrumbList(value: QueryList<BreadcrumbComponent>) {
-    this.breadcrumbs = value.toArray();
-  }
+  /** Whether the breadcrumbs exceed the show limit and require an overflow menu */
+  protected readonly hasOverflow = computed(() => this.breadcrumbs().length > this.show());
 
-  protected get beforeOverflow() {
-    if (this.hasOverflow) {
-      return this.breadcrumbs.slice(0, this.show - 1);
+  /** Breadcrumbs shown before the overflow menu */
+  protected readonly beforeOverflow = computed(() => {
+    const items = this.breadcrumbs();
+    const showCount = this.show();
+
+    if (items.length > showCount) {
+      return items.slice(0, showCount - 1);
     }
+    return items;
+  });
 
-    return this.breadcrumbs;
-  }
+  /** Breadcrumbs hidden in the overflow menu */
+  protected readonly overflow = computed(() => {
+    return this.breadcrumbs().slice(this.show() - 1, -1);
+  });
 
-  protected get overflow() {
-    return this.breadcrumbs.slice(this.show - 1, -1);
-  }
-
-  protected get afterOverflow() {
-    return this.breadcrumbs.slice(-1);
-  }
-
-  protected get hasOverflow() {
-    return this.breadcrumbs.length > this.show;
-  }
+  /** The last breadcrumb, shown after the overflow menu */
+  protected readonly afterOverflow = computed(() => this.breadcrumbs().slice(-1));
 }

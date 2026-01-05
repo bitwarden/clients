@@ -21,8 +21,9 @@ import {
 
 import { CipherFormContainer } from "../../cipher-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-identity-section",
   templateUrl: "./identity.component.html",
   imports: [
@@ -39,7 +40,11 @@ import { CipherFormContainer } from "../../cipher-form-container";
   ],
 })
 export class IdentitySectionComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() originalCipherView: CipherView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled: boolean;
   identityTitleOptions = [
     { name: "-- " + this.i18nService.t("select") + " --", value: null },
@@ -173,7 +178,7 @@ export class IdentitySectionComponent implements OnInit {
   populateFormData(cipherView: CipherView) {
     const { identity } = cipherView;
 
-    this.identityForm.setValue({
+    this.identityForm.patchValue({
       title: identity.title,
       firstName: identity.firstName,
       middleName: identity.middleName,

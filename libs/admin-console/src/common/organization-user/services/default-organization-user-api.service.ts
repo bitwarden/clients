@@ -48,17 +48,6 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     return new OrganizationUserDetailsResponse(r);
   }
 
-  async getOrganizationUserGroups(organizationId: string, id: string): Promise<string[]> {
-    const r = await this.apiService.send(
-      "GET",
-      "/organizations/" + organizationId + "/users/" + id + "/groups",
-      null,
-      true,
-      true,
-    );
-    return r;
-  }
-
   async getAllUsers(
     organizationId: string,
     options?: {
@@ -199,6 +188,20 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     return this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/users/" + id + "/confirm",
+      request,
+      true,
+      false,
+    );
+  }
+
+  postOrganizationUserAutoConfirm(
+    organizationId: string,
+    id: string,
+    request: OrganizationUserConfirmRequest,
+  ): Promise<void> {
+    return this.apiService.send(
+      "POST",
+      "/organizations/" + organizationId + "/users/" + id + "/auto-confirm",
       request,
       true,
       false,

@@ -15,7 +15,12 @@ import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/stat
 import { StateConstraints } from "@bitwarden/common/tools/types";
 import { OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
 
-import { FakeStateProvider, FakeAccountService, awaitAsync } from "../../../../../common/spec";
+import {
+  FakeStateProvider,
+  FakeAccountService,
+  awaitAsync,
+  mockAccountInfoWith,
+} from "../../../../../common/spec";
 import { CoreProfileMetadata, ProfileContext } from "../metadata/profile-metadata";
 import { GeneratorConstraints } from "../types";
 
@@ -31,21 +36,25 @@ const UnverifiedEmailUser = "UnverifiedEmailUser" as UserId;
 const accounts: Record<UserId, Account> = {
   [SomeUser]: {
     id: SomeUser,
-    name: "some user",
-    email: "some.user@example.com",
-    emailVerified: true,
+    ...mockAccountInfoWith({
+      name: "some user",
+      email: "some.user@example.com",
+    }),
   },
   [AnotherUser]: {
     id: AnotherUser,
-    name: "some other user",
-    email: "some.other.user@example.com",
-    emailVerified: true,
+    ...mockAccountInfoWith({
+      name: "some other user",
+      email: "some.other.user@example.com",
+    }),
   },
   [UnverifiedEmailUser]: {
     id: UnverifiedEmailUser,
-    name: "a user with an unverfied email",
-    email: "unverified@example.com",
-    emailVerified: false,
+    ...mockAccountInfoWith({
+      name: "a user with an unverfied email",
+      email: "unverified@example.com",
+      emailVerified: false,
+    }),
   },
 };
 const accountService = new FakeAccountService(accounts);
@@ -57,6 +66,7 @@ const somePolicy = new Policy({
   id: "" as PolicyId,
   organizationId: "" as OrganizationId,
   enabled: true,
+  revisionDate: new Date().toISOString(),
 });
 
 const stateProvider = new FakeStateProvider(accountService);
@@ -172,7 +182,7 @@ describe("GeneratorProfileProvider", () => {
       await awaitAsync();
       const result = await firstValueFrom(stateProvider.getUserState$(SettingsKey, SomeUser));
 
-      expect(result).toEqual({ foo: "next value" });
+      expect(result).toMatchObject({ foo: "next value" });
     });
 
     it("waits for the user to become available", async () => {

@@ -3,10 +3,8 @@ import { Subject, firstValueFrom } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { tagAsExternal } from "@bitwarden/common/platform/messaging/helpers";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { tagAsExternal } from "@bitwarden/messaging";
 
 import { FullSyncMessage } from "./foreground-sync.service";
 import { FULL_SYNC_FINISHED, SyncServiceListener } from "./sync-service.listener";

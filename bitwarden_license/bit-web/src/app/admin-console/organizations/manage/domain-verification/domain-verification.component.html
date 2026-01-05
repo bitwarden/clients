@@ -4,8 +4,8 @@
   </button>
 </app-header>
 
-<p bitTypography="body1" class="tw-text-main tw-w-2/5">
-  {{ "claimedDomainsDesc" | i18n }}
+<p bitTypography="body1" class="tw-text-main tw-max-w-4xl">
+  {{ "claimedDomainsDescription" | i18n }}
   <a
     bitLink
     target="_blank"
@@ -103,21 +103,13 @@
       class="tw-mt-6 tw-flex tw-flex-col tw-items-center tw-justify-center"
       *ngIf="orgDomains?.length == 0"
     >
-      <img src="../../images/domain-verification/domain.svg" class="tw-mb-4" alt="" />
-
-      <div class="tw-mb-2 tw-flex tw-flex-row tw-justify-center">
-        <span class="tw-text-lg tw-font-bold">{{ "noDomains" | i18n }}</span>
-      </div>
-
-      <div class="tw-mb-4 tw-flex tw-flex-row tw-justify-center">
-        <span>
-          {{ "noDomainsSubText" | i18n }}
-        </span>
-      </div>
-
-      <button type="button" buttonType="secondary" bitButton (click)="addDomain()">
-        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newDomain" | i18n }}
-      </button>
+      <bit-no-items [icon]="domainIcon">
+        <div slot="title">{{ "noDomains" | i18n }}</div>
+        <div slot="description">{{ "noDomainsSubText" | i18n }}</div>
+        <button slot="button" type="button" buttonType="secondary" bitButton (click)="addDomain()">
+          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newDomain" | i18n }}
+        </button>
+      </bit-no-items>
     </div>
   </ng-container>
 </ng-container>
