@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
+import { Location } from "@angular/common";
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -216,6 +217,7 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
+    private location: Location,
   ) {
     this.subscribeToParams();
   }
@@ -478,7 +480,21 @@ export class AddEditV2Component implements OnInit, OnDestroy {
       return false;
     }
 
-    await this.router.navigate([this.routeAfterDeletion]);
+    if (this.routeAfterDeletion !== ROUTES_AFTER_EDIT_DELETION.tabsVault) {
+      const history = await firstValueFrom(this.popupRouterCacheService.history$());
+      const targetIndex = history.map((h) => h.url).lastIndexOf(this.routeAfterDeletion);
+
+      if (targetIndex !== -1) {
+        const stepsBack = targetIndex - (history.length - 1);
+        // Use historyGo to navigate back to the target route in history
+        // This allows downstream calls to `back()` to continue working as expected
+        await this.location.historyGo(stepsBack);
+      } else {
+        await this.router.navigate([this.routeAfterDeletion]);
+      }
+    } else {
+      await this.router.navigate([this.routeAfterDeletion]);
+    }
 
     this.toastService.showToast({
       variant: "success",

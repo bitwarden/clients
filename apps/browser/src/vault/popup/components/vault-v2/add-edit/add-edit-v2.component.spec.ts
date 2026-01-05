@@ -1,8 +1,9 @@
+import { Location } from "@angular/common";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -55,6 +56,8 @@ describe("AddEditV2Component", () => {
   const back = jest.fn().mockResolvedValue(null);
   const setHistory = jest.fn();
   const collect = jest.fn().mockResolvedValue(null);
+  const history$ = jest.fn();
+  const historyGo = jest.fn().mockResolvedValue(null);
 
   beforeEach(async () => {
     buildConfig.mockClear();
@@ -62,6 +65,8 @@ describe("AddEditV2Component", () => {
     navigate.mockClear();
     back.mockClear();
     collect.mockClear();
+    history$.mockClear();
+    historyGo.mockClear();
 
     addEditCipherInfo$ = new BehaviorSubject<AddEditCipherInfo | null>(null);
     cipherServiceMock = mock<CipherService>({
@@ -74,9 +79,10 @@ describe("AddEditV2Component", () => {
         provideNoopAnimations(),
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
-        { provide: PopupRouterCacheService, useValue: { back, setHistory } },
+        { provide: PopupRouterCacheService, useValue: { back, setHistory, history$ } },
         { provide: PopupCloseWarningService, useValue: { disable } },
         { provide: Router, useValue: { navigate } },
+        { provide: Location, useValue: { historyGo } },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: CipherService, useValue: cipherServiceMock },
@@ -383,11 +389,68 @@ describe("AddEditV2Component", () => {
       expect(navigate).toHaveBeenCalledWith(["/tabs/vault"]);
     });
 
-    it("navigates to custom route after deletion when routeAfterDeletion query param is provided", fakeAsync(() => {
+    it("navigates to custom route when not in history", fakeAsync(() => {
       buildConfigResponse.originalCipher = { edit: true, id: "123" } as Cipher;
       queryParams$.next({
         cipherId: "123",
         routeAfterDeletion: "/archive",
+      });
+
+      tick();
+
+      // Mock history without the target route
+      history$.mockReturnValue(
+        of([
+          { url: "/tabs/vault" },
+          { url: "/view-cipher?cipherId=123" },
+          { url: "/add-edit?cipherId=123" },
+        ]),
+      );
+
+      jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
+
+      void component.delete();
+      tick();
+
+      expect(history$).toHaveBeenCalled();
+      expect(historyGo).not.toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith(["/archive"]);
+    }));
+
+    it("uses historyGo when custom route exists in history", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { edit: true, id: "123" } as Cipher;
+      queryParams$.next({
+        cipherId: "123",
+        routeAfterDeletion: "/archive",
+      });
+
+      tick();
+
+      history$.mockReturnValue(
+        of([
+          { url: "/tabs/vault" },
+          { url: "/archive" },
+          { url: "/view-cipher?cipherId=123" },
+          { url: "/add-edit?cipherId=123" },
+        ]),
+      );
+
+      jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
+
+      void component.delete();
+      tick();
+
+      expect(history$).toHaveBeenCalled();
+      expect(historyGo).toHaveBeenCalledWith(-2);
+      expect(navigate).not.toHaveBeenCalled();
+    }));
+
+    it("uses router.navigate for default /tabs/vault route", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { edit: true, id: "456" } as Cipher;
+      component.routeAfterDeletion = "/tabs/vault";
+
+      queryParams$.next({
+        cipherId: "456",
       });
 
       tick();
@@ -397,7 +460,9 @@ describe("AddEditV2Component", () => {
       void component.delete();
       tick();
 
-      expect(navigate).toHaveBeenCalledWith(["/archive"]);
+      expect(history$).not.toHaveBeenCalled();
+      expect(historyGo).not.toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith(["/tabs/vault"]);
     }));
 
     it("ignores invalid routeAfterDeletion query param and uses default route", fakeAsync(() => {
