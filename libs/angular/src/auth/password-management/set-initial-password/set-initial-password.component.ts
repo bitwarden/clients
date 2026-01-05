@@ -43,6 +43,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
+  SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordTdeOffboardingCredentialsOld,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
@@ -276,7 +277,7 @@ export class SetInitialPasswordComponent implements OnInit {
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
         // Remove wrapping "if" check and early return in PM-28143
         if (passwordInputResult.newApisFlagEnabled) {
-          // ...
+          await this.setInitialPasswordTdeOffboarding(passwordInputResult);
           return;
         }
 
@@ -336,6 +337,42 @@ export class SetInitialPasswordComponent implements OnInit {
     } catch (e) {
       this.logService.error("Error setting initial password", e);
       this.validationService.showError(e);
+      this.submitting = false;
+    }
+  }
+
+  private async setInitialPasswordTdeOffboarding(passwordInputResult: PasswordInputResult) {
+    const ctx = "Could not set initial password.";
+
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
+
+    assertTruthy(this.userId, "userId", ctx);
+
+    try {
+      const credentials: SetInitialPasswordTdeOffboardingCredentials = {
+        newPassword: passwordInputResult.newPassword,
+        kdfConfig: passwordInputResult.kdfConfig,
+        salt: passwordInputResult.salt,
+        newPasswordHint: passwordInputResult.newPasswordHint,
+      };
+
+      await this.setInitialPasswordService.setInitialPasswordTdeOffboarding(
+        credentials,
+        this.userId,
+      );
+
+      this.showSuccessToastByUserType();
+
+      await this.logoutService.logout(this.userId);
+      // navigate to root so redirect guard can properly route next active user or null user to correct page
+      await this.router.navigate(["/"]);
+    } catch (e) {
+      this.logService.error("Error setting initial password during TDE offboarding", e);
+      this.validationService.showError(e);
+    } finally {
       this.submitting = false;
     }
   }
