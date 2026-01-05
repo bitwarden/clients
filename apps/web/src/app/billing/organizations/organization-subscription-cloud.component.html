@@ -42,7 +42,7 @@
                 <td bitCell class="tw-text-right">
                   <ng-container
                     *ngIf="
-                      isSecretsManagerTrial() && i.productName === 'secretsManager';
+                      isSecretsManagerTrial() && i.productName === 'passwordManager';
                       else calculateElse
                     "
                   >
@@ -55,7 +55,9 @@
                         {{ i.interval | i18n }}
                       </span>
                       <span
-                        *ngIf="customerDiscount?.percentOff"
+                        *ngIf="
+                          customerDiscount?.percentOff && discountAppliesToProduct(i.productId)
+                        "
                         class="tw-line-through !tw-text-muted"
                         >{{ i.quantity * i.originalAmount | currency: "$" }} /
                         {{ "year" | i18n }}</span

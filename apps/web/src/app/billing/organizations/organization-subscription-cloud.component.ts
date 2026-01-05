@@ -403,10 +403,14 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     const isSmStandalone = this.sub?.customerDiscount?.id === "sm-standalone";
     const appliesToProduct =
       this.sub?.subscription?.items?.some((item) =>
-        this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
+        this.discountAppliesToProduct(item.productId),
       ) ?? false;
 
     return isSmStandalone && appliesToProduct;
+  }
+
+  discountAppliesToProduct(productId: string): boolean {
+    return this.sub?.customerDiscount?.appliesTo?.includes(productId) ?? false;
   }
 
   closeChangePlan() {
