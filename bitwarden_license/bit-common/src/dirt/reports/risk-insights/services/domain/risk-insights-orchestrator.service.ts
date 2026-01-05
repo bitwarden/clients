@@ -1000,11 +1000,11 @@ export class RiskInsightsOrchestratorService {
         // Generate a new summary based on just the critical applications
         const summary = this.reportService.getApplicationsSummary(
           criticalApplications,
-          enrichedReports.applicationData,
-          enrichedReports.summaryData.totalMemberCount,
+          enrichedReports!.applicationData,
+          enrichedReports!.summaryData.totalMemberCount,
         );
         return {
-          ...enrichedReports,
+          ...enrichedReports!,
           summaryData: summary,
           reportData: criticalApplications,
         };
