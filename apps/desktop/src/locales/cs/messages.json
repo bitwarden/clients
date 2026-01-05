@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Časový limit relace"
   },
+  "resizeSideNavigation": {
+    "message": "Změnit velikost boční navigace"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Tato nastavení je spravováno Vaší organizací."
   },
