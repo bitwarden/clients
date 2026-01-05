@@ -55,25 +55,27 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Checking for existing rollback PR..."
+          echo "Checking for existing open rollback PR..."
           echo "Search query: Rollback ${_ENVIRONMENT} to v${_RELEASE_VERSION}"
           echo ""
 
-          # Search for PRs with matching title (checks both open and closed)
+          # Search for open PRs with matching title
+          # Note: Only checks open PRs to allow re-rollbacks to same version
+          # (e.g., rollback to v1.0, deploy v1.1, rollback to v1.0 again)
           EXISTING_PRS=$(gh pr list \
             --repo ${{ github.repository }} \
-            --state all \
+            --state open \
             --search "Rollback ${_ENVIRONMENT} to v${_RELEASE_VERSION}" \
             --json number,state,url \
             --jq 'length')
 
           if [ "$EXISTING_PRS" -gt 0 ]; then
-            echo "ERROR: Rollback PR already exists for ${_ENVIRONMENT} v${_RELEASE_VERSION}"
+            echo "ERROR: Open rollback PR already exists for ${_ENVIRONMENT} v${_RELEASE_VERSION}"
             echo ""
-            echo "Existing PR(s):"
+            echo "Existing open PR(s):"
             gh pr list \
               --repo ${{ github.repository }} \
-              --state all \
+              --state open \
               --search "Rollback ${_ENVIRONMENT} to v${_RELEASE_VERSION}" \
               --json number,state,url,title \
               --jq '.[] | "  PR #\(.number) (\(.state)): \(.url)"'
@@ -82,7 +84,7 @@ jobs:
             exit 1
           fi
 
-          echo "No existing rollback PR found - proceeding with rollback"
+          echo "No existing open rollback PR found - proceeding with rollback"
           echo ""
 
       - name: Trigger deploy-web workflow for rollback
