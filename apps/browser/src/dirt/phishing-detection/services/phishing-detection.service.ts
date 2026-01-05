@@ -43,6 +43,7 @@ export class PhishingDetectionService {
   private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
   private static _ignoredHostnames = new Set<string>();
   private static _didInit = false;
+  private static _boundTabHandler: ((...args: readonly unknown[]) => unknown) | null = null;
 
   static initialize(
     logService: LogService,
@@ -57,7 +58,10 @@ export class PhishingDetectionService {
 
     logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
-    BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
+    this._boundTabHandler = this._handleTabUpdated.bind(this) as (
+      ...args: readonly unknown[]
+    ) => unknown;
+    BrowserApi.addListener(chrome.tabs.onUpdated, this._boundTabHandler);
 
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
       tap((message) =>
@@ -140,13 +144,10 @@ export class PhishingDetectionService {
       initSub.unsubscribe();
       this._didInit = false;
 
-      // Manually type cast to satisfy the listener signature due to the mixture
-      // of static and instance methods in this class. To be fixed when refactoring
-      // this class to be instance-based while providing a singleton instance in usage
-      BrowserApi.removeListener(
-        chrome.tabs.onUpdated,
-        PhishingDetectionService._handleTabUpdated as (...args: readonly unknown[]) => unknown,
-      );
+      if (this._boundTabHandler) {
+        BrowserApi.removeListener(chrome.tabs.onUpdated, this._boundTabHandler);
+        this._boundTabHandler = null;
+      }
     };
   }
 
