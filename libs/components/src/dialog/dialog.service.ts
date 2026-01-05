@@ -7,7 +7,7 @@ import {
 } from "@angular/cdk/dialog";
 import { ComponentType, GlobalPositionStrategy, ScrollStrategy } from "@angular/cdk/overlay";
 import { ComponentPortal, Portal } from "@angular/cdk/portal";
-import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
+import { DestroyRef, Injectable, Injector, TemplateRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
@@ -155,6 +155,8 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
  * DialogRef that delegates functionality to the CDK implementation
  **/
 export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
+  readonly destroyRef = inject(DestroyRef);
+
   readonly isDrawer = false;
 
   /** This is not available until after construction, @see DialogService.open. */
@@ -331,7 +333,7 @@ export class DialogService {
      */
     const activeEl = document.activeElement;
 
-    setTimeout(() => {
+    const restoreFocusTimeout = setTimeout(() => {
       let restoreFocusEl = activeEl;
 
       /**
@@ -346,6 +348,10 @@ export class DialogService {
         ref.cdkDialogRefBase.config.restoreFocus = restoreFocusEl;
       }
     }, 0);
+
+    ref.closed.pipe(takeUntilDestroyed(ref.destroyRef)).subscribe(() => {
+      clearTimeout(restoreFocusTimeout);
+    });
   }
 
   /** The injector that is passed to the opened dialog */

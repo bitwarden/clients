@@ -153,9 +153,11 @@ export class DialogComponent implements AfterViewInit {
      * We are doing this manually instead of using `cdkTrapFocusAutoCapture` and `cdkFocusInitial`
      * because we need this delay behavior.
      */
-    setTimeout(() => {
+    const headerFocusTimeout = setTimeout(() => {
       this.dialogHeader().nativeElement.focus();
     }, 0);
+
+    this.destroyRef.onDestroy(() => clearTimeout(headerFocusTimeout));
   }
 
   handleEsc(event: Event) {
