@@ -15,7 +15,7 @@ import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Cart } from "../../types/cart";
-import { getLabel } from "../../types/discount";
+import { DiscountTypes, getLabel } from "../../types/discount";
 
 /**
  * A reusable UI-only component that displays a cart summary with line items.
@@ -122,11 +122,11 @@ export class CartSummaryComponent {
 
     const subtotal = this.subtotal();
     switch (discount.type) {
-      case "percent-off": {
+      case DiscountTypes.PercentOff: {
         const percentage = discount.value < 1 ? discount.value : discount.value / 100;
         return subtotal * percentage;
       }
-      case "amount-off":
+      case DiscountTypes.AmountOff:
         return discount.value;
     }
   });
