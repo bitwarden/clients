@@ -10,10 +10,9 @@ import {
 // import { ActivatedRoute, Data } from "@angular/router";
 import { ActivatedRoute } from "@angular/router";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HeaderComponent, BannerModule } from "@bitwarden/components";
-
-import { SharedModule } from "../../shared/shared.module";
 
 // interface HeaderRouteData extends Data {
 //   titleId?: string;
@@ -23,7 +22,7 @@ import { SharedModule } from "../../shared/shared.module";
   selector: "app-header",
   templateUrl: "./desktop-header.component.html",
   encapsulation: ViewEncapsulation.ShadowDom,
-  imports: [SharedModule, BannerModule, HeaderComponent],
+  imports: [JslibModule, BannerModule, HeaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopHeaderComponent {
