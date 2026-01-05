@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      pull-requests: write
+      actions: read
       id-token: write
     env:
       _RELEASE_VERSION: ${{ inputs.release_version }}
@@ -51,40 +51,40 @@ jobs:
           echo "  Jira Card:        ${_JIRA_CARD}"
           echo ""
 
-      - name: Check for existing rollback PR
+      - name: Check for in-progress rollback workflows
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Checking for existing open rollback PR..."
-          echo "Search query: Rollback ${_ENVIRONMENT} to v${_RELEASE_VERSION}"
+          echo "Checking for in-progress rollback workflows..."
+          echo "Searching for: deploy-web.yml runs deploying web-v${_RELEASE_VERSION} to ${_ENVIRONMENT}"
           echo ""
 
-          # Search for open PRs with matching title
-          # Note: Only checks open PRs to allow re-rollbacks to same version
-          # (e.g., rollback to v1.0, deploy v1.1, rollback to v1.0 again)
-          EXISTING_PRS=$(gh pr list \
+          # Check for in-progress or queued deploy-web workflows with matching parameters
+          # Note: Only checks in_progress and queued to allow re-rollbacks after completion
+          IN_PROGRESS_RUNS=$(gh run list \
             --repo ${{ github.repository }} \
-            --state open \
-            --search "Rollback ${_ENVIRONMENT} to v${_RELEASE_VERSION}" \
-            --json number,state,url \
-            --jq 'length')
+            --workflow=deploy-web.yml \
+            --status=in_progress,queued \
+            --json displayTitle,databaseId,status,url \
+            --jq "[.[] | select(.displayTitle | contains(\"${_ENVIRONMENT}\"))] | length")
 
-          if [ "$EXISTING_PRS" -gt 0 ]; then
-            echo "ERROR: Open rollback PR already exists for ${_ENVIRONMENT} v${_RELEASE_VERSION}"
+          if [ "$IN_PROGRESS_RUNS" -gt 0 ]; then
+            echo "WARNING: Found in-progress or queued deploy-web workflow(s) for ${_ENVIRONMENT}"
             echo ""
-            echo "Existing open PR(s):"
-            gh pr list \
+            echo "Existing workflow run(s):"
+            gh run list \
               --repo ${{ github.repository }} \
-              --state open \
-              --search "Rollback ${_ENVIRONMENT} to v${_RELEASE_VERSION}" \
-              --json number,state,url,title \
-              --jq '.[] | "  PR #\(.number) (\(.state)): \(.url)"'
+              --workflow=deploy-web.yml \
+              --status=in_progress,queued \
+              --json displayTitle,databaseId,status,url \
+              --jq ".[] | select(.displayTitle | contains(\"${_ENVIRONMENT}\")) | \"  Run #\(.databaseId) (\(.status)): \(.url)\""
             echo ""
-            echo "This is a duplicate. Please check the existing PR above."
+            echo "This may be a duplicate rollback or deployment."
+            echo "Please verify the existing workflow is not already deploying v${_RELEASE_VERSION}."
             exit 1
           fi
 
-          echo "No existing open rollback PR found - proceeding with rollback"
+          echo "No in-progress rollback workflows found - proceeding with rollback"
           echo ""
 
       - name: Trigger deploy-web workflow for rollback
@@ -102,6 +102,7 @@ jobs:
             core.info(`Triggering deploy-web workflow to rollback ${environment} to ${webTag}`);
 
             // Trigger deploy-web workflow with the rollback version tag
+            // Note: deploy-web.yml has built-in approval gates that will pause before deployment
             const response = await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -116,95 +117,24 @@ jobs:
             });
 
             core.info(`Deploy workflow triggered for rollback to ${webTag}`);
+            core.info(`The workflow will pause for approval before deploying`);
             core.setOutput('web_tag', webTag);
 
-      - name: Create rollback tracking PR
-        id: create_pr
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const environment = process.env._ENVIRONMENT;
-            const releaseVersion = process.env._RELEASE_VERSION;
-            const deploymentType = process.env._DEPLOYMENT_TYPE;
-            const jiraCard = process.env._JIRA_CARD;
-            const webTag = `web-v${releaseVersion}`;
+            // Get the workflow run URL (we need to wait a moment for it to be created)
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
-            const title = `Rollback ${environment} to v${releaseVersion}`;
-
-            const body = `## Rollback Request
-
-            **Environment:** ${environment}
-            **Target Version:** v${releaseVersion}
-            **Deployment Type:** ${deploymentType}
-            **Web Tag:** ${webTag}
-            ${jiraCard ? `**Jira Card:** ${jiraCard}` : ''}
-
-            ---
-
-            ## Rollback Process
-
-            This PR tracks the rollback of Web Vault to version ${releaseVersion}.
-
-            The \`deploy-web.yml\` workflow has been triggered to redeploy tag \`${webTag}\` to ${environment}.
-
-            ## Review Checklist
-
-            - [ ] Verify the deploy-web workflow completed successfully
-            - [ ] Confirm ${environment} is serving the correct version
-            - [ ] Verify application health post-rollback
-            - [ ] Update Jira card status
-
-            ## What Happens After Merge
-
-            This is a tracking PR only. The actual rollback deployment is performed by the \`deploy-web.yml\` workflow.
-            Merging this PR simply closes the rollback tracking issue.
-
-            ---
-
-            **Automated rollback PR created by delivery-automation-service**
-            `;
-
-            // Create a branch for the tracking PR
-            const branchName = `rollback/${environment.toLowerCase()}-v${releaseVersion}`.replace(/ /g, '-');
-
-            // Get the default branch ref
-            const { data: ref } = await github.rest.git.getRef({
+            const runs = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: 'heads/main'
+              workflow_id: 'deploy-web.yml',
+              per_page: 1
             });
 
-            // Create new branch
-            await github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/heads/${branchName}`,
-              sha: ref.object.sha
-            });
-
-            // Create PR
-            const { data: pr } = await github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: title,
-              body: body,
-              head: branchName,
-              base: 'main'
-            });
-
-            core.info(`Tracking PR created: ${pr.html_url}`);
-            core.setOutput('pr_number', pr.number);
-            core.setOutput('pr_url', pr.html_url);
-
-            // Add automated-rollback label
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr.number,
-              labels: ['automated-rollback']
-            });
-
-            core.info('Added automated-rollback label to PR');
+            if (runs.data.workflow_runs.length > 0) {
+              const workflowUrl = runs.data.workflow_runs[0].html_url;
+              core.setOutput('workflow_url', workflowUrl);
+              core.info(`Workflow URL: ${workflowUrl}`);
+            }
 
       - name: Azure Login
         uses: bitwarden/gh-actions/azure-login@main
@@ -227,20 +157,19 @@ jobs:
         uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0 # v2.0.0
         env:
           SLACK_WEBHOOK_URL: ${{ steps.get-kv-secrets.outputs.SLACK-WEBHOOK-BRE-ALERTS }}
-          _PR_URL: ${{ steps.create_pr.outputs.pr_url }}
-          _PR_NUMBER: ${{ steps.create_pr.outputs.pr_number }}
+          _WORKFLOW_URL: ${{ steps.trigger_deploy.outputs.workflow_url }}
           _WEB_TAG: ${{ steps.trigger_deploy.outputs.web_tag }}
         with:
           webhook-type: incoming-webhook
           payload: |
             {
-              "text": "Web Rollback Initiated",
+              "text": "Web Rollback - Approval Required",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "Web Rollback Initiated"
+                    "text": "Web Rollback - Approval Required"
                   }
                 },
                 {
@@ -268,7 +197,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "The deploy-web workflow has been triggered to redeploy version v${{ env._RELEASE_VERSION }}.\n\n<${_PR_URL}|View Tracking PR #${_PR_NUMBER}>"
+                    "text": "A rollback workflow has been triggered to redeploy version v${{ env._RELEASE_VERSION }} to ${{ env._ENVIRONMENT }}.\n\n*The deployment is paused and awaiting manual approval.*\n\n<${_WORKFLOW_URL}|View Deploy Workflow & Approve>"
                   }
                 },
                 {
@@ -276,7 +205,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": "Next steps: Monitor the deploy-web workflow and verify application health post-deployment."
+                      "text": "Action required: Review the workflow run and approve the deployment to proceed with the rollback."
                     }
                   ]
                 }
@@ -285,7 +214,7 @@ jobs:
 
       - name: Rollback initiated
         env:
-          _PR_URL: ${{ steps.create_pr.outputs.pr_url }}
+          _WORKFLOW_URL: ${{ steps.trigger_deploy.outputs.workflow_url }}
           _WEB_TAG: ${{ steps.trigger_deploy.outputs.web_tag }}
         run: |
           echo "==========================================================="
@@ -296,11 +225,12 @@ jobs:
           echo "  - Environment: ${_ENVIRONMENT}"
           echo "  - Target Version: v${_RELEASE_VERSION}"
           echo "  - Web Tag: ${_WEB_TAG}"
-          echo "  - Tracking PR: ${_PR_URL}"
+          echo "  - Deploy Workflow: ${_WORKFLOW_URL}"
           echo ""
           echo "Next steps:"
-          echo "  1. Monitor the deploy-web workflow"
-          echo "  2. Verify ${_ENVIRONMENT} is serving v${_RELEASE_VERSION}"
-          echo "  3. Confirm application health"
-          echo "  4. Update Jira card status"
+          echo "  1. Approve the deploy-web workflow run"
+          echo "  2. Monitor the deployment progress"
+          echo "  3. Verify ${_ENVIRONMENT} is serving v${_RELEASE_VERSION}"
+          echo "  4. Confirm application health"
+          echo "  5. Update Jira card status"
           echo ""
