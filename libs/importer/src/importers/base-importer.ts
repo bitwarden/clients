@@ -319,8 +319,6 @@ export abstract class BaseImporter {
     }
     if (this.isNullOrWhitespace(cipher.notes)) {
       cipher.notes = null;
-    } else {
-      cipher.notes = cipher.notes.trim();
     }
   }
 
