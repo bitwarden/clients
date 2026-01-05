@@ -4388,6 +4388,9 @@
   "sessionTimeoutHeader": {
     "message": "Oturum zaman aşımı"
   },
+  "resizeSideNavigation": {
+    "message": "Kenar menüsünü yeniden boyutlandır"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Bu ayar kuruluşunuz tarafından yönetiliyor."
   },
