@@ -64,6 +64,13 @@ export interface SetInitialPasswordTdeOffboardingCredentialsOld {
   newPasswordHint: string;
 }
 
+export interface SetInitialPasswordTdeOffboardingCredentials {
+  newPassword: string;
+  kdfConfig: KdfConfig;
+  salt: MasterPasswordSalt;
+  newPasswordHint: string;
+}
+
 /**
  * Credentials required to initialize a just-in-time (JIT) provisioned user with a master password.
  */
@@ -130,4 +137,17 @@ export abstract class SetInitialPasswordService {
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
   ): Promise<void>;
+
+  /**
+   * Sets an initial password for a user who logs in after their org offboarded from
+   * trusted device encryption and is now a master-password-encryption org:
+   * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
+   *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param userId the account `userId`
+   */
+  abstract setInitialPasswordTdeOffboarding: (
+    credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) => Promise<void>;
 }

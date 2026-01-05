@@ -20,6 +20,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
+  MasterPasswordAuthenticationData,
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
@@ -45,6 +46,7 @@ import {
   SetInitialPasswordService,
   SetInitialPasswordUserType,
   SetInitialPasswordTdeOffboardingCredentialsOld,
+  SetInitialPasswordTdeOffboardingCredentials,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
@@ -486,5 +488,53 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
       enrollmentRequest,
     );
+  }
+
+  async setInitialPasswordTdeOffboarding(
+    credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) {
+    const { newPassword, kdfConfig, salt, newPasswordHint } = credentials;
+
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} not found. Could not set password.`);
+      }
+    }
+
+    if (userId == null) {
+      throw new Error("userId not found. Could not set password.");
+    }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("userKey not found. Could not set password.");
+    }
+
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        newPassword,
+        kdfConfig,
+        salt,
+      );
+
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        newPassword,
+        kdfConfig,
+        salt,
+        userKey,
+      );
+
+    const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+      authenticationData,
+      unlockData,
+      newPasswordHint,
+    );
+
+    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
+
+    // Clear force set password reason to allow navigation back to vault.
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
 }
