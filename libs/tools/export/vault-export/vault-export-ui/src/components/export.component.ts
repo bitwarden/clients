@@ -18,7 +18,6 @@ import {
   BehaviorSubject,
   combineLatest,
   firstValueFrom,
-  from,
   map,
   merge,
   Observable,
@@ -43,8 +42,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType, EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -100,7 +97,6 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
 })
 export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   private _organizationId$ = new BehaviorSubject<OrganizationId | undefined>(undefined);
-  private createDefaultLocationFlagEnabled$: Observable<boolean>;
   private _showExcludeMyItems = false;
 
   /**
@@ -259,13 +255,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected organizationService: OrganizationService,
     private accountService: AccountService,
     private collectionService: CollectionService,
-    private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
     @Optional() private router?: Router,
   ) {}
 
   async ngOnInit() {
-    this.observeFeatureFlags();
     this.observeFormState();
     this.observePolicyStatus();
     this.observeFormSelections();
@@ -284,12 +278,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     // individual vault export
     this.initIndividual();
     this.setupPolicyBasedFormState();
-  }
-
-  private observeFeatureFlags(): void {
-    this.createDefaultLocationFlagEnabled$ = from(
-      this.configService.getFeatureFlag(FeatureFlag.CreateDefaultLocation),
-    ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
   }
 
   private observeFormState(): void {
@@ -380,32 +368,24 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * Determine value of showExcludeMyItems. Returns true when:
-   * CreateDefaultLocation feature flag is on
-   * AND organizationDataOwnershipPolicy is enabled for the selected organization
+   * organizationDataOwnershipPolicy is enabled for the selected organization
    * AND a valid OrganizationId is present (not exporting from individual vault)
    */
   private observeMyItemsExclusionCriteria(): void {
     combineLatest({
-      createDefaultLocationFlagEnabled: this.createDefaultLocationFlagEnabled$,
       organizationDataOwnershipPolicyEnabledForOrg:
         this.organizationDataOwnershipPolicyEnabledForOrg$,
       organizationId: this._organizationId$,
     })
       .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        ({
-          createDefaultLocationFlagEnabled,
-          organizationDataOwnershipPolicyEnabledForOrg,
-          organizationId,
-        }) => {
-          if (!createDefaultLocationFlagEnabled || !organizationId) {
-            this._showExcludeMyItems = false;
-            return;
-          }
+      .subscribe(({ organizationDataOwnershipPolicyEnabledForOrg, organizationId }) => {
+        if (!organizationId) {
+          this._showExcludeMyItems = false;
+          return;
+        }
 
-          this._showExcludeMyItems = organizationDataOwnershipPolicyEnabledForOrg;
-        },
-      );
+        this._showExcludeMyItems = organizationDataOwnershipPolicyEnabledForOrg;
+      });
   }
 
   // Setup validator adjustments based on format and encryption type changes

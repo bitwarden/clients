@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
@@ -97,7 +96,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.CreateDefaultLocation]: FALSE,
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
   [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
