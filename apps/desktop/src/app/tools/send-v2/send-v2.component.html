@@ -1,110 +1,64 @@
 <div id="sends" class="vault">
-  <div id="items" class="items">
+  <div class="send-items-panel tw-w-2/5">
     <div class="content">
-      <div class="list full-height" *ngIf="filteredSends && filteredSends.length">
-        <button
-          type="button"
-          *ngFor="let s of filteredSends"
-          appStopClick
-          (click)="selectSend(s.id)"
-          title="{{ 'viewItem' | i18n }}"
-          (contextmenu)="viewSendMenu(s)"
-          [ngClass]="{ active: s.id === sendId }"
-          [attr.aria-pressed]="s.id === sendId"
-          class="flex-list-item"
-        >
-          <span class="item-icon" aria-hidden="true">
-            <i class="bwi bwi-fw bwi-lg" [ngClass]="s.type == 0 ? 'bwi-file-text' : 'bwi-file'"></i>
-          </span>
-          <span class="item-content">
-            <span class="item-title">
-              {{ s.name }}
-              <span class="title-badges">
-                <ng-container *ngIf="s.disabled">
-                  <i
-                    class="bwi bwi-exclamation-triangle"
-                    appStopProp
-                    title="{{ 'disabled' | i18n }}"
-                    aria-hidden="true"
-                  ></i>
-                  <span class="sr-only">{{ "disabled" | i18n }}</span>
-                </ng-container>
-                <ng-container *ngIf="s.password">
-                  <i
-                    class="bwi bwi-key"
-                    appStopProp
-                    title="{{ 'password' | i18n }}"
-                    aria-hidden="true"
-                  ></i>
-                  <span class="sr-only">{{ "password" | i18n }}</span>
-                </ng-container>
-                <ng-container *ngIf="s.maxAccessCountReached">
-                  <i
-                    class="bwi bwi-exclamation-triangle"
-                    appStopProp
-                    title="{{ 'maxAccessCountReached' | i18n }}"
-                    aria-hidden="true"
-                  ></i>
-                  <span class="sr-only">{{ "maxAccessCountReached" | i18n }}</span>
-                </ng-container>
-                <ng-container *ngIf="s.expired">
-                  <i
-                    class="bwi bwi-clock"
-                    appStopProp
-                    title="{{ 'expired' | i18n }}"
-                    aria-hidden="true"
-                  ></i>
-                  <span class="sr-only">{{ "expired" | i18n }}</span>
-                </ng-container>
-                <ng-container *ngIf="s.pendingDelete">
-                  <i
-                    class="bwi bwi-trash"
-                    appStopProp
-                    title="{{ 'pendingDeletion' | i18n }}"
-                    aria-hidden="true"
-                  ></i>
-                  <span class="sr-only">{{ "pendingDeletion" | i18n }}</span>
-                </ng-container>
-              </span>
-            </span>
-            <span class="item-details">{{ s.deletionDate | date }}</span>
-          </span>
-        </button>
+      <!-- Header with Send title and New button -->
+      <div
+        class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-border-b tw-border-secondary-300"
+      >
+        <h1 class="tw-text-base tw-font-semibold tw-m-0">{{ "send" | i18n }}</h1>
+        @if (!disableSend()) {
+          <tools-new-send-dropdown-v2
+            [buttonType]="'primary'"
+            (addSend)="addSend($event)"
+          ></tools-new-send-dropdown-v2>
+        }
       </div>
-      <div class="no-items" *ngIf="!filteredSends || !filteredSends.length">
-        <i class="bwi bwi-spinner bwi-spin bwi-3x" *ngIf="!loaded" aria-hidden="true"></i>
-        <ng-container *ngIf="loaded">
-          <img class="no-items-image" aria-hidden="true" />
-          <p>{{ "noItemsInList" | i18n }}</p>
-        </ng-container>
-      </div>
-      <div class="footer">
-        <button
-          type="button"
-          (click)="addSend()"
-          class="block primary"
-          appA11yTitle="{{ 'addItem' | i18n }}"
+
+      <!-- Send List Component -->
+      <div class="tw-my-4 tw-px-4">
+        <tools-send-list
+          [sends]="filteredSends()"
+          [loading]="loading()"
+          [disableSend]="disableSend()"
+          [listState]="listState()"
+          [searchText]="currentSearchText()"
+          (editSend)="onEditSend($event)"
+          (copySend)="onCopySend($event)"
+          (deleteSend)="onDeleteSend($event)"
+          (removePassword)="onRemovePassword($event)"
         >
-          <i class="bwi bwi-plus bwi-lg" aria-hidden="true"></i>
-        </button>
+          <tools-new-send-dropdown-v2
+            slot="empty-button"
+            [hideIcon]="true"
+            buttonType="primary"
+            (addSend)="addSend($event)"
+          />
+        </tools-send-list>
       </div>
     </div>
   </div>
-  <app-send-add-edit
-    id="addEdit"
-    class="details"
-    *ngIf="action == 'add' || action == 'edit'"
-    [sendId]="sendId"
-    [type]="selectedSendType"
-    (onSavedSend)="savedSend($event)"
-    (onCancelled)="cancel($event)"
-    (onDeletedSend)="deletedSend($event)"
-  ></app-send-add-edit>
-  <div class="logo" *ngIf="!action">
-    <div class="content">
-      <div class="inner-content">
-        <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+
+  <!-- Edit/Add panel (right side) -->
+  @if (action() == "add" || action() == "edit") {
+    <app-send-add-edit
+      id="addEdit"
+      class="details"
+      [sendId]="sendId()"
+      [type]="selectedSendType()"
+      (onSavedSend)="savedSend($event)"
+      (onCancelled)="closeEditPanel()"
+      (onDeletedSend)="closeEditPanel()"
+    ></app-send-add-edit>
+  }
+
+  <!-- Bitwarden logo (shown when no send is selected) -->
+  @if (!action()) {
+    <div class="logo tw-w-1/2">
+      <div class="content">
+        <div class="inner-content">
+          <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+        </div>
       </div>
     </div>
-  </div>
+  }
 </div>

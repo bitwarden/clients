@@ -1,16 +1,23 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
-import { Component, OnInit, OnDestroy, ViewChild, NgZone, ChangeDetectorRef } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormsModule } from "@angular/forms";
-import { mergeMap, Subscription } from "rxjs";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { combineLatest, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,13 +25,16 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
-import { DialogService, ToastService } from "@bitwarden/components";
-import { SendListFiltersService } from "@bitwarden/send-ui";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { ButtonModule, DialogService, ToastService } from "@bitwarden/components";
+import {
+  NewSendDropdownV2Component,
+  SendItemsService,
+  SendListComponent,
+  SendListState,
+} from "@bitwarden/send-ui";
 
-import { invokeMenu, RendererMenuItem } from "../../../utils";
-import { SearchBarService } from "../../layout/search/search-bar.service";
+import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { AddEditComponent } from "../send/add-edit.component";
 
 const Action = Object.freeze({
@@ -38,224 +48,204 @@ const Action = Object.freeze({
 
 type Action = (typeof Action)[keyof typeof Action];
 
-const BroadcasterSubscriptionId = "SendV2Component";
-
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-v2",
-  imports: [CommonModule, JslibModule, FormsModule, AddEditComponent],
+  imports: [
+    JslibModule,
+    ButtonModule,
+    AddEditComponent,
+    SendListComponent,
+    NewSendDropdownV2Component,
+  ],
+  providers: [
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: DesktopPremiumUpgradePromptService,
+    },
+  ],
   templateUrl: "./send-v2.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SendV2Component extends BaseSendComponent implements OnInit, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
+export class SendV2Component {
+  protected readonly addEditComponent = viewChild(AddEditComponent);
 
-  // The ID of the currently selected Send item being viewed or edited
-  sendId: string;
+  protected readonly sendId = signal<string | null>(null);
+  protected readonly action = signal<Action>(Action.None);
+  private readonly selectedSendTypeOverride = signal<SendType | undefined>(undefined);
 
-  // Tracks the current UI state: viewing list (None), adding new Send (Add), or editing existing Send (Edit)
-  action: Action = Action.None;
+  private sendItemsService = inject(SendItemsService);
+  private policyService = inject(PolicyService);
+  private accountService = inject(AccountService);
+  private i18nService = inject(I18nService);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private environmentService = inject(EnvironmentService);
+  private logService = inject(LogService);
+  private sendApiService = inject(SendApiService);
+  private dialogService = inject(DialogService);
+  private toastService = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
 
-  // Subscription for sendViews$ cleanup
-  private sendViewsSubscription: Subscription;
+  protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
+    initialValue: [],
+  });
 
-  constructor(
-    sendService: SendService,
-    i18nService: I18nService,
-    platformUtilsService: PlatformUtilsService,
-    environmentService: EnvironmentService,
-    private broadcasterService: BroadcasterService,
-    ngZone: NgZone,
-    searchService: SearchService,
-    policyService: PolicyService,
-    private searchBarService: SearchBarService,
-    logService: LogService,
-    sendApiService: SendApiService,
-    dialogService: DialogService,
-    toastService: ToastService,
-    accountService: AccountService,
-    private cdr: ChangeDetectorRef,
-    private sendListFiltersService: SendListFiltersService,
-  ) {
-    super(
-      sendService,
-      i18nService,
-      platformUtilsService,
-      environmentService,
-      ngZone,
-      searchService,
-      policyService,
-      logService,
-      sendApiService,
-      dialogService,
-      toastService,
-      accountService,
-    );
+  protected readonly loading = toSignal(this.sendItemsService.loading$, { initialValue: true });
 
-    // Listen to search bar changes and update the Send list filter
-    this.searchBarService.searchText$.pipe(takeUntilDestroyed()).subscribe((searchText) => {
-      this.searchText = searchText;
-      this.searchTextChanged();
-    });
+  protected readonly currentSearchText = toSignal(this.sendItemsService.latestSearchText$, {
+    initialValue: "",
+  });
 
-    // Listen to filter changes from sidebar navigation
-    this.sendListFiltersService.filterForm.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((filters) => {
-        this.applySendTypeFilter(filters);
-      });
-  }
+  protected readonly disableSend = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+      ),
+    ),
+    { initialValue: false },
+  );
 
-  // Initialize the component: enable search bar, subscribe to sync events, and load Send items
-  async ngOnInit() {
-    this.searchBarService.setEnabled(true);
-    this.searchBarService.setPlaceholderText(this.i18nService.t("searchSends"));
-
-    await super.ngOnInit();
-
-    // Read current filter synchronously to avoid race condition on navigation
-    const currentFilter = this.sendListFiltersService.filterForm.value;
-    this.applySendTypeFilter(currentFilter);
-
-    // Listen for sync completion events to refresh the Send list
-    this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.ngZone.run(async () => {
-        switch (message.command) {
-          case "syncCompleted":
-            await this.load();
-            break;
+  protected readonly listState = toSignal(
+    combineLatest([
+      this.sendItemsService.emptyList$,
+      this.sendItemsService.noFilteredResults$,
+    ]).pipe(
+      map(([emptyList, noFilteredResults]): SendListState | null => {
+        if (emptyList) {
+          return SendListState.Empty;
         }
-      });
+        if (noFilteredResults) {
+          return SendListState.NoResults;
+        }
+        return null;
+      }),
+    ),
+    { initialValue: null },
+  );
+
+  constructor() {
+    // WORKAROUND: Force change detection when data updates
+    // This is needed because SendSearchComponent (shared lib) hasn't migrated to OnPush yet
+    // and doesn't trigger CD properly when search/add operations complete
+    // TODO: Remove this once SendSearchComponent migrates to OnPush (tracked in CL-764)
+    effect(() => {
+      this.filteredSends();
+      this.cdr.markForCheck();
     });
-    await this.load();
   }
 
-  // Apply send type filter to display: centralized logic for initial load and filter changes
-  private applySendTypeFilter(filters: Partial<{ sendType: SendType | null }>): void {
-    if (filters.sendType === null || filters.sendType === undefined) {
-      this.selectAll();
-    } else {
-      this.selectType(filters.sendType);
+  protected async addSend(type: SendType): Promise<void> {
+    this.action.set(Action.Add);
+    this.sendId.set(null);
+    this.selectedSendTypeOverride.set(type);
+
+    const component = this.addEditComponent();
+    if (component) {
+      await component.resetAndLoad();
     }
   }
 
-  // Clean up subscriptions and disable search bar when component is destroyed
-  ngOnDestroy() {
-    this.sendViewsSubscription?.unsubscribe();
-    this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-    this.searchBarService.setEnabled(false);
+  protected closeEditPanel(): void {
+    this.action.set(Action.None);
+    this.sendId.set(null);
+    this.selectedSendTypeOverride.set(undefined);
   }
 
-  // Load Send items from the service and display them in the list.
-  // Subscribes to sendViews$ observable to get updates when Sends change.
-  // Manually triggers change detection to ensure UI updates immediately.
-  // Note: The filter parameter is ignored in this implementation for desktop-specific behavior.
-  async load(filter: (send: SendView) => boolean = null) {
-    this.loading = true;
-
-    // Recreate subscription on each load (required for sync refresh)
-    // Manual cleanup in ngOnDestroy is intentional - load() is called multiple times
-    this.sendViewsSubscription?.unsubscribe();
-
-    this.sendViewsSubscription = this.sendService.sendViews$
-      .pipe(
-        mergeMap(async (sends) => {
-          this.sends = sends;
-          await this.search(null);
-          // Trigger change detection after data updates
-          this.cdr.detectChanges();
-        }),
-      )
-      // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-      .subscribe();
-    if (this.onSuccessfulLoad != null) {
-      await this.onSuccessfulLoad();
-    }
-    this.loading = false;
-    this.loaded = true;
+  protected async savedSend(send: SendView): Promise<void> {
+    await this.selectSend(send.id);
   }
 
-  // Open the add Send form to create a new Send item
-  async addSend() {
-    this.action = Action.Add;
-    if (this.addEditComponent != null) {
-      await this.addEditComponent.resetAndLoad();
-    }
-  }
-
-  // Close the add/edit form and return to the list view
-  cancel(s: SendView) {
-    this.action = Action.None;
-    this.sendId = null;
-  }
-
-  // Handle when a Send is deleted: refresh the list and close the edit form
-  async deletedSend(s: SendView) {
-    await this.refresh();
-    this.action = Action.None;
-    this.sendId = null;
-  }
-
-  // Handle when a Send is saved: refresh the list and re-select the saved Send
-  async savedSend(s: SendView) {
-    await this.refresh();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.selectSend(s.id);
-  }
-
-  // Select a Send from the list and open it in the edit form.
-  // If the same Send is already selected and in edit mode, do nothing to avoid unnecessary reloads.
-  async selectSend(sendId: string) {
-    if (sendId === this.sendId && this.action === Action.Edit) {
+  protected async selectSend(sendId: string): Promise<void> {
+    if (sendId === this.sendId() && this.action() === Action.Edit) {
       return;
     }
-    this.action = Action.Edit;
-    this.sendId = sendId;
-    if (this.addEditComponent != null) {
-      this.addEditComponent.sendId = sendId;
-      await this.addEditComponent.refresh();
+    this.action.set(Action.Edit);
+    this.sendId.set(sendId);
+    const component = this.addEditComponent();
+    if (component) {
+      component.sendId = sendId;
+      await component.refresh();
     }
   }
 
-  // Get the type (text or file) of the currently selected Send for the edit form
-  get selectedSendType() {
-    return this.sends.find((s) => s.id === this.sendId)?.type;
+  protected readonly selectedSendType = computed(() => {
+    const action = this.action();
+    const typeOverride = this.selectedSendTypeOverride();
+
+    if (action === Action.Add && typeOverride !== undefined) {
+      return typeOverride;
+    }
+
+    const sendId = this.sendId();
+    return this.filteredSends().find((s) => s.id === sendId)?.type;
+  });
+
+  protected async onEditSend(send: SendView): Promise<void> {
+    await this.selectSend(send.id);
   }
 
-  // Show the right-click context menu for a Send with options to copy link, remove password, or delete
-  viewSendMenu(send: SendView) {
-    const menu: RendererMenuItem[] = [];
-    menu.push({
-      label: this.i18nService.t("copyLink"),
-      click: () => this.copy(send),
+  protected async onCopySend(send: SendView): Promise<void> {
+    const env = await this.environmentService.getEnvironment();
+    const link = env.getSendUrl() + send.accessId + "/" + send.urlB64Key;
+    this.platformUtilsService.copyToClipboard(link);
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
     });
-    if (send.password && !send.disabled) {
-      menu.push({
-        label: this.i18nService.t("removePassword"),
-        click: async () => {
-          await this.removePassword(send);
-          if (this.sendId === send.id) {
-            this.sendId = null;
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.selectSend(send.id);
-          }
-        },
+  }
+
+  protected async onRemovePassword(send: SendView): Promise<void> {
+    if (this.disableSend()) {
+      return;
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "removePassword" },
+      content: { key: "removePasswordConfirmation" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await this.sendApiService.removePassword(send.id);
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("removedPassword"),
       });
+
+      if (this.sendId() === send.id) {
+        this.sendId.set(null);
+        await this.selectSend(send.id);
+      }
+    } catch (e) {
+      this.logService.error(e);
     }
-    menu.push({
-      label: this.i18nService.t("delete"),
-      click: async () => {
-        await this.delete(send);
-        await this.deletedSend(send);
-      },
+  }
+
+  protected async onDeleteSend(send: SendView): Promise<void> {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "deleteSend" },
+      content: { key: "deleteSendConfirmation" },
+      type: "warning",
     });
 
-    invokeMenu(menu);
+    if (!confirmed) {
+      return;
+    }
+
+    await this.sendApiService.delete(send.id);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("deletedSend"),
+    });
+
+    this.closeEditPanel();
   }
 }
