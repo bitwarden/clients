@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CartSummaryComponent } from "@bitwarden/pricing";
+import { CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 
 import { Cart } from "../../types/cart";
 
@@ -269,7 +269,7 @@ describe("CartSummaryComponent", () => {
       const cartWithDiscount: Cart = {
         ...mockCart,
         discount: {
-          type: "percent-off",
+          type: DiscountTypes.PercentOff,
           active: true,
           value: 20,
         },
@@ -295,7 +295,7 @@ describe("CartSummaryComponent", () => {
       const cartWithDiscount: Cart = {
         ...mockCart,
         discount: {
-          type: "amount-off",
+          type: DiscountTypes.AmountOff,
           active: true,
           value: 50.0,
         },
@@ -320,7 +320,7 @@ describe("CartSummaryComponent", () => {
       const cartWithInactiveDiscount: Cart = {
         ...mockCart,
         discount: {
-          type: "percent-off",
+          type: DiscountTypes.PercentOff,
           active: false,
           value: 20,
         },
@@ -340,7 +340,7 @@ describe("CartSummaryComponent", () => {
       const cartWithDiscount: Cart = {
         ...mockCart,
         discount: {
-          type: "percent-off",
+          type: DiscountTypes.PercentOff,
           active: true,
           value: 20,
         },

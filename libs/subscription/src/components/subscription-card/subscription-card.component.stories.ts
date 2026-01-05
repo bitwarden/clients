@@ -9,7 +9,7 @@ import {
   CardComponent,
   TypographyModule,
 } from "@bitwarden/components";
-import { CartSummaryComponent } from "@bitwarden/pricing";
+import { CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitwardenSubscription } from "../../types/bitwarden-subscription";
@@ -394,7 +394,7 @@ export const Enterprise: Story = {
           },
         },
         discount: {
-          type: "percent-off",
+          type: DiscountTypes.PercentOff,
           active: true,
           value: 0.25,
         },

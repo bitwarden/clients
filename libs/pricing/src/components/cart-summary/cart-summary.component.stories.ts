@@ -3,7 +3,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
-import { CartSummaryComponent } from "@bitwarden/pricing";
+import { CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Cart } from "../../types/cart";
@@ -307,7 +307,7 @@ export const WithPercentDiscount: Story = {
       },
       cadence: "monthly",
       discount: {
-        type: "percent-off",
+        type: DiscountTypes.PercentOff,
         active: true,
         value: 20,
       },
@@ -335,7 +335,7 @@ export const WithAmountDiscount: Story = {
       },
       cadence: "annually",
       discount: {
-        type: "amount-off",
+        type: DiscountTypes.AmountOff,
         active: true,
         value: 50.0,
       },

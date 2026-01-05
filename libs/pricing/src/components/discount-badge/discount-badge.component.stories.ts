@@ -2,7 +2,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeModule } from "@bitwarden/components";
-import { Discount, DiscountBadgeComponent } from "@bitwarden/pricing";
+import { Discount, DiscountBadgeComponent, DiscountTypes } from "@bitwarden/pricing";
 
 export default {
   title: "Billing/Discount Badge",
@@ -39,7 +39,7 @@ export const PercentDiscount: Story = {
   }),
   args: {
     discount: {
-      type: "percent-off",
+      type: DiscountTypes.PercentOff,
       active: true,
       value: 20,
     } as Discount,
@@ -53,7 +53,7 @@ export const PercentDiscountDecimal: Story = {
   }),
   args: {
     discount: {
-      type: "percent-off",
+      type: DiscountTypes.PercentOff,
       active: true,
       value: 0.15, // 15% in decimal format
     } as Discount,
@@ -67,7 +67,7 @@ export const AmountDiscount: Story = {
   }),
   args: {
     discount: {
-      type: "amount-off",
+      type: DiscountTypes.AmountOff,
       active: true,
       value: 10.99,
     } as Discount,
@@ -81,7 +81,7 @@ export const LargeAmountDiscount: Story = {
   }),
   args: {
     discount: {
-      type: "amount-off",
+      type: DiscountTypes.AmountOff,
       active: true,
       value: 99.99,
     } as Discount,
@@ -95,7 +95,7 @@ export const InactiveDiscount: Story = {
   }),
   args: {
     discount: {
-      type: "percent-off",
+      type: DiscountTypes.PercentOff,
       active: false,
       value: 20,
     } as Discount,

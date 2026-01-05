@@ -88,8 +88,10 @@ export type Cart = {
   estimatedTax: number; // Tax amount
 };
 
+import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
+
 export type Discount = {
-  type: "amount-off" | "percent-off";
+  type: DiscountType; // DiscountTypes.AmountOff | DiscountTypes.PercentOff
   active: boolean; // Whether discount is currently applied
   value: number; // Dollar amount or percentage (20 for 20%)
 };

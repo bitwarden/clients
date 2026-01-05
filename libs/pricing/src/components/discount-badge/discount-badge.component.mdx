@@ -33,9 +33,11 @@ import { DiscountBadgeComponent, Discount } from "@bitwarden/pricing";
 ### Discount Type
 
 ```ts
+import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
+
 type Discount = {
   /** The type of discount */
-  type: "amount-off" | "percent-off";
+  type: DiscountType; // DiscountTypes.AmountOff | DiscountTypes.PercentOff
   /** Whether the discount is currently active */
   active: boolean;
   /** The discount value (percentage or amount depending on type) */
