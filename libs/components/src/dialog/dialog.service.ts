@@ -243,7 +243,7 @@ export class DialogService {
 
     ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
 
-    if (!config?.restoreFocus) {
+    if (config?.restoreFocus === undefined) {
       this.setRestoreFocusEl<R, C>(ref);
     }
 
