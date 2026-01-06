@@ -81,7 +81,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     return (
       (await this.isAddLoginOrChangePasswordNotificationEnabled()) &&
       !(await this.isSenderFromExcludedDomain(sender)) &&
-      message.details?.fields?.length > 0 &&
+      (message.details?.fields?.length ?? 0) > 0 &&
       !this.websiteOriginsWithFields.has(sender.tab.id)
     );
   }
