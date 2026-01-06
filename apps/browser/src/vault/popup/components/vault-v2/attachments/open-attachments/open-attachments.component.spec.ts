@@ -11,6 +11,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -60,9 +61,10 @@ describe("OpenAttachmentsComponent", () => {
   const accountService = {
     activeAccount$: of({
       id: mockUserId,
-      email: "test@email.com",
-      emailVerified: true,
-      name: "Test User",
+      ...mockAccountInfoWith({
+        email: "test@email.com",
+        name: "Test User",
+      }),
     }),
   };
   const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");

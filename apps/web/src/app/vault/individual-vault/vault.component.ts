@@ -9,6 +9,7 @@ import {
   lastValueFrom,
   Observable,
   Subject,
+  zip,
 } from "rxjs";
 import {
   concatMap,
@@ -25,6 +26,7 @@ import {
 } from "rxjs/operators";
 
 import {
+  AutomaticUserConfirmationService,
   CollectionData,
   CollectionDetailsResponse,
   CollectionService,
@@ -54,7 +56,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -93,6 +97,8 @@ import {
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 import { UnifiedUpgradePromptService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
@@ -102,6 +108,11 @@ import {
   getNestedCollectionTree,
   getFlatCollectionTree,
 } from "../../admin-console/organizations/collections";
+import {
+  AutoConfirmPolicy,
+  AutoConfirmPolicyDialogComponent,
+  PolicyEditDialogResult,
+} from "../../admin-console/organizations/policies";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
@@ -173,6 +184,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
     DefaultCipherFormConfigService,
+    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
@@ -213,18 +225,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private destroy$ = new Subject<void>();
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
+  private autoConfirmDialogRef?: DialogRef<PolicyEditDialogResult> | undefined;
+
   protected showAddCipherBtn: boolean = false;
 
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
-
-  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => {
-      return this.cipherArchiveService.userCanArchive$(userId);
-    }),
-  );
 
   emptyState$ = combineLatest([
     this.currentSearchText$,
@@ -284,14 +291,28 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }),
   );
 
-  protected enforceOrgDataOwnershipPolicy$ = this.accountService.activeAccount$.pipe(
-    getUserId,
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  protected enforceOrgDataOwnershipPolicy$ = this.userId$.pipe(
     switchMap((userId) =>
       this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
     ),
   );
 
-  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  protected userCanArchive$ = this.userId$.pipe(
+    switchMap((userId) => {
+      return this.cipherArchiveService.userCanArchive$(userId);
+    }),
+  );
+
+  protected showSubscriptionEndedMessaging$ = this.userId$.pipe(
+    switchMap((userId) =>
+      combineLatest([
+        this.routedVaultFilterBridgeService.activeFilter$,
+        this.cipherArchiveService.showSubscriptionEndedMessaging$(userId),
+      ]).pipe(map(([activeFilter, showMessaging]) => activeFilter.isArchived && showMessaging)),
+    ),
+  );
 
   constructor(
     private syncService: SyncService,
@@ -328,6 +349,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private policyService: PolicyService,
     private unifiedUpgradePromptService: UnifiedUpgradePromptService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
+    private autoConfirmService: AutomaticUserConfirmationService,
+    private configService: ConfigService,
+    private vaultItemTransferService: VaultItemsTransferService,
   ) {}
 
   async ngOnInit() {
@@ -400,6 +424,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
           queryParamsHandling: "merge",
           replaceUrl: true,
+          state: {
+            focusMainAfterNav: false,
+          },
         }),
       );
 
@@ -425,13 +452,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       allowedCiphers$,
       filter$,
       this.currentSearchText$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$(),
+      this.cipherArchiveService.hasArchiveFlagEnabled$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, archiveEnabled]) => {
+      concatMap(async ([ciphers, filter, searchText, showArchiveVault]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter, archiveEnabled);
+        const filterFunction = createFilterFunction(filter, showArchiveVault);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
@@ -537,15 +564,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
                 await this.editCipherId(cipherId);
               }
             } else {
-              this.toastService.showToast({
-                variant: "error",
-                title: null,
-                message: this.i18nService.t("unknownCipher"),
-              });
-              await this.router.navigate([], {
-                queryParams: { itemId: null, cipherId: null },
-                queryParamsHandling: "merge",
-              });
+              await this.handleUnknownCipher();
             }
           }
         }),
@@ -629,6 +648,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         },
       );
     void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
+
+    this.setupAutoConfirm();
+
+    void this.vaultItemTransferService.enforceOrganizationDataOwnership(activeUserId);
   }
 
   ngOnDestroy() {
@@ -636,6 +659,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.destroy$.next();
     this.destroy$.complete();
     this.vaultFilterService.clearOrganizationFilter();
+  }
+
+  async navigateToGetPremium() {
+    await this.router.navigate(["/settings/subscription/premium"]);
   }
 
   async onVaultItemsEvent(event: VaultItemEvent<C>) {
@@ -697,6 +724,18 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     } finally {
       this.processingEvent = false;
     }
+  }
+
+  async handleUnknownCipher() {
+    this.toastService.showToast({
+      variant: "error",
+      title: null,
+      message: this.i18nService.t("unknownCipher"),
+    });
+    await this.router.navigate([], {
+      queryParams: { itemId: null, cipherId: null },
+      queryParamsHandling: "merge",
+    });
   }
 
   async archive(cipher: C) {
@@ -982,6 +1021,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async editCipherId(id: string, cloneMode?: boolean) {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const cipher = await this.cipherService.get(id, activeUserId);
+    if (!cipher) {
+      await this.handleUnknownCipher();
+      return;
+    }
 
     if (
       cipher &&
@@ -1019,6 +1062,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async viewCipherById(id: string) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.cipherService.get(id, activeUserId);
+    if (!cipher) {
+      await this.handleUnknownCipher();
+      return;
+    }
     // If cipher exists (cipher is null when new) and MP reprompt
     // is on for this cipher, then show password reprompt.
     if (
@@ -1546,6 +1593,72 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
     const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
     return cipherView.login?.password;
+  }
+
+  private async openAutoConfirmFeatureDialog(organization: Organization) {
+    if (this.autoConfirmDialogRef) {
+      return;
+    }
+
+    this.autoConfirmDialogRef = AutoConfirmPolicyDialogComponent.open(this.dialogService, {
+      data: {
+        policy: new AutoConfirmPolicy(),
+        organizationId: organization.id,
+        firstTimeDialog: true,
+      },
+    });
+
+    await lastValueFrom(this.autoConfirmDialogRef.closed);
+    this.autoConfirmDialogRef = undefined;
+  }
+
+  private setupAutoConfirm() {
+    // if the policy is enabled, then the user may only belong to one organization at most.
+    const organization$ = this.organizations$.pipe(map((organizations) => organizations[0]));
+
+    const featureFlag$ = this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm);
+
+    const autoConfirmState$ = this.userId$.pipe(
+      switchMap((userId) => this.autoConfirmService.configuration$(userId)),
+    );
+
+    const policyEnabled$ = combineLatest([
+      this.userId$.pipe(
+        switchMap((userId) => this.policyService.policies$(userId)),
+        map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm && p.enabled)),
+      ),
+      organization$,
+    ]).pipe(
+      map(
+        ([policy, organization]) => (policy && policy.organizationId === organization?.id) ?? false,
+      ),
+    );
+
+    zip([organization$, featureFlag$, autoConfirmState$, policyEnabled$, this.userId$])
+      .pipe(
+        first(),
+        switchMap(async ([organization, flagEnabled, autoConfirmState, policyEnabled, userId]) => {
+          const showDialog =
+            flagEnabled &&
+            !policyEnabled &&
+            autoConfirmState.showSetupDialog &&
+            !!organization &&
+            organization.canEnableAutoConfirmPolicy;
+
+          if (showDialog) {
+            await this.openAutoConfirmFeatureDialog(organization);
+
+            await this.autoConfirmService.upsert(userId, {
+              ...autoConfirmState,
+              showSetupDialog: false,
+            });
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        error: (err: unknown) => this.logService.error("Failed to update auto-confirm state", err),
+      });
   }
 }
 

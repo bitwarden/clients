@@ -565,10 +565,15 @@ export class VaultV2Component<C extends CipherViewLike>
       }
     }
 
-    if (userCanArchive && !cipher.organizationId && !cipher.isDeleted && !cipher.isArchived) {
+    if (userCanArchive && !cipher.isDeleted && !cipher.isArchived) {
       menu.push({
         label: this.i18nService.t("archiveVerb"),
         click: async () => {
+          if (!userCanArchive) {
+            await this.premiumUpgradePromptService.promptForPremium();
+            return;
+          }
+
           await this.archiveCipherUtilitiesService.archiveCipher(cipher);
           await this.refreshCurrentCipher();
         },

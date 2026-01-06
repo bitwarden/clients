@@ -3,9 +3,10 @@ import { BehaviorSubject, bufferCount, firstValueFrom, Subject, ObservedValueOf 
 
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
+import { mockAccountInfoWith } from "../../../../spec";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -34,6 +35,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
   let configService: MockProxy<ConfigService>;
+  let policyService: MockProxy<InternalPolicyService>;
 
   let activeUserAccount$: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let userAccounts$: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -127,14 +129,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
 
     authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
 
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
-      const flagValueByFlag: Partial<Record<FeatureFlag, boolean>> = {
-        [FeatureFlag.InactiveUserServerNotification]: true,
-        [FeatureFlag.PushNotificationsWhenLocked]: true,
-      };
-      return new BehaviorSubject(flagValueByFlag[flag] ?? false) as any;
-    });
+    policyService = mock<InternalPolicyService>();
 
     defaultServerNotificationsService = new DefaultServerNotificationsService(
       mock<LogService>(),
@@ -149,6 +144,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       webPushNotificationConnectionService,
       authRequestAnsweringService,
       configService,
+      policyService,
     );
   });
 
@@ -158,9 +154,10 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     } else {
       activeUserAccount$.next({
         id: userId,
-        email: "email",
-        name: "Test Name",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "email",
+          name: "Test Name",
+        }),
       });
     }
   }
@@ -169,7 +166,10 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     const currentAccounts = (userAccounts$.getValue() as Record<string, any>) ?? {};
     userAccounts$.next({
       ...currentAccounts,
-      [userId]: { email: "email", name: "Test Name", emailVerified: true },
+      [userId]: mockAccountInfoWith({
+        email: "email",
+        name: "Test Name",
+      }),
     } as any);
   }
 

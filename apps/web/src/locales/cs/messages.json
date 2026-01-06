@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Přístup k inteligenci"
   },
-  "riskInsights": {
-    "message": "Poznatky o rizicích"
-  },
   "passwordRisk": {
     "message": "Rizikové heslo"
   },
+  "noEditPermissions": {
+    "message": "Nemáte oprávnění upravit tuto položku"
+  },
   "reviewAtRiskPasswords": {
     "message": "Zkontrolujte ohrožená hesla (slabá, odhalená nebo opakovaně používaná) ve všech aplikacích. Vyberte nejkritičtější aplikace a stanovte priority bezpečnostních opatření pro uživatele, abyste se vypořádali s ohroženými hesly."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Zkontrolovat ohrožená přihlášení"
   },
   "dataLastUpdated": {
     "message": "Data naposledy aktualizována: $DATE$",
@@ -90,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Přiřadit úkoly členů ke sledování průběhu"
   },
-  "onceYouReviewApps": {
-    "message": "Jakmile zkontrolujete aplikace a označíte je jako kritické, můžete přidělit členům úkoly k řešení ohrožených položek a sledovat průběh zde"
+  "onceYouReviewApplications": {
+    "message": "Jakmile zkontrolujete aplikace a označíte je jako kritické, přiřaďte svým členům úkoly ke změně jejich hesel."
   },
   "sendReminders": {
     "message": "Odeslat připomenutí"
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "označených kritických aplikací"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ kritických aplikací",
@@ -172,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "Pro $ORG NAME$ nebyly nalezeny žádné aplikace",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Nebyla nalezena žádná data"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Importujte přihlašovací údaje Vaší organizace a začněte sledovat bezpečnostní rizika spojená s přihlašovacími údaji. Po importu získáte přístup k:"
+  "noDataInOrgDescription": {
+    "message": "Importujte přihlašovací údaje Vaší organizace a začněte s Access Intelligence. Jakmile to uděláte, budete moci:"
   },
-  "benefit1Title": {
-    "message": "Upřednostnit rizika"
+  "feature1Title": {
+    "message": "Označit aplikace jako kritické"
   },
-  "benefit1Description": {
-    "message": "Zaměřit se na aplikace, na které záleží nejvíce"
+  "feature1Description": {
+    "message": "To Vám pomůže nejprve odebrat rizika pro Vaše nejdůležitější aplikace."
   },
-  "benefit2Title": {
-    "message": "Průvodce nápravou"
+  "feature2Title": {
+    "message": "Pomoci členům zlepšit jejich zabezpečení"
   },
-  "benefit2Description": {
-    "message": "Přiřadit ohroženým členům řízené úkoly, aby střídali používání ohrožených přihlašovacích údajů"
+  "feature2Description": {
+    "message": "Přiřaďte ohroženým členům řízené bezpečnostní úkoly k aktualizaci přihlašovacích údajů."
   },
-  "benefit3Title": {
+  "feature3Title": {
     "message": "Sledovat průběh"
   },
-  "benefit3Description": {
+  "feature3Description": {
     "message": "Sleduje změny v průběhu času pro zobrazení zlepšení zabezpečení."
   },
-  "noReportRunTitle": {
-    "message": "Spustit první hlášení pro zobrazení aplikací"
+  "noReportsRunTitle": {
+    "message": "Vygenerovat přehled"
   },
-  "noReportRunDescription": {
-    "message": "Vygenerujte zprávu o rizicích, abyste mohli analyzovat aplikace Vaší organizace a identifikovat riziková hesla, která vyžadují pozornost. Spuštěním první zprávy:"
+  "noReportsRunDescription": {
+    "message": "Jste připraveni začít generovat přehledy. Jakmile je vytvoříte, budete moci:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Neoznačili jste žádné aplikace jako kritické"
@@ -235,6 +235,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikace označené jako kritické"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ aplikací označených jako kritických",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Nepodařilo se označit aplikace jako kritické"
   },
@@ -256,8 +265,14 @@
   "atRiskMembers": {
     "message": "Ohrožení členové"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Členové s přístupem k rizikovým položkám pro kritické aplikace"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Tito členové mají přístup k zranitelným položkám pro kritické aplikace."
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Členové s ohroženými hesly"
+  },
+  "membersWillReceiveSecurityTask": {
+    "message": "Členům Vaší organizace bude přiřazen úkol ke změně zranitelných hesel. Obdrželi oznámení v rámci jejich rozšíření prohlížeče Bitwarden."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ členů v ohrožení",
@@ -286,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Tito členové se přihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
+  "atRiskMemberDescription": {
+    "message": "Tito členové se přihlašují do kritických aplikací s odhalenými nebo znovu použitými hesly."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Žádní členové se nepřihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
@@ -328,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Aplikace, které vyžadují kontrolu"
   },
+  "newApplicationsCardTitle": {
+    "message": "Zkontrolovat nové aplikace"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ nových aplikací",
     "placeholders": {
@@ -343,26 +361,47 @@
   "reviewNow": {
     "message": "Zkontrolovat nyní"
   },
+  "allCaughtUp": {
+    "message": "Vše je hotovo!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Nyní nejsou k dispozici žádné nové kontroly"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Vaše organizace má položky uložené pro $COUNT$ aplikací",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Zkontrolujte aplikace pro zabezpečení položek nejkritičtějších pro bezpečnost Vaší organizace"
+  },
+  "reviewApplications": {
+    "message": "Zkontrolovat aplikace"
+  },
   "prioritizeCriticalApplications": {
     "message": "Upřednostnit kritické aplikace"
   },
-  "atRiskItems": {
-    "message": "Položky v ohrožení"
+  "selectCriticalAppsDescription": {
+    "message": "Vyberte, které aplikace jsou pro Vaši organizaci nejkritičtější. Potom budete moci přidělit členům bezpečnostní úkoly pro odebrání rizik."
+  },
+  "reviewNewApplications": {
+    "message": "Zkontrolovat nové aplikace"
+  },
+  "reviewNewAppsDescription": {
+    "message": "Zkontrolujte nové aplikace s citlivými položkami a označte ty, které chcete pečlivě sledovat jako kritické. Potom budete moci přidělit členům bezpečnostní úkoly, abyste odebrali rizika."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Klepnutím na ikonu hvězdičky označte aplikaci jako kritickou"
   },
   "markAsCriticalPlaceholder": {
     "message": "Funkce označení jako kritické bude implementována v budoucí aktualizaci"
   },
   "applicationReviewSaved": {
     "message": "Kontrola aplikace uložena"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ aplikací označeno jako kritické",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "newApplicationsReviewed": {
     "message": "Nové aplikace zkontrolovány"
@@ -834,6 +873,9 @@
   },
   "favorites": {
     "message": "Oblíbené"
+  },
+  "taskSummary": {
+    "message": "Shrnutí úkolů"
   },
   "types": {
     "message": "Typy"
@@ -1927,17 +1969,16 @@
   "encExportAccountWarningDesc": {
     "message": "Šifrovací klíče účtu jsou pro každý uživatelský účet Bitwardenu jedinečné, takže nelze importovat šifrovaný export do jiného účtu."
   },
-  "export": {
-    "message": "Exportovat"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exportovat",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Exportovat z"
-  },
-  "exportVault": {
-    "message": "Exportovat trezor"
-  },
-  "exportSecrets": {
-    "message": "Exportovat tajné klíče"
   },
   "fileFormat": {
     "message": "Formát souboru"
@@ -1950,9 +1991,6 @@
   },
   "confirmMasterPassword": {
     "message": "Potvrzení hlavního hesla"
-  },
-  "confirmFormat": {
-    "message": "Potvrdit formát"
   },
   "filePassword": {
     "message": "Heslo souboru"
@@ -2263,6 +2301,14 @@
   },
   "tools": {
     "message": "Nástroje"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importovat",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Importovat data"
@@ -2587,6 +2633,9 @@
   },
   "key": {
     "message": "Klíč"
+  },
+  "unnamedKey": {
+    "message": "Nepojmenovaný klíč"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Ověřovací kód"
@@ -3020,6 +3069,15 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiště pro přílohy."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrovaného úložiště pro přílohy.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Volby proprietálních dvoufázových přihlášení jako je YubiKey a Duo."
   },
@@ -3081,6 +3139,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Vaše předplatné Premium skončilo"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Chcete-li získat přístup k Vašemu archivu, restartujte předplatné Premium. Pokud upravíte detaily archivované položky před restartováním, bude přesunuta zpět do Vašeho trezoru."
+  },
+  "restartPremium": {
+    "message": "Restartovat Premium"
   },
   "additionalStorageGb": {
     "message": "Další úložiště (GB)"
@@ -3202,8 +3269,17 @@
   "nextCharge": {
     "message": "Další platba"
   },
+  "nextChargeHeader": {
+    "message": "Další platba"
+  },
+  "plan": {
+    "message": "Plán"
+  },
   "details": {
     "message": "Podrobnosti"
+  },
+  "discount": {
+    "message": "sleva"
   },
   "downloadLicense": {
     "message": "Stáhnout licenci"
@@ -3218,6 +3294,9 @@
     "message": "Spravovat předplatné"
   },
   "launchCloudSubscription": {
+    "message": "Spustit předplatné Cloud"
+  },
+  "launchCloudSubscriptionSentenceCase": {
     "message": "Spustit předplatné Cloud"
   },
   "storage": {
@@ -4135,6 +4214,12 @@
       }
     }
   },
+  "userAcceptedTransfer": {
+    "message": "Převod do vlastnictví organizace byl přijat."
+  },
+  "userDeclinedTransfer": {
+    "message": "Zrušeno z důvodu odmítnutí převodu do vlastnictví organizace."
+  },
   "invitedUserId": {
     "message": "Byl pozván uživatel $ID$.",
     "placeholders": {
@@ -4409,8 +4494,32 @@
   "updateBrowser": {
     "message": "Aktualizovat prohlížeč"
   },
-  "generatingYourRiskInsights": {
-    "message": "Generování poznatků o rizicích..."
+  "generatingYourAccessIntelligence": {
+    "message": "Generování Vaší přístupové inteligence..."
+  },
+  "fetchingMemberData": {
+    "message": "Načítání dat člena..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyzování zdraví hesla..."
+  },
+  "calculatingRiskScores": {
+    "message": "Výpočet skóre rizik..."
+  },
+  "generatingReportData": {
+    "message": "Generování dat hlášení..."
+  },
+  "savingReport": {
+    "message": "Ukládání hlášení..."
+  },
+  "compilingInsights": {
+    "message": "Sestavování přehledů..."
+  },
+  "loadingProgress": {
+    "message": "Průběh načítání"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Může to trvat několik minut."
   },
   "riskInsightsRunReport": {
     "message": "Spustit hlášení"
@@ -4532,6 +4641,24 @@
   },
   "learnMore": {
     "message": "Dozvědět se více"
+  },
+  "migrationsFailed": {
+    "message": "Došlo k chybě při aktualizaci nastavení šifrování."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aktualizovat nastavení šifrování"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Pro pokračování potvrďte svou identitu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Zadejte své hlavní heslo"
+  },
+  "updateSettings": {
+    "message": "Aktualizovat nastavení"
   },
   "deleteRecoverDesc": {
     "message": "Zadejte svou e-mailovou adresu níže pro obnovení a smazání účtu."
@@ -5058,8 +5185,20 @@
     "message": "Opravit",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Opravit šifrování"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Tento soubor používá zastaralou šifrovací metodu."
+  },
+  "attachmentUpdated": {
+    "message": "Příloha byla aktualizována"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Ve Vašem trezoru jsou staré přílohy vyžadující opravu před změnou šifrovacího klíče k Vašemu účtu."
+  },
+  "itemsTransferred": {
+    "message": "Převedené položky"
   },
   "yourAccountsFingerprint": {
     "message": "Fráze otisku prstu Vašeho účtu",
@@ -5734,9 +5873,9 @@
     "message": "Vyžaduje, aby byly všechny položky vlastněny organizací s odebráním volby ukládat položky na úrovni účtu.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
+  "organizationDataOwnershipDescContent": {
     "message": "Všechny položky budou vlastněny a uloženy v organizaci, což umožní organizaci ovládání, viditelnost a hlášení. Pokud je zapnuto, bude k dispozici výchozí sbírka pro každého člena pro ukládání položek. Další informace o správě ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "životního cyklu pověření",
@@ -5774,16 +5913,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Jak zapnout automatické potvrzení uživatele"
   },
-  "autoConfirmStep1": {
-    "message": "Otevřete rozšíření Bitwarden."
+  "autoConfirmExtension1": {
+    "message": "Otevřít rozšíření Bitwarden"
   },
-  "autoConfirmStep2a": {
-    "message": "Vyberte",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension2": {
+    "message": "Vybrat",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Zapnout.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Zapnout",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Rozšíření prohlížeče Bitwarden bylo úspěšně otevřeno. Nyní můžete aktivovat automatické potvrzení uživatele."
@@ -5805,8 +5944,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Vyžadují se jednotné zásady organizace. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Kdokoli, kdo je členem více než jedné organizace, bude mít přístup odvolán do té doby, než opustí ostatní organizace."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Pro aktivaci této automatizace musí všichni členové patřit pouze do této organizace."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Jednotné zásady organizace se budou vztahovat na všechny role. "
@@ -5871,6 +6010,19 @@
   "disableHideEmail": {
     "message": "Při vytváření nebo úpravách Send vždy zobrazí e-mailovou adresu člena s příjemci.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Výchozí zjišťování shody URI"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Určete, kdy jsou přihlášení navržena pro automatické vyplňování. Administrátoři a vlastníci jsou od těchto zásad osvobozeni."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Výchozí zjišťování shody URI"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Vyberte platnou volbu detekce shody URI.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Byly změněny zásady $ID$.",
@@ -6329,6 +6481,32 @@
   "bulkReinviteMessage": {
     "message": "Znovu úspěšně pozváno"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ uživatelů bylo znovu pozváno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ z $SELECTEDCOUNT$ uživatelů bylo znovu pozváno. $EXCLUDEDCOUNT$ nebylo pozváno z důvodu limitu pozvánky: $LIMIT$.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Úspěšně odebráno"
   },
@@ -6525,11 +6703,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Vaše hlavní heslo nesplňuje jednu nebo více zásad Vaší organizace. Pro přístup k trezoru musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
   },
-  "automaticAppLogin": {
-    "message": "Automaticky přihlásit uživatele pro povolené aplikace"
+  "automaticAppLoginWithSSO": {
+    "message": "Automatické přihlášení pomocí SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Přihlašovací formuláře budou automaticky vyplněny a odeslány pro aplikace spuštěné od Vašeho nakonfigurovaného poskytovatele identity."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Rozšiřte zabezpečení a pohodlí SSO i na nespravované aplikace. Když uživatelé spustí aplikaci od Vašeho poskytovatele identit, jejich přihlašovací údaje se automaticky vyplní a odešlou, čímž se vytvoří bezpečný tok od poskytovatele identit k aplikaci jedním klepnutím."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Hostitel poskytovatele identity"
@@ -6649,8 +6827,8 @@
   "vaultTimeoutRangeError": {
     "message": "Časový limit trezoru není v rámci povoleného rozsahu."
   },
-  "disablePersonalVaultExport": {
-    "message": "Odebrat osobní export trezoru"
+  "disableExport": {
+    "message": "Odebrat export"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Nedovolí, aby členové exportovali svá osobní data trezoru."
@@ -6970,9 +7148,6 @@
   "invalidVerificationCode": {
     "message": "Neplatný ověřovací kód"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Hlavní heslo již není vyžadováno pro členy následující organizace. Potvrďte níže uvedenou doménu u správce Vaší organizace."
-  },
   "keyConnectorDomain": {
     "message": "Doména Key Connectoru"
   },
@@ -7030,7 +7205,7 @@
   "enabledSso": {
     "message": "SSO je zapnuto"
   },
-  "disabledSso": {
+  "ssoTurnedOff": {
     "message": "SSO je vypnuto"
   },
   "emailMustLoginWithSso": {
@@ -7128,6 +7303,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Musíte přidat buď základní adresu URL serveru nebo alespoň jedno vlastní prostředí."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL adresy musí používat HTTPS."
   },
   "apiUrl": {
     "message": "URL API serveru"
@@ -7300,6 +7478,9 @@
   },
   "accessDenied": {
     "message": "Přístup byl odepřen. Nemáte oprávnění k zobrazení této stránky."
+  },
+  "noPageAccess": {
+    "message": "Nemáte přístup k této stránce"
   },
   "masterPassword": {
     "message": "Hlavní heslo"
@@ -8588,9 +8769,6 @@
   "server": {
     "message": "Server"
   },
-  "exportData": {
-    "message": "Exportovat data"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exportování tajných dat organizace"
   },
@@ -9318,6 +9496,9 @@
   "ssoLoginIsRequired": {
     "message": "Přihlášení SSO je povinné"
   },
+  "emailRequiredForSsoLogin": {
+    "message": "Pro SSO je vyžadován e-mail"
+  },
   "selectedRegionFlag": {
     "message": "Vlajka zvoleného regionu"
   },
@@ -9475,9 +9656,6 @@
   },
   "loggedInExclamation": {
     "message": "Přihlášeno!"
-  },
-  "beta": {
-    "message": "Beta"
   },
   "assignCollectionAccess": {
     "message": "Přiřadit přístup ke sbírce"
@@ -9729,6 +9907,14 @@
     "message": "Příliš drahé",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Přepínání na bezplatný tarif",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Přepínání na bezplatnou organizaci",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Zdarma na 1 rok"
   },
@@ -9758,6 +9944,9 @@
   },
   "assignTasks": {
     "message": "Přiřadit úkoly"
+  },
+  "assignSecurityTasksToMembers": {
+    "message": "Odeslat oznámení pro změnu hesla"
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
@@ -11245,14 +11434,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Rozšíření Bitwarden pro prohlížeč bylo úspěšně otevřeno. Nyní můžete zkontrolovat Vaše ohrožená hesla."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Měli jsme potíže s otevřením rozšíření Bitwarden pro pohlížeč. Klepněte na ikonu Bitwarden",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "na panelu nástrojů.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Vaše předplatné se brzy obnoví. Chcete-li zajistit nepřerušenou službu, kontaktujte $RESELLER$ pro potvrzení obnovení před $RENEWAL_DATE$.",
     "placeholders": {
@@ -11428,6 +11609,9 @@
   "unArchive": {
     "message": "Odebrat z archivu"
   },
+  "unArchiveAndSave": {
+    "message": "Odebrat z archivu a uložit"
+  },
   "itemsInArchive": {
     "message": "Položky v archivu"
   },
@@ -11573,11 +11757,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Rozšíření Bitwarden nainstalováno!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Otevřít rozšíření Bitwarden"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "Rozšíření Bitwarden je nainstalováno! Otevřete rozšíření pro přihlášení a začněte používat automatické vyplňování."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Rozšíření Bitwarden je nainstalováno!"
   },
   "openExtensionToAutofill": {
     "message": "Otevřete rozšíření pro příhlášení a spuštění automatického vyplňování."
@@ -11592,6 +11773,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Centrum výuky",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Pokud není rozšíření otevřeno, možná budete muset otevřít Bitwarden z ikony ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " na panelu nástrojů.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Centrum nápovědy",
@@ -11826,8 +12015,8 @@
   "familiesMembership": {
     "message": "Členství v rodinách"
   },
-  "planDescPremium": {
-    "message": "Dokončit online zabezpečení"
+  "advancedOnlineSecurity": {
+    "message": "Pokročilé zabezpečení online"
   },
   "planDescFamiliesV2": {
     "message": "Prémiové zabezpečení pro Vaši rodinu"
@@ -11994,9 +12183,6 @@
   "updateYourEncryptionSettings": {
     "message": "Aktualizujte nastavení šifrování"
   },
-  "updateSettings": {
-    "message": "Aktualizovat nastavení"
-  },
   "algorithm": {
     "message": "Algoritmus"
   },
@@ -12023,5 +12209,281 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Zahájit bezplatnou zkušební verzi pro rodiny"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Blokovat vytvoření účtu pro nárokované domény"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Zabrání uživatelům ve vytváření účtů mimo Vaši organizaci pomocí e-mailových adres z nárokovaných domén."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Před aktivací této zásady musí být nárokována doména."
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Nastavte metodu odemknutí, abyste změnili časový limit Vašeho trezoru."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Na volby časového limitu byly uplatněny požadavky podnikových zásad"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Časový limit Vašeho trezoru překračuje omezení stanovená Vaší organizací."
+  },
+  "neverLockWarning": {
+    "message": "Opravdu chcete použít volbu \"Nikdy\"? Nastavením volby uzamčení na \"Nikdy\" bude šifrovací klíč k trezoru uložen přímo ve Vašem zařízení. Pokud tuto možnost použijete, měli byste Vaše zařízení řádně zabezpečit a chránit."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Akce vypršení časového limitu"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Časový limit relace"
+  },
+  "appearance": {
+    "message": "Vzhled"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Časový limit překračuje omezení stanovené Vaší organizací: maximálně $HOURS$ hodin a $MINUTES$ minut",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Vaše organizace již k přihlášení do Bitwardenu nepoužívá hlavní hesla. Chcete-li pokračovat, ověřte organizaci a doménu."
+  },
+  "continueWithLogIn": {
+    "message": "Pokračovat s přihlášením"
+  },
+  "doNotContinue": {
+    "message": "Nepokračovat"
+  },
+  "domain": {
+    "message": "Doména"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Tato doména uloží šifrovací klíče Vašeho účtu, takže se ujistěte, že jí věříte. Pokud si nejste jisti, kontaktujte Vašeho správce."
+  },
+  "verifyYourOrganization": {
+    "message": "Ověřte svou organizaci pro přihlášení"
+  },
+  "organizationVerified": {
+    "message": "Organizace byla ověřena"
+  },
+  "domainVerified": {
+    "message": "Doména byla ověřena"
+  },
+  "leaveOrganizationContent": {
+    "message": "Pokud neověříte svou organizaci, Váš přístup k organizaci bude zrušen."
+  },
+  "leaveNow": {
+    "message": "Opustit hned"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Ověřte svou doménu pro přihlášení"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Chcete-li pokračovat v přihlášení, ověřte tuto doménu."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Chcete-li pokračovat v přihlášení, ověřte organizaci a doménu."
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Nejsou vybrány žádné kritické aplikace"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Opravdu chcete pokračovat?"
+  },
+  "userVerificationFailed": {
+    "message": "Ověření uživatele se nezdařilo."
+  },
+  "resizeSideNavigation": {
+    "message": "Změnit velikost boční navigace"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Smazat neobnovitelné položky trezoru"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Některé z Vašich trezorů nelze obnovit. Chcete smazat tyto neobnovitelné položky z Vašeho trezoru?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Smazat neobnovitelné složky"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Některé z Vašich složek nelze obnovit. Chcete smazat tyto neobnovitelné složky z Vašeho trezoru?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Nahradit šifrovací klíč"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Nelze obnovit Váš pár šifrovacích klíčů veřejného klíče. Chcete nahradit Váš šifrovací klíč novým párem klíčů? To bude vyžadovat, abyste znovu nastavili stávající nouzový přístup a členství v organizaci."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Synchronizování dat"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Ověřování integrity šifrovacího klíče"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Ověřování informací o uživateli"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Ověřování integrity položky trezoru"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Ověřování integrity složky"
+  },
+  "dataRecoveryTitle": {
+    "message": "Obnova dat a diagnostika"
+  },
+  "dataRecoveryDescription": {
+    "message": "Použijte nástroj pro obnovení dat k diagnostice a opravě problémů s Vaším účtem. Po spuštění diagnostiky máte možnost uložit diagnostické protokoly pro podporu a možnost opravit všechny zjištěné problémy."
+  },
+  "runDiagnostics": {
+    "message": "Spustit diagnostiku"
+  },
+  "repairIssues": {
+    "message": "Problémy s opravou"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Uložit diagnostické protokoly"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Tato nastavení je spravováno Vaší organizací."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Vaše organizace nastavila maximální časový limit relace na $HOURS$ hodin a $MINUTES$ minut.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Vaše organizace nastavila výchozí časový limit relace na Při obnovení prohlížeče."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximální časový limit nesmí překročit $HOURS$ hodin a $MINUTES$ minut",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Při obnovení prohlížeče"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Nastavte metodu odemknutí, abyste změnili akci při vypršení časového limitu"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Opravdu chcete odejít?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Odmítnutím zůstanou Vaše osobní položky ve Vašem účtu, ale ztratíte přístup ke sdíleným položkám a funkcím organizace."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Obraťte se na svého správce, abyste znovu získali přístup."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Opustit $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Jak mohu spravovat svůj trezor?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Přenést položky do $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ vyžaduje, aby byly všechny položky vlastněny organizací z důvodu bezpečnosti a shody. Klepnutím na tlačítko pro převod vlastnictví Vašich položek.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Přijmout převod"
+  },
+  "declineAndLeave": {
+    "message": "Odmítnout a opustit"
+  },
+  "whyAmISeeingThis": {
+    "message": "Proč se mi toto zobrazuje?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Máte Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Zobrazit a spravovat předplatné Premium"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Budete muset aktualizovat svůj licenční soubor"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Nahrát licenční soubor"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Nahrajte Váš licenční soubor"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Nahrajte Váš licenční soubor Premium"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Název Vašeho licenčního souboru bude podobný názvu $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Již máte předplatné?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Otevřete stránku s předplatným na Vašem účtu Bitwarden a stáhněte si licenční soubor. Poté se vraťte na tuto obrazovku a nahrajte jej níže."
+  },
+  "viewAllPlans": {
+    "message": "Zobraz všechny plány"
+  },
+  "planDescPremium": {
+    "message": "Dokončit online zabezpečení"
   }
 }

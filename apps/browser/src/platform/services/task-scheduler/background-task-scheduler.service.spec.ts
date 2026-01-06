@@ -33,6 +33,7 @@ function createInternalPortSpyMock(name: string) {
     disconnect: jest.fn(),
     sender: {
       url: chrome.runtime.getURL(""),
+      origin: chrome.runtime.getURL(""),
     },
   });
 }

@@ -34,7 +34,8 @@ import { SideNavService } from "./side-nav.service";
   imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
 })
 export class NavGroupComponent extends NavBaseComponent {
-  readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: true });
+  // Query direct children for hideIfEmpty functionality
+  readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: false });
 
   readonly sideNavOpen = toSignal(this.sideNavService.open$);
 
@@ -45,6 +46,18 @@ export class NavGroupComponent extends NavBaseComponent {
   /** When the side nav is open, the parent nav item should not show active styles when open. */
   readonly parentHideActiveStyles = computed(() => {
     return this.hideActiveStyles() || this.sideNavAndGroupOpen();
+  });
+
+  /**
+   * Determines the appropriate icon for the toggle button based on variant and open state.
+   * - Tree variant: Always uses 'bwi-up-solid'
+   * - Default variant: Uses 'bwi-angle-up' when open, 'bwi-angle-down' when closed
+   */
+  readonly toggleButtonIcon = computed(() => {
+    if (this.variant() === "tree") {
+      return "bwi-up-solid";
+    }
+    return this.open() ? "bwi-angle-up" : "bwi-angle-down";
   });
 
   /**
@@ -79,6 +92,12 @@ export class NavGroupComponent extends NavBaseComponent {
    */
   readonly hideIfEmpty = input(false, { transform: booleanAttribute });
 
+  /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
+  readonly forceActiveStyles = input(false, { transform: booleanAttribute });
+
+  /** Does not toggle the expanded state on click */
+  readonly disableToggleOnClick = input(false, { transform: booleanAttribute });
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
@@ -89,14 +108,20 @@ export class NavGroupComponent extends NavBaseComponent {
     @Optional() @SkipSelf() private parentNavGroup: NavGroupComponent,
   ) {
     super();
+
+    // Set tree depth based on parent's depth
+    // Both NavGroups and NavItems use constructor-based depth initialization
+    if (this.parentNavGroup) {
+      this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);
+    }
   }
 
   setOpen(isOpen: boolean) {
     this.open.set(isOpen);
     this.openChange.emit(this.open());
-    // FIXME: Remove when updating file. Eslint update
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    this.open() && this.parentNavGroup?.setOpen(this.open());
+    if (this.open()) {
+      this.parentNavGroup?.setOpen(this.open());
+    }
   }
 
   protected toggle(event?: MouseEvent) {
@@ -110,7 +135,7 @@ export class NavGroupComponent extends NavBaseComponent {
         this.sideNavService.setOpen();
       }
       this.open.set(true);
-    } else {
+    } else if (!this.disableToggleOnClick()) {
       this.toggle();
     }
     this.mainContentClicked.emit();

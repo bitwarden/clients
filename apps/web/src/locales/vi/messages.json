@@ -17,14 +17,17 @@
   "accessIntelligence": {
     "message": "Trí tuệ truy cập"
   },
-  "riskInsights": {
-    "message": "Thấu hiểu về rủi ro"
-  },
   "passwordRisk": {
     "message": "Mật khẩu rủi ro"
   },
+  "noEditPermissions": {
+    "message": "Bạn không có quyền chỉnh sửa mục này"
+  },
   "reviewAtRiskPasswords": {
     "message": "Kiểm tra các mật khẩu có rủi ro (yếu, bị lộ hoặc được sử dụng lại) trên các ứng dụng. Chọn các ứng dụng quan trọng nhất của bạn để ưu tiên các biện pháp bảo mật cho người dùng nhằm giải quyết các mật khẩu có rủi ro."
+  },
+  "reviewAtRiskLoginsPrompt": {
+    "message": "Xem lại các đăng nhập có rủi ro"
   },
   "dataLastUpdated": {
     "message": "Dữ liệu được cập nhật lần cuối: $DATE$",
@@ -90,8 +93,8 @@
   "assignMembersTasksToMonitorProgress": {
     "message": "Giao tác vụ cho thành viên để theo dõi tiến trình"
   },
-  "onceYouReviewApps": {
-    "message": "Sau khi bạn xem xét các ứng dụng và đánh dấu chúng là nghiêm trọng, bạn có thể giao nhiệm vụ cho các thành viên để xử lý các mục có rủi ro và theo dõi tiến độ tại đây"
+  "onceYouReviewApplications": {
+    "message": "Khi bạn xem xét các ứng dụng và đánh dấu chúng là quan trọng, hãy giao nhiệm vụ cho các thành viên của bạn thay đổi mật khẩu."
   },
   "sendReminders": {
     "message": "Gửi lời nhắc"
@@ -126,6 +129,9 @@
         "example": "3"
       }
     }
+  },
+  "criticalApplicationsMarked": {
+    "message": "ứng dụng quan trọng đã được đánh dấu"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ ứng dụng quan trọng",
@@ -172,41 +178,35 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "Không tìm thấy dữ liệu"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  "noDataInOrgDescription": {
+    "message": "Nhập dữ liệu đăng nhập của tổ chức bạn để bắt đầu với Access Intelligence. Khi thực hiện xong, bạn sẽ có thể:"
   },
-  "benefit1Title": {
-    "message": "Prioritize risks"
+  "feature1Title": {
+    "message": "Đánh dấu ứng dụng là quan trọng"
   },
-  "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+  "feature1Description": {
+    "message": "Điều này sẽ giúp bạn loại bỏ rủi ro đối với các ứng dụng quan trọng nhất trước tiên."
   },
-  "benefit2Title": {
-    "message": "Guide remediation"
+  "feature2Title": {
+    "message": "Giúp thành viên cải thiện bảo mật"
   },
-  "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  "feature2Description": {
+    "message": "Giao các nhiệm vụ bảo mật có hướng dẫn cho các thành viên có rủi ro để cập nhật thông tin xác thực."
   },
-  "benefit3Title": {
-    "message": "Monitor progress"
+  "feature3Title": {
+    "message": "Theo dõi tiến độ"
   },
-  "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+  "feature3Description": {
+    "message": "Theo dõi các thay đổi theo thời gian để hiển thị những cải tiến bảo mật."
   },
-  "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+  "noReportsRunTitle": {
+    "message": "Tạo báo cáo"
   },
-  "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+  "noReportsRunDescription": {
+    "message": "Bạn đã sẵn sàng để bắt đầu tạo báo cáo. Một khi bạn tạo, bạn sẽ có thể:"
   },
   "noCriticalApplicationsTitle": {
     "message": "Bạn chưa đánh dấu ứng dụng nào là quan trọng"
@@ -235,6 +235,15 @@
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Các ứng dụng được đánh dấu là quan trọng"
   },
+  "criticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ ứng dụng được đánh dấu là quan trọng",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Không thể đánh dấu các ứng dụng là quan trọng"
   },
@@ -256,8 +265,14 @@
   "atRiskMembers": {
     "message": "Các thành viên có rủi ro"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Thành viên có quyền truy cập vào các mục có nguy cơ dành cho các ứng dụng quan trọng"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "Các thành viên này có quyền truy cập vào các mục dễ bị tổn thương cho các ứng dụng quan trọng."
+  },
+  "membersWithAtRiskPasswords": {
+    "message": "Thành viên có mật khẩu rủi ro"
+  },
+  "membersWillReceiveSecurityTask": {
+    "message": "Các thành viên trong tổ chức của bạn sẽ được giao nhiệm vụ thay đổi mật khẩu dễ bị tổn thương. Họ sẽ nhận được thông báo trong tiện ích mở rộng trình duyệt Bitwarden của họ."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ thành viên gặp rủi ro",
@@ -286,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "Các thành viên này đang đăng nhập vào các ứng dụng bằng mật khẩu yếu, dễ bị lộ hoặc được sử dụng lại."
+  "atRiskMemberDescription": {
+    "message": "Các thành viên này đang đăng nhập vào các ứng dụng quan trọng bằng mật khẩu yếu, bị lộ hoặc được sử dụng lại."
   },
   "atRiskMembersDescriptionNone": {
     "message": "Không có thành viên nào đăng nhập vào ứng dụng bằng mật khẩu yếu, dễ bị lộ hoặc được sử dụng lại."
@@ -328,6 +343,9 @@
   "applicationsNeedingReview": {
     "message": "Ứng dụng cần xem lại"
   },
+  "newApplicationsCardTitle": {
+    "message": "Xem xét các ứng dụng mới"
+  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ ứng dụng mới",
     "placeholders": {
@@ -343,35 +361,56 @@
   "reviewNow": {
     "message": "Đánh giá ngay"
   },
+  "allCaughtUp": {
+    "message": "Tất cả đã hoàn tất!"
+  },
+  "noNewApplicationsToReviewAtThisTime": {
+    "message": "Hiện tại không có ứng dụng mới nào để đánh giá"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Tổ chức của bạn có các mục được lưu cho $COUNT$ ứng dụng",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Xem xét các ứng dụng để bảo mật các mục quan trọng nhất đối với an ninh của tổ chức bạn"
+  },
+  "reviewApplications": {
+    "message": "Xem xét ứng dụng"
+  },
   "prioritizeCriticalApplications": {
     "message": "Ưu tiên các ứng dụng quan trọng"
   },
-  "atRiskItems": {
-    "message": "Các mục có nguy cơ"
+  "selectCriticalAppsDescription": {
+    "message": "Chọn những ứng dụng nào là quan trọng nhất đối với tổ chức của bạn. Sau đó, bạn sẽ có thể giao các nhiệm vụ bảo mật cho các thành viên để loại bỏ rủi ro."
+  },
+  "reviewNewApplications": {
+    "message": "Xem xét các ứng dụng mới"
+  },
+  "reviewNewAppsDescription": {
+    "message": "Xem xét các ứng dụng mới có các mục dễ bị tổn thương và đánh dấu những ứng dụng bạn muốn giám sát chặt chẽ là quan trọng. Sau đó, bạn sẽ có thể giao các nhiệm vụ bảo mật cho các thành viên để loại bỏ rủi ro."
+  },
+  "clickIconToMarkAppAsCritical": {
+    "message": "Nhấp vào biểu tượng ngôi sao để đánh dấu một ứng dụng là quan trọng"
   },
   "markAsCriticalPlaceholder": {
     "message": "Chức năng đánh dấu là quan trọng sẽ được triển khai trong bản cập nhật sau"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
-  },
-  "applicationsMarkedAsCritical": {
-    "message": "$COUNT$ applications marked as critical",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+    "message": "Đã lưu đánh giá ứng dụng"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "Các ứng dụng mới đã được đánh giá"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "Lỗi lưu trạng thái đánh giá"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "Vui lòng thử lại"
   },
   "unmarkAsCritical": {
     "message": "Bỏ đánh dấu là nghiêm trọng"
@@ -834,6 +873,9 @@
   },
   "favorites": {
     "message": "Yêu thích"
+  },
+  "taskSummary": {
+    "message": "Tóm tắt nhiệm vụ"
   },
   "types": {
     "message": "Loại"
@@ -1360,7 +1402,7 @@
     "message": "Dùng đăng nhập một lần"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Tổ chức của bạn yêu cầu đăng nhập một lần."
   },
   "welcomeBack": {
     "message": "Chào mừng bạn trở lại"
@@ -1927,17 +1969,16 @@
   "encExportAccountWarningDesc": {
     "message": "Khóa mã hóa tài khoản là duy nhất cho mỗi tài khoản Bitwarden, vì vậy bạn không thể nhập tệp xuất được mã hóa vào một tài khoản khác."
   },
-  "export": {
-    "message": "Xuất"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Xuất từ"
-  },
-  "exportVault": {
-    "message": "Xuất kho"
-  },
-  "exportSecrets": {
-    "message": "Xuất bí mật"
   },
   "fileFormat": {
     "message": "Định dạng tập tin"
@@ -1950,9 +1991,6 @@
   },
   "confirmMasterPassword": {
     "message": "Nhập lại mật khẩu chính"
-  },
-  "confirmFormat": {
-    "message": "Xác nhận định dạng"
   },
   "filePassword": {
     "message": "Mật khẩu tập tin"
@@ -2263,6 +2301,14 @@
   },
   "tools": {
     "message": "Công cụ"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Nhập dữ liệu"
@@ -2587,6 +2633,9 @@
   },
   "key": {
     "message": "Khóa"
+  },
+  "unnamedKey": {
+    "message": "Unnamed key"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Mã xác minh"
@@ -3020,6 +3069,15 @@
   "premiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Các tùy chọn xác minh hai bước như YubiKey và Duo."
   },
@@ -3081,6 +3139,15 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Gói đăng ký Cao cấp của bạn đã kết thúc"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Để lấy lại quyền truy cập vào lưu trữ của bạn, hãy khởi động lại gói đăng ký Cao cấp. Nếu bạn chỉnh sửa chi tiết cho một mục đã lưu trữ trước khi khởi động lại, mục đó sẽ được chuyển trở lại kho của bạn."
+  },
+  "restartPremium": {
+    "message": "Khởi động lại gói Cao cấp"
   },
   "additionalStorageGb": {
     "message": "Dung lượng lưu trữ bổ sung (GB)"
@@ -3202,8 +3269,17 @@
   "nextCharge": {
     "message": "Lần thanh toán tiếp theo"
   },
+  "nextChargeHeader": {
+    "message": "Lần thanh toán tiếp theo"
+  },
+  "plan": {
+    "message": "Gói"
+  },
   "details": {
     "message": "Chi tiết"
+  },
+  "discount": {
+    "message": "giảm giá"
   },
   "downloadLicense": {
     "message": "Tải về tệp giấy phép"
@@ -3219,6 +3295,9 @@
   },
   "launchCloudSubscription": {
     "message": "Bắt đầu đăng ký Đám Mây"
+  },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Launch cloud subscription"
   },
   "storage": {
     "message": "Lưu trữ"
@@ -4135,6 +4214,12 @@
       }
     }
   },
+  "userAcceptedTransfer": {
+    "message": "Accepted transfer to organization ownership."
+  },
+  "userDeclinedTransfer": {
+    "message": "Revoked for declining transfer to organization ownership."
+  },
   "invitedUserId": {
     "message": "Đã mời người dùng $ID$.",
     "placeholders": {
@@ -4409,8 +4494,32 @@
   "updateBrowser": {
     "message": "Cập nhật trình duyệt"
   },
-  "generatingYourRiskInsights": {
-    "message": "Đang tạo báo cáo phân tích rủi ro của bạn..."
+  "generatingYourAccessIntelligence": {
+    "message": "Đang tạo Access Intelligence của bạn..."
+  },
+  "fetchingMemberData": {
+    "message": "Đang lấy dữ liệu thành viên..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Đang phân tích độ mạnh mật khẩu..."
+  },
+  "calculatingRiskScores": {
+    "message": "Đang tính điểm rủi ro..."
+  },
+  "generatingReportData": {
+    "message": "Đang tạo dữ liệu báo cáo..."
+  },
+  "savingReport": {
+    "message": "Đang lưu báo cáo..."
+  },
+  "compilingInsights": {
+    "message": "Đang biên soạn thông tin chi tiết..."
+  },
+  "loadingProgress": {
+    "message": "Đang tải tiến trình"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "Quá trình này có thể mất vài phút."
   },
   "riskInsightsRunReport": {
     "message": "Chạy báo cáo"
@@ -4498,7 +4607,7 @@
     "message": "Đã chấp nhận lời mời"
   },
   "invitationAcceptedDesc": {
-    "message": "Successfully accepted your invitation."
+    "message": "Đã chấp nhận lời mời của bạn thành công."
   },
   "inviteInitAcceptedDesc": {
     "message": "Bạn hiện có thể truy cập tổ chức này."
@@ -4532,6 +4641,24 @@
   },
   "learnMore": {
     "message": "Tìm hiểu thêm"
+  },
+  "migrationsFailed": {
+    "message": "Đã xảy ra lỗi khi cập nhật cài đặt mã hóa."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Cập nhật cài đặt mã hóa của bạn"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Cài đặt mã hóa được khuyến nghị sẽ cải thiện bảo mật cho tài khoản của bạn. Nhập mật khẩu chính để cập nhật ngay."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Xác minh danh tính để tiếp tục"
+  },
+  "enterYourMasterPassword": {
+    "message": "Nhập mật khẩu chính của bạn"
+  },
+  "updateSettings": {
+    "message": "Cập nhật cài đặt"
   },
   "deleteRecoverDesc": {
     "message": "Nhập địa chỉ email của bạn vào bên dưới để khôi phục và xóa tài khoản của bạn."
@@ -5058,8 +5185,20 @@
     "message": "Sửa",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Sửa mã hóa"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Tệp này đang sử dụng phương pháp mã hóa lỗi thời."
+  },
+  "attachmentUpdated": {
+    "message": "Tệp đính kèm đã được cập nhật"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Có một số tệp đính kèm cũ trong kho lưu trữ của bạn cần được sửa chữa trước khi bạn có thể thay đổi khóa mã hóa của tài khoản."
+  },
+  "itemsTransferred": {
+    "message": "Các mục đã chuyển"
   },
   "yourAccountsFingerprint": {
     "message": "Cụm từ xác thực tài khoản của bạn",
@@ -5734,9 +5873,9 @@
     "message": "Yêu cầu tất cả các mục phải thuộc sở hữu của một tổ chức, loại bỏ tùy chọn lưu trữ mục ở cấp tài khoản.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "Tất cả các mục sẽ thuộc sở hữu và được lưu vào tổ chức, cho phép kiểm soát, giám sát và báo cáo trên toàn tổ chức. Khi bật, một bộ sưu tập mặc định sẽ có sẵn cho mỗi thành viên để lưu trữ mục. Tìm hiểu thêm về quản lý ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "Tất cả các mục sẽ thuộc sở hữu và được lưu vào tổ chức, cho phép kiểm soát, hiển thị và báo cáo trên toàn tổ chức. Khi được bật, một bộ sưu tập mặc định sẽ có sẵn cho mỗi thành viên để lưu trữ các mục. Tìm hiểu thêm về việc quản lý ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "vòng đời thông tin xác thực",
@@ -5774,16 +5913,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "Cách bật xác nhận người dùng tự động"
   },
-  "autoConfirmStep1": {
-    "message": "Mở tiện ích mở rộng Bitwarden của bạn."
+  "autoConfirmExtension1": {
+    "message": "Mở tiện ích mở rộng Bitwarden của bạn"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Chọn",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Bật.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Bật",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Đã mở tiện ích mở rộng Bitwarden trong trình duyệt. Giờ bạn có thể bật tùy chọn xác nhận người dùng tự động."
@@ -5805,8 +5944,8 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Chính sách một tổ chức là bắt buộc. "
   },
-  "autoConfirmSingleOrgRequiredDescription": {
-    "message": "Bất kỳ ai thuộc nhiều hơn một tổ chức sẽ bị thu hồi quyền truy cập cho đến khi họ rời khỏi các tổ chức khác."
+  "autoConfirmSingleOrgRequiredDesc": {
+    "message": "Tất cả thành viên chỉ phải thuộc tổ chức này để kích hoạt tự động hóa này."
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Chính sách một tổ chức sẽ áp dụng cho tất cả các vai trò. "
@@ -5871,6 +6010,19 @@
   "disableHideEmail": {
     "message": "Luôn hiển thị địa chỉ email của thành viên cho người nhận khi tạo hoặc chỉnh sửa Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "uriMatchDetectionPolicy": {
+    "message": "Phát hiện khớp URI mặc định"
+  },
+  "uriMatchDetectionPolicyDesc": {
+    "message": "Xác định thời điểm nên đề xuất tự động điền thông tin đăng nhập. Quản trị viên và chủ sở hữu không bị ràng buộc bởi chính sách này."
+  },
+  "uriMatchDetectionOptionsLabel": {
+    "message": "Phát hiện khớp URI mặc định"
+  },
+  "invalidUriMatchDefaultPolicySetting": {
+    "message": "Vui lòng chọn một tùy chọn phát hiện khớp URI hợp lệ.",
+    "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "modifiedPolicyId": {
     "message": "Chính sách $ID$ đã được điều chỉnh.",
@@ -6329,6 +6481,32 @@
   "bulkReinviteMessage": {
     "message": "Đã mời lại thành công"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "Đã mời lại $COUNT$ người dùng",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "Đã mời lại $LIMIT$ trong số $SELECTEDCOUNT$ người dùng. $EXCLUDEDCOUNT$ người đã không được mời do giới hạn mời là $LIMIT$.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Đã xóa thành công"
   },
@@ -6525,11 +6703,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Mật khẩu chính của bạn không đáp ứng một hoặc nhiều chính sách của tổ chức. Để truy cập kho, bạn phải cập nhật mật khẩu chính ngay bây giờ. Việc tiếp tục sẽ đăng xuất phiên hiện tại của bạn và yêu cầu bạn đăng nhập lại. Các phiên hoạt động trên các thiết bị khác có thể vẫn duy trì trong tối đa một giờ."
   },
-  "automaticAppLogin": {
-    "message": "Tự động đăng nhập người dùng cho các ứng dụng được phép"
+  "automaticAppLoginWithSSO": {
+    "message": "Tự động đăng nhập bằng SSO"
   },
-  "automaticAppLoginDesc": {
-    "message": "Các biểu mẫu đăng nhập sẽ tự động được điền và gửi cho các ứng dụng khởi chạy từ nhà cung cấp định danh mà bạn đã cấu hình."
+  "automaticAppLoginWithSSODesc": {
+    "message": "Mở rộng tính năng đăng nhập một lần (SSO) để bảo mật và tiện lợi hơn cho các ứng dụng ngoài hệ thống. Khi người dùng mở một ứng dụng từ nhà cung cấp danh tính của bạn, thông tin đăng nhập sẽ được tự động điền và gửi đi, giúp họ truy cập an toàn chỉ với một lần nhấp."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Máy chủ nhà cung cấp định danh"
@@ -6541,31 +6719,31 @@
     "message": "Tổ chức của bạn đã cập nhật tùy chọn giải mã. Vui lòng đặt mật khẩu chính để truy cập vào kho lưu trữ của bạn."
   },
   "sessionTimeoutPolicyTitle": {
-    "message": "Session timeout"
+    "message": "Thời gian hết phiên"
   },
   "sessionTimeoutPolicyDescription": {
-    "message": "Set a maximum session timeout for all members except owners."
+    "message": "Đặt thời gian chờ phiên tối đa cho tất cả thành viên ngoại trừ chủ sở hữu."
   },
   "maximumAllowedTimeout": {
-    "message": "Maximum allowed timeout"
+    "message": "Thời gian chờ tối đa được phép"
   },
   "maximumAllowedTimeoutRequired": {
-    "message": "Maximum allowed timeout is required."
+    "message": "Yêu cầu thời gian chờ tối đa được phép."
   },
   "sessionTimeoutPolicyInvalidTime": {
-    "message": "Time is invalid. Change at least one value."
+    "message": "Thời gian không hợp lệ. Hãy thay đổi ít nhất một giá trị."
   },
   "sessionTimeoutAction": {
-    "message": "Session timeout action"
+    "message": "Hành động khi hết thời gian chờ phiên"
   },
   "immediately": {
-    "message": "Immediately"
+    "message": "Ngay lập tức"
   },
   "onSystemLock": {
-    "message": "On system lock"
+    "message": "Khi khóa hệ thống"
   },
   "onAppRestart": {
-    "message": "On app restart"
+    "message": "Khi khởi động lại ứng dụng"
   },
   "hours": {
     "message": "Giờ"
@@ -6574,19 +6752,19 @@
     "message": "Phút"
   },
   "sessionTimeoutConfirmationNeverTitle": {
-    "message": "Are you certain you want to allow a maximum timeout of \"Never\" for all members?"
+    "message": "Bạn có chắc chắn muốn cho phép thời gian chờ tối đa là \"Không bao giờ\" cho tất cả thành viên không?"
   },
   "sessionTimeoutConfirmationNeverDescription": {
-    "message": "This option will save your members' encryption keys on their devices. If you choose this option, ensure that their devices are adequately protected."
+    "message": "Tùy chọn này sẽ lưu các khóa mã hóa của thành viên trên thiết bị của họ. Nếu bạn chọn tùy chọn này, hãy đảm bảo rằng thiết bị của họ được bảo vệ đầy đủ."
   },
   "learnMoreAboutDeviceProtection": {
-    "message": "Learn more about device protection"
+    "message": "Tìm hiểu thêm về bảo vệ thiết bị"
   },
   "sessionTimeoutConfirmationOnSystemLockTitle": {
-    "message": "\"System lock\" will only apply to the browser and desktop app"
+    "message": "\"Khóa hệ thống\" sẽ chỉ áp dụng cho trình duyệt và ứng dụng máy tính."
   },
   "sessionTimeoutConfirmationOnSystemLockDescription": {
-    "message": "The mobile and web app will use \"on app restart\" as their maximum allowed timeout, since the option is not supported."
+    "message": "Ứng dụng di động và ứng dụng web sẽ đặt giới hạn thời gian chờ tối đa là “khi khởi động lại ứng dụng”, vì tùy chọn này không được hỗ trợ."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Chính sách của tổ chức bạn đã đặt thời gian chờ tối đa của kho là $HOURS$ giờ và $MINUTES$ phút.",
@@ -6649,8 +6827,8 @@
   "vaultTimeoutRangeError": {
     "message": "Thời gian chờ của kho lưu trữ không nằm trong phạm vi cho phép."
   },
-  "disablePersonalVaultExport": {
-    "message": "Xóa xuất dữ liệu kho riêng lẻ"
+  "disableExport": {
+    "message": "Xóa xuất"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Không cho phép thành viên xuất dữ liệu từ kho lưu trữ cá nhân của họ."
@@ -6970,9 +7148,6 @@
   "invalidVerificationCode": {
     "message": "Mã xác minh không đúng"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Không còn yêu cầu mật khẩu chính đối với các thành viên của tổ chức sau. Vui lòng xác nhận tên miền bên dưới với quản trị viên của tổ chức bạn."
-  },
   "keyConnectorDomain": {
     "message": "Tên miền Key Connector"
   },
@@ -7030,8 +7205,8 @@
   "enabledSso": {
     "message": "SSO đã bật"
   },
-  "disabledSso": {
-    "message": "SSO đã được bật"
+  "ssoTurnedOff": {
+    "message": "Đã tắt SSO"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ phải đăng nhập bằng Đăng nhập một lần",
@@ -7128,6 +7303,9 @@
   },
   "selfHostedEnvFormInvalid": {
     "message": "Bạn phải thêm URL Máy chủ gốc hoặc ít nhất một môi trường tùy chỉnh."
+  },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL phải sử dụng HTTPS."
   },
   "apiUrl": {
     "message": "URL máy chủ API"
@@ -7300,6 +7478,9 @@
   },
   "accessDenied": {
     "message": "Truy cập bị từ chối. Bạn không có quyền xem trang này."
+  },
+  "noPageAccess": {
+    "message": "Bạn không có quyền truy cập vào trang này"
   },
   "masterPassword": {
     "message": "Mật khẩu chính"
@@ -8588,9 +8769,6 @@
   "server": {
     "message": "Máy chủ"
   },
-  "exportData": {
-    "message": "Xuất dữ liệu"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Xuất dữ liệu bí mật của tổ chức"
   },
@@ -9318,6 +9496,9 @@
   "ssoLoginIsRequired": {
     "message": "Yêu cầu đăng nhập bằng SSO"
   },
+  "emailRequiredForSsoLogin": {
+    "message": "Email is required for SSO"
+  },
   "selectedRegionFlag": {
     "message": "Cờ vùng đã chọn"
   },
@@ -9475,9 +9656,6 @@
   },
   "loggedInExclamation": {
     "message": "Đã đăng nhập!"
-  },
-  "beta": {
-    "message": "Phiên bản Beta"
   },
   "assignCollectionAccess": {
     "message": "Gán quyền truy cập bộ sưu tập"
@@ -9729,6 +9907,14 @@
     "message": "Quá đắt",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Chuyển sang gói miễn phí",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Chuyển sang tổ chức miễn phí",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Miễn phí 1 năm"
   },
@@ -9758,6 +9944,9 @@
   },
   "assignTasks": {
     "message": "Giao tác vụ"
+  },
+  "assignSecurityTasksToMembers": {
+    "message": "Gửi thông báo thay đổi mật khẩu"
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
@@ -11245,14 +11434,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Đã mở tiện ích mở rộng trình duyệt Bitwarden thành công. Bây giờ bạn có thể xem lại mật khẩu có rủi ro của mình."
   },
-  "openExtensionManuallyPart1": {
-    "message": "Chúng tôi gặp sự cố khi mở tiện ích mở rộng trình duyệt Bitwarden. Mở biểu tượng Bitwarden",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "từ thanh công cụ.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "Đăng ký của bạn sẽ sớm được gia hạn. Để đảm bảo dịch vụ không bị gián đoạn, hãy liên hệ $RESELLER$ để xác nhận gia hạn trước $RENEWAL_DATE$.",
     "placeholders": {
@@ -11428,6 +11609,9 @@
   "unArchive": {
     "message": "Hủy lưu trữ"
   },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "Các mục trong kho lưu trữ"
   },
@@ -11573,11 +11757,8 @@
   "bitwardenExtensionInstalled": {
     "message": "Đã cài đặt tiện ích mở rộng Bitwarden!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Mở tiện ích mở rộng Bitwarden"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "Tiện ích mở rộng Bitwarden đã được cài đặt! Mở tiện ích mở rộng để đăng nhập và bắt đầu tự động điền."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Tiện ích mở rộng Bitwarden đã được cài đặt!"
   },
   "openExtensionToAutofill": {
     "message": "Mở tiện ích mở rộng để đăng nhập và bắt đầu tự động điền."
@@ -11592,6 +11773,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "Trung tâm học tập",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "Nếu tiện ích mở rộng không mở, bạn có thể cần mở Bitwarden từ biểu tượng ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " trên thanh công cụ.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Trung tâm Trợ giúp",
@@ -11826,8 +12015,8 @@
   "familiesMembership": {
     "message": "Gói Bitwarden Gia đình"
   },
-  "planDescPremium": {
-    "message": "Bảo mật trực tuyến toàn diện"
+  "advancedOnlineSecurity": {
+    "message": "Bảo mật trực tuyến nâng cao"
   },
   "planDescFamiliesV2": {
     "message": "Bảo mật cao cấp cho gia đình bạn"
@@ -11994,9 +12183,6 @@
   "updateYourEncryptionSettings": {
     "message": "Cập nhật cài đặt mã hóa của bạn"
   },
-  "updateSettings": {
-    "message": "Cập nhật cài đặt"
-  },
   "algorithm": {
     "message": "Thuật toán"
   },
@@ -12016,12 +12202,288 @@
     "message": "Argon2id mang đến khả năng bảo vệ mạnh hơn trước các hình thức tấn công hiện đại, phù hợp nhất cho người dùng nâng cao với thiết bị mạnh mẽ."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Mã ZIP / Bưu điện"
   },
   "cardNumberLabel": {
     "message": "Số thẻ"
   },
   "startFreeFamiliesTrial": {
-    "message": "Start free Families trial"
+    "message": "Bắt đầu dùng thử Gói Gia đình miễn phí"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Chặn tạo tài khoản cho các tên miền đã xác nhận quyền sở hữu"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Ngăn người dùng tạo tài khoản bên ngoài tổ chức của bạn bằng địa chỉ email từ các tên miền đã xác nhận."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "Cần phải xác nhận tên miền trước khi kích hoạt chính sách này."
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Thiết lập phương thức mở khóa để thay đổi hành động sau khi đóng kho."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Các yêu cầu chính sách của doanh nghiệp đã được áp dụng cho các tùy chọn thời gian mở kho của bạn"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Thời gian mở kho vượt quá giới hạn do tổ chức của bạn đặt ra."
+  },
+  "neverLockWarning": {
+    "message": "Bạn có chắc chắn muốn chọn \"Không bao giờ\" không? Lựa chọn này sẽ lưu khóa mã hóa kho của bạn trực tiếp trên thiết bị. Hãy nhớ bảo vệ thiết bị của bạn thật cẩn thận nếu bạn chọn tùy chọn này."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Hành động sau khi đóng kho"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Thời gian hết phiên"
+  },
+  "appearance": {
+    "message": "Giao diện"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Thời gian mở kho đã vượt quá giới hạn do tổ chức của bạn đặt ra: Tối đa $HOURS$ giờ và $MINUTES$ phút",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "Không có ứng dụng quan trọng nào được chọn"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Bạn có chắc chắn muốn tiếp tục không?"
+  },
+  "userVerificationFailed": {
+    "message": "Xác minh người dùng thất bại."
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Xóa các mục kho không thể khôi phục"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Một số mục trong kho của bạn không thể khôi phục được. Bạn có muốn xóa các mục không thể khôi phục này khỏi kho của bạn không?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Xóa các thư mục không thể khôi phục"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Một số thư mục của bạn không thể khôi phục được. Bạn có muốn xóa các thư mục không thể khôi phục này khỏi kho của bạn không?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Thay thế khóa mã hóa"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Cặp khóa mã hóa công khai của bạn không thể khôi phục được. Bạn có muốn thay thế khóa mã hóa của mình bằng một cặp khóa mới không? Việc này sẽ yêu cầu bạn thiết lập lại quyền truy cập khẩn cấp và tư cách thành viên tổ chức hiện có."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Đang đồng bộ hóa dữ liệu"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Đang xác minh tính toàn vẹn của khóa mã hóa"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Đang xác minh thông tin người dùng"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Đang xác minh tính toàn vẹn của mục kho"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Đang xác minh tính toàn vẹn của thư mục"
+  },
+  "dataRecoveryTitle": {
+    "message": "Khôi phục Dữ liệu và Chẩn đoán"
+  },
+  "dataRecoveryDescription": {
+    "message": "Sử dụng công cụ khôi phục dữ liệu để chẩn đoán và sửa chữa các sự cố với tài khoản của bạn. Sau khi chạy chẩn đoán, bạn có tùy chọn lưu nhật ký chẩn đoán để được hỗ trợ và tùy chọn sửa chữa bất kỳ sự cố nào được phát hiện."
+  },
+  "runDiagnostics": {
+    "message": "Chạy Chẩn đoán"
+  },
+  "repairIssues": {
+    "message": "Sửa chữa Sự cố"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Lưu Nhật ký Chẩn đoán"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Cài đặt này do tổ chức của bạn quản lý."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Tổ chức của bạn đã đặt thời gian chờ phiên tối đa là $HOURS$ giờ và $MINUTES$ phút.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Tổ chức của bạn đã đặt thời gian chờ phiên mặc định là Khi làm mới trình duyệt."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Thời gian chờ tối đa không thể vượt quá $HOURS$ giờ và $MINUTES$ phút",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Khi làm mới trình duyệt"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Đặt phương thức mở khóa để thay đổi hành động khi hết thời gian chờ"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Bạn có chắc chắn muốn rời đi không?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Bằng việc từ chối, các mục cá nhân sẽ vẫn nằm trong tài khoản của bạn, nhưng bạn sẽ mất quyền truy cập vào các mục được chia sẻ và tính năng tổ chức."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Liên hệ quản trị viên của bạn để lấy lại quyền truy cập."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Rời khỏi $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Tôi quản lý kho của mình như thế nào?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Chuyển các mục đến $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ yêu cầu tất cả các mục phải thuộc sở hữu của tổ chức để đảm bảo an ninh và tuân thủ. Nhấp chấp nhận để chuyển quyền sở hữu các mục của bạn.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Chấp nhận chuyển"
+  },
+  "declineAndLeave": {
+    "message": "Từ chối và rời đi"
+  },
+  "whyAmISeeingThis": {
+    "message": "Tại sao tôi thấy điều này?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "You have Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "View and manage your Premium subscription"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "You'll need to update your license file"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Upload license file"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Upload your license file"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Upload your Premium license file"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Already have a subscription?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+  },
+  "viewAllPlans": {
+    "message": "View all plans"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
   }
 }

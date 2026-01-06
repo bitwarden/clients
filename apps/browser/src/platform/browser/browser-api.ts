@@ -5,6 +5,7 @@ import { Observable } from "rxjs";
 import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { DeviceType } from "@bitwarden/common/enums";
+import { LogService } from "@bitwarden/logging";
 import { isBrowserSafariApi } from "@bitwarden/platform";
 
 import { TabMessage } from "../../types/tab-messages";
@@ -32,8 +33,20 @@ export class BrowserApi {
     return BrowserApi.manifestVersion === expectedVersion;
   }
 
-  static senderIsInternal(sender: chrome.runtime.MessageSender | undefined): boolean {
-    if (!sender?.url) {
+  /**
+   * Helper method that attempts to distinguish whether a message sender is internal to the extension or not.
+   *
+   * Currently this is done through source origin matching, and frameId checking (only top-level frames are internal).
+   * @param sender a message sender
+   * @param logger an optional logger to log validation results
+   * @returns whether or not the sender appears to be internal to the extension
+   */
+  static senderIsInternal(
+    sender: chrome.runtime.MessageSender | undefined,
+    logger?: LogService,
+  ): boolean {
+    if (!sender?.origin) {
+      logger?.warning("[BrowserApi] Message sender has no origin");
       return false;
     }
     const extensionUrl =
@@ -42,23 +55,28 @@ export class BrowserApi {
       "";
 
     if (!extensionUrl) {
+      logger?.warning("[BrowserApi] Unable to determine extension URL");
       return false;
     }
 
-    if (!sender.url.startsWith(extensionUrl)) {
+    // Normalize both URLs by removing trailing slashes
+    const normalizedOrigin = sender.origin.replace(/\/$/, "").toLowerCase();
+    const normalizedExtensionUrl = extensionUrl.replace(/\/$/, "").toLowerCase();
+
+    if (!normalizedOrigin.startsWith(normalizedExtensionUrl)) {
+      logger?.warning(
+        `[BrowserApi] Message sender origin (${normalizedOrigin}) does not match extension URL (${normalizedExtensionUrl})`,
+      );
       return false;
     }
 
-    // these are all properties on externally initiated messages, not internal ones
-    if (
-      "tab" in sender ||
-      "documentId" in sender ||
-      "documentLifecycle" in sender ||
-      "frameId" in sender
-    ) {
+    // We only send messages from the top-level frame, but frameId is only set if tab is set, which for popups it is not.
+    if ("frameId" in sender && sender.frameId !== 0) {
+      logger?.warning("[BrowserApi] Message sender is not from the top-level frame");
       return false;
     }
 
+    logger?.info("[BrowserApi] Message sender appears to be internal");
     return true;
   }
 
@@ -250,11 +268,11 @@ export class BrowserApi {
   static async closeTab(tabId: number): Promise<void> {
     if (tabId) {
       if (BrowserApi.isWebExtensionsApi) {
-        browser.tabs.remove(tabId).catch((error) => {
+        await browser.tabs.remove(tabId).catch((error) => {
           throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
         });
       } else if (BrowserApi.isChromeApi) {
-        chrome.tabs.remove(tabId).catch((error) => {
+        await chrome.tabs.remove(tabId).catch((error) => {
           throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
         });
       }
@@ -270,7 +288,7 @@ export class BrowserApi {
   static async navigateTabToUrl(tabId: number, url: URL): Promise<void> {
     if (tabId) {
       if (BrowserApi.isWebExtensionsApi) {
-        browser.tabs.update(tabId, { url: url.href }).catch((error) => {
+        await browser.tabs.update(tabId, { url: url.href }).catch((error) => {
           throw new Error("Failed to navigate tab to URL: " + error.message);
         });
       } else if (BrowserApi.isChromeApi) {
