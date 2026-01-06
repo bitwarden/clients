@@ -31,6 +31,7 @@ import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import {
+  AuthRequestServiceAbstraction,
   DESKTOP_SSO_CALLBACK,
   LockService,
   LogoutReason,
@@ -40,11 +41,13 @@ import { EventUploadService } from "@bitwarden/common/abstractions/event/event-u
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -151,6 +154,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private isIdle = false;
   private activeUserId: UserId = null;
   private activeSimpleDialog: DialogRef<boolean> = null;
+  private processingPendingAuthRequests = false;
+  private shouldRerunAuthRequestProcessing = false;
 
   private destroy$ = new Subject<void>();
 
@@ -200,6 +205,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private desktopAutotypeDefaultSettingPolicy: DesktopAutotypeDefaultSettingPolicy,
     private readonly lockService: LockService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
+    private pendingAuthRequestsState: PendingAuthRequestsStateService,
+    private authRequestService: AuthRequestServiceAbstraction,
+    private authRequestAnsweringService: AuthRequestAnsweringService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -211,6 +219,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
     });
+
+    this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
     this.ngZone.runOutsideAngular(() => {
       setTimeout(async () => {
@@ -499,13 +509,31 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.checkForSystemTimeout(VaultTimeoutStringType.OnIdle);
             break;
           case "openLoginApproval":
-            if (message.notificationId != null) {
-              this.dialogService.closeAll();
-              const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
-                notificationId: message.notificationId,
-              });
-              await firstValueFrom(dialogRef.closed);
+            if (this.processingPendingAuthRequests) {
+              // If an "openLoginApproval" message is received while we are currently processing other
+              // auth requests, then set a flag so we remember to process that new auth request
+              this.shouldRerunAuthRequestProcessing = true;
+              return;
             }
+
+            /**
+             * This do/while loop allows us to:
+             * - a) call processPendingAuthRequests() once on "openLoginApproval"
+             * - b) remember to re-call processPendingAuthRequests() if another "openLoginApproval" was
+             *      received while we were processing the original auth requests
+             */
+            do {
+              this.shouldRerunAuthRequestProcessing = false;
+
+              try {
+                await this.processPendingAuthRequests();
+              } catch (error) {
+                this.logService.error(`Error processing pending auth requests: ${error}`);
+                this.shouldRerunAuthRequestProcessing = false; // Reset flag to prevent infinite loop on persistent errors
+              }
+              // If an "openLoginApproval" message was received while processPendingAuthRequests() was running, then
+              // shouldRerunAuthRequestProcessing will have been set to true
+            } while (this.shouldRerunAuthRequestProcessing);
             break;
           case "redrawMenu":
             await this.updateAppMenu();
@@ -886,5 +914,40 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     DeleteAccountComponent.open(this.dialogService);
+  }
+
+  private async processPendingAuthRequests() {
+    this.processingPendingAuthRequests = true;
+
+    try {
+      // Always query server for all pending requests and open a dialog for each
+      const pendingList = await firstValueFrom(this.authRequestService.getPendingAuthRequests$());
+
+      if (Array.isArray(pendingList) && pendingList.length > 0) {
+        const respondedIds = new Set<string>();
+
+        for (const req of pendingList) {
+          if (req?.id == null) {
+            continue;
+          }
+
+          const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
+            notificationId: req.id,
+          });
+
+          const result = await firstValueFrom(dialogRef.closed);
+
+          if (result !== undefined && typeof result === "boolean") {
+            respondedIds.add(req.id);
+
+            if (respondedIds.size === pendingList.length && this.activeUserId != null) {
+              await this.pendingAuthRequestsState.clear(this.activeUserId);
+            }
+          }
+        }
+      }
+    } finally {
+      this.processingPendingAuthRequests = false;
+    }
   }
 }

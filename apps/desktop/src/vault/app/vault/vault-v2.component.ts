@@ -27,7 +27,6 @@ import { CollectionService, CollectionView } from "@bitwarden/admin-console/comm
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
-import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -35,11 +34,12 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -249,11 +249,10 @@ export class VaultV2Component<C extends CipherViewLike>
     private collectionService: CollectionService,
     private organizationService: OrganizationService,
     private folderService: FolderService,
-    private configService: ConfigService,
-    private authRequestService: AuthRequestServiceAbstraction,
     private cipherArchiveService: CipherArchiveService,
     private policyService: PolicyService,
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -374,18 +373,11 @@ export class VaultV2Component<C extends CipherViewLike>
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    const authRequests = await firstValueFrom(
-      this.authRequestService.getLatestPendingAuthRequest$()!,
-    );
-    if (authRequests != null) {
-      this.messagingService.send("openLoginApproval", {
-        notificationId: authRequests.id,
-      });
-    }
-
     this.activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getUserId),
     ).catch((): any => null);
+
+    await this.sendOpenLoginApprovalMessage(this.activeUserId);
 
     if (this.activeUserId) {
       this.cipherService
@@ -1060,5 +1052,28 @@ export class VaultV2Component<C extends CipherViewLike>
       this.cipherRepromptId = cipher.id;
     }
     return repromptResult;
+  }
+
+  /**
+   * Sends a message that will retrieve any pending auth requests from the server. If there are
+   * pending auth requests for this user, a LoginApprovalDialogComponent will open. If there
+   * are no pending auth requests, nothing happens (see AppComponent: "openLoginApproval").
+   */
+  private async sendOpenLoginApprovalMessage(activeUserId: UserId) {
+    // This is a defensive check against a race condition where a user may have successfully logged
+    // in with no forceSetPasswordReason, but while the vault component is loading, a sync sets
+    // forceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission (see DefaultSyncService).
+    // This could potentially happen if an Admin upgrades the user's permissions as the user is logging
+    // in. In this rare case we do not want to send an "openLoginApproval" message.
+    //
+    // This also keeps parity with other usages of the "openLoginApproval" message. That is: don't send
+    // an "openLoginApproval" message if the user is required to set/change their password.
+    const forceSetPasswordReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(activeUserId),
+    );
+    if (forceSetPasswordReason === ForceSetPasswordReason.None) {
+      // If there are pending auth requests for this user, a LoginApprovalDialogComponent will open
+      this.messagingService.send("openLoginApproval");
+    }
   }
 }
