@@ -270,11 +270,15 @@ export class Program extends BaseProgram {
         writeLn("");
         writeLn("    Pass `--raw` option to only return the session key.");
         writeLn("");
+        writeLn("    Use `--biometric` to unlock with Touch ID / Windows Hello via Desktop app.");
+        writeLn("    Requires: Bitwarden Desktop app running with biometric unlock enabled.");
+        writeLn("");
         writeLn("  Examples:");
         writeLn("");
         writeLn("    bw unlock");
         writeLn("    bw unlock myPassword321");
         writeLn("    bw unlock myPassword321 --raw");
+        writeLn("    bw unlock --biometric");
         writeLn("", true);
       })
       .option("--check", "Check lock status.", async () => {
@@ -298,6 +302,7 @@ export class Program extends BaseProgram {
         "--passwordfile <passwordfile>",
         "Path to a file containing your password as its first line",
       )
+      .option("--biometric", "Unlock with biometrics via Desktop app (Touch ID / Windows Hello)")
       .action(async (password, cmd) => {
         if (!cmd.check) {
           await this.exitIfNotAuthed();
@@ -313,6 +318,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.i18nService,
             this.serviceContainer.encryptedMigrator,
             this.serviceContainer.masterPasswordUnlockService,
+            this.serviceContainer.biometricsService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);
@@ -505,7 +511,8 @@ export class Program extends BaseProgram {
         writeLn('      "lastSync": "2020-06-16T06:33:51.419Z",');
         writeLn('      "userEmail": "user@example.com,');
         writeLn('      "userId": "00000000-0000-0000-0000-000000000000",');
-        writeLn('      "status": "locked"');
+        writeLn('      "status": "locked",');
+        writeLn('      "biometricUnlock": "available"');
         writeLn("    }");
         writeLn("");
         writeLn("  Notes:");
@@ -514,6 +521,12 @@ export class Program extends BaseProgram {
         writeLn("    - `unauthenticated` when you are not logged in");
         writeLn("    - `locked` when you are logged in and the vault is locked");
         writeLn("    - `unlocked` when you are logged in and the vault is unlocked");
+        writeLn("");
+        writeLn("  `biometricUnlock` (when present) is one of:");
+        writeLn("    - `available` when biometric unlock can be used via Desktop app");
+        writeLn("    - `desktop_disconnected` when Desktop app is not running");
+        writeLn("    - `not_configured` when biometrics not enabled in Desktop app");
+        writeLn("    - `unavailable` when biometrics cannot be used");
         writeLn("", true);
       })
       .action(async () => {
@@ -523,6 +536,7 @@ export class Program extends BaseProgram {
           this.serviceContainer.accountService,
           this.serviceContainer.authService,
           this.serviceContainer.userAutoUnlockKeyService,
+          this.serviceContainer.biometricsService,
         );
         const response = await command.run();
         this.processResponse(response);

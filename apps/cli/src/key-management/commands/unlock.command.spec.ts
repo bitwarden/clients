@@ -13,12 +13,13 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { ConsoleLogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { MessageResponse } from "../../models/response/message.response";
 import { I18nService } from "../../platform/services/i18n.service";
+import { CliBiometricsService } from "../cli-biometrics-service";
 import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.command";
 
 import { UnlockCommand } from "./unlock.command";
@@ -37,6 +38,7 @@ describe("UnlockCommand", () => {
   const i18nService = mock<I18nService>();
   const encryptedMigrator = mock<EncryptedMigrator>();
   const masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
+  const biometricsService = mock<CliBiometricsService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
@@ -73,6 +75,11 @@ describe("UnlockCommand", () => {
     keyConnectorService.convertAccountRequired$ = of(false);
     cryptoFunctionService.randomBytes.mockResolvedValue(mockSessionKey);
 
+    // Mock biometrics to be unavailable by default (no Desktop app in tests)
+    biometricsService.getBiometricsStatusForUser.mockResolvedValue(
+      BiometricsStatus.DesktopDisconnected,
+    );
+
     command = new UnlockCommand(
       accountService,
       keyService,
@@ -85,6 +92,7 @@ describe("UnlockCommand", () => {
       i18nService,
       encryptedMigrator,
       masterPasswordUnlockService,
+      biometricsService,
     );
   });
 

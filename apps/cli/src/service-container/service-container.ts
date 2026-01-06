@@ -319,6 +319,7 @@ export class ServiceContainer {
   avatarService: AvatarServiceAbstraction;
   stateEventRunnerService: StateEventRunnerService;
   biometricStateService: BiometricStateService;
+  biometricsService: CliBiometricsService;
   billingAccountProfileStateService: BillingAccountProfileStateService;
   providerApiService: ProviderApiServiceAbstraction;
   userAutoUnlockKeyService: UserAutoUnlockKeyService;
@@ -830,6 +831,15 @@ export class ServiceContainer {
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
+    this.biometricsService = new CliBiometricsService(
+      this.keyService,
+      this.encryptService,
+      this.cryptoFunctionService,
+      this.appIdService,
+      this.logService,
+      this.accountService,
+    );
+
     this.userVerificationService = new UserVerificationService(
       this.keyService,
       this.accountService,
@@ -839,16 +849,14 @@ export class ServiceContainer {
       this.userDecryptionOptionsService,
       this.pinService,
       this.kdfConfigService,
-      new CliBiometricsService(),
+      this.biometricsService,
     );
-
-    const biometricService = new CliBiometricsService();
     const logoutService = new DefaultLogoutService(this.messagingService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
       this.accountService,
-      biometricService,
+      this.biometricsService,
       this.vaultTimeoutSettingsService,
       logoutService,
       this.messagingService,

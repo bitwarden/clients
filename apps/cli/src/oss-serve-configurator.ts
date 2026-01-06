@@ -123,6 +123,7 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.authService,
       this.serviceContainer.userAutoUnlockKeyService,
+      this.serviceContainer.biometricsService,
     );
     this.deleteCommand = new DeleteCommand(
       this.serviceContainer.cipherService,
@@ -176,6 +177,7 @@ export class OssServeConfigurator {
       this.serviceContainer.i18nService,
       this.serviceContainer.encryptedMigrator,
       this.serviceContainer.masterPasswordUnlockService,
+      this.serviceContainer.biometricsService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
