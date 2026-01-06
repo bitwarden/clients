@@ -868,7 +868,7 @@ describe("Cipher Service", () => {
       const result = await firstValueFrom(
         stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).state$,
       );
-      expect(result[cipherId].archivedDate).toBeNull();
+      expect(result[cipherId].archivedDate).toEqual("2024-01-01T12:00:00.000Z");
       expect(result[cipherId].deletedDate).toBeDefined();
     });
   });
