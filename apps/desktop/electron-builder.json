@@ -5,7 +5,7 @@
   "productName": "Bitwarden",
   "appId": "com.bitwarden.desktop",
   "buildDependenciesFromSource": true,
-  "copyright": "Copyright © 2015-2025 Bitwarden Inc.",
+  "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
   "directories": {
     "buildResources": "resources",
     "output": "dist",
@@ -24,7 +24,7 @@
       "filter": ["package.json", "index.js", "index.d.ts", "*.node"]
     }
   ],
-  "electronVersion": "37.7.0",
+  "electronVersion": "39.2.6",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",

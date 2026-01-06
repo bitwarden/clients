@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "每个 Bitwarden 用户账户的账户加密密钥都是唯一的，因此您无法将加密的导出导入到另一个账户。"
   },
-  "export": {
-    "message": "导出"
+  "exportNoun": {
+    "message": "导出",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "导出",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "导出自"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "工具"
   },
-  "import": {
-    "message": "导入"
+  "importNoun": {
+    "message": "导入",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "导入",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "导入数据"
@@ -2623,6 +2633,9 @@
   },
   "key": {
     "message": "密钥"
+  },
+  "unnamedKey": {
+    "message": "未命名的密钥"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "验证码"
@@ -3283,6 +3296,9 @@
   "launchCloudSubscription": {
     "message": "启动云订阅"
   },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "启动云订阅"
+  },
   "storage": {
     "message": "存储"
   },
@@ -3849,7 +3865,7 @@
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "桌面版应用",
+    "message": "桌面端",
     "description": "Desktop app"
   },
   "webVault": {
@@ -4197,6 +4213,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "接受了转移至组织所有权。"
+  },
+  "userDeclinedTransfer": {
+    "message": "因拒绝转移至组织所有权而被撤销。"
   },
   "invitedUserId": {
     "message": "邀请了用户 $ID$。",
@@ -5176,7 +5198,7 @@
     "message": "需要先修复您的密码库中的旧文件附件，然后才能轮换您账户的加密密钥。"
   },
   "itemsTransferred": {
-    "message": "项目已传输"
+    "message": "项目已转移"
   },
   "yourAccountsFingerprint": {
     "message": "您的账户指纹短语",
@@ -5403,7 +5425,7 @@
     }
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "超时后注销将解除对密码库的所有访问权限，并需要进行在线身份验证。确定使用此设置吗？"
+    "message": "超时后注销账户将解除对密码库的所有访问权限，并需要进行在线身份验证。确定要使用此设置吗？"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "超时动作确认"
@@ -6099,7 +6121,7 @@
     "message": "组织策略已阻止将项目导入您的个人密码库。"
   },
   "personalOwnershipCheckboxDesc": {
-    "message": "移除组织用户的个人所有权"
+    "message": "禁用组织用户的个人所有权"
   },
   "send": {
     "message": "Send",
@@ -6340,7 +6362,7 @@
     "message": "重置密码"
   },
   "resetPasswordLoggedOutWarning": {
-    "message": "继续操作会将 $NAME$ 登出当前会话，要求他们重新登录。在其他设备上的活动会话可能继续活动长达一个小时。",
+    "message": "继续操作会将 $NAME$ 登出当前会话，并要求他们重新登录。在其他设备上的活动会话可能继续活动长达一个小时。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6349,7 +6371,7 @@
     }
   },
   "emergencyAccessLoggedOutWarning": {
-    "message": "继续操作会将 $NAME$ 登出当前会话，要求他们重新登录。在其他设备上的活动会话可能继续活动长达一个小时。",
+    "message": "继续操作会将 $NAME$ 登出当前会话，并要求他们重新登录。在其他设备上的活动会话可能继续活动长达一个小时。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6806,7 +6828,7 @@
     "message": "密码库超时不在允许的范围内。"
   },
   "disableExport": {
-    "message": "移除导出"
+    "message": "禁用导出"
   },
   "disablePersonalVaultExportDescription": {
     "message": "不允许成员从个人密码库导出数据。"
@@ -8859,7 +8881,7 @@
     "message": "群组/用户"
   },
   "kdfSettingsChangeLogoutWarning": {
-    "message": "接下来将会注销您所有的活动会话。您需要重新登录并完成两步登录（如果有）。我们建议您在更改加密设置前导出密码库，以防止数据丢失。"
+    "message": "继续操作将会注销您所有的活动会话。您需要重新登录并完成两步登录（如果有）。我们建议您在更改加密设置前导出密码库，以防止数据丢失。"
   },
   "secretsManager": {
     "message": "机密管理器"
@@ -10526,7 +10548,7 @@
     "description": "Button text to navigate back"
   },
   "removeItem": {
-    "message": "删除 $NAME$",
+    "message": "移除 $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -11151,7 +11173,7 @@
     }
   },
   "organizationUserDeletedDesc": {
-    "message": "该用户已从组织中删除，所有关联的用户数据也已删除。"
+    "message": "该用户已从组织中移除，所有关联的用户数据也已被删除。"
   },
   "deletedUserIdEventMessage": {
     "message": "删除了用户 $ID$",
@@ -12279,6 +12301,9 @@
   "userVerificationFailed": {
     "message": "用户验证失败。"
   },
+  "resizeSideNavigation": {
+    "message": "调整侧边导航栏大小"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "删除无法恢复的密码库项目"
   },
@@ -12387,7 +12412,7 @@
     "message": "我该如何管理我的密码库？"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "传输项目到 $ORGANIZATION$",
+    "message": "转移项目到 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12396,7 +12421,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以传输您的项目的所有权。",
+    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12405,12 +12430,60 @@
     }
   },
   "acceptTransfer": {
-    "message": "接受传输"
+    "message": "接受转移"
   },
   "declineAndLeave": {
     "message": "拒绝并退出"
   },
   "whyAmISeeingThis": {
     "message": "为什么我会看到这个？"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "您有 Bitwarden 高级版"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "查看和管理您的高级版订阅"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "您需要更新您的许可证文件"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$。",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "上传许可证文件"
+  },
+  "uploadYourLicenseFile": {
+    "message": "上传您的许可证文件"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "上传您的高级版许可证文件"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "您的许可证文件名将类似于：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "已经有一个订阅了吗？"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "打开您的 Bitwarden 云账户中的订阅页面并下载您的许可证文件。然后返回此界面并在下方上传该文件。"
+  },
+  "viewAllPlans": {
+    "message": "查看所有方案"
+  },
+  "planDescPremium": {
+    "message": "全面的在线安全防护"
   }
 }
