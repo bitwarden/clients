@@ -5,6 +5,7 @@ import {
   ObservableStorageService,
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
+import { StorageOptions } from "@bitwarden/storage-core";
 
 export class BrowserIndexedDbStorageService
   implements AbstractStorageService, ObservableStorageService
@@ -41,7 +42,7 @@ export class BrowserIndexedDbStorageService
     return false; // IndexedDB handles objects natively
   }
 
-  async get<T>(key: string): Promise<T | null> {
+  async get<T>(key: string, options?: StorageOptions): Promise<T> {
     try {
       const db = await this.dbPromise;
       return new Promise((resolve, reject) => {
@@ -49,24 +50,28 @@ export class BrowserIndexedDbStorageService
         const store = transaction.objectStore(this.STORE_NAME);
         const request = store.get(key);
         request.onsuccess = () => {
-          const result = (request.result as T) ?? null;
-          resolve(result);
+          const result = request.result;
+          if (result === undefined) {
+            resolve(null as T);
+          } else {
+            resolve(result as T);
+          }
         };
         request.onerror = () => {
           reject(request.error);
         };
       });
     } catch {
-      return null;
+      return null as T;
     }
   }
 
-  async save(key: string, value: any): Promise<void> {
+  async save<T>(key: string, obj: T, options?: StorageOptions): Promise<void> {
     const db = await this.dbPromise;
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(this.STORE_NAME, "readwrite");
       const store = transaction.objectStore(this.STORE_NAME);
-      const request = store.put(value, key);
+      const request = store.put(obj, key);
       request.onsuccess = () => {
         this.updatesSubject.next({ key, updateType: "save" });
         resolve();
@@ -77,7 +82,7 @@ export class BrowserIndexedDbStorageService
     });
   }
 
-  async remove(key: string): Promise<void> {
+  async remove(key: string, options?: StorageOptions): Promise<void> {
     const db = await this.dbPromise;
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(this.STORE_NAME, "readwrite");
@@ -93,8 +98,8 @@ export class BrowserIndexedDbStorageService
     });
   }
 
-  async has(key: string): Promise<boolean> {
-    const val = await this.get(key);
+  async has(key: string, options?: StorageOptions): Promise<boolean> {
+    const val = await this.get(key, options);
     return val != null;
   }
 }
