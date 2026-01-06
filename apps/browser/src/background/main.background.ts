@@ -1683,8 +1683,25 @@ export default class MainBackground {
    * Triggers a phishing cache update in the background.
    * Called on extension install/update to pre-populate the cache
    * so it's ready when a premium user logs in.
+   *
+   * Creates a temporary subscription to ensure the update executes even if
+   * there are no other subscribers (install/update scenario). The subscription
+   * is automatically cleaned up after the update completes or errors.
    */
   triggerPhishingCacheUpdate(): void {
+    // Create a temporary subscription to ensure the update executes
+    // since update$ uses shareReplay with refCount: true, which requires at least one subscriber
+    const tempSub = this.phishingDataService.update$.subscribe({
+      next: () => {
+        this.logService.debug("[MainBackground] Phishing cache pre-population completed");
+        tempSub.unsubscribe();
+      },
+      error: (err: unknown) => {
+        this.logService.error("[MainBackground] Phishing cache pre-population failed", err);
+        tempSub.unsubscribe();
+      },
+    });
+    // Trigger the update after subscription is created
     this.phishingDataService.triggerUpdateIfNeeded();
   }
 

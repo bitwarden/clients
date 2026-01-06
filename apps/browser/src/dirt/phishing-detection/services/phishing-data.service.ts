@@ -250,26 +250,13 @@ export class PhishingDataService {
 
   /**
    * Triggers an update if the cache is stale or empty.
-   * Should be called when phishing detection is enabled for an account.
+   * Should be called when phishing detection is enabled for an account or on install/update.
    *
-   * IMPORTANT: This is a no-op if there are no observers on update$ to prevent
-   * unnecessary storage reads for non-premium users or when phishing detection is disabled.
-   * The observable chain in createUpdate$() accesses _cachedPhishingDataState which triggers storage reads.
+   * The lazy loading of _cachedPhishingDataState ensures that storage is only accessed
+   * when the update$ observable chain actually executes (i.e., when there are subscribers).
+   * If there are no subscribers, the chain doesn't execute and no storage access occurs.
    */
   triggerUpdateIfNeeded(): void {
-    const observerCount = (this._triggerUpdate$ as any).observers?.length ?? 0;
-
-    // CRITICAL: Only trigger if there are active observers to prevent storage access
-    // when phishing detection is disabled or user doesn't have premium access.
-    // Without this guard, calling _triggerUpdate$.next() would trigger the switchMap
-    // in createUpdate$() which accesses _cachedPhishingDataState, causing a blocking storage read.
-    if (observerCount === 0) {
-      this.logService.debug(
-        "[PhishingDataService] No observers on update$, skipping trigger to avoid storage access",
-      );
-      return;
-    }
-
     this._triggerUpdate$.next();
   }
 
