@@ -165,6 +165,7 @@ describe("DefaultCipherArchiveService", () => {
 
       mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      featureFlag.next(true);
 
       const result = await firstValueFrom(service.showSubscriptionEndedMessaging$(userId));
 
