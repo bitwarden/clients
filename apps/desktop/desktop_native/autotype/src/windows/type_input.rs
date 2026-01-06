@@ -6,7 +6,7 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
 };
 
 use super::{ErrorOperations, KeyboardShortcutInput, Win32ErrorOperations};
-use crate::get_modifier_keys;
+use crate::get_numeric_modifier_key;
 
 const IS_VIRTUAL_KEY: bool = true;
 const IS_REAL_KEY: bool = false;
@@ -91,8 +91,8 @@ impl TryFrom<&str> for KeyboardShortcutInput {
         }
         // the modifier keys are using the Up keypress variant because the user has already
         // pressed those keys in order to trigger the feature.
-        if let Some(numeric_modifier_key) = get_modifier_keys().get(key) {
-            let input = build_virtual_key_input(InputKeyPress::Up, *numeric_modifier_key);
+        if let Some(numeric_modifier_key) = get_numeric_modifier_key(key) {
+            let input = build_virtual_key_input(InputKeyPress::Up, numeric_modifier_key);
             Ok(KeyboardShortcutInput(input))
         } else {
             Err(anyhow!("Unsupported modifier key: {key}"))
