@@ -10,6 +10,6 @@ export type GeneratorDependencyProvider = {
   // FIXME: introduce `I18nKeyOrLiteral` into forwarder
   //        structures and remove this dependency
   i18nService: I18nService;
-  sdk?: BitwardenClient;
+  sdk: BitwardenClient;
   now: () => number;
 };
