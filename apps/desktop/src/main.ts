@@ -258,6 +258,7 @@ export class Main {
       this.updaterMain,
       this.desktopSettingsService,
       this.versionMain,
+      globalStateProvider,
     );
 
     this.trayMain = new TrayMain(

@@ -1,7 +1,9 @@
 import { FocusableOption } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Component, ElementRef, HostBinding, Input } from "@angular/core";
+import { Component, ElementRef, HostBinding, inject, Input, input } from "@angular/core";
+
+import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -9,8 +11,13 @@ import { Component, ElementRef, HostBinding, Input } from "@angular/core";
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
   imports: [NgClass],
+  host: {
+    "(click)": "onClick($event)",
+  },
 })
 export class MenuItemComponent implements FocusableOption {
+  private bitMenuTriggerFor = inject(MenuTriggerForDirective, { optional: true });
+
   @HostBinding("class") classList = [
     "tw-block",
     "tw-w-full",
@@ -48,7 +55,20 @@ export class MenuItemComponent implements FocusableOption {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
 
+  /**
+   * When true, clicking this menu item will not close the parent menu.
+   * Useful for items that open submenus or perform actions that should keep the menu open.
+   */
+  readonly disableClose = input<boolean>(false);
+
   constructor(public elementRef: ElementRef<HTMLButtonElement>) {}
+
+  onClick(event: MouseEvent) {
+    if (this.disableClose() || this.bitMenuTriggerFor) {
+      // Stop propagation to prevent the menu from closing
+      event.stopPropagation();
+    }
+  }
 
   focus() {
     this.elementRef.nativeElement.focus();

@@ -1,6 +1,6 @@
 @let mainContentId = "main-content";
 <div class="tw-flex tw-size-full">
-  <div class="tw-flex tw-size-full" cdkTrapFocus>
+  <div class="tw-flex tw-size-full tw-flex-col" cdkTrapFocus>
     <div
       class="tw-fixed tw-z-50 tw-w-full tw-flex tw-justify-center tw-opacity-0 focus-within:tw-opacity-100 tw-pointer-events-none focus-within:tw-pointer-events-auto"
     >
@@ -17,33 +17,42 @@
         >
       </nav>
     </div>
-    <ng-content select="bit-side-nav, [slot=side-nav]"></ng-content>
-    <main
-      #main
-      [id]="mainContentId"
-      tabindex="-1"
-      bitScrollLayoutHost
-      class="tw-overflow-auto tw-max-h-full tw-min-w-0 tw-flex-1 tw-bg-background tw-p-8 tw-pt-6 tw-@container"
-    >
-      <!-- ^ If updating this padding, also update the padding correction in bit-banner! ^ -->
-      <ng-content></ng-content>
-    </main>
-    <!-- overlay backdrop for side-nav -->
-    @if (
-      {
-        open: sideNavService.open$ | async,
-      };
-      as data
-    ) {
-      <div
-        class="tw-pointer-events-none tw-fixed tw-inset-0 tw-z-10 tw-bg-black tw-bg-opacity-0 motion-safe:tw-transition-colors md:tw-hidden"
-        [ngClass]="[data.open ? 'tw-bg-opacity-30 md:tw-bg-opacity-0' : 'tw-bg-opacity-0']"
+    <div class="tw-group/bit-layout-title-bar empty:tw-hidden">
+      <ng-content select="[slot=title-bar]"></ng-content>
+    </div>
+    <!-- todo add bg color -->
+    <div class="tw-flex tw-size-full tw-bg-background-alt3">
+      <ng-content select="bit-side-nav, [slot=side-nav]"></ng-content>
+      <main
+        #main
+        [id]="mainContentId"
+        tabindex="-1"
+        bitScrollLayoutHost
+        class="group-empty/bit-layout-title-bar:tw-rounded-tl-none tw-rounded-tl-3xl tw-overflow-auto tw-max-h-full tw-min-w-0 tw-flex-1 tw-bg-background tw-p-8 tw-pt-6 tw-@container"
       >
-        @if (data.open) {
-          <div (click)="sideNavService.toggle()" class="tw-pointer-events-auto tw-size-full"></div>
-        }
-      </div>
-    }
+        <!-- ^ If updating this padding, also update the padding correction in bit-banner! ^ -->
+        <ng-content></ng-content>
+      </main>
+      <!-- overlay backdrop for side-nav -->
+      @if (
+        {
+          open: sideNavService.open$ | async,
+        };
+        as data
+      ) {
+        <div
+          class="tw-pointer-events-none tw-fixed tw-inset-0 tw-z-10 tw-bg-black tw-bg-opacity-0 motion-safe:tw-transition-colors md:tw-hidden"
+          [ngClass]="[data.open ? 'tw-bg-opacity-30 md:tw-bg-opacity-0' : 'tw-bg-opacity-0']"
+        >
+          @if (data.open) {
+            <div
+              (click)="sideNavService.toggle()"
+              class="tw-pointer-events-auto tw-size-full"
+            ></div>
+          }
+        </div>
+      }
+    </div>
   </div>
   <div class="tw-absolute tw-z-50 tw-left-0 md:tw-sticky tw-top-0 tw-h-full md:tw-w-auto">
     <ng-template [cdkPortalOutlet]="drawerPortal()"></ng-template>
