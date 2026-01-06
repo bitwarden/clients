@@ -214,8 +214,6 @@ describe("MainDesktopAutotypeService", () => {
 
       (globalShortcut.isRegistered as jest.Mock).mockReturnValue(true);
 
-      // (AutotypeKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
-
       const configureHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
       configureHandler({}, config);
 
