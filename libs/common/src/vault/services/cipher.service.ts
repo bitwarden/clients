@@ -910,7 +910,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView | void> {
-    return firstValueFrom(
+    const resultCipherView = firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map(async (sdk) => {
           if (!sdk) {
@@ -932,6 +932,8 @@ export class CipherService implements CipherServiceAbstraction {
         }),
       ),
     );
+    await this.clearCache(userId);
+    return resultCipherView;
   }
 
   private async createWithServer_legacy(
@@ -986,7 +988,7 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    return firstValueFrom(
+    const resultCipherView = firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map(async (sdk) => {
           if (!sdk) {
@@ -1012,6 +1014,8 @@ export class CipherService implements CipherServiceAbstraction {
         }),
       ),
     );
+    await this.clearCache(userId);
+    return resultCipherView;
   }
 
   async updateWithServer_legacy(
