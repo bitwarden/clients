@@ -9,8 +9,8 @@ const fse = require("fs-extra");
 exports.default = run;
 
 /**
- * 
- * @param {builder.AfterPackContext} context 
+ *
+ * @param {builder.AfterPackContext} context
  */
 async function run(context) {
   console.log("## After pack");
