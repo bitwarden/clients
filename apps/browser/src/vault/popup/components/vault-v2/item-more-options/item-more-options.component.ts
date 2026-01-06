@@ -206,10 +206,16 @@ export class ItemMoreOptionsComponent {
     const uris = cipher.login?.uris ?? [];
     const cipherHasAllExactMatchLoginUris =
       uris.length > 0 && uris.every((u) => u.uri && u.match === UriMatchStrategy.Exact);
+    const cipherHasOneNonExactMatchLoginUri =
+      uris.length > 0 && uris.some((u) => u.uri && u.match !== UriMatchStrategy.Exact);
 
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
 
-    if (cipherHasAllExactMatchLoginUris || uriMatchStrategy === UriMatchStrategy.Exact) {
+    if (
+      // don't show the dialog if there is at least one non-exact match uri
+      !cipherHasOneNonExactMatchLoginUri &&
+      (cipherHasAllExactMatchLoginUris || uriMatchStrategy === UriMatchStrategy.Exact)
+    ) {
       await this.dialogService.openSimpleDialog({
         title: { key: "cannotAutofill" },
         content: { key: "cannotAutofillExactMatch" },
