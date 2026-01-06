@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { lastValueFrom, firstValueFrom, Observable } from "rxjs";
+import { lastValueFrom, firstValueFrom } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -7,19 +7,21 @@ import {
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import {
   OrganizationUserType,
   OrganizationUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
@@ -47,13 +49,6 @@ export interface ConfirmableUser {
   email: string;
 }
 
-/**
- * Interface for services that provide organization management preferences
- */
-export interface OrganizationManagementPreferences {
-  autoConfirmFingerPrints: { state$: Observable<boolean> };
-}
-
 @Injectable()
 export class MemberActionsService {
   constructor(
@@ -63,7 +58,7 @@ export class MemberActionsService {
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
     private apiService: ApiService,
     private dialogService: DialogService,
-    private i18nService: I18nService,
+    private keyService: KeyService,
     private logService: LogService,
   ) {}
 
@@ -265,54 +260,46 @@ export class MemberActionsService {
   }
 
   /**
-   * Shared user confirmation workflow that handles the common logic for confirming users.
-   * This method orchestrates the public key retrieval, fingerprint display, and confirmation dialog.
+   * Shared dialog workflow that returns the public key when the user confirms the selected confirmation
+   * action.
    *
    * @param user - The user to confirm (must implement ConfirmableUser interface)
    * @param userNamePipe - Pipe to transform user names for display
    * @param orgManagementPrefs - Service providing organization management preferences
-   * @param confirmCallback - Async callback that performs the actual confirmation with the public key
-   * @returns Promise that resolves when confirmation workflow completes
+   * @returns Promise containing the pulic key that resolves when the confirm action is accepted or undefined
+   * when cancelled
    */
-  async confirmUserWorkflow<T extends ConfirmableUser>(
+  async getPublicKeyForConfirm<T extends ConfirmableUser>(
     user: T,
     userNamePipe: { transform: (user: T) => string },
-    orgManagementPrefs: OrganizationManagementPreferences,
-    confirmCallback: (publicKey: Uint8Array) => Promise<void>,
-  ): Promise<void> {
+    orgManagementPrefs: OrganizationManagementPreferencesService,
+  ): Promise<Uint8Array | undefined> {
     try {
-      const publicKeyResponse = await this.apiService.getUserPublicKey(user.userId);
-      const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
+      assertNonNullish(user, "Cannot confirm null user.");
 
       const autoConfirmFingerPrint = await firstValueFrom(
         orgManagementPrefs.autoConfirmFingerPrints.state$,
       );
 
-      if (user == null) {
-        throw new Error("Cannot confirm null user.");
-      }
+      const publicKeyResponse = await this.apiService.getUserPublicKey(user.userId);
+      const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
       if (autoConfirmFingerPrint == null || !autoConfirmFingerPrint) {
-        const dialogRef = UserConfirmComponent.open(this.dialogService, {
+        const confirmed = UserConfirmComponent.open(this.dialogService, {
           data: {
             name: userNamePipe.transform(user),
             userId: user.userId,
             publicKey: publicKey,
-            confirmUser: () => confirmCallback(publicKey),
           },
         });
-        await lastValueFrom(dialogRef.closed);
 
-        return;
-      }
+        if (await lastValueFrom(confirmed.closed)) {
+          return publicKey;
+        }
 
-      try {
         const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
         this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
-      } catch (e) {
-        this.logService.error(e);
       }
-      await confirmCallback(publicKey);
     } catch (e) {
       this.logService.error(`Handled exception: ${e}`);
     }

@@ -1,5 +1,7 @@
 @let providerId = providerId$ | async;
-@let bulkFlags = bulkFlags$ | async;
+@let bulkMenuOptions = bulkMenuOptions$ | async;
+@let showConfirmBanner = showConfirmBanner$ | async;
+@let dataSource = this.dataSource();
 
 <app-header>
   <bit-search class="tw-grow" [formControl]="searchControl" [placeholder]="'searchMembers' | i18n">
@@ -50,7 +52,7 @@
     <p>{{ "noMembersInList" | i18n }}</p>
   }
   @if (dataSource.filteredData?.length) {
-    @if (bulkFlags.showConfirmUsers) {
+    @if (showConfirmBanner) {
       <bit-callout type="info" title="{{ 'confirmUsers' | i18n }}" icon="bwi-check-circle">
         {{ "providerUsersNeedConfirmed" | i18n }}
       </bit-callout>
@@ -82,13 +84,13 @@
                 label="{{ 'options' | i18n }}"
               ></button>
               <bit-menu #headerMenu>
-                @if (bulkFlags.showBulkReinviteUsers) {
+                @if (bulkMenuOptions.showBulkReinviteUsers) {
                   <button type="button" bitMenuItem (click)="bulkReinvite(providerId)">
                     <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
                     {{ "reinviteSelected" | i18n }}
                   </button>
                 }
-                @if (bulkFlags.showBulkConfirmUsers) {
+                @if (bulkMenuOptions.showBulkConfirmUsers) {
                   <button type="button" bitMenuItem (click)="bulkConfirm(providerId)">
                     <span class="tw-text-success">
                       <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>

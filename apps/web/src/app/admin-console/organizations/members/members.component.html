@@ -1,16 +1,9 @@
 @let organization = this.organization();
-@let bulkActions = bulkFlags$ | async;
+@let dataSource = this.dataSource();
+@let bulkActions = bulkMenuOptions$ | async;
+@let showConfirmBanner = showConfirmBanner$ | async;
 
-@if (!organization || !dataSource) {
-  <i
-    class="bwi bwi-spinner bwi-spin tw-text-muted"
-    title="{{ 'loading' | i18n }}"
-    aria-hidden="true"
-  ></i>
-  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-}
-
-@if (organization) {
+@if (organization && dataSource) {
   <app-organization-free-trial-warning
     [organization]="organization"
     (clicked)="billingConstraint.navigateToPaymentMethod(organization)"
@@ -74,7 +67,7 @@
       </bit-toggle-group>
     }
   </div>
-  @if (!firstLoaded()) {
+  @if (!firstLoaded() || !organization || !dataSource) {
     <i
       class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
@@ -86,7 +79,7 @@
       <p>{{ "noMembersInList" | i18n }}</p>
     }
     @if (dataSource.filteredData?.length) {
-      @if (bulkActions.showConfirmUsers) {
+      @if (showConfirmBanner) {
         <bit-callout type="info" title="{{ 'confirmUsers' | i18n }}" icon="bwi-check-circle">
           {{ "usersNeedConfirmed" | i18n }}
         </bit-callout>
@@ -197,10 +190,8 @@
             >
               @if (showUserManagementControls()) {
                 <td bitCell (click)="dataSource.checkUser(u)">
-                  <input type="checkbox" bitCheckbox [(ngModel)]="$any(u).checked" />
+                  <input type="checkbox" bitCheckbox [(ngModel)]="u.checked" />
                 </td>
-              }
-              @if (showUserManagementControls()) {
                 <td bitCell (click)="edit(u, organization)" class="tw-cursor-pointer">
                   <div class="tw-flex tw-items-center">
                     <bit-avatar
@@ -330,7 +321,7 @@
                   <span class="tw-sr-only">{{ "userUsingTwoStep" | i18n }}</span>
                 }
                 @let resetPasswordPolicyEnabled = resetPasswordPolicyEnabled$ | async;
-                @if (showEnrolledStatus($any(u), organization, resetPasswordPolicyEnabled)) {
+                @if (showEnrolledStatus(u, organization, resetPasswordPolicyEnabled)) {
                   <i
                     class="bwi bwi-key"
                     title="{{ 'enrolledAccountRecovery' | i18n }}"
@@ -427,8 +418,7 @@
                           <i aria-hidden="true" class="bwi bwi-close"></i> {{ "remove" | i18n }}
                         </span>
                       </button>
-                    }
-                    @if (u.managedByOrganization) {
+                    } @else {
                       <button type="button" bitMenuItem (click)="deleteUser(u, organization)">
                         <span class="tw-text-danger">
                           <i class="bwi bwi-trash" aria-hidden="true"></i>

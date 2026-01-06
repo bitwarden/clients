@@ -225,7 +225,7 @@ describe("MembersComponent", () => {
       await component.load(mockOrg);
 
       expect(mockMemberService.loadUsers).toHaveBeenCalledWith(mockOrg);
-      expect(component["dataSource"].data).toEqual(users);
+      expect(component["dataSource"]().data).toEqual(users);
       expect(component["firstLoaded"]()).toBe(true);
     });
 
@@ -234,7 +234,7 @@ describe("MembersComponent", () => {
 
       await component.load(mockOrg);
 
-      expect(component["dataSource"].data).toEqual([]);
+      expect(component["dataSource"]().data).toEqual([]);
     });
   });
 
@@ -243,7 +243,7 @@ describe("MembersComponent", () => {
       mockMemberDialogManager.openRemoveUserConfirmationDialog.mockResolvedValue(true);
       mockMemberActionsService.removeUser.mockResolvedValue({ success: true });
 
-      const removeSpy = jest.spyOn(component["dataSource"], "removeUser");
+      const removeSpy = jest.spyOn(component["dataSource"](), "removeUser");
 
       await component.remove(mockUser, mockOrg);
 
@@ -271,9 +271,7 @@ describe("MembersComponent", () => {
         error: "Remove failed",
       });
 
-      await component.remove(mockUser, mockOrg);
-
-      expect(mockValidationService.showError).toHaveBeenCalledWith(expect.any(Error));
+      await expect(component.remove(mockUser, mockOrg)).rejects.toThrow("Remove failed");
     });
   });
 
@@ -293,9 +291,7 @@ describe("MembersComponent", () => {
         error: "Reinvite failed",
       });
 
-      await component.reinvite(mockUser, mockOrg);
-
-      expect(mockValidationService.showError).toHaveBeenCalledWith(expect.any(Error));
+      await expect(component.reinvite(mockUser, mockOrg)).rejects.toThrow("Reinvite failed");
     });
   });
 
@@ -304,48 +300,47 @@ describe("MembersComponent", () => {
       mockOrganizationManagementPreferencesService.autoConfirmFingerPrints.state$ = of(true);
       mockMemberActionsService.confirmUser.mockResolvedValue({ success: true });
 
-      // Mock confirmUserWorkflow to call the callback with a mock public key
-      mockMemberActionsService.confirmUserWorkflow.mockImplementation(
-        async (user, userNamePipe, orgManagementPrefs, callback) => {
-          await callback(new Uint8Array([1, 2, 3, 4]));
-        },
-      );
+      // Mock getPublicKeyForConfirm to return a public key
+      const mockPublicKey = new Uint8Array([1, 2, 3, 4]);
+      mockMemberActionsService.getPublicKeyForConfirm.mockResolvedValue(mockPublicKey);
+
+      const replaceSpy = jest.spyOn(component["dataSource"](), "replaceUser");
 
       await component.confirm(mockUser, mockOrg);
 
-      expect(mockMemberActionsService.confirmUserWorkflow).toHaveBeenCalledWith(
+      expect(mockMemberActionsService.getPublicKeyForConfirm).toHaveBeenCalledWith(
         mockUser,
         mockUserNamePipe,
         mockOrganizationManagementPreferencesService,
-        expect.any(Function),
       );
       expect(mockMemberActionsService.confirmUser).toHaveBeenCalledWith(
         mockUser,
-        expect.any(Uint8Array),
+        mockPublicKey,
         mockOrg,
       );
+      expect(replaceSpy).toHaveBeenCalled();
       expect(mockToastService.showToast).toHaveBeenCalled();
     });
 
     it("should handle null user", async () => {
       mockOrganizationManagementPreferencesService.autoConfirmFingerPrints.state$ = of(true);
 
-      // Mock confirmUserWorkflow to handle null user (it logs error internally)
-      mockMemberActionsService.confirmUserWorkflow.mockResolvedValue(undefined);
+      // Mock getPublicKeyForConfirm to return null
+      mockMemberActionsService.getPublicKeyForConfirm.mockResolvedValue(null);
 
-      await component.confirm(null as any, mockOrg);
+      await expect(component.confirm(mockUser, mockOrg)).rejects.toThrow("Public key not found");
 
-      expect(mockMemberActionsService.confirmUserWorkflow).toHaveBeenCalled();
+      expect(mockMemberActionsService.getPublicKeyForConfirm).toHaveBeenCalled();
       expect(mockMemberActionsService.confirmUser).not.toHaveBeenCalled();
     });
 
     it("should handle API errors gracefully", async () => {
-      // Mock confirmUserWorkflow to simulate an error (it logs error internally)
-      mockMemberActionsService.confirmUserWorkflow.mockResolvedValue(undefined);
+      // Mock getPublicKeyForConfirm to return null
+      mockMemberActionsService.getPublicKeyForConfirm.mockResolvedValue(null);
 
-      await component.confirm(mockUser, mockOrg);
+      await expect(component.confirm(mockUser, mockOrg)).rejects.toThrow("Public key not found");
 
-      expect(mockMemberActionsService.confirmUserWorkflow).toHaveBeenCalled();
+      expect(mockMemberActionsService.getPublicKeyForConfirm).toHaveBeenCalled();
     });
   });
 
@@ -392,9 +387,7 @@ describe("MembersComponent", () => {
         error: "Restore failed",
       });
 
-      await component.restore(mockUser, mockOrg);
-
-      expect(mockValidationService.showError).toHaveBeenCalledWith(expect.any(Error));
+      await expect(component.restore(mockUser, mockOrg)).rejects.toThrow("Restore failed");
     });
   });
 
@@ -439,7 +432,7 @@ describe("MembersComponent", () => {
   describe("bulkRemove", () => {
     it("should open bulk remove dialog and reload", async () => {
       const users = [mockUser];
-      jest.spyOn(component["dataSource"], "getCheckedUsers").mockReturnValue(users);
+      jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
       mockMemberService.loadUsers.mockResolvedValue([mockUser]);
 
       await component.bulkRemove(mockOrg);
@@ -453,7 +446,7 @@ describe("MembersComponent", () => {
   describe("bulkDelete", () => {
     it("should open bulk delete dialog and reload", async () => {
       const users = [mockUser];
-      jest.spyOn(component["dataSource"], "getCheckedUsers").mockReturnValue(users);
+      jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
       mockMemberService.loadUsers.mockResolvedValue([mockUser]);
 
       await component.bulkDelete(mockOrg);
@@ -471,7 +464,7 @@ describe("MembersComponent", () => {
       "should open bulk $action dialog and reload when isRevoking is $isRevoking",
       async ({ isRevoking }) => {
         const users = [mockUser];
-        jest.spyOn(component["dataSource"], "getCheckedUsers").mockReturnValue(users);
+        jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
         mockMemberService.loadUsers.mockResolvedValue([mockUser]);
 
         await component.bulkRevokeOrRestore(isRevoking, mockOrg);
@@ -492,7 +485,8 @@ describe("MembersComponent", () => {
         ...mockUser,
         status: OrganizationUserStatusType.Invited,
       };
-      jest.spyOn(component["dataSource"], "getCheckedUsers").mockReturnValue([invitedUser]);
+      jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
+      jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
       mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: true });
 
       await component.bulkReinvite(mockOrg);
@@ -506,7 +500,8 @@ describe("MembersComponent", () => {
         ...mockUser,
         status: OrganizationUserStatusType.Confirmed,
       };
-      jest.spyOn(component["dataSource"], "getCheckedUsers").mockReturnValue([confirmedUser]);
+      jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
+      jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([confirmedUser]);
 
       await component.bulkReinvite(mockOrg);
 
@@ -523,7 +518,8 @@ describe("MembersComponent", () => {
         ...mockUser,
         status: OrganizationUserStatusType.Invited,
       };
-      jest.spyOn(component["dataSource"], "getCheckedUsers").mockReturnValue([invitedUser]);
+      jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
+      jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
       const error = new Error("Bulk reinvite failed");
       mockMemberActionsService.bulkReinvite.mockRejectedValue(error);
 
@@ -536,7 +532,7 @@ describe("MembersComponent", () => {
   describe("bulkConfirm", () => {
     it("should open bulk confirm dialog and reload", async () => {
       const users = [mockUser];
-      jest.spyOn(component["dataSource"], "getCheckedUsers").mockReturnValue(users);
+      jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
       mockMemberService.loadUsers.mockResolvedValue([mockUser]);
 
       await component.bulkConfirm(mockOrg);
@@ -549,8 +545,8 @@ describe("MembersComponent", () => {
   describe("bulkEnableSM", () => {
     it("should open bulk enable SM dialog and reload", async () => {
       const users = [mockUser];
-      jest.spyOn(component["dataSource"], "getCheckedUsers").mockReturnValue(users);
-      jest.spyOn(component["dataSource"], "uncheckAllUsers");
+      jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
+      jest.spyOn(component["dataSource"](), "uncheckAllUsers");
       mockMemberService.loadUsers.mockResolvedValue([mockUser]);
 
       await component.bulkEnableSM(mockOrg);
@@ -559,7 +555,7 @@ describe("MembersComponent", () => {
         mockOrg,
         users,
       );
-      expect(component["dataSource"].uncheckAllUsers).toHaveBeenCalled();
+      expect(component["dataSource"]().uncheckAllUsers).toHaveBeenCalled();
       expect(mockMemberService.loadUsers).toHaveBeenCalledWith(mockOrg);
     });
   });
@@ -585,7 +581,7 @@ describe("MembersComponent", () => {
     it("should delete user when confirmed", async () => {
       mockMemberDialogManager.openDeleteUserConfirmationDialog.mockResolvedValue(true);
       mockMemberActionsService.deleteUser.mockResolvedValue({ success: true });
-      const removeSpy = jest.spyOn(component["dataSource"], "removeUser");
+      const removeSpy = jest.spyOn(component["dataSource"](), "removeUser");
 
       await component.deleteUser(mockUser, mockOrg);
 
@@ -614,9 +610,7 @@ describe("MembersComponent", () => {
         error: "Delete failed",
       });
 
-      await component.deleteUser(mockUser, mockOrg);
-
-      expect(mockValidationService.showError).toHaveBeenCalledWith(expect.any(Error));
+      await expect(component.deleteUser(mockUser, mockOrg)).rejects.toThrow("Delete failed");
     });
   });
 
@@ -645,9 +639,9 @@ describe("MembersComponent", () => {
       const result: MemberActionResult = { success: false, error: "Error message" };
       const sideEffect = jest.fn();
 
-      await component.handleMemberActionResult(result, "testSuccessKey", mockUser, sideEffect);
-
-      expect(mockValidationService.showError).toHaveBeenCalledWith(expect.any(Error));
+      await expect(
+        component.handleMemberActionResult(result, "testSuccessKey", mockUser, sideEffect),
+      ).rejects.toThrow("Error message");
       expect(sideEffect).not.toHaveBeenCalled();
     });
 
@@ -656,9 +650,9 @@ describe("MembersComponent", () => {
       const error = new Error("Side effect failed");
       const sideEffect = jest.fn().mockRejectedValue(error);
 
-      await component.handleMemberActionResult(result, "testSuccessKey", mockUser, sideEffect);
-
-      expect(mockValidationService.showError).toHaveBeenCalledWith(error);
+      await expect(
+        component.handleMemberActionResult(result, "testSuccessKey", mockUser, sideEffect),
+      ).rejects.toThrow("Side effect failed");
     });
   });
 });

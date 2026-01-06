@@ -1,14 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  inject,
-  signal,
-  WritableSignal,
-} from "@angular/core";
+import { Component, inject, signal, WritableSignal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
@@ -18,7 +11,7 @@ import {
   Observable,
   switchMap,
 } from "rxjs";
-import { first, map, tap } from "rxjs/operators";
+import { first, map } from "rxjs/operators";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -41,11 +34,11 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import {
   CloudBulkReinviteLimit,
-  configureProviderMemberFlags,
   MaxCheckedCount,
   peopleFilter,
   ProviderUser,
   ProvidersTableDataSource,
+  showConfirmBanner,
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
@@ -62,10 +55,16 @@ import {
 import { BulkConfirmDialogComponent } from "./dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./dialogs/bulk-remove-dialog.component";
 
+interface BulkProviderFlags {
+  showBulkConfirmUsers: boolean;
+  showBulkReinviteUsers: boolean;
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "members.component.html",
   standalone: false,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MembersComponent {
   protected apiService = inject(ApiService);
@@ -81,15 +80,12 @@ export class MembersComponent {
   private keyService = inject(KeyService);
   private activatedRoute = inject(ActivatedRoute);
   private providerService = inject(ProviderService);
-  private router = inject(Router);
   private accountService = inject(AccountService);
   private configService = inject(ConfigService);
   private environmentService = inject(EnvironmentService);
-  private changeDetectorRef = inject(ChangeDetectorRef);
   private memberActionsService = inject(MemberActionsService);
 
   protected accessEvents = false;
-  protected dataSource = new ProvidersTableDataSource(this.configService, this.environmentService);
 
   protected providerId$: Observable<ProviderId>;
   protected provider$: Observable<Provider | undefined>;
@@ -103,23 +99,26 @@ export class MembersComponent {
 
   protected searchControl = new FormControl("", { nonNullable: true });
   protected statusToggle = new BehaviorSubject<ProviderUserStatusType | undefined>(undefined);
+
+  protected readonly dataSource: WritableSignal<ProvidersTableDataSource> = signal(
+    new ProvidersTableDataSource(this.configService, this.environmentService),
+  );
   protected readonly firstLoaded: WritableSignal<boolean> = signal(false);
 
-  protected bulkFlags$ = configureProviderMemberFlags(this.dataSource);
+  protected bulkMenuOptions$ = this.dataSource()
+    .usersUpdated()
+    .pipe(map((members) => this.bulkMenuOptions(members)));
+
+  protected showConfirmBanner$ = this.dataSource()
+    .usersUpdated()
+    .pipe(map(() => showConfirmBanner(this.dataSource())));
 
   constructor() {
-    this.dataSource
-      .connect()
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => {
-        this.changeDetectorRef.markForCheck();
-      });
-
     // Connect the search input and status toggles to the table dataSource filter
     combineLatest([this.searchControl.valueChanges.pipe(debounceTime(200)), this.statusToggle])
       .pipe(takeUntilDestroyed())
       .subscribe(
-        ([searchText, status]) => (this.dataSource.filter = peopleFilter(searchText, status)),
+        ([searchText, status]) => (this.dataSource().filter = peopleFilter(searchText, status)),
       );
 
     this.providerId$ = this.activatedRoute.params.pipe(map((params) => params.providerId));
@@ -127,26 +126,19 @@ export class MembersComponent {
     this.provider$ = combineLatest([
       this.providerId$,
       this.accountService.activeAccount$.pipe(getUserId),
-    ]).pipe(
-      switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)),
-      tap(async (provider) => {
-        if (!provider || !provider.canManageUsers) {
-          return await this.router.navigate(["../"], { relativeTo: this.activatedRoute });
-        }
-      }),
-    );
+    ]).pipe(switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)));
 
     combineLatest([this.activatedRoute.queryParams, this.providerId$])
       .pipe(
         first(),
         switchMap(async ([queryParams, providerId]) => {
           this.searchControl.setValue(queryParams.search);
-          this.dataSource.filter = peopleFilter(queryParams.search, undefined);
+          this.dataSource().filter = peopleFilter(queryParams.search, undefined);
 
           await this.load();
 
           if (queryParams.viewEvents != null) {
-            const user = this.dataSource.data.find((user) => user.id === queryParams.viewEvents);
+            const user = this.dataSource().data.find((user) => user.id === queryParams.viewEvents);
             if (user && user.status === ProviderUserStatusType.Confirmed) {
               this.openEventsDialog(user, providerId);
             }
@@ -160,12 +152,12 @@ export class MembersComponent {
   async load() {
     const providerId = await firstValueFrom(this.providerId$);
     const response = await this.apiService.getProviderUsers(providerId);
-    this.dataSource.data = response.data != null && response.data.length > 0 ? response.data : [];
+    this.dataSource().data = response.data;
     this.firstLoaded.set(true);
   }
 
   async bulkConfirm(providerId: ProviderId): Promise<void> {
-    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+    const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
     const dialogRef = BulkConfirmDialogComponent.open(this.dialogService, {
       data: {
         providerId: providerId,
@@ -179,10 +171,10 @@ export class MembersComponent {
 
   async bulkReinvite(providerId: ProviderId): Promise<void> {
     let users: ProviderUser[];
-    if (this.dataSource.isIncreasedBulkLimitEnabled()) {
-      users = this.dataSource.getCheckedUsersInVisibleOrder();
+    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
+      users = this.dataSource().getCheckedUsersInVisibleOrder();
     } else {
-      users = this.dataSource.getCheckedUsers();
+      users = this.dataSource().getCheckedUsers();
     }
 
     const allInvitedUsers = users.filter((user) => user.status === ProviderUserStatusType.Invited);
@@ -192,8 +184,8 @@ export class MembersComponent {
 
     // When feature flag is enabled, limit invited users and uncheck the excess
     let checkedInvitedUsers: ProviderUser[];
-    if (this.dataSource.isIncreasedBulkLimitEnabled()) {
-      checkedInvitedUsers = this.dataSource.limitAndUncheckExcess(
+    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
+      checkedInvitedUsers = this.dataSource().limitAndUncheckExcess(
         allInvitedUsers,
         CloudBulkReinviteLimit,
       );
@@ -212,7 +204,7 @@ export class MembersComponent {
 
     try {
       // When feature flag is enabled, show toast instead of dialog
-      if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+      if (this.dataSource().isIncreasedBulkLimitEnabled()) {
         await this.apiService.postManyProviderUserReinvite(
           providerId,
           new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),
@@ -261,7 +253,7 @@ export class MembersComponent {
   }
 
   async bulkRemove(providerId: ProviderId): Promise<void> {
-    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+    const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
     const dialogRef = BulkRemoveDialogComponent.open(this.dialogService, {
       data: {
         providerId: providerId,
@@ -294,7 +286,7 @@ export class MembersComponent {
           variant: "success",
           message: this.i18nService.t("removedUserId", this.userNamePipe.transform(user)),
         });
-        this.dataSource.removeUser(user);
+        this.dataSource().removeUser(user);
       } else {
         throw new Error(result.error);
       }
@@ -305,7 +297,7 @@ export class MembersComponent {
 
   async reinvite(user: ProviderUser, providerId: ProviderId) {
     try {
-      const result = await this.reinviteUserInternal(user.id, providerId);
+      const result = await this.apiService.postProviderUserReinvite(providerId, providerId);
       if (result.success) {
         this.toastService.showToast({
           variant: "success",
@@ -320,40 +312,14 @@ export class MembersComponent {
   }
 
   async confirm(user: ProviderUser, providerId: ProviderId) {
-    const confirmUser = async (publicKey: Uint8Array) => {
-      try {
-        const result = await this.confirmUserInternal(user, publicKey, providerId);
-        if (result.success) {
-          user.status = this.userStatusType.Confirmed;
-          this.dataSource.replaceUser(user);
-
-          this.toastService.showToast({
-            variant: "success",
-            message: this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user)),
-          });
-        } else {
-          throw new Error(result.error);
-        }
-      } catch (e) {
-        this.validationService.showError(e);
-        throw e;
-      }
-    };
-
-    await this.memberActionsService.confirmUserWorkflow(
-      user,
-      this.userNamePipe,
-      this.organizationManagementPreferencesService,
-      confirmUser,
-    );
-  }
-
-  private async confirmUserInternal(
-    user: ProviderUser,
-    publicKey: Uint8Array,
-    providerId: ProviderId,
-  ): Promise<MemberActionResult> {
     try {
+      const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(
+        user,
+        this.userNamePipe,
+        this.organizationManagementPreferencesService,
+      );
+      assertNonNullish(publicKeyResult, "Public key not found");
+
       const providerKey = await firstValueFrom(
         this.accountService.activeAccount$.pipe(
           getUserId,
@@ -363,15 +329,26 @@ export class MembersComponent {
       );
       assertNonNullish(providerKey, "Provider key not found");
 
-      const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
-      if (key.encryptedString == null) {
-        throw new Error("No key was provided");
-      }
+      const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKeyResult);
+      assertNonNullish(key.encryptedString, "No key was provided");
+
       const request = new ProviderUserConfirmRequest(key.encryptedString);
-      await this.apiService.postProviderUserConfirm(providerId, user.id, request);
-      return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+      const result = await this.apiService.postProviderUserConfirm(providerId, user.id, request);
+
+      if (result.success) {
+        user.status = this.userStatusType.Confirmed;
+        this.dataSource().replaceUser(user);
+
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user)),
+        });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e) {
+      this.validationService.showError(e);
+      throw e;
     }
   }
 
@@ -426,15 +403,16 @@ export class MembersComponent {
     });
   }
 
-  private async reinviteUserInternal(
-    id: string,
-    providerId: ProviderId,
-  ): Promise<MemberActionResult> {
-    try {
-      await this.apiService.postProviderUserReinvite(providerId, id);
-      return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
-    }
+  private bulkMenuOptions(providerMembers: ProviderUser[]): BulkProviderFlags {
+    const result: BulkProviderFlags = {
+      showBulkConfirmUsers: providerMembers.every(
+        (m) => m.status == ProviderUserStatusType.Accepted,
+      ),
+      showBulkReinviteUsers: providerMembers.every(
+        (m) => m.status == ProviderUserStatusType.Invited,
+      ),
+    };
+
+    return result;
   }
 }

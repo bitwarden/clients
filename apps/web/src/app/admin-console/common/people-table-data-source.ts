@@ -138,8 +138,8 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
 
   private checkedUsersUpdated$ = new Subject<void>();
 
-  usersUpdated(): Observable<void> {
-    return this.checkedUsersUpdated$.asObservable();
+  usersUpdated(): Observable<T[]> {
+    return this.checkedUsersUpdated$.asObservable().pipe(map(() => this.getCheckedUsers()));
   }
 
   /**
@@ -250,121 +250,17 @@ export class MembersTableDataSource extends PeopleTableDataSource<OrganizationUs
   protected statusType = OrganizationUserStatusType;
 }
 
-export interface BulkFlags {
-  showConfirmUsers: boolean;
-  showBulkConfirmUsers: boolean;
-  showBulkReinviteUsers: boolean;
-}
-
-export interface BulkMemberFlags extends BulkFlags {
-  showBulkRestoreUsers: boolean;
-  showBulkRevokeUsers: boolean;
-  showBulkRemoveUsers: boolean;
-  showBulkDeleteUsers: boolean;
-}
-
 /**
  * Helper function to determine if the confirm users option should be shown
  * @params dataSource Either a ProivdersTableDataSource or a MembersTableDataSource
  */
-function showConfirm(dataSource: ProvidersTableDataSource | MembersTableDataSource): boolean {
+export function showConfirmBanner(
+  dataSource: ProvidersTableDataSource | MembersTableDataSource,
+): boolean {
   return (
     dataSource.activeUserCount > 1 &&
     dataSource.confirmedUserCount > 0 &&
     dataSource.confirmedUserCount < 3 &&
     dataSource.acceptedUserCount > 0
-  );
-}
-
-/**
- * Configures bulk operation flags for organization members based on checked user states.
- * Returns an Observable that emits updated flags whenever the checked users change.
- *
- * @param dataSource The MembersTableDataSource to observe
- * @returns Observable that emits BulkMemberFlags whenever checked users are updated
- */
-export function configureMemberFlags(
-  dataSource: MembersTableDataSource,
-): Observable<BulkMemberFlags> {
-  return dataSource.usersUpdated().pipe(
-    map(() => {
-      const checkedUsers = dataSource.getCheckedUsers();
-      const result = {
-        showConfirmUsers: showConfirm(dataSource),
-        showBulkConfirmUsers: true,
-        showBulkReinviteUsers: true,
-        showBulkRestoreUsers: true,
-        showBulkRevokeUsers: true,
-        showBulkRemoveUsers: true,
-        showBulkDeleteUsers: true,
-      };
-
-      if (checkedUsers.length) {
-        checkedUsers.forEach((member) => {
-          if (member.status !== OrganizationUserStatusType.Accepted) {
-            result.showBulkConfirmUsers = false;
-          }
-          if (member.status !== OrganizationUserStatusType.Invited) {
-            result.showBulkReinviteUsers = false;
-          }
-          if (member.status !== OrganizationUserStatusType.Revoked) {
-            result.showBulkRestoreUsers = false;
-          }
-          if (member.status == OrganizationUserStatusType.Revoked) {
-            result.showBulkRevokeUsers = false;
-          }
-
-          if (member.managedByOrganization) {
-            result.showBulkRemoveUsers = false;
-          }
-
-          const validStatuses = [
-            OrganizationUserStatusType.Accepted,
-            OrganizationUserStatusType.Confirmed,
-            OrganizationUserStatusType.Revoked,
-          ];
-
-          if (!member.managedByOrganization || !validStatuses.includes(member.status)) {
-            result.showBulkDeleteUsers = false;
-          }
-        });
-      }
-
-      return result;
-    }),
-  );
-}
-
-/**
- * Configures bulk operation flags for provider members based on checked user states.
- * Returns an Observable that emits updated flags whenever the checked users change.
- *
- * @param dataSource The ProvidersTableDataSource to observe
- * @returns Observable that emits BulkFlags whenever checked users are updated
- */
-export function configureProviderMemberFlags(
-  dataSource: ProvidersTableDataSource,
-): Observable<BulkFlags> {
-  return dataSource.usersUpdated().pipe(
-    map(() => {
-      const result: BulkFlags = {
-        showConfirmUsers: showConfirm(dataSource),
-        showBulkConfirmUsers: true,
-        showBulkReinviteUsers: true,
-      };
-      const checkedUsers = dataSource.getCheckedUsers();
-
-      checkedUsers.forEach((provider) => {
-        if (provider.status !== ProviderUserStatusType.Accepted) {
-          result.showBulkConfirmUsers = false;
-        }
-
-        if (provider.status !== ProviderUserStatusType.Invited) {
-          result.showBulkReinviteUsers = false;
-        }
-      });
-
-      return result;
-    }),
   );
 }
