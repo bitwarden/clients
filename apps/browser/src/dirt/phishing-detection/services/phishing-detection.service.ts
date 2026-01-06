@@ -66,6 +66,10 @@ export class PhishingDetectionService {
       ...args: readonly unknown[]
     ) => unknown;
     BrowserApi.addListener(chrome.tabs.onUpdated, this._boundTabHandler);
+    this._boundTabHandler = this._handleTabUpdated.bind(this) as (
+      ...args: readonly unknown[]
+    ) => unknown;
+    BrowserApi.addListener(chrome.tabs.onUpdated, this._boundTabHandler);
 
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
       tap((message) =>
@@ -168,6 +172,10 @@ export class PhishingDetectionService {
       }
       this._didInit = false;
 
+      if (this._boundTabHandler) {
+        BrowserApi.removeListener(chrome.tabs.onUpdated, this._boundTabHandler);
+        this._boundTabHandler = null;
+      }
       if (this._boundTabHandler) {
         BrowserApi.removeListener(chrome.tabs.onUpdated, this._boundTabHandler);
         this._boundTabHandler = null;
