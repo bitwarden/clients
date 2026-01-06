@@ -59,20 +59,20 @@ export class PhishingDataService {
   private static _intervalSubscription: Subscription | null = null;
 
   private _testWebAddresses = this.getTestWebAddresses();
-  private _cachedStateInstance: GlobalState<PhishingData> | null = null;
+  private _cachedPhishingDataStateInstance: GlobalState<PhishingData> | null = null;
 
   /**
-   * Lazy getter for cached state. Only accesses IndexedDB when phishing detection is actually used.
+   * Lazy getter for cached phishing data state. Only accesses IndexedDB when phishing detection is actually used.
    * This prevents blocking service worker initialization on extension reload for non-premium users.
    */
-  private get _cachedState() {
-    if (this._cachedStateInstance === null) {
+  private get _cachedPhishingDataState() {
+    if (this._cachedPhishingDataStateInstance === null) {
       this.logService.debug(
         "[PhishingDataService] Lazy-loading state from IndexedDB (first access)",
       );
-      this._cachedStateInstance = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
+      this._cachedPhishingDataStateInstance = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
     }
-    return this._cachedStateInstance;
+    return this._cachedPhishingDataStateInstance;
   }
 
   constructor(
@@ -100,13 +100,13 @@ export class PhishingDataService {
   }
 
   // In-memory cache to avoid expensive Set rebuilds and state rewrites
-  private _cachedSet: Set<string> | null = null;
+  private _cachedWebAddressesSet: Set<string> | null = null;
   private _cachedSetChecksum: string = "";
   private _lastCheckTime: number = 0; // Track check time in memory, not state
 
   // Lazy observable: only subscribes to state$ when actually needed (first URL check)
   // This prevents blocking service worker initialization on extension reload
-  // Using a getter with caching to defer access to _cachedState until actually subscribed
+  // Using a getter with caching to defer access to _cachedPhishingDataState until actually subscribed
   private _webAddresses$Instance: ReturnType<typeof this.createWebAddresses$> | null = null;
   private get _webAddresses$() {
     if (this._webAddresses$Instance === null) {
@@ -116,16 +116,16 @@ export class PhishingDataService {
   }
 
   private createWebAddresses$() {
-    return this._cachedState.state$.pipe(
+    return this._cachedPhishingDataState.state$.pipe(
       // Only rebuild Set when checksum changes (actual data change)
       distinctUntilChanged((prev, curr) => prev?.checksum === curr?.checksum),
       switchMap((state) => {
         // Return cached Set if checksum matches
-        if (this._cachedSet && state?.checksum === this._cachedSetChecksum) {
+        if (this._cachedWebAddressesSet && state?.checksum === this._cachedSetChecksum) {
           this.logService.debug(
-            `[PhishingDataService] Using cached Set (${this._cachedSet.size} entries, checksum: ${state?.checksum.substring(0, 8)}...)`,
+            `[PhishingDataService] Using cached Set (${this._cachedWebAddressesSet.size} entries, checksum: ${state?.checksum.substring(0, 8)}...)`,
           );
-          return of(this._cachedSet);
+          return of(this._cachedWebAddressesSet);
         }
         // Build Set in chunks to avoid blocking UI
         this.logService.debug(
@@ -154,7 +154,7 @@ export class PhishingDataService {
    * - Skips if an update is already in progress
    * - Skips if cache was updated within MIN_UPDATE_INTERVAL (5 min)
    *
-   * Lazy getter with caching: Only accesses _cachedState when actually subscribed to prevent IndexedDB read on reload.
+   * Lazy getter with caching: Only accesses _cachedPhishingDataState when actually subscribed to prevent IndexedDB read on reload.
    */
   private _update$Instance: ReturnType<typeof this.createUpdate$> | null = null;
   get update$() {
@@ -180,7 +180,9 @@ export class PhishingDataService {
       switchMap(async () => {
         // Get current state directly without subscribing to state$ observable
         // This avoids creating a subscription that stays active
-        const cachedState = await firstValueFrom(this._cachedState.state$.pipe(first()));
+        const cachedState = await firstValueFrom(
+          this._cachedPhishingDataState.state$.pipe(first()),
+        );
 
         // Early exit if we checked recently (using in-memory tracking)
         const timeSinceLastCheck = Date.now() - this._lastCheckTime;
@@ -206,7 +208,7 @@ export class PhishingDataService {
           if (result) {
             // Yield to event loop before state update
             await new Promise((resolve) => setTimeout(resolve, 0));
-            await this._cachedState.update(() => result);
+            await this._cachedPhishingDataState.update(() => result);
             this.logService.info(
               `[PhishingDataService] State updated with ${result.webAddresses.length} entries`,
             );
@@ -254,7 +256,7 @@ export class PhishingDataService {
    *
    * IMPORTANT: This is a no-op if there are no observers on update$ to prevent
    * unnecessary IndexedDB reads for non-premium users or when phishing detection is disabled.
-   * The observable chain in createUpdate$() accesses _cachedState which triggers IndexedDB reads.
+   * The observable chain in createUpdate$() accesses _cachedPhishingDataState which triggers IndexedDB reads.
    */
   triggerUpdateIfNeeded(): void {
     const observerCount = (this._triggerUpdate$ as any).observers?.length ?? 0;
@@ -262,7 +264,7 @@ export class PhishingDataService {
     // CRITICAL: Only trigger if there are active observers to prevent IndexedDB access
     // when phishing detection is disabled or user doesn't have premium access.
     // Without this guard, calling _triggerUpdate$.next() would trigger the switchMap
-    // in createUpdate$() which accesses _cachedState, causing a blocking IndexedDB read.
+    // in createUpdate$() which accesses _cachedPhishingDataState, causing a blocking IndexedDB read.
     if (observerCount === 0) {
       this.logService.debug(
         "[PhishingDataService] No observers on update$, skipping trigger to avoid IndexedDB access",
@@ -495,7 +497,7 @@ export class PhishingDataService {
     set.add("phishing.testcategory.com"); // For QA testing
 
     // Cache for future use
-    this._cachedSet = set;
+    this._cachedWebAddressesSet = set;
     this._cachedSetChecksum = checksum;
 
     const buildTime = Date.now() - startTime;
