@@ -197,6 +197,38 @@ describe("StorageCardComponent", () => {
     });
   });
 
+  describe("callsToActionDisabled", () => {
+    it("should disable both buttons when callsToActionDisabled is true", () => {
+      setupComponent(baseStorage);
+      fixture.componentRef.setInput("callsToActionDisabled", true);
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      expect(buttons[0].attributes["aria-disabled"]).toBe("true");
+      expect(buttons[1].attributes["aria-disabled"]).toBe("true");
+    });
+
+    it("should enable both buttons when callsToActionDisabled is false and storage is not full", () => {
+      setupComponent({ ...baseStorage, used: 2.5, readableUsed: "2.5 GB" });
+      fixture.componentRef.setInput("callsToActionDisabled", false);
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      expect(buttons[0].nativeElement.disabled).toBe(false);
+      expect(buttons[1].nativeElement.disabled).toBe(false);
+    });
+
+    it("should keep remove button disabled when callsToActionDisabled is false but storage is full", () => {
+      setupComponent({ ...baseStorage, used: 5, readableUsed: "5 GB" });
+      fixture.componentRef.setInput("callsToActionDisabled", false);
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      expect(buttons[0].nativeElement.disabled).toBe(false);
+      expect(buttons[1].attributes["aria-disabled"]).toBe("true");
+    });
+  });
+
   describe("button click events", () => {
     it("should emit add-storage action when add button is clicked", () => {
       setupComponent(baseStorage);

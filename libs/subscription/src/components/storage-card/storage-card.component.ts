@@ -25,6 +25,8 @@ export class StorageCardComponent {
 
   readonly storage = input.required<Storage>();
 
+  readonly callsToActionDisabled = input<boolean>(false);
+
   readonly callToActionClicked = output<StorageCardAction>();
 
   readonly isEmpty = computed<boolean>(() => this.storage().used === 0);

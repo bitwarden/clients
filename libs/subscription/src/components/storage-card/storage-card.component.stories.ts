@@ -134,3 +134,15 @@ export const SmallStorage: Story = {
     } satisfies Storage,
   },
 };
+
+export const ActionsDisabled: Story = {
+  name: "Actions Disabled",
+  args: {
+    storage: {
+      available: 5,
+      used: 2.5,
+      readableUsed: "2.5 GB",
+    } satisfies Storage,
+    callsToActionDisabled: true,
+  },
+};

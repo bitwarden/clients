@@ -21,6 +21,7 @@
       bitButton
       buttonType="secondary"
       type="button"
+      [disabled]="callsToActionDisabled()"
       (click)="callToActionClicked.emit('add-storage')"
     >
       {{ "addStorage" | i18n }}
@@ -29,7 +30,7 @@
       bitButton
       buttonType="secondary"
       type="button"
-      [disabled]="!canRemoveStorage()"
+      [disabled]="callsToActionDisabled() || !canRemoveStorage()"
       (click)="callToActionClicked.emit('remove-storage')"
     >
       {{ "removeStorage" | i18n }}
