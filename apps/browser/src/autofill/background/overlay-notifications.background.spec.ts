@@ -323,6 +323,7 @@ describe("OverlayNotificationsBackground", () => {
     const pageDetails = mock<AutofillPageDetails>({ fields: [mock<AutofillField>()] });
     let notificationChangedPasswordSpy: jest.SpyInstance;
     let notificationAddLoginSpy: jest.SpyInstance;
+    let cipherNotificationSpy: jest.SpyInstance;
 
     beforeEach(async () => {
       sender = mock<chrome.runtime.MessageSender>({
@@ -334,6 +335,7 @@ describe("OverlayNotificationsBackground", () => {
         "triggerChangedPasswordNotification",
       );
       notificationAddLoginSpy = jest.spyOn(notificationBackground, "triggerAddLoginNotification");
+      cipherNotificationSpy = jest.spyOn(notificationBackground, "triggerCipherNotification");
 
       sendMockExtensionMessage(
         { command: "collectPageDetailsResponse", details: pageDetails },
@@ -456,6 +458,7 @@ describe("OverlayNotificationsBackground", () => {
       const pageDetails = mock<AutofillPageDetails>({ fields: [mock<AutofillField>()] });
 
       beforeEach(async () => {
+        overlayNotificationsBackground["useUndiscoveredCipherScenarioTriggeringLogic"] = false;
         sendMockExtensionMessage(
           { command: "collectPageDetailsResponse", details: pageDetails },
           sender,
@@ -519,6 +522,44 @@ describe("OverlayNotificationsBackground", () => {
         expect(notificationAddLoginSpy).toHaveBeenCalled();
       });
 
+      it("with `useUndiscoveredCipherScenarioTriggeringLogic` on, waits for the tab's navigation to complete using the web navigation API before initializing the notification", async () => {
+        overlayNotificationsBackground["useUndiscoveredCipherScenarioTriggeringLogic"] = true;
+        chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
+          callback(
+            mock<chrome.tabs.Tab>({
+              status: "loading",
+              url: sender.url,
+            }),
+          );
+        });
+        triggerWebRequestOnCompletedEvent(
+          mock<chrome.webRequest.OnCompletedDetails>({
+            url: sender.url,
+            tabId: sender.tab.id,
+            requestId,
+          }),
+        );
+        await flushPromises();
+
+        chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
+          callback(
+            mock<chrome.tabs.Tab>({
+              status: "complete",
+              url: sender.url,
+            }),
+          );
+        });
+        triggerWebNavigationOnCompletedEvent(
+          mock<chrome.webNavigation.WebNavigationFramedCallbackDetails>({
+            tabId: sender.tab.id,
+            url: sender.url,
+          }),
+        );
+        await flushPromises();
+
+        expect(cipherNotificationSpy).toHaveBeenCalled();
+      });
+
       it("initializes the notification immediately when the tab's navigation is complete", async () => {
         sendMockExtensionMessage(
           {
@@ -550,6 +591,40 @@ describe("OverlayNotificationsBackground", () => {
         await flushPromises();
 
         expect(notificationAddLoginSpy).toHaveBeenCalled();
+      });
+
+      it("with `useUndiscoveredCipherScenarioTriggeringLogic` on, initializes the notification immediately when the tab's navigation is complete", async () => {
+        overlayNotificationsBackground["useUndiscoveredCipherScenarioTriggeringLogic"] = true;
+        sendMockExtensionMessage(
+          {
+            command: "formFieldSubmitted",
+            uri: "example.com",
+            username: "username",
+            password: "password",
+            newPassword: "newPassword",
+          },
+          sender,
+        );
+        await flushPromises();
+        chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
+          callback(
+            mock<chrome.tabs.Tab>({
+              status: "complete",
+              url: sender.url,
+            }),
+          );
+        });
+
+        triggerWebRequestOnCompletedEvent(
+          mock<chrome.webRequest.OnCompletedDetails>({
+            url: sender.url,
+            tabId: sender.tab.id,
+            requestId,
+          }),
+        );
+        await flushPromises();
+
+        expect(cipherNotificationSpy).toHaveBeenCalled();
       });
 
       it("triggers the notification on the beforeRequest listener when a post-submission redirection is encountered", async () => {
@@ -600,6 +675,57 @@ describe("OverlayNotificationsBackground", () => {
         await flushPromises();
 
         expect(notificationChangedPasswordSpy).toHaveBeenCalled();
+      });
+
+      it("with `useUndiscoveredCipherScenarioTriggeringLogic` on, triggers the notification on the beforeRequest listener when a post-submission redirection is encountered", async () => {
+        overlayNotificationsBackground["useUndiscoveredCipherScenarioTriggeringLogic"] = true;
+        sender.tab = mock<chrome.tabs.Tab>({ id: 4 });
+        sendMockExtensionMessage(
+          { command: "collectPageDetailsResponse", details: pageDetails },
+          sender,
+        );
+        await flushPromises();
+        sendMockExtensionMessage(
+          {
+            command: "formFieldSubmitted",
+            uri: "example.com",
+            username: "",
+            password: "password",
+            newPassword: "newPassword",
+          },
+          sender,
+        );
+        await flushPromises();
+        chrome.tabs.get = jest.fn().mockImplementation((tabId, callback) => {
+          callback(
+            mock<chrome.tabs.Tab>({
+              status: "complete",
+              url: sender.url,
+            }),
+          );
+        });
+
+        triggerWebRequestOnBeforeRequestEvent(
+          mock<chrome.webRequest.WebRequestDetails>({
+            url: sender.url,
+            tabId: sender.tab.id,
+            method: "POST",
+            requestId,
+          }),
+        );
+        await flushPromises();
+
+        triggerWebRequestOnBeforeRequestEvent(
+          mock<chrome.webRequest.WebRequestDetails>({
+            url: "https://example.com/redirect",
+            tabId: sender.tab.id,
+            method: "GET",
+            requestId,
+          }),
+        );
+        await flushPromises();
+
+        expect(cipherNotificationSpy).toHaveBeenCalled();
       });
     });
   });
