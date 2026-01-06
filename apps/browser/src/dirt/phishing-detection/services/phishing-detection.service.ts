@@ -137,7 +137,7 @@ export class PhishingDetectionService {
     const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
     // CRITICAL: Only subscribe to update$ if phishing detection is available
-    // This prevents IndexedDB access for non-premium users on extension reload
+    // This prevents storage access for non-premium users on extension reload
     // The subscription is created lazily when phishing detection becomes active
     let updateSub: Subscription | null = null;
 
@@ -165,7 +165,7 @@ export class PhishingDetectionService {
           } else {
             logService.debug("[PhishingDetectionService] Enabling phishing detection service");
             // Lazy subscription: Only subscribe to update$ when phishing detection becomes active
-            // This prevents IndexedDB access for non-premium users on extension reload
+            // This prevents storage access for non-premium users on extension reload
             if (!updateSub) {
               updateSub = phishingDataService.update$.subscribe({
                 next: () => {

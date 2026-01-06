@@ -94,22 +94,11 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
    * @returns True if phishing detection is enabled for the active user
    */
   private buildEnabledPipeline$(): Observable<boolean> {
-    // Only read user state if the user has access to phishing detection (available$ is true).
-    // This prevents unnecessary IndexedDB reads for non-premium users during unlock/account switch,
-    // which was causing 3+ second UI freezes.
-    return combineLatest([this.accountService.activeAccount$, this.available$]).pipe(
-      switchMap(([account, available]) => {
+    return this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
         if (!account) {
           return of(false);
         }
-        // If user doesn't have access, return false immediately without reading state.
-        // This prevents IndexedDB reads for non-premium users.
-        if (!available) {
-          return of(false);
-        }
-        // Only read state if user has access.
-        // Use startWith(true) to emit immediately with the default value, then update when state is read.
-        // This prevents on$ from blocking while the IndexedDB read completes in the background.
         return this.stateProvider.getUserState$(ENABLE_PHISHING_DETECTION, account.id).pipe(
           startWith(true), // Default: enabled (matches deserializer default)
           map((enabled) => enabled ?? true),

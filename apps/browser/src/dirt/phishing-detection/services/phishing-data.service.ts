@@ -62,14 +62,12 @@ export class PhishingDataService {
   private _cachedPhishingDataStateInstance: GlobalState<PhishingData> | null = null;
 
   /**
-   * Lazy getter for cached phishing data state. Only accesses IndexedDB when phishing detection is actually used.
+   * Lazy getter for cached phishing data state. Only accesses storage when phishing detection is actually used.
    * This prevents blocking service worker initialization on extension reload for non-premium users.
    */
   private get _cachedPhishingDataState() {
     if (this._cachedPhishingDataStateInstance === null) {
-      this.logService.debug(
-        "[PhishingDataService] Lazy-loading state from IndexedDB (first access)",
-      );
+      this.logService.debug("[PhishingDataService] Lazy-loading state from storage (first access)");
       this._cachedPhishingDataStateInstance = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
     }
     return this._cachedPhishingDataStateInstance;
@@ -154,7 +152,7 @@ export class PhishingDataService {
    * - Skips if an update is already in progress
    * - Skips if cache was updated within MIN_UPDATE_INTERVAL (5 min)
    *
-   * Lazy getter with caching: Only accesses _cachedPhishingDataState when actually subscribed to prevent IndexedDB read on reload.
+   * Lazy getter with caching: Only accesses _cachedPhishingDataState when actually subscribed to prevent storage read on reload.
    */
   private _update$Instance: ReturnType<typeof this.createUpdate$> | null = null;
   get update$() {
@@ -255,19 +253,19 @@ export class PhishingDataService {
    * Should be called when phishing detection is enabled for an account.
    *
    * IMPORTANT: This is a no-op if there are no observers on update$ to prevent
-   * unnecessary IndexedDB reads for non-premium users or when phishing detection is disabled.
-   * The observable chain in createUpdate$() accesses _cachedPhishingDataState which triggers IndexedDB reads.
+   * unnecessary storage reads for non-premium users or when phishing detection is disabled.
+   * The observable chain in createUpdate$() accesses _cachedPhishingDataState which triggers storage reads.
    */
   triggerUpdateIfNeeded(): void {
     const observerCount = (this._triggerUpdate$ as any).observers?.length ?? 0;
 
-    // CRITICAL: Only trigger if there are active observers to prevent IndexedDB access
+    // CRITICAL: Only trigger if there are active observers to prevent storage access
     // when phishing detection is disabled or user doesn't have premium access.
     // Without this guard, calling _triggerUpdate$.next() would trigger the switchMap
-    // in createUpdate$() which accesses _cachedPhishingDataState, causing a blocking IndexedDB read.
+    // in createUpdate$() which accesses _cachedPhishingDataState, causing a blocking storage read.
     if (observerCount === 0) {
       this.logService.debug(
-        "[PhishingDataService] No observers on update$, skipping trigger to avoid IndexedDB access",
+        "[PhishingDataService] No observers on update$, skipping trigger to avoid storage access",
       );
       return;
     }
@@ -282,7 +280,7 @@ export class PhishingDataService {
    * @returns True if the URL is a known phishing web address, false otherwise
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
-    // Lazy load: Only now do we subscribe to _webAddresses$ and trigger IndexedDB read + Set build
+    // Lazy load: Only now do we subscribe to _webAddresses$ and trigger storage read + Set build
     // This ensures we don't block service worker initialization on extension reload
     this.logService.debug(`[PhishingDataService] Checking URL: ${url.href}`);
     const entries = await firstValueFrom(this._webAddresses$);
