@@ -61,7 +61,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     sender: chrome.runtime.MessageSender,
   ) {
     if (await this.shouldInitAddLoginOrChangePasswordNotification(message, sender)) {
-      this.websiteOriginsWithFields.set(sender.tab.id, this.getSenderUrlMatchPatterns(sender));
+      this.websiteOriginsWithFields.set(sender.tab?.id, this.getSenderUrlMatchPatterns(sender));
       this.setupWebRequestsListeners();
     }
   }
@@ -82,7 +82,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       (await this.isAddLoginOrChangePasswordNotificationEnabled()) &&
       !(await this.isSenderFromExcludedDomain(sender)) &&
       (message.details?.fields?.length ?? 0) > 0 &&
-      !this.websiteOriginsWithFields.has(sender.tab.id)
+      !this.websiteOriginsWithFields.has(sender.tab?.id)
     );
   }
 
@@ -106,7 +106,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private getSenderUrlMatchPatterns(sender: chrome.runtime.MessageSender) {
     return new Set([
       ...generateDomainMatchPatterns(sender.url),
-      ...generateDomainMatchPatterns(sender.tab.url),
+      ...generateDomainMatchPatterns(sender.tab?.url),
     ]);
   }
 
@@ -121,7 +121,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     message: OverlayNotificationsExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) => {
-    if (!this.websiteOriginsWithFields.has(sender.tab.id)) {
+    if (!this.websiteOriginsWithFields.has(sender.tab?.id)) {
       return;
     }
 
@@ -133,22 +133,22 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.clearLoginCipherFormDataSubject.next();
     const formData = { uri, username, password, newPassword };
 
-    const existingModifyLoginData = this.modifyLoginCipherFormData.get(sender.tab.id);
+    const existingModifyLoginData = this.modifyLoginCipherFormData.get(sender.tab?.id);
     if (existingModifyLoginData) {
       formData.username = formData.username || existingModifyLoginData.username;
       formData.password = formData.password || existingModifyLoginData.password;
       formData.newPassword = formData.newPassword || existingModifyLoginData.newPassword;
     }
 
-    this.modifyLoginCipherFormData.set(sender.tab.id, formData);
+    this.modifyLoginCipherFormData.set(sender.tab?.id, formData);
 
     this.clearNotificationFallbackTimeout();
     this.notificationFallbackTimeout = setTimeout(
       () =>
         this.setupNotificationInitTrigger(
-          sender.tab.id,
+          sender.tab?.id,
           "",
-          this.modifyLoginCipherFormData.get(sender.tab.id),
+          this.modifyLoginCipherFormData.get(sender.tab?.id),
         ).catch((error) => this.logService.error(error)),
       1500,
     );
