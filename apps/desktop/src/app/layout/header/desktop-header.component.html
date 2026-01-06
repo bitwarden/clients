@@ -1,19 +1,31 @@
-<bit-header [title]="resolvedTitle()" [icon]="icon()">
-  <ng-container slot="breadcrumbs">
-    <ng-content select="[slot=breadcrumbs]"></ng-content>
-  </ng-container>
+<!-- Header's top left border radius clip effect -->
+<div
+  class="tw-top-0 tw-left-0 tw-bg-background-alt3 tw-w-full tw-h-10 tw-absolute tw-z-0 tw-outline-none"
+  aria-hidden="true"
+></div>
+<div
+  class="tw-top-0 tw-left-0 tw-bg-background tw-w-full tw-h-10 tw-absolute tw-z-10 tw-outline-none tw-rounded-tl-[2rem]"
+  aria-hidden="true"
+></div>
+<!-- Desktop Header positioned relative for z-index -->
+<div class="tw-relative tw-z-20 tw-my-4 tw-px-4 tw-outline-none">
+  <bit-header [title]="resolvedTitle()" [icon]="icon()">
+    <ng-container slot="breadcrumbs">
+      <ng-content select="[slot=breadcrumbs]"></ng-content>
+    </ng-container>
 
-  <ng-content></ng-content>
+    <ng-content></ng-content>
 
-  <ng-container slot="title-suffix">
-    <ng-content select="[slot=title-suffix]"></ng-content>
-  </ng-container>
+    <ng-container slot="title-suffix">
+      <ng-content select="[slot=title-suffix]"></ng-content>
+    </ng-container>
 
-  <ng-container slot="secondary">
-    <ng-content select="[slot=secondary]"></ng-content>
-  </ng-container>
+    <ng-container slot="secondary">
+      <ng-content select="[slot=secondary]"></ng-content>
+    </ng-container>
 
-  <ng-container slot="tabs">
-    <ng-content select="[slot=tabs]"></ng-content>
-  </ng-container>
-</bit-header>
+    <ng-container slot="tabs">
+      <ng-content select="[slot=tabs]"></ng-content>
+    </ng-container>
+  </bit-header>
+</div>
