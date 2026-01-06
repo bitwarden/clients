@@ -62,12 +62,12 @@ export class PopupHeaderStubComponent {
 }
 
 @Component({
-  selector: "app-vault-header-v2",
+  selector: "app-vault-header",
   standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultHeaderV2StubComponent {}
+export class VaultHeaderStubComponent {}
 
 @Component({
   selector: "app-current-account",
@@ -299,7 +299,7 @@ describe("VaultComponent", () => {
       add: {
         imports: [
           PopupHeaderStubComponent,
-          VaultHeaderV2StubComponent,
+          VaultHeaderStubComponent,
           CurrentAccountStubComponent,
           NewItemDropdownStubComponent,
           PopOutStubComponent,
