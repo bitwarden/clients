@@ -13,7 +13,7 @@ import {
   ButtonType,
 } from "@bitwarden/components";
 import { CartSummaryComponent, Maybe } from "@bitwarden/pricing";
-import { BitwardenSubscription } from "@bitwarden/subscription";
+import { BitwardenSubscription, SubscriptionStatuses } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 export type PlanCardAction =
@@ -73,19 +73,19 @@ export class SubscriptionCardComponent {
       variant: "warning",
     };
     switch (subscription.status) {
-      case "incomplete": {
+      case SubscriptionStatuses.Incomplete: {
         return {
           text: this.i18nService.t("updatePayment"),
           variant: "warning",
         };
       }
-      case "incomplete_expired": {
+      case SubscriptionStatuses.IncompleteExpired: {
         return {
           text: this.i18nService.t("expired"),
           variant: "danger",
         };
       }
-      case "trialing": {
+      case SubscriptionStatuses.Trialing: {
         if (subscription.cancelAt) {
           return pendingCancellation;
         }
@@ -94,7 +94,7 @@ export class SubscriptionCardComponent {
           variant: "success",
         };
       }
-      case "active": {
+      case SubscriptionStatuses.Active: {
         if (subscription.cancelAt) {
           return pendingCancellation;
         }
@@ -103,19 +103,19 @@ export class SubscriptionCardComponent {
           variant: "success",
         };
       }
-      case "past_due": {
+      case SubscriptionStatuses.PastDue: {
         return {
           text: this.i18nService.t("pastDue"),
           variant: "warning",
         };
       }
-      case "canceled": {
+      case SubscriptionStatuses.Canceled: {
         return {
           text: this.i18nService.t("canceled"),
           variant: "danger",
         };
       }
-      case "unpaid": {
+      case SubscriptionStatuses.Unpaid: {
         return {
           text: this.i18nService.t("unpaid"),
           variant: "danger",
@@ -127,7 +127,7 @@ export class SubscriptionCardComponent {
   readonly callout = computed<Callout>(() => {
     const subscription = this.subscription();
     switch (subscription.status) {
-      case "incomplete": {
+      case SubscriptionStatuses.Incomplete: {
         return {
           title: this.i18nService.t("updatePayment"),
           type: "warning",
@@ -146,7 +146,7 @@ export class SubscriptionCardComponent {
           ],
         };
       }
-      case "incomplete_expired": {
+      case SubscriptionStatuses.IncompleteExpired: {
         return {
           title: this.i18nService.t("expired"),
           type: "danger",
@@ -160,8 +160,8 @@ export class SubscriptionCardComponent {
           ],
         };
       }
-      case "trialing":
-      case "active": {
+      case SubscriptionStatuses.Trialing:
+      case SubscriptionStatuses.Active: {
         if (subscription.cancelAt) {
           const cancelAt = this.datePipe.transform(subscription.cancelAt, this.dateFormat);
           return {
@@ -194,7 +194,7 @@ export class SubscriptionCardComponent {
           ],
         };
       }
-      case "past_due": {
+      case SubscriptionStatuses.PastDue: {
         const suspension = this.datePipe.transform(subscription.suspension, this.dateFormat);
         return {
           title: this.i18nService.t("pastDue"),
@@ -213,10 +213,10 @@ export class SubscriptionCardComponent {
           ],
         };
       }
-      case "canceled": {
+      case SubscriptionStatuses.Canceled: {
         return null;
       }
-      case "unpaid": {
+      case SubscriptionStatuses.Unpaid: {
         return {
           title: this.i18nService.t("unpaid"),
           type: "danger",
@@ -235,21 +235,27 @@ export class SubscriptionCardComponent {
 
   readonly cancelAt = computed<Maybe<Date>>(() => {
     const subscription = this.subscription();
-    if (subscription.status === "trialing" || subscription.status === "active") {
+    if (
+      subscription.status === SubscriptionStatuses.Trialing ||
+      subscription.status === SubscriptionStatuses.Active
+    ) {
       return subscription.cancelAt;
     }
   });
 
   readonly canceled = computed<Maybe<Date>>(() => {
     const subscription = this.subscription();
-    if (subscription.status === "canceled") {
+    if (subscription.status === SubscriptionStatuses.Canceled) {
       return subscription.canceled;
     }
   });
 
   readonly nextCharge = computed<Maybe<Date>>(() => {
     const subscription = this.subscription();
-    if (subscription.status === "active" || subscription.status === "trialing") {
+    if (
+      subscription.status === SubscriptionStatuses.Trialing ||
+      subscription.status === SubscriptionStatuses.Active
+    ) {
       return subscription.nextCharge;
     }
   });
@@ -257,10 +263,10 @@ export class SubscriptionCardComponent {
   readonly suspension = computed<Maybe<Date>>(() => {
     const subscription = this.subscription();
     if (
-      subscription.status === "incomplete" ||
-      subscription.status === "incomplete_expired" ||
-      subscription.status === "past_due" ||
-      subscription.status === "unpaid"
+      subscription.status === SubscriptionStatuses.Incomplete ||
+      subscription.status === SubscriptionStatuses.IncompleteExpired ||
+      subscription.status === SubscriptionStatuses.PastDue ||
+      subscription.status === SubscriptionStatuses.Unpaid
     ) {
       return subscription.suspension;
     }

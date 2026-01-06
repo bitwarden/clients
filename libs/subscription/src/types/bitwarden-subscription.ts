@@ -2,6 +2,16 @@ import { Cart } from "@bitwarden/pricing";
 
 import { Storage } from "./storage";
 
+export const SubscriptionStatuses = {
+  Incomplete: "incomplete",
+  IncompleteExpired: "incomplete_expired",
+  Trialing: "trialing",
+  Active: "active",
+  PastDue: "past_due",
+  Canceled: "canceled",
+  Unpaid: "unpaid",
+} as const;
+
 type HasCart = {
   cart: Cart;
 };
