@@ -108,7 +108,9 @@ export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
 // DIRT
 
 export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
-export const PHISHING_DATA_DISK = new StateDefinition("phishingData", "disk");
+export const PHISHING_DATA_DISK = new StateDefinition("phishingData", "disk", {
+  browser: "disk-large",
+});
 
 // Platform
 

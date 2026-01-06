@@ -436,7 +436,7 @@ export default class RuntimeBackground {
         // Pre-populate phishing cache on install/update so it's ready when premium user logs in
         // This runs in background and doesn't block the user
         if (this.onInstalledReason === "install" || this.onInstalledReason === "update") {
-          this.logService.info(
+          this.logService.debug(
             `[RuntimeBackground] Extension ${this.onInstalledReason}: triggering phishing cache pre-population`,
           );
           this.main.triggerPhishingCacheUpdate();

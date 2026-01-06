@@ -6,7 +6,11 @@ import {
   StorageServiceProvider,
 } from "@bitwarden/storage-core";
 
+import { BrowserIndexedDbStorageService } from "../services/browser-indexed-db-storage.service";
+
 export class BrowserStorageServiceProvider extends StorageServiceProvider {
+  private indexedDbStorage = new BrowserIndexedDbStorageService();
+
   constructor(
     diskStorageService: AbstractStorageService & ObservableStorageService,
     limitedMemoryStorageService: AbstractStorageService & ObservableStorageService,
@@ -26,6 +30,8 @@ export class BrowserStorageServiceProvider extends StorageServiceProvider {
         return ["memory-large-object", this.largeObjectMemoryStorageService];
       case "disk-backup-local-storage":
         return ["disk-backup-local-storage", this.diskBackupLocalStorage];
+      case "disk-large":
+        return ["disk-large", this.indexedDbStorage];
       default:
         // Pass in computed location to super because they could have
         // override default "disk" with web "memory".

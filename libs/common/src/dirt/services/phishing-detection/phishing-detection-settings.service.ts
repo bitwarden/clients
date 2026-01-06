@@ -1,5 +1,5 @@
 import { combineLatest, Observable, of, switchMap } from "rxjs";
-import { catchError, distinctUntilChanged, map, shareReplay } from "rxjs/operators";
+import { catchError, distinctUntilChanged, map, shareReplay, startWith } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -91,17 +91,36 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
   /**
    * Builds the observable pipeline to determine if phishing detection is enabled by the user
    *
+   * CRITICAL: Only reads user state if the user has access to phishing detection (available$ is true).
+   * This prevents unnecessary IndexedDB reads for non-premium users during unlock/account switch,
+   * which was causing 3+ second UI freezes.
+   *
+   * For premium users, uses startWith(true) to emit immediately with the default value,
+   * preventing on$ from blocking while the IndexedDB read completes in the background.
+   *
    * @returns True if phishing detection is enabled for the active user
    */
   private buildEnabledPipeline$(): Observable<boolean> {
-    return this.accountService.activeAccount$.pipe(
-      switchMap((account) => {
+    // Only read user state if the user has access to phishing detection
+    // This prevents blocking IndexedDB reads for non-premium users
+    return combineLatest([this.accountService.activeAccount$, this.available$]).pipe(
+      switchMap(([account, available]) => {
         if (!account) {
           return of(false);
         }
-        return this.stateProvider.getUserState$(ENABLE_PHISHING_DETECTION, account.id);
+        // If user doesn't have access, return false immediately without reading state
+        // This prevents IndexedDB reads for non-premium users
+        if (!available) {
+          return of(false);
+        }
+        // Only read state if user has access
+        // Use startWith(true) to emit immediately with default value, then update when state is read
+        // This prevents on$ from blocking while IndexedDB read completes
+        return this.stateProvider.getUserState$(ENABLE_PHISHING_DETECTION, account.id).pipe(
+          startWith(true), // Default: enabled (matches deserializer default)
+          map((enabled) => enabled ?? true),
+        );
       }),
-      map((enabled) => enabled ?? true),
     );
   }
 

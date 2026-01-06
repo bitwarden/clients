@@ -11,6 +11,7 @@ import {
   retry,
   shareReplay,
   Subject,
+  Subscription,
   switchMap,
   tap,
   timer,
@@ -21,7 +22,12 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { LogService } from "@bitwarden/logging";
-import { GlobalStateProvider, KeyDefinition, PHISHING_DATA_DISK } from "@bitwarden/state";
+import {
+  GlobalState,
+  GlobalStateProvider,
+  KeyDefinition,
+  PHISHING_DATA_DISK,
+} from "@bitwarden/state";
 
 import { getPhishingResources, PhishingResourceType } from "../phishing-resources";
 
@@ -49,8 +55,49 @@ export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
 
 /** Coordinates fetching, caching, and patching of known phishing web addresses */
 export class PhishingDataService {
+  // Static tracking to prevent interval accumulation across service instances (reload scenario)
+  private static _intervalSubscription: Subscription | null = null;
+
   private _testWebAddresses = this.getTestWebAddresses();
-  private _cachedState = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
+  private _cachedStateInstance: GlobalState<PhishingData> | null = null;
+
+  /**
+   * Lazy getter for cached state. Only accesses IndexedDB when phishing detection is actually used.
+   * This prevents blocking service worker initialization on extension reload for non-premium users.
+   */
+  private get _cachedState() {
+    if (this._cachedStateInstance === null) {
+      this.logService.debug(
+        "[PhishingDataService] Lazy-loading state from IndexedDB (first access)",
+      );
+      this._cachedStateInstance = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
+    }
+    return this._cachedStateInstance;
+  }
+
+  constructor(
+    private apiService: ApiService,
+    private taskSchedulerService: TaskSchedulerService,
+    private globalStateProvider: GlobalStateProvider,
+    private logService: LogService,
+    private platformUtilsService: PlatformUtilsService,
+    private resourceType: PhishingResourceType = PhishingResourceType.Links,
+  ) {
+    this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.phishingDomainUpdate, () => {
+      this._triggerUpdate$.next();
+    });
+
+    // Clean up previous interval if it exists (prevents accumulation on service recreation)
+    if (PhishingDataService._intervalSubscription) {
+      PhishingDataService._intervalSubscription.unsubscribe();
+      PhishingDataService._intervalSubscription = null;
+    }
+    // Store interval subscription statically to prevent accumulation on reload
+    PhishingDataService._intervalSubscription = this.taskSchedulerService.setInterval(
+      ScheduledTaskNames.phishingDomainUpdate,
+      this.UPDATE_INTERVAL_DURATION,
+    );
+  }
 
   /**
    * Allowlist for bare domains that should never be blocked.
@@ -64,19 +111,38 @@ export class PhishingDataService {
   private _cachedSetChecksum: string = "";
   private _lastCheckTime: number = 0; // Track check time in memory, not state
 
-  private _webAddresses$ = this._cachedState.state$.pipe(
-    // Only rebuild Set when checksum changes (actual data change)
-    distinctUntilChanged((prev, curr) => prev?.checksum === curr?.checksum),
-    switchMap((state) => {
-      // Return cached Set if checksum matches
-      if (this._cachedSet && state?.checksum === this._cachedSetChecksum) {
-        return of(this._cachedSet); // Use of() instead of from(Promise.resolve()) to avoid unnecessary Promise wrapper
-      }
-      // Build Set in chunks to avoid blocking UI
-      return from(this.buildSetInChunks(state?.webAddresses ?? [], state?.checksum ?? ""));
-    }),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  // Lazy observable: only subscribes to state$ when actually needed (first URL check)
+  // This prevents blocking service worker initialization on extension reload
+  // Using a getter with caching to defer access to _cachedState until actually subscribed
+  private _webAddresses$Instance: ReturnType<typeof this.createWebAddresses$> | null = null;
+  private get _webAddresses$() {
+    if (this._webAddresses$Instance === null) {
+      this._webAddresses$Instance = this.createWebAddresses$();
+    }
+    return this._webAddresses$Instance;
+  }
+
+  private createWebAddresses$() {
+    return this._cachedState.state$.pipe(
+      // Only rebuild Set when checksum changes (actual data change)
+      distinctUntilChanged((prev, curr) => prev?.checksum === curr?.checksum),
+      switchMap((state) => {
+        // Return cached Set if checksum matches
+        if (this._cachedSet && state?.checksum === this._cachedSetChecksum) {
+          this.logService.debug(
+            `[PhishingDataService] Using cached Set (${this._cachedSet.size} entries, checksum: ${state?.checksum.substring(0, 8)}...)`,
+          );
+          return of(this._cachedSet);
+        }
+        // Build Set in chunks to avoid blocking UI
+        this.logService.debug(
+          `[PhishingDataService] Building Set from ${state?.webAddresses?.length ?? 0} entries`,
+        );
+        return from(this.buildSetInChunks(state?.webAddresses ?? [], state?.checksum ?? ""));
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
 
   // How often are new web addresses added to the remote?
   readonly UPDATE_INTERVAL_DURATION = 24 * 60 * 60 * 1000; // 24 hours
@@ -94,41 +160,53 @@ export class PhishingDataService {
    * The observable includes safeguards to prevent redundant updates:
    * - Skips if an update is already in progress
    * - Skips if cache was updated within MIN_UPDATE_INTERVAL (5 min)
+   *
+   * Lazy getter with caching: Only accesses _cachedState when actually subscribed to prevent IndexedDB read on reload.
    */
-  update$ = this._triggerUpdate$.pipe(
-    // Don't use startWith - initial update is handled by triggerUpdateIfNeeded()
-    tap(() => this.logService.info(`[PhishingDataService] Update triggered`)),
-    filter(() => {
-      if (this._updateInProgress) {
-        this.logService.info(`[PhishingDataService] Update already in progress, skipping`);
-        return false;
-      }
-      return true;
-    }),
-    tap(() => {
-      this._updateInProgress = true;
-    }),
-    switchMap(() =>
-      this._cachedState.state$.pipe(
-        first(), // Only take the first value to avoid an infinite loop when updating the cache below
-        switchMap(async (cachedState) => {
-          // Early exit if we checked recently (using in-memory tracking)
-          const timeSinceLastCheck = Date.now() - this._lastCheckTime;
-          if (timeSinceLastCheck < this.MIN_UPDATE_INTERVAL) {
-            this.logService.info(
-              `[PhishingDataService] Checked ${Math.round(timeSinceLastCheck / 1000)}s ago, skipping`,
-            );
-            return;
-          }
+  private _update$Instance: ReturnType<typeof this.createUpdate$> | null = null;
+  get update$() {
+    if (this._update$Instance === null) {
+      this._update$Instance = this.createUpdate$();
+    }
+    return this._update$Instance;
+  }
 
-          // Update last check time in memory (not state - avoids expensive write)
-          this._lastCheckTime = Date.now();
+  private createUpdate$() {
+    return this._triggerUpdate$.pipe(
+      // Don't use startWith - initial update is handled by triggerUpdateIfNeeded()
+      filter(() => {
+        if (this._updateInProgress) {
+          this.logService.debug("[PhishingDataService] Update already in progress, skipping");
+          return false;
+        }
+        return true;
+      }),
+      tap(() => {
+        this._updateInProgress = true;
+      }),
+      switchMap(async () => {
+        // Get current state directly without subscribing to state$ observable
+        // This avoids creating a subscription that stays active
+        const cachedState = await firstValueFrom(this._cachedState.state$.pipe(first()));
 
+        // Early exit if we checked recently (using in-memory tracking)
+        const timeSinceLastCheck = Date.now() - this._lastCheckTime;
+        if (timeSinceLastCheck < this.MIN_UPDATE_INTERVAL) {
+          this.logService.debug(
+            `[PhishingDataService] Checked ${Math.round(timeSinceLastCheck / 1000)}s ago, skipping`,
+          );
+          return;
+        }
+
+        // Update last check time in memory (not state - avoids expensive write)
+        this._lastCheckTime = Date.now();
+
+        try {
           const result = await this.getNextWebAddresses(cachedState);
 
           // result is null when checksum matched - skip state update entirely
           if (result === null) {
-            this.logService.info(`[PhishingDataService] Checksum matched, skipping state update`);
+            this.logService.debug("[PhishingDataService] Checksum matched, skipping state update");
             return;
           }
 
@@ -140,61 +218,65 @@ export class PhishingDataService {
               `[PhishingDataService] State updated with ${result.webAddresses.length} entries`,
             );
           }
-        }),
-        retry({
-          count: 3,
-          delay: (err, count) => {
-            this.logService.error(
-              `[PhishingDataService] Unable to update web addresses. Attempt ${count}.`,
-              err,
-            );
-            return timer(5 * 60 * 1000); // 5 minutes
-          },
-          resetOnSuccess: true,
-        }),
-        catchError(
-          (
-            err: unknown /** Eslint actually crashed if you remove this type: https://github.com/cartant/eslint-plugin-rxjs/issues/122 */,
-          ) => {
-            this.logService.error(
-              "[PhishingDataService] Retries unsuccessful. Unable to update web addresses.",
-              err,
-            );
-            return EMPTY;
-          },
-        ),
-        // Use finalize() to ensure _updateInProgress is reset on success, error, OR completion
-        // Per ADR: "Use finalize() operator to ensure cleanup code always runs"
-        finalize(() => {
-          this._updateInProgress = false;
-        }),
+        } catch (err) {
+          this.logService.error("[PhishingDataService] Unable to update web addresses.", err);
+          // Retry logic removed - let the 24-hour scheduler handle retries
+          throw err;
+        }
+      }),
+      retry({
+        count: 3,
+        delay: (err, count) => {
+          this.logService.error(
+            `[PhishingDataService] Unable to update web addresses. Attempt ${count}.`,
+            err,
+          );
+          return timer(5 * 60 * 1000); // 5 minutes
+        },
+        resetOnSuccess: true,
+      }),
+      catchError(
+        (
+          err: unknown /** Eslint actually crashed if you remove this type: https://github.com/cartant/eslint-plugin-rxjs/issues/122 */,
+        ) => {
+          this.logService.error(
+            "[PhishingDataService] Retries unsuccessful. Unable to update web addresses.",
+            err,
+          );
+          return EMPTY;
+        },
       ),
-    ),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
-
-  constructor(
-    private apiService: ApiService,
-    private taskSchedulerService: TaskSchedulerService,
-    private globalStateProvider: GlobalStateProvider,
-    private logService: LogService,
-    private platformUtilsService: PlatformUtilsService,
-    private resourceType: PhishingResourceType = PhishingResourceType.Links,
-  ) {
-    this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.phishingDomainUpdate, () => {
-      this._triggerUpdate$.next();
-    });
-    this.taskSchedulerService.setInterval(
-      ScheduledTaskNames.phishingDomainUpdate,
-      this.UPDATE_INTERVAL_DURATION,
+      // Use finalize() to ensure _updateInProgress is reset on success, error, OR completion
+      // Per ADR: "Use finalize() operator to ensure cleanup code always runs"
+      finalize(() => {
+        this._updateInProgress = false;
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 
   /**
    * Triggers an update if the cache is stale or empty.
    * Should be called when phishing detection is enabled for an account.
+   *
+   * IMPORTANT: This is a no-op if there are no observers on update$ to prevent
+   * unnecessary IndexedDB reads for non-premium users or when phishing detection is disabled.
+   * The observable chain in createUpdate$() accesses _cachedState which triggers IndexedDB reads.
    */
   triggerUpdateIfNeeded(): void {
+    const observerCount = (this._triggerUpdate$ as any).observers?.length ?? 0;
+
+    // CRITICAL: Only trigger if there are active observers to prevent IndexedDB access
+    // when phishing detection is disabled or user doesn't have premium access.
+    // Without this guard, calling _triggerUpdate$.next() would trigger the switchMap
+    // in createUpdate$() which accesses _cachedState, causing a blocking IndexedDB read.
+    if (observerCount === 0) {
+      this.logService.debug(
+        "[PhishingDataService] No observers on update$, skipping trigger to avoid IndexedDB access",
+      );
+      return;
+    }
+
     this._triggerUpdate$.next();
   }
 
@@ -213,7 +295,9 @@ export class PhishingDataService {
       return false;
     }
 
-    // Use domain (hostname) matching for domain resources, and link matching for links resources
+    // Lazy load: Only now do we subscribe to _webAddresses$ and trigger IndexedDB read + Set build
+    // This ensures we don't block service worker initialization on extension reload
+    this.logService.debug(`[PhishingDataService] Checking URL: ${url.href}`);
     const entries = await firstValueFrom(this._webAddresses$);
 
     const resource = getPhishingResources(this.resourceType);
@@ -255,7 +339,7 @@ export class PhishingDataService {
     const timestamp = Date.now();
     const prevAge = timestamp - prev.timestamp;
 
-    this.logService.info(
+    this.logService.debug(
       `[PhishingDataService] Cache: ${prev.webAddresses.length} entries, age ${Math.round(prevAge / 1000 / 60)}min`,
     );
 
@@ -266,12 +350,12 @@ export class PhishingDataService {
 
     // STEP 2: Compare checksums
     if (remoteChecksum && prev.checksum === remoteChecksum) {
-      this.logService.info(`[PhishingDataService] Checksum match, no update needed`);
+      this.logService.debug("[PhishingDataService] Checksum match, no update needed");
       return null; // Signal to skip state update - no UI blocking!
     }
 
     // STEP 3: Checksum different - data needs to be updated
-    this.logService.info(`[PhishingDataService] Checksum mismatch, fetching new data`);
+    this.logService.info("[PhishingDataService] Checksum mismatch, fetching new data");
 
     // Approach 1: Fetch only today's new entries (if cache is less than 24h old)
     const isOneDayOldMax = prevAge <= this.UPDATE_INTERVAL_DURATION;
@@ -312,7 +396,7 @@ export class PhishingDataService {
    */
   private async fetchPhishingChecksum(type: PhishingResourceType = PhishingResourceType.Domains) {
     const checksumUrl = getPhishingResources(type)!.checksumUrl;
-    this.logService.info(`[PhishingDataService] Checksum URL: ${checksumUrl}`);
+    this.logService.debug(`[PhishingDataService] Fetching checksum from: ${checksumUrl}`);
     const response = await this.apiService.nativeFetch(new Request(checksumUrl));
     if (!response.ok) {
       throw new Error(`[PhishingDataService] Failed to fetch checksum: ${response.status}`);
@@ -386,7 +470,7 @@ export class PhishingDataService {
       reader.releaseLock();
     }
 
-    this.logService.info(`[PhishingDataService] Streamed ${addresses.length} addresses`);
+    this.logService.debug(`[PhishingDataService] Streamed ${addresses.length} addresses`);
     return addresses;
   }
 
@@ -404,7 +488,7 @@ export class PhishingDataService {
     const startTime = Date.now();
     const set = new Set<string>();
 
-    this.logService.info(`[PhishingDataService] Building Set (${addresses.length} entries)`);
+    this.logService.debug(`[PhishingDataService] Building Set (${addresses.length} entries)`);
 
     for (let i = 0; i < addresses.length; i += CHUNK_SIZE) {
       const chunk = addresses.slice(i, Math.min(i + CHUNK_SIZE, addresses.length));
@@ -429,9 +513,11 @@ export class PhishingDataService {
     this._cachedSet = set;
     this._cachedSetChecksum = checksum;
 
-    this.logService.info(
-      `[PhishingDataService] Set built: ${set.size} entries in ${Date.now() - startTime}ms`,
+    const buildTime = Date.now() - startTime;
+    this.logService.debug(
+      `[PhishingDataService] Set built: ${set.size} entries in ${buildTime}ms (checksum: ${checksum.substring(0, 8)}...)`,
     );
+
     return set;
   }
 
@@ -443,8 +529,8 @@ export class PhishingDataService {
 
     const webAddresses = devFlagValue("testPhishingUrls") as unknown[];
     if (webAddresses && webAddresses instanceof Array) {
-      this.logService.info(
-        "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
+      this.logService.debug(
+        "[PhishingDataService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
         webAddresses,
       );
       return webAddresses as string[];
