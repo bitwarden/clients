@@ -208,7 +208,7 @@ export class PhishingDataService {
             await new Promise((resolve) => setTimeout(resolve, 0));
             await this._cachedPhishingDataState.update(() => result);
             this.logService.info(
-              `[PhishingDataService] State updated with ${result.webAddresses.length} entries`,
+              `[PhishingDataService] State updated with ${result.webAddresses?.length ?? 0} entries`,
             );
           }
         } catch (err) {
@@ -312,7 +312,7 @@ export class PhishingDataService {
     const prevAge = timestamp - prev.timestamp;
 
     this.logService.debug(
-      `[PhishingDataService] Cache: ${prev.webAddresses.length} entries, age ${Math.round(prevAge / 1000 / 60)}min`,
+      `[PhishingDataService] Cache: ${prev.webAddresses?.length ?? 0} entries, age ${Math.round(prevAge / 1000 / 60)}min`,
     );
 
     const applicationVersion = await this.platformUtilsService.getApplicationVersion();
@@ -334,7 +334,7 @@ export class PhishingDataService {
     if (
       isOneDayOldMax &&
       applicationVersion === prev.applicationVersion &&
-      prev.webAddresses.length > 0
+      (prev.webAddresses?.length ?? 0) > 0
     ) {
       const webAddressesTodayUrl = getPhishingResources(this.resourceType)!.todayUrl;
       const dailyWebAddresses = await this.fetchPhishingWebAddresses(webAddressesTodayUrl);
@@ -342,7 +342,7 @@ export class PhishingDataService {
         `[PhishingDataService] Daily update: +${dailyWebAddresses.length} entries`,
       );
       return {
-        webAddresses: prev.webAddresses.concat(dailyWebAddresses),
+        webAddresses: (prev.webAddresses ?? []).concat(dailyWebAddresses),
         checksum: remoteChecksum,
         timestamp,
         applicationVersion,
