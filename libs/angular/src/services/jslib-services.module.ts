@@ -112,7 +112,6 @@ import { SendTokenService, DefaultSendTokenService } from "@bitwarden/common/aut
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
-import { DefaultAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/default-auth-request-answering.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
@@ -1036,17 +1035,6 @@ const safeProviders: SafeProvider[] = [
     provide: PendingAuthRequestsStateService,
     useClass: PendingAuthRequestsStateService,
     deps: [StateProvider],
-  }),
-  safeProvider({
-    provide: AuthRequestAnsweringService,
-    useClass: DefaultAuthRequestAnsweringService,
-    deps: [
-      AccountServiceAbstraction,
-      AuthServiceAbstraction,
-      MasterPasswordServiceAbstraction,
-      MessagingServiceAbstraction,
-      PendingAuthRequestsStateService,
-    ],
   }),
   safeProvider({
     provide: ServerNotificationsService,

@@ -1,3 +1,4 @@
+export * from "./auth-request-answering";
 export * from "./change-password";
 export * from "./login";
 export * from "./login-decryption-options";
