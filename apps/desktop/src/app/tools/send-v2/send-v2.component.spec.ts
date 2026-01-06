@@ -3,6 +3,7 @@
 import { ChangeDetectorRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
+import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -89,6 +90,12 @@ describe("SendV2Component", () => {
         },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            data: of({}),
+          },
+        },
       ],
     }).compileComponents();
 
