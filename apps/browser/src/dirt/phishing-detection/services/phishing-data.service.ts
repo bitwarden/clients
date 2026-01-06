@@ -99,13 +99,6 @@ export class PhishingDataService {
     );
   }
 
-  /**
-   * Allowlist for bare domains that should never be blocked.
-   * Only exact hostname matches are allowed - paths/subdomains are still checked.
-   * This protects against false positives in the upstream phishing database.
-   */
-  private readonly BARE_DOMAIN_ALLOWLIST = new Set(["amazon.com", "www.amazon.com"]);
-
   // In-memory cache to avoid expensive Set rebuilds and state rewrites
   private _cachedSet: Set<string> | null = null;
   private _cachedSetChecksum: string = "";
@@ -287,14 +280,6 @@ export class PhishingDataService {
    * @returns True if the URL is a known phishing web address, false otherwise
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
-    // Allow bare domains on the allowlist (e.g., amazon.com without path)
-    // This protects against false positives in upstream phishing databases
-    const isBareUrl = url.pathname === "/" && !url.search && !url.hash;
-    if (isBareUrl && this.BARE_DOMAIN_ALLOWLIST.has(url.hostname.toLowerCase())) {
-      this.logService.info(`[PhishingDataService] Allowlisted bare domain: ${url.hostname}`);
-      return false;
-    }
-
     // Lazy load: Only now do we subscribe to _webAddresses$ and trigger IndexedDB read + Set build
     // This ensures we don't block service worker initialization on extension reload
     this.logService.debug(`[PhishingDataService] Checking URL: ${url.href}`);
