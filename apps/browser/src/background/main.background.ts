@@ -506,6 +506,7 @@ export default class MainBackground {
   // DIRT
   private phishingDataService: PhishingDataService;
   private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
+  private phishingDetectionCleanup: (() => void) | null = null;
 
   constructor() {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
@@ -1514,7 +1515,12 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    PhishingDetectionService.initialize(
+    // Call cleanup from previous initialization if it exists (service worker restart scenario)
+    if (this.phishingDetectionCleanup) {
+      this.phishingDetectionCleanup();
+    }
+
+    this.phishingDetectionCleanup = PhishingDetectionService.initialize(
       this.logService,
       this.phishingDataService,
       this.phishingDetectionSettingsService,
