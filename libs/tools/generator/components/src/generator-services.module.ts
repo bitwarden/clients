@@ -1,4 +1,5 @@
 import { NgModule } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -36,6 +37,7 @@ import {
   DefaultCredentialGeneratorService,
 } from "@bitwarden/generator-core";
 import { KeyService } from "@bitwarden/key-management";
+import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 export const RANDOMIZER = new SafeInjectionToken<Randomizer>("Randomizer");
 const GENERATOR_SERVICE_PROVIDER = new SafeInjectionToken<providers.CredentialGeneratorProviders>(
@@ -124,7 +126,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
     }),
     safeProvider({
       provide: GENERATOR_SERVICE_PROVIDER,
-      useFactory: (
+      useFactory: async (
         system: SystemServiceProvider,
         random: Randomizer,
         encryptor: LegacyEncryptorProvider,
@@ -145,7 +147,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
           Object.values(BuiltIn),
         );
 
-        const sdkService = system.sdk;
+        const sdkService: BitwardenClient = await firstValueFrom(system.sdk.client$);
         const profile = new providers.GeneratorProfileProvider(userStateDeps, system.policy);
 
         const generator: providers.GeneratorDependencyProvider = {
