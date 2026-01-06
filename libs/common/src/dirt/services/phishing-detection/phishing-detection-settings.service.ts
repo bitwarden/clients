@@ -18,7 +18,9 @@ const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
   PHISHING_DETECTION_DISK,
   "enablePhishingDetection",
   {
-    deserializer: (value: boolean) => value ?? true, // Default: enabled
+    deserializer: (value: boolean) => {
+      return value ?? true;
+    }, // Default: enabled
     clearOn: [],
   },
 );

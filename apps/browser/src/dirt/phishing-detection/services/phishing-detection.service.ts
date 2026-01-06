@@ -8,6 +8,7 @@ import {
   merge,
   of,
   Subject,
+  Subscription,
   switchMap,
   tap,
 } from "rxjs";
@@ -45,6 +46,8 @@ export class PhishingDetectionService {
   private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
   private static _ignoredHostnames = new Set<string>();
   private static _didInit = false;
+  private static _triggerUpdateSub: Subscription | null = null;
+  private static _boundTabHandler: ((...args: readonly unknown[]) => unknown) | null = null;
 
   static initialize(
     logService: LogService,
@@ -59,7 +62,10 @@ export class PhishingDetectionService {
 
     logService.info("[PhishingDetectionService] Initialize called. Checking prerequisites...");
 
-    BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
+    this._boundTabHandler = this._handleTabUpdated.bind(this) as (
+      ...args: readonly unknown[]
+    ) => unknown;
+    BrowserApi.addListener(chrome.tabs.onUpdated, this._boundTabHandler);
 
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
       tap((message) =>
@@ -123,6 +129,13 @@ export class PhishingDetectionService {
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
+          // Clean up previous trigger subscription if it exists
+          // This prevents memory leaks when account access changes (switch, lock/unlock)
+          if (this._triggerUpdateSub) {
+            this._triggerUpdateSub.unsubscribe();
+            this._triggerUpdateSub = null;
+          }
+
           if (!activeUserHasAccess) {
             logService.info(
               "[PhishingDetectionService] User does not have access to phishing detection service.",
@@ -132,7 +145,8 @@ export class PhishingDetectionService {
             logService.info("[PhishingDetectionService] Enabling phishing detection service");
             // Trigger cache update asynchronously using RxJS delay(0)
             // This defers to the next event loop tick, preventing UI blocking during account switch
-            of(null)
+            // CRITICAL: Store subscription to prevent memory leaks on account switches
+            this._triggerUpdateSub = of(null)
               .pipe(delay(0))
               .subscribe(() => phishingDataService.triggerUpdateIfNeeded());
             // update$ removed from merge - popup no longer blocks waiting for update
@@ -147,15 +161,17 @@ export class PhishingDetectionService {
     return () => {
       updateSub.unsubscribe();
       initSub.unsubscribe();
+      // Clean up trigger subscription to prevent memory leaks
+      if (this._triggerUpdateSub) {
+        this._triggerUpdateSub.unsubscribe();
+        this._triggerUpdateSub = null;
+      }
       this._didInit = false;
 
-      // Manually type cast to satisfy the listener signature due to the mixture
-      // of static and instance methods in this class. To be fixed when refactoring
-      // this class to be instance-based while providing a singleton instance in usage
-      BrowserApi.removeListener(
-        chrome.tabs.onUpdated,
-        PhishingDetectionService._handleTabUpdated as (...args: readonly unknown[]) => unknown,
-      );
+      if (this._boundTabHandler) {
+        BrowserApi.removeListener(chrome.tabs.onUpdated, this._boundTabHandler);
+        this._boundTabHandler = null;
+      }
     };
   }
 

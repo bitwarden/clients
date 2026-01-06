@@ -7,6 +7,7 @@ import {
   first,
   firstValueFrom,
   from,
+  of,
   retry,
   shareReplay,
   Subject,
@@ -20,7 +21,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { LogService } from "@bitwarden/logging";
-import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
+import { GlobalStateProvider, KeyDefinition, PHISHING_DATA_DISK } from "@bitwarden/state";
 
 import { getPhishingResources, PhishingResourceType } from "../phishing-resources";
 
@@ -37,11 +38,12 @@ export type PhishingData = {
 };
 
 export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
-  PHISHING_DETECTION_DISK,
+  PHISHING_DATA_DISK,
   "phishingDomains",
   {
-    deserializer: (value: PhishingData) =>
-      value ?? { webAddresses: [], timestamp: 0, checksum: "", applicationVersion: "" },
+    deserializer: (value: PhishingData) => {
+      return value ?? { webAddresses: [], timestamp: 0, checksum: "", applicationVersion: "" };
+    },
   },
 );
 
@@ -68,7 +70,7 @@ export class PhishingDataService {
     switchMap((state) => {
       // Return cached Set if checksum matches
       if (this._cachedSet && state?.checksum === this._cachedSetChecksum) {
-        return from(Promise.resolve(this._cachedSet));
+        return of(this._cachedSet); // Use of() instead of from(Promise.resolve()) to avoid unnecessary Promise wrapper
       }
       // Build Set in chunks to avoid blocking UI
       return from(this.buildSetInChunks(state?.webAddresses ?? [], state?.checksum ?? ""));
