@@ -15,10 +15,12 @@ subscription actions.
 
 - [Usage](#usage)
 - [API](#api)
+  - [Inputs](#inputs)
   - [Outputs](#outputs)
 - [Design](#design)
 - [Examples](#examples)
   - [Default](#default)
+  - [Actions Disabled](#actions-disabled)
 - [Features](#features)
 - [Do's and Don'ts](#dos-and-donts)
 - [Accessibility](#accessibility)
@@ -39,6 +41,12 @@ import { AdditionalOptionsCardComponent } from "@bitwarden/subscription";
 ```
 
 ## API
+
+### Inputs
+
+| Input                   | Type      | Description                                                            |
+| ----------------------- | --------- | ---------------------------------------------------------------------- |
+| `callsToActionDisabled` | `boolean` | Optional. Disables both action buttons when true. Defaults to `false`. |
 
 ### Outputs
 
@@ -92,6 +100,23 @@ handleAction(action: AdditionalOptionsCardAction) {
   }
 }
 ```
+
+### Actions Disabled
+
+Component with action buttons disabled (useful during async operations):
+
+<Canvas of={AdditionalOptionsCardStories.ActionsDisabled} />
+
+```html
+<billing-additional-options-card
+  [callsToActionDisabled]="true"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-additional-options-card>
+```
+
+**Note:** Use `callsToActionDisabled` to prevent user interactions during async operations like
+downloading the license or processing subscription cancellation.
 
 ## Features
 

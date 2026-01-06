@@ -66,6 +66,32 @@ describe("AdditionalOptionsCardComponent", () => {
     });
   });
 
+  describe("callsToActionDisabled", () => {
+    it("should disable both buttons when callsToActionDisabled is true", () => {
+      fixture.componentRef.setInput("callsToActionDisabled", true);
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      expect(buttons[0].attributes["aria-disabled"]).toBe("true");
+      expect(buttons[1].attributes["aria-disabled"]).toBe("true");
+    });
+
+    it("should enable both buttons when callsToActionDisabled is false", () => {
+      fixture.componentRef.setInput("callsToActionDisabled", false);
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      expect(buttons[0].nativeElement.disabled).toBe(false);
+      expect(buttons[1].nativeElement.disabled).toBe(false);
+    });
+
+    it("should enable both buttons by default", () => {
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      expect(buttons[0].nativeElement.disabled).toBe(false);
+      expect(buttons[1].nativeElement.disabled).toBe(false);
+    });
+  });
+
   describe("button click events", () => {
     it("should emit download-license action when download button is clicked", () => {
       const emitSpy = jest.spyOn(component.callToActionClicked, "emit");

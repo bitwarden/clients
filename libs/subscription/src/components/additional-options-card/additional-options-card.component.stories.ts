@@ -40,3 +40,10 @@ type Story = StoryObj<AdditionalOptionsCardComponent>;
 export const Default: Story = {
   args: {},
 };
+
+export const ActionsDisabled: Story = {
+  name: "Actions Disabled",
+  args: {
+    callsToActionDisabled: true,
+  },
+};
