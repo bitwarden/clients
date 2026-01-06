@@ -1775,11 +1775,21 @@
   "exportFrom": {
     "message": "Exporteren vanuit"
   },
-  "export": {
-    "message": "Exporteren"
+  "exportNoun": {
+    "message": "Exporteren",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Importeren"
+  "exportVerb": {
+    "message": "Exporteren",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importeren",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importeren",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Bestandsindeling"
@@ -4377,6 +4387,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "Sessietime-out"
+  },
+  "resizeSideNavigation": {
+    "message": "Formaat zijnavigatie wijzigen"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Deze instelling wordt beheerd door je organisatie."
