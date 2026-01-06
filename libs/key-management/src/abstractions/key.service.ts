@@ -158,7 +158,7 @@ export abstract class KeyService {
   abstract getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey>;
   /**
    * Generates a master key from the provided password
-   * @deprecated Interacting with the master key directly is prohibited.
+   * @deprecated Please use `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` or `makeMasterPasswordUnlockData` in MasterPasswordService instead.
    * @param password The user's master password
    * @param email The user's email
    * @param KdfConfig The user's key derivation function configuration
@@ -167,7 +167,7 @@ export abstract class KeyService {
   abstract makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey>;
   /**
    * Encrypts the provided user key with the provided master key.
-   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
+   * @deprecated Please use `makeMasterPasswordUnlockData` in {@link MasterPasswordService} instead.
    * @param masterKey The user's master key
    * @param userKey The user key
    * @throws Error when userKey or masterKey is null/undefined.
@@ -181,7 +181,7 @@ export abstract class KeyService {
    * Creates a master password hash from the user's master password. Can
    * be used for local authentication or for server authentication depending
    * on the hashPurpose provided.
-   * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
+   * @deprecated Please use `makeMasterPasswordAuthenticationData` in {@link MasterPasswordService} instead.
    * @param password The user's master password
    * @param key The user's master key or active's user master key.
    * @param hashPurpose The iterations to use for the hash. Defaults to {@link HashPurpose.ServerAuthorization}.
