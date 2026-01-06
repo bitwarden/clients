@@ -756,6 +756,7 @@ describe("ApiService", () => {
         email: "user1@example.com",
         emailVerified: true,
         name: "Test Name",
+        creationDate: undefined,
       } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
 
       environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
@@ -844,6 +845,7 @@ describe("ApiService", () => {
             email: "user2@example.com",
             emailVerified: true,
             name: "Inactive User",
+            creationDate: undefined,
           } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
 
           return Promise.resolve({
