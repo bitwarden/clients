@@ -383,7 +383,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.clearNotificationFallbackTimeout();
 
     const tab = await BrowserApi.getTab(tabId);
-    if (tab.status !== "complete") {
+    if (tab?.status !== "complete") {
       await this.delayNotificationInitUntilTabIsComplete(tabId, requestId, modifyLoginData);
       return;
     }
@@ -408,7 +408,9 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     const handleWebNavigationOnCompleted = async () => {
       chrome.webNavigation.onCompleted.removeListener(handleWebNavigationOnCompleted);
       const tab = await BrowserApi.getTab(tabId);
-      await this.processNotifications(requestId, modifyLoginData, tab);
+      if (tab) {
+        await this.processNotifications(requestId, modifyLoginData, tab);
+      }
     };
     chrome.webNavigation.onCompleted.addListener(handleWebNavigationOnCompleted);
   };
