@@ -51,7 +51,10 @@ import {
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { InternalOrganizationServiceAbstraction , OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  InternalOrganizationServiceAbstraction,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   AccountService,

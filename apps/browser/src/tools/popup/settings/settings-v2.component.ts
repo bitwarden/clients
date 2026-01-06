@@ -1,13 +1,22 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { filter, firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { AutofillBrowserSettingsService } from "@bitwarden/browser/autofill/services/autofill-browser-settings.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -84,9 +93,6 @@ export class SettingsV2Component {
         }),
       ),
     ),
-  );
-  showAutofillBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
-    switchMap((account) => this.nudgesService.showNudgeBadge$(NudgeType.AutofillNudge, account.id)),
   );
 
   showAdminSettingsLink$: Observable<boolean> = this.accountService.activeAccount$.pipe(
