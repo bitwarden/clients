@@ -1884,6 +1884,242 @@ jobs:
           upload_sources: true
           upload_translations: false
 
+  validate-linux-x64-deb:
+    name: Validate Linux x64 .deb
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - linux
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Download deb artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/deb
+          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 xvfb
+
+      - name: Install .deb
+        working-directory: apps/desktop/artifacts/linux/deb
+        run: sudo apt-get install -y ./Bitwarden-${_PACKAGE_VERSION}-amd64.deb
+
+      - name: Run .deb
+        run: |
+          xvfb-run -a bitwarden &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  validate-linux-x64-appimage:
+    name: Validate Linux x64 appimage
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - linux
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download appimage artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/appimage
+          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 libfuse2 xvfb
+
+      - name: Run AppImage
+        working-directory: apps/desktop/artifacts/linux/appimage
+        run: |
+          chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
+          xvfb-run -a ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  validate-linux-wayland:
+    name: Validate Linux Wayland
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - linux
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download appimage artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/appimage
+          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 libfuse2 xvfb
+          sudo apt-get install -y weston libwayland-client0 libwayland-server0 libwayland-dev
+
+      - name: Run headless Wayland compositor
+        run: |
+          # Start Weston in a virtual terminal in headless mode
+          weston --headless --socket=wayland-0 &
+          # Let the compositor start
+          sleep 5
+
+      - name: Run AppImage
+        working-directory: apps/desktop/artifacts/linux/appimage
+        env:
+          WAYLAND_DISPLAY: wayland-0
+        run: |
+          chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
+          xvfb-run -a ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  validate-linux-flatpak:
+    name: Validate Linux ${{ matrix.os }} Flatpak
+    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
+    needs:
+      - setup
+      - linux
+      - linux-arm64
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download flatpak artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/flatpak/
+          artifacts: com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 flatpak xvfb dbus-x11
+          flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install -y --user flathub
+
+      - name: Install flatpak
+        working-directory: apps/desktop/artifacts/linux/flatpak
+        run: flatpak install -y --user --bundle com.bitwarden.desktop.flatpak
+
+      - name: Run Flatpak
+        run: |
+          export $(dbus-launch)
+          xvfb-run -a flatpak run com.bitwarden.desktop &
+          sleep 30
+          if pgrep  bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  validate-linux-snap:
+    name: Validate Linux ${{ matrix.os }} Snap
+    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
+    needs:
+      - setup
+      - linux
+      - linux-arm64
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _CPU_ARCH: ${{ matrix.os == 'ubuntu-22.04' && 'amd64' || 'arm64' }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download snap artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/snap
+          artifacts: bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.snap
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 snapd xvfb
+
+      - name: Install snap
+        working-directory: apps/desktop/artifacts/linux/snap
+        run: |
+          sudo snap install --dangerous ./bitwarden_${_PACKAGE_VERSION}_${_CPU_ARCH}.snap
+
+      - name: Run Snap
+        run: |
+          xvfb-run -a snap run bitwarden &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
   check-failures:
     name: Check for failures
     if: always()
@@ -1898,6 +2134,11 @@ jobs:
       - macos-package-github
       - macos-package-mas
       - crowdin-push
+      - validate-linux-x64-deb
+      - validate-linux-x64-appimage
+      - validate-linux-flatpak
+      - validate-linux-snap
+      - validate-linux-wayland
     permissions:
       contents: read
       id-token: write
