@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const config = require("../../libs/components/tailwind.config.base");
 
-// config.corePlugins = { preflight: true };
-
 config.content = [
   "./src/**/*.{html,ts}",
   "../../libs/components/src/**/*.{html,ts}",
