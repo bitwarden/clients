@@ -6,13 +6,15 @@
     (onCipherClicked)="viewCipher($event)"
     (onCipherRightClicked)="viewCipherMenu($event)"
     (onAddCipher)="addCipher($event)"
+    [showPremiumCallout]="showPremiumCallout$ | async"
+    [organizationId]="organizationId"
   >
   </app-vault-items-v2>
   <div class="details" *ngIf="!!action">
     <app-vault-item-footer
       id="footer"
       #footer
-      [cipher]="cipher"
+      [cipher]="cipher()"
       [action]="action"
       (onEdit)="editCipher($event)"
       (onRestore)="restoreCipher()"
@@ -21,11 +23,16 @@
       (onCancel)="cancelCipher($event)"
       (onArchiveToggle)="refreshCurrentCipher()"
       [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
+      [submitButtonText]="submitButtonText()"
     ></app-vault-item-footer>
     <div class="content">
       <div class="inner-content">
         <div class="box">
-          <app-cipher-view *ngIf="action === 'view'" [cipher]="cipher" [collections]="collections">
+          <app-cipher-view
+            *ngIf="action === 'view'"
+            [cipher]="cipher()"
+            [collections]="collections"
+          >
           </app-cipher-view>
           <vault-cipher-form
             #vaultForm

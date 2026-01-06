@@ -2,6 +2,21 @@
   <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
 </div>
 <ng-container *ngIf="loaded">
+  @if (showPremiumCallout()) {
+    <div class="tw-m-4">
+      <bit-callout type="default" [title]="'premiumSubscriptionEnded' | i18n">
+        <ng-container>
+          <div>
+            {{ "premiumSubscriptionEndedDesc" | i18n }}
+          </div>
+          <a bitLink href="#" appStopClick (click)="navigateToGetPremium()">
+            {{ "restartPremium" | i18n }}
+          </a>
+        </ng-container>
+      </bit-callout>
+    </div>
+  }
+
   <div class="content">
     <cdk-virtual-scroll-viewport
       itemSize="42"
