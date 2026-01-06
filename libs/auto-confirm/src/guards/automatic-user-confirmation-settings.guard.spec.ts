@@ -26,6 +26,7 @@ describe("canAccessAutoConfirmSettings", () => {
     email: "test@example.com",
     emailVerified: true,
     name: "Test User",
+    creationDate: undefined,
   };
   let activeAccount$: BehaviorSubject<Account | null>;
 
