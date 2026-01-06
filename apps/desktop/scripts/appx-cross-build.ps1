@@ -47,7 +47,7 @@ rm $keyfile
 ```
 
 .EXAMPLE
-./cross-build.ps1 -Architecture arm64 -CertificatePath ~/Development/code-signing.pfx -CertificatePassword (Read-Host -AsSecureString) -Release -ElectronConfigFile ./electron-builder.beta.json
+./scripts/cross-build.ps1 -Architecture arm64 -CertificatePath ~/Development/code-signing.pfx -CertificatePassword (Read-Host -AsSecureString) -Release -ElectronConfigFile ./electron-builder.beta.json
 
 Reads the signing certificate password from user input, then builds, packages
 and signs the Appx.
@@ -99,7 +99,7 @@ if (!(Get-Command cargo-xwin -ErrorAction SilentlyContinue)) {
 
 try {
 
-cd $PSScriptRoot
+cd $PSScriptRoot/..
 
 $builderConfig = Get-Content $ElectronConfigFile | ConvertFrom-Json
 $packageConfig = Get-Content package.json | ConvertFrom-Json
