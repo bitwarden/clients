@@ -26,7 +26,7 @@ import {
   GlobalState,
   GlobalStateProvider,
   KeyDefinition,
-  PHISHING_DATA_DISK,
+  PHISHING_DETECTION_DISK,
 } from "@bitwarden/state";
 
 import { getPhishingResources, PhishingResourceType } from "../phishing-resources";
@@ -44,7 +44,7 @@ export type PhishingData = {
 };
 
 export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
-  PHISHING_DATA_DISK,
+  PHISHING_DETECTION_DISK,
   "phishingDomains",
   {
     deserializer: (value: PhishingData) => {
