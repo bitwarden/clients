@@ -21,7 +21,7 @@
     "!node_modules/@bitwarden/desktop-napi/build.rs",
     "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "36.8.1",
+  "electronVersion": "37.7.0",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
