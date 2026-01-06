@@ -47,7 +47,7 @@ rm $keyfile
 ```
 
 .EXAMPLE
-./scripts/cross-build.ps1 -Architecture arm64 -CertificatePath ~/Development/code-signing.pfx -CertificatePassword (Read-Host -AsSecureString) -Release -ElectronConfigFile ./electron-builder.beta.json
+./scripts/cross-build.ps1 -Architecture arm64 -CertificatePath ~/Development/code-signing.pfx -CertificatePassword (Read-Host -AsSecureString) -Release -Beta
 
 Reads the signing certificate password from user input, then builds, packages
 and signs the Appx.
@@ -65,9 +65,9 @@ param(
     # CERTIFICATE_PASSWORD environment variable. If not specified, the Appx will
     # not be signed.
     $CertificatePassword,
-    [string]
-    # Path to electron-builder JSON configuration file, relative to the script directory.
-    $ElectronConfigFile="electron-builder.json",
+    [Switch]
+    # Whether to build the Beta version of the app.
+    $Beta=$false,
     [Switch]
     # Whether to build in release mode.
     $Release=$false
@@ -99,9 +99,19 @@ if (!(Get-Command cargo-xwin -ErrorAction SilentlyContinue)) {
 
 try {
 
+# Resolve certificate file before we change directories.
+$CertificateFile = Get-Item $CertificatePath -ErrorAction SilentlyContinue
+
 cd $PSScriptRoot/..
 
-$builderConfig = Get-Content $ElectronConfigFile | ConvertFrom-Json
+if ($Beta) {
+  $electronConfigFile =  Get-Item "./electron-builder.beta.json"
+}
+else {
+  $electronConfigFile = Get-Item "./electron-builder.json"
+}
+
+$builderConfig = Get-Content $electronConfigFile | ConvertFrom-Json
 $packageConfig = Get-Content package.json | ConvertFrom-Json
 $manifestTemplate = Get-Content $builderConfig.appx.customManifestPath
 
@@ -142,7 +152,7 @@ Write-Host "Cleaning output folder"
 Remove-Item -Recurse -Force $outDir -ErrorAction Ignore
 
 Write-Host "Packaging Electron executable"
-& npx electron-builder --config $ElectronConfigFile --publish never --dir --win --$arch
+& npx electron-builder --config $electronConfigFile --publish never --dir --win --$arch
 
 cd $outDir
 New-Item -Type Directory (Join-Path $outDir "appx")
@@ -188,7 +198,7 @@ elseif ($null -eq $CertificatePassword -and $null -eq $env:CERTIFICATE_PASSWORD)
     Write-Warning "No certificate password specified in CertificatePassword argument nor CERTIFICATE_PASSWORD environment variable. Not signing Appx."
 }
 else {
-    $cert = (Get-Item $CertificatePath).FullName
+    $cert = $CertificateFile
     $pw = $null
     if ($null -ne $CertificatePassword) {
         $pw = ConvertFrom-SecureString -SecureString $CertificatePassword -AsPlainText
