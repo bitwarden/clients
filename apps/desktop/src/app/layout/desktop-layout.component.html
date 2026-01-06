@@ -1,9 +1,13 @@
 <bit-layout class="!tw-h-full">
   <app-side-nav slot="side-nav">
-    <bit-nav-logo [openIcon]="logo" route="." [label]="'passwordManager' | i18n"></bit-nav-logo>
+    <bit-nav-logo [openIcon]="logo" route="." [label]="'passwordManager' | i18n" />
 
-    <bit-nav-item icon="bwi-vault" [text]="'vault' | i18n" route="new-vault"></bit-nav-item>
-    <app-send-filters-nav></app-send-filters-nav>
+    <bit-nav-item icon="bwi-vault" [text]="'vault' | i18n" route="new-vault" />
+    <app-send-filters-nav />
+
+    <bit-nav-item icon="bwi-generate" [text]="'generator' | i18n" (click)="openGenerator()" />
+    <bit-nav-item icon="bwi-import" [text]="'importNoun' | i18n" (click)="openImport()" />
+    <bit-nav-item icon="bwi-download" [text]="'exportNoun' | i18n" (click)="openExport()" />
   </app-side-nav>
 
   <router-outlet></router-outlet>
