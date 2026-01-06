@@ -27,10 +27,6 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     private configService: ConfigService,
   ) {}
 
-  hasArchiveFlagEnabled$(): Observable<boolean> {
-    return this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive);
-  }
-
   /**
    * Observable that contains the list of ciphers that have been archived.
    */
@@ -61,23 +57,22 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     );
   }
 
-  /**
-   * User can access the archive vault if:
-   * Feature Flag is enabled
-   * There is at least one archived item
-   * ///////////// NOTE /////////////
-   * This is separated from userCanArchive because a user that loses premium status, but has archived items,
-   * should still be able to access their archive vault. The items will be read-only, and can be restored.
-   */
-  showArchiveVault$(userId: UserId): Observable<boolean> {
-    return combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive),
-      this.archivedCiphers$(userId),
-    ]).pipe(
-      map(
-        ([archiveFlagEnabled, hasArchivedItems]) =>
-          archiveFlagEnabled && hasArchivedItems.length > 0,
-      ),
+  /** Returns true when the archive features should be shown. */
+  hasArchiveFlagEnabled$: Observable<boolean> = this.configService
+    .getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive)
+    .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+
+  /** Returns true when the user has premium from any means. */
+  userHasPremium$(userId: UserId): Observable<boolean> {
+    return this.billingAccountProfileStateService
+      .hasPremiumFromAnySource$(userId)
+      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+  }
+
+  /** Returns true when the user has previously archived ciphers but lost their premium membership. */
+  showSubscriptionEndedMessaging$(userId: UserId): Observable<boolean> {
+    return combineLatest([this.archivedCiphers$(userId), this.userHasPremium$(userId)]).pipe(
+      map(([archivedCiphers, hasPremium]) => archivedCiphers.length > 0 && !hasPremium),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
   }
@@ -100,7 +95,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
       localCipher.revisionDate = cipher.revisionDate;
     }
 
-    await this.cipherService.replace(currentCiphers, userId);
+    await this.cipherService.upsert(Object.values(currentCiphers), userId);
   }
 
   async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
@@ -121,6 +116,6 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
       localCipher.revisionDate = cipher.revisionDate;
     }
 
-    await this.cipherService.replace(currentCiphers, userId);
+    await this.cipherService.upsert(Object.values(currentCiphers), userId);
   }
 }

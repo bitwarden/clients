@@ -13,17 +13,6 @@
         <button type="button" bitMenuItem (click)="doAutofill()">
           {{ "autofill" | i18n }}
         </button>
-        <!-- Autofill confirmation handles both 'autofill' and 'autofill and save' so no need to show both -->
-        @if (!(showAutofillConfirmation$ | async)) {
-          <button
-            type="button"
-            bitMenuItem
-            *ngIf="canEdit && isLogin"
-            (click)="doAutofillAndSave()"
-          >
-            {{ "fillAndSave" | i18n }}
-          </button>
-        }
       </ng-container>
     </ng-container>
     <ng-container *ngIf="showViewOption">
@@ -51,10 +40,26 @@
         {{ "assignToCollections" | i18n }}
       </a>
     </ng-container>
-    @if (canArchive$ | async) {
-      <button type="button" bitMenuItem (click)="archive()" *ngIf="canArchive$ | async">
-        {{ "archiveVerb" | i18n }}
-      </button>
+    @if (showArchive$ | async) {
+      @if (canArchive$ | async) {
+        <button type="button" bitMenuItem (click)="archive()">
+          {{ "archiveVerb" | i18n }}
+        </button>
+      } @else {
+        <button
+          type="button"
+          bitMenuItem
+          (click)="badge.promptForPremium($event)"
+          [attr.aria-label]="'upgradeToUseArchive' | i18n"
+        >
+          <div class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2">
+            {{ "archiveVerb" | i18n }}
+            <div aria-hidden>
+              <app-premium-badge #badge></app-premium-badge>
+            </div>
+          </div>
+        </button>
+      }
     }
     @if (canDelete$ | async) {
       <button type="button" bitMenuItem (click)="delete()">

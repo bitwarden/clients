@@ -1,5 +1,13 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input, inject, signal, computed } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  inject,
+  signal,
+  computed,
+  model,
+} from "@angular/core";
 import { RouterModule, RouterLinkActive } from "@angular/router";
 
 import { IconButtonModule } from "../icon-button";
@@ -10,6 +18,7 @@ import { SideNavService } from "./side-nav.service";
 // Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
 export abstract class NavGroupAbstraction {
   abstract setOpen(open: boolean): void;
+  abstract treeDepth: ReturnType<typeof model<number>>;
 }
 
 @Component({
@@ -24,6 +33,18 @@ export abstract class NavGroupAbstraction {
   },
 })
 export class NavItemComponent extends NavBaseComponent {
+  /**
+   * Base padding for tree variant items (in rem)
+   * This provides the initial indentation for tree items before depth-based padding
+   */
+  protected readonly TREE_BASE_PADDING = 2.5;
+
+  /**
+   * Padding increment per tree depth level (in rem)
+   * Each nested level adds this amount of padding to visually indicate hierarchy
+   */
+  protected readonly TREE_DEPTH_PADDING = 1.75;
+
   /**
    * Forces active styles to be shown, regardless of the `routerLinkActiveOptions`
    */
@@ -45,6 +66,22 @@ export class NavItemComponent extends NavBaseComponent {
   protected get showActiveStyles() {
     return this.forceActiveStyles() || (this._isActive && !this.hideActiveStyles());
   }
+
+  /**
+   * adding calculation for tree variant due to needing visual alignment on different indentation levels needed between the first level and subsequent levels
+   */
+  protected readonly navItemIndentationPadding = computed(() => {
+    const open = this.sideNavService.open();
+    const depth = this.treeDepth() ?? 0;
+
+    if (open && this.variant() === "tree") {
+      return depth === 1
+        ? `${this.TREE_BASE_PADDING}rem`
+        : `${this.TREE_BASE_PADDING + (depth - 1) * this.TREE_DEPTH_PADDING}rem`;
+    }
+
+    return `${this.TREE_BASE_PADDING * depth}rem`;
+  });
 
   /**
    * Allow overriding of the RouterLink['ariaCurrentWhenActive'] property.
@@ -78,5 +115,14 @@ export class NavItemComponent extends NavBaseComponent {
 
   protected onFocusOut() {
     this.focusVisibleWithin.set(false);
+  }
+
+  constructor() {
+    super();
+
+    // Set tree depth based on parent's depth
+    if (this.parentNavGroup) {
+      this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);
+    }
   }
 }

@@ -20,9 +20,9 @@ import {
   AuthRequestService,
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
-  DefaultLockService,
   DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
+  LockService,
   LoginEmailServiceAbstraction,
   LogoutReason,
   UserDecryptionOptionsService,
@@ -82,9 +82,13 @@ import {
 import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
+import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import {
   DefaultKeyGenerationService,
   KeyGenerationService,
@@ -122,6 +126,7 @@ import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/co
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
@@ -131,7 +136,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
-import { IpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -160,6 +165,7 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
+import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
@@ -270,6 +276,7 @@ import {
 } from "@bitwarden/vault-export-core";
 
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
+import { ExtensionLockService } from "../auth/services/extension-lock.service";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
 import { OverlayBackground as OverlayBackgroundInterface } from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
@@ -293,8 +300,10 @@ import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge
 import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
+import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
@@ -362,6 +371,7 @@ export default class MainBackground {
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
   collectionService: CollectionService;
+  lockService: LockService;
   vaultTimeoutService?: VaultTimeoutService;
   vaultTimeoutSettingsService: VaultTimeoutSettingsService;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
@@ -449,11 +459,13 @@ export default class MainBackground {
   syncServiceListener: SyncServiceListener;
   browserInitialInstallService: BrowserInitialInstallService;
   backgroundSyncService: BackgroundSyncService;
+  accountCryptographicStateService: AccountCryptographicStateService;
 
   webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
   themeStateService: DefaultThemeStateService;
   autoSubmitLoginBackground: AutoSubmitLoginBackground;
   sdkService: SdkService;
+  registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
@@ -491,17 +503,11 @@ export default class MainBackground {
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
   private popupRouterCacheBackgroundService: PopupRouterCacheBackgroundService;
 
-  constructor() {
-    // Services
-    const lockedCallback = async (userId: UserId) => {
-      await this.refreshMenu(true);
-      if (this.systemService != null) {
-        await this.systemService.clearPendingClipboard();
-        await this.biometricsService.setShouldAutopromptNow(false);
-        await this.processReloadService.startProcessReload(this.authService);
-      }
-    };
+  // DIRT
+  private phishingDataService: PhishingDataService;
+  private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
 
+  constructor() {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
       await this.logout(logoutReason, userId);
 
@@ -552,7 +558,7 @@ export default class MainBackground {
       this.memoryStorageForStateProviders = new BrowserMemoryStorageService(); // mv3 stores to storage.session
       this.memoryStorageService = this.memoryStorageForStateProviders;
     } else {
-      this.memoryStorageForStateProviders = new BackgroundMemoryStorageService(); // mv2 stores to memory
+      this.memoryStorageForStateProviders = new BackgroundMemoryStorageService(this.logService); // mv2 stores to memory
       this.memoryStorageService = this.memoryStorageForStateProviders;
     }
 
@@ -575,7 +581,7 @@ export default class MainBackground {
           "ephemeral",
           "bitwarden-ephemeral",
         );
-        await sessionStorage.save("session-key", derivedKey);
+        await sessionStorage.save("session-key", derivedKey.toJSON());
         return derivedKey;
       });
 
@@ -730,22 +736,21 @@ export default class MainBackground {
 
     const pinStateService = new PinStateService(this.stateProvider);
 
-    this.pinService = new PinService(
-      this.accountService,
-      this.encryptService,
-      this.kdfConfigService,
-      this.keyGenerationService,
-      this.logService,
-      this.keyService,
-      this.sdkService,
-      pinStateService,
-    );
-
     this.appIdService = new AppIdService(this.storageService, this.logService);
 
-    this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
+    this.userDecryptionOptionsService = new UserDecryptionOptionsService(
+      this.singleUserStateProvider,
+    );
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
-    this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
+    this.policyService = new DefaultPolicyService(
+      this.stateProvider,
+      this.organizationService,
+      this.accountService,
+    );
+
+    const sessionTimeoutTypeService = new BrowserSessionTimeoutTypeService(
+      this.platformUtilsService,
+    );
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
@@ -758,16 +763,7 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.OnRestart, // default vault timeout
-    );
-
-    this.biometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      this.logService,
-      this.keyService,
-      this.biometricStateService,
-      this.messagingService,
-      this.vaultTimeoutSettingsService,
-      this.pinService,
+      sessionTimeoutTypeService,
     );
 
     this.apiService = new ApiService(
@@ -803,18 +799,6 @@ export default class MainBackground {
       this.policyService,
       this.apiService,
       this.accountService,
-    );
-    this.keyConnectorService = new KeyConnectorService(
-      this.accountService,
-      this.masterPasswordService,
-      this.keyService,
-      this.apiService,
-      this.tokenService,
-      this.logService,
-      this.organizationService,
-      this.keyGenerationService,
-      logoutCallback,
-      this.stateProvider,
     );
 
     this.authService = new AuthService(
@@ -853,6 +837,55 @@ export default class MainBackground {
       this.configService,
     );
 
+    this.registerSdkService = new DefaultRegisterSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      this.apiService,
+      this.stateProvider,
+      this.configService,
+    );
+
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
+
+    this.keyConnectorService = new KeyConnectorService(
+      this.accountService,
+      this.masterPasswordService,
+      this.keyService,
+      this.apiService,
+      this.tokenService,
+      this.logService,
+      this.organizationService,
+      this.keyGenerationService,
+      logoutCallback,
+      this.stateProvider,
+      this.configService,
+      this.registerSdkService,
+      this.securityStateService,
+      this.accountCryptographicStateService,
+    );
+
+    this.pinService = new PinService(
+      this.encryptService,
+      this.logService,
+      this.keyService,
+      this.sdkService,
+      pinStateService,
+    );
+
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.biometricStateService,
+      this.messagingService,
+      this.vaultTimeoutSettingsService,
+      this.pinService,
+    );
+
     this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
@@ -862,8 +895,6 @@ export default class MainBackground {
       this.accountService,
       this.stateProvider,
     );
-
-    this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustService = new DeviceTrustService(
@@ -880,6 +911,7 @@ export default class MainBackground {
       this.userDecryptionOptionsService,
       this.logService,
       this.configService,
+      this.accountService,
     );
 
     this.devicesService = new DevicesServiceImplementation(
@@ -983,27 +1015,6 @@ export default class MainBackground {
       this.restrictedItemTypesService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
-    this.vaultTimeoutService = new VaultTimeoutService(
-      this.accountService,
-      this.masterPasswordService,
-      this.cipherService,
-      this.folderService,
-      this.collectionService,
-      this.platformUtilsService,
-      this.messagingService,
-      this.searchService,
-      this.stateService,
-      this.tokenService,
-      this.authService,
-      this.vaultTimeoutSettingsService,
-      this.stateEventRunnerService,
-      this.taskSchedulerService,
-      this.logService,
-      this.biometricsService,
-      lockedCallback,
-      logoutService,
-    );
     this.containerService = new ContainerService(this.keyService, this.encryptService);
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
@@ -1024,6 +1035,7 @@ export default class MainBackground {
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
 
     this.providerService = new ProviderService(this.stateProvider);
+
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -1051,6 +1063,7 @@ export default class MainBackground {
       this.stateProvider,
       this.securityStateService,
       this.kdfConfigService,
+      this.accountCryptographicStateService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
@@ -1126,7 +1139,7 @@ export default class MainBackground {
       this.collectionService,
       this.keyService,
       this.encryptService,
-      this.pinService,
+      this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
     );
@@ -1134,7 +1147,7 @@ export default class MainBackground {
     this.individualVaultExportService = new IndividualVaultExportService(
       this.folderService,
       this.cipherService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -1148,7 +1161,7 @@ export default class MainBackground {
     this.organizationVaultExportService = new OrganizationVaultExportService(
       this.cipherService,
       this.exportApiService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -1220,6 +1233,7 @@ export default class MainBackground {
       this.webPushConnectionService,
       this.authRequestAnsweringService,
       this.configService,
+      this.policyService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -1267,6 +1281,7 @@ export default class MainBackground {
       this.biometricStateService,
       this.accountService,
       this.logService,
+      this.authService,
     );
 
     // Background
@@ -1280,7 +1295,36 @@ export default class MainBackground {
       this.authService,
     );
 
-    const lockService = new DefaultLockService(this.accountService, this.vaultTimeoutService);
+    const logoutService = new DefaultLogoutService(this.messagingService);
+    this.lockService = new ExtensionLockService(
+      this.accountService,
+      this.biometricsService,
+      this.vaultTimeoutSettingsService,
+      logoutService,
+      this.messagingService,
+      this.searchService,
+      this.folderService,
+      this.masterPasswordService,
+      this.stateEventRunnerService,
+      this.cipherService,
+      this.authService,
+      this.systemService,
+      this.processReloadService,
+      this.logService,
+      this.keyService,
+      this,
+    );
+
+    this.vaultTimeoutService = new VaultTimeoutService(
+      this.accountService,
+      this.platformUtilsService,
+      this.authService,
+      this.vaultTimeoutSettingsService,
+      this.taskSchedulerService,
+      this.logService,
+      this.lockService,
+      logoutService,
+    );
 
     this.runtimeBackground = new RuntimeBackground(
       this,
@@ -1294,7 +1338,7 @@ export default class MainBackground {
       this.configService,
       messageListener,
       this.accountService,
-      lockService,
+      this.lockService,
       this.billingAccountProfileStateService,
       this.browserInitialInstallService,
     );
@@ -1314,9 +1358,10 @@ export default class MainBackground {
     this.commandsBackground = new CommandsBackground(
       this,
       this.platformUtilsService,
-      this.vaultTimeoutService,
       this.authService,
       () => this.generatePasswordToClipboard(),
+      this.accountService,
+      this.lockService,
     );
 
     this.taskService = new DefaultTaskService(
@@ -1401,6 +1446,7 @@ export default class MainBackground {
       this.serverNotificationsService,
       this.accountService,
       this.vaultTimeoutSettingsService,
+      this.lockService,
       logoutService,
     );
 
@@ -1451,19 +1497,37 @@ export default class MainBackground {
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
-    PhishingDetectionService.initialize(
+    this.phishingDataService = new PhishingDataService(
+      this.apiService,
+      this.taskSchedulerService,
+      this.globalStateProvider,
+      this.logService,
+      this.platformUtilsService,
+    );
+
+    this.phishingDetectionSettingsService = new PhishingDetectionSettingsService(
       this.accountService,
-      this.auditService,
       this.billingAccountProfileStateService,
       this.configService,
-      this.eventCollectionService,
+      this.organizationService,
+      this.platformUtilsService,
+      this.stateProvider,
+    );
+
+    PhishingDetectionService.initialize(
       this.logService,
-      this.storageService,
-      this.taskSchedulerService,
+      this.phishingDataService,
+      this.phishingDetectionSettingsService,
+      messageListener,
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
+    const ipcSessionRepository = new IpcSessionRepository(this.stateProvider);
+    this.ipcService = new IpcBackgroundService(
+      this.platformUtilsService,
+      this.logService,
+      ipcSessionRepository,
+    );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
       this.stateProvider,
@@ -1743,7 +1807,7 @@ export default class MainBackground {
     }
     await this.mainContextMenuHandler?.noAccess();
     await this.systemService.clearPendingClipboard();
-    await this.processReloadService.startProcessReload(this.authService);
+    await this.processReloadService.startProcessReload();
   }
 
   private async needsStorageReseed(userId: UserId): Promise<boolean> {

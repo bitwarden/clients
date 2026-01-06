@@ -1,16 +1,20 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
+import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
@@ -73,6 +77,7 @@ describe("VaultItemDialogComponent", () => {
         { provide: LogService, useValue: {} },
         { provide: CipherService, useValue: {} },
         { provide: AccountService, useValue: { activeAccount$: { pipe: () => ({}) } } },
+        { provide: ConfigService, useValue: { getFeatureFlag: () => Promise.resolve(false) } },
         { provide: Router, useValue: {} },
         { provide: ActivatedRoute, useValue: {} },
         {
@@ -84,11 +89,17 @@ describe("VaultItemDialogComponent", () => {
         { provide: ApiService, useValue: {} },
         { provide: EventCollectionService, useValue: {} },
         { provide: RoutedVaultFilterService, useValue: {} },
+        { provide: SyncService, useValue: {} },
+        { provide: PlatformUtilsService, useValue: {} },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestVaultItemDialogComponent);
     component = fixture.componentInstance;
+    Object.defineProperty(component, "userHasPremium$", {
+      get: () => of(false),
+      configurable: true,
+    });
     fixture.detectChanges();
   });
 
@@ -127,6 +138,37 @@ describe("VaultItemDialogComponent", () => {
         cipherType: CipherType.Card,
       });
       expect(component.getTestTitle()).toBe("newItemHeaderCard");
+    });
+  });
+  describe("submitButtonText$", () => {
+    it("should return 'unArchiveAndSave' when premium is false and cipher is archived", (done) => {
+      jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(false));
+      component["cipherIsArchived"] = true;
+
+      component["submitButtonText$"].subscribe((text) => {
+        expect(text).toBe("unArchiveAndSave");
+        done();
+      });
+    });
+
+    it("should return 'save' when cipher is archived and user has premium", (done) => {
+      jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(true));
+      component["cipherIsArchived"] = true;
+
+      component["submitButtonText$"].subscribe((text) => {
+        expect(text).toBe("save");
+        done();
+      });
+    });
+
+    it("should return 'save' when cipher is not archived", (done) => {
+      jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(false));
+      component["cipherIsArchived"] = false;
+
+      component["submitButtonText$"].subscribe((text) => {
+        expect(text).toBe("save");
+        done();
+      });
     });
   });
 });

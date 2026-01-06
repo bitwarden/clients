@@ -29,7 +29,9 @@ export class RiskInsightsApiService {
       true,
     );
     return from(dbResponse).pipe(
-      map((response) => new GetRiskInsightsReportResponse(response)),
+      // As of this change, the server doesn't return a 404 if a report is not found
+      // Handle null response if server returns nothing
+      map((response) => (response ? new GetRiskInsightsReportResponse(response) : null)),
       catchError((error: unknown) => {
         if (error instanceof ErrorResponse && error.statusCode === 404) {
           return of(null); // Handle 404 by returning null or an appropriate default value

@@ -15,6 +15,8 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { trackedMerge } from "@bitwarden/common/platform/misc";
@@ -67,49 +69,22 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly webPushConnectionService: WebPushConnectionService,
     private readonly authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
     private readonly configService: ConfigService,
+    private readonly policyService: InternalPolicyService,
   ) {
-    this.notifications$ = this.configService
-      .getFeatureFlag$(FeatureFlag.InactiveUserServerNotification)
-      .pipe(
-        distinctUntilChanged(),
-        switchMap((inactiveUserServerNotificationEnabled) => {
-          if (inactiveUserServerNotificationEnabled) {
-            return this.accountService.accounts$.pipe(
-              map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
-                const validUserIds = Object.entries(accounts)
-                  .filter(
-                    ([_, accountInfo]) => accountInfo.email !== "" || accountInfo.emailVerified,
-                  )
-                  .map(([userId, _]) => userId as UserId);
-                return new Set(validUserIds);
-              }),
-              trackedMerge((id: UserId) => {
-                return this.userNotifications$(id as UserId).pipe(
-                  map(
-                    (notification: NotificationResponse) => [notification, id as UserId] as const,
-                  ),
-                );
-              }),
-            );
-          }
-
-          return this.accountService.activeAccount$.pipe(
-            map((account) => account?.id),
-            distinctUntilChanged(),
-            switchMap((activeAccountId) => {
-              if (activeAccountId == null) {
-                // We don't emit server-notifications for inactive accounts currently
-                return EMPTY;
-              }
-
-              return this.userNotifications$(activeAccountId).pipe(
-                map((notification) => [notification, activeAccountId] as const),
-              );
-            }),
-          );
-        }),
-        share(), // Multiple subscribers should only create a single connection to the server
-      );
+    this.notifications$ = this.accountService.accounts$.pipe(
+      map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
+        const validUserIds = Object.entries(accounts)
+          .filter(([_, accountInfo]) => accountInfo.email !== "" || accountInfo.emailVerified)
+          .map(([userId, _]) => userId as UserId);
+        return new Set(validUserIds);
+      }),
+      trackedMerge((id: UserId) => {
+        return this.userNotifications$(id as UserId).pipe(
+          map((notification: NotificationResponse) => [notification, id as UserId] as const),
+        );
+      }),
+      share(), // Multiple subscribers should only create a single connection to the server
+    );
   }
 
   /**
@@ -172,25 +147,13 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
   }
 
   private hasAccessToken$(userId: UserId) {
-    return this.configService.getFeatureFlag$(FeatureFlag.PushNotificationsWhenLocked).pipe(
+    return this.authService.authStatusFor$(userId).pipe(
+      map(
+        (authStatus) =>
+          authStatus === AuthenticationStatus.Locked ||
+          authStatus === AuthenticationStatus.Unlocked,
+      ),
       distinctUntilChanged(),
-      switchMap((featureFlagEnabled) => {
-        if (featureFlagEnabled) {
-          return this.authService.authStatusFor$(userId).pipe(
-            map(
-              (authStatus) =>
-                authStatus === AuthenticationStatus.Locked ||
-                authStatus === AuthenticationStatus.Unlocked,
-            ),
-            distinctUntilChanged(),
-          );
-        } else {
-          return this.authService.authStatusFor$(userId).pipe(
-            map((authStatus) => authStatus === AuthenticationStatus.Unlocked),
-            distinctUntilChanged(),
-          );
-        }
-      }),
     );
   }
 
@@ -205,19 +168,13 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       return;
     }
 
-    if (
-      await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.InactiveUserServerNotification),
-      )
-    ) {
-      const activeAccountId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+    const activeAccountId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
 
-      const isActiveUser = activeAccountId === userId;
-      if (!isActiveUser && !AllowedMultiUserNotificationTypes.has(notification.type)) {
-        return;
-      }
+    const notificationIsForActiveUser = activeAccountId === userId;
+    if (!notificationIsForActiveUser && !AllowedMultiUserNotificationTypes.has(notification.type)) {
+      return;
     }
 
     switch (notification.type) {
@@ -329,6 +286,9 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           providerId: notification.payload.providerId,
           adminId: notification.payload.adminId,
         });
+        break;
+      case NotificationType.SyncPolicy:
+        await this.policyService.syncPolicy(PolicyData.fromPolicy(notification.payload.policy));
         break;
       default:
         break;

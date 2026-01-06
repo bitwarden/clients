@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Използване на еднократна идентификация"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Вашата организация изисква еднократно удостоверяване."
+  },
   "welcomeBack": {
     "message": "Добре дошли отново"
   },
@@ -433,7 +436,7 @@
   "sync": {
     "message": "Синхронизиране"
   },
-  "syncVaultNow": {
+  "syncNow": {
     "message": "Синхронизиране сега"
   },
   "lastSync": {
@@ -451,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Уеб приложение"
-  },
-  "importItems": {
-    "message": "Внасяне на елементи"
   },
   "select": {
     "message": "Избор"
@@ -582,11 +582,23 @@
   "archiveItemConfirmDesc": {
     "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
   },
+  "upgradeToUseArchive": {
+    "message": "За да се възползвате от архивирането, трябва да ползвате платен абонамент."
+  },
   "edit": {
     "message": "Редактиране"
   },
   "view": {
     "message": "Преглед"
+  },
+  "viewAll": {
+    "message": "Показване на всички"
+  },
+  "showAll": {
+    "message": "Показване на всички"
+  },
+  "viewLess": {
+    "message": "Преглед на по-малко"
   },
   "viewLogin": {
     "message": "Преглед на елемента за вписване"
@@ -789,6 +801,12 @@
   },
   "onLocked": {
     "message": "При заключване на системата"
+  },
+  "onIdle": {
+    "message": "При бездействие на системата"
+  },
+  "onSleep": {
+    "message": "При заспиване на системата"
   },
   "onRestart": {
     "message": "При повторно пускане на браузъра"
@@ -1027,6 +1045,18 @@
   },
   "editedItem": {
     "message": "Елементът е редактиран"
+  },
+  "savedWebsite": {
+    "message": "Запазен уеб сайт"
+  },
+  "savedWebsites": {
+    "message": "Запазени уеб сайтове ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Наистина ли искате да изтриете елемента?"
@@ -1292,8 +1322,21 @@
   "exportFrom": {
     "message": "Изнасяне от"
   },
-  "exportVault": {
-    "message": "Изнасяне на трезора"
+  "exportVerb": {
+    "message": "Изнасяне",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Изнасяне",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Внасяне",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Внасяне",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат на файла"
@@ -1373,6 +1416,27 @@
   "learnMore": {
     "message": "Научете повече"
   },
+  "migrationsFailed": {
+    "message": "Възникна грешка при обновяването на настройките за шифроване."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Обновете настройките си за шифроване"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Новите препоръчани настройки за шифроване ще подобрят сигурността на акаунта Ви. Въведете главната си парола, за да ги обновите сега."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Потвърдете самоличността си, за да продължите"
+  },
+  "enterYourMasterPassword": {
+    "message": "Въведете главната си парола"
+  },
+  "updateSettings": {
+    "message": "Обновяване на настройките"
+  },
+  "later": {
+    "message": "По-късно"
+  },
   "authenticatorKeyTotp": {
     "message": "Удостоверителен ключ (TOTP)"
   },
@@ -1403,6 +1467,15 @@
   "attachmentSaved": {
     "message": "Прикаченият файл е запазен."
   },
+  "fixEncryption": {
+    "message": "Поправяне на шифроването"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Този файл използва остарял метод на шифроване."
+  },
+  "attachmentUpdated": {
+    "message": "Прикаченият файл е актуализиран"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1411,6 +1484,9 @@
   },
   "selectFile": {
     "message": "Изберете файл."
+  },
+  "itemsTransferred": {
+    "message": "Елементите са прехвърлени"
   },
   "maxFileSize": {
     "message": "Големината на файла е най-много 500 MB."
@@ -1441,6 +1517,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB пространство за файлове, които се шифрират."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ пространство за файлове, които се шифрират.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Авариен достъп"
@@ -1504,12 +1589,6 @@
   },
   "enableAutoBiometricsPrompt": {
     "message": "Питане за биометрични данни при пускане"
-  },
-  "premiumRequired": {
-    "message": "Изисква се платен абонамент"
-  },
-  "premiumRequiredDesc": {
-    "message": "За да се възползвате от тази възможност, трябва да ползвате платен абонамент."
   },
   "authenticationTimeout": {
     "message": "Време на давност за удостоверяването"
@@ -1623,6 +1702,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Трябва да добавите или основния адрес на сървъра, или поне една специална среда."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "Адресите трябва да ползват HTTPS."
+  },
   "customEnvironment": {
     "message": "Специална среда"
   },
@@ -1676,8 +1758,29 @@
   "turnOffAutofill": {
     "message": "Изключване на автоматичното попълване"
   },
+  "confirmAutofill": {
+    "message": "Потвърждаване на автоматичното попълване"
+  },
+  "confirmAutofillDesc": {
+    "message": "Този уеб сайт не съвпада със запазените данни за вписване. Преди да попълните данните си, уверете се, че имате вяра на сайта."
+  },
   "showInlineMenuLabel": {
     "message": "Показване на предложения за авт. попълване на полетата във формуляри"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Как Битуорден защитава данните Ви от измами?"
+  },
+  "currentWebsite": {
+    "message": "Текущ уеб сайт"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Автоматично попълване и добавяне на този уеб сайт"
+  },
+  "autofillWithoutAdding": {
+    "message": "Автоматично попълване без добавяне"
+  },
+  "doNotAutofill": {
+    "message": "Да не се попълва автоматично"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Показване на идентичности като предложения"
@@ -1821,6 +1924,9 @@
   },
   "expirationYear": {
     "message": "Година на изтичане"
+  },
+  "monthly": {
+    "message": "месец"
   },
   "expiration": {
     "message": "Изтичане"
@@ -2390,6 +2496,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Тази страница пречи на работата на Битуорден. Вмъкнатото меню на Битуорден е временно изключено, като мярка за сигурност."
   },
   "setMasterPassword": {
     "message": "Задаване на главна парола"
@@ -3153,9 +3262,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Няма намерен уникален идентификатор."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "За членовете на следната организация вече не се изисква главна парола. Потвърдете домейна по-долу с администратора на организацията си."
-  },
   "organizationName": {
     "message": "Име на организацията"
   },
@@ -3239,6 +3345,9 @@
   },
   "decryptionError": {
     "message": "Грешка при дешифриране"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Грешка при получаването на данните за автоматично попълване"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
@@ -4011,6 +4120,15 @@
     "message": "Автоматичното попълване при зареждане на страницата използва настройката си по подразбиране.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
+  "cannotAutofill": {
+    "message": "Автоматичното попълване не може да бъде извършено"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "По подразбиране е зададена настройката „Точно съвпадение“. Текущият уеб сайт не съвпада точно със запазените данни за вход в този запис."
+  },
+  "okay": {
+    "message": "Добре"
+  },
   "toggleSideNavigation": {
     "message": "Превключване на страничната навигация"
   },
@@ -4106,10 +4224,6 @@
   },
   "ignore": {
     "message": "Пренебрегване"
-  },
-  "importData": {
-    "message": "Внасяне на данни",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Грешка при внасянето"
@@ -4697,6 +4811,15 @@
   "accountSecurity": {
     "message": "Защита на регистрацията"
   },
+  "phishingBlocker": {
+    "message": "Блокатор на измами"
+  },
+  "enablePhishingDetection": {
+    "message": "Разпознаване на измами"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Показване на предупреждение преди зареждане на уеб сайтове подозирани за измамни"
+  },
   "notifications": {
     "message": "Известия"
   },
@@ -4842,6 +4965,9 @@
   "premium": {
     "message": "Премиум"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Отключете докладите, аварийния достъп и още функционалности свързани със сигурността, с платения план."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Безплатните организации не могат да използват прикачени файлове"
   },
@@ -4918,6 +5044,16 @@
   },
   "defaultLabel": {
     "message": "По подразбиране ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "По подразбиране ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5718,8 +5854,193 @@
   "atRiskLoginsSecured": {
     "message": "Добра работа с подсигуряването на данните за вписване в риск!"
   },
+  "upgradeNow": {
+    "message": "Надграждане сега"
+  },
+  "builtInAuthenticator": {
+    "message": "Вграден удостоверител"
+  },
+  "secureFileStorage": {
+    "message": "Сигурно съхранение на файлове"
+  },
+  "emergencyAccess": {
+    "message": "Авариен достъп"
+  },
+  "breachMonitoring": {
+    "message": "Наблюдение за пробиви"
+  },
+  "andMoreFeatures": {
+    "message": "И още!"
+  },
+  "advancedOnlineSecurity": {
+    "message": "Разширена сигурност в Интернет"
+  },
+  "upgradeToPremium": {
+    "message": "Надградете до Платения план"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Отключване на разширените функционалности по сигурността"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Платеният абонамент предоставя повече инструменти за защита и управление"
+  },
+  "explorePremium": {
+    "message": "Разгледайте платения план"
+  },
+  "loadingVault": {
+    "message": "Зареждане на трезора"
+  },
+  "vaultLoaded": {
+    "message": "Трезорът е зареден"
+  },
   "settingDisabledByPolicy": {
     "message": "Тази настройка е изключена съгласно политиката на организацията Ви.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Пощенски код"
+  },
+  "cardNumberLabel": {
+    "message": "Номер на картата"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Вашата организация вече не използва главни пароли за вписване в Битуорден. За да продължите, потвърдете организацията и домейна."
+  },
+  "continueWithLogIn": {
+    "message": "Продължаване с вписването"
+  },
+  "doNotContinue": {
+    "message": "Не продължавам"
+  },
+  "domain": {
+    "message": "Домейн"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Този домейн ще съхранява ключовете за шифроване на акаунта Ви, така че се уверете, че му имате доверие. Ако имате съмнения, свържете се с администратора си."
+  },
+  "verifyYourOrganization": {
+    "message": "Потвърдете организацията си, за да се впишете"
+  },
+  "organizationVerified": {
+    "message": "Организацията е потвърдена"
+  },
+  "domainVerified": {
+    "message": "Домейнът е потвърден"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ако не потвърдите организацията, достъпът Ви до нея ще бъде преустановен."
+  },
+  "leaveNow": {
+    "message": "Напускане сега"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Потвърдете домейна си, за да се впишете"
+  },
+  "verifyYourDomainDescription": {
+    "message": "За да продължите с вписването, потвърдете този домейн."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "За да продължите с вписването, потвърдете организацията и домейна."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Действие при изтичането на времето за достъп"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Тази настройка се управлява от организацията Ви."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Организацията Ви е настроила максималното разрешено време за достъп на [%1$i] час(а) и [%2$i] минути.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Организацията Ви е настроила стандартното разрешено време за достъп да бъде нула."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Организацията Ви е настроила стандартното разрешено време за достъп да бъде до заключване на системата."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Организацията Ви е настроила стандартното разрешено време за достъп да бъде до рестартиране на браузъра."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Максималното време на достъп не може да превишава $HOURS$ час(а) и $MINUTES$ минути",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "При рестартиране на браузъра"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп"
+  },
+  "upgrade": {
+    "message": "Надграждане"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Наистина ли искате да напуснете?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Ако откажете, Вашите собствени елементи ще останат в акаунта Ви, но ще загубите достъп до споделените елементи и функционалностите на организацията."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Свържете се с администратор, за да получите достъп отново."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Напускане на $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Как да управлявам трезора си?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Прехвърляне на елементи към $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ изисква всички елементи да станат притежание на организацията, за по-добра сигурност и съвместимост. Изберете, че приемате, за да прехвърлите собствеността на елементите си към организацията.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Приемане на прехвърлянето"
+  },
+  "declineAndLeave": {
+    "message": "Отказване и напускане"
+  },
+  "whyAmISeeingThis": {
+    "message": "Защо виждам това?"
+  },
+  "resizeSideNavigation": {
+    "message": "Преоразмеряване на страничната навигация"
   }
 }

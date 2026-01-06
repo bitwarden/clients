@@ -9,20 +9,22 @@ import {
   fireEvent,
   getByText,
   getAllByLabelText,
-} from "@storybook/test";
+} from "storybook/test";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../../utils/state-mock";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
 
 import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
-import { KitchenSinkForm } from "./components/kitchen-sink-form.component";
+import { KitchenSinkFormComponent } from "./components/kitchen-sink-form.component";
 import { KitchenSinkMainComponent } from "./components/kitchen-sink-main.component";
-import { KitchenSinkTable } from "./components/kitchen-sink-table.component";
-import { KitchenSinkToggleList } from "./components/kitchen-sink-toggle-list.component";
+import { KitchenSinkTableComponent } from "./components/kitchen-sink-table.component";
+import { KitchenSinkToggleListComponent } from "./components/kitchen-sink-toggle-list.component";
 import { KitchenSinkSharedModule } from "./kitchen-sink-shared.module";
 
 export default {
@@ -33,10 +35,10 @@ export default {
     moduleMetadata({
       imports: [
         KitchenSinkSharedModule,
-        KitchenSinkForm,
+        KitchenSinkFormComponent,
         KitchenSinkMainComponent,
-        KitchenSinkTable,
-        KitchenSinkToggleList,
+        KitchenSinkTableComponent,
+        KitchenSinkToggleListComponent,
       ],
     }),
     applicationConfig({
@@ -65,8 +67,13 @@ export default {
               yes: "Yes",
               no: "No",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
+        },
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),
@@ -198,5 +205,14 @@ export const VirtualScrollBlockingDialog: Story = {
     const dialogButton = getAllByLabelText(canvas, "Options")[0];
 
     await userEvent.click(dialogButton);
+  },
+};
+
+export const ResponsiveSidebar: Story = {
+  render: Default.render,
+  parameters: {
+    chromatic: {
+      viewports: [640, 1280],
+    },
   },
 };

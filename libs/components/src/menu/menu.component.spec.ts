@@ -7,7 +7,7 @@ import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 import { MenuModule } from "./index";
 
 describe("Menu", () => {
-  let fixture: ComponentFixture<TestApp>;
+  let fixture: ComponentFixture<TestAppComponent>;
   const getMenuTriggerDirective = () => {
     const buttonDebugElement = fixture.debugElement.query(By.directive(MenuTriggerForDirective));
     return buttonDebugElement.injector.get(MenuTriggerForDirective);
@@ -18,12 +18,12 @@ describe("Menu", () => {
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [TestApp],
+      imports: [TestAppComponent],
     });
 
     await TestBed.compileComponents();
 
-    fixture = TestBed.createComponent(TestApp);
+    fixture = TestBed.createComponent(TestAppComponent);
     fixture.detectChanges();
   });
 
@@ -82,4 +82,4 @@ describe("Menu", () => {
   `,
   imports: [MenuModule],
 })
-class TestApp {}
+class TestAppComponent {}

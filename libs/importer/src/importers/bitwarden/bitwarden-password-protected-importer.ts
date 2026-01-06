@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -14,14 +14,21 @@ import {
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
-import { BitwardenPasswordProtectedFileFormat } from "@bitwarden/vault-export-core";
+import {
+  BitwardenJsonExport,
+  BitwardenPasswordProtectedFileFormat,
+  isPasswordProtected,
+} from "@bitwarden/vault-export-core";
 
 import { ImportResult } from "../../models/import-result";
 import { Importer } from "../importer";
 
-import { BitwardenJsonImporter } from "./bitwarden-json-importer";
+import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
 
-export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter implements Importer {
+export class BitwardenPasswordProtectedImporter
+  extends BitwardenEncryptedJsonImporter
+  implements Importer
+{
   private key: SymmetricCryptoKey;
 
   constructor(
@@ -29,7 +36,7 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
     encryptService: EncryptService,
     i18nService: I18nService,
     cipherService: CipherService,
-    private pinService: PinServiceAbstraction,
+    private keyGenerationService: KeyGenerationService,
     accountService: AccountService,
     private promptForPassword_callback: () => Promise<string>,
   ) {
@@ -38,20 +45,14 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
 
   async parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();
-    const parsedData: BitwardenPasswordProtectedFileFormat = JSON.parse(data);
+    const parsedData: BitwardenPasswordProtectedFileFormat | BitwardenJsonExport = JSON.parse(data);
 
     if (!parsedData) {
       result.success = false;
       return result;
     }
 
-    // File is unencrypted
-    if (!parsedData?.encrypted) {
-      return await super.parse(data);
-    }
-
-    // File is account-encrypted
-    if (!parsedData?.passwordProtected) {
+    if (!isPasswordProtected(parsedData)) {
       return await super.parse(data);
     }
 
@@ -86,7 +87,7 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
         ? new PBKDF2KdfConfig(jdoc.kdfIterations)
         : new Argon2KdfConfig(jdoc.kdfIterations, jdoc.kdfMemory, jdoc.kdfParallelism);
 
-    this.key = await this.pinService.makePinKey(password, jdoc.salt, kdfConfig);
+    this.key = await this.keyGenerationService.deriveVaultExportKey(password, jdoc.salt, kdfConfig);
 
     const encKeyValidation = new EncString(jdoc.encKeyValidation_DO_NOT_EDIT);
 

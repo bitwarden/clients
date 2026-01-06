@@ -140,9 +140,9 @@ export class AutofillOptionsComponent implements OnInit {
     this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
       // Disable adding new URIs when the cipher form is disabled
       if (status === "disabled") {
-        this.autofillOptionsForm.disable();
+        this.autofillOptionsForm.disable({ emitEvent: false });
       } else if (!this.isPartialEdit) {
-        this.autofillOptionsForm.enable();
+        this.autofillOptionsForm.enable({ emitEvent: false });
       }
     });
   }
@@ -218,7 +218,10 @@ export class AutofillOptionsComponent implements OnInit {
           return;
         }
 
-        this.autofillOptions[0].label = this.i18nService.t("defaultLabel", defaultOption.label);
+        this.autofillOptions[0].label = this.i18nService.t(
+          "defaultLabelWithValue",
+          defaultOption.label,
+        );
         // Trigger change detection to update the label in the template
         this.autofillOptions = [...this.autofillOptions];
       });

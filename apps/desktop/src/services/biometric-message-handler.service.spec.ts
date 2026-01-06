@@ -2,7 +2,7 @@ import { NgZone } from "@angular/core";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, filter, firstValueFrom, of, take, timeout, timer } from "rxjs";
 
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -10,7 +10,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService } from "@bitwarden/common/spec";
+import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
@@ -23,17 +23,15 @@ import { BiometricMessageHandlerService } from "./biometric-message-handler.serv
 
 const SomeUser = "SomeUser" as UserId;
 const AnotherUser = "SomeOtherUser" as UserId;
-const accounts: Record<UserId, AccountInfo> = {
-  [SomeUser]: {
+const accounts = {
+  [SomeUser]: mockAccountInfoWith({
     name: "some user",
     email: "some.user@example.com",
-    emailVerified: true,
-  },
-  [AnotherUser]: {
+  }),
+  [AnotherUser]: mockAccountInfoWith({
     name: "some other user",
     email: "some.other.user@example.com",
-    emailVerified: true,
-  },
+  }),
 };
 
 describe("BiometricMessageHandlerService", () => {
@@ -502,20 +500,5 @@ describe("BiometricMessageHandlerService", () => {
         }
       },
     );
-  });
-
-  describe("init", () => {
-    it("enables Windows v2 biometrics when feature flag enabled", async () => {
-      configService.getFeatureFlag.mockReturnValue(true);
-
-      await service.init();
-      expect(biometricsService.enableWindowsV2Biometrics).toHaveBeenCalled();
-    });
-    it("does not enable Windows v2 biometrics when feature flag disabled", async () => {
-      configService.getFeatureFlag.mockReturnValue(false);
-
-      await service.init();
-      expect(biometricsService.enableWindowsV2Biometrics).not.toHaveBeenCalled();
-    });
   });
 });

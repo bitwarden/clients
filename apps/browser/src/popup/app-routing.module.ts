@@ -43,11 +43,16 @@ import {
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
+import {
+  LockComponent,
+  ConfirmKeyConnectorDomainComponent,
+  RemovePasswordComponent,
+} from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
+import { platformPopoutGuard } from "../auth/popup/guards/platform-popout.guard";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
@@ -56,14 +61,14 @@ import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-doma
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
-import { PhishingWarning } from "../dirt/phishing-detection/pages/phishing-warning.component";
-import { ProtectedByComponent } from "../dirt/phishing-detection/pages/protected-by-component";
-import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
+import { PhishingWarning } from "../dirt/phishing-detection/popup/phishing-warning.component";
+import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { RouteCacheOptions } from "../platform/services/popup-view-cache-background.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
 import { CredentialGeneratorComponent } from "../tools/popup/generator/credential-generator.component";
+import { firefoxPopoutGuard } from "../tools/popup/guards/firefox-popout.guard";
 import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/send-v2/add-edit/send-add-edit.component";
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
@@ -187,9 +192,22 @@ const routes: Routes = [
   },
   {
     path: "remove-password",
-    component: RemovePasswordComponent,
+    component: ExtensionAnonLayoutWrapperComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
+    children: [
+      {
+        path: "",
+        component: RemovePasswordComponent,
+        data: {
+          pageTitle: {
+            key: "verifyYourOrganization",
+          },
+          showBackButton: false,
+          pageIcon: LockIcon,
+        } satisfies ExtensionAnonLayoutWrapperData,
+      },
+    ],
   },
   {
     path: "view-cipher",
@@ -245,7 +263,7 @@ const routes: Routes = [
   {
     path: "import",
     component: ImportBrowserV2Component,
-    canActivate: [authGuard],
+    canActivate: [authGuard, firefoxPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -323,13 +341,13 @@ const routes: Routes = [
   {
     path: "add-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard],
+    canActivate: [authGuard, firefoxPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "edit-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard],
+    canActivate: [authGuard, firefoxPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -414,7 +432,7 @@ const routes: Routes = [
       },
       {
         path: AuthRoute.LoginWithPasskey,
-        canActivate: [unauthGuardFn(unauthRouteOverrides)],
+        canActivate: [unauthGuardFn(unauthRouteOverrides), platformPopoutGuard(["linux"])],
         data: {
           pageIcon: TwoFactorAuthSecurityKeyIcon,
           pageTitle: {
@@ -645,7 +663,7 @@ const routes: Routes = [
         component: ConfirmKeyConnectorDomainComponent,
         data: {
           pageTitle: {
-            key: "confirmKeyConnectorDomain",
+            key: "verifyYourOrganization",
           },
           showBackButton: true,
           pageIcon: DomainIcon,

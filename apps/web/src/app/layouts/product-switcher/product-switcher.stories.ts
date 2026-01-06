@@ -30,6 +30,8 @@ import { ProductSwitcherService } from "./shared/product-switcher.service";
   selector: "[mockOrgs]",
   standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 class MockOrganizationService implements Partial<OrganizationService> {
   private static _orgs = new BehaviorSubject<Organization[]>([]);
 
@@ -49,6 +51,8 @@ class MockOrganizationService implements Partial<OrganizationService> {
   selector: "[mockProviders]",
   standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 class MockProviderService implements Partial<ProviderService> {
   private static _providers = new BehaviorSubject<Provider[]>([]);
 
@@ -71,11 +75,14 @@ class MockSyncService implements Partial<SyncService> {
 }
 
 class MockAccountService implements Partial<AccountService> {
+  // We can't use mockAccountInfoWith() here because we can't take a dependency on @bitwarden/common/spec.
+  // This is because that package relies on jest dependencies that aren't available here.
   activeAccount$?: Observable<Account> = of({
     id: "test-user-id" as UserId,
     name: "Test User 1",
     email: "test@email.com",
     emailVerified: true,
+    creationDate: new Date("2024-01-01T00:00:00.000Z"),
   });
 }
 

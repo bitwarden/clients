@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Autentificare unică"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Your organization requires single sign-on."
+  },
   "welcomeBack": {
     "message": "Bine ați revenit"
   },
@@ -433,8 +436,8 @@
   "sync": {
     "message": "Sincronizare"
   },
-  "syncVaultNow": {
-    "message": "Sincronizare seif acum"
+  "syncNow": {
+    "message": "Sync now"
   },
   "lastSync": {
     "message": "Ultima sincronizare:"
@@ -451,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Aplicația web Bitwarden"
-  },
-  "importItems": {
-    "message": "Import de articole"
   },
   "select": {
     "message": "Selectare"
@@ -582,11 +582,23 @@
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
   "edit": {
     "message": "Editare"
   },
   "view": {
     "message": "Afișare"
+  },
+  "viewAll": {
+    "message": "View all"
+  },
+  "showAll": {
+    "message": "Show all"
+  },
+  "viewLess": {
+    "message": "View less"
   },
   "viewLogin": {
     "message": "View login"
@@ -789,6 +801,12 @@
   },
   "onLocked": {
     "message": "La blocarea sistemului"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "La repornirea browserului"
@@ -1027,6 +1045,18 @@
   },
   "editedItem": {
     "message": "Articol salvat"
+  },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Sigur doriți să trimiteți în coșul de reciclare?"
@@ -1292,8 +1322,21 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Export seif"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Format fișier"
@@ -1373,6 +1416,27 @@
   "learnMore": {
     "message": "Aflați mai multe"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "later": {
+    "message": "Later"
+  },
   "authenticatorKeyTotp": {
     "message": "Cheie de autentificare (TOTP)"
   },
@@ -1403,6 +1467,15 @@
   "attachmentSaved": {
     "message": "Atașamentul a fost salvat"
   },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
+  },
   "file": {
     "message": "Fișier"
   },
@@ -1411,6 +1484,9 @@
   },
   "selectFile": {
     "message": "Selectare fișier"
+  },
+  "itemsTransferred": {
+    "message": "Items transferred"
   },
   "maxFileSize": {
     "message": "Mărimea maximă a fișierului este de 500 MB."
@@ -1441,6 +1517,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB spațiu de stocare criptat pentru atașamente de fișiere."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Emergency access."
@@ -1504,12 +1589,6 @@
   },
   "enableAutoBiometricsPrompt": {
     "message": "Solicitați date biometrice la pornire"
-  },
-  "premiumRequired": {
-    "message": "Premium necesar"
-  },
-  "premiumRequiredDesc": {
-    "message": "Pentru a utiliza această funcție este necesar un abonament Premium."
   },
   "authenticationTimeout": {
     "message": "Authentication timeout"
@@ -1623,6 +1702,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Mediu personalizat"
   },
@@ -1676,8 +1758,29 @@
   "turnOffAutofill": {
     "message": "Turn off autofill"
   },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Display identities as suggestions"
@@ -1821,6 +1924,9 @@
   },
   "expirationYear": {
     "message": "Anul expirării"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "Expirare"
@@ -2390,6 +2496,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Setare parolă principală"
@@ -3153,9 +3262,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nu a fost găsit niciun identificator unic."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
-  },
   "organizationName": {
     "message": "Organization name"
   },
@@ -3239,6 +3345,9 @@
   },
   "decryptionError": {
     "message": "Decryption error"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -4011,6 +4120,15 @@
     "message": "Completarea automată la încărcarea paginii este setată la valoarea implicită.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
+  },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
   },
@@ -4106,10 +4224,6 @@
   },
   "ignore": {
     "message": "Ignore"
-  },
-  "importData": {
-    "message": "Import data",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Import error"
@@ -4697,6 +4811,15 @@
   "accountSecurity": {
     "message": "Account security"
   },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
+  },
   "notifications": {
     "message": "Notifications"
   },
@@ -4842,6 +4965,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Free organizations cannot use attachments"
   },
@@ -4918,6 +5044,16 @@
   },
   "defaultLabel": {
     "message": "Default ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5718,8 +5854,193 @@
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
   },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Your organization has set the default session timeout to Immediately."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

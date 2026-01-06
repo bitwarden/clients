@@ -1,4 +1,4 @@
-import { Directive, input, output } from "@angular/core";
+import { Directive, output, input, model } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 
 /**
@@ -25,8 +25,21 @@ export abstract class NavBaseComponent {
   readonly icon = input<string>();
 
   /**
-   * Optional route to be passed to internal `routerLink`.
-   * If not provided, the nav component will render as a button.
+   * If this item is used within a tree, set `variant` to `"tree"`
+   */
+  readonly variant = input<"default" | "tree">("default");
+
+  /**
+   * Depth level when nested inside of a `'tree'` variant
+   */
+  readonly treeDepth = model(0);
+
+  /**
+   * Optional route to be passed to internal `routerLink`. If not provided, the nav component will render as a button.
+   *
+   * See: {@link RouterLink.routerLink}
+   *
+   * ---
    *
    * @remarks
    * We can't name this "routerLink" because Angular will mount the `RouterLink` directive.

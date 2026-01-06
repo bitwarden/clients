@@ -7,6 +7,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { MasterPasswordVerificationResponse } from "@bitwarden/common/auth/types/verification";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -14,6 +15,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
@@ -40,15 +42,17 @@ describe("UnlockCommand", () => {
   const organizationApiService = mock<OrganizationApiServiceAbstraction>();
   const logout = jest.fn();
   const i18nService = mock<I18nService>();
+  const encryptedMigrator = mock<EncryptedMigrator>();
   const masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
   const configService = mock<ConfigService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
     id: "user-id" as UserId,
-    email: "user@example.com",
-    emailVerified: true,
-    name: "User",
+    ...mockAccountInfoWith({
+      email: "user@example.com",
+      name: "User",
+    }),
   };
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const mockSessionKey = new Uint8Array(64) as CsprngArray;
@@ -92,6 +96,7 @@ describe("UnlockCommand", () => {
       organizationApiService,
       logout,
       i18nService,
+      encryptedMigrator,
       masterPasswordUnlockService,
       configService,
     );
