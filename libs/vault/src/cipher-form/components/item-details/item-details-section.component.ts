@@ -22,6 +22,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
@@ -69,6 +70,7 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   protected readonly showArchiveBadge = computed(() => {
     return (
+      this.cipherArchiveService.hasArchiveFlagEnabled$ &&
       this.originalCipherView()?.isArchived &&
       this.platformUtilsService.getClientType() === ClientType.Desktop
     );
@@ -152,6 +154,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     private configService: ConfigService,
     private policyService: PolicyService,
     private platformUtilsService: PlatformUtilsService,
+    private cipherArchiveService: CipherArchiveService,
   ) {
     this.cipherFormContainer.registerChildForm("itemDetails", this.itemDetailsForm);
     this.itemDetailsForm.valueChanges

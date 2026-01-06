@@ -17,6 +17,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SelectComponent } from "@bitwarden/components";
@@ -65,6 +66,7 @@ describe("ItemDetailsSectionComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockPolicyService: MockProxy<PolicyService>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
+  let mockCipherArchiveService: MockProxy<CipherArchiveService>;
 
   const activeAccount$ = new BehaviorSubject<{ email: string }>({ email: "test@example.com" });
   const getInitialCipherView = jest.fn<CipherView | null, []>(() => null);
@@ -94,6 +96,7 @@ describe("ItemDetailsSectionComponent", () => {
     mockPolicyService = mock<PolicyService>();
     mockPolicyService.policiesByType$.mockReturnValue(of([]));
     mockPlatformUtilsService = mock<PlatformUtilsService>();
+    mockCipherArchiveService = mock<CipherArchiveService>();
 
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
@@ -104,6 +107,7 @@ describe("ItemDetailsSectionComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: PolicyService, useValue: mockPolicyService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: CipherArchiveService, useValue: mockCipherArchiveService },
       ],
     }).compileComponents();
 
