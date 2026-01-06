@@ -15,8 +15,6 @@ import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-consol
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -141,7 +139,6 @@ export class ItemDetailsSectionComponent implements OnInit {
     private i18nService: I18nService,
     private destroyRef: DestroyRef,
     private accountService: AccountService,
-    private configService: ConfigService,
     private policyService: PolicyService,
   ) {
     this.cipherFormContainer.registerChildForm("itemDetails", this.itemDetailsForm);
@@ -282,14 +279,6 @@ export class ItemDetailsSectionComponent implements OnInit {
    */
   private async getDefaultCollectionId(orgId?: OrganizationId) {
     if (!orgId || this.allowPersonalOwnership) {
-      return;
-    }
-
-    const isFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CreateDefaultLocation,
-    );
-
-    if (!isFeatureEnabled) {
       return;
     }
 

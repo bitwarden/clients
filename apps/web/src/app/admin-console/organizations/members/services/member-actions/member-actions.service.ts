@@ -1,10 +1,9 @@
 import { Injectable } from "@angular/core";
-import { lastValueFrom, firstValueFrom, switchMap, map, Observable } from "rxjs";
+import { lastValueFrom, firstValueFrom, Observable } from "rxjs";
 
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
-  OrganizationUserConfirmRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -13,18 +12,14 @@ import {
   OrganizationUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
@@ -61,15 +56,10 @@ export interface OrganizationManagementPreferences {
 
 @Injectable()
 export class MemberActionsService {
-  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
-
   constructor(
     private organizationUserApiService: OrganizationUserApiService,
     private organizationUserService: OrganizationUserService,
-    private keyService: KeyService,
-    private encryptService: EncryptService,
     private configService: ConfigService,
-    private accountService: AccountService,
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
     private apiService: ApiService,
     private dialogService: DialogService,
@@ -155,37 +145,9 @@ export class MemberActionsService {
     organization: Organization,
   ): Promise<MemberActionResult> {
     try {
-      if (
-        await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
-      ) {
-        await firstValueFrom(
-          this.organizationUserService.confirmUser(organization, user.id, publicKey),
-        );
-      } else {
-        const request = await firstValueFrom(
-          this.userId$.pipe(
-            switchMap((userId) => this.keyService.orgKeys$(userId)),
-            map((orgKeys) => {
-              if (orgKeys == null || orgKeys[organization.id] == null) {
-                throw new Error("Organization keys not found for provided User.");
-              }
-              return orgKeys[organization.id];
-            }),
-            switchMap((orgKey) => this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey)),
-            map((encKey) => {
-              const req = new OrganizationUserConfirmRequest();
-              req.key = encKey.encryptedString;
-              return req;
-            }),
-          ),
-        );
-
-        await this.organizationUserApiService.postOrganizationUserConfirm(
-          organization.id,
-          user.id,
-          request,
-        );
-      }
+      await firstValueFrom(
+        this.organizationUserService.confirmUser(organization, user.id, publicKey),
+      );
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
