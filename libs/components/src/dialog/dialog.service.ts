@@ -7,10 +7,10 @@ import {
 } from "@angular/cdk/dialog";
 import { ComponentType, GlobalPositionStrategy, ScrollStrategy } from "@angular/cdk/overlay";
 import { ComponentPortal, Portal } from "@angular/cdk/portal";
-import { DestroyRef, Injectable, Injector, TemplateRef, inject } from "@angular/core";
+import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
+import { filter, firstValueFrom, map, Observable, Subject, switchMap, take } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -155,8 +155,6 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
  * DialogRef that delegates functionality to the CDK implementation
  **/
 export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
-  readonly destroyRef = inject(DestroyRef);
-
   readonly isDrawer = false;
 
   /** This is not available until after construction, @see DialogService.open. */
@@ -349,7 +347,7 @@ export class DialogService {
       }
     }, 0);
 
-    ref.closed.pipe(takeUntilDestroyed(ref.destroyRef)).subscribe(() => {
+    ref.closed.pipe(take(1)).subscribe(() => {
       clearTimeout(restoreFocusTimeout);
     });
   }
