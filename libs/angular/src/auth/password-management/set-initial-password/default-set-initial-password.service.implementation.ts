@@ -45,8 +45,7 @@ import {
   KdfConfig,
   fromSdkKdfConfig,
 } from "@bitwarden/key-management";
-
-import { UserId as SdkUserId } from "../../../../../../../sdk-internal/crates/bitwarden-wasm-internal/npm";
+import { UserId as SdkUserId } from "@bitwarden/sdk-internal";
 
 import {
   SetInitialPasswordService,
@@ -146,32 +145,28 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("Unexpected V2 account cryptographic state");
     }
 
-    // Set the private key only for new JIT provisioned users in MP encryption orgs.
-    // (Existing TDE users will have their private key set on sync or on login.)
-    if (userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
-      // Set account cryptography state
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        registerResult.account_cryptographic_state,
-        userId,
-      );
-      // Legacy individual states
-      await this.keyService.setPrivateKey(
-        registerResult.account_cryptographic_state.V2.private_key,
-        userId,
-      );
-      await this.keyService.setSignedPublicKey(
-        registerResult.account_cryptographic_state.V2.signed_public_key as SignedPublicKey,
-        userId,
-      );
-      await this.keyService.setUserSigningKey(
-        registerResult.account_cryptographic_state.V2.signing_key as WrappedSigningKey,
-        userId,
-      );
-      await this.securityStateService.setAccountSecurityState(
-        registerResult.account_cryptographic_state.V2.security_state as SignedSecurityState,
-        userId,
-      );
-    }
+    // Set account cryptography state
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      registerResult.account_cryptographic_state,
+      userId,
+    );
+    // Legacy individual states
+    await this.keyService.setPrivateKey(
+      registerResult.account_cryptographic_state.V2.private_key,
+      userId,
+    );
+    await this.keyService.setSignedPublicKey(
+      registerResult.account_cryptographic_state.V2.signed_public_key as SignedPublicKey,
+      userId,
+    );
+    await this.keyService.setUserSigningKey(
+      registerResult.account_cryptographic_state.V2.signing_key as WrappedSigningKey,
+      userId,
+    );
+    await this.securityStateService.setAccountSecurityState(
+      registerResult.account_cryptographic_state.V2.security_state as SignedSecurityState,
+      userId,
+    );
 
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
