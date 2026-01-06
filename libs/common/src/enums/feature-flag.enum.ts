@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
@@ -44,6 +43,7 @@ export enum FeatureFlag {
   DataRecoveryTool = "pm-28813-data-recovery-tool",
   ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
+  EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
@@ -69,8 +69,6 @@ export enum FeatureFlag {
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
-  InactiveUserServerNotification = "pm-25130-receive-push-notifications-for-inactive-users",
-  PushNotificationsWhenLocked = "pm-19388-push-notifications-when-locked",
 
   /* Innovation */
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
@@ -97,7 +95,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.CreateDefaultLocation]: FALSE,
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
   [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
@@ -152,11 +149,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
+  [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
-  [FeatureFlag.InactiveUserServerNotification]: FALSE,
-  [FeatureFlag.PushNotificationsWhenLocked]: FALSE,
 
   /* Innovation */
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,

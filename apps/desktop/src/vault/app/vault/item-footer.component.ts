@@ -218,7 +218,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   private async checkArchiveState() {
-    const cipherCanBeArchived = !this.cipher.isDeleted && this.cipher.organizationId == null;
+    const cipherCanBeArchived = !this.cipher.isDeleted;
     const [userCanArchive, hasArchiveFlagEnabled] = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
