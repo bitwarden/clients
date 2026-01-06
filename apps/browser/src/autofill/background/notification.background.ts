@@ -908,7 +908,6 @@ export default class NotificationBackground {
       await BrowserApi.tabSendMessage(tab, { command: "editedCipher" });
       return;
     }
-    // const cipher = await this.cipherService.encrypt(cipherView, userId);
 
     try {
       if (!cipherView.edit) {
