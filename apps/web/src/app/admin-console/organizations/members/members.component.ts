@@ -411,49 +411,45 @@ export class MembersComponent {
       return;
     }
 
-    try {
-      const result = await this.memberActionsService.bulkReinvite(
-        organization,
-        filteredUsers.map((user) => user.id as UserId),
-      );
+    const result = await this.memberActionsService.bulkReinvite(
+      organization,
+      filteredUsers.map((user) => user.id as UserId),
+    );
 
-      if (!result.successful) {
-        throw new Error();
-      }
+    if (!result.successful) {
+      this.validationService.showError(result.failed);
+    }
 
-      // When feature flag is enabled, show toast instead of dialog
-      if (this.dataSource().isIncreasedBulkLimitEnabled()) {
-        const selectedCount = originalInvitedCount;
-        const invitedCount = filteredUsers.length;
+    // When feature flag is enabled, show toast instead of dialog
+    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
+      const selectedCount = originalInvitedCount;
+      const invitedCount = filteredUsers.length;
 
-        if (selectedCount > CloudBulkReinviteLimit) {
-          const excludedCount = selectedCount - CloudBulkReinviteLimit;
-          this.toastService.showToast({
-            variant: "success",
-            message: this.i18nService.t(
-              "bulkReinviteLimitedSuccessToast",
-              CloudBulkReinviteLimit.toLocaleString(),
-              selectedCount.toLocaleString(),
-              excludedCount.toLocaleString(),
-            ),
-          });
-        } else {
-          this.toastService.showToast({
-            variant: "success",
-            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
-          });
-        }
+      if (selectedCount > CloudBulkReinviteLimit) {
+        const excludedCount = selectedCount - CloudBulkReinviteLimit;
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t(
+            "bulkReinviteLimitedSuccessToast",
+            CloudBulkReinviteLimit.toLocaleString(),
+            selectedCount.toLocaleString(),
+            excludedCount.toLocaleString(),
+          ),
+        });
       } else {
-        // Feature flag disabled - show legacy dialog
-        await this.memberDialogManager.openBulkStatusDialog(
-          users,
-          filteredUsers,
-          Promise.resolve(result.successful),
-          this.i18nService.t("bulkReinviteMessage"),
-        );
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+        });
       }
-    } catch (e) {
-      this.validationService.showError(e);
+    } else {
+      // Feature flag disabled - show legacy dialog
+      await this.memberDialogManager.openBulkStatusDialog(
+        users,
+        filteredUsers,
+        Promise.resolve(result.successful),
+        this.i18nService.t("bulkReinviteMessage"),
+      );
     }
   }
 

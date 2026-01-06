@@ -260,14 +260,14 @@ export class MemberActionsService {
   }
 
   /**
-   * Shared dialog workflow that returns the public key when the user confirms the selected confirmation
+   * Shared dialog workflow that returns the public key when the user accepts the selected confirmation
    * action.
    *
    * @param user - The user to confirm (must implement ConfirmableUser interface)
    * @param userNamePipe - Pipe to transform user names for display
    * @param orgManagementPrefs - Service providing organization management preferences
-   * @returns Promise containing the pulic key that resolves when the confirm action is accepted or undefined
-   * when cancelled
+   * @returns Promise containing the pulic key that resolves when the confirm action is accepted
+   * or undefined when cancelled
    */
   async getPublicKeyForConfirm<T extends ConfirmableUser>(
     user: T,
@@ -293,13 +293,15 @@ export class MemberActionsService {
           },
         });
 
-        if (await lastValueFrom(confirmed.closed)) {
-          return publicKey;
+        if (!(await lastValueFrom(confirmed.closed))) {
+          return;
         }
 
         const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
         this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
       }
+
+      return publicKey;
     } catch (e) {
       this.logService.error(`Handled exception: ${e}`);
     }

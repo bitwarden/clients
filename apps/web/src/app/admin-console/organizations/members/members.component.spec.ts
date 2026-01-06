@@ -521,7 +521,7 @@ describe("MembersComponent", () => {
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
       const error = new Error("Bulk reinvite failed");
-      mockMemberActionsService.bulkReinvite.mockRejectedValue(error);
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: false, failed: error });
 
       await component.bulkReinvite(mockOrg);
 

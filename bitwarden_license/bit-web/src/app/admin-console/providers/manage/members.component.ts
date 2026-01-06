@@ -333,22 +333,17 @@ export class MembersComponent {
       assertNonNullish(key.encryptedString, "No key was provided");
 
       const request = new ProviderUserConfirmRequest(key.encryptedString);
-      const result = await this.apiService.postProviderUserConfirm(providerId, user.id, request);
+      await this.apiService.postProviderUserConfirm(providerId, user.id, request);
 
-      if (result.success) {
-        user.status = this.userStatusType.Confirmed;
-        this.dataSource().replaceUser(user);
+      user.status = this.userStatusType.Confirmed;
+      this.dataSource().replaceUser(user);
 
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user)),
-        });
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (e) {
-      this.validationService.showError(e);
-      throw e;
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user)),
+      });
+    } catch (error: any) {
+      return { success: false, error: error.message };
     }
   }
 
