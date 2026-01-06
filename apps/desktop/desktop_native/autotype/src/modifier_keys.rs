@@ -10,7 +10,7 @@ pub(crate) const ALT_KEY: u16 = 0x12;
 pub(crate) const SUPER_KEY: u16 = 0x5B;
 
 /// A mapping of <Electron modifier key string> to <numeric representation>
-static MODIFIER_KEYS: [(&'static str, u16); 3] = [
+static MODIFIER_KEYS: [(&str, u16); 3] = [
     (CONTROL_KEY_STR, CONTROL_KEY),
     (ALT_KEY_STR, ALT_KEY),
     (SUPER_KEY_STR, SUPER_KEY),
