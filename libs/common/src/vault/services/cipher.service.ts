@@ -1424,7 +1424,7 @@ export class CipherService implements CipherServiceAbstraction {
     await this.delete(id, userId);
   }
 
-  async deleteWithServer_sdk(id: string, userId: UserId, asAdmin = false): Promise<any> {
+  private async deleteWithServer_sdk(id: string, userId: UserId, asAdmin = false): Promise<any> {
     this.sdkService.userClient$(userId).pipe(
       map(async (sdk) => {
         if (!sdk) {
@@ -1462,7 +1462,11 @@ export class CipherService implements CipherServiceAbstraction {
     await this.delete(ids, userId);
   }
 
-  async deleteManyWithServer_sdk(ids: string[], userId: UserId, asAdmin = false): Promise<any> {
+  private async deleteManyWithServer_sdk(
+    ids: string[],
+    userId: UserId,
+    asAdmin = false,
+  ): Promise<any> {
     this.sdkService.userClient$(userId).pipe(
       map(async (sdk) => {
         if (!sdk) {
@@ -1487,6 +1491,7 @@ export class CipherService implements CipherServiceAbstraction {
         }
       }),
     );
+    await this.clearCache(userId);
   }
 
   async deleteAttachment(
@@ -1703,6 +1708,13 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async restoreWithServer(id: string, userId: UserId, asAdmin = false): Promise<any> {
+    const useSdk = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
+    );
+    if (useSdk) {
+      return await this.restoreWithServer_sdk(id, userId, asAdmin);
+    }
+
     let response;
     if (asAdmin) {
       response = await this.apiService.putRestoreCipherAdmin(id);
@@ -1713,11 +1725,35 @@ export class CipherService implements CipherServiceAbstraction {
     await this.restore({ id: id, revisionDate: response.revisionDate }, userId);
   }
 
+  private async restoreWithServer_sdk(id: string, userId: UserId, asAdmin = false): Promise<any> {
+    this.sdkService.userClient$(userId).pipe(
+      map(async (sdk) => {
+        if (!sdk) {
+          throw new Error("SDK not available");
+        }
+        using ref = sdk.take();
+        if (asAdmin) {
+          await ref.value.vault().ciphers().admin().restore(asUuid(id));
+        } else {
+          await ref.value.vault().ciphers().restore(asUuid(id));
+        }
+      }),
+    );
+    await this.clearCache(userId);
+  }
+
   /**
    * No longer using an asAdmin Param. Org Vault bulkRestore will assess if an item is unassigned or editable
    * The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
    */
   async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
+    const useSdk = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
+    );
+    if (useSdk) {
+      return await this.restoreManyWithServer_sdk(ids, userId, orgId);
+    }
+
     let response;
 
     if (orgId) {
@@ -1733,6 +1769,40 @@ export class CipherService implements CipherServiceAbstraction {
       restores.push({ id: cipher.id, revisionDate: cipher.revisionDate });
     }
     await this.restore(restores, userId);
+  }
+
+  private async restoreManyWithServer_sdk(
+    ids: string[],
+    userId: UserId,
+    orgId?: string,
+  ): Promise<void> {
+    this.sdkService.userClient$(userId).pipe(
+      map(async (sdk) => {
+        if (!sdk) {
+          throw new Error("SDK not available");
+        }
+        using ref = sdk.take();
+
+        // No longer using an asAdmin Param. Org Vault bulkRestore will assess if an item is unassigned or editable
+        // The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
+        if (orgId) {
+          await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .restore_many(
+              ids.map((id) => asUuid(id)),
+              asUuid(orgId),
+            );
+        } else {
+          await ref.value
+            .vault()
+            .ciphers()
+            .restore_many(ids.map((id) => asUuid(id)));
+        }
+      }),
+    );
+    await this.clearCache(userId);
   }
 
   async getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<UserKey | OrgKey> {
