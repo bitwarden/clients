@@ -2164,6 +2164,41 @@ jobs:
             exit 1
           fi
 
+  validate-windows-portable:
+    name: Validate Windows portable
+    runs-on: windows-2022
+    needs:
+      - setup
+      - windows
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download portable artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/windows/portable
+          artifacts: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
+
+      - name: Run Portable exe
+        working-directory: apps/desktop/artifacts/windows/portable
+        run: |
+          "./Bitwarden-Portable-$_PACKAGE_VERSION.exe" --no-sandbox &
+          sleep 30
+          if tasklist | grep Bitwarden ; then
+            taskkill //F //IM "Bitwarden.exe"
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
   check-failures:
     name: Check for failures
     if: always()
@@ -2184,6 +2219,7 @@ jobs:
       - validate-linux-snap
       - validate-linux-wayland
       - validate-macos-dmg
+      - validate-windows-portable
     permissions:
       contents: read
       id-token: write
