@@ -206,26 +206,13 @@ export class ItemMoreOptionsComponent {
     const uris = cipher.login?.uris ?? [];
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
 
-    const cipherHasAllExactMatchLoginUris =
-      uris.length > 0 &&
-      uris.every(
-        (u) =>
-          (u.uri && u.match === UriMatchStrategy.Exact) ||
-          (u.match === undefined && uriMatchStrategy === UriMatchStrategy.Exact),
-      );
-    const cipherHasOneNonExactMatchLoginUri =
-      uris.length > 0 &&
-      uris.some((u) =>
-        u.uri && u.match === undefined
-          ? uriMatchStrategy !== UriMatchStrategy.Exact
-          : u.match !== UriMatchStrategy.Exact,
-      );
+    const showExactMatchDialog =
+      uris.length === 0
+        ? uriMatchStrategy === UriMatchStrategy.Exact
+        : // all saved URIs are exact match
+          uris.every((u) => (u.match ?? uriMatchStrategy) === UriMatchStrategy.Exact);
 
-    if (
-      // don't show the dialog if there is at least one non-exact match uri
-      !cipherHasOneNonExactMatchLoginUri &&
-      (cipherHasAllExactMatchLoginUris || uriMatchStrategy === UriMatchStrategy.Exact)
-    ) {
+    if (showExactMatchDialog) {
       await this.dialogService.openSimpleDialog({
         title: { key: "cannotAutofill" },
         content: { key: "cannotAutofillExactMatch" },
