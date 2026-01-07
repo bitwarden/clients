@@ -318,28 +318,6 @@ export abstract class LoginStrategy {
     return true;
   }
 
-  protected async createKeyPairForOldAccount(userId: UserId) {
-    try {
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-      if (userKey === null) {
-        throw new Error("User key is null when creating key pair for old account");
-      }
-
-      if (userKey.inner().type == EncryptionType.CoseEncrypt0) {
-        throw new Error("Cannot create key pair for account on V2 encryption");
-      }
-
-      const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
-      if (!privateKey.encryptedString) {
-        throw new Error("Failed to create encrypted private key");
-      }
-      await this.apiService.postAccountKeys(new KeysRequest(publicKey, privateKey.encryptedString));
-      return privateKey.encryptedString;
-    } catch (e) {
-      this.logService.error(e);
-    }
-  }
-
   /**
    * Handles the response from the server when a 2FA is required.
    * It clears any existing 2FA token, as it's no longer valid, and sets up the necessary data for the 2FA process.

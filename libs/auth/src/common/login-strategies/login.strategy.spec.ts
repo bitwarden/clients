@@ -326,17 +326,6 @@ describe("LoginStrategy", () => {
         userId,
       );
     });
-
-    it("throws if userKey is CoseEncrypt0 (V2 encryption) in createKeyPairForOldAccount", async () => {
-      keyService.userKey$.mockReturnValue(
-        new BehaviorSubject<UserKey>({
-          inner: () => ({ type: 7 }),
-        } as unknown as UserKey).asObservable(),
-      );
-      await expect(passwordLoginStrategy["createKeyPairForOldAccount"](userId)).resolves.toBe(
-        undefined,
-      );
-    });
   });
 
   describe("Two-factor authentication", () => {
