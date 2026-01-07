@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Per utilizzare Archivio è necessario un abbonamento premium."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Modifica"
   },
@@ -5663,6 +5666,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "Sito web mancante"

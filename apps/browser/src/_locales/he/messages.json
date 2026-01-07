@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "ערוך"
   },
@@ -5663,6 +5666,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "כניסה זו נמצאת בסיכון וחסר בה אתר אינטרנט. הוסף אתר אינטרנט ושנה את הסיסמה לאבטחה חזקה יותר."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "לא נמצא אתר אינטרנט"

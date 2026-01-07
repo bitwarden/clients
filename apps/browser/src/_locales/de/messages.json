@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Für die Nutzung des Archivs ist eine Premium-Mitgliedschaft erforderlich."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Bearbeiten"
   },
@@ -5663,6 +5666,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "Fehlende Website"

@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Для використання архіву необхідна передплата Premium."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Змінити"
   },
@@ -5663,6 +5666,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Цей запис ризикований, і не має адреси вебсайту. Додайте адресу вебсайту і змініть пароль для вдосконалення безпеки."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "Немає вебсайту"

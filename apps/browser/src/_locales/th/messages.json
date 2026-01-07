@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "ต้องเป็นสมาชิกพรีเมียมจึงจะใช้งานฟีเจอร์จัดเก็บถาวรได้"
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "แก้ไข"
   },
@@ -5663,6 +5666,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "ข้อมูลเข้าสู่ระบบนี้มีความเสี่ยงและไม่มีเว็บไซต์ เพิ่มเว็บไซต์และเปลี่ยนรหัสผ่านเพื่อความปลอดภัยที่รัดกุมยิ่งขึ้น"
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "ไม่มีเว็บไซต์"
