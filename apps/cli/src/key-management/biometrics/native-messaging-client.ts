@@ -180,8 +180,6 @@ export class NativeMessagingClient {
           rejecter({ message: "timeout" });
         }
       }, MESSAGE_NO_RESPONSE_TIMEOUT);
-      // Don't keep the process alive just for this timeout
-      timeout.unref();
 
       this.callbacks.set(messageId, {
         resolver: resolver as (value: unknown) => void,
