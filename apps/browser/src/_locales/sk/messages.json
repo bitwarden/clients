@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Na použitie archívu je potrebné prémiové členstvo."
   },
+  "itemRestored": {
+    "message": "Položka bola obnovená"
+  },
   "edit": {
     "message": "Upraviť"
   },
@@ -5663,6 +5666,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
+  },
+  "vulnerablePassword": {
+    "message": "Zraniteľné heslo."
+  },
+  "changeNow": {
+    "message": "Zmeniť teraz"
   },
   "missingWebsite": {
     "message": "Chýbajúca webová stránka"

@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Az archívumhoz hozzáférés visszaszerzéséhez indítsuk újra a Prémium előfizetést. Ha az újraindítás előtt szerkesztjük egy archivált elem adatait, akkor az visszakerül a széfbe."
   },
+  "itemRestored": {
+    "message": "Az elem visszaállításra került."
+  },
   "restartPremium": {
     "message": "Prémium előfizetés újraindítása"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "Visszavétel archívumból"
+  },
+  "archived": {
+    "message": "Archiválva"
   },
   "unArchiveAndSave": {
     "message": "Archiválás visszavonása és mentés"
