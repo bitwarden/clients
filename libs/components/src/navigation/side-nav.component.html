@@ -7,12 +7,9 @@
     class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-background-alt3 tw-outline-none"
     [style.width.rem]="open ? (sideNavService.width$ | async) : undefined"
     [style]="
-      variant() === 'secondary' && {
-        '--color-text-alt2': 'var(--color-text-main)',
-        '--color-background-alt3': 'var(--color-secondary-100)',
-        '--color-background-alt4': 'var(--color-secondary-300)',
-        '--color-hover-contrast': 'var(--color-hover-default)',
-      }
+      variant() === 'secondary'
+        ? '--color-text-alt2: var(--color-text-main); --color-background-alt3: var(--color-secondary-100); --color-background-alt4: var(--color-secondary-300); --color-hover-contrast: var(--color-hover-default);'
+        : ''
     "
     [cdkTrapFocus]="isOverlay"
     [attr.role]="isOverlay ? 'dialog' : null"
