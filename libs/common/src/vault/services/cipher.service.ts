@@ -1481,7 +1481,7 @@ export class CipherService implements CipherServiceAbstraction {
             .delete_many(
               ids.map((id) => asUuid(id)),
               null, // TODO: This is required in the SDK - need to remove from SDK or require here
-              // But how did it work before????? The server also throws a 404.
+              // But how did it work before????? The server also throws a 404 if not provided....
             );
         } else {
           await ref.value
@@ -1654,6 +1654,13 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async softDeleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<any> {
+    const useSdk = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
+    );
+    if (useSdk) {
+      return this.softDeleteWithServer_sdk(id, userId, asAdmin);
+    }
+
     if (asAdmin) {
       await this.apiService.putDeleteCipherAdmin(id);
     } else {
@@ -1663,7 +1670,31 @@ export class CipherService implements CipherServiceAbstraction {
     await this.softDelete(id, userId);
   }
 
+  async softDeleteWithServer_sdk(id: string, userId: UserId, asAdmin = false): Promise<any> {
+    this.sdkService.userClient$(userId).pipe(
+      map(async (sdk) => {
+        if (!sdk) {
+          throw new Error("SDK not available");
+        }
+        using ref = sdk.take();
+        if (asAdmin) {
+          await ref.value.vault().ciphers().admin().soft_delete(asUuid(id));
+        } else {
+          await ref.value.vault().ciphers().soft_delete(asUuid(id));
+        }
+      }),
+    );
+    await this.clearCache(userId);
+  }
+
   async softDeleteManyWithServer(ids: string[], userId: UserId, asAdmin = false): Promise<any> {
+    const useSdk = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
+    );
+    if (useSdk) {
+      return this.softDeleteManyWithServer_sdk(ids, userId, asAdmin);
+    }
+
     const request = new CipherBulkDeleteRequest(ids);
     if (asAdmin) {
       await this.apiService.putDeleteManyCiphersAdmin(request);
@@ -1672,6 +1703,34 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     await this.softDelete(ids, userId);
+  }
+
+  async softDeleteManyWithServer_sdk(ids: string[], userId: UserId, asAdmin = false): Promise<any> {
+    this.sdkService.userClient$(userId).pipe(
+      map(async (sdk) => {
+        if (!sdk) {
+          throw new Error("SDK not available");
+        }
+        using ref = sdk.take();
+        if (asAdmin) {
+          await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .soft_delete_many(
+              ids.map((id) => asUuid(id)),
+              null, // TODO: This is required in the SDK - need to remove from SDK or require here
+              // But how did it work before????? The server also throws a 404 if not provided....
+            );
+        } else {
+          await ref.value
+            .vault()
+            .ciphers()
+            .soft_delete_many(ids.map((id) => asUuid(id)));
+        }
+      }),
+    );
+    await this.clearCache(userId);
   }
 
   async restore(
