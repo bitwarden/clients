@@ -1659,17 +1659,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return false;
     };
     const scrollHandler = this.useEventHandlersMemo(
-      throttle(async (event) => {
+      throttle(async (event: Event) => {
+        const scrollY = globalThis.scrollY;
+        const scrollX = globalThis.scrollX;
         if (
-          currentScrollY !== globalThis.scrollY ||
-          currentScrollX !== globalThis.scrollX ||
-          eventTargetContainsFocusedField(event.target)
+          currentScrollY !== scrollY ||
+          currentScrollX !== scrollX ||
+          (event.target instanceof Element && eventTargetContainsFocusedField(event.target))
         ) {
           repositionHandler(event);
         }
 
-        currentScrollY = globalThis.scrollY;
-        currentScrollX = globalThis.scrollX;
+        currentScrollY = scrollY;
+        currentScrollX = scrollX;
       }, 50),
       AUTOFILL_OVERLAY_HANDLE_SCROLL,
     );
