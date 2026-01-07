@@ -49,7 +49,9 @@ export class SendViewComponent implements OnInit {
   readonly creatorIdentifier = computed<string | null>(
     () => this.send()?.creatorIdentifier ?? null,
   );
-  readonly hideEmail = computed<boolean>(() => this.send() && !this.creatorIdentifier());
+  readonly hideEmail = computed<boolean>(
+    () => this.send() != null && this.creatorIdentifier() == null,
+  );
   readonly loading = signal<boolean>(false);
   readonly unavailable = signal<boolean>(false);
   readonly error = signal<boolean>(false);
@@ -77,9 +79,21 @@ export class SendViewComponent implements OnInit {
 
     try {
       const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
-      const response = sendEmailOtp
-        ? await this.sendApiService.postSendAccessV2(this.accessToken())
-        : this.sendResponse();
+      let response: SendAccessResponse;
+      if (sendEmailOtp) {
+        const accessToken = this.accessToken();
+        if (!accessToken) {
+          return;
+        } else {
+          response = await this.sendApiService.postSendAccessV2(accessToken);
+        }
+      } else {
+        const sendResponse = this.sendResponse();
+        if (!sendResponse) {
+          return;
+        }
+        response = sendResponse;
+      }
       const keyArray = Utils.fromUrlB64ToArray(this.key());
       const sendAccess = new SendAccess(response);
       this.decKey = await this.keyService.makeSendKey(keyArray);
@@ -108,11 +122,12 @@ export class SendViewComponent implements OnInit {
       this.loading.set(false);
     }
 
-    if (this.creatorIdentifier() != null) {
+    const creatorIdentifier = this.creatorIdentifier();
+    if (creatorIdentifier != null) {
       this.layoutWrapperDataService.setAnonLayoutWrapperData({
         pageSubtitle: {
           key: "sendAccessCreatorIdentifier",
-          placeholders: [this.creatorIdentifier()],
+          placeholders: [creatorIdentifier],
         },
       });
     }
