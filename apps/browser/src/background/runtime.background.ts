@@ -433,15 +433,6 @@ export default class RuntimeBackground {
       void this.autofillService.loadAutofillScriptsOnInstall();
 
       if (this.onInstalledReason != null) {
-        // Pre-populate phishing cache on install/update so it's ready when premium user logs in
-        // This runs in background and doesn't block the user
-        if (this.onInstalledReason === "install" || this.onInstalledReason === "update") {
-          this.logService.debug(
-            `[RuntimeBackground] Extension ${this.onInstalledReason}: triggering phishing cache pre-population`,
-          );
-          this.main.triggerPhishingCacheUpdate();
-        }
-
         if (
           this.onInstalledReason === "install" &&
           !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))

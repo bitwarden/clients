@@ -18,7 +18,8 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
   [PhishingResourceType.Domains]: [
     {
       name: "Phishing.Database Domains",
-      remoteUrl: "https://phish.co.za/latest/phishing-domains-ACTIVE.txt",
+      remoteUrl:
+        "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-domains-ACTIVE.txt",
       checksumUrl:
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5",
       todayUrl:
@@ -45,7 +46,8 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
   [PhishingResourceType.Links]: [
     {
       name: "Phishing.Database Links",
-      remoteUrl: "https://phish.co.za/latest/phishing-links-ACTIVE.txt",
+      remoteUrl:
+        "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-links-ACTIVE.txt",
       checksumUrl:
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-links-ACTIVE.txt.md5",
       todayUrl:
