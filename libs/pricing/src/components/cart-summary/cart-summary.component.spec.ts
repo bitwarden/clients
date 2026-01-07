@@ -1,51 +1,49 @@
+import { CurrencyPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, TemplateRef, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 
-import { CartSummaryComponent, LineItem } from "./cart-summary.component";
+import { Cart } from "../../types/cart";
 
 describe("CartSummaryComponent", () => {
   let component: CartSummaryComponent;
   let fixture: ComponentFixture<CartSummaryComponent>;
 
-  const mockPasswordManager: LineItem = {
-    quantity: 5,
-    name: "members",
-    cost: 50,
-    cadence: "month",
-  };
-
-  const mockAdditionalStorage: LineItem = {
-    quantity: 2,
-    name: "additionalStorageGB",
-    cost: 10,
-    cadence: "month",
-  };
-
-  const mockSecretsManager = {
-    seats: {
-      quantity: 3,
-      name: "secretsManagerSeats",
-      cost: 30,
-      cadence: "month",
+  const mockCart: Cart = {
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: "members",
+        cost: 50,
+      },
+      additionalStorage: {
+        quantity: 2,
+        name: "additionalStorageGB",
+        cost: 10,
+      },
     },
-    additionalServiceAccounts: {
-      quantity: 2,
-      name: "additionalServiceAccountsV2",
-      cost: 6,
-      cadence: "month",
+    secretsManager: {
+      seats: {
+        quantity: 3,
+        name: "secretsManagerSeats",
+        cost: 30,
+      },
+      additionalServiceAccounts: {
+        quantity: 2,
+        name: "additionalServiceAccountsV2",
+        cost: 6,
+      },
     },
+    cadence: "monthly",
+    estimatedTax: 9.6,
   };
-
-  const mockEstimatedTax = 9.6;
 
   function setupComponent() {
     // Set input values
-    fixture.componentRef.setInput("passwordManager", mockPasswordManager);
-    fixture.componentRef.setInput("additionalStorage", mockAdditionalStorage);
-    fixture.componentRef.setInput("secretsManager", mockSecretsManager);
-    fixture.componentRef.setInput("estimatedTax", mockEstimatedTax);
+    fixture.componentRef.setInput("cart", mockCart);
 
     fixture.detectChanges();
   }
@@ -89,6 +87,8 @@ describe("CartSummaryComponent", () => {
                   return "Families membership";
                 case "premiumMembership":
                   return "Premium membership";
+                case "discount":
+                  return "discount";
                 default:
                   return key;
               }
@@ -161,7 +161,9 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const pmSection = fixture.debugElement.query(By.css('[id="password-manager"]'));
       const pmHeading = pmSection.query(By.css("h3"));
-      const pmLineItem = pmSection.query(By.css(".tw-flex-1 .tw-text-muted"));
+      const pmLineItem = pmSection.query(
+        By.css('[id="password-manager-members"] .tw-flex-1 .tw-text-muted'),
+      );
       const pmTotal = pmSection.query(By.css("[data-testid='password-manager-total']"));
 
       // Act/ Assert
@@ -224,5 +226,259 @@ describe("CartSummaryComponent", () => {
 
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
     });
+  });
+
+  describe("Default Header (without custom template)", () => {
+    it("should render default header when no custom template is provided", () => {
+      // Arrange / Act
+      const defaultHeader = fixture.debugElement.query(
+        By.css('[data-testid="purchase-summary-heading-total"]'),
+      );
+
+      // Assert
+      expect(defaultHeader).toBeTruthy();
+      expect(defaultHeader.nativeElement.textContent).toContain("Total:");
+      expect(defaultHeader.nativeElement.textContent).toContain("$381.60");
+    });
+
+    it("should display term (month/year) in default header", () => {
+      // Arrange / Act
+      const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-main"));
+      // Find the span that contains the term
+      const termElement = allSpans.find((span) => span.nativeElement.textContent.includes("/"));
+
+      // Assert
+      expect(termElement).toBeTruthy();
+      expect(termElement!.nativeElement.textContent.trim()).toBe("/ month");
+    });
+  });
+
+  describe("Discount Display", () => {
+    it("should not display discount section when no discount is present", () => {
+      // Arrange / Act
+      const discountSection = fixture.debugElement.query(
+        By.css('[data-testid="discount-section"]'),
+      );
+
+      // Assert
+      expect(discountSection).toBeFalsy();
+    });
+
+    it("should display percent-off discount correctly", () => {
+      // Arrange
+      const cartWithDiscount: Cart = {
+        ...mockCart,
+        discount: {
+          type: DiscountTypes.PercentOff,
+          active: true,
+          value: 20,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscount);
+      fixture.detectChanges();
+
+      const discountSection = fixture.debugElement.query(
+        By.css('[data-testid="discount-section"]'),
+      );
+      const discountLabel = discountSection.query(By.css("h3"));
+      const discountAmount = discountSection.query(By.css('[data-testid="discount-amount"]'));
+
+      // Act / Assert
+      expect(discountSection).toBeTruthy();
+      expect(discountLabel.nativeElement.textContent.trim()).toBe("20% discount");
+      // Subtotal = 250 + 20 + 90 + 12 = 372, 20% of 372 = 74.4
+      expect(discountAmount.nativeElement.textContent).toContain("-$74.40");
+    });
+
+    it("should display amount-off discount correctly", () => {
+      // Arrange
+      const cartWithDiscount: Cart = {
+        ...mockCart,
+        discount: {
+          type: DiscountTypes.AmountOff,
+          active: true,
+          value: 50.0,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscount);
+      fixture.detectChanges();
+
+      const discountSection = fixture.debugElement.query(
+        By.css('[data-testid="discount-section"]'),
+      );
+      const discountLabel = discountSection.query(By.css("h3"));
+      const discountAmount = discountSection.query(By.css('[data-testid="discount-amount"]'));
+
+      // Act / Assert
+      expect(discountSection).toBeTruthy();
+      expect(discountLabel.nativeElement.textContent.trim()).toBe("$50.00 discount");
+      expect(discountAmount.nativeElement.textContent).toContain("-$50.00");
+    });
+
+    it("should not display discount when discount is inactive", () => {
+      // Arrange
+      const cartWithInactiveDiscount: Cart = {
+        ...mockCart,
+        discount: {
+          type: DiscountTypes.PercentOff,
+          active: false,
+          value: 20,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithInactiveDiscount);
+      fixture.detectChanges();
+
+      // Act / Assert
+      const discountSection = fixture.debugElement.query(
+        By.css('[data-testid="discount-section"]'),
+      );
+      expect(discountSection).toBeFalsy();
+    });
+
+    it("should apply discount to total calculation", () => {
+      // Arrange
+      const cartWithDiscount: Cart = {
+        ...mockCart,
+        discount: {
+          type: DiscountTypes.PercentOff,
+          active: true,
+          value: 20,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscount);
+      fixture.detectChanges();
+
+      // Subtotal = 372, discount = 74.4, tax = 9.6
+      // Total = 372 - 74.4 + 9.6 = 307.2
+      const expectedTotal = "$307.20";
+      const topTotal = fixture.debugElement.query(By.css("h2"));
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      // Act / Assert
+      expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
+      expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+  });
+});
+
+describe("CartSummaryComponent - Custom Header Template", () => {
+  @Component({
+    template: `
+      <billing-cart-summary [cart]="cart" [header]="customHeader">
+        <ng-template #customHeader let-total="total">
+          <div data-testid="custom-header">
+            <h2>Custom Total: {{ total | currency: "USD" : "symbol" }}</h2>
+          </div>
+        </ng-template>
+      </billing-cart-summary>
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [CartSummaryComponent, CurrencyPipe],
+  })
+  class TestHostComponent {
+    readonly customHeaderTemplate =
+      viewChild.required<TemplateRef<{ total: number }>>("customHeader");
+    cart: Cart = {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          name: "members",
+          cost: 50,
+        },
+        additionalStorage: {
+          quantity: 2,
+          name: "additionalStorageGB",
+          cost: 10,
+        },
+      },
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          name: "secretsManagerSeats",
+          cost: 30,
+        },
+        additionalServiceAccounts: {
+          quantity: 2,
+          name: "additionalServiceAccountsV2",
+          cost: 6,
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 9.6,
+    };
+  }
+
+  let hostFixture: ComponentFixture<TestHostComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [TestHostComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string) => {
+              switch (key) {
+                case "month":
+                  return "month";
+                case "year":
+                  return "year";
+                case "members":
+                  return "Members";
+                case "additionalStorageGB":
+                  return "Additional storage GB";
+                case "additionalServiceAccountsV2":
+                  return "Additional machine accounts";
+                case "secretsManagerSeats":
+                  return "Secrets Manager seats";
+                case "passwordManager":
+                  return "Password Manager";
+                case "secretsManager":
+                  return "Secrets Manager";
+                case "additionalStorage":
+                  return "Additional Storage";
+                case "estimatedTax":
+                  return "Estimated tax";
+                case "total":
+                  return "Total";
+                case "expandPurchaseDetails":
+                  return "Expand purchase details";
+                case "collapsePurchaseDetails":
+                  return "Collapse purchase details";
+                case "discount":
+                  return "discount";
+                default:
+                  return key;
+              }
+            },
+          },
+        },
+      ],
+    }).compileComponents();
+
+    hostFixture = TestBed.createComponent(TestHostComponent);
+    hostFixture.detectChanges();
+  });
+
+  it("should render custom header template when provided", () => {
+    // Arrange / Act
+    const customHeader = hostFixture.debugElement.query(By.css('[data-testid="custom-header"]'));
+    const defaultHeader = hostFixture.debugElement.query(
+      By.css('[data-testid="purchase-summary-heading-total"]'),
+    );
+
+    // Assert
+    expect(customHeader).toBeTruthy();
+    expect(defaultHeader).toBeFalsy();
+  });
+
+  it("should pass correct total value to custom header template", () => {
+    // Arrange
+    const expectedTotal = "$381.60"; // 250 + 20 + 90 + 12 + 9.6
+    const customHeader = hostFixture.debugElement.query(By.css('[data-testid="custom-header"]'));
+
+    // Act / Assert
+    expect(customHeader.nativeElement.textContent).toContain("Custom Total:");
+    expect(customHeader.nativeElement.textContent).toContain(expectedTotal);
   });
 });

@@ -1,21 +1,23 @@
-@let passwordManager = this.passwordManager();
-@let additionalStorage = this.additionalStorage();
-@let secretsManager = this.secretsManager();
-@let additionalServiceAccounts = this.secretsManager()?.additionalServiceAccounts;
+@let cart = this.cart();
+@let term = this.term();
 
 <div class="tw-size-full">
   <div class="tw-flex tw-items-center tw-pb-2">
     <div class="tw-flex tw-items-center">
-      <h2
-        bitTypography="h4"
-        id="purchase-summary-heading"
-        class="!tw-m-0"
-        data-testid="purchase-summary-heading-total"
-      >
-        {{ "total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
-      </h2>
-      <span bitTypography="h3">&nbsp;</span>
-      <span bitTypography="body1" class="tw-text-main">/ {{ passwordManager.cadence | i18n }}</span>
+      @if (this.header(); as header) {
+        <ng-container *ngTemplateOutlet="header; context: { total: total() }" />
+      } @else {
+        <h2
+          bitTypography="h4"
+          id="purchase-summary-heading"
+          class="!tw-m-0"
+          data-testid="purchase-summary-heading-total"
+        >
+          {{ "total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
+        </h2>
+        <span bitTypography="h3">&nbsp;</span>
+        <span bitTypography="body1" class="tw-text-main">/ {{ term }}</span>
+      }
     </div>
     <button
       type="button"
@@ -42,26 +44,28 @@
         <!-- Password Manager Members -->
         <div id="password-manager-members" class="tw-flex tw-justify-between">
           <div class="tw-flex-1">
+            @let passwordManagerSeats = cart.passwordManager.seats;
             <div bitTypography="body1" class="tw-text-muted">
-              {{ passwordManager.quantity }} {{ passwordManager.name | i18n }} x
-              {{ passwordManager.cost | currency: "USD" : "symbol" }}
+              {{ passwordManagerSeats.quantity }} {{ passwordManagerSeats.name | i18n }} x
+              {{ passwordManagerSeats.cost | currency: "USD" : "symbol" }}
               /
-              {{ passwordManager.cadence | i18n }}
+              {{ term }}
             </div>
           </div>
           <div bitTypography="body1" class="tw-text-muted" data-testid="password-manager-total">
-            {{ passwordManagerTotal() | currency: "USD" : "symbol" }}
+            {{ passwordManagerSeatsTotal() | currency: "USD" : "symbol" }}
           </div>
         </div>
 
         <!-- Additional Storage -->
+        @let additionalStorage = cart.passwordManager.additionalStorage;
         @if (additionalStorage) {
           <div id="additional-storage" class="tw-flex tw-justify-between">
             <div class="tw-flex-1">
               <div bitTypography="body1" class="tw-text-muted">
                 {{ additionalStorage.quantity }} {{ additionalStorage.name | i18n }} x
                 {{ additionalStorage.cost | currency: "USD" : "symbol" }} /
-                {{ additionalStorage.cadence | i18n }}
+                {{ term }}
               </div>
             </div>
             <div bitTypography="body1" class="tw-text-muted" data-testid="additional-storage-total">
@@ -72,7 +76,8 @@
       </div>
 
       <!-- Secrets Manager Section -->
-      @if (secretsManager) {
+      @let secretsManagerSeats = cart.secretsManager?.seats;
+      @if (secretsManagerSeats) {
         <div id="secrets-manager" class="tw-border-b tw-border-secondary-100 tw-py-2">
           <div class="tw-flex tw-justify-between">
             <h3 bitTypography="h5" class="tw-text-muted">{{ "secretsManager" | i18n }}</h3>
@@ -81,9 +86,9 @@
           <!-- Secrets Manager Members -->
           <div id="secrets-manager-members" class="tw-flex tw-justify-between">
             <div bitTypography="body1" class="tw-text-muted">
-              {{ secretsManager.seats.quantity }} {{ secretsManager.seats.name | i18n }} x
-              {{ secretsManager.seats.cost | currency: "USD" : "symbol" }}
-              / {{ secretsManager.seats.cadence | i18n }}
+              {{ secretsManagerSeats.quantity }} {{ secretsManagerSeats.name | i18n }} x
+              {{ secretsManagerSeats.cost | currency: "USD" : "symbol" }}
+              / {{ term }}
             </div>
             <div
               bitTypography="body1"
@@ -95,6 +100,7 @@
           </div>
 
           <!-- Additional Service Accounts -->
+          @let additionalServiceAccounts = cart.secretsManager?.additionalServiceAccounts;
           @if (additionalServiceAccounts) {
             <div id="additional-service-accounts" class="tw-flex tw-justify-between">
               <div bitTypography="body1" class="tw-text-muted">
@@ -102,7 +108,7 @@
                 {{ additionalServiceAccounts.name | i18n }} x
                 {{ additionalServiceAccounts.cost | currency: "USD" : "symbol" }}
                 /
-                {{ additionalServiceAccounts.cadence | i18n }}
+                {{ term }}
               </div>
               <div
                 bitTypography="body1"
@@ -113,6 +119,20 @@
               </div>
             </div>
           }
+        </div>
+      }
+
+      <!-- Discount -->
+      @if (discountAmount() > 0) {
+        <div
+          id="discount-section"
+          class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
+          data-testid="discount-section"
+        >
+          <h3 bitTypography="h5" class="tw-text-success-600">{{ discountLabel() }}</h3>
+          <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
+            -{{ discountAmount() | currency: "USD" : "symbol" }}
+          </div>
         </div>
       }
 
@@ -131,7 +151,7 @@
       <div id="total-section" class="tw-flex tw-justify-between tw-items-center tw-pt-2">
         <h3 bitTypography="h5" class="tw-text-muted">{{ "total" | i18n }}</h3>
         <div bitTypography="body1" class="tw-text-muted" data-testid="final-total">
-          {{ total() | currency: "USD" : "symbol" }} / {{ passwordManager.cadence | i18n }}
+          {{ total() | currency: "USD" : "symbol" }} / {{ term | i18n }}
         </div>
       </div>
     </div>

@@ -1,9 +1,12 @@
+import { DatePipe } from "@angular/common";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
+import { CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { CartSummaryComponent } from "./cart-summary.component";
+import { Cart } from "../../types/cart";
 
 export default {
   title: "Billing/Cart Summary",
@@ -11,9 +14,10 @@ export default {
   description: "A summary of the items in the cart, including pricing details.",
   decorators: [
     moduleMetadata({
-      imports: [TypographyModule, IconButtonModule],
+      imports: [TypographyModule, IconButtonModule, I18nPipe],
       // Return the same value for all keys for simplicity
       providers: [
+        DatePipe,
         {
           provide: I18nService,
           useValue: {
@@ -49,6 +53,10 @@ export default {
                   return "Families membership";
                 case "premiumMembership":
                   return "Premium membership";
+                case "yourNextChargeIsFor":
+                  return "Your next charge is for";
+                case "dueOn":
+                  return "due on";
                 default:
                   return key;
               }
@@ -59,13 +67,17 @@ export default {
     }),
   ],
   args: {
-    passwordManager: {
-      quantity: 5,
-      name: "members",
-      cost: 50.0,
-      cadence: "month",
-    },
-    estimatedTax: 9.6,
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          name: "members",
+          cost: 50.0,
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 9.6,
+    } satisfies Cart,
   },
   parameters: {
     design: {
@@ -76,116 +88,258 @@ export default {
 } as Meta<CartSummaryComponent>;
 
 type Story = StoryObj<CartSummaryComponent>;
-export const Default: Story = {};
+export const Default: Story = {
+  name: "Default (Password Manager Only)",
+};
 
 export const WithAdditionalStorage: Story = {
   args: {
-    ...Default.args,
-    additionalStorage: {
-      quantity: 2,
-      name: "additionalStorageGB",
-      cost: 10.0,
-      cadence: "month",
-    },
-    estimatedTax: 12.0,
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          name: "members",
+          cost: 50.0,
+        },
+        additionalStorage: {
+          quantity: 2,
+          name: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 12.0,
+    } satisfies Cart,
   },
 };
 
 export const PasswordManagerYearlyCadence: Story = {
+  name: "Password Manager (Annual Billing)",
   args: {
-    passwordManager: {
-      quantity: 5,
-      name: "members",
-      cost: 500.0,
-      cadence: "year",
-    },
-    estimatedTax: 120.0,
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          name: "members",
+          cost: 500.0,
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 120.0,
+    } satisfies Cart,
   },
 };
 
 export const SecretsManagerSeatsOnly: Story = {
+  name: "With Secrets Manager Seats",
   args: {
-    ...Default.args,
-    secretsManager: {
-      seats: {
-        quantity: 3,
-        name: "members",
-        cost: 30.0,
-        cadence: "month",
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          name: "members",
+          cost: 50.0,
+        },
       },
-    },
-    estimatedTax: 16.0,
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          name: "members",
+          cost: 30.0,
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 16.0,
+    } satisfies Cart,
   },
 };
 
 export const SecretsManagerSeatsAndServiceAccounts: Story = {
+  name: "With Secrets Manager + Service Accounts",
   args: {
-    ...Default.args,
-    secretsManager: {
-      seats: {
-        quantity: 3,
-        name: "members",
-        cost: 30.0,
-        cadence: "month",
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          name: "members",
+          cost: 50.0,
+        },
       },
-      additionalServiceAccounts: {
-        quantity: 2,
-        name: "additionalServiceAccountsV2",
-        cost: 6.0,
-        cadence: "month",
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          name: "members",
+          cost: 30.0,
+        },
+        additionalServiceAccounts: {
+          quantity: 2,
+          name: "additionalServiceAccountsV2",
+          cost: 6.0,
+        },
       },
-    },
-    estimatedTax: 16.0,
+      cadence: "monthly",
+      estimatedTax: 16.0,
+    } satisfies Cart,
   },
 };
 
 export const AllProducts: Story = {
+  name: "All Products (Complete Cart)",
   args: {
-    ...Default.args,
-    additionalStorage: {
-      quantity: 2,
-      name: "additionalStorageGB",
-      cost: 10.0,
-      cadence: "month",
-    },
-    secretsManager: {
-      seats: {
-        quantity: 3,
-        name: "members",
-        cost: 30.0,
-        cadence: "month",
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          name: "members",
+          cost: 50.0,
+        },
+        additionalStorage: {
+          quantity: 2,
+          name: "additionalStorageGB",
+          cost: 10.0,
+        },
       },
-      additionalServiceAccounts: {
-        quantity: 2,
-        name: "additionalServiceAccountsV2",
-        cost: 6.0,
-        cadence: "month",
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          name: "members",
+          cost: 30.0,
+        },
+        additionalServiceAccounts: {
+          quantity: 2,
+          name: "additionalServiceAccountsV2",
+          cost: 6.0,
+        },
       },
-    },
-    estimatedTax: 19.2,
+      cadence: "monthly",
+      estimatedTax: 19.2,
+    } satisfies Cart,
   },
 };
 
 export const FamiliesPlan: Story = {
   args: {
-    passwordManager: {
-      quantity: 1,
-      name: "familiesMembership",
-      cost: 40.0,
-      cadence: "year",
-    },
-    estimatedTax: 4.67,
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 1,
+          name: "familiesMembership",
+          cost: 40.0,
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 4.67,
+    } satisfies Cart,
   },
 };
 
 export const PremiumPlan: Story = {
   args: {
-    passwordManager: {
-      quantity: 1,
-      name: "premiumMembership",
-      cost: 10.0,
-      cadence: "year",
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 1,
+          name: "premiumMembership",
+          cost: 10.0,
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 2.71,
+    } satisfies Cart,
+  },
+};
+
+export const CustomHeaderTemplate: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 1,
+          name: "premiumMembership",
+          cost: 10.0,
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 2.71,
+    } satisfies Cart,
+  },
+  render: (args) => ({
+    props: {
+      ...args,
+      nextChargeDate: new Date("2025-06-04"),
     },
-    estimatedTax: 2.71,
+    template: `
+      <div>
+        <ng-template #customHeader let-total="total">
+          <h2
+            bitTypography="h4"
+            class="!tw-m-0"
+            id="cart-summary-header-custom"
+            data-test-id="cart-summary-header-custom"
+          >
+            {{ "yourNextChargeIsFor" | i18n }}
+            <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+            {{ "dueOn" | i18n }}
+            <span class="tw-font-bold">{{ nextChargeDate | date: "MMM. d, y" }}</span>
+          </h2>
+        </ng-template>
+
+        <billing-cart-summary [cart]="cart" [header]="customHeader" />
+      </div>
+    `,
+  }),
+};
+
+export const WithPercentDiscount: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          name: "members",
+          cost: 50.0,
+        },
+        additionalStorage: {
+          quantity: 2,
+          name: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "monthly",
+      discount: {
+        type: DiscountTypes.PercentOff,
+        active: true,
+        value: 20,
+      },
+      estimatedTax: 10.4,
+    } satisfies Cart,
+  },
+};
+
+export const WithAmountDiscount: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          name: "members",
+          cost: 50.0,
+        },
+      },
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          name: "members",
+          cost: 30.0,
+        },
+      },
+      cadence: "annually",
+      discount: {
+        type: DiscountTypes.AmountOff,
+        active: true,
+        value: 50.0,
+      },
+      estimatedTax: 95.0,
+    } satisfies Cart,
   },
 };
