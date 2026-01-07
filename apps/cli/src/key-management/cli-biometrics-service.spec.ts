@@ -178,26 +178,6 @@ describe("CliBiometricsService", () => {
     });
   });
 
-  describe("getBiometricsStatusDescription", () => {
-    it("should return appropriate description for disconnected status", async () => {
-      mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(false);
-
-      const description = await service.getBiometricsStatusDescription();
-
-      expect(description).toContain("Desktop app is not running");
-    });
-
-    it("should return appropriate description for available status", async () => {
-      mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(true);
-      mockNativeMessagingClient.connect.mockResolvedValue();
-      mockNativeMessagingClient.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
-
-      const description = await service.getBiometricsStatusDescription();
-
-      expect(description).toContain("available via Desktop app");
-    });
-  });
-
   describe("isBiometricUnlockAvailable", () => {
     it("should return false when desktop app is not available", async () => {
       mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(false);

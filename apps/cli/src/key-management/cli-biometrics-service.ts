@@ -232,11 +232,9 @@ export class CliBiometricsService extends BiometricsService {
   }
 
   /**
-   * Get a human-readable description of the current biometrics status.
+   * Get a human-readable description of a biometrics status.
    */
-  async getBiometricsStatusDescription(): Promise<string> {
-    const status = await this.getBiometricsStatus();
-
+  getBiometricsStatusDescription(status: BiometricsStatus): string {
     switch (status) {
       case BiometricsStatus.Available:
         return "Biometric unlock is available via Desktop app";
@@ -253,9 +251,13 @@ export class CliBiometricsService extends BiometricsService {
         return "Platform does not support biometric unlock";
       case BiometricsStatus.AutoSetupNeeded:
       case BiometricsStatus.ManualSetupNeeded:
+      case BiometricsStatus.NativeMessagingPermissionMissing:
         return "Biometric setup required in Desktop app";
-      default:
-        return `Unknown biometrics status: ${status}`;
+      default: {
+        // Exhaustive check: TypeScript will error if a new enum value is added
+        const _exhaustiveCheck: never = status;
+        return `Unknown biometrics status: ${_exhaustiveCheck}`;
+      }
     }
   }
 

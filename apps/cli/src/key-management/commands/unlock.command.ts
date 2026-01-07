@@ -135,7 +135,7 @@ export class UnlockCommand {
     const status = await this.biometricsService.getBiometricsStatusForUser(userId as any);
 
     if (status !== BiometricsStatus.Available) {
-      const statusDescription = await this.biometricsService.getBiometricsStatusDescription();
+      const statusDescription = this.biometricsService.getBiometricsStatusDescription(status);
       return Response.error(`Biometric unlock is not available: ${statusDescription}`);
     }
 
