@@ -122,7 +122,7 @@ jobs:
           eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
           cargo test --lib -- --test-threads=1
 
-      - name: macOS unit tests
+      - name: MacOS unit tests
         if: ${{ matrix.os=='macos-14' }}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --lib -- --test-threads=1
