@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "restartPremium": {
     "message": "重新啟用進階版"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "取消封存"
+  },
+  "archived": {
+    "message": "Archived"
   },
   "unArchiveAndSave": {
     "message": "取消封存並儲存"

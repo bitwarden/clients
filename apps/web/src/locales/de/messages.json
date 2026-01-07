@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "restartPremium": {
     "message": "Premium neu starten"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "Nicht mehr archivieren"
+  },
+  "archived": {
+    "message": "Archived"
   },
   "unArchiveAndSave": {
     "message": "Nicht mehr archivieren und speichern"

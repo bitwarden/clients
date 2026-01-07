@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Za ponovni pristup svojoj arhivi, ponovno pokreni Premium pretplatu. Ako urediš detalje arhivirane stavke prije ponovnog pokretanja, ona će biti vraćena u tvoj trezor."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "restartPremium": {
     "message": "Ponovno Pokreni Premium"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "Poništi arhiviranje"
+  },
+  "archived": {
+    "message": "Archived"
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"

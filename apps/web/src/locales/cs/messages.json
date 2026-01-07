@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Chcete-li získat přístup k Vašemu archivu, restartujte předplatné Premium. Pokud upravíte detaily archivované položky před restartováním, bude přesunuta zpět do Vašeho trezoru."
   },
+  "itemRestored": {
+    "message": "Položka byla obnovena"
+  },
   "restartPremium": {
     "message": "Restartovat Premium"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "Odebrat z archivu"
+  },
+  "archived": {
+    "message": "Archivováno"
   },
   "unArchiveAndSave": {
     "message": "Odebrat z archivu a uložit"

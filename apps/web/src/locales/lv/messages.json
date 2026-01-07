@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Lai atgūtu piekļuvi savam arhīvam, jāatsāk Premium abonements. Ja labosi arhivēta vienuma informāciju pirms atsākšanas, tas tiks pārvietots atpakaļ Tavā glabātavā."
   },
+  "itemRestored": {
+    "message": "Vienums tika atjaunots"
+  },
   "restartPremium": {
     "message": "Atsākt Premium"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "Atcelt arhivēšanu"
+  },
+  "archived": {
+    "message": "Arhivēts"
   },
   "unArchiveAndSave": {
     "message": "Atcelt arhivēšanu un saglabāt"

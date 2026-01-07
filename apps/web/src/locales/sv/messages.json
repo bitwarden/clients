@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "För att återfå åtkomst till ditt arkiv, starta om Premium-prenumerationen. Om du redigerar detaljer för ett arkiverat objekt innan du startar om kommer det att flyttas tillbaka till ditt valv."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "restartPremium": {
     "message": "Starta om Premium"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "Avarkivera"
+  },
+  "archived": {
+    "message": "Archived"
   },
   "unArchiveAndSave": {
     "message": "Avarkivera och spara"
