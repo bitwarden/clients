@@ -12,13 +12,16 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
    * https://www.w3.org/TR/webauthn-3/#sctn-op-make-cred
    *
    * @param params Parameters for creating a new credential
+   * @param window A reference to the window of the WebAuthn client.
    * @param abortController An AbortController that can be used to abort the operation.
+   * @param transactionContext Context from the original WebAuthn request used for callbacks back to the WebAuthn client for user verification.
    * @returns A promise that resolves with the new credential and an attestation signature.
    **/
   abstract makeCredential(
     params: Fido2AuthenticatorMakeCredentialsParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    transactionContext?: string,
   ): Promise<Fido2AuthenticatorMakeCredentialResult>;
 
   /**
@@ -26,13 +29,16 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
    * https://www.w3.org/TR/webauthn-3/#sctn-op-get-assertion
    *
    * @param params Parameters for generating an assertion
+   * @param window A reference to the window of the WebAuthn client.
    * @param abortController An AbortController that can be used to abort the operation.
+   * @param transactionContext Context from the original WebAuthn request used for callbacks back to the WebAuthn client for user verification.
    * @returns A promise that resolves with the asserted credential and an assertion signature.
    */
   abstract getAssertion(
     params: Fido2AuthenticatorGetAssertionParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    transactionContext?: string,
   ): Promise<Fido2AuthenticatorGetAssertionResult>;
 
   /**

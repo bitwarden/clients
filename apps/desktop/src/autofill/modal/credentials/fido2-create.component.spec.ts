@@ -149,6 +149,7 @@ describe("Fido2CreateComponent", () => {
   describe("addCredentialToCipher", () => {
     beforeEach(() => {
       component.session = mockSession;
+      mockSession.promptForUserVerification.mockResolvedValue(true)
     });
 
     it("should add passkey to cipher", async () => {
@@ -202,6 +203,7 @@ describe("Fido2CreateComponent", () => {
   describe("confirmPasskey", () => {
     beforeEach(() => {
       component.session = mockSession;
+      mockSession.promptForUserVerification.mockResolvedValue(true);
     });
 
     it("should confirm passkey creation successfully", async () => {

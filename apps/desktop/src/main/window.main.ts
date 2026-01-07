@@ -407,6 +407,14 @@ export class WindowMain {
     if (this.createWindowCallback) {
       this.createWindowCallback(this.win);
     }
+
+    ipcMain.handle("get-native-window-details", (_event) => {
+      return {
+        isVisible: this.win.isVisible(),
+        isFocused: this.win.isFocused(),
+        handle: this.win.getNativeWindowHandle().toString("base64"),
+      };
+    });
   }
 
   // Retrieve the background color
@@ -547,4 +555,11 @@ export class WindowMain {
       state.height > 0
     );
   }
+}
+
+export type WindowDetails = {
+  isVisible: boolean,
+  isFocused: boolean,
+  // Base64-encoded native handle
+  handle: Buffer,
 }
