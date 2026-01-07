@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Jauns",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Jauns URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Vai tiešām izdzēst šo Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Ievietot Send saiti starpliktuvē",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Ievietot Send saiti starpliktuvē",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Drošā veidā nosūti jūtīgu informāciju",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Nekas netika atrasts"
+  },
   "sendsBodyNoItems": {
     "message": "Kopīgo datnes un datus drošā veidā ar ikvienu jebkurā platformā! Tava informācija paliks pilnībā šifrēta, vienlaikus ierobežojot riskantumu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Jānotīra atsijātāji vai jāmēģina cits meklēšanas vaicājums"
   },
   "generatorNudgeTitle": {
     "message": "Ātra paroļu izveidošana"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Atcelt arhivēšanu"
   },
+  "archived": {
+    "message": "Arhivēts"
+  },
   "itemsInArchive": {
     "message": "Vienumi arhīvā"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  },
+  "unArchiveAndSave": {
+    "message": "Atcelt arhivēšanu un saglabāt"
+  },
+  "restartPremium": {
+    "message": "Atsākt Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Tavs Premium abonements beidzās"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Lai atgūtu piekļuvi savam arhīvam, jāatsāk Premium abonements. Ja labosi arhivēta vienuma informāciju pirms atsākšanas, tas tiks pārvietots atpakaļ Tavā glabātavā."
+  },
+  "itemRestored": {
+    "message": "Vienums tika atjaunots"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / Pasta indekss"

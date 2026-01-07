@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Criar",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Novo URI"
   },
@@ -470,7 +474,7 @@
     "message": "Use campos ocultos para dados sensíveis como senhas"
   },
   "checkBoxHelpText": {
-    "message": "Use caixas de seleção se gostaria de preencher automaticamente a caixa de seleção de um formulário, como um lembrar e-mail"
+    "message": "Use caixas de seleção se gostaria de preencher a caixa de seleção de um formulário, como um lembrar e-mail"
   },
   "linkedHelpText": {
     "message": "Use um campo vinculado quando você estiver experienciando problemas com o preenchimento automático em um site específico."
@@ -2411,6 +2415,10 @@
     "message": "Tem certeza que quer apagar este Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Copiar link do Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Copiar link do Send para a área de transferência",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Envie informações sensíveis com segurança",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Nenhum resultado de busca"
+  },
   "sendsBodyNoItems": {
     "message": "Compartilhe dados e arquivos com segurança com qualquer pessoa, em qualquer plataforma. Suas informações permanecerão criptografadas de ponta a ponta, limitando a exposição.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Limpe os filtros ou tente outro termo de busca"
   },
   "generatorNudgeTitle": {
     "message": "Crie senhas de forma rápida"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Desarquivar"
   },
+  "archived": {
+    "message": "Arquivados"
+  },
   "itemsInArchive": {
     "message": "Itens no arquivo"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Itens arquivados são excluídos dos resultados gerais de busca e das sugestões de preenchimento automático. Tem certeza de que deseja arquivar este item?"
+  },
+  "unArchiveAndSave": {
+    "message": "Desarquivar e salvar"
+  },
+  "restartPremium": {
+    "message": "Retomar Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Sua assinatura Premium terminou"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Para recuperar o seu acesso ao seu arquivo, retoma sua assinatura Premium. Se editar detalhes de um item arquivado antes de retomar, ele será movido de volta para o seu cofre."
+  },
+  "itemRestored": {
+    "message": "O item foi restaurado"
   },
   "zipPostalCodeLabel": {
     "message": "CEP / Código postal"

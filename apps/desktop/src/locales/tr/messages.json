@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Yeni",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Yeni URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Bu Send'i silmek istediğinizden emin misiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Send bağlantısını kopyala",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Send linkini panoya kopyala",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Hassas bilgileri güvenle paylaşın",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Hiçbir sonuç bulunamadı"
+  },
   "sendsBodyNoItems": {
     "message": "Dosyaları ve verileri istediğiniz kişilerle, istediğiniz platformda paylaşın. Bilgileriniz başkalarının eline geçmemesi için uçtan şifrelenecektir.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
   },
   "generatorNudgeTitle": {
     "message": "Hızlıca parola oluşturun"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Arşivden çıkar"
   },
+  "archived": {
+    "message": "Arşivlendi"
+  },
   "itemsInArchive": {
     "message": "Arşivdeki kayıtlar"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğinizden emin misiniz?"
+  },
+  "unArchiveAndSave": {
+    "message": "Arşivden çıkar ve kaydet"
+  },
+  "restartPremium": {
+    "message": "Premium’u yeniden başlat"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Premium aboneliğiniz sona erdi"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Arşivinize yeniden erişebilmek için Premium aboneliğinizi yeniden başlatın. Yeniden başlatmadan önce arşivlenmiş bir kaydın ayrıntılarını düzenlerseniz kayıt tekrar kasanıza taşınır."
+  },
+  "itemRestored": {
+    "message": "Kayıt geri yüklendi"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / posta kodu"

@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Új",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Új URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Biztosan törlésre kerüljön ez a küldés?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Send hivatkozás másolása",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Hivatkozás küldése másolás a vágólapra",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Érzékeny információt küldése biztonságosan",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Nincsenek visszakapott keresési eredmények."
+  },
   "sendsBodyNoItems": {
     "message": "Fájlok vagy adatok megosztása biztonságosan bárkivel, bármilyen platformon. Az információk titkosítva maradnak a végpontokon, korlátozva a kitettséget.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Töröljük a szűrőket vagy próbálkozzunk másik keresési kifejezéssel."
   },
   "generatorNudgeTitle": {
     "message": "Jelszavak gyors létrehozása"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Visszavétel archívumból"
   },
+  "archived": {
+    "message": "Archiválva"
+  },
   "itemsInArchive": {
     "message": "Archívum elemek száma"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  },
+  "unArchiveAndSave": {
+    "message": "Archiválás visszavonása és mentés"
+  },
+  "restartPremium": {
+    "message": "Prémium előfizetés újraindítása"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "A Prémium előfizetés véget ért."
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Az archívumhoz hozzáférés visszaszerzéséhez indítsuk újra a Prémium előfizetést. Ha az újraindítás előtt szerkesztjük egy archivált elem adatait, akkor az visszakerül a széfbe."
+  },
+  "itemRestored": {
+    "message": "Az elem visszaállításra került."
   },
   "zipPostalCodeLabel": {
     "message": "Irányítószám"
