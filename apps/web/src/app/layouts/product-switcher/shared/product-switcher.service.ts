@@ -19,7 +19,11 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { PolicyType, ProviderType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationUserType,
+  PolicyType,
+  ProviderType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -155,14 +159,16 @@ export class ProductSwitcherService {
     this.userHasSingleOrgPolicy$,
     this.route.paramMap,
     this.triggerProductUpdate$,
+    this.configService.getFeatureFlag$(FeatureFlag.SM1719_RemoveSecretsManagerAds),
   ]).pipe(
     map(
-      ([orgs, providers, userHasSingleOrgPolicy, paramMap]: [
+      ([orgs, providers, userHasSingleOrgPolicy, paramMap, , removeSecretsManagerAdsFlag]: [
         Organization[],
         Provider[],
         boolean,
         ParamMap,
         void,
+        boolean,
       ]) => {
         // Sort orgs by name to match the order within the sidebar
         orgs.sort((a, b) => a.name.localeCompare(b.name));
@@ -207,6 +213,15 @@ export class ProductSwitcherService {
               route: "/create-organization",
               external: false,
             };
+
+        // Check if SM ads should be disabled for any organization
+        // SM ads are only disabled if the feature flag is enabled AND
+        // the user is a regular User (not Admin or Owner) in an organization that has useDisableSMAdsForUsers enabled
+        const shouldDisableSMAds =
+          removeSecretsManagerAdsFlag &&
+          orgs.some(
+            (org) => org.useDisableSMAdsForUsers === true && org.type === OrganizationUserType.User,
+          );
 
         const products = {
           pm: {
@@ -267,7 +282,8 @@ export class ProductSwitcherService {
 
         if (smOrg) {
           bento.push(products.sm);
-        } else {
+        } else if (!shouldDisableSMAds) {
+          // Only show SM in "other" section if ads are not disabled
           other.push(products.sm);
         }
 

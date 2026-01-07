@@ -64,6 +64,7 @@ describe("ORGANIZATIONS state", () => {
         isAdminInitiated: false,
         ssoEnabled: false,
         ssoMemberDecryptionType: undefined,
+        useDisableSMAdsForUsers: false,
         usePhishingBlocker: false,
       },
     };
