@@ -34,7 +34,7 @@ import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { SdkService, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { asUuid, SdkService, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
@@ -1408,6 +1408,13 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<any> {
+    const useSdk = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
+    );
+    if (useSdk) {
+      return this.deleteWithServer_sdk(id, userId, asAdmin);
+    }
+
     if (asAdmin) {
       await this.apiService.deleteCipherAdmin(id);
     } else {
@@ -1417,7 +1424,35 @@ export class CipherService implements CipherServiceAbstraction {
     await this.delete(id, userId);
   }
 
+  async deleteWithServer_sdk(id: string, userId: UserId, asAdmin = false): Promise<any> {
+    this.sdkService.userClient$(userId).pipe(
+      map(async (sdk) => {
+        if (!sdk) {
+          throw new Error("SDK not available");
+        }
+        using ref = sdk.take();
+        if (asAdmin) {
+          await ref.value.vault().ciphers().admin().delete(asUuid(id));
+        } else {
+          await ref.value.vault().ciphers().delete(asUuid(id));
+        }
+      }),
+      catchError((error: unknown) => {
+        this.logService.error(`Failed to encrypt cipher: ${error}`);
+        return EMPTY;
+      }),
+    );
+    await this.clearCache(userId);
+  }
+
   async deleteManyWithServer(ids: string[], userId: UserId, asAdmin = false): Promise<any> {
+    const useSdk = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
+    );
+    if (useSdk) {
+      return this.deleteManyWithServer_sdk(ids, userId, asAdmin);
+    }
+
     const request = new CipherBulkDeleteRequest(ids);
     if (asAdmin) {
       await this.apiService.deleteManyCiphersAdmin(request);
@@ -1425,6 +1460,33 @@ export class CipherService implements CipherServiceAbstraction {
       await this.apiService.deleteManyCiphers(request);
     }
     await this.delete(ids, userId);
+  }
+
+  async deleteManyWithServer_sdk(ids: string[], userId: UserId, asAdmin = false): Promise<any> {
+    this.sdkService.userClient$(userId).pipe(
+      map(async (sdk) => {
+        if (!sdk) {
+          throw new Error("SDK not available");
+        }
+        using ref = sdk.take();
+        if (asAdmin) {
+          await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .delete_many(
+              ids.map((id) => asUuid(id)),
+              null, // TODO: This is required in the SDK - need to remove from SDK or require here
+              // But how did it work before????? The server also throws a 404.
+            );
+        } else {
+          await ref.value
+            .vault()
+            .ciphers()
+            .delete_many(ids.map((id) => asUuid(id)));
+        }
+      }),
+    );
   }
 
   async deleteAttachment(
@@ -1568,6 +1630,7 @@ export class CipherService implements CipherServiceAbstraction {
         return;
       }
       ciphers[cipherId].deletedDate = new Date().toISOString();
+      ciphers[cipherId].archivedDate = null;
     };
 
     if (typeof id === "string") {
