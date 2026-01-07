@@ -11,6 +11,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsCommands, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 
+import { CliUtils } from "../../utils";
+
 import { IpcSocketService } from "./ipc-socket.service";
 
 const MESSAGE_VALID_TIMEOUT = 10 * 1000; // 10 seconds
@@ -463,19 +465,21 @@ export class NativeMessagingClient {
     );
 
     // Write to stderr so it doesn't interfere with command output
-    const write = (line: string) => process.stderr.write(line + "\n");
-    write("\n┌────────────────────────────────────────────────────────────┐");
-    write("│            Bitwarden Desktop App Verification              │");
-    write("├────────────────────────────────────────────────────────────┤");
-    write("│                                                            │");
-    write("│  Verify this fingerprint matches the one shown in the     │");
-    write("│  Bitwarden Desktop app to confirm the secure connection.  │");
-    write("│                                                            │");
-    write("│  Fingerprint:                                              │");
-    write(`│    ${fingerprint.join("-")}`.padEnd(61) + "│");
-    write("│                                                            │");
-    write("│  Accept the connection in the Desktop app to continue.    │");
-    write("└────────────────────────────────────────────────────────────┘\n");
+    const writeLn = (line: string) => CliUtils.writeLn(line, false, true);
+    writeLn("");
+    writeLn("┌────────────────────────────────────────────────────────────┐");
+    writeLn("│            Bitwarden Desktop App Verification              │");
+    writeLn("├────────────────────────────────────────────────────────────┤");
+    writeLn("│                                                            │");
+    writeLn("│  Verify this fingerprint matches the one shown in the     │");
+    writeLn("│  Bitwarden Desktop app to confirm the secure connection.  │");
+    writeLn("│                                                            │");
+    writeLn("│  Fingerprint:                                              │");
+    writeLn(`│    ${fingerprint.join("-")}`.padEnd(61) + "│");
+    writeLn("│                                                            │");
+    writeLn("│  Accept the connection in the Desktop app to continue.    │");
+    writeLn("└────────────────────────────────────────────────────────────┘");
+    writeLn("");
   }
 
   /**
