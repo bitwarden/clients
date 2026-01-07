@@ -1,11 +1,14 @@
 import {
   concatMap,
+  delay,
   distinctUntilChanged,
   EMPTY,
   filter,
   map,
   merge,
+  of,
   Subject,
+  Subscription,
   switchMap,
   tap,
 } from "rxjs";
@@ -43,6 +46,8 @@ export class PhishingDetectionService {
   private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
   private static _ignoredHostnames = new Set<string>();
   private static _didInit = false;
+  private static _triggerUpdateSub: Subscription | null = null;
+  private static _boundTabHandler: ((...args: readonly unknown[]) => unknown) | null = null;
 
   static initialize(
     logService: LogService,
@@ -50,18 +55,34 @@ export class PhishingDetectionService {
     phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     messageListener: MessageListener,
   ) {
+    // If already initialized, clean up first to prevent memory leaks on service worker restart
     if (this._didInit) {
-      logService.debug("[PhishingDetectionService] Initialize already called. Aborting.");
-      return;
+      logService.debug(
+        "[PhishingDetectionService] Initialize already called. Cleaning up previous instance first.",
+      );
+      // Clean up previous state
+      if (this._triggerUpdateSub) {
+        this._triggerUpdateSub.unsubscribe();
+        this._triggerUpdateSub = null;
+      }
+      if (this._boundTabHandler) {
+        BrowserApi.removeListener(chrome.tabs.onUpdated, this._boundTabHandler);
+        this._boundTabHandler = null;
+      }
+      // Clear accumulated state
+      this._ignoredHostnames.clear();
+      // Reset flag to allow re-initialization
+      this._didInit = false;
     }
 
-    logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
-
-    BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
+    this._boundTabHandler = this._handleTabUpdated.bind(this) as (
+      ...args: readonly unknown[]
+    ) => unknown;
+    BrowserApi.addListener(chrome.tabs.onUpdated, this._boundTabHandler);
 
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
       tap((message) =>
-        logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
+        logService.debug(`[PhishingDetectionService] User selected continue for ${message.url}`),
       ),
       concatMap(async (message) => {
         const url = new URL(message.url);
@@ -87,7 +108,9 @@ export class PhishingDetectionService {
           prev.tabId === curr.tabId &&
           prev.ignored === curr.ignored,
       ),
-      tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
+      tap((event) =>
+        logService.debug(`[PhishingDetectionService] Processing navigation event:`, event),
+      ),
       concatMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
           // The next time this host is visited, block again
@@ -113,23 +136,58 @@ export class PhishingDetectionService {
 
     const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
+    // CRITICAL: Only subscribe to update$ if phishing detection is available
+    // This prevents storage access for non-premium users on extension reload
+    // The subscription is created lazily when phishing detection becomes active
+    let updateSub: Subscription | null = null;
+
     const initSub = phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
+          // Clean up previous trigger subscription if it exists
+          // This prevents memory leaks when account access changes (switch, lock/unlock)
+          if (this._triggerUpdateSub) {
+            this._triggerUpdateSub.unsubscribe();
+            this._triggerUpdateSub = null;
+          }
+
           if (!activeUserHasAccess) {
             logService.debug(
               "[PhishingDetectionService] User does not have access to phishing detection service.",
             );
+            // Unsubscribe from update$ if user loses access (e.g., account switch to non-premium)
+            if (updateSub) {
+              updateSub.unsubscribe();
+              updateSub = null;
+            }
             return EMPTY;
           } else {
             logService.debug("[PhishingDetectionService] Enabling phishing detection service");
-            return merge(
-              phishingDataService.update$,
-              onContinueCommand$,
-              onTabUpdated$,
-              onCancelCommand$,
-            );
+            // Lazy subscription: Only subscribe to update$ when phishing detection becomes active
+            // This prevents storage access for non-premium users on extension reload
+            if (!updateSub) {
+              updateSub = phishingDataService.update$.subscribe({
+                next: () => {
+                  logService.debug("[PhishingDetectionService] Update completed");
+                },
+                error: (err: unknown) => {
+                  logService.error("[PhishingDetectionService] Update error", err);
+                },
+                complete: () => {
+                  logService.debug("[PhishingDetectionService] Update subscription completed");
+                },
+              });
+            }
+            // Trigger cache update asynchronously using RxJS delay(0)
+            // This defers to the next event loop tick, preventing UI blocking during account switch
+            // CRITICAL: Store subscription to prevent memory leaks on account switches
+            this._triggerUpdateSub = of(null)
+              .pipe(delay(0))
+              .subscribe(() => phishingDataService.triggerUpdateIfNeeded());
+            // update$ removed from merge - popup no longer blocks waiting for update
+            // The actual update runs via updateSub above
+            return merge(onContinueCommand$, onTabUpdated$, onCancelCommand$);
           }
         }),
       )
@@ -137,16 +195,26 @@ export class PhishingDetectionService {
 
     this._didInit = true;
     return () => {
+      logService.debug("[PhishingDetectionService] Cleanup function called");
+      if (updateSub) {
+        updateSub.unsubscribe();
+        updateSub = null;
+      }
       initSub.unsubscribe();
+      // Clean up trigger subscription to prevent memory leaks
+      if (this._triggerUpdateSub) {
+        this._triggerUpdateSub.unsubscribe();
+        this._triggerUpdateSub = null;
+      }
       this._didInit = false;
 
-      // Manually type cast to satisfy the listener signature due to the mixture
-      // of static and instance methods in this class. To be fixed when refactoring
-      // this class to be instance-based while providing a singleton instance in usage
-      BrowserApi.removeListener(
-        chrome.tabs.onUpdated,
-        PhishingDetectionService._handleTabUpdated as (...args: readonly unknown[]) => unknown,
-      );
+      if (this._boundTabHandler) {
+        BrowserApi.removeListener(chrome.tabs.onUpdated, this._boundTabHandler);
+        this._boundTabHandler = null;
+      }
+
+      // Clear accumulated state to prevent memory leaks
+      this._ignoredHostnames.clear();
     };
   }
 
