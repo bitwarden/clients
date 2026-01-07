@@ -1,5 +1,5 @@
 import { combineLatest, Observable, of, switchMap } from "rxjs";
-import { catchError, distinctUntilChanged, map, shareReplay } from "rxjs/operators";
+import { catchError, distinctUntilChanged, map, shareReplay, startWith } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -18,7 +18,9 @@ const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
   PHISHING_DETECTION_DISK,
   "enablePhishingDetection",
   {
-    deserializer: (value: boolean) => value ?? true, // Default: enabled
+    deserializer: (value: boolean) => {
+      return value ?? true;
+    }, // Default: enabled
     clearOn: [],
   },
 );
@@ -97,9 +99,11 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
         if (!account) {
           return of(false);
         }
-        return this.stateProvider.getUserState$(ENABLE_PHISHING_DETECTION, account.id);
+        return this.stateProvider.getUserState$(ENABLE_PHISHING_DETECTION, account.id).pipe(
+          startWith(true), // Default: enabled (matches deserializer default)
+          map((enabled) => enabled ?? true),
+        );
       }),
-      map((enabled) => enabled ?? true),
     );
   }
 
