@@ -330,6 +330,7 @@ export abstract class KeyService {
   abstract getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]>;
   /**
    * Generates a new keypair
+   * @deprecated New use-cases of this function are prohibited. Low-level cryptographic constructions and initialization should be done in the SDK.
    * @param key A symmetric key to wrap the newly created private key with.
    * @returns A new keypair: [publicKey in Base64, wrapped privateKey]
    * @throws If the provided key is a null-ish value.
