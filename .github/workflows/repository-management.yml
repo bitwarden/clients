@@ -127,13 +127,16 @@ jobs:
           git config --local user.name "bitwarden-devops-bot"
 
       - name: Setup GPG signing
+        env:
+          GPG_PRIVATE_KEY: ${{ steps.retrieve-gpg-secrets.outputs.github-gpg-private-key }}
+          GPG_PASSPHRASE: ${{ steps.retrieve-gpg-secrets.outputs.github-gpg-private-key-passphrase }}
         run: |
-          echo "${{ steps.retrieve-gpg-secrets.outputs.github-gpg-private-key }}" | gpg --import --batch
+          echo "$GPG_PRIVATE_KEY" | gpg --import --batch
           GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format=long | grep -o "rsa[0-9]\+/[A-F0-9]\+" | head -n1 | cut -d'/' -f2)
           git config --local user.signingkey "$GPG_KEY_ID"
           git config --local commit.gpgsign true
           export GPG_TTY=$(tty)
-          echo "test" | gpg --clearsign --pinentry-mode=loopback --passphrase "${{ steps.retrieve-gpg-secrets.outputs.github-gpg-private-key-passphrase }}" > /dev/null 2>&1
+          echo "test" | gpg --clearsign --pinentry-mode=loopback --passphrase "$GPG_PASSPHRASE" > /dev/null 2>&1
 
       ########################
       # VERSION BUMP SECTION #
@@ -464,7 +467,7 @@ jobs:
 
       - name: Create Pull Request for version bump
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           VERSION_BROWSER: ${{ steps.set-final-version-output.outputs.version_browser }}
           VERSION_CLI: ${{ steps.set-final-version-output.outputs.version_cli }}
