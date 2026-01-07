@@ -465,13 +465,29 @@ jobs:
       - name: Create Pull Request for version bump
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
         uses: actions/github-script@v7
+        env:
+          VERSION_BROWSER: ${{ steps.set-final-version-output.outputs.version_browser }}
+          VERSION_CLI: ${{ steps.set-final-version-output.outputs.version_cli }}
+          VERSION_DESKTOP: ${{ steps.set-final-version-output.outputs.version_desktop }}
+          VERSION_WEB: ${{ steps.set-final-version-output.outputs.version_web }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
+            const versions = [];
+            if (process.env.VERSION_BROWSER) versions.push(`- Browser: ${process.env.VERSION_BROWSER}`);
+            if (process.env.VERSION_CLI) versions.push(`- CLI: ${process.env.VERSION_CLI}`);
+            if (process.env.VERSION_DESKTOP) versions.push(`- Desktop: ${process.env.VERSION_DESKTOP}`);
+            if (process.env.VERSION_WEB) versions.push(`- Web: ${process.env.VERSION_WEB}`);
+
+            const body = versions.length > 0
+              ? `Automated version bump:\n\n${versions.join('\n')}`
+              : 'Automated version bump';
+
             const { data: pr } = await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'Bumped client version(s)',
+              body: body,
               head: process.env.BRANCH_NAME,
               base: context.ref.replace('refs/heads/', '')
             });
