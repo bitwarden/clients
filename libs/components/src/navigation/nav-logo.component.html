@@ -8,11 +8,9 @@
   <!-- absolutely position the link svg to avoid shifting layout when sidenav is closed -->
   <a
     [routerLink]="route()"
-    class="tw-relative tw-p-3 tw-block tw-rounded-md tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2 hover:tw-bg-hover-contrast tw-h-[73px] [&_svg]:tw-absolute [&_svg]:tw-inset-[theme(spacing.3)] [&_svg]:tw-w-[calc(100%_-_theme(spacing.6))] [&_svg]:tw-transition-[inline-start-inset]"
+    class="tw-relative tw-p-3 tw-block tw-rounded-md tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2 hover:tw-bg-hover-contrast tw-h-[73px] [&_svg]:tw-absolute [&_svg]:tw-inset-[.6875rem] [&_svg]:tw-w-[200px]"
     [ngClass]="{
-      '!tw-h-[55px] [&_svg]:!tw-w-[26px] [&_svg]:tw-inset-y-[theme(spacing.3)]':
-        !sideNavService.open,
-      'tw-w-56': sideNavService.open,
+      '!tw-h-[55px] [&_svg]:!tw-w-[26px]': !sideNavService.open,
     }"
     [attr.aria-label]="label()"
     [title]="label()"
