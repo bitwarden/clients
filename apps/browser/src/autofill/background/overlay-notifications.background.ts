@@ -105,8 +105,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    */
   private getSenderUrlMatchPatterns(sender: chrome.runtime.MessageSender) {
     return new Set([
-      ...generateDomainMatchPatterns(sender.url),
-      ...generateDomainMatchPatterns(sender.tab?.url),
+      ...(sender.url ? generateDomainMatchPatterns(sender.url) : []),
+      ...(sender.tab?.url ? generateDomainMatchPatterns(sender.tab.url) : []),
     ]);
   }
 
@@ -143,15 +143,17 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.modifyLoginCipherFormData.set(sender.tab?.id, formData);
 
     this.clearNotificationFallbackTimeout();
-    this.notificationFallbackTimeout = setTimeout(
-      () =>
-        this.setupNotificationInitTrigger(
-          sender.tab?.id,
-          "",
-          this.modifyLoginCipherFormData.get(sender.tab?.id),
-        ).catch((error) => this.logService.error(error)),
-      1500,
-    );
+    const tabId = sender.tab?.id;
+    if (tabId) {
+      this.notificationFallbackTimeout = setTimeout(() => {
+        const modifyLoginData = this.modifyLoginCipherFormData.get(tabId);
+        if (modifyLoginData) {
+          this.setupNotificationInitTrigger(tabId, "", modifyLoginData).catch((error) =>
+            this.logService.error(error),
+          );
+        }
+      }, 1500);
+    }
   };
 
   /**
@@ -174,6 +176,10 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private async isSenderFromExcludedDomain(sender: chrome.runtime.MessageSender): Promise<boolean> {
     try {
       const senderOrigin = sender.origin;
+      if (!senderOrigin) {
+        return false;
+      }
+
       const serverConfig = await this.notificationBackground.getActiveUserServerConfig();
       const activeUserVault = serverConfig?.environment?.vault;
       if (activeUserVault === senderOrigin) {
@@ -230,11 +236,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     details: chrome.webRequest.OnBeforeRequestDetails,
   ): undefined => {
     if (this.isPostSubmissionFormRedirection(details)) {
-      this.setupNotificationInitTrigger(
-        details.tabId,
-        details.requestId,
-        this.modifyLoginCipherFormData.get(details.tabId),
-      ).catch((error) => this.logService.error(error));
+      const modifyLoginData = this.modifyLoginCipherFormData.get(details.tabId);
+      if (modifyLoginData) {
+        this.setupNotificationInitTrigger(details.tabId, details.requestId, modifyLoginData).catch(
+          (error) => this.logService.error(error),
+        );
+      }
 
       return;
     }
