@@ -71,6 +71,8 @@ jobs:
       version_web: ${{ steps.set-final-version-output.outputs.version_web }}
     permissions:
       id-token: write
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Validate version input format
@@ -93,6 +95,13 @@ jobs:
           keyvault: gh-org-bitwarden
           secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
 
+      - name: Retrieve GPG secrets
+        id: retrieve-gpg-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "github-gpg-private-key, github-gpg-private-key-passphrase"
+
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
@@ -102,7 +111,8 @@ jobs:
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
-          permission-contents: write # for committing and pushing to current branch
+          permission-contents: write      # for creating, committing to, and pushing new branches
+          permission-pull-requests: write # for generating pull requests
 
       - name: Check out branch
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -113,8 +123,20 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "Github Actions"
+          git config --local user.email "106330231+bitwarden-devops-bot@users.noreply.github.com"
+          git config --local user.name "bitwarden-devops-bot"
+
+      - name: Setup GPG signing
+        env:
+          GPG_PRIVATE_KEY: ${{ steps.retrieve-gpg-secrets.outputs.github-gpg-private-key }}
+          GPG_PASSPHRASE: ${{ steps.retrieve-gpg-secrets.outputs.github-gpg-private-key-passphrase }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --import --batch
+          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format=long | grep -o "rsa[0-9]\+/[A-F0-9]\+" | head -n1 | cut -d'/' -f2)
+          git config --local user.signingkey "$GPG_KEY_ID"
+          git config --local commit.gpgsign true
+          export GPG_TTY=$(tty)
+          echo "test" | gpg --clearsign --pinentry-mode=loopback --passphrase "$GPG_PASSPHRASE" > /dev/null 2>&1
 
       ########################
       # VERSION BUMP SECTION #
@@ -426,13 +448,53 @@ jobs:
             echo "No changes to commit!";
           fi
 
-      - name: Commit files
+      - name: Create version bump branch
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        run: git commit -m "Bumped client version(s)" -a
+        run: |
+          BRANCH_NAME="version-bump-$(date +%s)"
+          git checkout -b "$BRANCH_NAME"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
-      - name: Push changes
+      - name: Commit version bumps with GPG signature
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        run: git push
+        run: |
+          git commit -m "Bumped client version(s)" -a
+
+      - name: Push version bump branch
+        if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
+        run: |
+          git push --set-upstream origin "$BRANCH_NAME"
+
+      - name: Create Pull Request for version bump
+        if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          VERSION_BROWSER: ${{ steps.set-final-version-output.outputs.version_browser }}
+          VERSION_CLI: ${{ steps.set-final-version-output.outputs.version_cli }}
+          VERSION_DESKTOP: ${{ steps.set-final-version-output.outputs.version_desktop }}
+          VERSION_WEB: ${{ steps.set-final-version-output.outputs.version_web }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const versions = [];
+            if (process.env.VERSION_BROWSER) versions.push(`- Browser: ${process.env.VERSION_BROWSER}`);
+            if (process.env.VERSION_CLI) versions.push(`- CLI: ${process.env.VERSION_CLI}`);
+            if (process.env.VERSION_DESKTOP) versions.push(`- Desktop: ${process.env.VERSION_DESKTOP}`);
+            if (process.env.VERSION_WEB) versions.push(`- Web: ${process.env.VERSION_WEB}`);
+
+            const body = versions.length > 0
+              ? `Automated version bump:\n\n${versions.join('\n')}`
+              : 'Automated version bump';
+
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Bumped client version(s)',
+              body: body,
+              head: process.env.BRANCH_NAME,
+              base: context.ref.replace('refs/heads/', '')
+            });
+            console.log(`Created PR #${pr.number}: ${pr.html_url}`);
 
   cut_branch:
     name: Cut branch
