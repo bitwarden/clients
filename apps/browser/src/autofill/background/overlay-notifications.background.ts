@@ -397,7 +397,11 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.clearNotificationFallbackTimeout();
 
     const tab = await BrowserApi.getTab(tabId);
-    if (tab?.status !== "complete") {
+    if (!tab) {
+      return;
+    }
+
+    if (tab.status !== "complete") {
       await this.delayNotificationInitUntilTabIsComplete(tabId, requestId, modifyLoginData);
       return;
     }
