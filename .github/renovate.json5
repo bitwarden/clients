@@ -298,6 +298,7 @@
         "oidc-client-ts",
         "papaparse",
         "utf-8-validate",
+        "verifysign",
         "zxcvbn",
       ],
       description: "Tools owned dependencies",
