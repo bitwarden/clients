@@ -17,7 +17,10 @@ async function main() {
   const serveConfigurator = new OssServeConfigurator(serviceContainer);
   new ServeProgram(serviceContainer, serveConfigurator).register();
 
-  program.parse(process.argv);
+  await program.parseAsync(process.argv);
+
+  // Cleanup: disconnect from desktop app if connected
+  serviceContainer.biometricsService?.disconnect();
 }
 
 // Node does not support top-level await statements until ES2022, esnext, etc which we don't use yet

@@ -58,6 +58,7 @@ type ReceivedMessageOuter = {
 type Callback = {
   resolver: (value: unknown) => void;
   rejecter: (reason?: unknown) => void;
+  timeout: ReturnType<typeof setTimeout>;
 };
 
 type SecureChannel = {
@@ -136,8 +137,9 @@ export class NativeMessagingClient {
         this.connected = false;
         this.secureChannel = null;
 
-        // Reject all pending callbacks
+        // Clear timeouts and reject all pending callbacks
         for (const callback of this.callbacks.values()) {
+          clearTimeout(callback.timeout);
           callback.rejecter("disconnected");
         }
         this.callbacks.clear();
@@ -170,9 +172,21 @@ export class NativeMessagingClient {
     const messageId = this.messageId++;
 
     const callback = new Promise<ReceivedMessage>((resolver, rejecter) => {
+      // Set up timeout (stored so we can clear it when response arrives)
+      const timeout = setTimeout(() => {
+        if (this.callbacks.has(messageId)) {
+          this.logService.info("[Native Messaging] Message timed out and received no response");
+          this.callbacks.delete(messageId);
+          rejecter({ message: "timeout" });
+        }
+      }, MESSAGE_NO_RESPONSE_TIMEOUT);
+      // Don't keep the process alive just for this timeout
+      timeout.unref();
+
       this.callbacks.set(messageId, {
         resolver: resolver as (value: unknown) => void,
         rejecter,
+        timeout,
       });
     });
 
@@ -185,19 +199,13 @@ export class NativeMessagingClient {
         `[Native Messaging] Error sending message of type ${message.command}: ${e}`,
       );
       const cb = this.callbacks.get(messageId);
-      this.callbacks.delete(messageId);
-      cb?.rejecter("errorConnecting");
+      if (cb) {
+        clearTimeout(cb.timeout);
+        this.callbacks.delete(messageId);
+        cb.rejecter("errorConnecting");
+      }
       throw e;
     }
-
-    // Set up timeout
-    setTimeout(() => {
-      if (this.callbacks.has(messageId)) {
-        this.logService.info("[Native Messaging] Message timed out and received no response");
-        this.callbacks.get(messageId)!.rejecter({ message: "timeout" });
-        this.callbacks.delete(messageId);
-      }
-    }, MESSAGE_NO_RESPONSE_TIMEOUT);
 
     return callback;
   }
@@ -406,6 +414,7 @@ export class NativeMessagingClient {
 
     if (this.callbacks.has(messageId)) {
       const callback = this.callbacks.get(messageId)!;
+      clearTimeout(callback.timeout);
       this.callbacks.delete(messageId);
       callback.resolver(message);
     } else {
@@ -517,4 +526,3 @@ export class NativeMessagingClient {
     return response.response === true;
   }
 }
-

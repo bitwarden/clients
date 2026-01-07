@@ -77,7 +77,13 @@ export class IpcSocketService {
 
     // Path for non-sandboxed Desktop app
     // Uses cache: ~/Library/Caches/com.bitwarden.desktop/s.bw
-    const nonSandboxedPath = path.join(homeDir, "Library", "Caches", "com.bitwarden.desktop", "s.bw");
+    const nonSandboxedPath = path.join(
+      homeDir,
+      "Library",
+      "Caches",
+      "com.bitwarden.desktop",
+      "s.bw",
+    );
 
     // Check sandboxed path first (most common for Mac App Store users)
     try {
@@ -255,4 +261,3 @@ export class IpcSocketService {
     }
   }
 }
-
