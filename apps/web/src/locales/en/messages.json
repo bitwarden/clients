@@ -2536,9 +2536,6 @@
   "enabled": {
     "message": "Turned on"
   },
-  "optionDisabled": {
-    "message": "Disabled"
-  },
   "optionEnabled": {
     "message": "Enabled"
   },

@@ -25,7 +25,7 @@ export class MemberExport {
 
       [i18nService.t("twoStepLogin")]: user.twoFactorEnabled
         ? i18nService.t("optionEnabled")
-        : i18nService.t("optionDisabled"),
+        : i18nService.t("disabled"),
 
       [i18nService.t("accountRecovery")]: user.resetPasswordEnrolled
         ? i18nService.t("enrolled")
@@ -33,7 +33,7 @@ export class MemberExport {
 
       [i18nService.t("secretsManager")]: user.accessSecretsManager
         ? i18nService.t("optionEnabled")
-        : i18nService.t("optionDisabled"),
+        : i18nService.t("disabled"),
 
       [i18nService.t("groups")]: user.groupNames?.join(", ") ?? "",
     };
