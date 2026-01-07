@@ -140,7 +140,8 @@ export class UnlockCommand {
     }
 
     const biometricName = this.getBiometricName();
-    CliUtils.writeLn(`\n👆 ${biometricName} prompt on Desktop app...\n`);
+    // Write to stderr so it doesn't interfere with --raw output
+    CliUtils.writeLn(`\n👆 ${biometricName} prompt on Desktop app...\n`, false, true);
 
     try {
       const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId as any);
