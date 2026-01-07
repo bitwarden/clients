@@ -551,7 +551,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Preencher automaticamente ao carregar a página?"
+    "message": "Preencher ao carregar a página?"
   },
   "number": {
     "message": "Número"
@@ -1050,7 +1050,7 @@
     "description": "Header for view SSH key item type"
   },
   "new": {
-    "message": "Novo",
+    "message": "Criar",
     "description": "for adding new items"
   },
   "item": {
@@ -3145,6 +3145,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Para recuperar o seu acesso ao seu arquivo, retoma sua assinatura Premium. Se editar detalhes de um item arquivado antes de retomar, ele será movido de volta para o seu cofre."
+  },
+  "itemRestored": {
+    "message": "O item foi restaurado"
   },
   "restartPremium": {
     "message": "Retomar Premium"
@@ -9780,7 +9783,7 @@
     "message": "Instalar extensão de navegador"
   },
   "installBrowserExtensionDetails": {
-    "message": "Use a extensão para salvar credenciais e preencher automaticamente formulários de forma rápida, sem abrir o aplicativo web."
+    "message": "Use a extensão para salvar credenciais e preencher formulários de forma rápida, sem abrir o aplicativo web."
   },
   "projectAccessUpdated": {
     "message": "Acesso ao projeto atualizado"
@@ -11078,7 +11081,7 @@
     "message": "Use campos ocultos para dados sensíveis como senhas"
   },
   "checkBoxHelpText": {
-    "message": "Use caixas de seleção se gostaria de preencher automaticamente a caixa de seleção de um formulário, como um lembrar e-mail"
+    "message": "Use caixas de seleção se gostaria de preencher a caixa de seleção de um formulário, como um lembrar e-mail"
   },
   "linkedHelpText": {
     "message": "Use um campo vinculado quando estiver enfrentando problemas com o preenchimento automático em um site específico."
@@ -11609,6 +11612,9 @@
   "unArchive": {
     "message": "Desarquivar"
   },
+  "archived": {
+    "message": "Arquivados"
+  },
   "unArchiveAndSave": {
     "message": "Desarquivar e salvar"
   },
@@ -11746,7 +11752,7 @@
     "message": "Adicionar mais tarde"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "Você não pode preencher senhas automaticamente sem a extensão de navegador"
+    "message": "Você não pode preencher senhas sem a extensão de navegador"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
     "message": "Você tem certeza de que não quer adicionar a extensão agora?"
