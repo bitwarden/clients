@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "New",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Đường dẫn mới"
   },
@@ -1775,11 +1779,21 @@
   "exportFrom": {
     "message": "Xuất từ"
   },
-  "export": {
-    "message": "Export"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Import"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Định dạng tập tin"
@@ -2399,6 +2413,10 @@
   },
   "deleteSendConfirmation": {
     "message": "Bạn có chắc chắn muốn xóa Send này?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copySendLink": {
+    "message": "Copy Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -4021,9 +4039,15 @@
     "message": "Gửi thông tin nhạy cảm một cách an toàn",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
   "sendsBodyNoItems": {
     "message": "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai, trên bất kỳ nền tảng nào. Thông tin của bạn sẽ được mã hóa đầu cuối để hạn chế rủi ro bị lộ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
   },
   "generatorNudgeTitle": {
     "message": "Tạo mật khẩu nhanh chóng"
@@ -4282,6 +4306,9 @@
   "unArchive": {
     "message": "Hủy lưu trữ"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "itemsInArchive": {
     "message": "Các mục trong kho lưu trữ"
   },
@@ -4302,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
     "message": "Mã ZIP / Bưu điện"
@@ -4377,6 +4419,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "Thời gian hết phiên"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Cài đặt này do tổ chức của bạn quản lý."

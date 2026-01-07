@@ -1,5 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
+import { filter } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -7,6 +8,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { UserId } from "../../../types/guid";
@@ -19,6 +21,7 @@ describe("PhishingDetectionSettingsService", () => {
   let mockBillingService: MockProxy<BillingAccountProfileStateService>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockOrganizationService: MockProxy<OrganizationService>;
+  let mockPlatformService: MockProxy<PlatformUtilsService>;
 
   // RxJS Subjects we control in the tests
   let activeAccountSubject: BehaviorSubject<Account | null>;
@@ -76,12 +79,15 @@ describe("PhishingDetectionSettingsService", () => {
     mockOrganizationService = mock<OrganizationService>();
     mockOrganizationService.organizations$.mockReturnValue(organizationsSubject.asObservable());
 
+    mockPlatformService = mock<PlatformUtilsService>();
+
     stateProvider = new FakeStateProvider(accountService);
     service = new PhishingDetectionSettingsService(
       mockAccountService,
       mockBillingService,
       mockConfigService,
       mockOrganizationService,
+      mockPlatformService,
       stateProvider,
     );
   });
@@ -92,19 +98,32 @@ describe("PhishingDetectionSettingsService", () => {
   describe("enabled$", () => {
     it("should default to true if an account is logged in", async () => {
       activeAccountSubject.next(account);
+      featureFlagSubject.next(true);
+      premiumStatusSubject.next(true);
+      organizationsSubject.next([]);
       const result = await firstValueFrom(service.enabled$);
       expect(result).toBe(true);
     });
 
     it("should return the stored value", async () => {
       activeAccountSubject.next(account);
+      featureFlagSubject.next(true);
+      premiumStatusSubject.next(true);
+      organizationsSubject.next([]);
+
+      // Wait for initial emission (startWith(true))
+      await firstValueFrom(service.enabled$);
 
       await service.setEnabled(mockUserId, false);
-      const resultDisabled = await firstValueFrom(service.enabled$);
+      // Wait for the next emission after state update
+      const resultDisabled = await firstValueFrom(
+        service.enabled$.pipe(filter((v) => v === false)),
+      );
       expect(resultDisabled).toBe(false);
 
       await service.setEnabled(mockUserId, true);
-      const resultEnabled = await firstValueFrom(service.enabled$);
+      // Wait for the next emission after state update
+      const resultEnabled = await firstValueFrom(service.enabled$.pipe(filter((v) => v === true)));
       expect(resultEnabled).toBe(true);
     });
   });
@@ -112,12 +131,21 @@ describe("PhishingDetectionSettingsService", () => {
   describe("setEnabled", () => {
     it("should update the stored value", async () => {
       activeAccountSubject.next(account);
+      featureFlagSubject.next(true);
+      premiumStatusSubject.next(true);
+      organizationsSubject.next([]);
+
+      // Wait for initial emission (startWith(true))
+      await firstValueFrom(service.enabled$);
+
       await service.setEnabled(mockUserId, false);
-      let result = await firstValueFrom(service.enabled$);
+      // Wait for the next emission after state update
+      let result = await firstValueFrom(service.enabled$.pipe(filter((v) => v === false)));
       expect(result).toBe(false);
 
       await service.setEnabled(mockUserId, true);
-      result = await firstValueFrom(service.enabled$);
+      // Wait for the next emission after state update
+      result = await firstValueFrom(service.enabled$.pipe(filter((v) => v === true)));
       expect(result).toBe(true);
     });
   });

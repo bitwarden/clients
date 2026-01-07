@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Nové",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Nové URI"
   },
@@ -709,7 +713,7 @@
     "message": "Priložiť prílohu"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Položky boli prenesené"
   },
   "fixEncryption": {
     "message": "Opraviť šifrovanie"
@@ -1414,7 +1418,7 @@
     "message": "Zobraziť Bitwarden v Docku aj keď je minimalizovaný na panel úloh."
   },
   "confirmTrayTitle": {
-    "message": "Potvrdiť vypnutie systémovej lišty"
+    "message": "Potvrdiť skrývanie systémovej lišty"
   },
   "confirmTrayDesc": {
     "message": "Vypnutím tohto nastavenia vypnete aj ostatné nastavenia súvisiace so systémovou lištou."
@@ -1775,11 +1779,21 @@
   "exportFrom": {
     "message": "Exportovať z"
   },
-  "export": {
-    "message": "Exportovať"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Importovať"
+  "exportVerb": {
+    "message": "Exportovať",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importovať",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formát súboru"
@@ -2401,6 +2415,10 @@
     "message": "Naozaj chcete odstrániť tento Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Kopírovať odkaz na Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Kopírovať odkaz na Send do schránky",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -2839,10 +2857,10 @@
     "message": "Použiť možnosti subadresovania svojho poskytovateľa e-mailu."
   },
   "catchallEmail": {
-    "message": "E-mail Catch-all"
+    "message": "Doménový kôš"
   },
   "catchallEmailDesc": {
-    "message": "Použiť doručenú poštu typu catch-all nastavenú na doméne."
+    "message": "Použiť nastavený doménový kôš."
   },
   "useThisEmail": {
     "message": "Použiť tento e-mail"
@@ -4021,9 +4039,15 @@
     "message": "Send, citlivé informácie bezpečne",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Nenašli sa žiadne výsledky vyhľadávania"
+  },
   "sendsBodyNoItems": {
     "message": "Bezpečne zdieľajte súbory a údaje s kýmkoľvek a na akejkoľvek platforme. Vaše informácie zostanú end-to-end zašifrované a zároveň sa obmedzí ich odhalenie.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Vymažte filtre alebo zmeňte vyhľadávaný výraz"
   },
   "generatorNudgeTitle": {
     "message": "Rýchle vytváranie hesiel"
@@ -4282,6 +4306,9 @@
   "unArchive": {
     "message": "Zrušiť archiváciu"
   },
+  "archived": {
+    "message": "Archivované"
+  },
   "itemsInArchive": {
     "message": "Položky v archíve"
   },
@@ -4302,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
+  },
+  "unArchiveAndSave": {
+    "message": "Zrušiť archiváciu a uložiť"
+  },
+  "restartPremium": {
+    "message": "Reštartovať Prémium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Vaše predplatné Prémium skončilo"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Ak chcete obnoviť prístup k svojmu archívu, reštartujte predplatné Prémium. Ak pred reštartom upravíte podrobnosti archivovanej položky, bude presunutá späť do trezoru."
+  },
+  "itemRestored": {
+    "message": "Položka bola obnovená"
   },
   "zipPostalCodeLabel": {
     "message": "PSČ"
@@ -4377,6 +4419,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "Časový limit relácie"
+  },
+  "resizeSideNavigation": {
+    "message": "Zmeniť veľkosť bočnej navigácie"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Toto nastavenie spravuje vaša organizácia."

@@ -1,5 +1,5 @@
 import { combineLatest, Observable, of, switchMap } from "rxjs";
-import { catchError, distinctUntilChanged, map, shareReplay } from "rxjs/operators";
+import { catchError, distinctUntilChanged, map, shareReplay, startWith } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -8,6 +8,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/user-core";
 
 import { PHISHING_DETECTION_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
@@ -17,7 +18,9 @@ const ENABLE_PHISHING_DETECTION = new UserKeyDefinition(
   PHISHING_DETECTION_DISK,
   "enablePhishingDetection",
   {
-    deserializer: (value: boolean) => value ?? true, // Default: enabled
+    deserializer: (value: boolean) => {
+      return value ?? true;
+    }, // Default: enabled
     clearOn: [],
   },
 );
@@ -32,6 +35,7 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
     private billingService: BillingAccountProfileStateService,
     private configService: ConfigService,
     private organizationService: OrganizationService,
+    private platformService: PlatformUtilsService,
     private stateProvider: StateProvider,
   ) {
     this.available$ = this.buildAvailablePipeline$().pipe(
@@ -60,6 +64,11 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
    * @returns An observable pipeline that determines if phishing detection is available
    */
   private buildAvailablePipeline$(): Observable<boolean> {
+    // Phishing detection is unavailable on Safari due to platform limitations.
+    if (this.platformService.isSafari()) {
+      return of(false);
+    }
+
     return combineLatest([
       this.accountService.activeAccount$,
       this.configService.getFeatureFlag$(FeatureFlag.PhishingDetection),
@@ -90,9 +99,11 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
         if (!account) {
           return of(false);
         }
-        return this.stateProvider.getUserState$(ENABLE_PHISHING_DETECTION, account.id);
+        return this.stateProvider.getUserState$(ENABLE_PHISHING_DETECTION, account.id).pipe(
+          startWith(true), // Default: enabled (matches deserializer default)
+          map((enabled) => enabled ?? true),
+        );
       }),
-      map((enabled) => enabled ?? true),
     );
   }
 
