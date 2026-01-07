@@ -122,13 +122,7 @@ export class CliBiometricsService extends BiometricsService {
       }
 
       const client = await this.ensureClient();
-      const status = await client.getBiometricsStatus();
-
-      if (typeof status === "number") {
-        return status as BiometricsStatus;
-      }
-
-      return BiometricsStatus.Available;
+      return await client.getBiometricsStatus();
     } catch (e) {
       this.logService.debug("[CLI Biometrics] Failed to get biometrics status:", e);
       return BiometricsStatus.DesktopDisconnected;
@@ -187,13 +181,7 @@ export class CliBiometricsService extends BiometricsService {
       }
 
       const client = await this.ensureClient();
-      const status = await client.getBiometricsStatusForUser(userId);
-
-      if (typeof status === "number") {
-        return status as BiometricsStatus;
-      }
-
-      return BiometricsStatus.Available;
+      return await client.getBiometricsStatusForUser(userId);
     } catch (e) {
       this.logService.debug("[CLI Biometrics] Failed to get biometrics status for user:", e);
       return BiometricsStatus.DesktopDisconnected;
@@ -218,12 +206,16 @@ export class CliBiometricsService extends BiometricsService {
    * Check if biometric unlock can be enabled.
    */
   async canEnableBiometricUnlock(): Promise<boolean> {
-    const status = await this.getBiometricsStatus();
-    return (
-      status !== BiometricsStatus.DesktopDisconnected &&
-      status !== BiometricsStatus.HardwareUnavailable &&
-      status !== BiometricsStatus.PlatformUnsupported
-    );
+    try {
+      const client = await this.ensureClient();
+      return await client.canEnableBiometricUnlock();
+    } catch (e) {
+      this.logService.debug(
+        "[CLI Biometrics] Failed to check if biometric unlock can be enabled:",
+        e,
+      );
+      return false;
+    }
   }
 
   /**

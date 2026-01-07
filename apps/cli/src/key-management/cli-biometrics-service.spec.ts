@@ -52,6 +52,7 @@ describe("CliBiometricsService", () => {
       getBiometricsStatusForUser: jest.fn(),
       unlockWithBiometricsForUser: jest.fn(),
       authenticateWithBiometrics: jest.fn(),
+      canEnableBiometricUnlock: jest.fn(),
     } as unknown as jest.Mocked<NativeMessagingClient>;
 
     (NativeMessagingClient as jest.Mock).mockImplementation(() => mockNativeMessagingClient);
@@ -144,22 +145,36 @@ describe("CliBiometricsService", () => {
   });
 
   describe("canEnableBiometricUnlock", () => {
-    it("should return false when desktop is disconnected", async () => {
-      mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(false);
+    it("should return false when command fails", async () => {
+      mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(true);
+      mockNativeMessagingClient.connect.mockResolvedValue();
+      mockNativeMessagingClient.canEnableBiometricUnlock.mockRejectedValue(
+        new Error("Connection failed"),
+      );
 
       const result = await service.canEnableBiometricUnlock();
 
       expect(result).toBe(false);
     });
 
-    it("should return true when biometrics is available", async () => {
+    it("should return true when desktop app says biometrics can be enabled", async () => {
       mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(true);
       mockNativeMessagingClient.connect.mockResolvedValue();
-      mockNativeMessagingClient.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+      mockNativeMessagingClient.canEnableBiometricUnlock.mockResolvedValue(true);
 
       const result = await service.canEnableBiometricUnlock();
 
       expect(result).toBe(true);
+    });
+
+    it("should return false when desktop app says biometrics cannot be enabled", async () => {
+      mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(true);
+      mockNativeMessagingClient.connect.mockResolvedValue();
+      mockNativeMessagingClient.canEnableBiometricUnlock.mockResolvedValue(false);
+
+      const result = await service.canEnableBiometricUnlock();
+
+      expect(result).toBe(false);
     });
   });
 

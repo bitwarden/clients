@@ -9,7 +9,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BiometricsCommands, KeyService } from "@bitwarden/key-management";
+import { BiometricsCommands, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 
 import { IpcSocketService } from "./ipc-socket.service";
 
@@ -481,22 +481,22 @@ export class NativeMessagingClient {
   /**
    * Get biometrics status from the desktop app.
    */
-  async getBiometricsStatus(): Promise<unknown> {
+  async getBiometricsStatus(): Promise<BiometricsStatus> {
     const response = await this.callCommand({
       command: BiometricsCommands.GetBiometricsStatus,
     });
-    return response.response;
+    return response.response as BiometricsStatus;
   }
 
   /**
    * Get biometrics status for a specific user.
    */
-  async getBiometricsStatusForUser(userId: UserId): Promise<unknown> {
+  async getBiometricsStatusForUser(userId: UserId): Promise<BiometricsStatus> {
     const response = await this.callCommand({
       command: BiometricsCommands.GetBiometricsStatusForUser,
       userId: userId,
     });
-    return response.response;
+    return response.response as BiometricsStatus;
   }
 
   /**
@@ -522,6 +522,16 @@ export class NativeMessagingClient {
   async authenticateWithBiometrics(): Promise<boolean> {
     const response = await this.callCommand({
       command: BiometricsCommands.AuthenticateWithBiometrics,
+    });
+    return response.response === true;
+  }
+
+  /**
+   * Check if biometric unlock can be enabled.
+   */
+  async canEnableBiometricUnlock(): Promise<boolean> {
+    const response = await this.callCommand({
+      command: BiometricsCommands.CanEnableBiometricUnlock,
     });
     return response.response === true;
   }
