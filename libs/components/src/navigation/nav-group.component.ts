@@ -34,7 +34,7 @@ export class NavGroupComponent extends NavBaseComponent {
   private readonly parentNavGroup = inject(NavGroupComponent, { optional: true, skipSelf: true });
 
   // Query direct children for hideIfEmpty functionality
-  readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: true });
+  readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: false });
 
   protected readonly sideNavOpen = this.sideNavService.open;
 
@@ -91,13 +91,6 @@ export class NavGroupComponent extends NavBaseComponent {
    */
   readonly hideIfEmpty = input(false, { transform: booleanAttribute });
 
-  setOpen(isOpen: boolean) {
-    this.open.set(isOpen);
-    if (this.open() && this.parentNavGroup) {
-      this.parentNavGroup.setOpen(this.open());
-    }
-  }
-
   /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
   readonly forceActiveStyles = input(false, { transform: booleanAttribute });
 
@@ -111,6 +104,13 @@ export class NavGroupComponent extends NavBaseComponent {
     // Both NavGroups and NavItems use constructor-based depth initialization
     if (this.parentNavGroup) {
       this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);
+    }
+  }
+
+  setOpen(isOpen: boolean) {
+    this.open.set(isOpen);
+    if (this.open() && this.parentNavGroup) {
+      this.parentNavGroup?.setOpen(this.open());
     }
   }
 
