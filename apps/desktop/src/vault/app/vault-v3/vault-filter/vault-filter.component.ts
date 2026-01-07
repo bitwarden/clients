@@ -21,9 +21,9 @@ import {
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
   AddEditFolderDialogComponent,
+  RoutedVaultFilterBridgeService,
 } from "@bitwarden/vault";
 
-import { DesktopRoutedVaultFilterBridgeService } from "../../../../app/services/desktop-routed-vault-filter-bridge.service";
 import { DesktopPremiumUpgradePromptService } from "../../../../services/desktop-premium-upgrade-prompt.service";
 
 import { CollectionFilterComponent } from "./filters/collection-filter.component";
@@ -56,7 +56,7 @@ import { TypeFilterComponent } from "./filters/type-filter.component";
   ],
 })
 export class VaultFilterComponent implements OnInit {
-  private routedVaultFilterBridgeService = inject(DesktopRoutedVaultFilterBridgeService);
+  private routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
   private vaultFilterService: VaultFilterService = inject(VaultFilterService);
   private accountService: AccountService = inject(AccountService);
   private cipherArchiveService: CipherArchiveService = inject(CipherArchiveService);

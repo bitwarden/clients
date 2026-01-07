@@ -1,13 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectorRef,
-  Component,
-  NgZone,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  ViewContainerRef,
-} from "@angular/core";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   firstValueFrom,
@@ -83,10 +75,10 @@ import {
   ArchiveCipherUtilitiesService,
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
+  RoutedVaultFilterBridgeService,
 } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
-import { DesktopRoutedVaultFilterBridgeService } from "../../../app/services/desktop-routed-vault-filter-bridge.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
@@ -142,10 +134,6 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(VaultItemsV2Component, { static: true })
   vaultItemsComponent: VaultItemsV2Component<CipherView> | null = null;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
-  folderAddEditModalRef: ViewContainerRef | null = null;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CipherFormComponent)
@@ -221,7 +209,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     private cipherArchiveService: CipherArchiveService,
     private policyService: PolicyService,
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
-    private routedVaultFilterBridgeService: DesktopRoutedVaultFilterBridgeService,
+    private routedVaultFilterBridgeService: RoutedVaultFilterBridgeService,
     private vaultFilterService: VaultFilterService,
   ) {}
 
