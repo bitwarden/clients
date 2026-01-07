@@ -91,10 +91,11 @@ export class SendAuthComponent implements OnInit {
     try {
       const accessRequest = new SendAccessRequest();
       if (this.sendAuthType() === AuthType.Password) {
-        accessRequest.password = await this.getPasswordHashB64(
-          this.sendAccessForm.value.password,
-          this.key(),
-        );
+        const password = this.sendAccessForm.value.password;
+        if (password == null) {
+          return;
+        }
+        accessRequest.password = await this.getPasswordHashB64(password, this.key());
       }
       const sendResponse = await this.sendApiService.postSendAccess(this.id(), accessRequest);
       this.accessGranted.emit({ request: accessRequest, response: sendResponse });
@@ -121,20 +122,25 @@ export class SendAuthComponent implements OnInit {
   private async attemptV2Access(): Promise<void> {
     let sendAccessCreds: SendAccessDomainCredentials | null = null;
     if (this.sendAuthType() === AuthType.Email) {
+      const email = this.sendAccessForm.value.email;
+      if (email == null) {
+        return;
+      }
       if (!this.enterOtp()) {
-        sendAccessCreds = { kind: "email", email: this.sendAccessForm.value.email };
+        sendAccessCreds = { kind: "email", email };
       } else {
-        sendAccessCreds = {
-          kind: "email_otp",
-          email: this.sendAccessForm.value.email,
-          otp: this.sendAccessForm.value.otp as SendOtp,
-        };
+        const otp = this.sendAccessForm.value.otp as SendOtp;
+        if (otp == null) {
+          return;
+        }
+        sendAccessCreds = { kind: "email_otp", email, otp };
       }
     } else if (this.sendAuthType() === AuthType.Password) {
-      const passwordHashB64 = await this.getPasswordHashB64(
-        this.sendAccessForm.value.password,
-        this.key(),
-      );
+      const password = this.sendAccessForm.value.password;
+      if (password == null) {
+        return;
+      }
+      const passwordHashB64 = await this.getPasswordHashB64(password, this.key());
       sendAccessCreds = { kind: "password", passwordHashB64 };
     }
     const response = !sendAccessCreds
@@ -170,7 +176,7 @@ export class SendAuthComponent implements OnInit {
         this.toastService.showToast({
           variant: "error",
           title: this.i18nService.t("errorOccurred"),
-          message: response.error.error_description,
+          message: response.error.error_description ?? "",
         });
       }
     } else {
