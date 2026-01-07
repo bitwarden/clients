@@ -12494,6 +12494,7 @@
   },
   "invalidSendPassword": {
     "message": "Invalid Send password"
+  },
   "updatePayment": {
     "message": "Update payment"
   },
