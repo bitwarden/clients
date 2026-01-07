@@ -1,3 +1,5 @@
+import * as crypto from "crypto";
+import * as fs from "fs";
 import * as net from "net";
 import * as os from "os";
 import * as path from "path";
@@ -31,7 +33,6 @@ export class IpcSocketService {
     if (platform === "win32") {
       // Windows uses named pipes with a hash of the home directory
       // Format: \\.\pipe\<hash>.s.bw
-      const crypto = require("crypto");
       const homeDir = os.homedir();
       const hash = crypto.createHash("sha256").update(homeDir).digest();
       // Use URL-safe base64 without padding (like Rust's URL_SAFE_NO_PAD)
@@ -62,7 +63,6 @@ export class IpcSocketService {
    * We check both paths and return the one that exists.
    */
   private getMacSocketPath(): string {
-    const fs = require("fs");
     const homeDir = os.homedir();
 
     // Path for sandboxed Desktop app (Mac App Store version)

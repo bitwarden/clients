@@ -6,8 +6,8 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { UserId } from "@bitwarden/user-core";
 import { BiometricsStatus } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { Response } from "../models/response";

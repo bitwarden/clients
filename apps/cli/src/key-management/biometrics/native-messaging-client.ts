@@ -462,18 +462,20 @@ export class NativeMessagingClient {
       this.secureChannel.publicKey,
     );
 
-    console.log("\n┌────────────────────────────────────────────────────────────┐");
-    console.log("│            Bitwarden Desktop App Verification              │");
-    console.log("├────────────────────────────────────────────────────────────┤");
-    console.log("│                                                            │");
-    console.log("│  Verify this fingerprint matches the one shown in the     │");
-    console.log("│  Bitwarden Desktop app to confirm the secure connection.  │");
-    console.log("│                                                            │");
-    console.log("│  Fingerprint:                                              │");
-    console.log(`│    ${fingerprint.join("-")}`.padEnd(61) + "│");
-    console.log("│                                                            │");
-    console.log("│  Accept the connection in the Desktop app to continue.    │");
-    console.log("└────────────────────────────────────────────────────────────┘\n");
+    // Write to stderr so it doesn't interfere with command output
+    const write = (line: string) => process.stderr.write(line + "\n");
+    write("\n┌────────────────────────────────────────────────────────────┐");
+    write("│            Bitwarden Desktop App Verification              │");
+    write("├────────────────────────────────────────────────────────────┤");
+    write("│                                                            │");
+    write("│  Verify this fingerprint matches the one shown in the     │");
+    write("│  Bitwarden Desktop app to confirm the secure connection.  │");
+    write("│                                                            │");
+    write("│  Fingerprint:                                              │");
+    write(`│    ${fingerprint.join("-")}`.padEnd(61) + "│");
+    write("│                                                            │");
+    write("│  Accept the connection in the Desktop app to continue.    │");
+    write("└────────────────────────────────────────────────────────────┘\n");
   }
 
   /**
