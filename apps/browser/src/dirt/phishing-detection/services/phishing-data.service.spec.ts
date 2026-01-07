@@ -113,7 +113,7 @@ describe("PhishingDataService", () => {
       expect(result!.applicationVersion).toBe("2.0.0");
     });
 
-    it("returns null if checksum matches (no update needed)", async () => {
+    it("only updates timestamp if checksum matches", async () => {
       const prev: PhishingData = {
         webAddresses: ["a.com"],
         timestamp: Date.now() - 60000,
@@ -122,8 +122,9 @@ describe("PhishingDataService", () => {
       };
       fetchChecksumSpy.mockResolvedValue("abc");
       const result = await service.getNextWebAddresses(prev);
-      // When checksum matches, return null to signal "skip state update"
-      expect(result).toBeNull();
+      expect(result!.webAddresses).toEqual(prev.webAddresses);
+      expect(result!.checksum).toBe("abc");
+      expect(result!.timestamp).not.toBe(prev.timestamp);
     });
 
     it("patches daily domains if cache is fresh", async () => {
