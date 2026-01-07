@@ -20,14 +20,16 @@ import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/plat
 import { LogService } from "@bitwarden/logging";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 
+import { getPhishingResources, PhishingResourceType } from "../phishing-resources";
+
 export type PhishingData = {
-  domains: string[];
+  webAddresses: string[];
   timestamp: number;
   checksum: string;
 
   /**
    * We store the application version to refetch the entire dataset on a new client release.
-   * This counteracts daily appends updates not removing inactive or false positive domains.
+   * This counteracts daily appends updates not removing inactive or false positive web addresses.
    */
   applicationVersion: string;
 };
@@ -37,34 +39,27 @@ export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
   "phishingDomains",
   {
     deserializer: (value: PhishingData) =>
-      value ?? { domains: [], timestamp: 0, checksum: "", applicationVersion: "" },
+      value ?? { webAddresses: [], timestamp: 0, checksum: "", applicationVersion: "" },
   },
 );
 
-/** Coordinates fetching, caching, and patching of known phishing domains */
+/** Coordinates fetching, caching, and patching of known phishing web addresses */
 export class PhishingDataService {
-  private static readonly RemotePhishingDatabaseUrl =
-    "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-domains-ACTIVE.txt";
-  private static readonly RemotePhishingDatabaseChecksumUrl =
-    "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5";
-  private static readonly RemotePhishingDatabaseTodayUrl =
-    "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-domains-NEW-today.txt";
-
-  private _testDomains = this.getTestDomains();
+  private _testWebAddresses = this.getTestWebAddresses();
   private _cachedState = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
-  private _domains$ = this._cachedState.state$.pipe(
+  private _webAddresses$ = this._cachedState.state$.pipe(
     map(
       (state) =>
         new Set(
-          (state?.domains?.filter((line) => line.trim().length > 0) ?? []).concat(
-            this._testDomains,
+          (state?.webAddresses?.filter((line) => line.trim().length > 0) ?? []).concat(
+            this._testWebAddresses,
             "phishing.testcategory.com", // Included for QA to test in prod
           ),
         ),
     ),
   );
 
-  // How often are new domains added to the remote?
+  // How often are new web addresses added to the remote?
   readonly UPDATE_INTERVAL_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
   private _triggerUpdate$ = new Subject<void>();
@@ -75,7 +70,7 @@ export class PhishingDataService {
       this._cachedState.state$.pipe(
         first(), // Only take the first value to avoid an infinite loop when updating the cache below
         switchMap(async (cachedState) => {
-          const next = await this.getNextDomains(cachedState);
+          const next = await this.getNextWebAddresses(cachedState);
           if (next) {
             await this._cachedState.update(() => next);
             this.logService.info(`[PhishingDataService] cache updated`);
@@ -85,7 +80,7 @@ export class PhishingDataService {
           count: 3,
           delay: (err, count) => {
             this.logService.error(
-              `[PhishingDataService] Unable to update domains. Attempt ${count}.`,
+              `[PhishingDataService] Unable to update web addresses. Attempt ${count}.`,
               err,
             );
             return timer(5 * 60 * 1000); // 5 minutes
@@ -97,7 +92,7 @@ export class PhishingDataService {
             err: unknown /** Eslint actually crashed if you remove this type: https://github.com/cartant/eslint-plugin-rxjs/issues/122 */,
           ) => {
             this.logService.error(
-              "[PhishingDataService] Retries unsuccessful. Unable to update domains.",
+              "[PhishingDataService] Retries unsuccessful. Unable to update web addresses.",
               err,
             );
             return EMPTY;
@@ -114,6 +109,7 @@ export class PhishingDataService {
     private globalStateProvider: GlobalStateProvider,
     private logService: LogService,
     private platformUtilsService: PlatformUtilsService,
+    private resourceType: PhishingResourceType = PhishingResourceType.Links,
   ) {
     this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.phishingDomainUpdate, () => {
       this._triggerUpdate$.next();
@@ -125,22 +121,31 @@ export class PhishingDataService {
   }
 
   /**
-   * Checks if the given URL is a known phishing domain
+   * Checks if the given URL is a known phishing web address
    *
    * @param url The URL to check
-   * @returns True if the URL is a known phishing domain, false otherwise
+   * @returns True if the URL is a known phishing web address, false otherwise
    */
-  async isPhishingDomain(url: URL): Promise<boolean> {
-    const domains = await firstValueFrom(this._domains$);
-    const result = domains.has(url.hostname);
-    if (result) {
-      return true;
+  async isPhishingWebAddress(url: URL): Promise<boolean> {
+    // Use domain (hostname) matching for domain resources, and link matching for links resources
+    const entries = await firstValueFrom(this._webAddresses$);
+
+    const resource = getPhishingResources(this.resourceType);
+    if (resource && resource.match) {
+      for (const entry of entries) {
+        if (resource.match(url, entry)) {
+          return true;
+        }
+      }
+      return false;
     }
-    return false;
+
+    // Default/domain behavior: exact hostname match as a fallback
+    return entries.has(url.hostname);
   }
 
-  async getNextDomains(prev: PhishingData | null): Promise<PhishingData | null> {
-    prev = prev ?? { domains: [], timestamp: 0, checksum: "", applicationVersion: "" };
+  async getNextWebAddresses(prev: PhishingData | null): Promise<PhishingData | null> {
+    prev = prev ?? { webAddresses: [], timestamp: 0, checksum: "", applicationVersion: "" };
     const timestamp = Date.now();
     const prevAge = timestamp - prev.timestamp;
     this.logService.info(`[PhishingDataService] Cache age: ${prevAge}`);
@@ -148,7 +153,7 @@ export class PhishingDataService {
     const applicationVersion = await this.platformUtilsService.getApplicationVersion();
 
     // If checksum matches, return existing data with new timestamp & version
-    const remoteChecksum = await this.fetchPhishingDomainsChecksum();
+    const remoteChecksum = await this.fetchPhishingChecksum(this.resourceType);
     if (remoteChecksum && prev.checksum === remoteChecksum) {
       this.logService.info(
         `[PhishingDataService] Remote checksum matches local checksum, updating timestamp only.`,
@@ -157,66 +162,66 @@ export class PhishingDataService {
     }
     // Checksum is different, data needs to be updated.
 
-    // Approach 1: Fetch only new domains and append
+    // Approach 1: Fetch only new web addresses and append
     const isOneDayOldMax = prevAge <= this.UPDATE_INTERVAL_DURATION;
     if (isOneDayOldMax && applicationVersion === prev.applicationVersion) {
-      const dailyDomains: string[] = await this.fetchPhishingDomains(
-        PhishingDataService.RemotePhishingDatabaseTodayUrl,
-      );
+      const webAddressesTodayUrl = getPhishingResources(this.resourceType)!.todayUrl;
+      const dailyWebAddresses: string[] =
+        await this.fetchPhishingWebAddresses(webAddressesTodayUrl);
       this.logService.info(
-        `[PhishingDataService] ${dailyDomains.length} new phishing domains added`,
+        `[PhishingDataService] ${dailyWebAddresses.length} new phishing web addresses added`,
       );
       return {
-        domains: prev.domains.concat(dailyDomains),
+        webAddresses: prev.webAddresses.concat(dailyWebAddresses),
         checksum: remoteChecksum,
         timestamp,
         applicationVersion,
       };
     }
 
-    // Approach 2: Fetch all domains
-    const domains = await this.fetchPhishingDomains(PhishingDataService.RemotePhishingDatabaseUrl);
+    // Approach 2: Fetch all web addresses
+    const remoteUrl = getPhishingResources(this.resourceType)!.remoteUrl;
+    const remoteWebAddresses = await this.fetchPhishingWebAddresses(remoteUrl);
     return {
-      domains,
+      webAddresses: remoteWebAddresses,
       timestamp,
       checksum: remoteChecksum,
       applicationVersion,
     };
   }
 
-  private async fetchPhishingDomainsChecksum() {
-    const response = await this.apiService.nativeFetch(
-      new Request(PhishingDataService.RemotePhishingDatabaseChecksumUrl),
-    );
+  private async fetchPhishingChecksum(type: PhishingResourceType = PhishingResourceType.Domains) {
+    const checksumUrl = getPhishingResources(type)!.checksumUrl;
+    const response = await this.apiService.nativeFetch(new Request(checksumUrl));
     if (!response.ok) {
       throw new Error(`[PhishingDataService] Failed to fetch checksum: ${response.status}`);
     }
     return response.text();
   }
 
-  private async fetchPhishingDomains(url: string) {
+  private async fetchPhishingWebAddresses(url: string) {
     const response = await this.apiService.nativeFetch(new Request(url));
 
     if (!response.ok) {
-      throw new Error(`[PhishingDataService] Failed to fetch domains: ${response.status}`);
+      throw new Error(`[PhishingDataService] Failed to fetch web addresses: ${response.status}`);
     }
 
     return response.text().then((text) => text.split("\n"));
   }
 
-  private getTestDomains() {
+  private getTestWebAddresses() {
     const flag = devFlagEnabled("testPhishingUrls");
     if (!flag) {
       return [];
     }
 
-    const domains = devFlagValue("testPhishingUrls") as unknown[];
-    if (domains && domains instanceof Array) {
+    const webAddresses = devFlagValue("testPhishingUrls") as unknown[];
+    if (webAddresses && webAddresses instanceof Array) {
       this.logService.debug(
-        "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing domains:",
-        domains,
+        "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
+        webAddresses,
       );
-      return domains as string[];
+      return webAddresses as string[];
     }
     return [];
   }

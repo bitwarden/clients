@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Pro použití funkce Archiv je potřebné prémiové členství."
   },
+  "itemRestored": {
+    "message": "Položka byla obnovena"
+  },
   "edit": {
     "message": "Upravit"
   },
@@ -1322,11 +1325,21 @@
   "exportFrom": {
     "message": "Exportovat z"
   },
-  "export": {
-    "message": "Exportovat"
+  "exportVerb": {
+    "message": "Exportovat",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importovat"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importovat",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formát souboru"
@@ -5654,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
+  "vulnerablePassword": {
+    "message": "Zranitelné heslo."
+  },
+  "changeNow": {
+    "message": "Změnit nyní"
+  },
   "missingWebsite": {
     "message": "Chybějící webová stránka"
   },
@@ -6029,5 +6048,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Proč se mi toto zobrazuje?"
+  },
+  "resizeSideNavigation": {
+    "message": "Změnit velikost boční navigace"
   }
 }

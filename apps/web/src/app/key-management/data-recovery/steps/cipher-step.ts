@@ -10,6 +10,7 @@ export class CipherStep implements RecoveryStep {
   title = "recoveryStepCipherTitle";
 
   private undecryptableCipherIds: string[] = [];
+  private decryptableCipherIds: string[] = [];
 
   constructor(
     private apiService: ApiService,
@@ -24,21 +25,28 @@ export class CipherStep implements RecoveryStep {
     }
 
     this.undecryptableCipherIds = [];
-    for (const cipher of workingData.ciphers) {
+    // The tool is currently only implemented to handle ciphers that are corrupt for a user. For an organization, the case of
+    // local user not having access to the organization key is not properly handled here, and should be implemented separately.
+    // For now, this just filters out and does not consider corrupt organization ciphers.
+    const userCiphers = workingData.ciphers.filter((c) => c.organizationId == null);
+    for (const cipher of userCiphers) {
       try {
         await this.cipherService.decrypt(cipher, workingData.userId);
+        this.decryptableCipherIds.push(cipher.id);
       } catch {
         logger.record(`Cipher ID ${cipher.id} was undecryptable`);
         this.undecryptableCipherIds.push(cipher.id);
       }
     }
     logger.record(`Found ${this.undecryptableCipherIds.length} undecryptable ciphers`);
+    logger.record(`Found ${this.decryptableCipherIds.length} decryptable ciphers`);
 
     return this.undecryptableCipherIds.length == 0;
   }
 
   canRecover(workingData: RecoveryWorkingData): boolean {
-    return this.undecryptableCipherIds.length > 0;
+    // If everything fails to decrypt, it's a deeper issue and we shouldn't offer recovery here.
+    return this.undecryptableCipherIds.length > 0 && this.decryptableCipherIds.length > 0;
   }
 
   async runRecovery(workingData: RecoveryWorkingData, logger: LogRecorder): Promise<void> {

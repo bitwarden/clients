@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Une adhésion premium est requise pour utiliser Archive."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Modifier"
   },
@@ -1322,11 +1325,21 @@
   "exportFrom": {
     "message": "Exporter à partir de"
   },
-  "export": {
-    "message": "Exporter"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importer"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Format de fichier"
@@ -5654,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Site Web manquant"
   },
@@ -6029,5 +6048,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

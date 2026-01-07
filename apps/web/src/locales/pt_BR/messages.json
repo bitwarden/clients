@@ -551,7 +551,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Preencher automaticamente ao carregar a página?"
+    "message": "Preencher ao carregar a página?"
   },
   "number": {
     "message": "Número"
@@ -1050,7 +1050,7 @@
     "description": "Header for view SSH key item type"
   },
   "new": {
-    "message": "Novo",
+    "message": "Criar",
     "description": "for adding new items"
   },
   "item": {
@@ -1943,7 +1943,7 @@
     "message": "Copiar UUID"
   },
   "errorRefreshingAccessToken": {
-    "message": "Erro de recarregamento do token de acesso"
+    "message": "Erro de Recarregamento do Token de Acesso"
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Nenhum token de atualização ou chave de API foi encontrado. Tente se desconectar e se conectar novamente."
@@ -1969,8 +1969,13 @@
   "encExportAccountWarningDesc": {
     "message": "Chaves de criptografia da conta são únicas para cada conta de usuário do Bitwarden, então você não pode importar uma exportação criptografada para uma conta diferente."
   },
-  "export": {
-    "message": "Exportar"
+  "exportNoun": {
+    "message": "Exportação",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exportar",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Exportar de"
@@ -2297,8 +2302,13 @@
   "tools": {
     "message": "Ferramentas"
   },
-  "import": {
-    "message": "Importar"
+  "importNoun": {
+    "message": "Importação",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importar",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Importar dados"
@@ -2623,6 +2633,9 @@
   },
   "key": {
     "message": "Chave"
+  },
+  "unnamedKey": {
+    "message": "Chave sem nome"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Código de verificação"
@@ -3133,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Para recuperar o seu acesso ao seu arquivo, retoma sua assinatura Premium. Se editar detalhes de um item arquivado antes de retomar, ele será movido de volta para o seu cofre."
   },
+  "itemRestored": {
+    "message": "O item foi restaurado"
+  },
   "restartPremium": {
     "message": "Retomar Premium"
   },
@@ -3282,6 +3298,9 @@
   },
   "launchCloudSubscription": {
     "message": "Iniciar Assinatura na Nuvem"
+  },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Executar assinatura na nuvem"
   },
   "storage": {
     "message": "Armazenamento"
@@ -4197,6 +4216,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Aceitou a transferência da propriedade da organização."
+  },
+  "userDeclinedTransfer": {
+    "message": "Revogado por não aceitar a transferência da propriedade da organização."
   },
   "invitedUserId": {
     "message": "Convidou o usuário $ID$.",
@@ -9758,7 +9783,7 @@
     "message": "Instalar extensão de navegador"
   },
   "installBrowserExtensionDetails": {
-    "message": "Use a extensão para salvar credenciais e preencher automaticamente formulários de forma rápida, sem abrir o aplicativo web."
+    "message": "Use a extensão para salvar credenciais e preencher formulários de forma rápida, sem abrir o aplicativo web."
   },
   "projectAccessUpdated": {
     "message": "Acesso ao projeto atualizado"
@@ -11056,7 +11081,7 @@
     "message": "Use campos ocultos para dados sensíveis como senhas"
   },
   "checkBoxHelpText": {
-    "message": "Use caixas de seleção se gostaria de preencher automaticamente a caixa de seleção de um formulário, como um lembrar e-mail"
+    "message": "Use caixas de seleção se gostaria de preencher a caixa de seleção de um formulário, como um lembrar e-mail"
   },
   "linkedHelpText": {
     "message": "Use um campo vinculado quando estiver enfrentando problemas com o preenchimento automático em um site específico."
@@ -11587,6 +11612,12 @@
   "unArchive": {
     "message": "Desarquivar"
   },
+  "archived": {
+    "message": "Arquivados"
+  },
+  "unArchiveAndSave": {
+    "message": "Desarquivar e salvar"
+  },
   "itemsInArchive": {
     "message": "Itens no arquivo"
   },
@@ -11721,7 +11752,7 @@
     "message": "Adicionar mais tarde"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "Você não pode preencher senhas automaticamente sem a extensão de navegador"
+    "message": "Você não pode preencher senhas sem a extensão de navegador"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
     "message": "Você tem certeza de que não quer adicionar a extensão agora?"
@@ -12276,6 +12307,9 @@
   "userVerificationFailed": {
     "message": "Falha na verificação do usuário."
   },
+  "resizeSideNavigation": {
+    "message": "Redimensionar navegação lateral"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Apagar itens não recuperáveis do cofre"
   },
@@ -12409,5 +12443,53 @@
   },
   "whyAmISeeingThis": {
     "message": "Por que estou vendo isso?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Você tem o Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Veja e gerencie sua assinatura Premium"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Você precisará atualizar seu arquivo de licença"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Enviar arquivo de licença"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Envie seu arquivo de licença"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Envie seu arquivo de licença Premium"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "O nome do seu arquivo de licença será parecido com: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Já possui uma assinatura?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Abra a página de assinatura na sua conta da nuvem do Bitwarden e baixe o arquivo da sua licença. E então, volte nesta tela e o envie abaixo."
+  },
+  "viewAllPlans": {
+    "message": "Ver todos os planos"
+  },
+  "planDescPremium": {
+    "message": "Segurança on-line completa"
   }
 }

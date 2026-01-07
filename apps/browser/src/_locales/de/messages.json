@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Für die Nutzung des Archivs ist eine Premium-Mitgliedschaft erforderlich."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Bearbeiten"
   },
@@ -1322,11 +1325,21 @@
   "exportFrom": {
     "message": "Export aus"
   },
-  "export": {
-    "message": "Export"
+  "exportVerb": {
+    "message": "Exportieren",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Import"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importieren",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Dateiformat"
@@ -4802,13 +4815,13 @@
     "message": "Kontosicherheit"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Phishing-Blocker"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Phishing-Erkennung"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Warnung vor dem Zugriff auf verdächtige Phishing-Seiten anzeigen"
   },
   "notifications": {
     "message": "Benachrichtigungen"
@@ -5654,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Fehlende Website"
   },
@@ -6029,5 +6048,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Warum wird mir das angezeigt?"
+  },
+  "resizeSideNavigation": {
+    "message": "Größe der Seitennavigation ändern"
   }
 }

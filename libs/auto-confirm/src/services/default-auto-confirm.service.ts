@@ -1,0 +1,95 @@
+import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
+
+import {
+  OrganizationUserApiService,
+  OrganizationUserService,
+} from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { StateProvider } from "@bitwarden/state";
+import { UserId } from "@bitwarden/user-core";
+
+import { AutomaticUserConfirmationService } from "../abstractions/auto-confirm.service.abstraction";
+import { AUTO_CONFIRM_STATE, AutoConfirmState } from "../models/auto-confirm-state.model";
+
+export class DefaultAutomaticUserConfirmationService implements AutomaticUserConfirmationService {
+  constructor(
+    private configService: ConfigService,
+    private apiService: ApiService,
+    private organizationUserService: OrganizationUserService,
+    private stateProvider: StateProvider,
+    private organizationService: InternalOrganizationServiceAbstraction,
+    private organizationUserApiService: OrganizationUserApiService,
+    private policyService: PolicyService,
+  ) {}
+  private autoConfirmState(userId: UserId) {
+    return this.stateProvider.getUser(userId, AUTO_CONFIRM_STATE);
+  }
+
+  configuration$(userId: UserId): Observable<AutoConfirmState> {
+    return this.autoConfirmState(userId).state$.pipe(
+      map((records) => records?.[userId] ?? new AutoConfirmState()),
+    );
+  }
+
+  async upsert(userId: UserId, config: AutoConfirmState): Promise<void> {
+    await this.autoConfirmState(userId).update((records) => {
+      return {
+        ...records,
+        [userId]: config,
+      };
+    });
+  }
+
+  canManageAutoConfirm$(userId: UserId): Observable<boolean> {
+    return combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
+      this.organizationService
+        .organizations$(userId)
+        // auto-confirm does not allow the user to be part of any other organization (even if admin or owner)
+        // so we can assume that the first organization is the relevant one.
+        .pipe(map((organizations) => organizations[0])),
+      this.policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
+    ]).pipe(
+      map(
+        ([enabled, organization, policyEnabled]) =>
+          enabled && policyEnabled && (organization?.canManageAutoConfirm ?? false),
+      ),
+    );
+  }
+
+  async autoConfirmUser(
+    userId: UserId,
+    confirmingUserId: UserId,
+    organization: Organization,
+  ): Promise<void> {
+    await firstValueFrom(
+      this.canManageAutoConfirm$(userId).pipe(
+        map((canManage) => {
+          if (!canManage) {
+            throw new Error("Cannot automatically confirm user (insufficient permissions)");
+          }
+          return canManage;
+        }),
+        switchMap(() => this.apiService.getUserPublicKey(userId)),
+        map((publicKeyResponse) => Utils.fromB64ToArray(publicKeyResponse.publicKey)),
+        switchMap((publicKey) =>
+          this.organizationUserService.buildConfirmRequest(organization, publicKey),
+        ),
+        switchMap((request) =>
+          this.organizationUserApiService.postOrganizationUserConfirm(
+            organization.id,
+            confirmingUserId,
+            request,
+          ),
+        ),
+      ),
+    );
+  }
+}
