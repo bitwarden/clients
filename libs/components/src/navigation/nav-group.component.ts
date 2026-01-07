@@ -110,7 +110,7 @@ export class NavGroupComponent extends NavBaseComponent {
   setOpen(isOpen: boolean) {
     this.open.set(isOpen);
     if (this.open() && this.parentNavGroup) {
-      this.parentNavGroup?.setOpen(this.open());
+      this.parentNavGroup.setOpen(this.open());
     }
   }
 
