@@ -26,6 +26,20 @@ import { DialogRef } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 
+type DialogSize = "small" | "default" | "large";
+
+const dialogSizeToWidth = {
+  small: "md:tw-max-w-sm",
+  default: "md:tw-max-w-xl",
+  large: "md:tw-max-w-3xl",
+} as const;
+
+const drawerSizeToWidth = {
+  small: "md:tw-max-w-sm",
+  default: "md:tw-max-w-lg",
+  large: "md:tw-max-w-2xl",
+} as const;
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -71,7 +85,7 @@ export class DialogComponent {
   /**
    * Dialog size, more complex dialogs should use large, otherwise default is fine.
    */
-  readonly dialogSize = input<"small" | "default" | "large">("default");
+  readonly dialogSize = input<DialogSize>("default");
 
   /**
    * Title to show in the dialog's header
@@ -100,41 +114,37 @@ export class DialogComponent {
 
   private readonly animationCompleted = signal(false);
 
+  protected readonly width = computed(() => {
+    const size = this.dialogSize() ?? "default";
+    const isDrawer = this.dialogRef?.isDrawer;
+
+    if (isDrawer) {
+      return drawerSizeToWidth[size];
+    }
+
+    return dialogSizeToWidth[size];
+  });
+
   protected readonly classes = computed(() => {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
     const baseClasses = ["tw-flex", "tw-flex-col", "tw-w-screen"];
-    const sizeClasses = this.dialogRef?.isDrawer
-      ? ["tw-h-full", "md:tw-w-[23rem]"]
-      : ["md:tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"];
+    const sizeClasses = this.dialogRef?.isDrawer ? ["tw-h-full"] : ["md:tw-p-4", "tw-max-h-[90vh]"];
 
+    const size = this.dialogSize() ?? "default";
     const animationClasses =
       this.disableAnimations() || this.animationCompleted() || this.dialogRef?.isDrawer
         ? []
-        : this.dialogSize() === "small"
+        : size === "small"
           ? ["tw-animate-slide-down"]
           : ["tw-animate-slide-up", "md:tw-animate-slide-down"];
 
-    return [...baseClasses, this.width, ...sizeClasses, ...animationClasses];
+    return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
 
   handleEsc(event: Event) {
     if (!this.dialogRef?.disableClose) {
       this.dialogRef?.close();
       event.stopPropagation();
-    }
-  }
-
-  get width() {
-    switch (this.dialogSize()) {
-      case "small": {
-        return "md:tw-max-w-sm";
-      }
-      case "large": {
-        return "md:tw-max-w-3xl";
-      }
-      default: {
-        return "md:tw-max-w-xl";
-      }
     }
   }
 
