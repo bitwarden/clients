@@ -4310,6 +4310,9 @@
   "unArchive": {
     "message": "Unarchive"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "itemsInArchive": {
     "message": "Items in archive"
   },
@@ -4330,6 +4333,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / Postal code"
@@ -4479,7 +4497,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"  
+        "example": "My Org Name"
       }
     }
   },
@@ -4488,7 +4506,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"  
+        "example": "My Org Name"
       }
     }
   },

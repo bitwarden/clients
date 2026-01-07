@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  CreateDefaultLocation = "pm-19467-create-default-location",
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
@@ -80,6 +79,9 @@ export enum FeatureFlag {
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
+
+  /* Secrets Manager */
+  SM1719_RemoveSecretsManagerAds = "sm-1719-remove-secrets-manager-ads",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -97,7 +99,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.CreateDefaultLocation]: FALSE,
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
   [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
@@ -166,6 +167,9 @@ export const DefaultFeatureFlagValue = {
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
+
+  /* Secrets Manager */
+  [FeatureFlag.SM1719_RemoveSecretsManagerAds]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
