@@ -270,15 +270,17 @@ export class Program extends BaseProgram {
         writeLn("");
         writeLn("    Pass `--raw` option to only return the session key.");
         writeLn("");
-        writeLn("    Use `--biometric` to unlock with Touch ID / Windows Hello via Desktop app.");
-        writeLn("    Requires: Bitwarden Desktop app running with biometric unlock enabled.");
+        writeLn(
+          "    If biometric unlock is enabled in the Desktop app, it will be used automatically.",
+        );
+        writeLn("    (e.g., Touch ID, Windows Hello, or fingerprint readers)");
+        writeLn("    Falls back to master password if cancelled.");
         writeLn("");
         writeLn("  Examples:");
         writeLn("");
         writeLn("    bw unlock");
         writeLn("    bw unlock myPassword321");
         writeLn("    bw unlock myPassword321 --raw");
-        writeLn("    bw unlock --biometric");
         writeLn("", true);
       })
       .option("--check", "Check lock status.", async () => {
@@ -302,7 +304,6 @@ export class Program extends BaseProgram {
         "--passwordfile <passwordfile>",
         "Path to a file containing your password as its first line",
       )
-      .option("--biometric", "Unlock with biometrics via Desktop app (Touch ID / Windows Hello)")
       .action(async (password, cmd) => {
         if (!cmd.check) {
           await this.exitIfNotAuthed();

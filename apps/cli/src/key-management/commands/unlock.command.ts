@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -20,10 +19,6 @@ import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
 import { CliBiometricsService } from "../cli-biometrics-service";
 import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.command";
-
-// Unlock method choices for interactive prompt
-const UNLOCK_METHOD_BIOMETRIC = "biometric";
-const UNLOCK_METHOD_PASSWORD = "password";
 
 export class UnlockCommand {
   constructor(
@@ -50,67 +45,59 @@ export class UnlockCommand {
     }
     const userId = activeAccount.id;
 
-    // Check if biometric unlock was explicitly requested
-    if (normalizedOptions.biometric) {
-      return this.unlockWithBiometrics(userId);
+    // If password is explicitly provided, use it directly (backwards compatible)
+    const passwordExplicitlyProvided =
+      !Utils.isNullOrEmpty(password) ||
+      normalizedOptions.passwordEnv ||
+      normalizedOptions.passwordFile;
+
+    if (passwordExplicitlyProvided) {
+      const passwordResult = await CliUtils.getPassword(
+        password,
+        normalizedOptions,
+        this.logService,
+      );
+      if (passwordResult instanceof Response) {
+        return passwordResult;
+      }
+      return this.unlockWithPassword(passwordResult, userId);
     }
 
-    // Check if biometric unlock is available for interactive selection
+    // Non-interactive mode: skip biometrics (requires user interaction)
+    if (process.env.BW_NOINTERACTION === "true") {
+      const passwordResult = await CliUtils.getPassword(
+        password,
+        normalizedOptions,
+        this.logService,
+      );
+      if (passwordResult instanceof Response) {
+        return passwordResult;
+      }
+      return this.unlockWithPassword(passwordResult, userId);
+    }
+
+    // Check if biometric unlock is available
     const biometricStatus = await this.biometricsService.getBiometricsStatusForUser(userId);
     const biometricAvailable = biometricStatus === BiometricsStatus.Available;
 
-    // If no password provided and interactive mode, offer unlock method choice
-    if (
-      Utils.isNullOrEmpty(password) &&
-      !normalizedOptions.passwordEnv &&
-      !normalizedOptions.passwordFile &&
-      process.env.BW_NOINTERACTION !== "true"
-    ) {
-      if (biometricAvailable) {
-        const unlockMethod = await this.promptUnlockMethod();
-        if (unlockMethod === UNLOCK_METHOD_BIOMETRIC) {
-          return this.unlockWithBiometrics(userId);
-        }
+    // If biometrics available, try it automatically with fallback to password
+    if (biometricAvailable) {
+      const biometricResult = await this.tryBiometricUnlock(userId);
+      if (biometricResult != null) {
+        return biometricResult;
       }
+      // Biometric was cancelled or failed, fall back to password
+      CliUtils.writeLn("Falling back to master password...\n", false, true);
     }
 
-    // Standard password-based unlock
+    // Password-based unlock
     const passwordResult = await CliUtils.getPassword(password, normalizedOptions, this.logService);
 
     if (passwordResult instanceof Response) {
       return passwordResult;
-    } else {
-      password = passwordResult;
     }
 
-    return this.unlockWithPassword(password, userId);
-  }
-
-  /**
-   * Prompt user to choose unlock method when biometrics is available.
-   */
-  private async promptUnlockMethod(): Promise<string> {
-    const biometricName = this.getBiometricName();
-
-    const answer: inquirer.Answers = await inquirer.createPromptModule({
-      output: process.stderr,
-    })({
-      type: "list",
-      name: "unlockMethod",
-      message: "How would you like to unlock?",
-      choices: [
-        {
-          name: `Use ${biometricName} (via Desktop app)`,
-          value: UNLOCK_METHOD_BIOMETRIC,
-        },
-        {
-          name: "Use master password",
-          value: UNLOCK_METHOD_PASSWORD,
-        },
-      ],
-    });
-
-    return answer.unlockMethod;
+    return this.unlockWithPassword(passwordResult, userId);
   }
 
   /**
@@ -128,28 +115,23 @@ export class UnlockCommand {
   }
 
   /**
-   * Unlock the vault using biometrics via the Desktop app.
+   * Try to unlock with biometrics. Returns Response on success, null if cancelled/failed.
    */
-  private async unlockWithBiometrics(userId: string): Promise<Response> {
-    // Check biometric status
-    const status = await this.biometricsService.getBiometricsStatusForUser(userId as any);
-
-    if (status !== BiometricsStatus.Available) {
-      const statusDescription = this.biometricsService.getBiometricsStatusDescription(status);
-      return Response.error(`Biometric unlock is not available: ${statusDescription}`);
-    }
-
+  private async tryBiometricUnlock(userId: string): Promise<Response | null> {
     const biometricName = this.getBiometricName();
     // Write to stderr so it doesn't interfere with --raw output
-    CliUtils.writeLn(`\n👆 ${biometricName} prompt on Desktop app...\n`, false, true);
+    CliUtils.writeLn(
+      `Authenticate with ${biometricName} on Desktop app to continue...`,
+      false,
+      true,
+    );
 
     try {
       const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId as any);
 
       if (userKey == null) {
-        return Response.error(
-          `${biometricName} unlock was cancelled or failed. Try again or use master password.`,
-        );
+        // Biometric was cancelled or failed, signal to fall back to password
+        return null;
       }
 
       // Set the session key
@@ -180,9 +162,8 @@ export class UnlockCommand {
       return this.successResponse();
     } catch (e) {
       this.logService.error("Biometric unlock failed:", e);
-      return Response.error(
-        `${biometricName} unlock failed: ${e.message || "Unknown error"}. Try again or use master password.`,
-      );
+      // Signal to fall back to password
+      return null;
     }
   }
 
@@ -251,11 +232,9 @@ export class UnlockCommand {
 class Options {
   passwordEnv: string;
   passwordFile: string;
-  biometric: boolean;
 
   constructor(passedOptions: Record<string, any>) {
     this.passwordEnv = passedOptions?.passwordenv || passedOptions?.passwordEnv;
     this.passwordFile = passedOptions?.passwordfile || passedOptions?.passwordFile;
-    this.biometric = passedOptions?.biometric || false;
   }
 }
