@@ -1,7 +1,11 @@
 import { KeyDefinitionLike, MigrationHelper } from "../migration-helper";
 import { IRREVERSIBLE, Migrator } from "../migrator";
-import { SignedPublicKey,
-WrappedAccountCryptographicState, EncString, SignedSecurityState } from "@bitwarden/sdk-internal";
+import {
+  SignedPublicKey,
+  WrappedAccountCryptographicState,
+  EncString,
+  SignedSecurityState,
+} from "@bitwarden/sdk-internal";
 
 type ExpectedAccountType = NonNullable<unknown>;
 
@@ -41,12 +45,14 @@ export const accountCryptographicState: KeyDefinitionLike = {
 };
 
 export class RemoveUserEncryptedPrivateKey extends Migrator<74, 75> {
-
   async migrate(helper: MigrationHelper): Promise<void> {
     const accounts = await helper.getAccounts<ExpectedAccountType>();
     for (const { userId } of accounts) {
       // Check if account cryptographic state already exists
-      const existingAccountCryptoState = await helper.getFromUser(userId, accountCryptographicState);
+      const existingAccountCryptoState = await helper.getFromUser(
+        userId,
+        accountCryptographicState,
+      );
 
       // Gather all individual cryptographic key state parts
       const privateKey = await helper.getFromUser(userId, userEncryptedPrivateKey);
@@ -58,10 +64,20 @@ export class RemoveUserEncryptedPrivateKey extends Migrator<74, 75> {
       if (!existingAccountCryptoState) {
         // Build the new account cryptographic state object
         let newAccountCryptographicState: WrappedAccountCryptographicState;
-        if (privateKey != null && signingKey == null && signedPubKey == null && accountSecurity == null) {
+        if (
+          privateKey != null &&
+          signingKey == null &&
+          signedPubKey == null &&
+          accountSecurity == null
+        ) {
           newAccountCryptographicState = { V1: { private_key: privateKey as EncString } };
           await helper.setToUser(userId, accountCryptographicState, newAccountCryptographicState);
-        } else if (privateKey != null && signingKey != null && signedPubKey != null && accountSecurity != null) {
+        } else if (
+          privateKey != null &&
+          signingKey != null &&
+          signedPubKey != null &&
+          accountSecurity != null
+        ) {
           newAccountCryptographicState = {
             V2: {
               private_key: privateKey as EncString,
@@ -72,7 +88,9 @@ export class RemoveUserEncryptedPrivateKey extends Migrator<74, 75> {
           };
           await helper.setToUser(userId, accountCryptographicState, newAccountCryptographicState);
         } else {
-          helper.logService.warning(`Incomplete cryptographic state for user ${userId}, skipping migration of account cryptographic state.`);
+          helper.logService.warning(
+            `Incomplete cryptographic state for user ${userId}, skipping migration of account cryptographic state.`,
+          );
         }
       }
 
