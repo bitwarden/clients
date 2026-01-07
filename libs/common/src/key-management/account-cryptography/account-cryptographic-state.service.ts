@@ -19,4 +19,9 @@ export abstract class AccountCryptographicStateService {
     accountCryptographicState: WrappedAccountCryptographicState,
     userId: UserId,
   ): Promise<void>;
+
+  /**
+   * Clears the account cryptographic state.
+   */
+  abstract clearAccountCryptographicState(userId: UserId): Promise<void>;
 }

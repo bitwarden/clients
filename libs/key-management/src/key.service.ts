@@ -502,6 +502,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearOrgKeys(userId);
     await this.clearProviderKeys(userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, null, userId);
+    await this.accountCryptographyStateService.clearAccountCryptographicState(userId);
   }
 
   // EFForg/OpenWireless
