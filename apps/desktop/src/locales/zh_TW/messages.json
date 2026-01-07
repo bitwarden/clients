@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "New",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "新增 URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "您確定要刪除此 Send 嗎？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Copy Send link",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "複製 Send 連結到剪貼簿",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "安全傳送機密的資訊",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
   "sendsBodyNoItems": {
     "message": "安全的和任何人及任何平臺分享檔案及資料。您的資料會受到端對端加密的保護。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
   },
   "generatorNudgeTitle": {
     "message": "快速建立密碼"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "取消封存"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "itemsInArchive": {
     "message": "封存中的項目"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
     "message": "郵編 / 郵政代碼"

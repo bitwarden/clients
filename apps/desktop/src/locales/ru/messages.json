@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Новый",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Новый URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Вы действительно хотите удалить эту Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Скопировать ссылку на Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Скопировать ссылку на Send в буфер обмена",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Безопасная отправка конфиденциальной информации",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Поиск не дал результатов"
+  },
   "sendsBodyNoItems": {
     "message": "Безопасно обменивайтесь файлами и данными с кем угодно на любой платформе. Ваша информация надежно шифруется и доступ к ней ограничен.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Очистите фильтры или попробуйте другой поисковый запрос"
   },
   "generatorNudgeTitle": {
     "message": "Быстрое создание паролей"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Разархивировать"
   },
+  "archived": {
+    "message": "Архивирован"
+  },
   "itemsInArchive": {
     "message": "Элементы в архиве"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  },
+  "unArchiveAndSave": {
+    "message": "Разархивировать и сохранить"
+  },
+  "restartPremium": {
+    "message": "Переподключить Премиум"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ваша подписка Премиум закончилась"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
+  },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
   },
   "zipPostalCodeLabel": {
     "message": "Почтовый индекс"

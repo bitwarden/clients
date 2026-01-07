@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "New",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Новий URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Ви дійсно хочете видалити це відправлення?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Copy Send link",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Копіювати посилання на відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Безпечно надсилайте конфіденційну інформацію",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
   "sendsBodyNoItems": {
     "message": "Безпечно діліться файлами й даними з ким завгодно, на будь-якій платформі. Ваша інформація наскрізно зашифрована та має обмежений доступ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
   },
   "generatorNudgeTitle": {
     "message": "Швидко створюйте паролі"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Видобути"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "itemsInArchive": {
     "message": "Записи в архіві"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Архівовані записи виключаються з результатів звичайного пошуку та пропозицій автозаповнення. Ви дійсно хочете архівувати цей запис?"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
     "message": "Поштовий індекс"

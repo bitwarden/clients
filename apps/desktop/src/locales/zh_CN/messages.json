@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "新增",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "新增 URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "确定要删除此 Send 吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "复制 Send 链接",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "复制 Send 链接到剪贴板",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "安全地发送敏感信息",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "未返回搜索结果"
+  },
   "sendsBodyNoItems": {
     "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "清除筛选或尝试其他搜索词"
   },
   "generatorNudgeTitle": {
     "message": "快速创建密码"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "取消归档"
   },
+  "archived": {
+    "message": "已归档"
+  },
   "itemsInArchive": {
     "message": "归档中的项目"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
+  },
+  "unArchiveAndSave": {
+    "message": "取消归档并保存"
+  },
+  "restartPremium": {
+    "message": "重启高级版"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "您的高级版订阅已结束"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "要重新获取归档内容的访问权限，请重启您的高级版订阅。如果您在重启前编辑了某个已归档项目的详细信息，它将被移回您的密码库中。"
+  },
+  "itemRestored": {
+    "message": "项目已恢复"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / 邮政编码"

@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Nové",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Nové URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Naozaj chcete odstrániť tento Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Kopírovať odkaz na Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Kopírovať odkaz na Send do schránky",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Send, citlivé informácie bezpečne",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Nenašli sa žiadne výsledky vyhľadávania"
+  },
   "sendsBodyNoItems": {
     "message": "Bezpečne zdieľajte súbory a údaje s kýmkoľvek a na akejkoľvek platforme. Vaše informácie zostanú end-to-end zašifrované a zároveň sa obmedzí ich odhalenie.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Vymažte filtre alebo zmeňte vyhľadávaný výraz"
   },
   "generatorNudgeTitle": {
     "message": "Rýchle vytváranie hesiel"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Zrušiť archiváciu"
   },
+  "archived": {
+    "message": "Archivované"
+  },
   "itemsInArchive": {
     "message": "Položky v archíve"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
+  },
+  "unArchiveAndSave": {
+    "message": "Zrušiť archiváciu a uložiť"
+  },
+  "restartPremium": {
+    "message": "Reštartovať Prémium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Vaše predplatné Prémium skončilo"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Ak chcete obnoviť prístup k svojmu archívu, reštartujte predplatné Prémium. Ak pred reštartom upravíte podrobnosti archivovanej položky, bude presunutá späť do trezoru."
+  },
+  "itemRestored": {
+    "message": "Položka bola obnovená"
   },
   "zipPostalCodeLabel": {
     "message": "PSČ"

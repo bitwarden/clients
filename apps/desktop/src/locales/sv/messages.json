@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Ny",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Ny URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Är du säker på att du vill radera denna Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Kopiera Send-länk",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Kopiera Send-länk till urklipp",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Skicka känslig information på ett säkert sätt",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Inga sökresultat returnerades"
+  },
   "sendsBodyNoItems": {
     "message": "Dela filer och data på ett säkert sätt med vem som helst, på vilken plattform som helst. Din information kommer att förbli krypterad från början till slut samtidigt som exponeringen begränsas.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Töm filtren eller försök med en annan sökterm"
   },
   "generatorNudgeTitle": {
     "message": "Skapa lösenord snabbt"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Avarkivera"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "itemsInArchive": {
     "message": "Objekt i arkivet"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Arkiverade objekt är uteslutna från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "restartPremium": {
+    "message": "Starta om Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
     "message": "Postnummer"

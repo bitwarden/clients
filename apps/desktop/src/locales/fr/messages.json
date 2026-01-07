@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "New",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Nouvel URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Êtes-vous sûr de vouloir supprimer ce Send ?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Copy Send link",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Copier le lien du Send dans le presse-papier",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Envoyez des informations sensibles, en toute sécurité",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
   "sendsBodyNoItems": {
     "message": "Partagez des fichiers et des données en toute sécurité avec n'importe qui, sur n'importe quelle plateforme. Vos informations resteront chiffrées de bout en bout tout en limitant l'exposition.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
   },
   "generatorNudgeTitle": {
     "message": "Créer rapidement des mots de passe"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Désarchiver"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "itemsInArchive": {
     "message": "Éléments dans l'archive"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / Code postal"
