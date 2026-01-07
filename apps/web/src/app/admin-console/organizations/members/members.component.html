@@ -2,6 +2,7 @@
 @let dataSource = this.dataSource();
 @let bulkActions = bulkMenuOptions$ | async;
 @let showConfirmBanner = showConfirmBanner$ | async;
+@let isProcessing = this.isProcessing();
 
 @if (organization && dataSource) {
   <app-organization-free-trial-warning
@@ -122,19 +123,31 @@
 
                 <bit-menu #headerMenu>
                   @if (canUseSecretsManager()) {
-                    <button type="button" bitMenuItem (click)="bulkEnableSM(organization)">
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : bulkEnableSM(organization)"
+                    >
                       {{ "activateSecretsManager" | i18n }}
                     </button>
                     <bit-menu-divider></bit-menu-divider>
                   }
                   @if (bulkActions.showBulkReinviteUsers) {
-                    <button type="button" bitMenuItem (click)="bulkReinvite(organization)">
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : bulkReinvite(organization)"
+                    >
                       <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
                       {{ "reinviteSelected" | i18n }}
                     </button>
                   }
                   @if (bulkActions.showBulkConfirmUsers) {
-                    <button type="button" bitMenuItem (click)="bulkConfirm(organization)">
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : bulkConfirm(organization)"
+                    >
                       <span class="tw-text-success">
                         <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
                         {{ "confirmSelected" | i18n }}
@@ -145,7 +158,7 @@
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="bulkRevokeOrRestore(false, organization)"
+                      (click)="isProcessing ? null : bulkRevokeOrRestore(false, organization)"
                     >
                       <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
                       {{ "restoreAccess" | i18n }}
@@ -155,14 +168,18 @@
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="bulkRevokeOrRestore(true, organization)"
+                      (click)="isProcessing ? null : bulkRevokeOrRestore(true, organization)"
                     >
                       <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
                       {{ "revokeAccess" | i18n }}
                     </button>
                   }
                   @if (bulkActions.showBulkRemoveUsers) {
-                    <button type="button" bitMenuItem (click)="bulkRemove(organization)">
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : bulkRemove(organization)"
+                    >
                       <span class="tw-text-danger">
                         <i aria-hidden="true" class="bwi bwi-fw bwi-close"></i>
                         {{ "remove" | i18n }}
@@ -170,7 +187,11 @@
                     </button>
                   }
                   @if (bulkActions.showBulkDeleteUsers) {
-                    <button type="button" bitMenuItem (click)="bulkDelete(organization)">
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : bulkDelete(organization)"
+                    >
                       <span class="tw-text-danger">
                         <i aria-hidden="true" class="bwi bwi-fw bwi-trash"></i>
                         {{ "delete" | i18n }}
@@ -342,13 +363,21 @@
                 <bit-menu #rowMenu>
                   @if (showUserManagementControls()) {
                     @if (u.status === userStatusType.Invited) {
-                      <button type="button" bitMenuItem (click)="reinvite(u, organization)">
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : reinvite(u, organization)"
+                      >
                         <i aria-hidden="true" class="bwi bwi-envelope"></i>
                         {{ "resendInvitation" | i18n }}
                       </button>
                     }
                     @if (u.status === userStatusType.Accepted) {
-                      <button type="button" bitMenuItem (click)="confirm(u, organization)">
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : confirm(u, organization)"
+                      >
                         <span class="tw-text-success">
                           <i aria-hidden="true" class="bwi bwi-check"></i> {{ "confirm" | i18n }}
                         </span>
@@ -362,7 +391,7 @@
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="edit(u, organization, memberTab.Role)"
+                      (click)="isProcessing ? null : edit(u, organization, memberTab.Role)"
                     >
                       <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
                     </button>
@@ -370,7 +399,7 @@
                       <button
                         type="button"
                         bitMenuItem
-                        (click)="edit(u, organization, memberTab.Groups)"
+                        (click)="isProcessing ? null : edit(u, organization, memberTab.Groups)"
                       >
                         <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
                       </button>
@@ -378,14 +407,18 @@
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="edit(u, organization, memberTab.Collections)"
+                      (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
                     >
                       <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
                       {{ "collections" | i18n }}
                     </button>
                     <bit-menu-divider></bit-menu-divider>
                     @if (organization.useEvents && u.status === userStatusType.Confirmed) {
-                      <button type="button" bitMenuItem (click)="openEventsDialog(u, organization)">
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : openEventsDialog(u, organization)"
+                      >
                         <i aria-hidden="true" class="bwi bwi-file-text"></i>
                         {{ "eventLogs" | i18n }}
                       </button>
@@ -394,32 +427,52 @@
 
                   <!-- Account recovery is available to all users with appropriate permissions -->
                   @if (allowResetPassword(u, organization, resetPasswordPolicyEnabled)) {
-                    <button type="button" bitMenuItem (click)="resetPassword(u, organization)">
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : resetPassword(u, organization)"
+                    >
                       <i aria-hidden="true" class="bwi bwi-key"></i> {{ "recoverAccount" | i18n }}
                     </button>
                   }
 
                   @if (showUserManagementControls()) {
                     @if (u.status === userStatusType.Revoked) {
-                      <button type="button" bitMenuItem (click)="restore(u, organization)">
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : restore(u, organization)"
+                      >
                         <i aria-hidden="true" class="bwi bwi-plus-circle"></i>
                         {{ "restoreAccess" | i18n }}
                       </button>
                     }
                     @if (u.status !== userStatusType.Revoked) {
-                      <button type="button" bitMenuItem (click)="revoke(u, organization)">
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : revoke(u, organization)"
+                      >
                         <i aria-hidden="true" class="bwi bwi-minus-circle"></i>
                         {{ "revokeAccess" | i18n }}
                       </button>
                     }
                     @if (!u.managedByOrganization) {
-                      <button type="button" bitMenuItem (click)="remove(u, organization)">
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : remove(u, organization)"
+                      >
                         <span class="tw-text-danger">
                           <i aria-hidden="true" class="bwi bwi-close"></i> {{ "remove" | i18n }}
                         </span>
                       </button>
                     } @else {
-                      <button type="button" bitMenuItem (click)="deleteUser(u, organization)">
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : deleteUser(u, organization)"
+                      >
                         <span class="tw-text-danger">
                           <i class="bwi bwi-trash" aria-hidden="true"></i>
                           {{ "delete" | i18n }}

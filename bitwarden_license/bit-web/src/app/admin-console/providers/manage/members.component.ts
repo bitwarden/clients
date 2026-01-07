@@ -108,6 +108,8 @@ export class MembersComponent {
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
 
+  protected isProcessing = this.memberActionsService.isProcessing;
+
   constructor() {
     // Connect the search input and status toggles to the table dataSource filter
     combineLatest([this.searchControl.valueChanges.pipe(debounceTime(200)), this.statusToggle])

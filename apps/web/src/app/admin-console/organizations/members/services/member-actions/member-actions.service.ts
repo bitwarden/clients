@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, signal } from "@angular/core";
 import { lastValueFrom, firstValueFrom, switchMap, map } from "rxjs";
 
 import {
@@ -60,6 +60,16 @@ export class MemberActionsService {
     private encryptService: EncryptService,
   ) {}
 
+  readonly isProcessing = signal(false);
+
+  private startProcessing(): void {
+    this.isProcessing.set(true);
+  }
+
+  private endProcessing(): void {
+    this.isProcessing.set(false);
+  }
+
   async inviteUser(
     organization: Organization,
     email: string,
@@ -68,6 +78,7 @@ export class MemberActionsService {
     collections?: any[],
     groups?: string[],
   ): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.postOrganizationUserInvite(organization.id, {
         emails: [email],
@@ -80,16 +91,21 @@ export class MemberActionsService {
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async removeUser(organization: Organization, userId: string): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.removeOrganizationUser(organization.id, userId);
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
@@ -97,59 +113,77 @@ export class MemberActionsService {
     providerId: ProviderId,
     user: ProviderUser,
   ): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.apiService.deleteProviderUser(providerId, user.id);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async revokeUser(organization: Organization, userId: string): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.revokeOrganizationUser(organization.id, userId);
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async restoreUser(organization: Organization, userId: string): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.restoreOrganizationUser(organization.id, userId);
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async deleteUser(organization: Organization, userId: string): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.deleteOrganizationUser(organization.id, userId);
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async reinviteUser(organization: Organization, userId: string): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.postOrganizationUserReinvite(organization.id, userId);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async reinviteProvider(providerId: ProviderId, user: ProviderUser): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.apiService.postProviderUserReinvite(providerId, user.id);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
@@ -158,6 +192,7 @@ export class MemberActionsService {
     publicKey: Uint8Array,
     organization: Organization,
   ): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await firstValueFrom(
         this.organizationUserService.confirmUser(organization, user.id, publicKey),
@@ -165,6 +200,8 @@ export class MemberActionsService {
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
@@ -173,6 +210,7 @@ export class MemberActionsService {
     providerId: ProviderId,
     publicKey: Uint8Array,
   ): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       const providerKey = await firstValueFrom(
         this.accountService.activeAccount$.pipe(
@@ -191,27 +229,32 @@ export class MemberActionsService {
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async bulkReinvite(organization: Organization, userIds: UserId[]): Promise<BulkActionResult> {
-    const increaseBulkReinviteLimitForCloud = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
-    );
-    if (increaseBulkReinviteLimitForCloud) {
-      return await this.vNextBulkReinvite(organization, userIds);
-    } else {
-      try {
+    this.startProcessing();
+    try {
+      const increaseBulkReinviteLimitForCloud = await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
+      );
+      if (increaseBulkReinviteLimitForCloud) {
+        return await this.vNextBulkReinvite(organization, userIds);
+      } else {
         const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
           organization.id,
           userIds,
         );
         return { successful: result, failed: [] };
-      } catch (error) {
-        return {
-          failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
-        };
       }
+    } catch (error) {
+      return {
+        failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
+      };
+    } finally {
+      this.endProcessing();
     }
   }
 

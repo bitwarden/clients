@@ -2,6 +2,7 @@
 @let bulkMenuOptions = bulkMenuOptions$ | async;
 @let showConfirmBanner = showConfirmBanner$ | async;
 @let dataSource = this.dataSource();
+@let isProcessing = this.isProcessing();
 
 <app-header>
   <bit-search class="tw-grow" [formControl]="searchControl" [placeholder]="'searchMembers' | i18n">
@@ -85,20 +86,32 @@
               ></button>
               <bit-menu #headerMenu>
                 @if (bulkMenuOptions.showBulkReinviteUsers) {
-                  <button type="button" bitMenuItem (click)="bulkReinvite(providerId)">
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="isProcessing ? null : bulkReinvite(providerId)"
+                  >
                     <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
                     {{ "reinviteSelected" | i18n }}
                   </button>
                 }
                 @if (bulkMenuOptions.showBulkConfirmUsers) {
-                  <button type="button" bitMenuItem (click)="bulkConfirm(providerId)">
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="isProcessing ? null : bulkConfirm(providerId)"
+                  >
                     <span class="tw-text-success">
                       <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
                       {{ "confirmSelected" | i18n }}
                     </span>
                   </button>
                 }
-                <button type="button" bitMenuItem (click)="bulkRemove(providerId)">
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="isProcessing ? null : bulkRemove(providerId)"
+                >
                   <span class="tw-text-danger">
                     <i aria-hidden="true" class="bwi bwi-close"></i>
                     {{ "remove" | i18n }}
@@ -174,13 +187,21 @@
               ></button>
               <bit-menu #rowMenu>
                 @if (user.status === userStatusType.Invited) {
-                  <button type="button" bitMenuItem (click)="reinvite(user, providerId)">
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="isProcessing ? null : reinvite(user, providerId)"
+                  >
                     <i aria-hidden="true" class="bwi bwi-envelope"></i>
                     {{ "resendInvitation" | i18n }}
                   </button>
                 }
                 @if (user.status === userStatusType.Accepted) {
-                  <button type="button" bitMenuItem (click)="confirm(user, providerId)">
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="isProcessing ? null : confirm(user, providerId)"
+                  >
                     <span class="tw-text-success">
                       <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
                       {{ "confirm" | i18n }}
@@ -188,12 +209,20 @@
                   </button>
                 }
                 @if (accessEvents && user.status === userStatusType.Confirmed) {
-                  <button type="button" bitMenuItem (click)="openEventsDialog(user, providerId)">
+                  <button
+                    type="button"
+                    bitMenuItem
+                    (click)="isProcessing ? null : openEventsDialog(user, providerId)"
+                  >
                     <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
                     {{ "eventLogs" | i18n }}
                   </button>
                 }
-                <button type="button" bitMenuItem (click)="remove(user, providerId)">
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="isProcessing ? null : remove(user, providerId)"
+                >
                   <span class="tw-text-danger">
                     <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
                     {{ "remove" | i18n }}

@@ -126,6 +126,8 @@ export class MembersComponent {
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
 
+  protected isProcessing = this.memberActionsService.isProcessing;
+
   protected readonly canUseSecretsManager: Signal<boolean> = computed(
     () => this.organization()?.useSecretsManager ?? false,
   );

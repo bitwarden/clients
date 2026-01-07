@@ -660,4 +660,26 @@ describe("MemberActionsService", () => {
       expect(result).toBe(false);
     });
   });
+
+  describe("isProcessing signal", () => {
+    it("should be false initially", () => {
+      expect(service.isProcessing()).toBe(false);
+    });
+
+    it("should be false after operation completes successfully", async () => {
+      organizationUserApiService.removeOrganizationUser.mockResolvedValue(undefined);
+
+      await service.removeUser(mockOrganization, userIdToManage);
+
+      expect(service.isProcessing()).toBe(false);
+    });
+
+    it("should be false after operation fails", async () => {
+      organizationUserApiService.removeOrganizationUser.mockRejectedValue(new Error("Failed"));
+
+      await service.removeUser(mockOrganization, userIdToManage);
+
+      expect(service.isProcessing()).toBe(false);
+    });
+  });
 });
