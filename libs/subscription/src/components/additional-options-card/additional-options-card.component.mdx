@@ -1,0 +1,159 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs/blocks";
+import * as AdditionalOptionsCardStories from "./additional-options-card.component.stories";
+
+<Meta of={AdditionalOptionsCardStories} />
+
+# Additional Options Card
+
+A UI component for displaying additional subscription management options with action buttons for
+downloading license and canceling subscription. The component provides quick access to important
+subscription actions.
+
+<Canvas of={AdditionalOptionsCardStories.Default} />
+
+## Table of Contents
+
+- [Usage](#usage)
+- [API](#api)
+  - [Inputs](#inputs)
+  - [Outputs](#outputs)
+- [Design](#design)
+- [Examples](#examples)
+  - [Default](#default)
+  - [Actions Disabled](#actions-disabled)
+- [Features](#features)
+- [Do's and Don'ts](#dos-and-donts)
+- [Accessibility](#accessibility)
+
+## Usage
+
+The additional options card component displays important subscription management actions on billing
+pages and subscription dashboards. It provides quick access to download license and cancel
+subscription actions.
+
+```ts
+import { AdditionalOptionsCardComponent } from "@bitwarden/subscription";
+```
+
+```html
+<billing-additional-options-card (callToActionClicked)="handleAction($event)">
+</billing-additional-options-card>
+```
+
+## API
+
+### Inputs
+
+| Input                   | Type      | Description                                                            |
+| ----------------------- | --------- | ---------------------------------------------------------------------- |
+| `callsToActionDisabled` | `boolean` | Optional. Disables both action buttons when true. Defaults to `false`. |
+
+### Outputs
+
+| Output                | Type                          | Description                                 |
+| --------------------- | ----------------------------- | ------------------------------------------- |
+| `callToActionClicked` | `AdditionalOptionsCardAction` | Emitted when a user clicks an action button |
+
+**AdditionalOptionsCardAction Type:**
+
+```typescript
+type AdditionalOptionsCardAction = "download-license" | "cancel-subscription";
+```
+
+## Design
+
+The component follows the Bitwarden design system with:
+
+- **Simple Card Layout**: Clean card design with title and description
+- **Action Buttons**: Two prominent buttons for key subscription actions
+- **Modern Angular**: Standalone component with signal-based outputs
+- **OnPush Change Detection**: Optimized performance
+- **Typography**: Uses `bitTypography` directives for consistent text styling
+- **Tailwind CSS**: Uses `tw-` prefixed utility classes for styling
+- **Button Variants**: Secondary button for download, danger button for cancel
+- **Internationalization**: All text uses i18n service for translation support
+
+## Examples
+
+### Default
+
+Standard display with download license and cancel subscription buttons:
+
+<Canvas of={AdditionalOptionsCardStories.Default} />
+
+```html
+<billing-additional-options-card (callToActionClicked)="handleAction($event)">
+</billing-additional-options-card>
+```
+
+**Handler example:**
+
+```typescript
+handleAction(action: AdditionalOptionsCardAction) {
+  switch (action) {
+    case "download-license":
+      // Handle license download
+      break;
+    case "cancel-subscription":
+      // Handle subscription cancellation
+      break;
+  }
+}
+```
+
+### Actions Disabled
+
+Component with action buttons disabled (useful during async operations):
+
+<Canvas of={AdditionalOptionsCardStories.ActionsDisabled} />
+
+```html
+<billing-additional-options-card
+  [callsToActionDisabled]="true"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-additional-options-card>
+```
+
+**Note:** Use `callsToActionDisabled` to prevent user interactions during async operations like
+downloading the license or processing subscription cancellation.
+
+## Features
+
+- **Download License**: Provides quick access to download subscription license
+- **Cancel Subscription**: Provides quick access to cancel subscription with danger styling
+- **Event Emission**: Emits typed events for handling user actions
+- **Internationalization**: All text uses i18n service for translation support
+- **Type Safety**: Strong TypeScript typing for action events
+- **Accessible**: Proper button semantics and keyboard navigation
+
+## Do's and Don'ts
+
+### ✅ Do
+
+- Handle both `download-license` and `cancel-subscription` events in parent components
+- Show appropriate confirmation dialogs before executing destructive actions (cancel subscription)
+- Disable buttons or show loading states during async operations
+- Provide clear user feedback after action completion
+- Consider adding additional safety measures for subscription cancellation
+
+### ❌ Don't
+
+- Ignore the `callToActionClicked` events - they require handling
+- Execute subscription cancellation without user confirmation
+- Display this component to users who don't have permission to perform these actions
+- Allow multiple simultaneous action executions
+- Forget to handle error cases when actions fail
+
+## Accessibility
+
+The component includes:
+
+- **Semantic HTML**: Proper heading hierarchy with `<h3>` and `<p>` tags
+- **Button Accessibility**: Proper `type="button"` attributes on all buttons
+- **Button Variants**: Clear visual distinction between secondary and danger actions
+- **Keyboard Navigation**: All buttons are keyboard accessible with tab navigation
+- **Focus Management**: Clear focus indicators on interactive elements
+- **Screen Reader Support**: Descriptive button text for all actions
+- **Color Differentiation**: Danger button uses red color to indicate destructive action
+- **ARIA Compliance**: Uses semantic HTML reducing need for explicit ARIA attributes

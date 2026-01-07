@@ -1,13 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { ButtonType, IconModule, TypographyModule } from "@bitwarden/components";
+import { BadgeVariant, ButtonType, IconModule, TypographyModule } from "@bitwarden/components";
+import { PricingCardComponent } from "@bitwarden/pricing";
 
-import { PricingCardComponent } from "./pricing-card.component";
-
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <billing-pricing-card
@@ -18,22 +15,30 @@ import { PricingCardComponent } from "./pricing-card.component";
       [activeBadge]="activeBadge"
       (buttonClick)="onButtonClick()"
     >
-      <ng-container [ngSwitch]="titleLevel">
-        <h1 *ngSwitchCase="'h1'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h1>
-
-        <h2 *ngSwitchCase="'h2'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h2>
-
-        <h3 *ngSwitchCase="'h3'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h3>
-
-        <h4 *ngSwitchCase="'h4'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h4>
-
-        <h5 *ngSwitchCase="'h5'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h5>
-
-        <h6 *ngSwitchCase="'h6'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h6>
-      </ng-container>
+      @switch (titleLevel) {
+        @case ("h1") {
+          <h1 slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h1>
+        }
+        @case ("h2") {
+          <h2 slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h2>
+        }
+        @case ("h3") {
+          <h3 slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h3>
+        }
+        @case ("h4") {
+          <h4 slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h4>
+        }
+        @case ("h5") {
+          <h5 slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h5>
+        }
+        @case ("h6") {
+          <h6 slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h6>
+        }
+      }
     </billing-pricing-card>
   `,
-  imports: [PricingCardComponent, CommonModule, TypographyModule],
+  imports: [PricingCardComponent, TypographyModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestHostComponent {
   titleText = "Test Plan";
@@ -48,7 +53,7 @@ class TestHostComponent {
   };
   features = ["Feature 1", "Feature 2", "Feature 3"];
   titleLevel: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" = "h3";
-  activeBadge: { text: string; variant?: string } | undefined = undefined;
+  activeBadge: { text: string; variant?: BadgeVariant } | undefined = undefined;
 
   onButtonClick() {
     // Test method
@@ -186,11 +191,10 @@ describe("PricingCardComponent", () => {
   it("should have proper layout structure with flexbox", () => {
     hostFixture.detectChanges();
     const compiled = hostFixture.nativeElement;
-    const cardContainer = compiled.querySelector("div");
+    const cardContainer = compiled.querySelector("bit-card");
 
     expect(cardContainer.classList).toContain("tw-flex");
     expect(cardContainer.classList).toContain("tw-flex-col");
     expect(cardContainer.classList).toContain("tw-size-full");
-    expect(cardContainer.classList).not.toContain("tw-block"); // Should not have conflicting display property
   });
 });

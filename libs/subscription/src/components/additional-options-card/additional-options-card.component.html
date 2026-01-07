@@ -1,0 +1,31 @@
+<bit-card class="tw-size-full tw-flex tw-flex-col">
+  <!-- Title -->
+  <h3 bitTypography="h3" class="tw-m-0 tw-mb-4">{{ "additionalOptions" | i18n }}</h3>
+
+  <!-- Description -->
+  <p bitTypography="body1" class="tw-m-0 tw-mb-4 tw-text-main">
+    {{ "additionalOptionsDesc" | i18n }}
+  </p>
+
+  <!-- Action Buttons -->
+  <div class="tw-flex tw-gap-4">
+    <button
+      bitButton
+      buttonType="secondary"
+      type="button"
+      [disabled]="callsToActionDisabled()"
+      (click)="callToActionClicked.emit('download-license')"
+    >
+      {{ "downloadLicense" | i18n }}
+    </button>
+    <button
+      bitButton
+      buttonType="danger"
+      type="button"
+      [disabled]="callsToActionDisabled()"
+      (click)="callToActionClicked.emit('cancel-subscription')"
+    >
+      {{ "cancelSubscription" | i18n }}
+    </button>
+  </div>
+</bit-card>

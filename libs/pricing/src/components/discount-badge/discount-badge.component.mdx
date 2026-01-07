@@ -5,8 +5,7 @@ import * as DiscountBadgeStories from "./discount-badge.component.stories";
 
 # Discount Badge
 
-A reusable UI component for displaying discount information (percentage or fixed amount) in a badge
-format.
+A reusable UI component for displaying a discount (percentage or fixed amount) in a badge format.
 
 <Canvas of={DiscountBadgeStories.PercentDiscount} />
 
@@ -16,41 +15,43 @@ The discount badge component is designed to be used in billing and subscription 
 display discount information.
 
 ```ts
-import { DiscountBadgeComponent, DiscountInfo } from "@bitwarden/pricing";
+import { DiscountBadgeComponent, Discount } from "@bitwarden/pricing";
 ```
 
 ```html
-<billing-discount-badge [discount]="discountInfo"></billing-discount-badge>
+<billing-discount-badge [discount]="discount"></billing-discount-badge>
 ```
 
 ## API
 
 ### Inputs
 
-| Input      | Type                   | Description                                                                      |
-| ---------- | ---------------------- | -------------------------------------------------------------------------------- |
-| `discount` | `DiscountInfo \| null` | **Optional.** Discount information object. If null or inactive, badge is hidden. |
+| Input      | Type                            | Description                                                                      |
+| ---------- | ------------------------------- | -------------------------------------------------------------------------------- |
+| `discount` | `Discount \| null \| undefined` | **Optional.** Discount object. If null, undefined, or inactive, badge is hidden. |
 
-### DiscountInfo Interface
+### Discount Type
 
 ```ts
-interface DiscountInfo {
+import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
+
+type Discount = {
+  /** The type of discount */
+  type: DiscountType; // DiscountTypes.AmountOff | DiscountTypes.PercentOff
   /** Whether the discount is currently active */
   active: boolean;
-  /** Percentage discount (0-100 or 0-1 scale) */
-  percentOff?: number;
-  /** Fixed amount discount in the base currency */
-  amountOff?: number;
-}
+  /** The discount value (percentage or amount depending on type) */
+  value: number;
+};
 ```
 
 ## Behavior
 
-- The badge is only displayed when `discount` is provided, `active` is `true`, and either
-  `percentOff` or `amountOff` is greater than 0.
-- If both `percentOff` and `amountOff` are provided, `percentOff` takes precedence.
-- Percentage values can be provided as 0-100 (e.g., `20` for 20%) or 0-1 (e.g., `0.2` for 20%).
-- Amount values are formatted as currency (USD) with 2 decimal places.
+- The badge is only displayed when `discount` is provided, `active` is `true`, and `value` is
+  greater than 0.
+- For `percent-off` type: percentage values can be provided as 0-100 (e.g., `20` for 20%) or 0-1
+  (e.g., `0.2` for 20%).
+- For `amount-off` type: amount values are formatted as currency (USD) with 2 decimal places.
 
 ## Examples
 
