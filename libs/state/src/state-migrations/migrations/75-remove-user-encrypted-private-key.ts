@@ -1,11 +1,12 @@
-import { KeyDefinitionLike, MigrationHelper } from "../migration-helper";
-import { IRREVERSIBLE, Migrator } from "../migrator";
 import {
   SignedPublicKey,
   WrappedAccountCryptographicState,
   EncString,
   SignedSecurityState,
 } from "@bitwarden/sdk-internal";
+
+import { KeyDefinitionLike, MigrationHelper } from "../migration-helper";
+import { IRREVERSIBLE, Migrator } from "../migrator";
 
 type ExpectedAccountType = NonNullable<unknown>;
 
