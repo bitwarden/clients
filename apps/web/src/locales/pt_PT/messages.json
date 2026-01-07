@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre."
   },
+  "itemRestored": {
+    "message": "O item foi restaurado"
+  },
   "restartPremium": {
     "message": "Reiniciar Premium"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "Desarquivar"
+  },
+  "archived": {
+    "message": "Arquivado"
   },
   "unArchiveAndSave": {
     "message": "Desarquivar e guardar"

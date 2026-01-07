@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Herstart je Premium-abonnement om toegang tot je archief te krijgen. Als je de details wijzigt voor een gearchiveerd item voor het opnieuw opstarten, zal het terug naar je kluis worden verplaatst."
   },
+  "itemRestored": {
+    "message": "Item is hersteld"
+  },
   "restartPremium": {
     "message": "Premium herstarten"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "Dearchiveren"
+  },
+  "archived": {
+    "message": "Gearchiveerd"
   },
   "unArchiveAndSave": {
     "message": "Dearchiveren en opslaan"

@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Arşivinize yeniden erişim kazanmak için Premium aboneliğinizi yeniden başlatın. Yeniden başlatmadan önce arşivlenmiş bir kaydın ayrıntılarını düzenlerseniz, kayıt tekrar kasanıza taşınır."
   },
+  "itemRestored": {
+    "message": "Kayıt geri yüklendi"
+  },
   "restartPremium": {
     "message": "Premium’u yeniden başlat"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "Arşivden çıkar"
+  },
+  "archived": {
+    "message": "Arşivlendi"
   },
   "unArchiveAndSave": {
     "message": "Arşivden çıkar ve kaydet"
