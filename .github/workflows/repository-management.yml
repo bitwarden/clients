@@ -95,6 +95,13 @@ jobs:
           keyvault: gh-org-bitwarden
           secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
 
+      - name: Retrieve GPG secrets
+        id: retrieve-gpg-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "github-gpg-private-key, github-gpg-private-key-passphrase"
+
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
@@ -118,13 +125,6 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "Github Actions"
-
-      - name: Retrieve GPG secrets
-        id: retrieve-gpg-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "github-gpg-private-key, github-gpg-private-key-passphrase"
 
       - name: Setup GPG signing
         run: |
