@@ -69,7 +69,8 @@ export class AboutMenu implements IMenubarMenu {
           "\nNode " +
           process.versions.node +
           "\nArchitecture " +
-          process.arch;
+          process.arch +
+          "\nBuilt with pnpm";
         const result = await dialog.showMessageBox(this._window, {
           title: "Bitwarden",
           message: "Bitwarden",
