@@ -162,14 +162,14 @@ jobs:
         id: bump-browser-version-override
         env:
           VERSION: ${{ inputs.version_number_override }}
-        run: npm version --workspace=@bitwarden/browser "$VERSION"
+        run: pnpm version --workspace=@bitwarden/browser "$VERSION"
 
       - name: Bump Browser Version - Automatic Calculation
         if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' }}
         id: bump-browser-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-browser-version.outputs.version }}
-        run: npm version --workspace=@bitwarden/browser "$VERSION"
+        run: pnpm version --workspace=@bitwarden/browser "$VERSION"
 
       - name: Bump Browser Version - Manifest - Version Override
         if: ${{ inputs.bump_browser == true && inputs.version_number_override != '' }}
@@ -248,14 +248,14 @@ jobs:
         id: bump-cli-version-override
         env:
           VERSION: ${{ inputs.version_number_override }}
-        run: npm version --workspace=@bitwarden/cli "$VERSION"
+        run: pnpm version --workspace=@bitwarden/cli "$VERSION"
 
       - name: Bump CLI Version - Automatic Calculation
         if: ${{ inputs.bump_cli == true && inputs.version_number_override == '' }}
         id: bump-cli-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-cli-version.outputs.version }}
-        run: npm version --workspace=@bitwarden/cli "$VERSION"
+        run: pnpm version --workspace=@bitwarden/cli "$VERSION"
 
       ### Desktop
       - name: Get current Desktop version
@@ -299,27 +299,27 @@ jobs:
         id: bump-desktop-version-override
         env:
           VERSION: ${{ inputs.version_number_override }}
-        run: npm version --workspace=@bitwarden/desktop "$VERSION"
+        run: pnpm version --workspace=@bitwarden/desktop "$VERSION"
 
       - name: Bump Desktop Version - Root - Automatic Calculation
         if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' }}
         id: bump-desktop-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
-        run: npm version --workspace=@bitwarden/desktop "$VERSION"
+        run: pnpm version --workspace=@bitwarden/desktop "$VERSION"
 
       - name: Bump Desktop Version - App - Version Override
         if: ${{ inputs.bump_desktop == true && inputs.version_number_override != '' }}
         env:
           VERSION: ${{ inputs.version_number_override }}
-        run: npm version "$VERSION"
+        run: pnpm version "$VERSION"
         working-directory: "apps/desktop/src"
 
       - name: Bump Desktop Version - App - Automatic Calculation
         if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' }}
         env:
           VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
-        run: npm version "$VERSION"
+        run: pnpm version "$VERSION"
         working-directory: "apps/desktop/src"
 
       ### Web
@@ -364,14 +364,14 @@ jobs:
         id: bump-web-version-override
         env:
           VERSION: ${{ inputs.version_number_override }}
-        run: npm version --workspace=@bitwarden/web-vault "$VERSION"
+        run: pnpm version --workspace=@bitwarden/web-vault "$VERSION"
 
       - name: Bump Web Version - Automatic Calculation
         if: ${{ inputs.bump_web == true && inputs.version_number_override == '' }}
         id: bump-web-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-web-version.outputs.version }}
-        run: npm version --workspace=@bitwarden/web-vault "$VERSION"
+        run: pnpm version --workspace=@bitwarden/web-vault "$VERSION"
 
       ########################
 

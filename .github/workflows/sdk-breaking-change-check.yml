@@ -75,11 +75,14 @@ jobs:
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
       - name: Install Node dependencies
@@ -90,19 +93,19 @@ jobs:
           MAX_RETRIES=3
           while [ ${RETRY_COUNT} -lt ${MAX_RETRIES} ]; do
             RETRY_COUNT=$((RETRY_COUNT + 1))
-            echo "🔄 npm ci attempt ${RETRY_COUNT} of ${MAX_RETRIES}..."
+            echo "🔄 pnpm install attempt ${RETRY_COUNT} of ${MAX_RETRIES}..."
 
-            if npm ci; then
-              echo "✅ npm ci successful"
+            if pnpm install --frozen-lockfile; then
+              echo "✅ pnpm install successful"
               break
             else
-              echo "❌ npm ci attempt ${RETRY_COUNT} failed"
+              echo "❌ pnpm install attempt ${RETRY_COUNT} failed"
               [ ${RETRY_COUNT} -lt ${MAX_RETRIES} ] && sleep 5
             fi
           done
 
           if [ ${RETRY_COUNT} -eq ${MAX_RETRIES} ]; then
-             echo "::error::npm ci failed after ${MAX_RETRIES} attempts"
+             echo "::error::pnpm install failed after ${MAX_RETRIES} attempts"
              exit 1
           fi
 
@@ -118,18 +121,18 @@ jobs:
           path: ./sdk-internal
           if_no_artifact_found: fail
 
-      - name: Override SDK using npm link
+      - name: Override SDK using pnpm link
         working-directory: ./
         run: |
-          echo "🔧 Setting up SDK override using npm link..."
+          echo "🔧 Setting up SDK override using pnpm link..."
           echo "📊 SDK Version: ${_SDK_VERSION}"
           echo "📦 Artifact Source: ${_SOURCE_REPO} run ${_ARTIFACTS_RUN_ID}"
 
           echo "📋 SDK package contents:"
           ls -la ./sdk-internal/
 
-          echo "🔗 Creating npm link to SDK package..."
-          if ! npm link ./sdk-internal; then
+          echo "🔗 Creating pnpm link to SDK package..."
+          if ! pnpm link ./sdk-internal; then
             echo "::error::Failed to link SDK package"
             exit 1
           fi
@@ -138,7 +141,7 @@ jobs:
         run: |
 
           echo "🔍 Running TypeScript type checking with SDK version: ${_SDK_VERSION}"
-          echo "🎯 Type checking command: npm run test:types"
+          echo "🎯 Type checking command: pnpm run test:types"
 
           # Add GitHub Step Summary output
           echo "## 📊 TypeScript Compatibility Check" >> $GITHUB_STEP_SUMMARY
@@ -150,7 +153,7 @@ jobs:
           TYPE_CHECK_START=$(date +%s)
 
           # Run type check with timeout - exit code determines gh run watch result
-          if timeout 10m npm run test:types; then
+          if timeout 10m pnpm run test:types; then
             TYPE_CHECK_END=$(date +%s)
             TYPE_CHECK_DURATION=$((TYPE_CHECK_END - TYPE_CHECK_START))
             echo "✅ TypeScript compilation successful (${TYPE_CHECK_DURATION}s)"

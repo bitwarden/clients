@@ -129,15 +129,18 @@ jobs:
             echo "SHORT_RUNNER_OS=$SHORT_RUNNER_OS"
           } >> "$GITHUB_ENV"
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Install
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./
 
       - name: Remove commercial packages
@@ -163,12 +166,12 @@ jobs:
         working-directory: ./
         run: |
           ls -l ../
-          npm link ../sdk-internal
+          pnpm link ../sdk-internal
 
       - name: Build & Package Unix
         env:
           _SHORT_RUNNER_OS: ${{ env.SHORT_RUNNER_OS }}
-        run: npm run "dist:${{ matrix.license_type.build_prefix }}:$_SHORT_RUNNER_OS${{ matrix.os.target_suffix }}" --quiet
+        run: pnpm run "dist:${{ matrix.license_type.build_prefix }}:$_SHORT_RUNNER_OS${{ matrix.os.target_suffix }}" --quiet
 
       - name: Login to Azure
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
@@ -284,7 +287,7 @@ jobs:
         working-directory: ./
 
       - name: Install (CLI)
-        run: npm i
+        run: pnpm install --ignore-scripts
 
       - name: Output help
         run: node ./build/bw.js --help
@@ -325,11 +328,14 @@ jobs:
           choco install reshack --no-progress
           choco install nasm --no-progress
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Get pkg-fetch
@@ -412,7 +418,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         working-directory: ./
 
       - name: Remove commercial packages
@@ -438,10 +444,10 @@ jobs:
         working-directory: ./
         run: |
           ls -l ../
-          npm link ../sdk-internal
+          pnpm link ../sdk-internal
 
       - name: Build & Package Windows
-        run: npm run dist:${{ matrix.license_type.build_prefix }}:win --quiet
+        run: pnpm run dist:${{ matrix.license_type.build_prefix }}:win --quiet
 
       - name: Sign executable
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}

@@ -112,6 +112,25 @@ module.exports.buildConfig = function buildConfig(params) {
           path.resolve(__dirname, "src/package.json"),
           { from: path.resolve(__dirname, "src/images"), to: "images" },
           { from: path.resolve(__dirname, "src/locales"), to: "locales" },
+          // Copy desktop-napi package to build/node_modules/ so electron-builder
+          // doesn't need to scan parent node_modules
+          {
+            from: path.resolve(__dirname, "desktop_native/napi/package.json"),
+            to: "node_modules/@bitwarden/desktop-napi/package.json",
+          },
+          {
+            from: path.resolve(__dirname, "desktop_native/napi/index.js"),
+            to: "node_modules/@bitwarden/desktop-napi/index.js",
+          },
+          {
+            from: path.resolve(__dirname, "desktop_native/napi/index.d.ts"),
+            to: "node_modules/@bitwarden/desktop-napi/index.d.ts",
+          },
+          {
+            from: path.resolve(__dirname, "desktop_native/napi/*.node"),
+            to: "node_modules/@bitwarden/desktop-napi/[name][ext]",
+            noErrorOnMissing: true,
+          },
         ],
       }),
       new DefinePlugin({
