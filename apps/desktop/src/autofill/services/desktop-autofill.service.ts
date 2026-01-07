@@ -55,6 +55,7 @@ export class DesktopAutofillService implements OnDestroy {
   private registrationRequest: autofill.PasskeyRegistrationRequest;
   private featureFlag?: FeatureFlag;
   private isEnabled: boolean = false;
+  private inFlightRequests: Record<string, AbortController> = {};
 
   constructor(
     private logService: LogService,
@@ -144,8 +145,8 @@ export class DesktopAutofillService implements OnDestroy {
       return;
     }
 
-    let fido2Credentials: NativeAutofillFido2Credential[];
-    let passwordCredentials: NativeAutofillPasswordCredential[];
+    let fido2Credentials: NativeAutofillFido2Credential[] = [];
+    let passwordCredentials: NativeAutofillPasswordCredential[] = [];
 
     if (status.value.support.password) {
       passwordCredentials = cipherViews
@@ -222,18 +223,27 @@ export class DesktopAutofillService implements OnDestroy {
       this.logService.debug("listenPasskeyRegistration2", this.convertRegistrationRequest(request));
 
       const controller = new AbortController();
+      if (request.context) {
+        this.inFlightRequests[request.context] = controller;
+      }
 
+      const clientHandle = request.clientWindowHandle ? new Uint8Array(request.clientWindowHandle) : null;
       try {
         const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
-          { windowXy: request.windowXy },
+          { windowXy: request.windowXy, handle: clientHandle },
           controller,
+          request.context,
         );
 
         callback(null, this.convertRegistrationResponse(request, response));
       } catch (error) {
         this.logService.error("listenPasskeyRegistration error", error);
         callback(error, null);
+      } finally {
+        if (request.context) {
+          delete this.inFlightRequests[request.context];
+        }
       }
     });
 
@@ -255,6 +265,11 @@ export class DesktopAutofillService implements OnDestroy {
         );
 
         const controller = new AbortController();
+        if (request.context) {
+          this.inFlightRequests[request.context] = controller;
+        }
+
+        const clientHandle = request.clientWindowHandle ? new Uint8Array(request.clientWindowHandle) : null;
 
         try {
           // For some reason the credentialId is passed as an empty array in the request, so we need to
@@ -292,8 +307,9 @@ export class DesktopAutofillService implements OnDestroy {
 
           const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request, true),
-            { windowXy: request.windowXy },
+            { windowXy: request.windowXy, handle: clientHandle },
             controller,
+            request.context,
           );
 
           callback(null, this.convertAssertionResponse(request, response));
@@ -301,6 +317,10 @@ export class DesktopAutofillService implements OnDestroy {
           this.logService.error("listenPasskeyAssertion error", error);
           callback(error, null);
           return;
+        } finally {
+          if (request.context) {
+            delete this.inFlightRequests[request.context];
+          }
         }
       },
     );
@@ -317,10 +337,15 @@ export class DesktopAutofillService implements OnDestroy {
       this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
 
       const controller = new AbortController();
+      if (request.context) {
+        this.inFlightRequests[request.context] = controller;
+      }
+
+      const clientHandle = request.clientWindowHandle ? new Uint8Array(request.clientWindowHandle) : null;
       try {
         const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
-          { windowXy: request.windowXy },
+          { windowXy: request.windowXy, handle: clientHandle },
           controller,
         );
 
@@ -328,6 +353,10 @@ export class DesktopAutofillService implements OnDestroy {
       } catch (error) {
         this.logService.error("listenPasskeyAssertion error", error);
         callback(error, null);
+      } finally {
+        if (request.context) {
+          delete this.inFlightRequests[request.context];
+        }
       }
     });
 
@@ -344,8 +373,34 @@ export class DesktopAutofillService implements OnDestroy {
       if (status.key === "request-sync") {
         // perform ad-hoc sync
         await this.adHocSync();
+      } else if (status.key === "cancel-operation" && status.value) {
+        const requestId = status.value
+        const controller = this.inFlightRequests[requestId]
+        if (controller) {
+          this.logService.debug(`Cancelling request ${requestId}`);
+          controller.abort("Operation cancelled")
+        }
+        else {
+          this.logService.debug(`Unknown request: ${requestId}`);
+        }
       }
     });
+
+    ipc.autofill.listenGetWindowHandle(async (clientId, sequenceNumber, request, callback) => {
+      if (!this.isEnabled) {
+        this.logService.debug(
+          `listenGetWindowHandle: Native credential sync feature flag is disabled`,
+        );
+        return;
+      }
+
+      this.logService.debug("listenGetWindowHandle", clientId, sequenceNumber, request);
+      const windowDetails = await ipc.platform.getNativeWindowDetails();
+      const handle = Utils.fromBufferToB64(windowDetails.handle);
+      const response = { ...windowDetails, handle };
+      this.logService.debug("listenGetWindowHandle: sending", response);
+      callback(null, response)
+    })
 
     ipc.autofill.listenerReady();
   }
