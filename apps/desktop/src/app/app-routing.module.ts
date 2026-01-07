@@ -361,7 +361,7 @@ const routes: Routes = [
       {
         path: "new-sends",
         component: SendV2Component,
-        data: { pageTitle: { key: "new-sends" } } satisfies RouteDataProperties,
+        data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
       },
     ],
   },

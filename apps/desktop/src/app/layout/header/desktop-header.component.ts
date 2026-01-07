@@ -11,16 +11,6 @@ import { HeaderComponent, BannerModule } from "@bitwarden/components";
   templateUrl: "./desktop-header.component.html",
   imports: [BannerModule, HeaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [
-    `
-      /* Manually apply bitTypography h1 styles since HeaderComponent doesn't import TypographyDirective */
-      :host ::ng-deep bit-header h1 {
-        font-size: 1.875rem !important;
-        color: rgb(var(--color-text-main)) !important;
-        font-weight: 500 !important;
-      }
-    `,
-  ],
 })
 export class DesktopHeaderComponent {
   private route = inject(ActivatedRoute);

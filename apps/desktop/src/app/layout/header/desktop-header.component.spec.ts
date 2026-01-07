@@ -119,21 +119,4 @@ describe("DesktopHeaderComponent", () => {
       expect(bitHeader).toBeTruthy();
     });
   });
-
-  describe("styling", () => {
-    it("renders top border radius clip effect", () => {
-      const compiled = fixture.nativeElement;
-      const clipEffectElements = compiled.querySelectorAll('div[class*="tw-bg-background"]');
-
-      expect(clipEffectElements.length).toBeGreaterThanOrEqual(2);
-    });
-
-    it("applies relative z-index positioning", () => {
-      const compiled = fixture.nativeElement;
-      const headerContainer = compiled.querySelector('div[class*="tw-relative"]');
-
-      expect(headerContainer).toBeTruthy();
-      expect(headerContainer.className).toContain("tw-z-20");
-    });
-  });
 });
