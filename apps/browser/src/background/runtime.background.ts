@@ -7,6 +7,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -434,12 +435,17 @@ export default class RuntimeBackground {
 
       if (this.onInstalledReason != null) {
         // Pre-populate phishing cache on install/update so it's ready when premium user logs in
-        // This runs in background and doesn't block the user
+        // Only download if the phishing detection feature flag is enabled
         if (this.onInstalledReason === "install" || this.onInstalledReason === "update") {
-          this.logService.debug(
-            `[RuntimeBackground] Extension ${this.onInstalledReason}: triggering phishing cache pre-population`,
+          const phishingFlagEnabled = await this.configService.getFeatureFlag(
+            FeatureFlag.PhishingDetection,
           );
-          this.main.triggerPhishingCacheUpdate();
+          if (phishingFlagEnabled) {
+            this.logService.debug(
+              `[RuntimeBackground] Extension ${this.onInstalledReason}: triggering phishing cache pre-population`,
+            );
+            this.main.triggerPhishingCacheUpdate();
+          }
         }
 
         if (
