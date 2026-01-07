@@ -753,9 +753,10 @@ describe("ApiService", () => {
       // Mock accountService to return different active users based on when it's called
       accountService.activeAccount$ = of({
         id: activeUserId,
-        email: "user1@example.com",
-        emailVerified: true,
-        name: "Test Name",
+        ...mockAccountInfoWith({
+          email: "user1@example.com",
+          name: "Test Name",
+        }),
       } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
 
       environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
@@ -841,9 +842,10 @@ describe("ApiService", () => {
           activeUserId = testInactiveUser;
           accountService.activeAccount$ = of({
             id: testInactiveUser,
-            email: "user2@example.com",
-            emailVerified: true,
-            name: "Inactive User",
+            ...mockAccountInfoWith({
+              email: "user2@example.com",
+              name: "Inactive User",
+            }),
           } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
 
           return Promise.resolve({
