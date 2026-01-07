@@ -143,7 +143,7 @@ export class Fido2ClientService<
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (!isValidRpId(params.rp.id, params.origin)) {
+    if (!(await isValidRpId(params.rp.id, params.origin))) {
       this.logService?.warning(
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rp.id}; origin = ${params.origin}`,
       );
@@ -282,7 +282,7 @@ export class Fido2ClientService<
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (!isValidRpId(params.rpId, params.origin)) {
+    if (!(await isValidRpId(params.rpId, params.origin))) {
       this.logService?.warning(
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rpId}; origin = ${params.origin}`,
       );

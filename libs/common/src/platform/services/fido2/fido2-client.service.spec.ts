@@ -186,7 +186,7 @@ describe("FidoAuthenticatorService", () => {
         const params = createParams();
         authenticator.makeCredential.mockResolvedValue(createAuthenticatorMakeResult());
         // `params` actually has a valid rp.id, but we're mocking the function to return false
-        isValidRpId.mockReturnValue(false);
+        isValidRpId.mockResolvedValue(false);
 
         const result = async () => await client.createCredential(params, windowReference);
 
@@ -459,7 +459,7 @@ describe("FidoAuthenticatorService", () => {
         const params = createParams();
         authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
         // `params` actually has a valid rp.id, but we're mocking the function to return false
-        isValidRpId.mockReturnValue(false);
+        isValidRpId.mockResolvedValue(false);
 
         const result = async () => await client.assertCredential(params, windowReference);
 
