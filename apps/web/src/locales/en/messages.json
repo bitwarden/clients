@@ -2536,6 +2536,12 @@
   "enabled": {
     "message": "Turned on"
   },
+  "optionDisabled": {
+    "message": "Disabled"
+  },
+  "optionEnabled": {
+    "message": "Enabled"
+  },
   "restoreAccess": {
     "message": "Restore access"
   },
