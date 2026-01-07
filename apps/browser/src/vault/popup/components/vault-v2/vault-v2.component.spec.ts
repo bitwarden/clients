@@ -29,7 +29,11 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
@@ -194,6 +198,11 @@ describe("VaultV2Component", () => {
     stop: jest.fn(),
   } as Partial<VaultPopupScrollPositionService>;
 
+  const vaultItemsTransferSvc = {
+    transferInProgress$: new BehaviorSubject<boolean>(false),
+    enforceOrganizationDataOwnership: jest.fn().mockResolvedValue(undefined),
+  } as Partial<VaultItemsTransferService>;
+
   function getObs<T = unknown>(cmp: any, key: string): Observable<T> {
     return cmp[key] as Observable<T>;
   }
@@ -295,6 +304,9 @@ describe("VaultV2Component", () => {
           AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
         ],
+        providers: [
+          { provide: VaultItemsTransferService, useValue: DefaultVaultItemsTransferService },
+        ],
       },
       add: {
         imports: [
@@ -308,6 +320,7 @@ describe("VaultV2Component", () => {
           AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,
         ],
+        providers: [{ provide: VaultItemsTransferService, useValue: vaultItemsTransferSvc }],
       },
     });
 
@@ -356,6 +369,7 @@ describe("VaultV2Component", () => {
   it("loading$ is true when items loading or filters missing; false when both ready", () => {
     const itemsLoading$ = itemsSvc.loading$ as unknown as BehaviorSubject<boolean>;
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
 
     const values: boolean[] = [];
     getObs<boolean>(component, "loading$").subscribe((v) => values.push(!!v));
@@ -365,6 +379,8 @@ describe("VaultV2Component", () => {
     allFilters$.next({});
 
     itemsLoading$.next(false);
+
+    readySubject$.next(true);
 
     expect(values[values.length - 1]).toBe(false);
   });

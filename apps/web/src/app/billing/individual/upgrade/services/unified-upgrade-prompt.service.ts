@@ -6,8 +6,6 @@ import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-pro
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
@@ -38,7 +36,6 @@ export class UnifiedUpgradePromptService {
   private unifiedUpgradeDialogRef: DialogRef<UnifiedUpgradeDialogResult> | null = null;
   constructor(
     private accountService: AccountService,
-    private configService: ConfigService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private vaultProfileService: VaultProfileService,
     private syncService: SyncService,
@@ -70,26 +67,13 @@ export class UnifiedUpgradePromptService {
         isProfileLessThanFiveMinutesOld$,
         hasOrganizations$,
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-        this.configService.getFeatureFlag$(FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog),
         hasDismissedModal$,
       ]).pipe(
-        map(
-          ([
-            isProfileLessThanFiveMinutesOld,
-            hasOrganizations,
-            hasPremium,
-            isFlagEnabled,
-            hasDismissed,
-          ]) => {
-            return (
-              isProfileLessThanFiveMinutesOld &&
-              !hasOrganizations &&
-              !hasPremium &&
-              isFlagEnabled &&
-              !hasDismissed
-            );
-          },
-        ),
+        map(([isProfileLessThanFiveMinutesOld, hasOrganizations, hasPremium, hasDismissed]) => {
+          return (
+            isProfileLessThanFiveMinutesOld && !hasOrganizations && !hasPremium && !hasDismissed
+          );
+        }),
       );
     }),
     take(1),

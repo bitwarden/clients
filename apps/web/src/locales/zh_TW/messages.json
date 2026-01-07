@@ -1969,17 +1969,16 @@
   "encExportAccountWarningDesc": {
     "message": "每個 Bitwarden 使用者帳戶的帳戶加密金鑰都不相同，因此無法將已加密匯出的檔案匯入至不同帳戶中。"
   },
-  "export": {
-    "message": "匯出"
+  "exportNoun": {
+    "message": "匯出",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "匯出",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "匯出自"
-  },
-  "exportVault": {
-    "message": "匯出密碼庫"
-  },
-  "exportSecrets": {
-    "message": "匯出機密"
   },
   "fileFormat": {
     "message": "檔案格式"
@@ -1992,9 +1991,6 @@
   },
   "confirmMasterPassword": {
     "message": "確認主密碼"
-  },
-  "confirmFormat": {
-    "message": "確認格式"
   },
   "filePassword": {
     "message": "檔案密碼"
@@ -2305,6 +2301,14 @@
   },
   "tools": {
     "message": "工具"
+  },
+  "importNoun": {
+    "message": "匯入",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "匯入",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "匯入資料"
@@ -2629,6 +2633,9 @@
   },
   "key": {
     "message": "金鑰"
+  },
+  "unnamedKey": {
+    "message": "未命名金鑰"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "驗證碼"
@@ -3063,7 +3070,7 @@
     "message": "用於檔案附件的 1 GB 的加密檔案儲存空間。"
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "用於檔案附件的 $SIZE$ 加密儲存空間。",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -3134,13 +3141,16 @@
     }
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "您的進階版訂閱已到期"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "重新啟用進階版"
   },
   "additionalStorageGb": {
     "message": "額外儲存空間 (GB)"
@@ -3287,6 +3297,9 @@
     "message": "管理訂閱"
   },
   "launchCloudSubscription": {
+    "message": "啟動雲端訂閱"
+  },
+  "launchCloudSubscriptionSentenceCase": {
     "message": "啟動雲端訂閱"
   },
   "storage": {
@@ -4204,6 +4217,12 @@
       }
     }
   },
+  "userAcceptedTransfer": {
+    "message": "已接受轉移至組織擁有權。"
+  },
+  "userDeclinedTransfer": {
+    "message": "因拒絕轉移至組織擁有權而遭撤銷。"
+  },
   "invitedUserId": {
     "message": "已邀請使用者 $ID$。",
     "placeholders": {
@@ -4627,19 +4646,19 @@
     "message": "深入了解"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "更新加密設定時發生錯誤。"
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "更新您的加密設定"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "新的建議加密設定將提升您的帳戶安全性。請輸入主密碼以立即更新。"
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "請先確認身分後再繼續"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "輸入您的主密碼"
   },
   "updateSettings": {
     "message": "更新設定"
@@ -5169,8 +5188,20 @@
     "message": "修正",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "修正加密"
+  },
+  "fixEncryptionTooltip": {
+    "message": "此檔案使用了過時的加密方式。"
+  },
+  "attachmentUpdated": {
+    "message": "附件已更新"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "需要先修正密碼庫中舊的檔案附件，然後才能輪換帳戶的加密金鑰。"
+  },
+  "itemsTransferred": {
+    "message": "項目已轉移"
   },
   "yourAccountsFingerprint": {
     "message": "您帳戶的指紋短語",
@@ -6453,6 +6484,32 @@
   "bulkReinviteMessage": {
     "message": "已成功重新邀請。"
   },
+  "bulkReinviteSuccessToast": {
+    "message": "已重新邀請 $COUNT$ 位使用者",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "已重新邀請 $SELECTEDCOUNT$ 位使用者中的 $LIMIT$ 位。有 $EXCLUDEDCOUNT$ 位因達到 $LIMIT$ 的邀請上限而未被邀請。",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "已成功移除。"
   },
@@ -6773,8 +6830,8 @@
   "vaultTimeoutRangeError": {
     "message": "密碼庫逾時時間不在允許的範圍內。"
   },
-  "disablePersonalVaultExport": {
-    "message": "停用個人密碼庫匯出"
+  "disableExport": {
+    "message": "移除匯出"
   },
   "disablePersonalVaultExportDescription": {
     "message": "不允許成員從其個人密碼庫匯出資料。"
@@ -7094,9 +7151,6 @@
   "invalidVerificationCode": {
     "message": "無效的驗證碼"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "以下組織的成員已不再需要主密碼。請與你的組織管理員確認下方的網域。"
-  },
   "keyConnectorDomain": {
     "message": "Key Connector 網域"
   },
@@ -7154,8 +7208,8 @@
   "enabledSso": {
     "message": "已啟用 SSO"
   },
-  "disabledSso": {
-    "message": "已停用 SSO"
+  "ssoTurnedOff": {
+    "message": "SSO 已關閉"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ 必須使用單一登入 (SSO) 登入",
@@ -8718,9 +8772,6 @@
   "server": {
     "message": "伺服器"
   },
-  "exportData": {
-    "message": "匯出資料"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "匯出組織機密資料"
   },
@@ -9447,6 +9498,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "需要登入 SSO"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "使用 SSO 需要電子郵件"
   },
   "selectedRegionFlag": {
     "message": "選定的區域標記"
@@ -11558,6 +11612,12 @@
   "unArchive": {
     "message": "取消封存"
   },
+  "archived": {
+    "message": "Archived"
+  },
+  "unArchiveAndSave": {
+    "message": "取消封存並儲存"
+  },
   "itemsInArchive": {
     "message": "封存中的項目"
   },
@@ -11961,8 +12021,8 @@
   "familiesMembership": {
     "message": "家庭會員"
   },
-  "planDescPremium": {
-    "message": "完整的線上安全"
+  "advancedOnlineSecurity": {
+    "message": "進階線上安全防護"
   },
   "planDescFamiliesV2": {
     "message": "為你的家人提供進階安全"
@@ -12199,6 +12259,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "您的組織已不再使用主密碼登入 Bitwarden。若要繼續，請驗證組織與網域。"
+  },
+  "continueWithLogIn": {
+    "message": "繼續登入"
+  },
+  "doNotContinue": {
+    "message": "不要繼續"
+  },
+  "domain": {
+    "message": "網域"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "此網域將儲存您帳號的加密金鑰，請確認您信任它。若不確定，請洽詢您的管理員。"
+  },
+  "verifyYourOrganization": {
+    "message": "驗證您的組織以登入"
+  },
+  "organizationVerified": {
+    "message": "組織已驗證"
+  },
+  "domainVerified": {
+    "message": "已驗證網域"
+  },
+  "leaveOrganizationContent": {
+    "message": "若您未驗證組織，將會被撤銷對該組織的存取權限。"
+  },
+  "leaveNow": {
+    "message": "立即離開"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "驗證您的網域以登入"
+  },
+  "verifyYourDomainDescription": {
+    "message": "若要繼續登入，請驗證此網域。"
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "若要繼續登入，請驗證組織與網域。"
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "未選取任何關鍵應用程式"
   },
@@ -12207,5 +12306,190 @@
   },
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "刪除無法復原的密碼庫項目"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "部分密碼庫項目無法復原。是否要從您的密碼庫中刪除這些無法復原的項目？"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "刪除無法復原的資料夾"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "部分資料夾無法復原。是否要從您的密碼庫中刪除這些無法復原的資料夾？"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "更換加密金鑰"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "您的公開金鑰加密金鑰組無法復原。是否要以新的金鑰組取代目前的加密金鑰？這將需要您重新設定現有的緊急存取與組織成員資格。"
+  },
+  "recoveryStepSyncTitle": {
+    "message": "正在同步資料"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "正在驗證加密金鑰完整性"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "正在驗證使用者資訊"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "正在驗證密碼庫項目完整性"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "正在驗證資料夾完整性"
+  },
+  "dataRecoveryTitle": {
+    "message": "資料復原與診斷"
+  },
+  "dataRecoveryDescription": {
+    "message": "使用資料復原工具來診斷並修復您帳號的問題。完成診斷後，您可以選擇儲存診斷記錄以供支援使用，並修復任何偵測到的問題。"
+  },
+  "runDiagnostics": {
+    "message": "執行診斷"
+  },
+  "repairIssues": {
+    "message": "修復問題"
+  },
+  "saveDiagnosticLogs": {
+    "message": "儲存診斷記錄"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "此設定由您的組織管理。"
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "您的組織已將最長工作階段逾時設為 $HOURS$ 小時與 $MINUTES$ 分鐘。",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "您的組織已將預設工作階段逾時設定為「在瀏覽器重新整理時」。"
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "最長逾時時間不可超過 $HOURS$ 小時 $MINUTES$ 分鐘",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "於瀏覽器重新整理時"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "確定要離開嗎？"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "若選擇拒絕，您的個人項目將保留在帳號中，但您將失去對共用項目與組織功能的存取權。"
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "請聯絡您的管理員以重新取得存取權限。"
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "離開 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "我要如何管理我的密碼庫？"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "將項目轉移至 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ 為了安全性與合規性，要求所有項目皆由組織擁有。點擊接受即可轉移您項目的擁有權。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "同意轉移"
+  },
+  "declineAndLeave": {
+    "message": "拒絕並離開"
+  },
+  "whyAmISeeingThis": {
+    "message": "為什麼我會看到此訊息？"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "您已擁有 Bitwarden 進階版"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "檢視並管理您的進階版訂閱"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "您需要更新您的授權檔案"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$。",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "上傳授權檔案"
+  },
+  "uploadYourLicenseFile": {
+    "message": "上傳您的授權檔案"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "上傳您的進階版授權檔案"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "您的授權檔案名稱將類似於：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "已經有訂閱了嗎？"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "請在您的 Bitwarden 雲端帳號中開啟訂閱頁面並下載授權檔案，接著返回此畫面並於下方上傳。"
+  },
+  "viewAllPlans": {
+    "message": "查看所有方案"
+  },
+  "planDescPremium": {
+    "message": "完整的線上安全防護"
   }
 }
