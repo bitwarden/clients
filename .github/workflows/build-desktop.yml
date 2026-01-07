@@ -2120,6 +2120,50 @@ jobs:
             exit 1
           fi
 
+  validate-macos-dmg:
+    name: Validate MacOS dmg
+    runs-on: macos-15
+    needs:
+      - setup
+      - macos-package-github
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download dmg artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/macos/dmg
+          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
+
+      - name: Install dmg
+        working-directory: apps/desktop/artifacts/macos/dmg
+        run: |
+          # mount
+          hdiutil attach Bitwarden-${_PACKAGE_VERSION}-universal.dmg
+          # install
+          cp -r /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal/Bitwarden.app /Applications/
+          # unmount
+          hdiutil detach /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal
+
+      - name: Run dmg
+        run: |
+          open /Applications/Bitwarden.app/Contents/MacOS/Bitwarden &
+          sleep 30
+          if pgrep Bitwarden > /dev/null; then
+            pkill -9 Bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
   check-failures:
     name: Check for failures
     if: always()
@@ -2139,6 +2183,7 @@ jobs:
       - validate-linux-flatpak
       - validate-linux-snap
       - validate-linux-wayland
+      - validate-macos-dmg
     permissions:
       contents: read
       id-token: write
