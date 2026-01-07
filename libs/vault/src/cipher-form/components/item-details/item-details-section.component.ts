@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, Input, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, input, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
@@ -10,18 +10,20 @@ import { concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/client-type";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  BadgeComponent,
   CardComponent,
   FormFieldModule,
   IconButtonModule,
@@ -37,6 +39,8 @@ import {
 } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-item-details-section",
   templateUrl: "./item-details-section.component.html",
@@ -50,6 +54,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
     IconButtonModule,
     JslibModule,
     CommonModule,
+    BadgeComponent,
   ],
 })
 export class ItemDetailsSectionComponent implements OnInit {
@@ -59,6 +64,14 @@ export class ItemDetailsSectionComponent implements OnInit {
     folderId: [null],
     collectionIds: new FormControl([], [Validators.required]),
     favorite: [false],
+  });
+
+  protected readonly showArchiveBadge = computed(() => {
+    return (
+      this.cipherArchiveService.hasArchiveFlagEnabled$ &&
+      this.originalCipherView()?.isArchived &&
+      this.platformUtilsService.getClientType() === ClientType.Desktop
+    );
   });
 
   /**
@@ -84,11 +97,12 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   protected favoriteButtonDisabled = false;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   config: CipherFormConfig;
 
-  @Input()
-  originalCipherView: CipherView;
+  readonly originalCipherView = input<CipherView>();
 
   get readOnlyCollectionsNames(): string[] {
     return this.readOnlyCollections.map((c) => c.name);
@@ -135,8 +149,9 @@ export class ItemDetailsSectionComponent implements OnInit {
     private i18nService: I18nService,
     private destroyRef: DestroyRef,
     private accountService: AccountService,
-    private configService: ConfigService,
     private policyService: PolicyService,
+    private platformUtilsService: PlatformUtilsService,
+    private cipherArchiveService: CipherArchiveService,
   ) {
     this.cipherFormContainer.registerChildForm("itemDetails", this.itemDetailsForm);
     this.itemDetailsForm.valueChanges
@@ -172,7 +187,7 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   get allowOwnershipChange() {
     // Do not allow ownership change in edit mode and the cipher is owned by an organization
-    if (this.config.mode === "edit" && this.originalCipherView?.organizationId != null) {
+    if (this.config.mode === "edit" && this.originalCipherView()?.organizationId != null) {
       return false;
     }
 
@@ -186,11 +201,6 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get showOwnership() {
-    // Don't show ownership field for archived ciphers
-    if (this.originalCipherView?.isArchived) {
-      return false;
-    }
-
     // Show ownership field when editing with available orgs
     const isEditingWithOrgs = this.organizations.length > 0 && this.config.mode === "edit";
 
@@ -284,14 +294,6 @@ export class ItemDetailsSectionComponent implements OnInit {
       return;
     }
 
-    const isFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CreateDefaultLocation,
-    );
-
-    if (!isFeatureEnabled) {
-      return;
-    }
-
     const selectedOrgHasPolicyEnabled = (
       await firstValueFrom(
         this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, this.userId),
@@ -359,7 +361,7 @@ export class ItemDetailsSectionComponent implements OnInit {
           (c) =>
             c.organizationId === orgId &&
             c.readOnly &&
-            this.originalCipherView.collectionIds.includes(c.id as CollectionId),
+            this.originalCipherView().collectionIds.includes(c.id as CollectionId),
         );
       }
     }
@@ -416,8 +418,8 @@ export class ItemDetailsSectionComponent implements OnInit {
      * Note: `.every` will return true for an empty array
      */
     const cipherIsOnlyInOrgCollections =
-      (this.originalCipherView?.collectionIds ?? []).length > 0 &&
-      this.originalCipherView.collectionIds.every(
+      (this.originalCipherView()?.collectionIds ?? []).length > 0 &&
+      this.originalCipherView().collectionIds.every(
         (cId) =>
           this.collections.find((c) => c.id === cId)?.type === CollectionTypes.SharedCollection,
       );

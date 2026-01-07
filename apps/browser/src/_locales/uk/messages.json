@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Використати єдиний вхід"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Ваша організація вимагає єдиний вхід (SSO)."
+  },
   "welcomeBack": {
     "message": "З поверненням"
   },
@@ -433,8 +436,8 @@
   "sync": {
     "message": "Синхронізація"
   },
-  "syncVaultNow": {
-    "message": "Синхронізувати зараз"
+  "syncNow": {
+    "message": "Синхронізувати"
   },
   "lastSync": {
     "message": "Остання синхронізація:"
@@ -451,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Вебпрограма Bitwarden"
-  },
-  "importItems": {
-    "message": "Імпортувати записи"
   },
   "select": {
     "message": "Обрати"
@@ -551,15 +551,15 @@
     "message": "Скинути пошук"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архів",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архівувати",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Видобути"
   },
   "itemsInArchive": {
     "message": "Записи в архіві"
@@ -571,10 +571,10 @@
     "message": "Архівовані записи з'являтимуться тут і будуть виключені з результатів звичайного пошуку та пропозицій автозаповнення."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Запис архівовано"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Запис розархівовано"
   },
   "archiveItem": {
     "message": "Архівувати запис"
@@ -582,11 +582,26 @@
   "archiveItemConfirmDesc": {
     "message": "Архівовані записи виключаються з результатів звичайного пошуку та пропозицій автозаповнення. Ви дійсно хочете архівувати цей запис?"
   },
+  "upgradeToUseArchive": {
+    "message": "Для використання архіву необхідна передплата Premium."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Змінити"
   },
   "view": {
     "message": "Переглянути"
+  },
+  "viewAll": {
+    "message": "Переглянути все"
+  },
+  "showAll": {
+    "message": "Показати все"
+  },
+  "viewLess": {
+    "message": "Показати менше"
   },
   "viewLogin": {
     "message": "Переглянути запис"
@@ -734,7 +749,7 @@
     "message": "Неправильний головний пароль"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Неправильний головний пароль. Перевірте правильність адреси електронної пошти та розміщення облікового запису на $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -789,6 +804,12 @@
   },
   "onLocked": {
     "message": "З блокуванням системи"
+  },
+  "onIdle": {
+    "message": "Бездіяльність системи"
+  },
+  "onSleep": {
+    "message": "Режим сну"
   },
   "onRestart": {
     "message": "З перезапуском браузера"
@@ -1027,6 +1048,18 @@
   },
   "editedItem": {
     "message": "Запис збережено"
+  },
+  "savedWebsite": {
+    "message": "Збережений вебсайт"
+  },
+  "savedWebsites": {
+    "message": "Збережені вебсайти ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Ви дійсно хочете перенести до смітника?"
@@ -1292,8 +1325,21 @@
   "exportFrom": {
     "message": "Експортувати з"
   },
-  "exportVault": {
-    "message": "Експортувати сховище"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат файлу"
@@ -1373,6 +1419,27 @@
   "learnMore": {
     "message": "Докладніше"
   },
+  "migrationsFailed": {
+    "message": "Сталася помилка під час оновлення налаштувань шифрування."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Оновіть свої налаштування шифрування"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Нові рекомендовані налаштування шифрування покращать безпеку вашого облікового запису. Щоб оновити їх, введіть свій головний пароль."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Щоб продовжити, підтвердьте свої облікові дані"
+  },
+  "enterYourMasterPassword": {
+    "message": "Введіть головний пароль"
+  },
+  "updateSettings": {
+    "message": "Оновити налаштування"
+  },
+  "later": {
+    "message": "Пізніше"
+  },
   "authenticatorKeyTotp": {
     "message": "Ключ автентифікації (TOTP)"
   },
@@ -1403,6 +1470,15 @@
   "attachmentSaved": {
     "message": "Вкладення збережено"
   },
+  "fixEncryption": {
+    "message": "Виправити шифрування"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Для цього файлу використовується застарілий метод шифрування."
+  },
+  "attachmentUpdated": {
+    "message": "Вкладення оновлено"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1411,6 +1487,9 @@
   },
   "selectFile": {
     "message": "Оберіть файл"
+  },
+  "itemsTransferred": {
+    "message": "Записи переміщено"
   },
   "maxFileSize": {
     "message": "Максимальний розмір файлу 500 МБ."
@@ -1422,25 +1501,34 @@
     "message": "Застаріле шифрування більше не підтримується. Зверніться до служби підтримки, щоб відновити обліковий запис."
   },
   "premiumMembership": {
-    "message": "Преміум статус"
+    "message": "Передплата Premium"
   },
   "premiumManage": {
     "message": "Керувати передплатою"
   },
   "premiumManageAlert": {
-    "message": "Ви можете керувати своїм статусом у сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
+    "message": "Ви можете керувати передплатою у сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
   "premiumRefresh": {
     "message": "Оновити стан передплати"
   },
   "premiumNotCurrentMember": {
-    "message": "Зараз у вас немає передплати преміум."
+    "message": "Зараз у вас немає передплати Premium."
   },
   "premiumSignUpAndGet": {
-    "message": "Передплатіть преміум і отримайте:"
+    "message": "Передплатіть Premium і отримайте:"
   },
   "ppremiumSignUpStorage": {
     "message": "1 ГБ зашифрованого сховища для файлів."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ зашифрованого сховища для вкладених файлів.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Екстрений доступ."
@@ -1458,25 +1546,25 @@
     "message": "Пріоритетну технічну підтримку."
   },
   "ppremiumSignUpFuture": {
-    "message": "Усі майбутні преміумфункції. Їх буде більше!"
+    "message": "Усі майбутні функції Premium. Їх буде більше!"
   },
   "premiumPurchase": {
-    "message": "Придбати преміум"
+    "message": "Придбати Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Ви можете придбати Преміум у налаштуваннях облікового запису вебпрограмі Bitwarden."
+    "message": "Ви можете придбати Premium у налаштуваннях облікового запису вебпрограми Bitwarden."
   },
   "premiumCurrentMember": {
-    "message": "Ви користуєтеся передплатою преміум!"
+    "message": "Ви користуєтеся передплатою Premium!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Дякуємо за підтримку Bitwarden."
   },
   "premiumFeatures": {
-    "message": "Передплатіть преміум та отримайте:"
+    "message": "Передплатіть Premium та отримайте:"
   },
   "premiumPrice": {
-    "message": "Всього лише $PRICE$ / за рік!",
+    "message": "Лише $PRICE$ / рік!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1485,7 +1573,7 @@
     }
   },
   "premiumPriceV2": {
-    "message": "Усе лише за $PRICE$ на рік!",
+    "message": "Лише за $PRICE$ на рік за все!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1504,12 +1592,6 @@
   },
   "enableAutoBiometricsPrompt": {
     "message": "Запитувати біометрію під час запуску"
-  },
-  "premiumRequired": {
-    "message": "Необхідна передплата преміум"
-  },
-  "premiumRequiredDesc": {
-    "message": "Для використання цієї функції необхідна передплата преміум."
   },
   "authenticationTimeout": {
     "message": "Час очікування автентифікації"
@@ -1549,13 +1631,13 @@
     "message": "Зчитати ключ безпеки"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "Читання ключа доступу..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "Збій автентифікації ключа доступу"
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "Використати інший спосіб входу"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Очікується взаємодія з ключем безпеки..."
@@ -1623,6 +1705,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Необхідно додати URL-адресу основного сервера, або принаймні одне користувацьке середовище."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL-адреси повинні бути HTTPS."
+  },
   "customEnvironment": {
     "message": "Власне середовище"
   },
@@ -1676,8 +1761,29 @@
   "turnOffAutofill": {
     "message": "Вимкніть автозаповнення"
   },
+  "confirmAutofill": {
+    "message": "Підтвердити автозаповнення"
+  },
+  "confirmAutofillDesc": {
+    "message": "Адреса цього вебсайту відрізняється від збережених даних вашого запису. Перш ніж заповнити облікові дані, переконайтеся, що це надійний сайт."
+  },
   "showInlineMenuLabel": {
     "message": "Пропозиції автозаповнення на полях форм"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Як Bitwarden захищає ваші дані від шахрайства?"
+  },
+  "currentWebsite": {
+    "message": "Поточний вебсайт"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Автоматично заповнити й додати цей сайт"
+  },
+  "autofillWithoutAdding": {
+    "message": "Автоматично заповнити без додавання"
+  },
+  "doNotAutofill": {
+    "message": "Не заповнювати автоматично"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Показувати посвідчення як пропозиції"
@@ -1821,6 +1927,9 @@
   },
   "expirationYear": {
     "message": "Рік завершення"
+  },
+  "monthly": {
+    "message": "місяць"
   },
   "expiration": {
     "message": "Термін дії"
@@ -2390,6 +2499,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Ця сторінка заважає роботі Bitwarden. Задля безпеки вбудоване меню Bitwarden тимчасово вимкнено."
   },
   "setMasterPassword": {
     "message": "Встановити головний пароль"
@@ -3153,9 +3265,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Не знайдено унікальний ідентифікатор."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Головний пароль більше не є обов'язковим для учасників зазначеної організації. Підтвердьте вказаний нижче домен з адміністратором вашої організації."
-  },
   "organizationName": {
     "message": "Назва організації"
   },
@@ -3217,7 +3326,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3226,7 +3335,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$. Записи моїх збірок не будуть включені.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3239,6 +3348,9 @@
   },
   "decryptionError": {
     "message": "Помилка розшифрування"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Помилка отримання даних автозаповнення"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
@@ -3470,7 +3582,7 @@
     "message": "Помилка Key Connector: переконайтеся, що Key Connector доступний та працює правильно."
   },
   "premiumSubcriptionRequired": {
-    "message": "Необхідна передплата преміум"
+    "message": "Необхідна передплата Premium"
   },
   "organizationIsDisabled": {
     "message": "Організацію вимкнено."
@@ -4011,6 +4123,15 @@
     "message": "Автозаповнення на сторінці налаштовано з типовими параметрами.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
+  "cannotAutofill": {
+    "message": "Неможливо автоматично заповнити"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Типово налаштовано \"Точну відповідність\". Адреса поточного вебсайту відрізняється від збережених даних для цього запису."
+  },
+  "okay": {
+    "message": "Гаразд"
+  },
   "toggleSideNavigation": {
     "message": "Перемкнути бічну навігацію"
   },
@@ -4106,10 +4227,6 @@
   },
   "ignore": {
     "message": "Ігнорувати"
-  },
-  "importData": {
-    "message": "Імпортувати дані",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Помилка імпорту"
@@ -4697,6 +4814,15 @@
   "accountSecurity": {
     "message": "Безпека облікового запису"
   },
+  "phishingBlocker": {
+    "message": "Блокувальник шахрайства"
+  },
+  "enablePhishingDetection": {
+    "message": "Виявлення шахрайства"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Показувати попередження перед відвідуванням підозрюваних шахрайських сайтів"
+  },
   "notifications": {
     "message": "Сповіщення"
   },
@@ -4840,7 +4966,10 @@
     "message": "Ви дійсно хочете остаточно видалити це вкладення?"
   },
   "premium": {
-    "message": "Преміум"
+    "message": "Premium"
+  },
+  "unlockFeaturesWithPremium": {
+    "message": "Розблокуйте звіти, екстрений доступ та інші функції безпеки, передплативши Premium."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Організації без передплати не можуть використовувати вкладення"
@@ -4918,6 +5047,16 @@
   },
   "defaultLabel": {
     "message": "Типово ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
+    "message": "Типово ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5528,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Цей запис ризикований, і не має адреси вебсайту. Додайте адресу вебсайту і змініть пароль для вдосконалення безпеки."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Немає вебсайту"
   },
@@ -5580,30 +5725,30 @@
     "message": "Вітаємо у вашому сховищі!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Виявлено спробу шахрайства"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Ви намагаєтеся відвідати відомий зловмисний вебсайт, який має ризики безпеки."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "Закрити цю вкладку"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Перейти на цей сайт (не рекомендується)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Цей сайт знайдено в ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": "– відкритий список відомих шахрайських сайтів, що використовуються для викрадення особистої та конфіденційної інформації.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "Докладніше про виявлення шахрайства"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "Захищено $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5715,8 +5860,196 @@
   "confirmKeyConnectorDomain": {
     "message": "Підтвердити домен Key Connector"
   },
+  "atRiskLoginsSecured": {
+    "message": "Ви чудово впоралися із захистом своїх ризикованих записів!"
+  },
+  "upgradeNow": {
+    "message": "Покращити"
+  },
+  "builtInAuthenticator": {
+    "message": "Вбудований автентифікатор"
+  },
+  "secureFileStorage": {
+    "message": "Захищене сховище файлів"
+  },
+  "emergencyAccess": {
+    "message": "Екстрений доступ"
+  },
+  "breachMonitoring": {
+    "message": "Моніторинг витоків даних"
+  },
+  "andMoreFeatures": {
+    "message": "Інші можливості!"
+  },
+  "advancedOnlineSecurity": {
+    "message": "Розширена онлайн-безпека"
+  },
+  "upgradeToPremium": {
+    "message": "Покращити до Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Розблокуйте розширені функції безпеки"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "З передплатою Premium ви матимете більше інструментів безпеки та контролю"
+  },
+  "explorePremium": {
+    "message": "Ознайомитися з Premium"
+  },
+  "loadingVault": {
+    "message": "Завантаження сховища"
+  },
+  "vaultLoaded": {
+    "message": "Сховище завантажено"
+  },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "Цей параметр вимкнено політикою вашої організації.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "Поштовий індекс"
+  },
+  "cardNumberLabel": {
+    "message": "Номер картки"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердіть організацію та домен."
+  },
+  "continueWithLogIn": {
+    "message": "Перейти до входу"
+  },
+  "doNotContinue": {
+    "message": "Не продовжувати"
+  },
+  "domain": {
+    "message": "Домен"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Цей домен зберігатиме ключі шифрування вашого облікового запису, тому переконайтеся в його надійності. Якщо ви не впевнені, зверніться до свого адміністратора."
+  },
+  "verifyYourOrganization": {
+    "message": "Підтвердьте свою організацію, щоб увійти"
+  },
+  "organizationVerified": {
+    "message": "Організацію підтверджено"
+  },
+  "domainVerified": {
+    "message": "Домен підтверджено"
+  },
+  "leaveOrganizationContent": {
+    "message": "Якщо ви не підтвердите свою організацію, ваш доступ до неї буде відкликаний."
+  },
+  "leaveNow": {
+    "message": "Покинути"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Підтвердьте свій домен, щоб увійти"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Щоб перейти до входу, підтвердьте цей домен."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Щоб перейти до входу, підтвердьте організацію і домен."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Дія після часу очікування"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Цим параметром керує ваша організація."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Ваша організація встановила максимальний час очікування сеансу $HOURS$ год і $MINUTES$ хв.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Ваша організація встановила максимальний час очікування сеансу \"Негайно\"."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Ваша організація встановила максимальний час очікування сеансу \"Блокування системи\"."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Ваша організація встановила максимальний час очікування сеансу \"З перезапуском браузера\"."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Максимальний час очікування не може перевищувати $HOURS$ год і $MINUTES$ хв",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "З перезапуском браузера"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Встановіть спосіб розблокування, щоб змінити дію під час очікування"
+  },
+  "upgrade": {
+    "message": "Оновити"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Ви дійсно хочете покинути?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Відхиливши, ваші особисті записи залишаться у вашому обліковому записі, але ви втратите доступ до спільних записів та функцій організації."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Зверніться до свого адміністратора, щоб відновити доступ."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Покинути $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Як керувати своїм сховищем?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Перемістити записи до $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "З міркувань безпеки та для забезпечення відповідності $ORGANIZATION$ вимагає, щоб власником всіх елементів була організація. Натисніть кнопку \"прийняти\", щоб передати права власності на ваші елементи.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Схвалити переміщення"
+  },
+  "declineAndLeave": {
+    "message": "Відхилити і покинути"
+  },
+  "whyAmISeeingThis": {
+    "message": "Чому я це бачу?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

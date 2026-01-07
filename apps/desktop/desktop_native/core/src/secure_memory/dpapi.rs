@@ -29,8 +29,9 @@ impl SecureMemoryStore for DpapiSecretKVStore {
     fn put(&mut self, key: String, value: &[u8]) {
         let length_header_len = std::mem::size_of::<usize>();
 
-        // The allocated data has to be a multiple of CRYPTPROTECTMEMORY_BLOCK_SIZE, so we pad it and write the length in front
-        // We are storing LENGTH|DATA|00..00, where LENGTH is the length of DATA, the total length is a multiple
+        // The allocated data has to be a multiple of CRYPTPROTECTMEMORY_BLOCK_SIZE, so we pad it
+        // and write the length in front We are storing LENGTH|DATA|00..00, where LENGTH is
+        // the length of DATA, the total length is a multiple
         // of CRYPTPROTECTMEMORY_BLOCK_SIZE, and the padding is filled with zeros.
 
         let data_len = value.len();
@@ -54,7 +55,7 @@ impl SecureMemoryStore for DpapiSecretKVStore {
         self.map.insert(key, padded_data);
     }
 
-    fn get(&self, key: &str) -> Option<Vec<u8>> {
+    fn get(&mut self, key: &str) -> Option<Vec<u8>> {
         self.map.get(key).map(|data| {
             // A copy is created, that is then mutated by the DPAPI unprotect function.
             let mut data = data.clone();

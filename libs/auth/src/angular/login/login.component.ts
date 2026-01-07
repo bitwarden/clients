@@ -54,6 +54,7 @@ import {
   IconButtonModule,
   LinkModule,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 
 import { LoginComponentService, PasswordPolicies } from "./login-component.service";
@@ -67,6 +68,8 @@ export enum LoginUiState {
   MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./login.component.html",
   imports: [
@@ -80,9 +83,12 @@ export enum LoginUiState {
     JslibModule,
     ReactiveFormsModule,
     RouterModule,
+    TooltipDirective,
   ],
 })
 export class LoginComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("masterPasswordInputRef") masterPasswordInputRef: ElementRef | undefined;
 
   private destroy$ = new Subject<void>();
@@ -199,14 +205,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.loadRememberedEmail();
     }
 
-    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22110_DisableAlternateLoginMethods,
-    );
-    if (disableAlternateLoginMethodsFlagEnabled) {
-      // This SSO required check should come after email has had a chance to be pre-filled (if it
-      // was found in query params or was the remembered email)
-      await this.determineIfSsoRequired();
-    }
+    // This SSO required check should come after email has had a chance to be pre-filled (if it
+    // was found in query params or was the remembered email)
+    await this.determineIfSsoRequired();
   }
 
   private async desktopOnInit(): Promise<void> {
@@ -380,8 +381,26 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // redirect to SSO if ssoOrganizationIdentifier is present in token response
+    if (authResult.requiresSso) {
+      const email = this.formGroup?.value?.email;
+      if (!email) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("emailRequiredForSsoLogin"),
+        });
+        return;
+      }
+      await this.loginComponentService.redirectToSsoLoginWithOrganizationSsoIdentifier(
+        email,
+        authResult.ssoOrganizationIdentifier,
+      );
+      return;
+    }
+
     // User logged in successfully so execute side effects
-    await this.loginSuccessHandlerService.run(authResult.userId);
+    await this.loginSuccessHandlerService.run(authResult.userId, authResult.masterPassword);
 
     // Determine where to send the user next
     // The AuthGuard will handle routing to change-password based on state
@@ -544,6 +563,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     const isEmailValid = this.validateEmail();
 
     if (isEmailValid) {
+      await this.makePasswordPreloginCall();
+
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }
   }
@@ -644,6 +665,23 @@ export class LoginComponent implements OnInit, OnDestroy {
    */
   protected async backButtonClicked() {
     history.back();
+  }
+
+  private async makePasswordPreloginCall() {
+    // Prefetch prelogin KDF config when enabled
+    try {
+      const flagEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM23801_PrefetchPasswordPrelogin,
+      );
+      if (flagEnabled) {
+        const email = this.formGroup.value.email;
+        if (email) {
+          void this.loginStrategyService.getPasswordPrelogin(email);
+        }
+      }
+    } catch (error) {
+      this.logService.error("Failed to prefetch prelogin data.", error);
+    }
   }
 
   /**

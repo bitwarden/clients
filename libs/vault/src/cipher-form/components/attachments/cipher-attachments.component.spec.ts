@@ -1,7 +1,8 @@
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -13,7 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
@@ -29,16 +30,18 @@ import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment
 @Component({
   selector: "app-download-attachment",
   template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockDownloadAttachmentComponent {
-  @Input() attachment: AttachmentView;
-  @Input() cipher: CipherView;
-  @Input() admin: boolean = false;
+  readonly attachment = input<AttachmentView>();
+  readonly cipher = input<CipherView>();
+  readonly admin = input<boolean>(false);
 }
 
 describe("CipherAttachmentsComponent", () => {
   let component: CipherAttachmentsComponent;
   let fixture: ComponentFixture<CipherAttachmentsComponent>;
+  let submitBtnFixture: ComponentFixture<ButtonComponent>;
   const showToast = jest.fn();
   const cipherView = {
     id: "5555-444-3333",
@@ -55,17 +58,21 @@ describe("CipherAttachmentsComponent", () => {
   };
 
   const organization = new Organization();
+  organization.id = "org-123" as OrganizationId;
   organization.type = OrganizationUserType.Admin;
   organization.allowAdminAccessToAllCollectionItems = true;
 
   const cipherServiceGet = jest.fn().mockResolvedValue(cipherDomain);
+  const cipherServiceDecrypt = jest.fn().mockResolvedValue(cipherView);
   const saveAttachmentWithServer = jest.fn().mockResolvedValue(cipherDomain);
 
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+  const organizations$ = new BehaviorSubject<Organization[]>([organization]);
 
   beforeEach(async () => {
     cipherServiceGet.mockClear();
+    cipherServiceDecrypt.mockClear().mockResolvedValue(cipherView);
     showToast.mockClear();
     saveAttachmentWithServer.mockClear().mockResolvedValue(cipherDomain);
 
@@ -79,7 +86,7 @@ describe("CipherAttachmentsComponent", () => {
             get: cipherServiceGet,
             saveAttachmentWithServer,
             getKeyForCipherKeyDecryption: () => Promise.resolve(null),
-            decrypt: jest.fn().mockResolvedValue(cipherView),
+            decrypt: cipherServiceDecrypt,
           },
         },
         {
@@ -102,7 +109,9 @@ describe("CipherAttachmentsComponent", () => {
         },
         {
           provide: OrganizationService,
-          useValue: mock<OrganizationService>(),
+          useValue: {
+            organizations$: () => organizations$.asObservable(),
+          },
         },
       ],
     })
@@ -120,70 +129,67 @@ describe("CipherAttachmentsComponent", () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(CipherAttachmentsComponent);
     component = fixture.componentInstance;
-    component.cipherId = "5555-444-3333" as CipherId;
-    component.submitBtn = TestBed.createComponent(ButtonComponent).componentInstance;
+    submitBtnFixture = TestBed.createComponent(ButtonComponent);
+
+    fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+    fixture.componentRef.setInput("submitBtn", submitBtnFixture.componentInstance);
     fixture.detectChanges();
   });
 
+  /**
+   * Helper to wait for the async initialization effect to complete
+   */
+  async function waitForInitialization(): Promise<void> {
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
   it("fetches cipherView using `cipherId`", async () => {
-    await component.ngOnInit();
+    await waitForInitialization();
 
     expect(cipherServiceGet).toHaveBeenCalledWith("5555-444-3333", mockUserId);
-    expect(component.cipher).toEqual(cipherView);
   });
 
-  it("sets testids for automation testing", () => {
+  it("sets testids for automation testing", async () => {
     const attachment = {
       id: "1234-5678",
       fileName: "test file.txt",
       sizeName: "244.2 KB",
     } as AttachmentView;
 
-    component.cipher.attachments = [attachment];
+    const cipherWithAttachments = { ...cipherView, attachments: [attachment] };
+    cipherServiceDecrypt.mockResolvedValue(cipherWithAttachments);
 
+    // Create fresh fixture to pick up the mock
+    fixture = TestBed.createComponent(CipherAttachmentsComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
     fixture.detectChanges();
+
+    await waitForInitialization();
 
     const fileName = fixture.debugElement.query(By.css('[data-testid="file-name"]'));
     const fileSize = fixture.debugElement.query(By.css('[data-testid="file-size"]'));
 
-    expect(fileName.nativeElement.textContent).toEqual(attachment.fileName);
+    expect(fileName.nativeElement.textContent.trim()).toEqual(attachment.fileName);
     expect(fileSize.nativeElement.textContent).toEqual(attachment.sizeName);
   });
 
   describe("bitSubmit", () => {
-    beforeEach(() => {
-      component.submitBtn.disabled.set(undefined);
-      component.submitBtn.loading.set(undefined);
-    });
-
     it("updates sets initial state of the submit button", async () => {
-      await component.ngOnInit();
+      // Create fresh fixture to properly test initial state
+      submitBtnFixture = TestBed.createComponent(ButtonComponent);
+      submitBtnFixture.componentInstance.disabled.set(undefined as unknown as boolean);
 
-      expect(component.submitBtn.disabled()).toBe(true);
-    });
+      fixture = TestBed.createComponent(CipherAttachmentsComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("submitBtn", submitBtnFixture.componentInstance);
+      fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+      fixture.detectChanges();
 
-    it("sets submitBtn loading state", () => {
-      jest.useFakeTimers();
+      await waitForInitialization();
 
-      component.bitSubmit.loading = true;
-
-      jest.runAllTimers();
-
-      expect(component.submitBtn.loading()).toBe(true);
-
-      component.bitSubmit.loading = false;
-
-      expect(component.submitBtn.loading()).toBe(false);
-    });
-
-    it("sets submitBtn disabled state", () => {
-      component.bitSubmit.disabled = true;
-
-      expect(component.submitBtn.disabled()).toBe(true);
-
-      component.bitSubmit.disabled = false;
-
-      expect(component.submitBtn.disabled()).toBe(false);
+      expect(submitBtnFixture.componentInstance.disabled()).toBe(true);
     });
   });
 
@@ -191,7 +197,7 @@ describe("CipherAttachmentsComponent", () => {
     let file: File;
 
     beforeEach(() => {
-      component.submitBtn.disabled.set(undefined);
+      submitBtnFixture.componentInstance.disabled.set(undefined as unknown as boolean);
       file = new File([""], "attachment.txt", { type: "text/plain" });
 
       const inputElement = fixture.debugElement.query(By.css("input[type=file]"));
@@ -207,11 +213,11 @@ describe("CipherAttachmentsComponent", () => {
     });
 
     it("sets value of `file` control when input changes", () => {
-      expect(component.attachmentForm.controls.file.value.name).toEqual(file.name);
+      expect(component.attachmentForm.controls.file.value?.name).toEqual(file.name);
     });
 
     it("updates disabled state of submit button", () => {
-      expect(component.submitBtn.disabled()).toBe(false);
+      expect(submitBtnFixture.componentInstance.disabled()).toBe(false);
     });
   });
 
@@ -240,18 +246,81 @@ describe("CipherAttachmentsComponent", () => {
           message: "maxFileSize",
         });
       });
+
+      it("shows error toast with server message when saveAttachmentWithServer fails", async () => {
+        await waitForInitialization();
+
+        const file = { size: 100 } as File;
+        component.attachmentForm.controls.file.setValue(file);
+
+        const serverError = new Error("Cipher has been modified by another client");
+        saveAttachmentWithServer.mockRejectedValue(serverError);
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "Cipher has been modified by another client",
+        });
+      });
+
+      it("shows error toast with fallback message when error has no message property", async () => {
+        await waitForInitialization();
+
+        const file = { size: 100 } as File;
+        component.attachmentForm.controls.file.setValue(file);
+
+        saveAttachmentWithServer.mockRejectedValue({ code: "UNKNOWN_ERROR" });
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "unexpectedError",
+        });
+      });
+
+      it("shows error toast with string error message", async () => {
+        await waitForInitialization();
+
+        const file = { size: 100 } as File;
+        component.attachmentForm.controls.file.setValue(file);
+
+        saveAttachmentWithServer.mockRejectedValue("Network connection failed");
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "Network connection failed",
+        });
+      });
     });
 
     describe("success", () => {
       const file = { size: 524287999 } as File;
 
-      beforeEach(() => {
+      async function setupWithOrganization(adminAccess: boolean): Promise<void> {
+        // Create fresh fixture with organization set before cipherId
+        organization.allowAdminAccessToAllCollectionItems = adminAccess;
+
+        fixture = TestBed.createComponent(CipherAttachmentsComponent);
+        component = fixture.componentInstance;
+        submitBtnFixture = TestBed.createComponent(ButtonComponent);
+
+        // Set organizationId BEFORE cipherId so the effect picks it up
+        fixture.componentRef.setInput("organizationId", organization.id);
+        fixture.componentRef.setInput("submitBtn", submitBtnFixture.componentInstance);
+        fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+        fixture.detectChanges();
+
+        await waitForInitialization();
         component.attachmentForm.controls.file.setValue(file);
-        component.organization = organization;
-      });
+      }
 
       it("calls `saveAttachmentWithServer` with admin=false when admin permission is false for organization", async () => {
-        component.organization.allowAdminAccessToAllCollectionItems = false;
+        await setupWithOrganization(false);
+
         await component.submit();
 
         expect(saveAttachmentWithServer).toHaveBeenCalledWith(
@@ -263,13 +332,16 @@ describe("CipherAttachmentsComponent", () => {
       });
 
       it("calls `saveAttachmentWithServer` with admin=true when using admin API", async () => {
-        component.organization.allowAdminAccessToAllCollectionItems = true;
+        await setupWithOrganization(true);
+
         await component.submit();
 
         expect(saveAttachmentWithServer).toHaveBeenCalledWith(cipherDomain, file, mockUserId, true);
       });
 
       it("resets form and input values", async () => {
+        await setupWithOrganization(true);
+
         await component.submit();
 
         const fileInput = fixture.debugElement.query(By.css("input[type=file]"));
@@ -279,16 +351,19 @@ describe("CipherAttachmentsComponent", () => {
       });
 
       it("shows success toast", async () => {
+        await setupWithOrganization(true);
+
         await component.submit();
 
         expect(showToast).toHaveBeenCalledWith({
           variant: "success",
-          title: null,
           message: "attachmentSaved",
         });
       });
 
       it('emits "onUploadSuccess"', async () => {
+        await setupWithOrganization(true);
+
         const emitSpy = jest.spyOn(component.onUploadSuccess, "emit");
 
         await component.submit();
@@ -299,22 +374,36 @@ describe("CipherAttachmentsComponent", () => {
   });
 
   describe("removeAttachment", () => {
-    const attachment = { id: "1234-5678" } as AttachmentView;
+    const attachment = { id: "1234-5678", fileName: "test.txt" } as AttachmentView;
 
-    beforeEach(() => {
-      component.cipher.attachments = [attachment];
+    it("removes attachment from cipher", async () => {
+      // Create a new fixture with cipher that has attachments
+      const cipherWithAttachments = { ...cipherView, attachments: [attachment] };
+      cipherServiceDecrypt.mockResolvedValue(cipherWithAttachments);
 
+      // Create fresh fixture
+      fixture = TestBed.createComponent(CipherAttachmentsComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
       fixture.detectChanges();
-    });
 
-    it("removes attachment from cipher", () => {
+      await waitForInitialization();
+
+      // Verify attachment is rendered
+      const attachmentsBefore = fixture.debugElement.queryAll(By.css('[data-testid="file-name"]'));
+      expect(attachmentsBefore.length).toEqual(1);
+
       const deleteAttachmentComponent = fixture.debugElement.query(
         By.directive(DeleteAttachmentComponent),
       ).componentInstance as DeleteAttachmentComponent;
 
       deleteAttachmentComponent.onDeletionSuccess.emit();
 
-      expect(component.cipher.attachments).toEqual([]);
+      fixture.detectChanges();
+
+      // After removal, there should be no attachments displayed
+      const attachmentItems = fixture.debugElement.queryAll(By.css('[data-testid="file-name"]'));
+      expect(attachmentItems.length).toEqual(0);
     });
   });
 });

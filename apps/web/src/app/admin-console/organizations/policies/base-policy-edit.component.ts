@@ -78,7 +78,11 @@ export abstract class BasePolicyEditDefinition {
  */
 @Directive()
 export abstract class BasePolicyEditComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() policyResponse: PolicyResponse | undefined;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() policy: BasePolicyEditDefinition | undefined;
 
   /**
@@ -105,7 +109,6 @@ export abstract class BasePolicyEditComponent implements OnInit {
     }
 
     const request: PolicyRequest = {
-      type: this.policy.type,
       enabled: this.enabled.value ?? false,
       data: this.buildRequestData(),
     };

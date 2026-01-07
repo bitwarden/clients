@@ -45,6 +45,8 @@ import {
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   standalone: true,
   templateUrl: "set-initial-password.component.html",
@@ -212,6 +214,8 @@ export class SetInitialPasswordComponent implements OnInit {
     assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.newLocalMasterKeyHash, "newLocalMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
     assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
     assertTruthy(this.orgId, "orgId", ctx);
     assertTruthy(this.userType, "userType", ctx);
@@ -229,6 +233,8 @@ export class SetInitialPasswordComponent implements OnInit {
         orgSsoIdentifier: this.orgSsoIdentifier,
         orgId: this.orgId,
         resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
+        newPassword: passwordInputResult.newPassword,
+        salt: passwordInputResult.salt,
       };
 
       await this.setInitialPasswordService.setInitialPassword(

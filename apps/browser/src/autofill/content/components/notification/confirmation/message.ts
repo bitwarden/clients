@@ -84,7 +84,7 @@ const baseTextStyles = css`
   text-align: left;
   text-overflow: ellipsis;
   line-height: 24px;
-  font-family: Roboto, sans-serif;
+  font-family: Inter, sans-serif;
   font-size: 16px;
 `;
 
@@ -115,7 +115,7 @@ const notificationConfirmationButtonTextStyles = (theme: Theme) => css`
   ${baseTextStyles}
 
   color: ${themes[theme].primary[600]};
-  font-weight: 700;
+  font-weight: 500;
   cursor: pointer;
 `;
 

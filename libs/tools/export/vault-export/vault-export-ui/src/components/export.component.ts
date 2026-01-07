@@ -18,7 +18,6 @@ import {
   BehaviorSubject,
   combineLatest,
   firstValueFrom,
-  from,
   map,
   merge,
   Observable,
@@ -43,8 +42,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType, EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -67,7 +64,11 @@ import {
 } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
-import { ExportedVault, VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
+import {
+  ExportedVault,
+  ExportFormatMetadata,
+  VaultExportServiceAbstraction,
+} from "@bitwarden/vault-export-core";
 
 import { EncryptedExportType } from "../enums/encrypted-export-type.enum";
 
@@ -96,7 +97,6 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
 })
 export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   private _organizationId$ = new BehaviorSubject<OrganizationId | undefined>(undefined);
-  private createDefaultLocationFlagEnabled$: Observable<boolean>;
   private _showExcludeMyItems = false;
 
   /**
@@ -231,11 +231,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     fileEncryptionType: [EncryptedExportType.AccountEncrypted],
   });
 
-  formatOptions = [
-    { name: ".json", value: "json" },
-    { name: ".csv", value: "csv" },
-    { name: ".json (Encrypted)", value: "encrypted_json" },
-  ];
+  /**
+   * Observable stream of available export format options
+   * Dynamically updates based on vault selection (My Vault vs Organization)
+   */
+  formatOptions$: Observable<ExportFormatMetadata[]>;
 
   private destroy$ = new Subject<void>();
   private onlyManagedCollections = true;
@@ -255,13 +255,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected organizationService: OrganizationService,
     private accountService: AccountService,
     private collectionService: CollectionService,
-    private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
     @Optional() private router?: Router,
   ) {}
 
   async ngOnInit() {
-    this.observeFeatureFlags();
     this.observeFormState();
     this.observePolicyStatus();
     this.observeFormSelections();
@@ -280,12 +278,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     // individual vault export
     this.initIndividual();
     this.setupPolicyBasedFormState();
-  }
-
-  private observeFeatureFlags(): void {
-    this.createDefaultLocationFlagEnabled$ = from(
-      this.configService.getFeatureFlag(FeatureFlag.CreateDefaultLocation),
-    ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
   }
 
   private observeFormState(): void {
@@ -338,47 +330,62 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private observeFormSelections(): void {
+    // Update organizationId when vault selection changes
+    // In Admin Console context, organizationId is already set via @Input
+    // In Password Manager context, user changes vaultSelector which updates _organizationId$
     this.exportForm.controls.vaultSelector.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => {
-        this.organizationId = value !== "myVault" ? value : undefined;
-
-        this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
-        this.exportForm.get("format").setValue("json");
-        if (value === "myVault") {
-          this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
+      .subscribe((vaultSelection) => {
+        if (!this.isAdminConsoleContext) {
+          // Password Manager: Update organizationId based on vaultSelector
+          const isMyVault = vaultSelection === "myVault";
+          this.organizationId = isMyVault ? undefined : vaultSelection;
         }
+        // Admin Console: organizationId is already set via @Input, no update needed
       });
+
+    // Set up dynamic format options based on the organizationId observable
+    // This is the single source of truth for both export contexts
+    this.formatOptions$ = this._organizationId$.pipe(
+      map((organizationId) => {
+        const isMyVault = !organizationId;
+        return { isMyVault };
+      }),
+      switchMap((options) => this.exportService.formats$(options)),
+      tap((formats) => {
+        // Preserve the current format selection if it's still available in the new format list
+        const currentFormat = this.exportForm.get("format").value;
+        const isFormatAvailable = formats.some((f) => f.format === currentFormat);
+
+        // Only reset to json if the current format is no longer available
+        if (!isFormatAvailable) {
+          this.exportForm.get("format").setValue("json");
+        }
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
   }
 
   /**
    * Determine value of showExcludeMyItems. Returns true when:
-   * CreateDefaultLocation feature flag is on
-   * AND organizationDataOwnershipPolicy is enabled for the selected organization
+   * organizationDataOwnershipPolicy is enabled for the selected organization
    * AND a valid OrganizationId is present (not exporting from individual vault)
    */
   private observeMyItemsExclusionCriteria(): void {
     combineLatest({
-      createDefaultLocationFlagEnabled: this.createDefaultLocationFlagEnabled$,
       organizationDataOwnershipPolicyEnabledForOrg:
         this.organizationDataOwnershipPolicyEnabledForOrg$,
       organizationId: this._organizationId$,
     })
       .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        ({
-          createDefaultLocationFlagEnabled,
-          organizationDataOwnershipPolicyEnabledForOrg,
-          organizationId,
-        }) => {
-          if (!createDefaultLocationFlagEnabled || !organizationId) {
-            this._showExcludeMyItems = false;
-            return;
-          }
+      .subscribe(({ organizationDataOwnershipPolicyEnabledForOrg, organizationId }) => {
+        if (!organizationId) {
+          this._showExcludeMyItems = false;
+          return;
+        }
 
-          this._showExcludeMyItems = organizationDataOwnershipPolicyEnabledForOrg;
-        },
-      );
+        this._showExcludeMyItems = organizationDataOwnershipPolicyEnabledForOrg;
+      });
   }
 
   // Setup validator adjustments based on format and encryption type changes
@@ -593,7 +600,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       title: "confirmVaultExport",
       bodyText: confirmDescription,
       confirmButtonOptions: {
-        text: "exportVault",
+        text: "continue",
         type: "primary",
       },
     });

@@ -12,8 +12,6 @@ import {
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BannerModule, DialogService } from "@bitwarden/components";
 import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
@@ -83,38 +81,40 @@ type View = {
 
 type GetWarning$ = () => Observable<TaxIdWarningType | null>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-tax-id-warning",
   template: `
-    @if (enableTaxIdWarning$ | async) {
-      @let view = view$ | async;
+    @let view = view$ | async;
 
-      @if (view) {
-        <bit-banner id="tax-id-warning-banner" bannerType="warning" (onClose)="trackDismissal()">
-          {{ view.message }}
-          <a
-            bitLink
-            linkType="secondary"
-            (click)="editBillingAddress()"
-            class="tw-cursor-pointer"
-            rel="noreferrer noopener"
-          >
-            {{ view.callToAction }}
-          </a>
-        </bit-banner>
-      }
+    @if (view) {
+      <bit-banner id="tax-id-warning-banner" bannerType="warning" (onClose)="trackDismissal()">
+        {{ view.message }}
+        <a
+          bitLink
+          linkType="secondary"
+          (click)="editBillingAddress()"
+          class="tw-cursor-pointer"
+          rel="noreferrer noopener"
+        >
+          {{ view.callToAction }}
+        </a>
+      </bit-banner>
     }
   `,
   imports: [BannerModule, SharedModule],
 })
 export class TaxIdWarningComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) subscriber!: NonIndividualSubscriber;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) getWarning$!: GetWarning$;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() billingAddressUpdated = new EventEmitter<void>();
-
-  protected enableTaxIdWarning$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM22415_TaxIDWarnings,
-  );
 
   protected userId$ = this.accountService.activeAccount$.pipe(
     filter((account): account is Account => account !== null),
@@ -201,7 +201,6 @@ export class TaxIdWarningComponent implements OnInit {
 
   constructor(
     private accountService: AccountService,
-    private configService: ConfigService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private subscriberBillingClient: SubscriberBillingClient,

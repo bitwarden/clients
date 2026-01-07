@@ -14,16 +14,18 @@
     ></app-subscription-status>
     <ng-container *ngIf="userOrg.canEditSubscription">
       <div class="tw-flex-col">
-        <strong class="tw-block tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300"
-          >{{ "details" | i18n
-          }}<span
-            class="tw-ml-3"
+        <strong
+          class="tw-flex tw-items-center tw-gap-3 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
+        >
+          {{ "details" | i18n }}
+          <span
             *ngIf="customerDiscount?.percentOff > 0 && !isSecretsManagerTrial()"
             bitBadge
             variant="success"
+            class="tw-inline-flex tw-items-center"
             >{{ "providerDiscount" | i18n: customerDiscount?.percentOff }}</span
-          ></strong
-        >
+          >
+        </strong>
         <bit-table>
           <ng-template body>
             <ng-container *ngIf="subscription && !userOrg.isFreeOrg">
@@ -38,12 +40,7 @@
                   {{ i.amount | currency: "$" }}
                 </td>
                 <td bitCell class="tw-text-right">
-                  <ng-container
-                    *ngIf="
-                      sub?.customerDiscount?.appliesTo?.includes(i.productId);
-                      else calculateElse
-                    "
-                  >
+                  <ng-container *ngIf="isSecretsManagerTrial(); else calculateElse">
                     {{ "freeForOneYear" | i18n }}
                   </ng-container>
                   <ng-template #calculateElse>
@@ -52,7 +49,7 @@
                         {{ i.quantity * i.amount | currency: "$" }} /{{ i.interval | i18n }}
                       </span>
                       <span
-                        *ngIf="customerDiscount?.percentOff && !isSecretsManagerTrial()"
+                        *ngIf="customerDiscount?.percentOff"
                         class="tw-line-through !tw-text-muted"
                         >{{
                           calculateTotalAppliedDiscount(i.quantity * i.amount) | currency: "$"
@@ -223,7 +220,7 @@
       <h2 bitTypography="h2">{{ "manageSubscription" | i18n }}</h2>
       <p bitTypography="body1" *ngIf="userOrg.isProviderUser; else isOrganizationOwner">
         {{ "manageSubscriptionFromThe" | i18n }}
-        <a [routerLink]="['/providers', userOrg.providerId, 'manage-client-organizations']">{{
+        <a [routerLink]="['/providers', userOrg.providerId, 'billing', 'subscription']">{{
           "providerPortal" | i18n
         }}</a
         >.
@@ -241,7 +238,7 @@
         <div class="tw-size-56 tw-content-center">
           <bit-icon [icon]="gearIcon" aria-hidden="true"></bit-icon>
         </div>
-        <p class="tw-font-bold">{{ "billingManagedByProvider" | i18n: userOrg.providerName }}</p>
+        <p class="tw-font-medium">{{ "billingManagedByProvider" | i18n: userOrg.providerName }}</p>
         <p>{{ "billingContactProviderForAssistance" | i18n }}</p>
       </div>
     </ng-template>

@@ -9,8 +9,7 @@ import {} from "@bitwarden/web-vault/app/shared";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
-import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
-import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
+import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -21,6 +20,8 @@ import { IntegrationGridComponent } from "../../dirt/organization-integrations/i
 
 import { IntegrationsComponent } from "./integrations.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-header",
   template: "<div></div>",
@@ -28,6 +29,8 @@ import { IntegrationsComponent } from "./integrations.component";
 })
 class MockHeaderComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-new-menu",
   template: "<div></div>",
@@ -37,8 +40,7 @@ class MockNewMenuComponent {}
 
 describe("IntegrationsComponent", () => {
   let fixture: ComponentFixture<IntegrationsComponent>;
-  const hecOrgIntegrationSvc = mock<HecOrganizationIntegrationService>();
-  const datadogOrgIntegrationSvc = mock<DatadogOrganizationIntegrationService>();
+  const orgIntegrationSvc = mock<OrganizationIntegrationService>();
 
   const activatedRouteMock = {
     snapshot: { paramMap: { get: jest.fn() } },
@@ -56,8 +58,7 @@ describe("IntegrationsComponent", () => {
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: I18nPipe, useValue: mock<I18nPipe>() },
         { provide: I18nService, useValue: mockI18nService },
-        { provide: HecOrganizationIntegrationService, useValue: hecOrgIntegrationSvc },
-        { provide: DatadogOrganizationIntegrationService, useValue: datadogOrgIntegrationSvc },
+        { provide: OrganizationIntegrationService, useValue: orgIntegrationSvc },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(IntegrationsComponent);
@@ -74,7 +75,13 @@ describe("IntegrationsComponent", () => {
       (integrationList.componentInstance as IntegrationGridComponent).integrations.map(
         (i) => i.name,
       ),
-    ).toEqual(["GitHub Actions", "GitLab CI/CD", "Ansible", "Kubernetes Operator"]);
+    ).toEqual([
+      "GitHub Actions",
+      "GitLab CI/CD",
+      "Ansible",
+      "Kubernetes Operator",
+      "Terraform Provider",
+    ]);
 
     expect(
       (sdkList.componentInstance as IntegrationGridComponent).integrations.map((i) => i.name),

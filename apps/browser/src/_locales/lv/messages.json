@@ -31,6 +31,9 @@
   "useSingleSignOn": {
     "message": "Izmantot vienoto pieteikšanos"
   },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Tava apvienība pieprasa vienoto pieteikšanos."
+  },
   "welcomeBack": {
     "message": "Laipni lūdzam atpakaļ"
   },
@@ -433,8 +436,8 @@
   "sync": {
     "message": "Sinhronizēt"
   },
-  "syncVaultNow": {
-    "message": "Sinhronizēt glabātavu"
+  "syncNow": {
+    "message": "Sinhronizēt tūlīt"
   },
   "lastSync": {
     "message": "Pēdējā sinhronizēšana:"
@@ -451,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden tīmekļa lietotne"
-  },
-  "importItems": {
-    "message": "Ievietot vienumus"
   },
   "select": {
     "message": "Izvēlēties"
@@ -582,11 +582,26 @@
   "archiveItemConfirmDesc": {
     "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
   },
+  "upgradeToUseArchive": {
+    "message": "Ir nepieciešama Premium dalība, lai izmantotu arhīvu."
+  },
+  "itemRestored": {
+    "message": "Vienums tika atjaunots"
+  },
   "edit": {
     "message": "Labot"
   },
   "view": {
     "message": "Skatīt"
+  },
+  "viewAll": {
+    "message": "Apskatīt visu"
+  },
+  "showAll": {
+    "message": "Rādīt visu"
+  },
+  "viewLess": {
+    "message": "Skatīt mazāk"
   },
   "viewLogin": {
     "message": "Apskatīt pieteikšanās vienumu"
@@ -789,6 +804,12 @@
   },
   "onLocked": {
     "message": "Pēc sistēmas aizslēgšanas"
+  },
+  "onIdle": {
+    "message": "Sistēmas dīkstāvē"
+  },
+  "onSleep": {
+    "message": "Pēc sistēmas iemigšanas"
   },
   "onRestart": {
     "message": "Pēc pārlūka pārsāknēšanas"
@@ -1027,6 +1048,18 @@
   },
   "editedItem": {
     "message": "Vienums labots"
+  },
+  "savedWebsite": {
+    "message": "Saglabāta tīmekļvietne"
+  },
+  "savedWebsites": {
+    "message": "Saglabātas tīmekļvietnes ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Vai tiešām pārvietot uz atkritni?"
@@ -1292,8 +1325,21 @@
   "exportFrom": {
     "message": "Izgūt no"
   },
-  "exportVault": {
-    "message": "Izgūt glabātavas saturu"
+  "exportVerb": {
+    "message": "Izgūt",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Izgūšana",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Ievietošana",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Ievietot",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Datnes veids"
@@ -1373,6 +1419,27 @@
   "learnMore": {
     "message": "Uzzināt vairāk"
   },
+  "migrationsFailed": {
+    "message": "Atgadījās kļūda šifrēšanas iestatījumu atjaunināšanā."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atjaunini savus šifrēšanas iestatījumus"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Jaunie ieteicamie šifrēšanas iestatījumi uzlabos Tava konta drošību. Jāievada sava galvenā parole, lai atjauninātu tagad."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Jāapliecina sava identitāte, lai turpinātu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Jāievada sava galvenā parole"
+  },
+  "updateSettings": {
+    "message": "Atjaunināt Iestatījumus"
+  },
+  "later": {
+    "message": "Vēlāk"
+  },
   "authenticatorKeyTotp": {
     "message": "Autentificētāja atslēga (TOTP)"
   },
@@ -1403,6 +1470,15 @@
   "attachmentSaved": {
     "message": "Pielikums tika saglabāts."
   },
+  "fixEncryption": {
+    "message": "Salabot šifrēšanu"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Šī datne izmanto novecojušu šifrēšanas veidu."
+  },
+  "attachmentUpdated": {
+    "message": "Pielikums atjaunināts"
+  },
   "file": {
     "message": "Datne"
   },
@@ -1411,6 +1487,9 @@
   },
   "selectFile": {
     "message": "Atlasīt datni"
+  },
+  "itemsTransferred": {
+    "message": "Vienumi pārcelti"
   },
   "maxFileSize": {
     "message": "Lielākais pieļaujamais datnes izmērs ir 500 MB."
@@ -1441,6 +1520,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB šifrētas krātuves datņu pielikumiem."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrētas krātuves datņu pielikumiem.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Ārkārtas piekļuve"
@@ -1504,12 +1592,6 @@
   },
   "enableAutoBiometricsPrompt": {
     "message": "Palaižot vaicāt biometriju"
-  },
-  "premiumRequired": {
-    "message": "Nepieciešams Premium"
-  },
-  "premiumRequiredDesc": {
-    "message": "Ir nepieciešama Premium dalība, lai izmantotu šo iespēju."
   },
   "authenticationTimeout": {
     "message": "Autentificēšanās noildze"
@@ -1623,6 +1705,9 @@
   "selfHostedEnvFormInvalid": {
     "message": "Jāpievieno vai no servera pamata URL vai vismaz viena pielāgota vide."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URL ir jābūt HTTPS."
+  },
   "customEnvironment": {
     "message": "Pielāgota vide"
   },
@@ -1676,8 +1761,29 @@
   "turnOffAutofill": {
     "message": "Izslēgt automātisko aizpildi"
   },
+  "confirmAutofill": {
+    "message": "Apstiprināt automātisko aizpildi"
+  },
+  "confirmAutofillDesc": {
+    "message": "Šī vietne neatbilst saglabātā pieteikšanās vienumam. Pirms pieteikšanās datu aizpildīšanas jāpārliecinās, ka tā ir uzticama."
+  },
   "showInlineMenuLabel": {
     "message": "Rādīt automātiskās aizpildes ieteikumuis veidlapu laukos"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "Kā Bitwarden aizsargā datus no pikšķerēšanas?"
+  },
+  "currentWebsite": {
+    "message": "Pašreizējā tīmekļvietne"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Automātiski aizpildīt un pievienot šo tīmekļvietni"
+  },
+  "autofillWithoutAdding": {
+    "message": "Automātiski aizpildīt bez pievienošanas"
+  },
+  "doNotAutofill": {
+    "message": "Neaizpildīt automātiski"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Attēlot identitātes kā ieteikumus"
@@ -1821,6 +1927,9 @@
   },
   "expirationYear": {
     "message": "Derīguma gads"
+  },
+  "monthly": {
+    "message": "mēnesī"
   },
   "expiration": {
     "message": "Derīgums"
@@ -2390,6 +2499,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Šī lapa traucē Bitwarden darbību. Bitwarden iekļautā izvēlne ir īslaicīgi atspējot kā drošības mērs."
   },
   "setMasterPassword": {
     "message": "Uzstādīt galveno paroli"
@@ -3153,9 +3265,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nav atrasts neviens neatkārtojams identifikators"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Galvenā parole vairs nav nepieciešama turpmāk minētās apvienības dalībniekiem. Lūgums saskaņot zemāk esošo domēnu ar savas apvienības pārvaldītāju."
-  },
   "organizationName": {
     "message": "Apvienības nosaukums"
   },
@@ -3217,7 +3326,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Tiks izgūta tikai apvienības glabātava, kas ir saistīta ar $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3226,7 +3335,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Tiks izgūta tikai apvienības glabātava, kas ir saistīta ar $ORGANIZATION$. Mani vienumu krājumi netiks iekļauti.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3239,6 +3348,9 @@
   },
   "decryptionError": {
     "message": "Atšifrēšanas kļūda"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Kļūda automātiskās aizpildes datu iegūšanā"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden nevarēja atšifrēt zemāk uzskaitītos glabātavas vienumus."
@@ -4011,6 +4123,15 @@
     "message": "Automātiskā aizpilde lapas ielādes brīdī iestatīta izmantot noklusējuma iestatījumu.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
+  "cannotAutofill": {
+    "message": "Nevar automātiski aizpildīt"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Noklusējuma atbilstības noteikšana ir iestatīta uz “Pilnīga atbilstība”. Pašreizējā tīmekļvietne pilnībā neabilst saglabātajai pieteikšanās informācijai šajā vienumā."
+  },
+  "okay": {
+    "message": "Labi"
+  },
   "toggleSideNavigation": {
     "message": "Pārslēgt sānu pārvietošanās joslu"
   },
@@ -4106,10 +4227,6 @@
   },
   "ignore": {
     "message": "Neņemt vērā"
-  },
-  "importData": {
-    "message": "Ievietot datus",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Ievietošanas kļūda"
@@ -4697,6 +4814,15 @@
   "accountSecurity": {
     "message": "Konta drošība"
   },
+  "phishingBlocker": {
+    "message": "Pikšķerēšanas aizturētājs"
+  },
+  "enablePhishingDetection": {
+    "message": "Pikšķerēšanas noteikšana"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Attēlot brīdinājumu pirms piekļūšanas iespējamām piekšķerēšanas vietnēm"
+  },
   "notifications": {
     "message": "Paziņojumi"
   },
@@ -4842,6 +4968,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Iegūsti piekļuvi atskaitēm, ārkārtas piekļuvei un citām drošības iespējām ar Premium!"
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Bezmaksas apvienības nevar izmantot pielikumus"
   },
@@ -4917,6 +5046,16 @@
     "message": "Izdzēst tīmekļvietni"
   },
   "defaultLabel": {
+    "message": "Noklusējums ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "defaultLabelWithValue": {
     "message": "Noklusējums ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
@@ -5528,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
   },
+  "vulnerablePassword": {
+    "message": "Ievainojama parole."
+  },
+  "changeNow": {
+    "message": "Mainīt tagad"
+  },
   "missingWebsite": {
     "message": "Nav norādīta tīmekļvietne"
   },
@@ -5715,8 +5860,196 @@
   "confirmKeyConnectorDomain": {
     "message": "Apstiprināt Key Connector domēnu"
   },
+  "atRiskLoginsSecured": {
+    "message": "Labs darbs riskam pakļauto pieteikšanās vienumu drošības uzlabošanā!"
+  },
+  "upgradeNow": {
+    "message": "Uzlabot tagad"
+  },
+  "builtInAuthenticator": {
+    "message": "Iebūvēts autentificētājs"
+  },
+  "secureFileStorage": {
+    "message": "Droša datņu krātuve"
+  },
+  "emergencyAccess": {
+    "message": "Ārkārtas piekļuve"
+  },
+  "breachMonitoring": {
+    "message": "Noplūžu pārraudzīšana"
+  },
+  "andMoreFeatures": {
+    "message": "Un vēl!"
+  },
+  "advancedOnlineSecurity": {
+    "message": "Izvērsta tiešsaistes drošība"
+  },
+  "upgradeToPremium": {
+    "message": "Uzlabot uz Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Atslēdz papildu drošības iespējas"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Premium abonements sniedz vairāk rīku drošības uzturēšanai un pārraudzībai"
+  },
+  "explorePremium": {
+    "message": "Izpētīt Premium"
+  },
+  "loadingVault": {
+    "message": "Ielādē glabātavu"
+  },
+  "vaultLoaded": {
+    "message": "Glabātava ielādēta"
+  },
   "settingDisabledByPolicy": {
     "message": "Šis iestatījums ir atspējots apvienības pamatnostādnēs.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Pasta indekss"
+  },
+  "cardNumberLabel": {
+    "message": "Kartes numurs"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Apvienība vairs neizmanto galvenās paroles, lai pieteiktos Bitwarden. Lai turpinātu, jāapliecina apvienība un domēns."
+  },
+  "continueWithLogIn": {
+    "message": "Turpināt ar pieteikšanos"
+  },
+  "doNotContinue": {
+    "message": "Neturpināt"
+  },
+  "domain": {
+    "message": "Domēns"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Šajā domēnā tiks glabātas konta šifrēšanas atslēgas, tādēļ jāpārliecinās par uzticamību. Ja nav pārliecības, jāsazinās ar savu pārvaldītāju."
+  },
+  "verifyYourOrganization": {
+    "message": "Jāapliecina apvienība, lai pieteiktos"
+  },
+  "organizationVerified": {
+    "message": "Apvienība apliecināta"
+  },
+  "domainVerified": {
+    "message": "Domēns ir apliecināts"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ja neapliecināsi apvienību, tiks atsaukta piekļuve tai."
+  },
+  "leaveNow": {
+    "message": "Pamest tagad"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Jāapliecina domēns, lai pieteiktos"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Lai turpinātu pieteikšanos, jāapliecina šis domēns."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Lai turpinātu pieteikšanos, jāapliecina apvienība un domēns."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Noildzes darbība"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Your organization has set the default session timeout to Immediately."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Uzlabot"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Vai tiešām pamest?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Pēc noraidīšanas personīgie vienumi paliks Tavā kontā, bet Tu zaudēsi piekļvuvi kopīgotajiem vienumiem un apvienību iespējām."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Jāsazinās ar savu pārvaldītāju, lai atgūtu piekļuvi."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Pamest $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Kā es varu pārvaldīt savu glabātavu?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Pārcelt vienumus uz $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Mainīt sānu pārvietošanās joslas izmēru"
   }
 }

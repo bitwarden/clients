@@ -24,6 +24,13 @@ import {
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
 let windowMessageOrigin: string;
 
+const urlParams = new URLSearchParams(globalThis.location.search);
+const trustedParentOrigin = urlParams.get("parentOrigin");
+
+if (trustedParentOrigin) {
+  windowMessageOrigin = trustedParentOrigin;
+}
+
 const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers = {
   initNotificationBar: ({ message }) => initNotificationBar(message),
   saveCipherAttemptCompleted: ({ message }) => handleSaveCipherConfirmation(message),
@@ -186,8 +193,6 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   const headerMessage = getNotificationHeaderMessage(i18n, notificationType);
   const notificationTestId = getNotificationTestId(notificationType);
   appendHeaderMessageToTitle(headerMessage);
-
-  document.body.innerHTML = "";
 
   if (isVaultLocked) {
     const notificationConfig = {
@@ -397,15 +402,27 @@ function setupWindowMessageListener() {
 }
 
 function handleWindowMessage(event: MessageEvent) {
-  if (!windowMessageOrigin) {
-    windowMessageOrigin = event.origin;
-  }
-
-  if (event.origin !== windowMessageOrigin) {
+  if (event?.source !== globalThis.parent) {
     return;
   }
 
   const message = event.data as NotificationBarWindowMessage;
+  if (!message?.command) {
+    return;
+  }
+
+  if (!windowMessageOrigin || event.origin !== windowMessageOrigin) {
+    return;
+  }
+
+  if (
+    message.command === "initNotificationBar" &&
+    message.parentOrigin &&
+    message.parentOrigin !== event.origin
+  ) {
+    return;
+  }
+
   const handler = notificationBarWindowMessageHandlers[message.command];
   if (!handler) {
     return;
@@ -433,5 +450,8 @@ function getResolvedTheme(theme: Theme) {
 }
 
 function postMessageToParent(message: NotificationBarWindowMessage) {
-  globalThis.parent.postMessage(message, windowMessageOrigin || "*");
+  if (!windowMessageOrigin) {
+    return;
+  }
+  globalThis.parent.postMessage(message, windowMessageOrigin);
 }

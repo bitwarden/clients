@@ -6,7 +6,7 @@ import {
   IdentityLinkedIdType,
 } from "@bitwarden/sdk-internal";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { CardLinkedId, IdentityLinkedId, LoginLinkedId } from "../../enums";
 import { FieldData } from "../../models/data/field.data";
@@ -22,6 +22,7 @@ describe("Field", () => {
       value: "encValue",
       linkedId: null,
     };
+    mockContainerService();
   });
 
   it("Convert from empty", () => {
@@ -29,9 +30,9 @@ describe("Field", () => {
     const field = new Field(data);
 
     expect(field).toEqual({
-      type: undefined,
-      name: null,
-      value: null,
+      type: FieldType.Text,
+      name: undefined,
+      value: undefined,
       linkedId: undefined,
     });
   });
@@ -41,9 +42,9 @@ describe("Field", () => {
 
     expect(field).toEqual({
       type: FieldType.Text,
-      name: { encryptedString: "encName", encryptionType: 0 },
-      value: { encryptedString: "encValue", encryptionType: 0 },
-      linkedId: null,
+      name: new EncString("encName"),
+      value: new EncString("encValue"),
+      linkedId: undefined,
     });
   });
 
@@ -82,12 +83,14 @@ describe("Field", () => {
       expect(actual).toEqual({
         name: "myName_fromJSON",
         value: "myValue_fromJSON",
+        type: FieldType.Text,
+        linkedId: undefined,
       });
       expect(actual).toBeInstanceOf(Field);
     });
 
-    it("returns null if object is null", () => {
-      expect(Field.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Field.fromJSON(null)).toBeUndefined();
     });
   });
 

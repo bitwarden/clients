@@ -11,6 +11,8 @@ import {
 } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-provider-subscription",
   templateUrl: "./provider-subscription.component.html",

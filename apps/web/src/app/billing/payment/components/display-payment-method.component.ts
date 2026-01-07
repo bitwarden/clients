@@ -9,6 +9,8 @@ import { getCardBrandIcon, MaskedPaymentMethod } from "../types";
 
 import { ChangePaymentMethodDialogComponent } from "./change-payment-method-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-display-payment-method",
   template: `
@@ -70,8 +72,14 @@ import { ChangePaymentMethodDialogComponent } from "./change-payment-method-dial
   imports: [SharedModule],
 })
 export class DisplayPaymentMethodComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) subscriber!: BitwardenSubscriber;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) paymentMethod!: MaskedPaymentMethod | null;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() updated = new EventEmitter<MaskedPaymentMethod>();
 
   constructor(private dialogService: DialogService) {}

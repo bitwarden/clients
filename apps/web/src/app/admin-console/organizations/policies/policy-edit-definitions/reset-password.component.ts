@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { firstValueFrom, of } from "rxjs";
 
@@ -27,8 +27,10 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
 }
 
 @Component({
+  selector: "reset-password-policy-edit",
   templateUrl: "reset-password.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
   data = this.formBuilder.group({

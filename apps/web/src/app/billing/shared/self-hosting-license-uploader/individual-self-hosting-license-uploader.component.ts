@@ -14,6 +14,8 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
  * Processes license file uploads for individual plans.
  * @remarks Requires self-hosting.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "individual-self-hosting-license-uploader",
   templateUrl: "./self-hosting-license-uploader.component.html",
@@ -23,6 +25,8 @@ export class IndividualSelfHostingLicenseUploaderComponent extends AbstractSelfH
   /**
    * Emitted when a license file has been successfully uploaded & processed.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onLicenseFileUploaded: EventEmitter<void> = new EventEmitter<void>();
 
   constructor(

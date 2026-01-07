@@ -1,182 +1,174 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { Subject, switchMap, takeUntil, of, BehaviorSubject, combineLatest } from "rxjs";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Injector,
+  OnInit,
+  Signal,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   AllActivitiesService,
-  ApplicationHealthReportDetailEnriched,
-  SecurityTasksApiService,
-  TaskMetrics,
-  OrganizationReportSummary,
+  RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { OrganizationId } from "@bitwarden/common/types/guid";
-import { ButtonModule, ProgressModule, TypographyModule } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { SecurityTask, SecurityTaskStatus } from "@bitwarden/common/vault/tasks";
+import {
+  ButtonModule,
+  ProgressModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 
-import { DefaultAdminTaskService } from "../../../../vault/services/default-admin-task.service";
-import { RenderMode } from "../../models/activity.models";
 import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
+
+export const PasswordChangeView = {
+  EMPTY: "empty",
+  NO_TASKS_ASSIGNED: "noTasksAssigned",
+  NEW_TASKS_AVAILABLE: "newTasks",
+  PROGRESS: "progress",
+} as const;
+
+export type PasswordChangeView = (typeof PasswordChangeView)[keyof typeof PasswordChangeView];
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-password-change-metric",
   imports: [CommonModule, TypographyModule, JslibModule, ProgressModule, ButtonModule],
   templateUrl: "./password-change-metric.component.html",
-  providers: [AccessIntelligenceSecurityTasksService, DefaultAdminTaskService],
 })
 export class PasswordChangeMetricComponent implements OnInit {
-  protected taskMetrics$ = new BehaviorSubject<TaskMetrics>({ totalTasks: 0, completedTasks: 0 });
-  private completedTasks: number = 0;
-  private totalTasks: number = 0;
-  private allApplicationsDetails: ApplicationHealthReportDetailEnriched[] = [];
+  PasswordChangeViewEnum = PasswordChangeView;
 
-  atRiskAppsCount: number = 0;
-  atRiskPasswordsCount: number = 0;
-  private organizationId!: OrganizationId;
-  private destroyRef = new Subject<void>();
-  renderMode: RenderMode = "noCriticalApps";
+  private destroyRef = inject(DestroyRef);
+
+  // Inputs
+  // Prefer component input since route param controls UI state
+  readonly organizationId = input.required<OrganizationId>();
+
+  // Signal states
+  private readonly _tasks: Signal<SecurityTask[]> = signal<SecurityTask[]>([]);
+  private readonly _atRiskCipherIds: Signal<CipherId[]> = signal<CipherId[]>([]);
+  private readonly _hasCriticalApplications: Signal<boolean> = signal<boolean>(false);
+
+  // Computed properties
+  readonly tasksCount = computed(() => this._tasks().length);
+  readonly completedTasksCount = computed(
+    () => this._tasks().filter((task) => task.status === SecurityTaskStatus.Completed).length,
+  );
+  readonly completedTasksPercent = computed(() => {
+    const total = this.tasksCount();
+    // Account for case where there are no tasks to avoid NaN
+    return total > 0 ? Math.round((this.completedTasksCount() / total) * 100) : 0;
+  });
+
+  readonly unassignedCipherIds = computed<number>(() => {
+    const atRiskIds = this._atRiskCipherIds();
+    const tasks = this._tasks();
+
+    if (tasks.length === 0) {
+      return atRiskIds.length;
+    }
+
+    const inProgressTasks = tasks.filter((task) => task.status === SecurityTaskStatus.Pending);
+    const assignedIdSet = new Set(inProgressTasks.map((task) => task.cipherId));
+    const unassignedIds = atRiskIds.filter((id) => !assignedIdSet.has(id));
+
+    return unassignedIds.length;
+  });
+
+  readonly atRiskPasswordCount = computed<number>(() => {
+    const atRiskIds = this._atRiskCipherIds();
+    const atRiskIdsSet = new Set(atRiskIds);
+
+    return atRiskIdsSet.size;
+  });
+
+  readonly currentView = computed<PasswordChangeView>(() => {
+    if (!this._hasCriticalApplications()) {
+      return PasswordChangeView.EMPTY;
+    }
+    if (this.tasksCount() === 0) {
+      return PasswordChangeView.NO_TASKS_ASSIGNED;
+    }
+    if (this.unassignedCipherIds() > 0) {
+      return PasswordChangeView.NEW_TASKS_AVAILABLE;
+    }
+    return PasswordChangeView.PROGRESS;
+  });
 
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private securityTasksApiService: SecurityTasksApiService,
     private allActivitiesService: AllActivitiesService,
-    protected accessIntelligenceSecurityTasksService: AccessIntelligenceSecurityTasksService,
-  ) {}
+    private i18nService: I18nService,
+    private injector: Injector,
+    private riskInsightsDataService: RiskInsightsDataService,
+    protected securityTasksService: AccessIntelligenceSecurityTasksService,
+    private toastService: ToastService,
+  ) {
+    // Setup the _tasks signal by manually passing in the injector
+    this._tasks = toSignal(this.securityTasksService.tasks$, {
+      initialValue: [],
+      injector: this.injector,
+    });
+    // Setup the _atRiskCipherIds signal by manually passing in the injector
+    this._atRiskCipherIds = toSignal(
+      this.riskInsightsDataService.criticalApplicationAtRiskCipherIds$,
+      {
+        initialValue: [],
+        injector: this.injector,
+      },
+    );
+
+    this._hasCriticalApplications = toSignal(
+      this.riskInsightsDataService.criticalReportResults$.pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map((report) => {
+          return report != null && (report.reportData?.length ?? 0) > 0;
+        }),
+      ),
+      {
+        initialValue: false,
+        injector: this.injector,
+      },
+    );
+
+    effect(() => {
+      const isShowingProgress = this.currentView() === PasswordChangeView.PROGRESS;
+      this.allActivitiesService.setExtendPasswordWidget(isShowingProgress);
+    });
+  }
 
   async ngOnInit(): Promise<void> {
-    combineLatest([this.activatedRoute.paramMap, this.allActivitiesService.taskCreatedCount$])
-      .pipe(
-        switchMap(([params, _]) => {
-          const orgId = params.get("organizationId");
-          if (orgId) {
-            this.organizationId = orgId as OrganizationId;
-            return this.securityTasksApiService.getTaskMetrics(this.organizationId);
-          }
-          return of({ totalTasks: 0, completedTasks: 0 });
-        }),
-        takeUntil(this.destroyRef),
-      )
-      .subscribe((metrics) => {
-        this.taskMetrics$.next(metrics);
-      });
-
-    combineLatest([
-      this.taskMetrics$,
-      this.allActivitiesService.reportSummary$,
-      this.allActivitiesService.atRiskPasswordsCount$,
-      this.allActivitiesService.allApplicationsDetails$,
-    ])
-      .pipe(takeUntil(this.destroyRef))
-      .subscribe(([taskMetrics, summary, atRiskPasswordsCount, allApplicationsDetails]) => {
-        this.atRiskAppsCount = summary.totalCriticalAtRiskApplicationCount;
-        this.atRiskPasswordsCount = atRiskPasswordsCount;
-        this.completedTasks = taskMetrics.completedTasks;
-        this.totalTasks = taskMetrics.totalTasks;
-        this.allApplicationsDetails = allApplicationsDetails;
-
-        // Determine render mode based on state
-        this.renderMode = this.determineRenderMode(summary, taskMetrics, atRiskPasswordsCount);
-
-        this.allActivitiesService.setPasswordChangeProgressMetricHasProgressBar(
-          this.renderMode === RenderMode.criticalAppsWithAtRiskAppsAndTasks,
-        );
-      });
-  }
-
-  private determineRenderMode(
-    summary: OrganizationReportSummary,
-    taskMetrics: TaskMetrics,
-    atRiskPasswordsCount: number,
-  ): RenderMode {
-    // State 1: No critical apps setup
-    if (summary.totalCriticalApplicationCount === 0) {
-      return RenderMode.noCriticalApps;
-    }
-
-    // State 2: Critical apps with at-risk passwords but no tasks assigned yet
-    // OR tasks exist but NEW at-risk passwords detected (more at-risk passwords than tasks)
-    if (
-      summary.totalCriticalApplicationCount > 0 &&
-      (taskMetrics.totalTasks === 0 || atRiskPasswordsCount > taskMetrics.totalTasks)
-    ) {
-      return RenderMode.criticalAppsWithAtRiskAppsAndNoTasks;
-    }
-
-    // State 3: Critical apps with at-risk apps and tasks (progress tracking)
-    if (
-      summary.totalCriticalApplicationCount > 0 &&
-      taskMetrics.totalTasks > 0 &&
-      atRiskPasswordsCount <= taskMetrics.totalTasks
-    ) {
-      return RenderMode.criticalAppsWithAtRiskAppsAndTasks;
-    }
-
-    // Default to no critical apps
-    return RenderMode.noCriticalApps;
-  }
-
-  get completedPercent(): number {
-    if (this.totalTasks === 0) {
-      return 0;
-    }
-    return Math.round((this.completedTasks / this.totalTasks) * 100);
-  }
-
-  get completedTasksCount(): number {
-    switch (this.renderMode) {
-      case RenderMode.noCriticalApps:
-      case RenderMode.criticalAppsWithAtRiskAppsAndNoTasks:
-        return 0;
-
-      case RenderMode.criticalAppsWithAtRiskAppsAndTasks:
-        return this.completedTasks;
-
-      default:
-        return 0;
-    }
-  }
-
-  get totalTasksCount(): number {
-    switch (this.renderMode) {
-      case RenderMode.noCriticalApps:
-        return 0;
-
-      case RenderMode.criticalAppsWithAtRiskAppsAndNoTasks:
-        return this.atRiskAppsCount;
-
-      case RenderMode.criticalAppsWithAtRiskAppsAndTasks:
-        return this.totalTasks;
-
-      default:
-        return 0;
-    }
-  }
-
-  get canAssignTasks(): boolean {
-    return this.atRiskPasswordsCount > this.totalTasks;
-  }
-
-  get hasExistingTasks(): boolean {
-    return this.totalTasks > 0;
-  }
-
-  get newAtRiskPasswordsCount(): number {
-    // Calculate new at-risk passwords as the difference between current count and tasks created
-    if (this.atRiskPasswordsCount > this.totalTasks) {
-      return this.atRiskPasswordsCount - this.totalTasks;
-    }
-    return 0;
-  }
-
-  get renderModes() {
-    return RenderMode;
+    await this.securityTasksService.loadTasks(this.organizationId());
   }
 
   async assignTasks() {
-    await this.accessIntelligenceSecurityTasksService.assignTasks(
-      this.organizationId,
-      this.allApplicationsDetails,
-    );
+    try {
+      await this.securityTasksService.requestPasswordChangeForCriticalApplications(
+        this.organizationId(),
+        this._atRiskCipherIds(),
+      );
+      this.toastService.showToast({
+        message: this.i18nService.t("notifiedMembers"),
+        variant: "success",
+        title: this.i18nService.t("success"),
+      });
+    } catch {
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        variant: "error",
+        title: this.i18nService.t("error"),
+      });
+    }
   }
 }

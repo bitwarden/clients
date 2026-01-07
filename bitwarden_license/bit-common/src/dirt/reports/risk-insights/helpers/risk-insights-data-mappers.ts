@@ -73,7 +73,6 @@ export function createNewSummaryData(): OrganizationReportSummary {
     totalCriticalAtRiskMemberCount: 0,
     totalCriticalApplicationCount: 0,
     totalCriticalAtRiskApplicationCount: 0,
-    newApplications: [],
   };
 }
 export function getAtRiskApplicationList(

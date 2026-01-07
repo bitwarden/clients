@@ -12,15 +12,21 @@ import { Observable, Subject, combineLatest, lastValueFrom, takeUntil } from "rx
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
-import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { OrgIntegrationBuilder } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration-builder";
+import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
-import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
-import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
+import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  BaseCardComponent,
+  CardContentComponent,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -32,22 +38,38 @@ import {
   openHecConnectDialog,
 } from "../integration-dialog/index";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-integration-card",
   templateUrl: "./integration-card.component.html",
-  imports: [SharedModule],
+  imports: [SharedModule, BaseCardComponent, CardContentComponent],
 })
 export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   private destroyed$: Subject<void> = new Subject();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("imageEle") imageEle!: ElementRef<HTMLImageElement>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() name: string = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() image: string = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() imageDarkMode: string = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() linkURL: string = "";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() integrationSettings!: Integration;
 
   /** Adds relevant `rel` attribute to external links */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() externalURL?: boolean;
 
   /**
@@ -56,8 +78,14 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
    *
    * @example "2024-12-31"
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() newBadgeExpiration?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() description?: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canSetupConnection?: boolean;
 
   organizationId: OrganizationId;
@@ -68,8 +96,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     private systemTheme$: Observable<ThemeType>,
     private dialogService: DialogService,
     private activatedRoute: ActivatedRoute,
-    private hecOrganizationIntegrationService: HecOrganizationIntegrationService,
-    private datadogOrganizationIntegrationService: DatadogOrganizationIntegrationService,
+    private organizationIntegrationService: OrganizationIntegrationService,
     private toastService: ToastService,
     private i18nService: I18nService,
   ) {
@@ -222,7 +249,18 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   }
 
   async saveHec(result: HecConnectDialogResult) {
-    let saveResponse = { mustBeOwner: false, success: false };
+    let response = { mustBeOwner: false, success: false };
+
+    const config = OrgIntegrationBuilder.buildHecConfiguration(
+      result.url,
+      result.bearerToken,
+      this.integrationSettings.name as OrganizationIntegrationServiceName,
+    );
+    const template = OrgIntegrationBuilder.buildHecTemplate(
+      result.index,
+      this.integrationSettings.name as OrganizationIntegrationServiceName,
+    );
+
     if (this.isUpdateAvailable) {
       // retrieve org integration and configuration ids
       const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
@@ -234,27 +272,25 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       }
 
       // update existing integration and configuration
-      saveResponse = await this.hecOrganizationIntegrationService.updateHec(
+      response = await this.organizationIntegrationService.update(
         this.organizationId,
         orgIntegrationId,
+        OrganizationIntegrationType.Hec,
         orgIntegrationConfigurationId,
-        this.integrationSettings.name as OrganizationIntegrationServiceType,
-        result.url,
-        result.bearerToken,
-        result.index,
+        config,
+        template,
       );
     } else {
       // create new integration and configuration
-      saveResponse = await this.hecOrganizationIntegrationService.saveHec(
+      response = await this.organizationIntegrationService.save(
         this.organizationId,
-        this.integrationSettings.name as OrganizationIntegrationServiceType,
-        result.url,
-        result.bearerToken,
-        result.index,
+        OrganizationIntegrationType.Hec,
+        config,
+        template,
       );
     }
 
-    if (saveResponse.mustBeOwner) {
+    if (response.mustBeOwner) {
       this.showMustBeOwnerToast();
       return;
     }
@@ -275,7 +311,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       throw Error("Organization Integration ID or Configuration ID is missing");
     }
 
-    const response = await this.hecOrganizationIntegrationService.deleteHec(
+    const response = await this.organizationIntegrationService.delete(
       this.organizationId,
       orgIntegrationId,
       orgIntegrationConfigurationId,
@@ -294,6 +330,13 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   }
 
   async saveDatadog(result: DatadogConnectDialogResult) {
+    let response = { mustBeOwner: false, success: false };
+
+    const config = OrgIntegrationBuilder.buildDataDogConfiguration(result.url, result.apiKey);
+    const template = OrgIntegrationBuilder.buildDataDogTemplate(
+      this.integrationSettings.name as OrganizationIntegrationServiceName,
+    );
+
     if (this.isUpdateAvailable) {
       // retrieve org integration and configuration ids
       const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
@@ -305,23 +348,29 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       }
 
       // update existing integration and configuration
-      await this.datadogOrganizationIntegrationService.updateDatadog(
+      response = await this.organizationIntegrationService.update(
         this.organizationId,
         orgIntegrationId,
+        OrganizationIntegrationType.Datadog,
         orgIntegrationConfigurationId,
-        this.integrationSettings.name as OrganizationIntegrationServiceType,
-        result.url,
-        result.apiKey,
+        config,
+        template,
       );
     } else {
       // create new integration and configuration
-      await this.datadogOrganizationIntegrationService.saveDatadog(
+      response = await this.organizationIntegrationService.save(
         this.organizationId,
-        this.integrationSettings.name as OrganizationIntegrationServiceType,
-        result.url,
-        result.apiKey,
+        OrganizationIntegrationType.Datadog,
+        config,
+        template,
       );
     }
+
+    if (response.mustBeOwner) {
+      this.showMustBeOwnerToast();
+      return;
+    }
+
     this.toastService.showToast({
       variant: "success",
       title: "",
@@ -338,7 +387,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       throw Error("Organization Integration ID or Configuration ID is missing");
     }
 
-    const response = await this.datadogOrganizationIntegrationService.deleteDatadog(
+    const response = await this.organizationIntegrationService.delete(
       this.organizationId,
       orgIntegrationId,
       orgIntegrationConfigurationId,

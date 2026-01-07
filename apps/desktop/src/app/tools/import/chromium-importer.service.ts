@@ -8,10 +8,6 @@ export class ChromiumImporterService {
       return await chromium_importer.getMetadata();
     });
 
-    ipcMain.handle("chromium_importer.getInstalledBrowsers", async (event) => {
-      return await chromium_importer.getInstalledBrowsers();
-    });
-
     ipcMain.handle("chromium_importer.getAvailableProfiles", async (event, browser: string) => {
       return await chromium_importer.getAvailableProfiles(browser);
     });

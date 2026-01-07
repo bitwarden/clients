@@ -92,18 +92,18 @@ export class CreateCommand {
   }
 
   private async createCipher(req: CipherExport) {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    const cipherView = CipherExport.toView(req);
-    const isCipherTypeRestricted =
-      await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
-
-    if (isCipherTypeRestricted) {
-      return Response.error("Creating this item type is restricted by organizational policy.");
-    }
-
-    const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
     try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+      const cipherView = CipherExport.toView(req);
+      const isCipherTypeRestricted =
+        await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
+
+      if (isCipherTypeRestricted) {
+        return Response.error("Creating this item type is restricted by organizational policy.");
+      }
+
+      const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
       const newCipher = await this.cipherService.createWithServer(cipher);
       const decCipher = await this.cipherService.decrypt(newCipher, activeUserId);
       const res = new CipherResponse(decCipher);
@@ -181,12 +181,12 @@ export class CreateCommand {
 
   private async createFolder(req: FolderExport) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const userKey = await this.keyService.getUserKey(activeUserId);
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     const folder = await this.folderService.encrypt(FolderExport.toView(req), userKey);
     try {
       const folderData = await this.folderApiService.save(folder, activeUserId);
       const newFolder = new Folder(folderData);
-      const decFolder = await newFolder.decrypt();
+      const decFolder = await newFolder.decrypt(userKey);
       const res = new FolderResponse(decFolder);
       return Response.success(res);
     } catch (e) {

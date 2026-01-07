@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -88,7 +88,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: true
@@ -173,10 +173,14 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
+          fetch-depth: 1
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
+
+      - name: Free disk space
+        uses: bitwarden/gh-actions/free-disk-space@main
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -185,10 +189,17 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
+
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
+          sudo apt-get -y install pkg-config libxss-dev rpm flatpak flatpak-builder
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
@@ -225,7 +236,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         id: cache
         with:
           path: |
@@ -241,51 +252,51 @@ jobs:
         env:
           PKG_CONFIG_ALLOW_CROSS: true
           PKG_CONFIG_ALL_STATIC: true
-          TARGET: musl
+        # Note: It is important that we use the release build because some compute heavy
+        # operations such as key derivation for oo7 on linux are too slow in debug mode
         run: |
-          rustup target add x86_64-unknown-linux-musl
-          node build.js --target=x86_64-unknown-linux-musl --release
+          node build.js --target=x86_64-unknown-linux-gnu --release
 
       - name: Build application
         run: npm run dist:lin
 
+      - name: Upload tar.gz artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: bitwarden_${{ env._PACKAGE_VERSION }}_x64.tar.gz
+          path: apps/desktop/dist/bitwarden_desktop_x64.tar.gz
+          if-no-files-found: error
+
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           if-no-files-found: error
 
       - name: Upload .rpm artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           if-no-files-found: error
 
-      - name: Upload .freebsd artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64.freebsd
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64.freebsd
-          if-no-files-found: error
-
       - name: Upload .snap artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           if-no-files-found: error
 
       - name: Upload .AppImage artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{ needs.setup.outputs.release_channel }}-linux.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-linux.yml
@@ -298,12 +309,11 @@ jobs:
           sudo npm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: com.bitwarden.desktop.flatpak
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
           if-no-files-found: error
-
 
   linux-arm64:
     name: Linux ARM64 Build
@@ -323,7 +333,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -335,17 +345,34 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
+
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
+          sudo apt-get -y install pkg-config libxss-dev rpm flatpak flatpak-builder squashfs-tools ruby ruby-dev rubygems build-essential
+          sudo gem install --no-document fpm
+
+      - name: Set up Snap
+        run: sudo snap install snapcraft --classic
+
+      - name: Install snaps required by snapcraft in destructive mode
+        run: |
+          sudo snap install core22
+          sudo snap install gtk-common-themes
+          sudo snap install gnome-3-28-1804
 
       - name: Print environment
         run: |
           node --version
           npm --version
           snap --version
-          snapcraft --version || echo 'snapcraft unavailable'
+          snapcraft --version
 
       - name: Install Node dependencies
         run: npm ci
@@ -372,7 +399,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         id: cache
         with:
           path: |
@@ -388,10 +415,10 @@ jobs:
         env:
           PKG_CONFIG_ALLOW_CROSS: true
           PKG_CONFIG_ALL_STATIC: true
-          TARGET: musl
+        # Note: It is important that we use the release build because some compute heavy
+        # operations such as key derivation for oo7 on linux are too slow in debug mode
         run: |
-          rustup target add aarch64-unknown-linux-musl
-          node build.js --target=aarch64-unknown-linux-musl --release
+          node build.js --target=aarch64-unknown-linux-gnu --release
 
       - name: Check index.d.ts generated
         if: github.event_name == 'pull_request' && steps.cache.outputs.cache-hit != 'true'
@@ -403,13 +430,37 @@ jobs:
           fi
 
       - name: Build application
+        env:
+          # Snapcraft environment variables to bypass LXD requirement on ARM64
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
+          USE_SYSTEM_FPM: true
         run: npm run dist:lin:arm64
 
+      - name: Upload .snap artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
+          path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
+          if-no-files-found: error
+
       - name: Upload tar.gz artifact
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.tar.gz
           path: apps/desktop/dist/bitwarden_desktop_arm64.tar.gz
+          if-no-files-found: error
+
+      - name: Build flatpak
+        working-directory: apps/desktop
+        run: |
+          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          sudo npm run pack:lin:flatpak
+
+      - name: Upload flatpak artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: com.bitwarden.desktop-arm64.flatpak
+          path: apps/desktop/dist/com.bitwarden.desktop.flatpak
           if-no-files-found: error
 
   windows:
@@ -418,8 +469,8 @@ jobs:
     needs:
       - setup
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     defaults:
       run:
         shell: pwsh
@@ -430,7 +481,7 @@ jobs:
       NODE_OPTIONS: --max_old_space_size=4096
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -441,6 +492,13 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
 
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
@@ -504,7 +562,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         id: cache
         with:
           path: |
@@ -515,7 +573,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$env:MODE"
 
       - name: Build
         run: npm run build
@@ -570,7 +630,7 @@ jobs:
             -NewName bitwarden-$env:_PACKAGE_VERSION-arm64.nsis.7z
 
       - name: Upload portable exe artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
@@ -578,15 +638,15 @@ jobs:
 
       - name: Upload installer exe artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}..exe
+          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
@@ -594,7 +654,7 @@ jobs:
 
       - name: Upload store appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
@@ -602,7 +662,7 @@ jobs:
 
       - name: Upload NSIS ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
@@ -610,7 +670,7 @@ jobs:
 
       - name: Upload appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
@@ -618,7 +678,7 @@ jobs:
 
       - name: Upload store appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
@@ -626,7 +686,7 @@ jobs:
 
       - name: Upload NSIS x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
@@ -634,7 +694,7 @@ jobs:
 
       - name: Upload appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
@@ -642,7 +702,7 @@ jobs:
 
       - name: Upload store appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
@@ -650,7 +710,7 @@ jobs:
 
       - name: Upload NSIS ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
@@ -658,7 +718,7 @@ jobs:
 
       - name: Upload nupkg artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/desktop/dist/chocolatey/bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
@@ -666,7 +726,7 @@ jobs:
 
       - name: Upload auto-update artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{ needs.setup.outputs.release_channel }}.yml
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
@@ -677,8 +737,8 @@ jobs:
     runs-on: windows-2022
     needs: setup
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     defaults:
       run:
         shell: pwsh
@@ -689,9 +749,10 @@ jobs:
       NODE_OPTIONS: --max_old_space_size=4096
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -699,6 +760,13 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
 
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
@@ -759,7 +827,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         id: cache
         with:
           path: |
@@ -770,7 +838,9 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$env:MODE"
 
       - name: Build
         run: npm run build
@@ -793,25 +863,27 @@ jobs:
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Copy-Item "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx" `
-            -Destination "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx"
-          Copy-Item "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx" `
-            -Destination "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx"
-          Copy-Item "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx" `
-            -Destination "./dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx"
+          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.appx" `
+            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32-store.appx"
+          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.appx" `
+            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64-store.appx"
+          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.appx" `
+            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64-store.appx"
 
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z `
-            -NewName bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z `
-            -NewName bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z `
-            -NewName bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.nsis.7z `
+            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-ia32.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.nsis.7z `
+            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-x64.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.nsis.7z `
+            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-arm64.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\latest.yml `
+            -NewName latest-beta.yml
 
       - name: Upload portable exe artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
@@ -819,7 +891,7 @@ jobs:
 
       - name: Upload installer exe artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
@@ -827,7 +899,7 @@ jobs:
 
       - name: Upload appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
@@ -835,7 +907,7 @@ jobs:
 
       - name: Upload store appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
@@ -843,7 +915,7 @@ jobs:
 
       - name: Upload NSIS ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
@@ -851,7 +923,7 @@ jobs:
 
       - name: Upload appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
@@ -859,7 +931,7 @@ jobs:
 
       - name: Upload store appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
@@ -867,7 +939,7 @@ jobs:
 
       - name: Upload NSIS x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
@@ -875,7 +947,7 @@ jobs:
 
       - name: Upload appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
@@ -883,7 +955,7 @@ jobs:
 
       - name: Upload store appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
@@ -891,7 +963,7 @@ jobs:
 
       - name: Upload NSIS ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
@@ -899,21 +971,20 @@ jobs:
 
       - name: Upload auto-update artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: ${{ needs.setup.outputs.release_channel }}-beta.yml
-          path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
+          name: latest-beta.yml
+          path: apps/desktop/dist/nsis-web/latest-beta.yml
           if-no-files-found: error
-
 
   macos-build:
     name: MacOS Build
-    runs-on: macos-13
+    runs-on: macos-15
     needs:
       - setup
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -923,7 +994,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -935,8 +1006,20 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
+      - name: Set up Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: '3.14.2'
+
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python -m pip install setuptools
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
 
       - name: Print environment
         run: |
@@ -945,17 +1028,18 @@ jobs:
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
+          xcodebuild -showsdks
 
       - name: Cache Build
         id: build-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Cache Safari
         id: safari-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1101,7 +1185,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         id: cache
         with:
           path: |
@@ -1112,11 +1196,12 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build application (dev)
         run: npm run build
-
 
   browser-build:
     name: Browser Build
@@ -1129,18 +1214,17 @@ jobs:
       pull-requests: write
       id-token: write
 
-
   macos-package-github:
     name: MacOS Package GitHub Release Assets
-    runs-on: macos-13
+    runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
       - browser-build
       - macos-build
       - setup
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -1150,7 +1234,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -1162,8 +1246,20 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
+      - name: Set up Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: '3.14.2'
+
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python -m pip install setuptools
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
 
       - name: Print environment
         run: |
@@ -1172,17 +1268,18 @@ jobs:
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
+          xcodebuild -showsdks
 
       - name: Get Build Cache
         id: build-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1312,7 +1409,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         id: cache
         with:
           path: |
@@ -1323,14 +1420,16 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
         run: npm run build
 
       - name: Download Browser artifact
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           path: ${{ github.workspace }}/browser-build-artifacts
 
@@ -1363,45 +1462,44 @@ jobs:
         run: npm run pack:mac
 
       - name: Upload .zip artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
       - name: Upload .dmg blockmap artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{ needs.setup.outputs.release_channel }}-mac.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-mac.yml
           if-no-files-found: error
 
-
   macos-package-mas:
     name: MacOS Package Prod Release Asset
-    runs-on: macos-13
+    runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
       - browser-build
       - macos-build
       - setup
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -1411,7 +1509,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -1423,8 +1521,20 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
+      - name: Set up Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: '3.14.2'
+
       - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
+        run: python -m pip install setuptools
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
 
       - name: Print environment
         run: |
@@ -1433,17 +1543,18 @@ jobs:
           rustup show
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
+          xcodebuild -showsdks
 
       - name: Get Build Cache
         id: build-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1581,7 +1692,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         id: cache
         with:
           path: |
@@ -1592,14 +1703,16 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$MODE"
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
         run: npm run build
 
       - name: Download Browser artifact
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           path: ${{ github.workspace }}/browser-build-artifacts
 
@@ -1642,14 +1755,14 @@ jobs:
           $buildInfo | ConvertTo-Json | Set-Content -Path dist/macos-build-number.json
 
       - name: Upload MacOS App Store build number artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: macos-build-number.json
           path: apps/desktop/dist/macos-build-number.json
           if-no-files-found: error
 
       - name: Upload .pkg artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
           path: apps/desktop/dist/mas-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
@@ -1702,7 +1815,7 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
-        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d # v2.0.0
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           channel-id: C074F5UESQ0
           method: chat.postMessage
@@ -1731,13 +1844,13 @@ jobs:
       - macos-package-github
       - macos-package-mas
     permissions:
-        contents: write
-        pull-requests: write
-        id-token: write
+      contents: write
+      pull-requests: write
+      id-token: write
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -1760,7 +1873,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
+        uses: crowdin/github-action@08713f00a50548bfe39b37e8f44afb53e7a802d4 # v2.12.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
@@ -1771,6 +1884,320 @@ jobs:
           upload_sources: true
           upload_translations: false
 
+  validate-linux-x64-deb:
+    name: Validate Linux x64 .deb
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - linux
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Download deb artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/deb
+          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 xvfb
+
+      - name: Install .deb
+        working-directory: apps/desktop/artifacts/linux/deb
+        run: sudo apt-get install -y ./Bitwarden-${_PACKAGE_VERSION}-amd64.deb
+
+      - name: Run .deb
+        run: |
+          xvfb-run -a bitwarden &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  validate-linux-x64-appimage:
+    name: Validate Linux x64 appimage
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - linux
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download appimage artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/appimage
+          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 libfuse2 xvfb
+
+      - name: Run AppImage
+        working-directory: apps/desktop/artifacts/linux/appimage
+        run: |
+          chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
+          xvfb-run -a ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  validate-linux-wayland:
+    name: Validate Linux Wayland
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - linux
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download appimage artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/appimage
+          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 libfuse2 xvfb
+          sudo apt-get install -y weston libwayland-client0 libwayland-server0 libwayland-dev
+
+      - name: Run headless Wayland compositor
+        run: |
+          # Start Weston in a virtual terminal in headless mode
+          weston --headless --socket=wayland-0 &
+          # Let the compositor start
+          sleep 5
+
+      - name: Run AppImage
+        working-directory: apps/desktop/artifacts/linux/appimage
+        env:
+          WAYLAND_DISPLAY: wayland-0
+        run: |
+          chmod a+x ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage
+          xvfb-run -a ./Bitwarden-${_PACKAGE_VERSION}-x86_64.AppImage --no-sandbox &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  validate-linux-flatpak:
+    name: Validate Linux ${{ matrix.os }} Flatpak
+    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
+    needs:
+      - setup
+      - linux
+      - linux-arm64
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download flatpak artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/flatpak/
+          artifacts: com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 flatpak xvfb dbus-x11
+          flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install -y --user flathub
+
+      - name: Install flatpak
+        working-directory: apps/desktop/artifacts/linux/flatpak
+        run: flatpak install -y --user --bundle com.bitwarden.desktop.flatpak
+
+      - name: Run Flatpak
+        run: |
+          export $(dbus-launch)
+          xvfb-run -a flatpak run com.bitwarden.desktop &
+          sleep 30
+          if pgrep  bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  validate-linux-snap:
+    name: Validate Linux ${{ matrix.os }} Snap
+    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
+    needs:
+      - setup
+      - linux
+      - linux-arm64
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _CPU_ARCH: ${{ matrix.os == 'ubuntu-22.04' && 'amd64' || 'arm64' }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download snap artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/linux/snap
+          artifacts: bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.snap
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2 snapd xvfb
+
+      - name: Install snap
+        working-directory: apps/desktop/artifacts/linux/snap
+        run: |
+          sudo snap install --dangerous ./bitwarden_${_PACKAGE_VERSION}_${_CPU_ARCH}.snap
+
+      - name: Run Snap
+        run: |
+          xvfb-run -a snap run bitwarden &
+          sleep 30
+          if pgrep bitwarden > /dev/null; then
+            pkill -9 bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  validate-macos-dmg:
+    name: Validate MacOS dmg
+    runs-on: macos-15
+    needs:
+      - setup
+      - macos-package-github
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download dmg artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/macos/dmg
+          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
+
+      - name: Install dmg
+        working-directory: apps/desktop/artifacts/macos/dmg
+        run: |
+          # mount
+          hdiutil attach Bitwarden-${_PACKAGE_VERSION}-universal.dmg
+          # install
+          cp -r /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal/Bitwarden.app /Applications/
+          # unmount
+          hdiutil detach /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal
+
+      - name: Run dmg
+        run: |
+          open /Applications/Bitwarden.app/Contents/MacOS/Bitwarden &
+          sleep 30
+          if pgrep Bitwarden > /dev/null; then
+            pkill -9 Bitwarden
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
+
+  validate-windows-portable:
+    name: Validate Windows portable
+    runs-on: windows-2022
+    needs:
+      - setup
+      - windows
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Download portable artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          path: apps/desktop/artifacts/windows/portable
+          artifacts: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
+
+      - name: Run Portable exe
+        working-directory: apps/desktop/artifacts/windows/portable
+        run: |
+          "./Bitwarden-Portable-$_PACKAGE_VERSION.exe" --no-sandbox &
+          sleep 30
+          if tasklist | grep Bitwarden ; then
+            taskkill //F //IM "Bitwarden.exe"
+            echo "Bitwarden is running."
+          else
+            echo "Bitwarden is not running."
+            exit 1
+          fi
 
   check-failures:
     name: Check for failures
@@ -1786,9 +2213,16 @@ jobs:
       - macos-package-github
       - macos-package-mas
       - crowdin-push
+      - validate-linux-x64-deb
+      - validate-linux-x64-appimage
+      - validate-linux-flatpak
+      - validate-linux-snap
+      - validate-linux-wayland
+      - validate-macos-dmg
+      - validate-windows-portable
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     steps:
       - name: Check if any job failed
         if: |
@@ -1823,4 +2257,3 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}
         with:
           status: ${{ job.status }}
-

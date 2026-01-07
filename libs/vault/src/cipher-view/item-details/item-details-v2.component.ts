@@ -9,11 +9,14 @@ import { fromEvent, map, startWith } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/client-type";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
+  BadgeModule,
   ButtonLinkDirective,
   CardComponent,
   FormFieldModule,
@@ -22,6 +25,8 @@ import {
 
 import { OrgIconDirective } from "../../components/org-icon.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-item-details-v2",
   templateUrl: "item-details-v2.component.html",
@@ -33,6 +38,7 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     OrgIconDirective,
     FormFieldModule,
     ButtonLinkDirective,
+    BadgeModule,
   ],
 })
 export class ItemDetailsV2Component {
@@ -83,7 +89,16 @@ export class ItemDetailsV2Component {
     }
   });
 
-  constructor(private i18nService: I18nService) {}
+  protected readonly showArchiveBadge = computed(() => {
+    return (
+      this.cipher().isArchived && this.platformUtilsService.getClientType() === ClientType.Desktop
+    );
+  });
+
+  constructor(
+    private i18nService: I18nService,
+    private platformUtilsService: PlatformUtilsService,
+  ) {}
 
   toggleShowMore() {
     this.showAllDetails.update((value) => !value);

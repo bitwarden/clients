@@ -12,6 +12,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -21,6 +22,7 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
@@ -91,6 +93,8 @@ describe("VaultItemDialogComponent", () => {
         { provide: LogService, useValue: {} },
         { provide: CipherService, useValue: {} },
         { provide: AccountService, useValue: { activeAccount$: of({}) } },
+        { provide: AccountService, useValue: { activeAccount$: { pipe: () => ({}) } } },
+        { provide: ConfigService, useValue: { getFeatureFlag: () => Promise.resolve(false) } },
         { provide: Router, useValue: {} },
         { provide: ActivatedRoute, useValue: {} },
         {
@@ -160,11 +164,17 @@ describe("VaultItemDialogComponent", () => {
             unarchiveCipher: jest.fn().mockResolvedValue(undefined),
           },
         },
+        { provide: SyncService, useValue: {} },
+        { provide: PlatformUtilsService, useValue: {} },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestVaultItemDialogComponent);
     component = fixture.componentInstance;
+    Object.defineProperty(component, "userHasPremium$", {
+      get: () => of(false),
+      configurable: true,
+    });
     fixture.detectChanges();
   });
 
@@ -280,6 +290,38 @@ describe("VaultItemDialogComponent", () => {
       fixture.detectChanges();
       const unarchiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-unarchive']"));
       expect(unarchiveButton).toBeFalsy();
+    });
+  });
+
+  describe("submitButtonText$", () => {
+    it("should return 'unArchiveAndSave' when premium is false and cipher is archived", (done) => {
+      jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(false));
+      component["cipherIsArchived"] = true;
+
+      component["submitButtonText$"].subscribe((text) => {
+        expect(text).toBe("unArchiveAndSave");
+        done();
+      });
+    });
+
+    it("should return 'save' when cipher is archived and user has premium", (done) => {
+      jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(true));
+      component["cipherIsArchived"] = true;
+
+      component["submitButtonText$"].subscribe((text) => {
+        expect(text).toBe("save");
+        done();
+      });
+    });
+
+    it("should return 'save' when cipher is not archived", (done) => {
+      jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(false));
+      component["cipherIsArchived"] = false;
+
+      component["submitButtonText$"].subscribe((text) => {
+        expect(text).toBe("save");
+        done();
+      });
     });
   });
 });

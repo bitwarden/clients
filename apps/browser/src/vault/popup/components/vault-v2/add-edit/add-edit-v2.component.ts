@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -134,6 +134,8 @@ class QueryParams {
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
@@ -159,8 +161,8 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     IconButtonModule,
   ],
 })
-export class AddEditV2Component implements OnInit {
-  @ViewChild(CipherFormComponent) cipherFormComponent!: CipherFormComponent;
+export class AddEditV2Component implements OnInit, OnDestroy {
+  readonly cipherFormComponent = viewChild(CipherFormComponent);
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
@@ -196,7 +198,7 @@ export class AddEditV2Component implements OnInit {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
 
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$();
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
 
   /**
    * Flag to indicate if the user can archive items.
@@ -226,11 +228,57 @@ export class AddEditV2Component implements OnInit {
     this.subscribeToParams();
   }
 
+  private messageListener: (message: any) => void;
+
   async ngOnInit() {
     this.fido2PopoutSessionData = await firstValueFrom(this.fido2PopoutSessionData$);
 
     if (BrowserPopupUtils.inPopout(window)) {
       this.popupCloseWarningService.enable();
+    }
+
+    // Listen for messages to reload cipher data when the pop up is already open
+    this.messageListener = async (message: any) => {
+      if (message?.command === "reloadAddEditCipherData") {
+        try {
+          await this.reloadCipherData();
+        } catch (error) {
+          this.logService.error("Failed to reload cipher data", error);
+        }
+      }
+    };
+    BrowserApi.addListener(chrome.runtime.onMessage, this.messageListener);
+  }
+
+  ngOnDestroy() {
+    if (this.messageListener) {
+      BrowserApi.removeListener(chrome.runtime.onMessage, this.messageListener);
+    }
+  }
+
+  /**
+   * Reloads the cipher data when the popup is already open and new form data is submitted.
+   * This completely replaces the initialValues to clear any stale data from the previous submission.
+   */
+  private async reloadCipherData() {
+    if (!this.config) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const latestCipherInfo = await firstValueFrom(
+      this.cipherService.addEditCipherInfo$(activeUserId),
+    );
+
+    if (latestCipherInfo != null) {
+      this.config = {
+        ...this.config,
+        initialValues: mapAddEditCipherInfoToInitialValues(latestCipherInfo),
+      };
+
+      // Be sure to clear the "cached" cipher info, so it doesn't get used again
+      await this.cipherService.setAddEditCipherInfo(null, activeUserId);
     }
   }
 
@@ -420,7 +468,7 @@ export class AddEditV2Component implements OnInit {
    * @param archivedDate The new archived date (null if unarchived).
    **/
   updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
-    this.cipherFormComponent.patchCipher((current) => {
+    this.cipherFormComponent().patchCipher((current) => {
       current.revisionDate = revisionDate;
       current.archivedDate = archivedDate;
       return current;

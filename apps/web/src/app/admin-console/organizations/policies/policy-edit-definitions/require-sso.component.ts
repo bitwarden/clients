@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { of } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -20,7 +20,9 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
 }
 
 @Component({
+  selector: "require-sso-policy-edit",
   templateUrl: "require-sso.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RequireSsoPolicyComponent extends BasePolicyEditComponent {}
