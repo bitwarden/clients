@@ -436,8 +436,8 @@
   "sync": {
     "message": "同期"
   },
-  "syncVaultNow": {
-    "message": "保管庫を同期する"
+  "syncNow": {
+    "message": "Sync now"
   },
   "lastSync": {
     "message": "前回の同期："
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden ウェブアプリ"
-  },
-  "importItems": {
-    "message": "アイテムのインポート"
   },
   "select": {
     "message": "選択"
@@ -551,7 +548,7 @@
     "message": "保管庫を検索"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "検索をリセット"
   },
   "archiveNoun": {
     "message": "アーカイブ",
@@ -565,28 +562,31 @@
     "message": "アーカイブ解除"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "アーカイブ済みのアイテム"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "アーカイブにアイテムがありません"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "アーカイブされたアイテムはここに表示され、通常の検索結果および自動入力の候補から除外されます。"
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "アイテムはアーカイブに送信されました"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "アイテムはアーカイブから解除されました"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "アイテムをアーカイブ"
   },
   "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+    "message": "アーカイブされたアイテムはここに表示され、通常の検索結果および自動入力の候補から除外されます。このアイテムをアーカイブしますか？"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "アーカイブを使用するにはプレミアムメンバーシップが必要です。"
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "edit": {
     "message": "編集"
@@ -595,13 +595,13 @@
     "message": "表示"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "すべて表示"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "すべて表示"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "表示を減らす"
   },
   "viewLogin": {
     "message": "ログイン情報を表示"
@@ -749,7 +749,7 @@
     "message": "マスターパスワードが間違っています"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "マスターパスワードが正しくありません。メールアドレスが正しく、アカウントが $HOST$ で作成されたことを確認してください。",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -806,10 +806,10 @@
     "message": "ロック時"
   },
   "onIdle": {
-    "message": "On system idle"
+    "message": "アイドル時"
   },
   "onSleep": {
-    "message": "On system sleep"
+    "message": "スリープ時"
   },
   "onRestart": {
     "message": "ブラウザ再起動時"
@@ -955,7 +955,7 @@
     "message": "以下の手順に従ってログインを完了してください。"
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "セキュリティキーでログインを完了するには、以下の手順に従ってください。"
   },
   "restartRegistration": {
     "message": "登録を再度始める"
@@ -1140,7 +1140,7 @@
     "message": "このパスワードを Bitwarden に保存しますか？"
   },
   "notificationAddSave": {
-    "message": "保存する"
+    "message": "保存"
   },
   "notificationViewAria": {
     "message": "View $ITEMNAME$, opens in new window",
@@ -1325,8 +1325,21 @@
   "exportFrom": {
     "message": "エクスポート元"
   },
-  "exportVault": {
-    "message": "保管庫のエクスポート"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "ファイル形式"
@@ -1406,6 +1419,27 @@
   "learnMore": {
     "message": "さらに詳しく"
   },
+  "migrationsFailed": {
+    "message": "暗号化設定の更新中にエラーが発生しました。"
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "暗号化設定を更新する"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "続行するには本人確認を行ってください"
+  },
+  "enterYourMasterPassword": {
+    "message": "マスターパスワードを入力"
+  },
+  "updateSettings": {
+    "message": "設定を更新"
+  },
+  "later": {
+    "message": "後で"
+  },
   "authenticatorKeyTotp": {
     "message": "認証キー (TOTP)"
   },
@@ -1436,6 +1470,15 @@
   "attachmentSaved": {
     "message": "添付ファイルを保存しました。"
   },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
+  },
   "file": {
     "message": "ファイル"
   },
@@ -1445,6 +1488,9 @@
   "selectFile": {
     "message": "ファイルを選択してください。"
   },
+  "itemsTransferred": {
+    "message": "Items transferred"
+  },
   "maxFileSize": {
     "message": "最大ファイルサイズ: 500 MB"
   },
@@ -1452,7 +1498,7 @@
     "message": "サービスが利用できません"
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "従来の暗号化はサポートされていません。アカウントを復元するにはサポートにお問い合わせください。"
   },
   "premiumMembership": {
     "message": "プレミアム会員"
@@ -1474,6 +1520,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1GB の暗号化されたファイルストレージ"
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ の暗号化されたファイルストレージ。",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "緊急アクセス"
@@ -1710,16 +1765,16 @@
     "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "このサイトは保存されたログイン情報と一致しません。ログイン情報を入力する前に、信頼できるサイトであることを確認してください。"
   },
   "showInlineMenuLabel": {
     "message": "フォームフィールドに自動入力の候補を表示する"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Bitwarden はどのようにフィッシングからデータを保護しますか？"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "現在のウェブサイト"
   },
   "autofillAndAddWebsite": {
     "message": "Autofill and add this website"
@@ -1874,7 +1929,7 @@
     "message": "有効期限年"
   },
   "monthly": {
-    "message": "month"
+    "message": "月"
   },
   "expiration": {
     "message": "有効期限"
@@ -2048,7 +2103,7 @@
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "新しい Send ファイル",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2060,7 +2115,7 @@
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "ID を編集",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
@@ -2076,7 +2131,7 @@
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Send ファイルを編集",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2088,7 +2143,7 @@
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "ID を表示",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
@@ -2222,7 +2277,7 @@
     "message": "種類"
   },
   "allItems": {
-    "message": "全てのアイテム"
+    "message": "すべてのアイテム"
   },
   "noPasswordsInList": {
     "message": "表示するパスワードがありません"
@@ -2304,7 +2359,7 @@
     "message": "Bitwarden のロックを解除するための PIN コードを設定します。アプリから完全にログアウトすると、PIN 設定はリセットされます。"
   },
   "setPinCode": {
-    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
+    "message": "Bitwarden のロックを解除するために PIN を使用使用することができます。アプリからログアウトすると PIN はリセットされます。"
   },
   "pinRequired": {
     "message": "PIN コードが必要です。"
@@ -2725,7 +2780,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "message": "このサイトのパスワードは危険です。$ORGANIZATION$ が変更を要求しています。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3070,7 +3125,7 @@
     "message": "この機能を使用するにはメールアドレスを確認する必要があります。ウェブ保管庫でメールアドレスを確認できます。"
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "マスターパスワードを設定しました"
   },
   "updatedMasterPassword": {
     "message": "マスターパスワードを更新しました"
@@ -3210,14 +3265,11 @@
   "copyCustomFieldNameNotUnique": {
     "message": "一意の識別子が見つかりませんでした。"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
-  },
   "organizationName": {
     "message": "組織名"
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "キーコネクタードメイン"
   },
   "leaveOrganization": {
     "message": "組織から脱退する"
@@ -3274,7 +3326,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "$ORGANIZATION$ に関連付けられた組織の保管庫のみがエクスポートされます。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3298,7 +3350,7 @@
     "message": "復号エラー"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "自動入力データの取得に失敗しました"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden は以下の保管庫のアイテムを復号できませんでした。"
@@ -3853,7 +3905,7 @@
     "message": "ログインを完了できません"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "信頼できるデバイスにログインするか、管理者にパスワードの割り当てを依頼する必要があります。"
   },
   "ssoIdentifierRequired": {
     "message": "組織の SSO ID が必要です。"
@@ -3917,7 +3969,7 @@
     "message": "信頼されたデバイス"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "組織を信頼"
   },
   "trust": {
     "message": "信頼する"
@@ -3938,7 +3990,7 @@
     "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "ユーザーを信頼"
   },
   "sendsTitleNoItems": {
     "message": "機密情報を安全に送信",
@@ -4175,10 +4227,6 @@
   },
   "ignore": {
     "message": "無視"
-  },
-  "importData": {
-    "message": "データのインポート",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "インポート エラー"
@@ -4766,6 +4814,15 @@
   "accountSecurity": {
     "message": "アカウントのセキュリティ"
   },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
+  },
   "notifications": {
     "message": "通知"
   },
@@ -4888,7 +4945,7 @@
     "message": "モバイルアプリを入手"
   },
   "getTheMobileAppDesc": {
-    "message": "Access your passwords on the go with the Bitwarden mobile app."
+    "message": "Bitwarden モバイルアプリで外出先からでもパスワードにアクセスしましょう。"
   },
   "getTheDesktopApp": {
     "message": "デスクトップアプリを入手"
@@ -5275,7 +5332,7 @@
     "message": "アカウントへのアクセスが要求されました"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "$EMAIL$ のログイン試行を確認",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5610,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "ウェブサイトがありません"
   },
@@ -5662,16 +5725,16 @@
     "message": "保管庫へようこそ!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "フィッシングの試行が検出されました"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "訪問しようとしているサイトは既知の悪意のあるサイトであり、セキュリティ上のリスクがあります。"
   },
   "phishingPageCloseTabV2": {
     "message": "このタブを閉じる"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "このサイトに進む (非推奨)"
   },
   "phishingPageExplanation1": {
     "message": "This site was found in ",
@@ -5727,13 +5790,13 @@
     "message": "With cards, easily autofill payment forms securely and accurately."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "アカウント作成を簡素化"
   },
   "newIdentityNudgeBody": {
     "message": "With identities, quickly autofill long registration or contact forms."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "機密データを安全に保管"
   },
   "newNoteNudgeBody": {
     "message": "With notes, securely store sensitive data like banking or insurance details."
@@ -5755,7 +5818,7 @@
     "message": "パスワードをすばやく作成"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "クリックすることで、強力でユニークなパスワードを簡単に作成できます",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
@@ -5778,7 +5841,7 @@
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "message": "WebAssembly はお使いのブラウザでサポートされていないか、有効になっていません。WebAssembly は Bitwarden アプリを使用するために必要です。",
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
@@ -5807,7 +5870,7 @@
     "message": "認証機を内蔵"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "セキュアなファイルストレージ"
   },
   "emergencyAccess": {
     "message": "緊急アクセス"
@@ -5816,10 +5879,10 @@
     "message": "Breach monitoring"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "などなど！"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "upgradeToPremium": {
     "message": "プレミアムにアップグレード"
@@ -5834,10 +5897,10 @@
     "message": "Explore Premium"
   },
   "loadingVault": {
-    "message": "Loading vault"
+    "message": "保管庫の読み込み中"
   },
   "vaultLoaded": {
-    "message": "Vault loaded"
+    "message": "保管庫が読み込まれました"
   },
   "settingDisabledByPolicy": {
     "message": "This setting is disabled by your organization's policy.",
@@ -5849,7 +5912,144 @@
   "cardNumberLabel": {
     "message": "カード番号"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "タイムアウト時のアクション"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Your organization has set the default session timeout to Immediately."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

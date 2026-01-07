@@ -40,7 +40,7 @@ import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/p
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
@@ -52,7 +52,6 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
-import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
@@ -82,9 +81,13 @@ import {
 import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
+import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import {
   DefaultKeyGenerationService,
   KeyGenerationService,
@@ -122,6 +125,7 @@ import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/co
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
@@ -160,6 +164,7 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
+import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
@@ -269,6 +274,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
 import { ExtensionLockService } from "../auth/services/extension-lock.service";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
@@ -297,6 +303,7 @@ import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
@@ -385,7 +392,7 @@ export default class MainBackground {
   serverNotificationsService: ServerNotificationsService;
   systemNotificationService: SystemNotificationsService;
   actionsService: ActionsService;
-  authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction;
+  authRequestAnsweringService: AuthRequestAnsweringService;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -452,11 +459,13 @@ export default class MainBackground {
   syncServiceListener: SyncServiceListener;
   browserInitialInstallService: BrowserInitialInstallService;
   backgroundSyncService: BackgroundSyncService;
+  accountCryptographicStateService: AccountCryptographicStateService;
 
   webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
   themeStateService: DefaultThemeStateService;
   autoSubmitLoginBackground: AutoSubmitLoginBackground;
   sdkService: SdkService;
+  registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
@@ -496,6 +505,8 @@ export default class MainBackground {
 
   // DIRT
   private phishingDataService: PhishingDataService;
+  private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
+  private phishingDetectionCleanup: (() => void) | null = null;
 
   constructor() {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
@@ -571,7 +582,7 @@ export default class MainBackground {
           "ephemeral",
           "bitwarden-ephemeral",
         );
-        await sessionStorage.save("session-key", derivedKey);
+        await sessionStorage.save("session-key", derivedKey.toJSON());
         return derivedKey;
       });
 
@@ -738,6 +749,10 @@ export default class MainBackground {
       this.accountService,
     );
 
+    const sessionTimeoutTypeService = new BrowserSessionTimeoutTypeService(
+      this.platformUtilsService,
+    );
+
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       pinStateService,
@@ -749,6 +764,7 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.OnRestart, // default vault timeout
+      sessionTimeoutTypeService,
     );
 
     this.apiService = new ApiService(
@@ -784,18 +800,6 @@ export default class MainBackground {
       this.policyService,
       this.apiService,
       this.accountService,
-    );
-    this.keyConnectorService = new KeyConnectorService(
-      this.accountService,
-      this.masterPasswordService,
-      this.keyService,
-      this.apiService,
-      this.tokenService,
-      this.logService,
-      this.organizationService,
-      this.keyGenerationService,
-      logoutCallback,
-      this.stateProvider,
     );
 
     this.authService = new AuthService(
@@ -834,11 +838,39 @@ export default class MainBackground {
       this.configService,
     );
 
-    this.pinService = new PinService(
+    this.registerSdkService = new DefaultRegisterSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
       this.accountService,
-      this.encryptService,
-      this.kdfConfigService,
+      this.apiService,
+      this.stateProvider,
+      this.configService,
+    );
+
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
+
+    this.keyConnectorService = new KeyConnectorService(
+      this.accountService,
+      this.masterPasswordService,
+      this.keyService,
+      this.apiService,
+      this.tokenService,
+      this.logService,
+      this.organizationService,
       this.keyGenerationService,
+      logoutCallback,
+      this.stateProvider,
+      this.configService,
+      this.registerSdkService,
+      this.securityStateService,
+      this.accountCryptographicStateService,
+    );
+
+    this.pinService = new PinService(
+      this.encryptService,
       this.logService,
       this.keyService,
       this.sdkService,
@@ -1004,6 +1036,7 @@ export default class MainBackground {
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
 
     this.providerService = new ProviderService(this.stateProvider);
+
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -1031,6 +1064,7 @@ export default class MainBackground {
       this.stateProvider,
       this.securityStateService,
       this.kdfConfigService,
+      this.accountCryptographicStateService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
@@ -1106,7 +1140,7 @@ export default class MainBackground {
       this.collectionService,
       this.keyService,
       this.encryptService,
-      this.pinService,
+      this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
     );
@@ -1114,7 +1148,7 @@ export default class MainBackground {
     this.individualVaultExportService = new IndividualVaultExportService(
       this.folderService,
       this.cipherService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -1128,7 +1162,7 @@ export default class MainBackground {
     this.organizationVaultExportService = new OrganizationVaultExportService(
       this.cipherService,
       this.exportApiService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -1175,16 +1209,17 @@ export default class MainBackground {
 
     this.pendingAuthRequestStateService = new PendingAuthRequestsStateService(this.stateProvider);
 
-    this.authRequestAnsweringService = new AuthRequestAnsweringService(
+    this.authRequestAnsweringService = new ExtensionAuthRequestAnsweringService(
       this.accountService,
-      this.actionsService,
       this.authService,
-      this.i18nService,
       this.masterPasswordService,
       this.messagingService,
       this.pendingAuthRequestStateService,
+      this.actionsService,
+      this.i18nService,
       this.platformUtilsService,
       this.systemNotificationService,
+      this.logService,
     );
 
     this.serverNotificationsService = new DefaultServerNotificationsService(
@@ -1472,12 +1507,24 @@ export default class MainBackground {
       this.platformUtilsService,
     );
 
-    PhishingDetectionService.initialize(
+    this.phishingDetectionSettingsService = new PhishingDetectionSettingsService(
       this.accountService,
       this.billingAccountProfileStateService,
       this.configService,
+      this.organizationService,
+      this.platformUtilsService,
+      this.stateProvider,
+    );
+
+    // Call cleanup from previous initialization if it exists (service worker restart scenario)
+    if (this.phishingDetectionCleanup) {
+      this.phishingDetectionCleanup();
+    }
+
+    this.phishingDetectionCleanup = PhishingDetectionService.initialize(
       this.logService,
       this.phishingDataService,
+      this.phishingDetectionSettingsService,
       messageListener,
     );
 
@@ -1631,6 +1678,32 @@ export default class MainBackground {
     if (this.overlayBackground) {
       await this.overlayBackground.updateOverlayCiphers();
     }
+  }
+
+  /**
+   * Triggers a phishing cache update in the background.
+   * Called on extension install/update to pre-populate the cache
+   * so it's ready when a premium user logs in.
+   *
+   * Creates a temporary subscription to ensure the update executes even if
+   * there are no other subscribers (install/update scenario). The subscription
+   * is automatically cleaned up after the update completes or errors.
+   */
+  triggerPhishingCacheUpdate(): void {
+    // Create a temporary subscription to ensure the update executes
+    // since update$ uses shareReplay with refCount: true, which requires at least one subscriber
+    const tempSub = this.phishingDataService.update$.subscribe({
+      next: () => {
+        this.logService.debug("[MainBackground] Phishing cache pre-population completed");
+        tempSub.unsubscribe();
+      },
+      error: (err: unknown) => {
+        this.logService.error("[MainBackground] Phishing cache pre-population failed", err);
+        tempSub.unsubscribe();
+      },
+    });
+    // Trigger the update after subscription is created
+    this.phishingDataService.triggerUpdateIfNeeded();
   }
 
   /**

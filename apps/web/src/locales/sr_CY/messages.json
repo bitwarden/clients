@@ -197,13 +197,13 @@
     "message": "Assign at-risk members guided security tasks to update credentials."
   },
   "feature3Title": {
-    "message": "Monitor progress"
+    "message": "Праћење напретка"
   },
   "feature3Description": {
-    "message": "Track changes over time to show security improvements."
+    "message": "Пратите промене током времена да бисте показали безбедносна побољшања."
   },
   "noReportsRunTitle": {
-    "message": "Generate report"
+    "message": "Генеришите извештај"
   },
   "noReportsRunDescription": {
     "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
@@ -344,10 +344,10 @@
     "message": "Апликације које треба прегледати"
   },
   "newApplicationsCardTitle": {
-    "message": "Review new applications"
+    "message": "Прегледајте нове апликације"
   },
   "newApplicationsWithCount": {
-    "message": "$COUNT$ new applications",
+    "message": "Нове апликације: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -380,7 +380,7 @@
     "message": "Review applications to secure the items most critical to your organization's security"
   },
   "reviewApplications": {
-    "message": "Review applications"
+    "message": "Прегледајте апликације"
   },
   "prioritizeCriticalApplications": {
     "message": "Дајте приоритет критичним апликацијама"
@@ -1969,17 +1969,16 @@
   "encExportAccountWarningDesc": {
     "message": "Кључеви за шифровање налога су јединствени за сваки Bitwarden кориснички налог, тако да не можете да увезете шифровани извоз на други налог."
   },
-  "export": {
-    "message": "Извези"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Извоз од"
-  },
-  "exportVault": {
-    "message": "Извоз сефа"
-  },
-  "exportSecrets": {
-    "message": "Извоз тајне"
   },
   "fileFormat": {
     "message": "Формат датотеке"
@@ -1992,9 +1991,6 @@
   },
   "confirmMasterPassword": {
     "message": "Потрдити Главну Лозинку"
-  },
-  "confirmFormat": {
-    "message": "Потврдити формат"
   },
   "filePassword": {
     "message": "Лозинка датотеке"
@@ -2305,6 +2301,14 @@
   },
   "tools": {
     "message": "Алатке"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Увези податке"
@@ -2629,6 +2633,9 @@
   },
   "key": {
     "message": "Кључ"
+  },
+  "unnamedKey": {
+    "message": "Unnamed key"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Верификациони кôд"
@@ -3062,6 +3069,15 @@
   "premiumSignUpStorage": {
     "message": "1ГБ шифровано складиште за прилоге."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ шифровано складиште за прилоге.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Приоритарне опције пријаве у два корака као што су YubiKey и Duo."
   },
@@ -3123,6 +3139,18 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ваша Премијум претплата је завршена"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "Додатно складиште (ГБ)"
@@ -3245,10 +3273,10 @@
     "message": "Следеће пуњење"
   },
   "nextChargeHeader": {
-    "message": "Next Charge"
+    "message": "Следеће пуњење"
   },
   "plan": {
-    "message": "Plan"
+    "message": "План"
   },
   "details": {
     "message": "Детаљи"
@@ -3270,6 +3298,9 @@
   },
   "launchCloudSubscription": {
     "message": "Покренути Cloud претплату"
+  },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Launch cloud subscription"
   },
   "storage": {
     "message": "Складиште"
@@ -4186,6 +4217,12 @@
       }
     }
   },
+  "userAcceptedTransfer": {
+    "message": "Accepted transfer to organization ownership."
+  },
+  "userDeclinedTransfer": {
+    "message": "Revoked for declining transfer to organization ownership."
+  },
   "invitedUserId": {
     "message": "Корисник $ID$ позван.",
     "placeholders": {
@@ -4607,6 +4644,24 @@
   },
   "learnMore": {
     "message": "Сазнај више"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Да бисте наставили потврдите ваш идентитет"
+  },
+  "enterYourMasterPassword": {
+    "message": "Унети вашу главну лозинку"
+  },
+  "updateSettings": {
+    "message": "Ажурирај подешавања"
   },
   "deleteRecoverDesc": {
     "message": "Унесите свој имејл да бисте опоравили и избрисали налог."
@@ -5133,8 +5188,20 @@
     "message": "Фиксирај",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Поправи шифровање"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Ова датотека користи застарели метод шифровања."
+  },
+  "attachmentUpdated": {
+    "message": "Прилог је ажуриран"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "У вашем сефу постоје стари прилози који треба поправити да бисте могли да промените кључ за шифровање свог налога."
+  },
+  "itemsTransferred": {
+    "message": "Пренете ставке"
   },
   "yourAccountsFingerprint": {
     "message": "Ваша Сигурносна Фраза Сефа",
@@ -6417,6 +6484,32 @@
   "bulkReinviteMessage": {
     "message": "Успешно поновно позивање."
   },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ users re-invited",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
   "bulkRemovedMessage": {
     "message": "Успешно уклоњено"
   },
@@ -6737,8 +6830,8 @@
   "vaultTimeoutRangeError": {
     "message": "Временско ограничење сефа није у дозвољеном опсегу."
   },
-  "disablePersonalVaultExport": {
-    "message": "Онемогућите извоз личног сефа"
+  "disableExport": {
+    "message": "Remove export"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Не дозволи члановима да извозе податке из свог индивидуалног сефа."
@@ -7058,9 +7151,6 @@
   "invalidVerificationCode": {
     "message": "Неисправан верификациони код"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Главна лозинка више није потребна за чланове следеће организације. Молимо потврдите домен са администратором организације."
-  },
   "keyConnectorDomain": {
     "message": "Домен конектора кључа"
   },
@@ -7118,8 +7208,8 @@
   "enabledSso": {
     "message": "SSO омогућен"
   },
-  "disabledSso": {
-    "message": "SSO онемогућен"
+  "ssoTurnedOff": {
+    "message": "SSO turned off"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ must login with Single Sign-on",
@@ -8682,9 +8772,6 @@
   "server": {
     "message": "Сервер"
   },
-  "exportData": {
-    "message": "Увези податке"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Извоз тајних података организације"
   },
@@ -9411,6 +9498,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "SSO пријава је потребна"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Email is required for SSO"
   },
   "selectedRegionFlag": {
     "message": "Одабрана застава"
@@ -11520,31 +11610,37 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Врати из архиве"
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Ставке у архиви"
   },
   "noItemsInArchive": {
     "message": "Нема ставка у архиви"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
   "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+    "message": "Ставка је послата у архиву"
   },
   "itemsWereSentToArchive": {
-    "message": "Items were sent to archive"
+    "message": "Ставке су послате у архиву"
   },
   "itemUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Ставка враћена из архиве"
   },
   "bulkArchiveItems": {
-    "message": "Items archived"
+    "message": "Ставке у архиви"
   },
   "bulkUnarchiveItems": {
-    "message": "Items unarchived"
+    "message": "Ставке враћене из архиве"
   },
   "archiveItem": {
     "message": "Archive item",
@@ -11925,8 +12021,8 @@
   "familiesMembership": {
     "message": "Families membership"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "planDescFamiliesV2": {
     "message": "Premium security for your family"
@@ -12052,7 +12148,7 @@
     "message": "There was an error calculating tax for your location. Please try again."
   },
   "individualUpgradeWelcomeMessage": {
-    "message": "Welcome to Bitwarden"
+    "message": "Добродошли у Bitwarden"
   },
   "individualUpgradeDescriptionMessage": {
     "message": "Unlock more security features with Premium, or start sharing items with Families"
@@ -12070,7 +12166,7 @@
     "message": "Upgrade your plan"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Надогради сада"
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
@@ -12092,9 +12188,6 @@
   },
   "updateYourEncryptionSettings": {
     "message": "Ажурирајте своје поставке за шифровање"
-  },
-  "updateSettings": {
-    "message": "Ажурирај подешавања"
   },
   "algorithm": {
     "message": "Алгоритам"
@@ -12133,28 +12226,28 @@
     "message": "A domain must be claimed before activating this policy."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
+    "message": "Подесите метод откључавања да бисте променили радњу временског ограничења сефа."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "Захтеви политике предузећа су примењени на опције тајмаута"
   },
   "vaultTimeoutTooLarge": {
-    "message": "Your vault timeout exceeds the restrictions set by your organization."
+    "message": "Време истека вашег сефа је премашило дозвољена ограничења од стране ваше организације."
   },
   "neverLockWarning": {
-    "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
+    "message": "Да ли сте сигурни да желите да користите опцију „Никад“? Ако поставите опције закључавања на „Никада“, на вашем уређају се чува кључ за шифровање сефа. Ако користите ову опцију, осигурајте да је уређај правилно заштићен."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Акција тајмаута"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Истек сесије"
   },
   "appearance": {
-    "message": "Appearance"
+    "message": "Изглед"
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Тајмаут је већи него што је решила организација: макимум $HOURS$ сат(а) и $MINUTES$ минут(а)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -12166,13 +12259,237 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Ваша организација више не користи главне лозинке за пријаву на Bitwarden. Да бисте наставили, верификујте организацију и домен."
+  },
+  "continueWithLogIn": {
+    "message": "Наставити са пријавом"
+  },
+  "doNotContinue": {
+    "message": "Не настави"
+  },
+  "domain": {
+    "message": "Домен"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Овај домен ће чувати кључеве за шифровање вашег налога, па се уверите да му верујете. Ако нисте сигурни, проверите код свог администратора."
+  },
+  "verifyYourOrganization": {
+    "message": "Верификујте своју организацију да бисте се пријавили"
+  },
+  "organizationVerified": {
+    "message": "Организација верификована"
+  },
+  "domainVerified": {
+    "message": "Домен верификован"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ако не верификујете своју организацију, ваш приступ организацији ће бити опозван."
+  },
+  "leaveNow": {
+    "message": "Напусти сада"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Верификујте домен да бисте се пријавили"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Да бисте наставили са пријављивањем, верификујте овај домен."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Да бисте наставили са пријављивањем, верификујте организацију и домен."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "No critical applications are selected"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "Желите ли заиста да наставите?"
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Delete unrecoverable vault items"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Some of your vault items could not be recovered. Do you want to delete these unrecoverable items from your vault?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Delete unrecoverable folders"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Some of your folders could not be recovered. Do you want to delete these unrecoverable folders from your vault?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Replace encryption key"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Усклађивање података"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Verifying encryption key integrity"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Verifying user information"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Verifying vault item integrity"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Verifying folder integrity"
+  },
+  "dataRecoveryTitle": {
+    "message": "Data Recovery and Diagnostics"
+  },
+  "dataRecoveryDescription": {
+    "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
+  },
+  "runDiagnostics": {
+    "message": "Run Diagnostics"
+  },
+  "repairIssues": {
+    "message": "Repair Issues"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Save Diagnostic Logs"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser refresh."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser refresh"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Напустити $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "You have Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "View and manage your Premium subscription"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "You'll need to update your license file"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Upload license file"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Upload your license file"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Upload your Premium license file"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Already have a subscription?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+  },
+  "viewAllPlans": {
+    "message": "View all plans"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
   }
 }

@@ -17,6 +17,7 @@ import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/resp
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
@@ -101,7 +102,6 @@ export function identityTokenResponseFactory(
     KdfIterations: kdfIterations,
     Key: encryptedUserKey,
     PrivateKey: privateKey,
-    ResetMasterPassword: false,
     access_token: accessToken,
     expires_in: 3600,
     refresh_token: refreshToken,
@@ -137,6 +137,7 @@ describe("LoginStrategy", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -163,6 +164,7 @@ describe("LoginStrategy", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
 
@@ -193,6 +195,7 @@ describe("LoginStrategy", () => {
       kdfConfigService,
       environmentService,
       configService,
+      accountCryptographicStateService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
   });
@@ -259,7 +262,7 @@ describe("LoginStrategy", () => {
 
       expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
         userId,
-        UserDecryptionOptions.fromResponse(idTokenResponse),
+        UserDecryptionOptions.fromIdentityTokenResponse(idTokenResponse),
       );
       expect(masterPasswordService.mock.setMasterPasswordUnlockData).toHaveBeenCalledWith(
         new MasterPasswordUnlockData(
@@ -301,7 +304,6 @@ describe("LoginStrategy", () => {
     it("builds AuthResult", async () => {
       const tokenResponse = identityTokenResponseFactory();
       tokenResponse.forcePasswordReset = true;
-      tokenResponse.resetMasterPassword = true;
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
@@ -310,7 +312,6 @@ describe("LoginStrategy", () => {
       const expected = new AuthResult();
       expected.masterPassword = "password";
       expected.userId = userId;
-      expected.resetMasterPassword = true;
       expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
     });
@@ -326,7 +327,6 @@ describe("LoginStrategy", () => {
       const expected = new AuthResult();
       expected.masterPassword = "password";
       expected.userId = userId;
-      expected.resetMasterPassword = false;
       expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
 
@@ -522,6 +522,7 @@ describe("LoginStrategy", () => {
         kdfConfigService,
         environmentService,
         configService,
+        accountCryptographicStateService,
       );
 
       apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
@@ -583,6 +584,7 @@ describe("LoginStrategy", () => {
         kdfConfigService,
         environmentService,
         configService,
+        accountCryptographicStateService,
       );
 
       const result = await passwordLoginStrategy.logIn(credentials);

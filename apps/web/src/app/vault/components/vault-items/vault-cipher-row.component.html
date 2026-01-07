@@ -172,7 +172,7 @@
       <bit-menu-divider *ngIf="showMenuDivider"></bit-menu-divider>
 
       @if (!viewingOrgVault) {
-        <button bitMenuItem type="button" (click)="toggleFavorite()">
+        <button bitMenuItem type="button" *ngIf="showFavorite" (click)="toggleFavorite()">
           <i class="bwi bwi-fw bwi-star" aria-hidden="true"></i>
           {{ (cipher.favorite ? "unfavorite" : "favorite") | i18n }}
         </button>
@@ -203,10 +203,22 @@
         {{ "eventLogs" | i18n }}
       </button>
       @if (showArchiveButton) {
-        <button bitMenuItem (click)="archive()" type="button">
-          <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
-          {{ "archiveVerb" | i18n }}
-        </button>
+        @if (userCanArchive) {
+          <button bitMenuItem (click)="archive()" type="button">
+            <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+            {{ "archiveVerb" | i18n }}
+          </button>
+        }
+        @if (!userCanArchive) {
+          <button bitMenuItem (click)="badge.promptForPremium($event)" type="button">
+            <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+            {{ "archiveVerb" | i18n }}
+            <!-- Hide app-premium badge from accessibility tools as it results in a button within a button -->
+            <div slot="end" class="-tw-mt-0.5" aria-hidden>
+              <app-premium-badge #badge></app-premium-badge>
+            </div>
+          </button>
+        }
       }
 
       @if (showUnArchiveButton) {

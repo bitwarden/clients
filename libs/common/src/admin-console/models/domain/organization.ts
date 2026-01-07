@@ -95,6 +95,7 @@ export class Organization {
   userIsManagedByOrganization: boolean;
   useAccessIntelligence: boolean;
   useAdminSponsoredFamilies: boolean;
+  useDisableSMAdsForUsers: boolean;
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
@@ -160,6 +161,7 @@ export class Organization {
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
     this.useAccessIntelligence = obj.useAccessIntelligence;
     this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
+    this.useDisableSMAdsForUsers = obj.useDisableSMAdsForUsers ?? false;
     this.isAdminInitiated = obj.isAdminInitiated;
     this.ssoEnabled = obj.ssoEnabled;
     this.ssoMemberDecryptionType = obj.ssoMemberDecryptionType;
@@ -401,5 +403,9 @@ export class Organization {
         this.permissions.manageGroups ||
         this.permissions.accessEventLogs)
     );
+  }
+
+  get canUseAccessIntelligence() {
+    return this.productTierType === ProductTierType.Enterprise;
   }
 }
