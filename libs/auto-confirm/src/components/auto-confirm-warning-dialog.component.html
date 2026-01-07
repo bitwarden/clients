@@ -1,0 +1,25 @@
+<bit-simple-dialog dialogSize="small">
+  <span bitDialogTitle>
+    <strong>{{ "warningCapitalized" | i18n }}</strong>
+  </span>
+  <span bitDialogContent>
+    {{ "autoConfirmWarning" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/help/automatic-confirmation/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {{ "autoConfirmWarningLink" | i18n }}
+      <i class="bwi bwi-external-link bwi-fw"></i>
+    </a>
+  </span>
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" (click)="dialogRef.close(true)">
+      {{ "turnOn" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" (click)="dialogRef.close(false)">
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

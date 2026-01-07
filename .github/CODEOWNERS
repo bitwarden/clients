@@ -75,6 +75,7 @@ bitwarden_license/bit-cli/src/admin-console @bitwarden/team-admin-console-dev
 libs/angular/src/admin-console @bitwarden/team-admin-console-dev
 libs/common/src/admin-console @bitwarden/team-admin-console-dev
 libs/admin-console @bitwarden/team-admin-console-dev
+libs/auto-confirm @bitwarden/team-admin-console-dev
 
 ## Billing team files ##
 apps/browser/src/billing @bitwarden/team-billing-dev

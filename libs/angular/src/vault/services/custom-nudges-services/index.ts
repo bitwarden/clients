@@ -1,4 +1,5 @@
 export * from "./account-security-nudge.service";
+export * from "./auto-confirm-nudge.service";
 export * from "./has-items-nudge.service";
 export * from "./empty-vault-nudge.service";
 export * from "./vault-settings-import-nudge.service";
