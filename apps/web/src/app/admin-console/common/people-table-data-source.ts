@@ -251,8 +251,8 @@ export class MembersTableDataSource extends PeopleTableDataSource<OrganizationUs
 }
 
 /**
- * Helper function to determine if the confirm users option should be shown
- * @params dataSource Either a ProivdersTableDataSource or a MembersTableDataSource
+ * Helper function to determine if the confirm users banner should be shown
+ * @params dataSource Either a ProvidersTableDataSource or a MembersTableDataSource
  */
 export function showConfirmBanner(
   dataSource: ProvidersTableDataSource | MembersTableDataSource,

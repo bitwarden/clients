@@ -20,18 +20,15 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
-import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-confirm.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ProviderId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 import {
   CloudBulkReinviteLimit,
   MaxCheckedCount,
@@ -76,8 +73,6 @@ export class MembersComponent {
   protected userNamePipe = inject(UserNamePipe);
   protected validationService = inject(ValidationService);
   protected toastService = inject(ToastService);
-  private encryptService = inject(EncryptService);
-  private keyService = inject(KeyService);
   private activatedRoute = inject(ActivatedRoute);
   private providerService = inject(ProviderService);
   private accountService = inject(AccountService);
@@ -279,84 +274,36 @@ export class MembersComponent {
       return false;
     }
 
-    try {
-      const result = await this.removeUserInternal(user.id, providerId);
-      if (result.success) {
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("removedUserId", this.userNamePipe.transform(user)),
-        });
-        this.dataSource().removeUser(user);
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (e) {
-      this.validationService.showError(e);
-    }
+    const sideEffect = () => this.dataSource().removeUser(user);
+    const result = await this.memberActionsService.deleteProviderUser(providerId, user);
+
+    await this.handleMemberActionResult(result, "success", user, sideEffect);
   }
 
   async reinvite(user: ProviderUser, providerId: ProviderId) {
-    try {
-      const result = await this.apiService.postProviderUserReinvite(providerId, providerId);
-      if (result.success) {
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("hasBeenReinvited", this.userNamePipe.transform(user)),
-        });
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (e) {
-      this.validationService.showError(e);
-    }
+    const result = await this.memberActionsService.reinviteProvider(providerId, user);
+    await this.handleMemberActionResult(result, "success", user);
   }
 
   async confirm(user: ProviderUser, providerId: ProviderId) {
-    try {
-      const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(
-        user,
-        this.userNamePipe,
-        this.organizationManagementPreferencesService,
-      );
-      assertNonNullish(publicKeyResult, "Public key not found");
+    const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(
+      user,
+      this.userNamePipe,
+      this.organizationManagementPreferencesService,
+    );
+    assertNonNullish(publicKeyResult, "Public key not found");
 
-      const providerKey = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(
-          getUserId,
-          switchMap((userId) => this.keyService.providerKeys$(userId)),
-          map((providerKeys) => providerKeys?.[providerId as ProviderId] ?? null),
-        ),
-      );
-      assertNonNullish(providerKey, "Provider key not found");
-
-      const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKeyResult);
-      assertNonNullish(key.encryptedString, "No key was provided");
-
-      const request = new ProviderUserConfirmRequest(key.encryptedString);
-      await this.apiService.postProviderUserConfirm(providerId, user.id, request);
-
+    const result = await this.memberActionsService.confirmProvider(
+      user,
+      providerId,
+      publicKeyResult,
+    );
+    const sideEffect = () => {
       user.status = this.userStatusType.Confirmed;
       this.dataSource().replaceUser(user);
+    };
 
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user)),
-      });
-    } catch (error: any) {
-      return { success: false, error: error.message };
-    }
-  }
-
-  private async removeUserInternal(
-    id: string,
-    providerId: ProviderId,
-  ): Promise<MemberActionResult> {
-    try {
-      await this.apiService.deleteProviderUser(providerId, id);
-      return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
-    }
+    await this.handleMemberActionResult(result, "success", user, sideEffect);
   }
 
   async edit(providerId: ProviderId, user?: ProviderUser): Promise<void> {
@@ -409,5 +356,24 @@ export class MembersComponent {
     };
 
     return result;
+  }
+
+  async handleMemberActionResult(
+    result: MemberActionResult,
+    successKey: string,
+    user: ProviderUser,
+    sideEffect?: () => void | Promise<void>,
+  ) {
+    if (result.success) {
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t(successKey, this.userNamePipe.transform(user)),
+      });
+      if (sideEffect) {
+        await sideEffect();
+      }
+    } else {
+      this.validationService.showError(result.error);
+    }
   }
 }

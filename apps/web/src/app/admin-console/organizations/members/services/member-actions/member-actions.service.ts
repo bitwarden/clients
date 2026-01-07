@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { lastValueFrom, firstValueFrom } from "rxjs";
+import { lastValueFrom, firstValueFrom, switchMap, map } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -13,16 +13,22 @@ import {
   OrganizationUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-confirm.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ProviderId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
+import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { UserConfirmComponent } from "../../../manage/user-confirm.component";
@@ -39,16 +45,6 @@ export interface BulkActionResult {
   failed: { id: string; error: string }[];
 }
 
-/**
- * Interface for user objects that can be confirmed (Organization or Provider users)
- */
-export interface ConfirmableUser {
-  id: string;
-  userId: string;
-  name?: string;
-  email: string;
-}
-
 @Injectable()
 export class MemberActionsService {
   constructor(
@@ -60,6 +56,8 @@ export class MemberActionsService {
     private dialogService: DialogService,
     private keyService: KeyService,
     private logService: LogService,
+    private accountService: AccountService,
+    private encryptService: EncryptService,
   ) {}
 
   async inviteUser(
@@ -89,6 +87,18 @@ export class MemberActionsService {
     try {
       await this.organizationUserApiService.removeOrganizationUser(organization.id, userId);
       this.organizationMetadataService.refreshMetadataCache();
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: (error as Error).message ?? String(error) };
+    }
+  }
+
+  async deleteProviderUser(
+    providerId: ProviderId,
+    user: ProviderUser,
+  ): Promise<MemberActionResult> {
+    try {
+      await this.apiService.deleteProviderUser(providerId, user.id);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
@@ -134,6 +144,15 @@ export class MemberActionsService {
     }
   }
 
+  async reinviteProvider(providerId: ProviderId, user: ProviderUser): Promise<MemberActionResult> {
+    try {
+      await this.apiService.postProviderUserReinvite(providerId, user.id);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: (error as Error).message ?? String(error) };
+    }
+  }
+
   async confirmUser(
     user: OrganizationUserView,
     publicKey: Uint8Array,
@@ -143,6 +162,32 @@ export class MemberActionsService {
       await firstValueFrom(
         this.organizationUserService.confirmUser(organization, user.id, publicKey),
       );
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: (error as Error).message ?? String(error) };
+    }
+  }
+
+  async confirmProvider(
+    user: ProviderUser,
+    providerId: ProviderId,
+    publicKey: Uint8Array,
+  ): Promise<MemberActionResult> {
+    try {
+      const providerKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.providerKeys$(userId)),
+          map((providerKeys) => providerKeys?.[providerId] ?? null),
+        ),
+      );
+      assertNonNullish(providerKey, "Provider key not found");
+
+      const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
+      assertNonNullish(key.encryptedString, "No key was provided");
+
+      const request = new ProviderUserConfirmRequest(key.encryptedString);
+      await this.apiService.postProviderUserConfirm(providerId, user.id, request);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
@@ -269,9 +314,9 @@ export class MemberActionsService {
    * @returns Promise containing the pulic key that resolves when the confirm action is accepted
    * or undefined when cancelled
    */
-  async getPublicKeyForConfirm<T extends ConfirmableUser>(
-    user: T,
-    userNamePipe: { transform: (user: T) => string },
+  async getPublicKeyForConfirm(
+    user: OrganizationUserView | ProviderUser,
+    userNamePipe: { transform: (user: OrganizationUserView | ProviderUser) => string },
     orgManagementPrefs: OrganizationManagementPreferencesService,
   ): Promise<Uint8Array | undefined> {
     try {
@@ -285,6 +330,9 @@ export class MemberActionsService {
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
       if (autoConfirmFingerPrint == null || !autoConfirmFingerPrint) {
+        const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
+        this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
+
         const confirmed = UserConfirmComponent.open(this.dialogService, {
           data: {
             name: userNamePipe.transform(user),
@@ -296,9 +344,6 @@ export class MemberActionsService {
         if (!(await lastValueFrom(confirmed.closed))) {
           return;
         }
-
-        const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
-        this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
       }
 
       return publicKey;
