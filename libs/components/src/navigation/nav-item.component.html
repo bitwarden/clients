@@ -4,7 +4,7 @@
     <div
       [style.padding-inline-start]="navItemIndentationPadding()"
       class="tw-relative tw-rounded-md tw-h-10"
-      [class]="fvwStyles$ | async"
+      [class]="fvwStyles()"
       [class.tw-bg-background-alt4]="showActiveStyles"
       [class.tw-bg-background-alt3]="!showActiveStyles"
       [class.hover:tw-bg-hover-contrast]="!showActiveStyles"
