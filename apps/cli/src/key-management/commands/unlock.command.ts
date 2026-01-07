@@ -12,6 +12,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
@@ -117,7 +118,7 @@ export class UnlockCommand {
   /**
    * Try to unlock with biometrics. Returns Response on success, null if cancelled/failed.
    */
-  private async tryBiometricUnlock(userId: string): Promise<Response | null> {
+  private async tryBiometricUnlock(userId: UserId): Promise<Response | null> {
     const biometricName = this.getBiometricName();
     // Write to stderr so it doesn't interfere with --raw output
     CliUtils.writeLn(
@@ -127,7 +128,7 @@ export class UnlockCommand {
     );
 
     try {
-      const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId as any);
+      const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
 
       if (userKey == null) {
         // Biometric was cancelled or failed, signal to fall back to password
@@ -138,12 +139,12 @@ export class UnlockCommand {
       await this.setNewSessionKey();
 
       // Set the user key
-      await this.keyService.setUserKey(userKey, userId as any);
+      await this.keyService.setUserKey(userKey, userId);
 
       // Handle key connector conversion if needed
       if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
         const convertToKeyConnectorCommand = new ConvertToKeyConnectorCommand(
-          userId as any,
+          userId,
           this.keyConnectorService,
           this.environmentService,
           this.organizationApiService,
@@ -170,23 +171,23 @@ export class UnlockCommand {
   /**
    * Unlock the vault using master password.
    */
-  private async unlockWithPassword(password: string, userId: string): Promise<Response> {
+  private async unlockWithPassword(password: string, userId: UserId): Promise<Response> {
     await this.setNewSessionKey();
 
     try {
       const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
         password,
-        userId as any,
+        userId,
       );
 
-      await this.keyService.setUserKey(userKey, userId as any);
+      await this.keyService.setUserKey(userKey, userId);
     } catch (e) {
       return Response.error(e.message);
     }
 
     if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
       const convertToKeyConnectorCommand = new ConvertToKeyConnectorCommand(
-        userId as any,
+        userId,
         this.keyConnectorService,
         this.environmentService,
         this.organizationApiService,
@@ -199,7 +200,7 @@ export class UnlockCommand {
       }
     }
 
-    await this.encryptedMigrator.runMigrations(userId as any, password);
+    await this.encryptedMigrator.runMigrations(userId, password);
 
     return this.successResponse();
   }
