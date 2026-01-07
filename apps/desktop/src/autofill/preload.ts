@@ -39,6 +39,7 @@ export default {
       ) => {
         const { clientId, sequenceNumber, request } = data;
         fn(clientId, sequenceNumber, request, (error, response) => {
+          console.log("autofill.passkeyRegistration IPC response", error, response)
           if (error) {
             ipcRenderer.send("autofill.completeError", {
               clientId,
@@ -187,6 +188,82 @@ export default {
           if (vaultData !== null) {
             ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, vaultData);
           }
+        });
+      },
+    );
+  },
+  listenLockStatusQuery: (
+    fn: (
+      clientId: number,
+      sequenceNumber: number,
+      request: autofill.LockStatusQueryRequest,
+      completeCallback: (error: Error | null, response: autofill.LockStatusQueryResponse) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.lockStatusQuery",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          request: autofill.LockStatusQueryRequest;
+        },
+      ) => {
+        const { clientId, sequenceNumber, request } = data;
+        fn(clientId, sequenceNumber, request, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              clientId,
+              sequenceNumber,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completeLockStatusQuery", {
+            clientId,
+            sequenceNumber,
+            response,
+          });
+        });
+      },
+    );
+  },
+  listenGetWindowHandle: (
+    fn: (
+      clientId: number,
+      sequenceNumber: number,
+      request: autofill.WindowHandleQueryRequest,
+      completeCallback: (error: Error | null, response: autofill.WindowHandleQueryResponse) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.windowHandleQuery",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          request: autofill.WindowHandleQueryRequest;
+        },
+      ) => {
+        const { clientId, sequenceNumber, request } = data;
+        fn(clientId, sequenceNumber, request, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              clientId,
+              sequenceNumber,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completeWindowHandleQuery", {
+            clientId,
+            sequenceNumber,
+            response,
+          });
         });
       },
     );

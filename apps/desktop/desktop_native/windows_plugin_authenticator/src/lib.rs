@@ -1,177 +1,49 @@
 #![cfg(target_os = "windows")]
-#![allow(non_snake_case)]
-#![allow(non_camel_case_types)]
+use std::collections::HashSet;
 
-use std::{ffi::c_uchar, ptr};
-
-use windows::Win32::{
-    Foundation::*,
-    System::{Com::*, LibraryLoader::*},
+use win_webauthn::{
+    plugin::{PluginAddAuthenticatorOptions, WebAuthnPlugin},
+    AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
 };
-use windows_core::*;
 
-mod pluginauthenticator;
-mod webauthn;
+pub const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop";
+pub const RPID: &str = "bitwarden.com";
+pub const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
+pub const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
+pub const LOGO_SVG: &str = r##"<svg version="1.1" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><path fill="#175ddc" d="M300 253.125C300 279.023 279.023 300 253.125 300H46.875C20.9766 300 0 279.023 0 253.125V46.875C0 20.9766 20.9766 0 46.875 0H253.125C279.023 0 300 20.9766 300 46.875V253.125Z"/><path fill="#fff" d="M243.105 37.6758C241.201 35.7715 238.945 34.834 236.367 34.834H63.6328C61.0254 34.834 58.7988 35.7715 56.8945 37.6758C54.9902 39.5801 54.0527 41.8359 54.0527 44.4141V159.58C54.0527 168.164 55.7227 176.689 59.0625 185.156C62.4023 193.594 66.5625 201.094 71.5137 207.656C76.4648 214.189 82.3535 220.576 89.209 226.787C96.0645 232.998 102.393 238.125 108.164 242.227C113.965 246.328 120 250.195 126.299 253.857C132.598 257.52 137.08 259.98 139.717 261.27C142.354 262.559 144.492 263.584 146.074 264.258C147.275 264.844 148.564 265.166 149.971 265.166C151.377 265.166 152.666 264.873 153.867 264.258C155.479 263.555 157.588 262.559 160.254 261.27C162.891 259.98 167.373 257.49 173.672 253.857C179.971 250.195 186.006 246.328 191.807 242.227C197.607 238.125 203.936 232.969 210.791 226.787C217.646 220.576 223.535 214.219 228.486 207.656C233.438 201.094 237.568 193.623 240.938 185.156C244.277 176.719 245.947 168.193 245.947 159.58V44.4434C245.977 41.8359 245.01 39.5801 243.105 37.6758ZM220.84 160.664C220.84 202.354 150 238.271 150 238.271V59.502H220.84C220.84 59.502 220.84 118.975 220.84 160.664Z"/></svg>"##;
 
-const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop Authenticator";
-//const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
-const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
-const RPID: &str = "bitwarden.com";
-
-/// Handles initialization and registration for the Bitwarden desktop app as a
-/// plugin authenticator with Windows.
-/// For now, also adds the authenticator
-pub fn register() -> std::result::Result<(), String> {
-    initialize_com_library()?;
-
-    register_com_library()?;
-
-    add_authenticator()?;
-
-    Ok(())
-}
-
-/// Initializes the COM library for use on the calling thread,
-/// and registers + sets the security values.
-fn initialize_com_library() -> std::result::Result<(), String> {
-    let result = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED) };
-
-    if result.is_err() {
-        return Err(format!(
-            "Error: couldn't initialize the COM library\n{}",
-            result.message()
-        ));
-    }
-
-    match unsafe {
-        CoInitializeSecurity(
-            None,
-            -1,
-            None,
-            None,
-            RPC_C_AUTHN_LEVEL_DEFAULT,
-            RPC_C_IMP_LEVEL_IMPERSONATE,
-            None,
-            EOAC_NONE,
-            None,
-        )
-    } {
-        Ok(_) => Ok(()),
-        Err(e) => Err(format!(
-            "Error: couldn't initialize COM security\n{}",
-            e.message()
-        )),
-    }
-}
-
-/// Registers the Bitwarden Plugin Authenticator COM library with Windows.
-fn register_com_library() -> std::result::Result<(), String> {
-    static FACTORY: windows_core::StaticComObject<pluginauthenticator::Factory> =
-        pluginauthenticator::Factory().into_static();
-    let clsid: *const GUID = &GUID::from_u128(0xa98925d161f640de9327dc418fcb2ff4);
-
-    match unsafe {
-        CoRegisterClassObject(
-            clsid,
-            FACTORY.as_interface_ref(),
-            CLSCTX_LOCAL_SERVER,
-            REGCLS_MULTIPLEUSE,
-        )
-    } {
-        Ok(_) => Ok(()),
-        Err(e) => Err(format!(
-            "Error: couldn't register the COM library\n{}",
-            e.message()
-        )),
-    }
-}
-
-/// Adds Bitwarden as a plugin authenticator.
-// FIXME: Remove unwraps! They panic and terminate the whole application.
-#[allow(clippy::unwrap_used)]
-fn add_authenticator() -> std::result::Result<(), String> {
-    let authenticator_name: HSTRING = AUTHENTICATOR_NAME.into();
-    let authenticator_name_ptr = PCWSTR(authenticator_name.as_ptr()).as_ptr();
-
-    let clsid: HSTRING = format!("{{{}}}", CLSID).into();
-    let clsid_ptr = PCWSTR(clsid.as_ptr()).as_ptr();
-
-    let relying_party_id: HSTRING = RPID.into();
-    let relying_party_id_ptr = PCWSTR(relying_party_id.as_ptr()).as_ptr();
-
-    // let aaguid: HSTRING = format!("{{{}}}", AAGUID).into();
-    // let aaguid_ptr = PCWSTR(aaguid.as_ptr()).as_ptr();
-
-    // Example authenticator info blob
-    let cbor_authenticator_info = "A60182684649444F5F325F30684649444F5F325F310282637072666B686D61632D7365637265740350D548826E79B4DB40A3D811116F7E834904A362726BF5627570F5627576F5098168696E7465726E616C0A81A263616C672664747970656A7075626C69632D6B6579";
-    let mut authenticator_info_bytes = hex::decode(cbor_authenticator_info).unwrap();
-
-    let add_authenticator_options = webauthn::ExperimentalWebAuthnPluginAddAuthenticatorOptions {
-        authenticator_name: authenticator_name_ptr,
-        com_clsid: clsid_ptr,
-        rpid: relying_party_id_ptr,
-        light_theme_logo: ptr::null(), // unused by Windows
-        dark_theme_logo: ptr::null(),  // unused by Windows
-        cbor_authenticator_info_byte_count: authenticator_info_bytes.len() as u32,
-        cbor_authenticator_info: authenticator_info_bytes.as_mut_ptr(),
-    };
-
-    let plugin_signing_public_key_byte_count: u32 = 0;
-    let mut plugin_signing_public_key: c_uchar = 0;
-    let plugin_signing_public_key_ptr = &mut plugin_signing_public_key;
-
-    let mut add_response = webauthn::ExperimentalWebAuthnPluginAddAuthenticatorResponse {
-        plugin_operation_signing_key_byte_count: plugin_signing_public_key_byte_count,
-        plugin_operation_signing_key: plugin_signing_public_key_ptr,
-    };
-    let mut add_response_ptr: *mut webauthn::ExperimentalWebAuthnPluginAddAuthenticatorResponse =
-        &mut add_response;
-
-    let result = unsafe {
-        delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorFnDeclaration>(
-            s!("webauthn.dll"),
-            s!("EXPERIMENTAL_WebAuthNPluginAddAuthenticator"),
-        )
-    };
-
-    match result {
-        Some(api) => {
-            let result = unsafe { api(&add_authenticator_options, &mut add_response_ptr) };
-
-            if result.is_err() {
-                return Err(format!(
-                    "Error: Error response from EXPERIMENTAL_WebAuthNPluginAddAuthenticator()\n{}",
-                    result.message()
-                ));
-            }
-
-            Ok(())
+pub fn register() -> Result<(), String> {
+    tracing::debug!("register() called...");
+    let clsid = CLSID.try_into().expect("valid GUID string");
+    let aaguid = AAGUID
+        .try_into()
+        .map_err(|err| format!("Invalid AAGUID `{AAGUID}`: {err}"))?;
+    let options = PluginAddAuthenticatorOptions {
+        authenticator_name: AUTHENTICATOR_NAME.to_string(),
+        clsid,
+        rp_id: Some(RPID.to_string()),
+        light_theme_logo_svg: Some(LOGO_SVG.to_string()),
+        dark_theme_logo_svg: Some(LOGO_SVG.to_string()),
+        authenticator_info: AuthenticatorInfo {
+            versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
+            aaguid: aaguid,
+            options: Some(HashSet::from([
+                "rk".to_string(),
+                "up".to_string(),
+                "uv".to_string(),
+            ])),
+            transports: Some(HashSet::from([
+                "internal".to_string(),
+                "hybrid".to_string(),
+            ])),
+            algorithms: Some(vec![PublicKeyCredentialParameters {
+                alg: -7,
+                typ: "public-key".to_string(),
+            }]),
         },
-        None => {
-            Err(String::from("Error: Can't complete add_authenticator(), as the function EXPERIMENTAL_WebAuthNPluginAddAuthenticator can't be found."))
-        }
-    }
-}
-
-type EXPERIMENTAL_WebAuthNPluginAddAuthenticatorFnDeclaration = unsafe extern "C" fn(
-    pPluginAddAuthenticatorOptions: *const webauthn::ExperimentalWebAuthnPluginAddAuthenticatorOptions,
-    ppPluginAddAuthenticatorResponse: *mut *mut webauthn::ExperimentalWebAuthnPluginAddAuthenticatorResponse,
-) -> HRESULT;
-
-unsafe fn delay_load<T>(library: PCSTR, function: PCSTR) -> Option<T> {
-    let library = LoadLibraryExA(library, None, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
-
-    let Ok(library) = library else {
-        return None;
+        supported_rp_ids: None,
     };
-
-    let address = GetProcAddress(library, function);
-
-    if address.is_some() {
-        return Some(std::mem::transmute_copy(&address));
-    }
-
-    _ = FreeLibrary(library);
-
-    None
+    let response = WebAuthnPlugin::add_authenticator(options);
+    tracing::debug!("Added the authenticator: {response:?}");
+    Ok(())
 }
