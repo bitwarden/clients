@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "За да се възползвате от архивирането, трябва да ползвате платен абонамент."
   },
+  "itemRestored": {
+    "message": "Записът бе възстановен"
+  },
   "edit": {
     "message": "Редактиране"
   },
@@ -5663,6 +5666,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
+  },
+  "vulnerablePassword": {
+    "message": "Уязвима парола."
+  },
+  "changeNow": {
+    "message": "Промяна сега"
   },
   "missingWebsite": {
     "message": "Липсващ уеб сайт"

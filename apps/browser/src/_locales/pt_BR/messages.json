@@ -203,13 +203,13 @@
     "message": "Preenchimento automático"
   },
   "autoFillLogin": {
-    "message": "Preencher credencial automaticamente"
+    "message": "Preencher credencial"
   },
   "autoFillCard": {
-    "message": "Preencher cartão automaticamente"
+    "message": "Preencher cartão"
   },
   "autoFillIdentity": {
-    "message": "Preencher identidade automaticamente"
+    "message": "Preencher identidade"
   },
   "fillVerificationCode": {
     "message": "Preencher código de verificação"
@@ -249,7 +249,7 @@
     "message": "Conecte-se ao seu cofre"
   },
   "autoFillInfo": {
-    "message": "Não há credenciais disponíveis para preencher automaticamente na aba atual do navegador."
+    "message": "Não há credenciais disponíveis para preencher na aba atual do navegador."
   },
   "addLogin": {
     "message": "Adicionar uma credencial"
@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Um plano Premium é necessário para usar o arquivamento."
   },
+  "itemRestored": {
+    "message": "O item foi restaurado"
+  },
   "edit": {
     "message": "Editar"
   },
@@ -895,7 +898,7 @@
     }
   },
   "autofillError": {
-    "message": "Não é possível preencher automaticamente o item selecionado nesta página. Em vez disso, copie e cole a informação."
+    "message": "Não é possível preencher o item selecionado nesta página. Em vez disso, copie e cole a informação."
   },
   "totpCaptureError": {
     "message": "Não é possível ler o código QR da página atual"
@@ -1120,7 +1123,7 @@
     "message": "Listar as identidades na página da aba para facilitar o preenchimento automático."
   },
   "clickToAutofillOnVault": {
-    "message": "Clique em itens na tela do Cofre para preencher automaticamente"
+    "message": "Clique em itens na tela do Cofre para preencher"
   },
   "clickToAutofill": {
     "message": "Clicar itens na sugestão para preenchê-lo"
@@ -1585,7 +1588,7 @@
     "message": "Copiar TOTP automaticamente"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Se uma credencial tiver uma chave de autenticador, copie o código de verificação TOTP quando for preenchê-la automaticamente."
+    "message": "Se uma credencial tiver uma chave de autenticador, copie o código de verificação TOTP quando for preenchê-la."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Pedir biometria ao abrir"
@@ -1774,13 +1777,13 @@
     "message": "Site atual"
   },
   "autofillAndAddWebsite": {
-    "message": "Preencher automaticamente e adicionar este site"
+    "message": "Preencher e adicionar este site"
   },
   "autofillWithoutAdding": {
-    "message": "Preencher automaticamente sem adicionar"
+    "message": "Preencher sem adicionar"
   },
   "doNotAutofill": {
-    "message": "Não preencher automaticamente"
+    "message": "Não preencher"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Exibir identidades como sugestões"
@@ -1813,10 +1816,10 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Preencher automaticamente ao carregar a página"
+    "message": "Preenchimento no carregamento da página"
   },
   "enableAutoFillOnPageLoad": {
-    "message": "Preencher automaticamente ao carregar a página"
+    "message": "Preencher ao carregar a página"
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Se um formulário de credencial for detectado, preencha automaticamente quando a página carregar."
@@ -1840,10 +1843,10 @@
     "message": "Usar configuração padrão"
   },
   "autoFillOnPageLoadYes": {
-    "message": "Preencher automaticamente ao carregar a página"
+    "message": "Preencher ao carregar a página"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Não preencher automaticamente ao carregar a página"
+    "message": "Não preencher ao carregar a página"
   },
   "commandOpenPopup": {
     "message": "Abrir pop-up do cofre"
@@ -1852,13 +1855,13 @@
     "message": "Abrir cofre na barra lateral"
   },
   "commandAutofillLoginDesc": {
-    "message": "Preencher automaticamente a última credencial utilizada para o site atual"
+    "message": "Preencher com a última credencial utilizada para o site atual"
   },
   "commandAutofillCardDesc": {
-    "message": "Preencher automaticamente o último cartão utilizado para o site atual"
+    "message": "Preencher com o último cartão utilizado para o site atual"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Preencher automaticamente a última identidade usada para o site atual"
+    "message": "Preencher com a última identidade usada para o site atual"
   },
   "commandGeneratePasswordDesc": {
     "message": "Gere e copie uma nova senha aleatória para a área de transferência"
@@ -2468,7 +2471,7 @@
     "message": "Confirmação da ação do limite de tempo"
   },
   "autoFillAndSave": {
-    "message": "Preencher automaticamente e salvar"
+    "message": "Preencher e salvar"
   },
   "fillAndSave": {
     "message": "Preencher e salvar"
@@ -2486,7 +2489,7 @@
     "message": "Você ainda deseja preencher esta credencial?"
   },
   "autofillIframeWarning": {
-    "message": "O formulário está hospedado em um domínio diferente do URI da sua credencial salva. Escolha OK para preencher automaticamente mesmo assim, ou Cancelar para parar."
+    "message": "O formulário está hospedado em um domínio diferente do URI da sua credencial salva. Escolha OK para preencher mesmo assim, ou Cancelar para parar."
   },
   "autofillIframeWarningTip": {
     "message": "Para evitar este aviso no futuro, salve este URI, $HOSTNAME$, no seu item de credencial no Bitwarden para este site.",
@@ -2812,7 +2815,7 @@
     "message": "Altere senhas em risco mais rápido"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Atualize suas configurações para poder preencher senhas automaticamente ou gerá-las automaticamente"
+    "message": "Atualize suas configurações para poder preencher ou gerar novas senhas"
   },
   "reviewAtRiskLogins": {
     "message": "Revisar credenciais em risco"
@@ -4121,7 +4124,7 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Não é possível preencher automaticamente"
+    "message": "Não é possível preencher"
   },
   "cannotAutofillExactMatch": {
     "message": "A correspondência padrão está configurada como 'Correspondência exata'. O site atual não corresponde exatamente aos detalhes salvos de credencial para este item."
@@ -4677,7 +4680,7 @@
     "message": "Itens sugeridos"
   },
   "autofillSuggestionsTip": {
-    "message": "Salve um item de credencial para este site para preencher automaticamente"
+    "message": "Salve um item de credencial para este site para preencher"
   },
   "yourVaultIsEmpty": {
     "message": "Seu cofre está vazio"
@@ -4753,7 +4756,7 @@
     }
   },
   "autofillTitle": {
-    "message": "Preencher automaticamente - $ITEMNAME$",
+    "message": "Preencher - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -4763,7 +4766,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Preencher automaticamente - $ITEMNAME$ - $FIELD$",
+    "message": "Preencher - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -4853,7 +4856,7 @@
     }
   },
   "new": {
-    "message": "Novo"
+    "message": "Criar"
   },
   "removeItem": {
     "message": "Remover $NAME$",
@@ -5081,7 +5084,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Preencher automaticamente ao carregar a página?"
+    "message": "Preencher ao carregar a página?"
   },
   "cardExpiredTitle": {
     "message": "Cartão vencido"
@@ -5165,7 +5168,7 @@
     "message": "Use campos ocultos para dados confidenciais como uma senha"
   },
   "checkBoxHelpText": {
-    "message": "Use caixas de seleção se gostaria de preencher automaticamente a caixa de seleção de um formulário, como um lembrar e-mail"
+    "message": "Use caixas de seleção se gostaria de preencher a caixa de seleção de um formulário, como um lembrar e-mail"
   },
   "linkedHelpText": {
     "message": "Use um campo vinculado quando estiver enfrentando problemas com o preenchimento automático com um site específico."
@@ -5664,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Esta credencial está em risco e está sem um site. Adicione um site e altere a senha para segurança melhor."
   },
+  "vulnerablePassword": {
+    "message": "Senha vulnerável."
+  },
+  "changeNow": {
+    "message": "Alterar agora"
+  },
   "missingWebsite": {
     "message": "Site ausente"
   },
@@ -5748,7 +5757,7 @@
     }
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Preenche automaticamente itens para a página atual"
+    "message": "Preenche itens para a página atual"
   },
   "hasItemsVaultNudgeBodyTwo": {
     "message": "Favorite itens para acesso rápido"
