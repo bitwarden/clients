@@ -15,10 +15,19 @@ import { SendView } from "../view/send.view";
 import { SendFile } from "./send-file";
 import { SendText } from "./send-text";
 
+export const AuthType = Object.freeze({
+  Email: 0,
+  Password: 1,
+  None: 2,
+} as const);
+
+export type AuthType = (typeof AuthType)[keyof typeof AuthType];
+
 export class Send extends Domain {
   id: string;
   accessId: string;
   type: SendType;
+  authType: AuthType;
   name: EncString;
   notes: EncString;
   file: SendFile;

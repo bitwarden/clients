@@ -12492,5 +12492,8 @@
   },
   "planDescPremium":{
     "message": "Complete online security"
+  },
+  "invalidSendPassword": {
+    "message": "Invalid Send password"
   }
 }
