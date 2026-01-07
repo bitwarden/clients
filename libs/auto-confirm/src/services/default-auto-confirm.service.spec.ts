@@ -1,62 +1,55 @@
 import { TestBed } from "@angular/core/testing";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of, throwError } from "rxjs";
-
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import {
   DefaultOrganizationUserService,
   OrganizationUserApiService,
   OrganizationUserConfirmRequest,
-} from "../../organization-user";
+} from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { newGuid } from "@bitwarden/guid";
+
 import { AUTO_CONFIRM_STATE, AutoConfirmState } from "../models/auto-confirm-state.model";
 
 import { DefaultAutomaticUserConfirmationService } from "./default-auto-confirm.service";
 
 describe("DefaultAutomaticUserConfirmationService", () => {
   let service: DefaultAutomaticUserConfirmationService;
-  let configService: jest.Mocked<ConfigService>;
-  let apiService: jest.Mocked<ApiService>;
-  let organizationUserService: jest.Mocked<DefaultOrganizationUserService>;
+  let configService: MockProxy<ConfigService>;
+  let apiService: MockProxy<ApiService>;
+  let organizationUserService: MockProxy<DefaultOrganizationUserService>;
   let stateProvider: FakeStateProvider;
-  let organizationService: jest.Mocked<InternalOrganizationServiceAbstraction>;
-  let organizationUserApiService: jest.Mocked<OrganizationUserApiService>;
+  let organizationService: MockProxy<InternalOrganizationServiceAbstraction>;
+  let organizationUserApiService: MockProxy<OrganizationUserApiService>;
+  let policyService: MockProxy<PolicyService>;
 
-  const mockUserId = Utils.newGuid() as UserId;
-  const mockConfirmingUserId = Utils.newGuid() as UserId;
-  const mockOrganizationId = Utils.newGuid() as OrganizationId;
+  const mockUserId = newGuid() as UserId;
+  const mockConfirmingUserId = newGuid() as UserId;
+  const mockOrganizationId = newGuid() as OrganizationId;
   let mockOrganization: Organization;
 
   beforeEach(() => {
-    configService = {
-      getFeatureFlag$: jest.fn(),
-    } as any;
-
-    apiService = {
-      getUserPublicKey: jest.fn(),
-    } as any;
-
-    organizationUserService = {
-      buildConfirmRequest: jest.fn(),
-    } as any;
-
+    configService = mock<ConfigService>();
+    apiService = mock<ApiService>();
+    organizationUserService = mock<DefaultOrganizationUserService>();
     stateProvider = new FakeStateProvider(mockAccountServiceWith(mockUserId));
-
-    organizationService = {
-      organizations$: jest.fn(),
-    } as any;
-
-    organizationUserApiService = {
-      postOrganizationUserConfirm: jest.fn(),
-    } as any;
+    organizationService = mock<InternalOrganizationServiceAbstraction>();
+    organizationUserApiService = mock<OrganizationUserApiService>();
+    policyService = mock<PolicyService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -70,6 +63,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
           useValue: organizationService,
         },
         { provide: OrganizationUserApiService, useValue: organizationUserApiService },
+        { provide: PolicyService, useValue: policyService },
       ],
     });
 
@@ -80,9 +74,13 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       stateProvider,
       organizationService,
       organizationUserApiService,
+      policyService,
     );
 
-    const mockOrgData = new OrganizationData({} as any, {} as any);
+    const mockOrgData = new OrganizationData({} as ProfileOrganizationResponse, {
+      isMember: true,
+      isProviderUser: false,
+    });
     mockOrgData.id = mockOrganizationId;
     mockOrgData.useAutomaticUserConfirmation = true;
 
@@ -180,7 +178,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     });
 
     it("should preserve other user configurations when updating", async () => {
-      const otherUserId = Utils.newGuid() as UserId;
+      const otherUserId = newGuid() as UserId;
       const otherConfig = new AutoConfirmState();
       otherConfig.enabled = true;
 
@@ -209,12 +207,13 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     beforeEach(() => {
       const organizations$ = new BehaviorSubject<Organization[]>([mockOrganization]);
       organizationService.organizations$.mockReturnValue(organizations$);
+      policyService.policyAppliesToUser$.mockReturnValue(of(true));
     });
 
     it("should return true when feature flag is enabled and organization allows management", async () => {
       configService.getFeatureFlag$.mockReturnValue(of(true));
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       const canManage = await firstValueFrom(canManage$);
 
       expect(canManage).toBe(true);
@@ -223,7 +222,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     it("should return false when feature flag is disabled", async () => {
       configService.getFeatureFlag$.mockReturnValue(of(false));
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       const canManage = await firstValueFrom(canManage$);
 
       expect(canManage).toBe(false);
@@ -233,7 +232,10 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       configService.getFeatureFlag$.mockReturnValue(of(true));
 
       // Create organization without manageUsers permission
-      const mockOrgData = new OrganizationData({} as any, {} as any);
+      const mockOrgData = new OrganizationData({} as ProfileOrganizationResponse, {
+        isMember: true,
+        isProviderUser: false,
+      });
       mockOrgData.id = mockOrganizationId;
       mockOrgData.useAutomaticUserConfirmation = true;
       const permissions = new PermissionsApi();
@@ -244,7 +246,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const organizations$ = new BehaviorSubject<Organization[]>([orgWithoutManageUsers]);
       organizationService.organizations$.mockReturnValue(organizations$);
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       const canManage = await firstValueFrom(canManage$);
 
       expect(canManage).toBe(false);
@@ -254,7 +256,10 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       configService.getFeatureFlag$.mockReturnValue(of(true));
 
       // Create organization without useAutomaticUserConfirmation
-      const mockOrgData = new OrganizationData({} as any, {} as any);
+      const mockOrgData = new OrganizationData({} as ProfileOrganizationResponse, {
+        isMember: true,
+        isProviderUser: false,
+      });
       mockOrgData.id = mockOrganizationId;
       mockOrgData.useAutomaticUserConfirmation = false;
       const permissions = new PermissionsApi();
@@ -265,7 +270,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const organizations$ = new BehaviorSubject<Organization[]>([orgWithoutAutoConfirm]);
       organizationService.organizations$.mockReturnValue(organizations$);
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       const canManage = await firstValueFrom(canManage$);
 
       expect(canManage).toBe(false);
@@ -277,7 +282,31 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const organizations$ = new BehaviorSubject<Organization[]>([]);
       organizationService.organizations$.mockReturnValue(organizations$);
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
+      const canManage = await firstValueFrom(canManage$);
+
+      expect(canManage).toBe(false);
+    });
+
+    it("should return false when the user is not a member of any organizations", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+
+      // Create organization where user is not a member
+      const mockOrgData = new OrganizationData({} as ProfileOrganizationResponse, {
+        isMember: false,
+        isProviderUser: false,
+      });
+      mockOrgData.id = mockOrganizationId;
+      mockOrgData.useAutomaticUserConfirmation = true;
+      const permissions = new PermissionsApi();
+      permissions.manageUsers = true;
+      mockOrgData.permissions = permissions;
+      const orgWhereNotMember = new Organization(mockOrgData);
+
+      const organizations$ = new BehaviorSubject<Organization[]>([orgWhereNotMember]);
+      organizationService.organizations$.mockReturnValue(organizations$);
+
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       const canManage = await firstValueFrom(canManage$);
 
       expect(canManage).toBe(false);
@@ -286,10 +315,57 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     it("should use the correct feature flag", async () => {
       configService.getFeatureFlag$.mockReturnValue(of(true));
 
-      const canManage$ = service.canManageAutoConfirm$(mockUserId, mockOrganizationId);
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
       await firstValueFrom(canManage$);
 
       expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.AutoConfirm);
+    });
+
+    it("should return false when policy does not apply to user", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      policyService.policyAppliesToUser$.mockReturnValue(of(false));
+
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
+      const canManage = await firstValueFrom(canManage$);
+
+      expect(canManage).toBe(false);
+    });
+
+    it("should return true when policy applies to user", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      policyService.policyAppliesToUser$.mockReturnValue(of(true));
+
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
+      const canManage = await firstValueFrom(canManage$);
+
+      expect(canManage).toBe(true);
+    });
+
+    it("should check policy with correct PolicyType and userId", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      policyService.policyAppliesToUser$.mockReturnValue(of(true));
+
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
+      await firstValueFrom(canManage$);
+
+      expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
+        PolicyType.AutoConfirm,
+        mockUserId,
+      );
+    });
+
+    it("should return false when feature flag is enabled but policy does not apply", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      policyService.policyAppliesToUser$.mockReturnValue(of(false));
+
+      const canManage$ = service.canManageAutoConfirm$(mockUserId);
+      const canManage = await firstValueFrom(canManage$);
+
+      expect(canManage).toBe(false);
+      expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
+        PolicyType.AutoConfirm,
+        mockUserId,
+      );
     });
   });
 
@@ -305,8 +381,11 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const organizations$ = new BehaviorSubject<Organization[]>([mockOrganization]);
       organizationService.organizations$.mockReturnValue(organizations$);
       configService.getFeatureFlag$.mockReturnValue(of(true));
+      policyService.policyAppliesToUser$.mockReturnValue(of(true));
 
-      apiService.getUserPublicKey.mockResolvedValue({ publicKey: mockPublicKey } as any);
+      apiService.getUserPublicKey.mockResolvedValue({
+        publicKey: mockPublicKey,
+      } as UserKeyResponse);
       jest.spyOn(Utils, "fromB64ToArray").mockReturnValue(mockPublicKeyArray);
       organizationUserService.buildConfirmRequest.mockReturnValue(of(mockConfirmRequest));
       organizationUserApiService.postOrganizationUserConfirm.mockResolvedValue(undefined);
