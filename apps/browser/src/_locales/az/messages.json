@@ -1251,7 +1251,7 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində çıxış sonlandırılacaq."
+    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində sonlandırılacaq."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
     "message": "Hesabın geri qaytarılması prosesini tamamlamaq üçün ana parolunuzu dəyişdirin."
@@ -6039,5 +6039,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Bunu niyə görürəm?"
+  },
+  "resizeSideNavigation": {
+    "message": "Yan naviqasiyanı yeni. ölçüləndir"
   }
 }
