@@ -20,6 +20,7 @@ import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billin
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -35,17 +36,21 @@ import { OrganizationUserView } from "../core/views/organization-user.view";
 
 import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
 import { MemberDialogResult } from "./components/member-dialog";
-import { MembersComponent } from "./members.component";
-import { MemberDialogManagerService, OrganizationMembersService } from "./services";
+import { vNextMembersComponent } from "./members.component";
+import {
+  MemberDialogManagerService,
+  MemberExportService,
+  OrganizationMembersService,
+} from "./services";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
 import {
   MemberActionsService,
   MemberActionResult,
 } from "./services/member-actions/member-actions.service";
 
-describe("MembersComponent", () => {
-  let component: MembersComponent;
-  let fixture: ComponentFixture<MembersComponent>;
+describe("vNextMembersComponent", () => {
+  let component: vNextMembersComponent;
+  let fixture: ComponentFixture<vNextMembersComponent>;
 
   let mockApiService: MockProxy<ApiService>;
   let mockI18nService: MockProxy<I18nService>;
@@ -70,6 +75,8 @@ describe("MembersComponent", () => {
   let mockOrganizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockEnvironmentService: MockProxy<EnvironmentService>;
+  let mockMemberExportService: MockProxy<MemberExportService>;
+  let mockFileDownloadService: MockProxy<FileDownloadService>;
 
   let routeParamsSubject: BehaviorSubject<any>;
   let queryParamsSubject: BehaviorSubject<any>;
@@ -161,8 +168,11 @@ describe("MembersComponent", () => {
       isCloud: () => false,
     } as any);
 
+    mockMemberExportService = mock<MemberExportService>();
+    mockFileDownloadService = mock<FileDownloadService>();
+
     await TestBed.configureTestingModule({
-      declarations: [MembersComponent],
+      declarations: [vNextMembersComponent],
       providers: [
         { provide: ApiService, useValue: mockApiService },
         { provide: I18nService, useValue: mockI18nService },
@@ -196,16 +206,18 @@ describe("MembersComponent", () => {
         },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: EnvironmentService, useValue: mockEnvironmentService },
+        { provide: MemberExportService, useValue: mockMemberExportService },
+        { provide: FileDownloadService, useValue: mockFileDownloadService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
-      .overrideComponent(MembersComponent, {
+      .overrideComponent(vNextMembersComponent, {
         remove: { imports: [] },
         add: { template: "<div></div>" },
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(MembersComponent);
+    fixture = TestBed.createComponent(vNextMembersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

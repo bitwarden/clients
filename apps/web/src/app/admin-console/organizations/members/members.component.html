@@ -112,6 +112,16 @@
               <th bitCell>{{ "policies" | i18n }}</th>
               <th bitCell class="tw-w-10">
                 @if (showUserManagementControls()) {
+              <th bitCell>
+                <div class="tw-flex tw-flex-row tw-items-center tw-justify-end tw-gap-2">
+                  <button
+                    type="button"
+                    bitIconButton="bwi-download"
+                    size="small"
+                    [bitAction]="exportMembers"
+                    [disabled]="!firstLoaded"
+                    label="{{ 'export' | i18n }}"
+                  ></button>
                   <button
                     [bitMenuTriggerFor]="headerMenu"
                     type="button"
@@ -119,6 +129,7 @@
                     size="small"
                     label="{{ 'options' | i18n }}"
                   ></button>
+                </div>
                 }
 
                 <bit-menu #headerMenu>
@@ -352,13 +363,16 @@
                 }
               </td>
               <td bitCell>
-                <button
-                  [bitMenuTriggerFor]="rowMenu"
-                  type="button"
-                  bitIconButton="bwi-ellipsis-v"
-                  size="small"
-                  label="{{ 'options' | i18n }}"
-                ></button>
+                <div class="tw-flex tw-flex-row tw-items-center tw-justify-end tw-gap-2">
+                  <div class="tw-w-[32px]"></div>
+                  <button
+                    [bitMenuTriggerFor]="rowMenu"
+                    type="button"
+                    bitIconButton="bwi-ellipsis-v"
+                    size="small"
+                    label="{{ 'options' | i18n }}"
+                  ></button>
+                </div>
 
                 <bit-menu #rowMenu>
                   @if (showUserManagementControls()) {

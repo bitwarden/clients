@@ -8,6 +8,7 @@ import {
   ViewChild,
   OnChanges,
   SimpleChanges,
+  input,
 } from "@angular/core";
 import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 
@@ -66,6 +67,8 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
+
+  readonly submitButtonText = input<string>(this.i18nService.t("save"));
 
   activeUserId: UserId | null = null;
   passwordReprompted: boolean = false;

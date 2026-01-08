@@ -20,10 +20,12 @@ import { UserDialogModule } from "./components/member-dialog";
 import { MembersComponent } from "./deprecated_members.component";
 import { MembersRoutingModule } from "./members-routing.module";
 import { vNextMembersComponent } from "./members.component";
+import { UserStatusPipe } from "./pipes";
 import {
   OrganizationMembersService,
   MemberActionsService,
   MemberDialogManagerService,
+  MemberExportService,
 } from "./services";
 
 @NgModule({
@@ -47,12 +49,15 @@ import {
     MembersComponent,
     vNextMembersComponent,
     BulkDeleteDialogComponent,
+    UserStatusPipe,
   ],
   providers: [
     OrganizationMembersService,
     MemberActionsService,
     BillingConstraintService,
     MemberDialogManagerService,
+    MemberExportService,
+    UserStatusPipe,
   ],
 })
 export class MembersModule {}

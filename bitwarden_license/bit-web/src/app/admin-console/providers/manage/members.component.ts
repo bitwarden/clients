@@ -63,7 +63,7 @@ interface BulkProviderFlags {
   templateUrl: "members.component.html",
   standalone: false,
 })
-export class MembersComponent {
+export class vNextMembersComponent {
   protected apiService = inject(ApiService);
   protected dialogService = inject(DialogService);
   protected i18nService = inject(I18nService);
