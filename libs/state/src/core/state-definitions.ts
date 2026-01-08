@@ -36,9 +36,11 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
     web: "disk-local",
   },
 );
+export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
+export const BILLING_MEMORY = new StateDefinition("billing", "memory");
 
 // Auth
 
@@ -52,8 +54,6 @@ export const DEVICE_TRUST_DISK_LOCAL = new StateDefinition("deviceTrust", "disk"
   web: "disk-local",
   browser: "disk-backup-local-storage",
 });
-export const KDF_CONFIG_DISK = new StateDefinition("kdfConfig", "disk");
-export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
 export const LOGIN_EMAIL_DISK = new StateDefinition("loginEmail", "disk", {
   web: "disk-local",
 });
@@ -62,8 +62,6 @@ export const LOGIN_STRATEGY_MEMORY = new StateDefinition("loginStrategy", "memor
 export const MASTER_PASSWORD_DISK = new StateDefinition("masterPassword", "disk");
 export const MASTER_PASSWORD_MEMORY = new StateDefinition("masterPassword", "memory");
 export const MASTER_PASSWORD_UNLOCK_DISK = new StateDefinition("masterPasswordUnlock", "disk");
-export const PIN_DISK = new StateDefinition("pinUnlock", "disk");
-export const PIN_MEMORY = new StateDefinition("pinUnlock", "memory");
 export const ROUTER_DISK = new StateDefinition("router", "disk");
 export const SSO_DISK = new StateDefinition("ssoLogin", "disk");
 export const SSO_DISK_LOCAL = new StateDefinition("ssoLoginLocal", "disk", { web: "disk-local" });
@@ -105,22 +103,25 @@ export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "d
 export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanner", "disk", {
   web: "disk-local",
 });
+export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
+
+// DIRT
+
+export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
 
 // Platform
 
 export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", {
   web: "disk-local",
 });
-export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
 export const CONFIG_DISK = new StateDefinition("config", "disk", {
   web: "disk-local",
 });
-export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
-export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "disk");
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
+export const IPC_MEMORY = new StateDefinition("interProcessCommunication", "memory");
 export const POPUP_VIEW_MEMORY = new StateDefinition("popupView", "memory", {
   browser: "memory-large-object",
 });
@@ -197,9 +198,7 @@ export const CIPHERS_DISK_LOCAL = new StateDefinition("ciphersLocal", "disk", {
 export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
   browser: "memory-large-object",
 });
-export const PREMIUM_BANNER_DISK_LOCAL = new StateDefinition("premiumBannerReprompt", "disk", {
-  web: "disk-local",
-});
+
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
@@ -217,3 +216,15 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");
+
+// KM
+
+export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
+export const ENCRYPTED_MIGRATION_DISK = new StateDefinition("encryptedMigration", "disk");
+export const PIN_DISK = new StateDefinition("pinUnlock", "disk");
+export const PIN_MEMORY = new StateDefinition("pinUnlock", "memory");
+export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
+export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
+export const KDF_CONFIG_DISK = new StateDefinition("kdfConfig", "disk");
+export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");

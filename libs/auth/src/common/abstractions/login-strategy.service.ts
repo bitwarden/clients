@@ -65,7 +65,11 @@ export abstract class LoginStrategyServiceAbstraction {
   /**
    * Creates a master key from the provided master password and email.
    */
-  abstract makePreloginKey(masterPassword: string, email: string): Promise<MasterKey>;
+  abstract makePasswordPreLoginMasterKey(masterPassword: string, email: string): Promise<MasterKey>;
+  /**
+   * Prefetch and cache the KDF configuration for the given email. No-op if already in-flight or cached.
+   */
+  abstract getPasswordPrelogin(email: string): Promise<void>;
   /**
    * Emits true if the authentication session has expired.
    */

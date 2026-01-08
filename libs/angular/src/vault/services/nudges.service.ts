@@ -12,8 +12,11 @@ import {
   NewItemNudgeService,
   AccountSecurityNudgeService,
   VaultSettingsImportNudgeService,
+  AutoConfirmNudgeService,
+  NoOpNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
+import { AUTOFILL_NUDGE_SERVICE } from "./nudge-injection-tokens";
 
 export type NudgeStatus = {
   hasBadgeDismissed: boolean;
@@ -37,6 +40,8 @@ export const NudgeType = {
   NewNoteItemStatus: "new-note-item-status",
   NewSshItemStatus: "new-ssh-item-status",
   GeneratorNudgeStatus: "generator-nudge-status",
+  AutoConfirmNudge: "auto-confirm-nudge",
+  PremiumUpgrade: "premium-upgrade",
 } as const;
 
 export type NudgeType = UnionOfValues<typeof NudgeType>;
@@ -55,6 +60,12 @@ export class NudgesService {
   private newItemNudgeService = inject(NewItemNudgeService);
   private newAcctNudgeService = inject(NewAccountNudgeService);
 
+  // NoOp service that always returns dismissed
+  private noOpNudgeService = inject(NoOpNudgeService);
+
+  // Optional Browser-specific service provided via injection token (not all clients have autofill)
+  private autofillNudgeService = inject(AUTOFILL_NUDGE_SERVICE, { optional: true });
+
   /**
    * Custom nudge services to use for specific nudge types
    * Each nudge type can have its own service to determine when to show the nudge
@@ -65,7 +76,7 @@ export class NudgesService {
     [NudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
     [NudgeType.VaultSettingsImportNudge]: inject(VaultSettingsImportNudgeService),
     [NudgeType.AccountSecurity]: inject(AccountSecurityNudgeService),
-    [NudgeType.AutofillNudge]: this.newAcctNudgeService,
+    [NudgeType.AutofillNudge]: this.autofillNudgeService ?? this.noOpNudgeService,
     [NudgeType.DownloadBitwarden]: this.newAcctNudgeService,
     [NudgeType.GeneratorNudgeStatus]: this.newAcctNudgeService,
     [NudgeType.NewLoginItemStatus]: this.newItemNudgeService,
@@ -73,6 +84,7 @@ export class NudgesService {
     [NudgeType.NewIdentityItemStatus]: this.newItemNudgeService,
     [NudgeType.NewNoteItemStatus]: this.newItemNudgeService,
     [NudgeType.NewSshItemStatus]: this.newItemNudgeService,
+    [NudgeType.AutoConfirmNudge]: inject(AutoConfirmNudgeService),
   };
 
   /**
@@ -139,6 +151,7 @@ export class NudgesService {
       NudgeType.EmptyVaultNudge,
       NudgeType.DownloadBitwarden,
       NudgeType.AutofillNudge,
+      NudgeType.AutoConfirmNudge,
     ];
 
     const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {

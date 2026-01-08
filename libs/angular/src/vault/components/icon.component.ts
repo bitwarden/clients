@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
@@ -25,14 +25,38 @@ export class IconComponent {
   /**
    * The cipher to display the icon for.
    */
-  cipher = input.required<CipherViewLike>();
+  readonly cipher = input.required<CipherViewLike>();
 
   /**
    * coloredIcon will adjust the size of favicons and the colors of the text icon when user is in the item details view.
    */
-  coloredIcon = input<boolean>(false);
+  readonly coloredIcon = input<boolean>(false);
 
-  imageLoaded = signal(false);
+  /**
+   * Optional custom size for the icon in pixels.
+   * When provided, forces explicit dimensions on the icon wrapper to prevent layout collapse at different zoom levels.
+   * If not provided, the wrapper has no explicit dimensions and relies on CSS classes (tw-size-6/24px for images).
+   * This can cause the wrapper to collapse when images are loading/hidden, especially at high browser zoom levels.
+   * Reference: default image size is tw-size-6 (24px), coloredIcon uses 36px.
+   */
+  readonly size = input<number>();
+
+  readonly imageLoaded = signal(false);
+
+  /**
+   * Computed style object for icon dimensions.
+   * Centralizes the sizing logic to avoid repetition in the template.
+   */
+  protected readonly iconStyle = computed(() => {
+    if (this.coloredIcon()) {
+      return { width: "36px", height: "36px" };
+    }
+    const size = this.size();
+    if (size) {
+      return { width: size + "px", height: size + "px" };
+    }
+    return {};
+  });
 
   protected data$: Observable<CipherIconDetails>;
 

@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject, NgZone } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -12,7 +12,7 @@ import {
   ChallengeResponse,
   TwoFactorWebAuthnResponse,
 } from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -43,6 +43,8 @@ interface Key {
   removePromise: Promise<TwoFactorWebAuthnResponse> | null;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup-webauthn",
   templateUrl: "two-factor-setup-webauthn.component.html",
@@ -70,7 +72,6 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   webAuthnListening: boolean = false;
   webAuthnResponse: PublicKeyCredential | null = null;
   challengePromise: Promise<ChallengeResponse> | undefined;
-  formPromise: Promise<TwoFactorWebAuthnResponse> | undefined;
 
   override componentName = "app-two-factor-webauthn";
 
@@ -79,7 +80,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   constructor(
     @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorWebAuthnResponse>,
     private dialogRef: DialogRef,
-    twoFactorApiService: TwoFactorApiService,
+    twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     private ngZone: NgZone,
@@ -89,7 +90,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     toastService: ToastService,
   ) {
     super(
-      twoFactorApiService,
+      twoFactorService,
       i18nService,
       platformUtilsService,
       logService,
@@ -98,7 +99,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       toastService,
     );
     this.formGroup = new FormGroup({
-      name: new FormControl({ value: "", disabled: false }),
+      name: new FormControl({ value: "", disabled: false }, Validators.required),
     });
     this.auth(data);
   }
@@ -127,7 +128,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     request.id = this.keyIdAvailable;
     request.name = this.formGroup.value.name || "";
 
-    const response = await this.twoFactorApiService.putTwoFactorWebAuthn(request);
+    const response = await this.twoFactorService.putTwoFactorWebAuthn(request);
     this.processResponse(response);
     this.toastService.showToast({
       title: this.i18nService.t("success"),
@@ -163,7 +164,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     const request = await this.buildRequestModel(UpdateTwoFactorWebAuthnDeleteRequest);
     request.id = key.id;
     try {
-      key.removePromise = this.twoFactorApiService.deleteTwoFactorWebAuthn(request);
+      key.removePromise = this.twoFactorService.deleteTwoFactorWebAuthn(request);
       const response = await key.removePromise;
       key.removePromise = null;
       await this.processResponse(response);
@@ -177,7 +178,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       return;
     }
     const request = await this.buildRequestModel(SecretVerificationRequest);
-    this.challengePromise = this.twoFactorApiService.getTwoFactorWebAuthnChallenge(request);
+    this.challengePromise = this.twoFactorService.getTwoFactorWebAuthnChallenge(request);
     const challenge = await this.challengePromise;
     this.readDevice(challenge);
   };
@@ -212,7 +213,22 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.webAuthnListening = listening;
   }
 
+  private findNextAvailableKeyId(existingIds: Set<number>): number {
+    // Search for first gap, bounded by current key count + 1
+    for (let i = 1; i <= existingIds.size + 1; i++) {
+      if (!existingIds.has(i)) {
+        return i;
+      }
+    }
+
+    // This should never be reached due to loop bounds, but TypeScript requires a return
+    throw new Error("Unable to find next available key ID");
+  }
+
   private processResponse(response: TwoFactorWebAuthnResponse) {
+    if (!response.keys || response.keys.length === 0) {
+      response.keys = [];
+    }
     this.resetWebAuthn();
     this.keys = [];
     this.keyIdAvailable = null;
@@ -222,26 +238,37 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       nameControl.setValue("");
     }
     this.keysConfiguredCount = 0;
-    for (let i = 1; i <= 5; i++) {
-      if (response.keys != null) {
-        const key = response.keys.filter((k) => k.id === i);
-        if (key.length > 0) {
-          this.keysConfiguredCount++;
-          this.keys.push({
-            id: i,
-            name: key[0].name,
-            configured: true,
-            migrated: key[0].migrated,
-            removePromise: null,
-          });
-          continue;
-        }
-      }
-      this.keys.push({ id: i, name: "", configured: false, removePromise: null });
-      if (this.keyIdAvailable == null) {
-        this.keyIdAvailable = i;
-      }
+
+    // Build configured keys
+    for (const key of response.keys) {
+      this.keysConfiguredCount++;
+      this.keys.push({
+        id: key.id,
+        name: key.name,
+        configured: true,
+        migrated: key.migrated,
+        removePromise: null,
+      });
     }
+
+    // [PM-20109]: To accommodate the existing form logic with minimal changes,
+    // we need to have at least one unconfigured key slot available to the collection.
+    // Prior to PM-20109, both client and server had hard checks for IDs <= 5.
+    // While we don't have any technical constraints _at this time_, we should avoid
+    // unbounded growth of key IDs over time as users add/remove keys;
+    // this strategy gap-fills key IDs.
+    const existingIds = new Set(response.keys.map((k) => k.id));
+    const nextId = this.findNextAvailableKeyId(existingIds);
+
+    // Add unconfigured slot, which can be used to add a new key
+    this.keys.push({
+      id: nextId,
+      name: "",
+      configured: false,
+      removePromise: null,
+    });
+    this.keyIdAvailable = nextId;
+
     this.enabled = response.enabled;
     this.onUpdated.emit(this.enabled);
   }

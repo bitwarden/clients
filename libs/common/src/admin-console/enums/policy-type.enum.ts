@@ -19,4 +19,6 @@ export enum PolicyType {
   RestrictedItemTypes = 15, // Restricts item types that can be created within an organization
   UriMatchDefaults = 16, // Sets the default URI matching strategy for all users within an organization
   AutotypeDefaultSetting = 17, // Sets the default autotype setting for desktop app
+  AutoConfirm = 18, // Enables the auto confirmation feature for admins to enable in their client
+  BlockClaimedDomainAccountCreation = 19, // Prevents users from creating personal accounts using email addresses from verified domains
 }

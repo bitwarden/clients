@@ -14,8 +14,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -30,7 +28,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
-import { vNextOrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions";
+import { vNextOrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions/vnext-organization-data-ownership.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -45,11 +43,15 @@ export type PolicyEditDialogData = {
 
 export type PolicyEditDialogResult = "saved";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "policy-edit-dialog.component.html",
   imports: [SharedModule],
 })
 export class PolicyEditDialogComponent implements AfterViewInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("policyForm", { read: ViewContainerRef, static: true })
   policyFormRef: ViewContainerRef | undefined;
 
@@ -64,14 +66,13 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   });
   constructor(
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
-    private accountService: AccountService,
-    private policyApiService: PolicyApiServiceAbstraction,
-    private i18nService: I18nService,
+    protected accountService: AccountService,
+    protected policyApiService: PolicyApiServiceAbstraction,
+    protected i18nService: I18nService,
     private cdr: ChangeDetectorRef,
     private formBuilder: FormBuilder,
-    private dialogRef: DialogRef<PolicyEditDialogResult>,
-    private toastService: ToastService,
-    private configService: ConfigService,
+    protected dialogRef: DialogRef<PolicyEditDialogResult>,
+    protected toastService: ToastService,
     private keyService: KeyService,
   ) {}
 
@@ -128,10 +129,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     try {
-      if (
-        this.policyComponent instanceof vNextOrganizationDataOwnershipPolicyComponent &&
-        (await this.isVNextEnabled())
-      ) {
+      if (this.policyComponent instanceof vNextOrganizationDataOwnershipPolicyComponent) {
         await this.handleVNextSubmission(this.policyComponent);
       } else {
         await this.handleStandardSubmission();
@@ -149,14 +147,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       });
     }
   };
-
-  private async isVNextEnabled(): Promise<boolean> {
-    const isVNextFeatureEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
-    );
-
-    return isVNextFeatureEnabled;
-  }
 
   private async handleStandardSubmission(): Promise<void> {
     if (!this.policyComponent) {

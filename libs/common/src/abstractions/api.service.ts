@@ -50,6 +50,7 @@ import { UpdateProfileRequest } from "../auth/models/request/update-profile.requ
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
@@ -91,7 +92,7 @@ import { CipherShareRequest } from "../vault/models/request/cipher-share.request
 import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
-import { CipherResponse } from "../vault/models/response/cipher.response";
+import { CipherMiniResponse, CipherResponse } from "../vault/models/response/cipher.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 /**
@@ -140,7 +141,10 @@ export abstract class ApiService {
       | UserApiTokenRequest
       | WebAuthnLoginTokenRequest,
   ): Promise<
-    IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
+    | IdentityTokenResponse
+    | IdentityTwoFactorResponse
+    | IdentityDeviceVerificationResponse
+    | IdentitySsoRequiredResponse
   >;
   abstract refreshIdentityToken(userId?: UserId): Promise<any>;
 
@@ -194,7 +198,10 @@ export abstract class ApiService {
     cipherId: string,
     attachmentId: string,
   ): Promise<AttachmentResponse>;
-  abstract getCiphersOrganization(organizationId: string): Promise<ListResponse<CipherResponse>>;
+  abstract getCiphersOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<ListResponse<CipherResponse>>;
   abstract postCipher(request: CipherRequest): Promise<CipherResponse>;
   abstract postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse>;
   abstract postCipherAdmin(request: CipherCreateRequest): Promise<CipherResponse>;
@@ -212,7 +219,10 @@ export abstract class ApiService {
     id: string,
     request: CipherCollectionsRequest,
   ): Promise<OptionalCipherResponse>;
-  abstract putCipherCollectionsAdmin(id: string, request: CipherCollectionsRequest): Promise<any>;
+  abstract putCipherCollectionsAdmin(
+    id: string,
+    request: CipherCollectionsRequest,
+  ): Promise<CipherMiniResponse>;
   abstract postPurgeCiphers(
     request: SecretVerificationRequest,
     organizationId?: string,
@@ -436,6 +446,13 @@ export abstract class ApiService {
   abstract postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string>;
   abstract postSetupPayment(): Promise<string>;
 
+  /**
+   * Retrieves the bearer access token for the user.
+   * If the access token is expired or within 5 minutes of expiration, attempts to refresh the token
+   * and persists the refresh token to state before returning it.
+   * @param userId The user for whom we're retrieving the access token
+   * @returns The access token, or an Error if no access token exists.
+   */
   abstract getActiveBearerToken(userId: UserId): Promise<string>;
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;

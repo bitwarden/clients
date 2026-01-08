@@ -3,6 +3,7 @@ const { buildConfig } = require(path.resolve(__dirname, "../../apps/web/webpack.
 
 module.exports = (webpackConfig, context) => {
   const isNxBuild = context && context.options;
+
   if (isNxBuild) {
     return buildConfig({
       configName: "Commercial",
@@ -17,6 +18,13 @@ module.exports = (webpackConfig, context) => {
         context.context && context.context.root
           ? path.resolve(context.context.root, context.options.outputPath)
           : context.options.outputPath,
+      importAliases: [
+        {
+          name: "@bitwarden/sdk-internal",
+          alias: "@bitwarden/commercial-sdk-internal",
+        },
+      ],
+      env: context.options.env,
     });
   } else {
     return buildConfig({
@@ -26,6 +34,12 @@ module.exports = (webpackConfig, context) => {
         entryModule: "bitwarden_license/bit-web/src/app/app.module#AppModule",
       },
       tsConfig: path.resolve(__dirname, "tsconfig.build.json"),
+      importAliases: [
+        {
+          name: "@bitwarden/sdk-internal",
+          alias: "@bitwarden/commercial-sdk-internal",
+        },
+      ],
     });
   }
 };

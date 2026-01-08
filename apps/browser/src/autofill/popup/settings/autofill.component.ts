@@ -77,6 +77,8 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "autofill.component.html",
   imports: [
@@ -153,13 +155,15 @@ export class AutofillComponent implements OnInit {
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
   enableContextMenuItem: boolean = false;
   enableAutoTotpCopy: boolean = false;
-  clearClipboard: ClearClipboardDelaySetting;
+  /** Non-null asserted. */
+  clearClipboard!: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
   uriMatchOptions: { name: string; value: UriMatchStrategySetting; disabled?: boolean }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
-  autofillKeyboardHelperText: string;
+  /** Non-null asserted. */
+  autofillKeyboardHelperText!: string;
   accountSwitcherEnabled: boolean = false;
 
   constructor(
@@ -607,6 +611,10 @@ export class AutofillComponent implements OnInit {
     if (this.canOverrideBrowserAutofillSetting) {
       this.defaultBrowserAutofillDisabled = true;
       await this.updateDefaultBrowserAutofillDisabled();
+      await this.nudgesService.dismissNudge(
+        NudgeType.AutofillNudge,
+        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      );
     } else {
       await this.openURI(event, this.disablePasswordManagerURI);
     }

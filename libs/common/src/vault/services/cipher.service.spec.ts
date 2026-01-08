@@ -55,7 +55,7 @@ const ENCRYPTED_BYTES = mock<EncArrayBuffer>();
 
 const cipherData: CipherData = {
   id: "id",
-  organizationId: "orgId",
+  organizationId: "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b2" as OrganizationId,
   folderId: "folderId",
   edit: true,
   viewPassword: true,
@@ -119,6 +119,8 @@ describe("Cipher Service", () => {
   beforeEach(() => {
     encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
     encryptService.encryptString.mockReturnValue(Promise.resolve(new EncString(ENCRYPTED_TEXT)));
+    keyService.orgKeys$.mockReturnValue(of({ [orgId]: makeSymmetricCryptoKey(32) as OrgKey }));
+    keyService.userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64) as UserKey));
 
     // Mock i18nService collator
     i18nService.collator = {
@@ -173,6 +175,34 @@ describe("Cipher Service", () => {
       await cipherService.saveAttachmentRawWithServer(new Cipher(), fileName, fileData, userId);
 
       expect(spy).toHaveBeenCalled();
+    });
+
+    it("should include lastKnownRevisionDate in the upload request", async () => {
+      const fileName = "filename";
+      const fileData = new Uint8Array(10);
+      const testCipher = new Cipher(cipherData);
+      const expectedRevisionDate = "2022-01-31T12:00:00.000Z";
+
+      keyService.makeDataEncKey.mockReturnValue(
+        Promise.resolve([
+          new SymmetricCryptoKey(new Uint8Array(32)),
+          new EncString("encrypted-key"),
+        ] as any),
+      );
+
+      configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.CipherKeyEncryption)
+        .mockResolvedValue(false);
+
+      const uploadSpy = jest.spyOn(cipherFileUploadService, "upload").mockResolvedValue({} as any);
+
+      await cipherService.saveAttachmentRawWithServer(testCipher, fileName, fileData, userId);
+
+      // Verify upload was called with cipher that has revisionDate
+      expect(uploadSpy).toHaveBeenCalled();
+      const cipherArg = uploadSpy.mock.calls[0][0];
+      expect(cipherArg.revisionDate).toEqual(new Date(expectedRevisionDate));
     });
   });
 
@@ -776,13 +806,18 @@ describe("Cipher Service", () => {
 
       // Set up expected results
       const expectedSuccessCipherViews = [
-        { id: mockCiphers[0].id, name: "Success 1" } as unknown as CipherListView,
+        { id: mockCiphers[0].id, name: "Success 1", decryptionFailure: false } as CipherView,
       ];
 
       const expectedFailedCipher = new CipherView(mockCiphers[1]);
       expectedFailedCipher.name = "[error: cannot decrypt]";
       expectedFailedCipher.decryptionFailure = true;
       const expectedFailedCipherViews = [expectedFailedCipher];
+
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        expectedSuccessCipherViews,
+        expectedFailedCipherViews,
+      ]);
 
       // Execute
       const [successes, failures] = await (cipherService as any).decryptCiphers(
@@ -791,10 +826,7 @@ describe("Cipher Service", () => {
       );
 
       // Verify the SDK was used for decryption
-      expect(cipherEncryptionService.decryptManyWithFailures).toHaveBeenCalledWith(
-        mockCiphers,
-        userId,
-      );
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(mockCiphers, userId);
 
       expect(successes).toEqual(expectedSuccessCipherViews);
       expect(failures).toEqual(expectedFailedCipherViews);
@@ -836,7 +868,7 @@ describe("Cipher Service", () => {
       const result = await firstValueFrom(
         stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).state$,
       );
-      expect(result[cipherId].archivedDate).toBeNull();
+      expect(result[cipherId].archivedDate).toEqual("2024-01-01T12:00:00.000Z");
       expect(result[cipherId].deletedDate).toBeDefined();
     });
   });

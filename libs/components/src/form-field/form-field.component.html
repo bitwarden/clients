@@ -83,7 +83,7 @@
       <ng-container *ngTemplateOutlet="labelContent"></ng-container>
     </label>
     <div
-      class="tw-gap-1 tw-flex tw-min-h-[1.85rem] tw-border-0 tw-border-solid"
+      class="tw-gap-1 tw-flex tw-min-h-[1.85rem] tw-border-0 tw-border-solid tw-items-center"
       [ngClass]="{
         'tw-border-secondary-300/50 tw-border-b tw-pb-[2px]': !disableReadOnlyBorder,
         'tw-border-transparent tw-pb-[3px]': disableReadOnlyBorder,
@@ -97,7 +97,7 @@
         <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
       </div>
       <div
-        class="tw-w-full tw-pb-0 tw-relative [&>*]:tw-p-0 [&>*::selection]:tw-bg-primary-700 [&>*::selection]:tw-text-contrast"
+        class="tw-w-full tw-min-w-0 tw-pb-0 tw-relative [&>*]:tw-p-0 [&>*::selection]:tw-bg-primary-700 [&>*::selection]:tw-text-contrast"
         data-default-content
       >
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>

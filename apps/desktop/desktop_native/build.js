@@ -11,8 +11,8 @@ const rustTargetsMap = {
     "aarch64-pc-windows-msvc":    { nodeArch: 'arm64', platform: 'win32'  },
     "x86_64-apple-darwin":        { nodeArch: 'x64',   platform: 'darwin' },
     "aarch64-apple-darwin":       { nodeArch: 'arm64', platform: 'darwin' },
-    'x86_64-unknown-linux-musl':  { nodeArch: 'x64',   platform: 'linux'  },
-    'aarch64-unknown-linux-musl': { nodeArch: 'arm64', platform: 'linux'  },
+    'x86_64-unknown-linux-gnu':   { nodeArch: 'x64',   platform: 'linux'  },
+    'aarch64-unknown-linux-gnu':  { nodeArch: 'arm64', platform: 'linux'  },
 }
 
 // Ensure the dist directory exists
@@ -45,6 +45,25 @@ function buildProxyBin(target, release = true) {
     }
 }
 
+function buildImporterBinaries(target, release = true) {
+    // These binaries are only built for Windows, so we can skip them on other platforms
+    if (process.platform !== "win32") {
+        return;
+    }
+
+    const bin = "bitwarden_chromium_import_helper";
+    const targetArg = target ? `--target ${target}` : "";
+    const releaseArg = release ? "--release" : "";
+    child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg}`);
+
+    if (target) {
+        // Copy the resulting binary to the dist folder
+        const targetFolder = release ? "release" : "debug";
+        const nodeArch = rustTargetsMap[target].nodeArch;
+        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}.exe`), path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
+    }
+}
+
 function buildProcessIsolation() {
     if (process.platform !== "linux") {
         return;
@@ -67,6 +86,7 @@ if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
+    buildImporterBinaries(false, mode === "release");
     buildProcessIsolation();
     return;
 }
@@ -76,6 +96,7 @@ if (target) {
     installTarget(target);
     buildNapiModule(target, mode === "release");
     buildProxyBin(target, mode === "release");
+    buildImporterBinaries(false, mode === "release");
     buildProcessIsolation();
     return;
 }
@@ -92,7 +113,8 @@ if (process.platform === "linux") {
 
 platformTargets.forEach(([target, _]) => {
     installTarget(target);
-    buildNapiModule(target);
-    buildProxyBin(target);
+    buildNapiModule(target, mode === "release");
+    buildProxyBin(target, mode === "release");
+    buildImporterBinaries(target, mode === "release");
     buildProcessIsolation();
 });

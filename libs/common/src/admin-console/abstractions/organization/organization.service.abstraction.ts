@@ -1,8 +1,13 @@
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { UserId } from "../../../types/guid";
+import { PolicyType } from "../../enums";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
+import { PolicyService } from "../policy/policy.service.abstraction";
 
 export function canAccessVaultTab(org: Organization): boolean {
   return org.canViewAllCollections;
@@ -36,6 +41,18 @@ export function canAccessBillingTab(org: Organization): boolean {
   return org.isOwner;
 }
 
+/**
+ * Access Intelligence is only available to:
+ * - Enterprise organizations
+ * - Users in those organizations with report access
+ *
+ * @param org The organization to verify access
+ * @returns If true can access the Access Intelligence feature
+ */
+export function canAccessAccessIntelligence(org: Organization): boolean {
+  return org.canUseAccessIntelligence && org.canAccessReports;
+}
+
 export function canAccessOrgAdmin(org: Organization): boolean {
   // Admin console can only be accessed by Owners for disabled organizations
   if (!org.enabled && !org.isOwner) {
@@ -49,6 +66,17 @@ export function canAccessOrgAdmin(org: Organization): boolean {
     canAccessSettingsTab(org) ||
     canAccessVaultTab(org)
   );
+}
+
+export function canAccessEmergencyAccess(
+  userId: UserId,
+  configService: ConfigService,
+  policyService: PolicyService,
+) {
+  return combineLatest([
+    configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
+    policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
+  ]).pipe(map(([enabled, policyAppliesToUser]) => !(enabled && policyAppliesToUser)));
 }
 
 /**

@@ -5,13 +5,23 @@
     'tw-min-h-full': clientType === 'browser' || clientType === 'desktop',
   }"
 >
-  <a
-    *ngIf="!hideLogo()"
-    [routerLink]="['/']"
-    class="tw-w-[200px] tw-block tw-mb-12 [&>*]:tw-align-top"
+  <div
+    [class]="
+      'tw-flex tw-justify-between tw-items-center tw-w-full' + (!hideLogo() ? ' tw-mb-12' : '')
+    "
   >
-    <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
-  </a>
+    @if (!hideLogo()) {
+      <a
+        [routerLink]="['/']"
+        class="tw-w-32 sm:tw-w-[200px] tw-self-center sm:tw-self-start tw-block [&>*]:tw-align-top"
+      >
+        <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
+      </a>
+    }
+    <div class="tw-ms-auto">
+      <ng-content select="[slot=header-actions]"></ng-content>
+    </div>
+  </div>
 
   <div class="tw-text-center tw-mb-4 sm:tw-mb-6 tw-mx-auto" [ngClass]="maxWidthClass">
     @let iconInput = icon();
@@ -25,7 +35,7 @@
       <bit-icon [icon]="iconInput"></bit-icon>
     </div>
 
-    <ng-container *ngIf="title()">
+    @if (title()) {
       <!-- Small screens -->
       <h1 bitTypography="h2" class="tw-mt-2 sm:tw-hidden">
         {{ title() }}
@@ -34,9 +44,11 @@
       <h1 bitTypography="h1" class="tw-mt-2 tw-hidden sm:tw-block">
         {{ title() }}
       </h1>
-    </ng-container>
+    }
 
-    <div *ngIf="subtitle()" class="tw-text-sm sm:tw-text-base">{{ subtitle() }}</div>
+    @if (subtitle()) {
+      <div class="tw-text-sm sm:tw-text-base">{{ subtitle() }}</div>
+    }
   </div>
 
   <div
@@ -48,27 +60,29 @@
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
     } @else {
-      <div
-        class="tw-rounded-2xl tw-mb-6 sm:tw-mb-10 tw-mx-auto tw-w-full sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8"
+      <bit-base-card
+        class="!tw-rounded-2xl tw-mb-6 sm:tw-mb-10 tw-mx-auto tw-w-full tw-bg-transparent tw-border-none tw-shadow-none sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-100 sm:tw-shadow sm:tw-p-8"
       >
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
-      </div>
+      </bit-base-card>
     }
     <ng-content select="[slot=secondary]"></ng-content>
   </div>
 
-  <footer *ngIf="!hideFooter()" class="tw-text-center tw-mt-4 sm:tw-mt-6">
-    <div *ngIf="showReadonlyHostname()" bitTypography="body2">
-      {{ "accessing" | i18n }} {{ hostname }}
-    </div>
-    <ng-container *ngIf="!showReadonlyHostname()">
-      <ng-content select="[slot=environment-selector]"></ng-content>
-    </ng-container>
-    <ng-container *ngIf="!hideYearAndVersion">
-      <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
-      <div bitTypography="body2">{{ version }}</div>
-    </ng-container>
-  </footer>
+  @if (!hideFooter()) {
+    <footer class="tw-text-center tw-mt-4 sm:tw-mt-6">
+      @if (showReadonlyHostname()) {
+        <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>
+      } @else {
+        <ng-content select="[slot=environment-selector]"></ng-content>
+      }
+
+      @if (!hideYearAndVersion) {
+        <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
+        <div bitTypography="body2">{{ version }}</div>
+      }
+    </footer>
+  }
 
   @if (!hideBackgroundIllustration()) {
     <div

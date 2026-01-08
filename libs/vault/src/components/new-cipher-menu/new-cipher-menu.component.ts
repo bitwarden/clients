@@ -9,15 +9,25 @@ import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-ite
 import { ButtonModule, MenuModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-new-cipher-menu",
   templateUrl: "new-cipher-menu.component.html",
   imports: [ButtonModule, CommonModule, MenuModule, I18nPipe, JslibModule],
 })
 export class NewCipherMenuComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   canCreateCipher = input(false);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   canCreateFolder = input(false);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   canCreateCollection = input(false);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   canCreateSshKey = input(false);
   folderAdded = output();
   collectionAdded = output();

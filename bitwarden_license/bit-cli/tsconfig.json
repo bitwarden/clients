@@ -1,3 +1,7 @@
 {
-  "extends": "../../apps/cli/tsconfig"
+  "extends": "../../apps/cli/tsconfig",
+  "files": [
+    "../../bitwarden_license/bit-common/src/platform/sdk/sdk-alias.d.ts",
+    "../../bitwarden_license/bit-cli/src/bw.ts"
+  ]
 }

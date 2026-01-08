@@ -13,8 +13,6 @@ import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { IconModule } from "@bitwarden/components";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
@@ -23,6 +21,8 @@ import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.mod
 
 import { ProviderWarningsService } from "../../billing/providers/warnings/services";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "providers-layout",
   templateUrl: "providers-layout.component.html",
@@ -46,7 +46,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected canAccessBilling$: Observable<boolean>;
 
   protected clientsTranslationKey$: Observable<string>;
-  protected providerPortalTakeover$: Observable<boolean>;
 
   protected subscriber$: Observable<NonIndividualSubscriber>;
   protected getTaxIdWarning$: () => Observable<TaxIdWarningType>;
@@ -54,7 +53,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private providerService: ProviderService,
-    private configService: ConfigService,
     private providerWarningsService: ProviderWarningsService,
     private accountService: AccountService,
   ) {}
@@ -98,10 +96,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    this.providerPortalTakeover$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM21821_ProviderPortalTakeover,
-    );
 
     this.subscriber$ = this.provider$.pipe(
       map((provider) => ({

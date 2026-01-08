@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
@@ -13,7 +13,9 @@ export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
 }
 
 @Component({
+  selector: "two-factor-authentication-policy-edit",
   templateUrl: "two-factor-authentication.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TwoFactorAuthenticationPolicyComponent extends BasePolicyEditComponent {}

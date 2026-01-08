@@ -17,6 +17,8 @@ export type AccountCreditPaymentMethod = typeof NonTokenizablePaymentMethods.acc
 
 export type TokenizablePaymentMethod =
   (typeof TokenizablePaymentMethods)[keyof typeof TokenizablePaymentMethods];
+export type NonTokenizablePaymentMethod =
+  (typeof NonTokenizablePaymentMethods)[keyof typeof NonTokenizablePaymentMethods];
 
 export const isTokenizablePaymentMethod = (value: string): value is TokenizablePaymentMethod => {
   const valid = Object.values(TokenizablePaymentMethods) as readonly string[];
@@ -39,4 +41,8 @@ export const tokenizablePaymentMethodToLegacyEnum = (
 export type TokenizedPaymentMethod = {
   type: TokenizablePaymentMethod;
   token: string;
+};
+
+export type NonTokenizedPaymentMethod = {
+  type: NonTokenizablePaymentMethod;
 };

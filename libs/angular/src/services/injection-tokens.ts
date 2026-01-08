@@ -35,9 +35,6 @@ export const SECURE_STORAGE = new SafeInjectionToken<AbstractStorageService>("SE
 export const LOGOUT_CALLBACK = new SafeInjectionToken<
   (logoutReason: LogoutReason, userId?: string) => Promise<void>
 >("LOGOUT_CALLBACK");
-export const LOCKED_CALLBACK = new SafeInjectionToken<(userId?: string) => Promise<void>>(
-  "LOCKED_CALLBACK",
-);
 export const SUPPORTS_SECURE_STORAGE = new SafeInjectionToken<boolean>("SUPPORTS_SECURE_STORAGE");
 export const LOCALES_DIRECTORY = new SafeInjectionToken<string>("LOCALES_DIRECTORY");
 export const SYSTEM_LANGUAGE = new SafeInjectionToken<string>("SYSTEM_LANGUAGE");

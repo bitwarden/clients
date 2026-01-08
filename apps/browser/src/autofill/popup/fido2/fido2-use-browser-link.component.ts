@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { firstValueFrom } from "rxjs";
@@ -15,6 +13,8 @@ import { MenuModule } from "@bitwarden/components";
 import { fido2PopoutSessionData$ } from "../../../vault/popup/utils/fido2-popout-session-data";
 import { BrowserFido2UserInterfaceSession } from "../../fido2/services/browser-fido2-user-interface.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-fido2-use-browser-link",
   templateUrl: "fido2-use-browser-link.component.html",
@@ -67,7 +67,7 @@ export class Fido2UseBrowserLinkComponent {
 
     this.platformUtilsService.showToast(
       "success",
-      null,
+      "",
       this.i18nService.t("domainAddedToExcludedDomains", validDomain),
     );
   }

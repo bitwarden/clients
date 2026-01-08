@@ -1,0 +1,35 @@
+<div class="tw-flex-col">
+  <span bitTypography="h6" class="tw-flex tw-text-main">{{ title }}</span>
+  <div class="tw-flex tw-items-baseline tw-gap-2">
+    @if (iconClass) {
+      <i class="bwi {{ iconClass }} {{ iconColorClass }}" aria-hidden="true"></i>
+    }
+    <span bitTypography="h3">{{ cardMetrics }}</span>
+  </div>
+  <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
+    <span bitTypography="body2">{{ metricDescription }}</span>
+  </div>
+  @if (buttonClick.observed && buttonText) {
+    <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
+      <button
+        type="button"
+        bitButton
+        size="small"
+        [buttonType]="buttonType"
+        [attr.aria-label]="buttonText"
+        (click)="onButtonClick()"
+      >
+        {{ buttonText }}
+      </button>
+    </div>
+  }
+  @if (showActionLink && !buttonText) {
+    <div class="tw-flex tw-items-baseline tw-mt-4 tw-gap-2">
+      <p bitTypography="body1">
+        <a bitLink href="#" (click)="onActionClick(); $event.preventDefault()" rel="noreferrer">
+          {{ actionText }}
+        </a>
+      </p>
+    </div>
+  }
+</div>

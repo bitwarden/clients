@@ -16,6 +16,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
@@ -37,6 +38,7 @@ describe("OrganizationWarningsService", () => {
   let i18nService: MockProxy<I18nService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationBillingClient: MockProxy<OrganizationBillingClient>;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
   let router: MockProxy<Router>;
 
   const organization = {
@@ -58,9 +60,12 @@ describe("OrganizationWarningsService", () => {
     i18nService = mock<I18nService>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     organizationBillingClient = mock<OrganizationBillingClient>();
+    platformUtilsService = mock<PlatformUtilsService>();
     router = mock<Router>();
 
     (openChangePlanDialog as jest.Mock).mockReset();
+
+    platformUtilsService.isSelfHost.mockReturnValue(false);
 
     i18nService.t.mockImplementation((key: string, ...args: any[]) => {
       switch (key) {
@@ -94,6 +99,7 @@ describe("OrganizationWarningsService", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationApiServiceAbstraction, useValue: organizationApiService },
         { provide: OrganizationBillingClient, useValue: organizationBillingClient },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: Router, useValue: router },
       ],
     });
@@ -107,6 +113,16 @@ describe("OrganizationWarningsService", () => {
 
       service.getFreeTrialWarning$(organization).subscribe((result) => {
         expect(result).toBeNull();
+        done();
+      });
+    });
+
+    it("should return null when platform is self-hosted", (done) => {
+      platformUtilsService.isSelfHost.mockReturnValue(true);
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
         done();
       });
     });
@@ -206,6 +222,16 @@ describe("OrganizationWarningsService", () => {
       });
     });
 
+    it("should return null when platform is self-hosted", (done) => {
+      platformUtilsService.isSelfHost.mockReturnValue(true);
+
+      service.getResellerRenewalWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
     it("should return upcoming warning with correct type and message", (done) => {
       const renewalDate = new Date(2024, 11, 31);
       const warning = {
@@ -294,6 +320,16 @@ describe("OrganizationWarningsService", () => {
 
       service.getTaxIdWarning$(organization).subscribe((result) => {
         expect(result).toBeNull();
+        done();
+      });
+    });
+
+    it("should return null when platform is self-hosted", (done) => {
+      platformUtilsService.isSelfHost.mockReturnValue(true);
+
+      service.getTaxIdWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
         done();
       });
     });
@@ -423,6 +459,16 @@ describe("OrganizationWarningsService", () => {
 
       service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
         expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should not show dialog when platform is self-hosted", (done) => {
+      platformUtilsService.isSelfHost.mockReturnValue(true);
+
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
         done();
       });
     });
@@ -565,6 +611,18 @@ describe("OrganizationWarningsService", () => {
       service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
         complete: () => {
           expect(organizationApiService.getSubscription).not.toHaveBeenCalled();
+          done();
+        },
+      });
+    });
+
+    it("should not show dialog when platform is self-hosted", (done) => {
+      platformUtilsService.isSelfHost.mockReturnValue(true);
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(organizationApiService.getSubscription).not.toHaveBeenCalled();
+          expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
           done();
         },
       });
