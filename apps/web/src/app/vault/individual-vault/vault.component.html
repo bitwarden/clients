@@ -43,7 +43,9 @@
           <div>
             {{ "premiumSubscriptionEndedDesc" | i18n }}
           </div>
-          <a bitLink (click)="navigateToGetPremium()"> {{ "restartPremium" | i18n }} </a>
+          <a bitLink href="#" appStopClick (click)="navigateToGetPremium()">
+            {{ "restartPremium" | i18n }}
+          </a>
         </ng-container>
       </bit-callout>
     }
