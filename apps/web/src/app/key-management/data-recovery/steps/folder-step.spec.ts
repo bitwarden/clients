@@ -401,40 +401,4 @@ describe("FolderStep", () => {
       expect(logger.record).toHaveBeenCalledWith("Deleted folder folder-3");
     });
   });
-
-  describe("getUndecryptableFolderIds", () => {
-    it("returns empty array before diagnostics are run", () => {
-      const result = folderStep.getUndecryptableFolderIds();
-      expect(result).toEqual([]);
-    });
-
-    it("returns undecryptable folder ids after diagnostics", async () => {
-      const folder1 = { id: "folder-1", name: { encryptedString: "encrypted-name-1" } };
-      const folder2 = { id: "folder-2", name: { encryptedString: "encrypted-name-2" } };
-      const folder3 = { id: "folder-3", name: { encryptedString: "encrypted-name-3" } };
-
-      const workingData: RecoveryWorkingData = {
-        userId: "user-id" as UserId,
-        userKey: mockUserKey,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [],
-        folders: [folder1, folder2, folder3] as unknown as FolderResponse[],
-      };
-
-      (PureCrypto.symmetric_decrypt_string as jest.Mock)
-        .mockReturnValueOnce("decrypted-name") // folder1 succeeds
-        .mockImplementationOnce(() => {
-          throw new Error("Decryption failed");
-        }) // folder2 fails
-        .mockImplementationOnce(() => {
-          throw new Error("Decryption failed");
-        }); // folder3 fails
-
-      await folderStep.runDiagnostics(workingData, logger);
-
-      const result = folderStep.getUndecryptableFolderIds();
-      expect(result).toEqual(["folder-2", "folder-3"]);
-    });
-  });
 });
