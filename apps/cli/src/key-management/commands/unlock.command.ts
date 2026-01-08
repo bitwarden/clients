@@ -110,6 +110,8 @@ export class UnlockCommand {
         return "Touch ID";
       case "win32":
         return "Windows Hello";
+      case "linux":
+        return "Polkit";
       default:
         return "Biometrics";
     }
