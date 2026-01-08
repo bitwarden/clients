@@ -1,0 +1,14 @@
+<form (ngSubmit)="onSubmit(password)">
+  <div class="tw-text-main tw-text-center" *ngIf="unavailable">
+    <p bitTypography="body1">{{ "sendAccessUnavailable" | i18n }}</p>
+  </div>
+  <div class="tw-text-main tw-text-center" *ngIf="error">
+    <p bitTypography="body1">{{ "unexpectedErrorSend" | i18n }}</p>
+  </div>
+
+  <app-send-access-password
+    *ngIf="!unavailable"
+    (setPasswordEvent)="password = $event"
+    [loading]="loading"
+  ></app-send-access-password>
+</form>
