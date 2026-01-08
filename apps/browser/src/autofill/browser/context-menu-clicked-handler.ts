@@ -70,6 +70,10 @@ export class ContextMenuClickedHandler {
         await this.generatePasswordToClipboard(tab);
         break;
       case COPY_IDENTIFIER_ID:
+        if (!tab.id) {
+          return;
+        }
+
         this.copyToClipboard({ text: await this.getIdentifier(tab, info), tab: tab });
         break;
       default:
@@ -118,6 +122,10 @@ export class ContextMenuClickedHandler {
     if (isCreateCipherAction) {
       // pass; defer to logic below
     } else if (menuItemId === NOOP_COMMAND_SUFFIX) {
+      if (!tab.url) {
+        return;
+      }
+
       const additionalCiphersToGet =
         info.parentMenuItemId === AUTOFILL_IDENTITY_ID
           ? [CipherType.Identity]
@@ -177,11 +185,19 @@ export class ContextMenuClickedHandler {
           break;
         }
 
+        if (!cipher.login?.username) {
+          break;
+        }
+
         this.copyToClipboard({ text: cipher.login.username, tab: tab });
         break;
       case COPY_PASSWORD_ID:
         if (menuItemId === CREATE_LOGIN_ID) {
           await openAddEditVaultItemPopout(tab, { cipherType: CipherType.Login });
+          break;
+        }
+
+        if (!cipher.login?.password) {
           break;
         }
 
@@ -203,6 +219,10 @@ export class ContextMenuClickedHandler {
       case COPY_VERIFICATION_CODE_ID:
         if (menuItemId === CREATE_LOGIN_ID) {
           await openAddEditVaultItemPopout(tab, { cipherType: CipherType.Login });
+          break;
+        }
+
+        if (!cipher.login?.totp) {
           break;
         }
 
@@ -241,9 +261,10 @@ export class ContextMenuClickedHandler {
   }
 
   private async getIdentifier(tab: chrome.tabs.Tab, info: chrome.contextMenus.OnClickData) {
+    const tabId = tab.id!;
     return new Promise<string>((resolve, reject) => {
       BrowserApi.sendTabsMessage(
-        tab.id,
+        tabId,
         { command: "getClickedElement" },
         { frameId: info.frameId },
         (identifier: string) => {
