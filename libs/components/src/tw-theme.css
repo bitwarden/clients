@@ -330,7 +330,7 @@
   /* Brand Border */
   --color-border-brand-soft: var(--color-brand-200);
   --color-border-brand: var(--color-brand-700);
-  --color-border-brand-strong: var(--color-brand-900);
+  --color-border-brand-strong: var(--color-brand-800);
 
   /* Status Border */
   --color-border-success-soft: var(--color-green-200);

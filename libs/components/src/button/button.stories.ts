@@ -29,7 +29,7 @@ export default {
   },
   argTypes: {
     size: {
-      options: ["small", "default"],
+      options: ["small", "default", "large"],
       control: { type: "radio" },
     },
   },
@@ -62,10 +62,38 @@ export const Primary: Story = {
   },
 };
 
-export const DangerPrimary: Story = {
+export const PrimaryOutline: Story = {
   ...Default,
   args: {
-    buttonType: "dangerPrimary",
+    buttonType: "primaryOutline",
+  },
+};
+
+export const PrimaryGhost: Story = {
+  ...Default,
+  args: {
+    buttonType: "primaryGhost",
+  },
+};
+
+export const Subtle: Story = {
+  ...Default,
+  args: {
+    buttonType: "subtle",
+  },
+};
+
+export const SubtleOutline: Story = {
+  ...Default,
+  args: {
+    buttonType: "subtleOutline",
+  },
+};
+
+export const SubtleGhost: Story = {
+  ...Default,
+  args: {
+    buttonType: "subtleGhost",
   },
 };
 
@@ -73,6 +101,62 @@ export const Danger: Story = {
   ...Default,
   args: {
     buttonType: "danger",
+  },
+};
+
+export const DangerOutline: Story = {
+  ...Default,
+  args: {
+    buttonType: "dangerOutline",
+  },
+};
+
+export const DangerGhost: Story = {
+  ...Default,
+  args: {
+    buttonType: "dangerGhost",
+  },
+};
+
+export const Warning: Story = {
+  ...Default,
+  args: {
+    buttonType: "warning",
+  },
+};
+
+export const WarningOutline: Story = {
+  ...Default,
+  args: {
+    buttonType: "warningOutline",
+  },
+};
+
+export const WarningGhost: Story = {
+  ...Default,
+  args: {
+    buttonType: "warningGhost",
+  },
+};
+
+export const Success: Story = {
+  ...Default,
+  args: {
+    buttonType: "success",
+  },
+};
+
+export const SuccessOutline: Story = {
+  ...Default,
+  args: {
+    buttonType: "successOutline",
+  },
+};
+
+export const SuccessGhost: Story = {
+  ...Default,
+  args: {
+    buttonType: "successGhost",
   },
 };
 
@@ -84,7 +168,6 @@ export const Small: Story = {
       <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block">Primary small</button>
       <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block">Secondary small</button>
       <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block">Danger small</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerPrimary" [size]="size" [block]="block">Danger Primary small</button>
     </div>
     `,
   }),

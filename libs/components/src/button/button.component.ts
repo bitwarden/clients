@@ -19,50 +19,133 @@ import { ariaDisableElement } from "../utils";
 
 const focusRing = [
   "focus-visible:tw-ring-2",
-  "focus-visible:tw-ring-offset-2",
-  "focus-visible:tw-ring-primary-600",
+  "focus-visible:tw-ring-offset-1",
+  "focus-visible:tw-ring-border-focus",
   "focus-visible:tw-z-10",
 ];
 
-const buttonSizeStyles: Record<ButtonSize, string[]> = {
-  small: ["tw-py-1", "tw-px-3", "tw-text-sm"],
-  default: ["tw-py-1.5", "tw-px-3"],
+const getButtonSizeStyles = (size: ButtonSize): string[] => {
+  const buttonSizeStyles: Record<ButtonSize, string[]> = {
+    small: ["tw-py-1", "tw-px-3", "tw-text-xs"],
+    default: ["tw-py-2.5", "tw-px-4", "tw-text-sm/5"],
+    large: ["tw-py-3", "tw-px-4", "tw-text-base/6"],
+  };
+
+  return buttonSizeStyles[size];
 };
 
-const buttonStyles: Record<ButtonType, string[]> = {
-  primary: [
-    "tw-border-primary-600",
-    "tw-bg-primary-600",
-    "!tw-text-contrast",
-    "hover:tw-bg-primary-700",
-    "hover:tw-border-primary-700",
+const getButtonStyles = (buttonType: ButtonType, size: ButtonSize): string[] => {
+  const normalizedType = buttonType.toLowerCase();
+
+  const buttonStyles: Record<ButtonType, string[]> = {
+    primary: [
+      "tw-border-border-brand",
+      "tw-bg-bg-brand",
+      "hover:tw-bg-bg-brand-strong",
+      "hover:tw-border-bg-brand-strong",
+    ],
+    primaryOutline: [
+      "tw-border-border-brand",
+      "tw-text-fg-brand",
+      "hover:tw-border-bg-brand-strong",
+      "hover:tw-text-fg-brand-strong",
+    ],
+    primaryGhost: ["tw-text-fg-heading", "hover:tw-text-fg-brand"],
+    secondary: [
+      "tw-bg-bg-secondary",
+      "tw-border-border-base",
+      "tw-text-fg-heading",
+      "hover:tw-bg-bg-quaternary",
+      "hover:tw-text-fg-brand",
+    ],
+    subtle: [
+      "tw-border-border-contrast",
+      "tw-bg-bg-contrast",
+      "hover:tw-bg-bg-contrast-strong",
+      "hover:tw-border-border-contrast-strong",
+    ],
+    subtleOutline: [
+      "tw-border-border-contrast",
+      "tw-text-fg-heading",
+      "hover:tw-border-border-contrast-strong",
+      "hover:tw-text-fg-heading",
+    ],
+    subtleGhost: ["tw-text-fg-heading", "hover:tw-text-fg-heading"],
+    danger: [
+      "tw-bg-bg-danger",
+      "tw-border-border-danger",
+      "hover:tw-bg-bg-danger-strong",
+      "hover:tw-border-border-danger-strong",
+      "hover:tw-text-fg-contrast",
+    ],
+    dangerOutline: [
+      "tw-border-border-danger",
+      "tw-text-fg-danger",
+      "hover:tw-border-bg-danger-strong",
+      "hover:!tw-text-fg-danger-strong",
+    ],
+    dangerGhost: ["tw-text-fg-danger", "hover:tw-text-fg-danger"],
+    warning: [
+      "tw-bg-bg-warning",
+      "tw-border-border-warning",
+      "hover:tw-bg-bg-warning-strong",
+      "hover:tw-border-border-warning-strong",
+    ],
+    warningOutline: [
+      "tw-border-border-warning",
+      "tw-text-fg-warning",
+      "hover:tw-border-border-warning-strong",
+      "hover:!tw-text-fg-warning-strong",
+    ],
+    warningGhost: ["tw-text-fg-warning", "hover:tw-text-fg-warning"],
+    success: [
+      "tw-bg-bg-success",
+      "tw-border-border-success",
+      "hover:tw-bg-bg-success-strong",
+      "hover:tw-border-border-success-strong",
+    ],
+    successOutline: [
+      "tw-border-border-success",
+      "tw-text-fg-success",
+      "hover:tw-border-border-success-strong",
+      "hover:tw-text-fg-success-strong",
+    ],
+    successGhost: ["tw-text-fg-success", "hover:tw-text-fg-success"],
+    unstyled: [],
+  };
+
+  const baseStyles = [
+    "tw-font-medium",
+    "tw-tracking-wide",
+    "tw-rounded-xl",
+    "tw-transition",
+    "tw-border",
+    "tw-border-solid",
+    "tw-text-center",
+    "tw-no-underline",
+    "hover:tw-no-underline",
+    "focus:tw-outline-none",
     ...focusRing,
-  ],
-  secondary: [
-    "tw-bg-transparent",
-    "tw-border-primary-600",
-    "!tw-text-primary-600",
-    "hover:tw-bg-hover-default",
-    ...focusRing,
-  ],
-  danger: [
-    "tw-bg-transparent",
-    "tw-border-danger-600",
-    "!tw-text-danger",
-    "hover:tw-bg-danger-600",
-    "hover:tw-border-danger-600",
-    "hover:!tw-text-contrast",
-    ...focusRing,
-  ],
-  dangerPrimary: [
-    "tw-border-danger-600",
-    "tw-bg-danger-600",
-    "!tw-text-contrast",
-    "hover:tw-bg-danger-700",
-    "hover:tw-border-danger-700",
-    ...focusRing,
-  ],
-  unstyled: [],
+  ];
+
+  const isOutline = normalizedType.includes("outline");
+  const isGhost = normalizedType.includes("ghost");
+  const isSecondary = normalizedType === "secondary";
+  const isSolid = !isOutline && !isGhost;
+
+  if (isOutline || isGhost) {
+    baseStyles.push("tw-bg-transparent", "hover:tw-bg-bg-hover");
+  }
+
+  if (isSolid && !isSecondary) {
+    baseStyles.push("tw-text-fg-contrast", "hover:tw-text-fg-contrast");
+  }
+
+  if (isGhost) {
+    baseStyles.push("tw-border-transparent", "tw-bg-clip-padding", "hover:tw-border-bg-hover");
+  }
+
+  return [...baseStyles, ...buttonStyles[buttonType], ...getButtonSizeStyles(size)];
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -76,19 +159,8 @@ const buttonStyles: Record<ButtonType, string[]> = {
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
-    return [
-      "tw-font-medium",
-      "tw-rounded-full",
-      "tw-transition",
-      "tw-border-2",
-      "tw-border-solid",
-      "tw-text-center",
-      "tw-no-underline",
-      "hover:tw-no-underline",
-      "focus:tw-outline-none",
-    ]
+    return []
       .concat(this.block() ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(buttonStyles[this.buttonType() ?? "secondary"])
       .concat(
         this.showDisabledStyles() || this.disabled()
           ? [
@@ -103,7 +175,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
             ]
           : [],
       )
-      .concat(buttonSizeStyles[this.size() || "default"]);
+      .concat(getButtonStyles(this.buttonType() || "secondary", this.size() || "default"));
   }
 
   protected readonly disabledAttr = computed(() => {
