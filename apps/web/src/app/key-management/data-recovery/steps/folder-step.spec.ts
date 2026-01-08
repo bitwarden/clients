@@ -1,8 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
-import { FolderResponse } from "@bitwarden/common/vault/models/response/folder.response";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { DialogService } from "@bitwarden/components";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
@@ -33,7 +33,7 @@ describe("FolderStep", () => {
 
   const mockUserKey = {
     toEncoded: jest.fn().mockReturnValue("encoded-user-key"),
-  } as unknown as SymmetricCryptoKey;
+  } as unknown as UserKey;
 
   beforeEach(() => {
     folderService = mock<FolderApiServiceAbstraction>();
@@ -72,7 +72,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
-        folders: [folder1, folder2] as unknown as FolderResponse[],
+        folders: [folder1, folder2] as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock).mockReturnValue("decrypted-name");
@@ -94,8 +94,8 @@ describe("FolderStep", () => {
 
     it("returns false and records folders with no name", async () => {
       const folder1 = { id: "folder-1", name: { encryptedString: "encrypted-name-1" } };
-      const folder2 = { id: "folder-2", name: null };
-      const folder3 = { id: "folder-3", name: { encryptedString: null } };
+      const folder2 = { id: "folder-2", name: null as null };
+      const folder3 = { id: "folder-3", name: { encryptedString: null as null } };
 
       const workingData: RecoveryWorkingData = {
         userId: "user-id" as UserId,
@@ -103,7 +103,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
-        folders: [folder1, folder2, folder3] as unknown as FolderResponse[],
+        folders: [folder1, folder2, folder3] as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock).mockReturnValue("decrypted-name");
@@ -128,7 +128,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
-        folders: [folder1, folder2, folder3] as unknown as FolderResponse[],
+        folders: [folder1, folder2, folder3] as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock)
@@ -163,7 +163,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
-        folders: [folder1, folder2] as unknown as FolderResponse[],
+        folders: [folder1, folder2] as Folder[],
       };
 
       // First run: folder1 succeeds, folder2 fails
@@ -201,7 +201,7 @@ describe("FolderStep", () => {
         folders: [
           { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
           { id: "folder-2", name: { encryptedString: "encrypted-name-2" } },
-        ] as unknown as FolderResponse[],
+        ] as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock).mockReturnValue("decrypted-name");
@@ -222,7 +222,7 @@ describe("FolderStep", () => {
         folders: [
           { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
           { id: "folder-2", name: { encryptedString: "encrypted-name-2" } },
-        ] as unknown as FolderResponse[],
+        ] as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock)
@@ -247,7 +247,7 @@ describe("FolderStep", () => {
         folders: [
           { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
           { id: "folder-2", name: { encryptedString: "encrypted-name-2" } },
-        ] as unknown as FolderResponse[],
+        ] as unknown as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock).mockImplementation(() => {
@@ -288,7 +288,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
-        folders: [folder1] as unknown as FolderResponse[],
+        folders: [folder1] as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock).mockImplementation(() => {
@@ -313,7 +313,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
-        folders: [folder1] as unknown as FolderResponse[],
+        folders: [folder1] as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock).mockImplementation(() => {
@@ -343,7 +343,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
-        folders: [folder1, folder2] as unknown as FolderResponse[],
+        folders: [folder1, folder2] as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock).mockImplementation(() => {
@@ -377,7 +377,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
-        folders: [folder1, folder2, folder3] as unknown as FolderResponse[],
+        folders: [folder1, folder2, folder3] as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock).mockImplementation(() => {
