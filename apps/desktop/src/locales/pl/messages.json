@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Nowy element",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Nowy URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Czy na pewno chcesz usunąć wysyłkę?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Kopiuj link wysyłki",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Kopiuj link wysyłki do schowka",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Wysyłaj poufne informacje w bezpieczny sposób",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Brak pasujących elementów"
+  },
   "sendsBodyNoItems": {
     "message": "Udostępniaj pliki i teksty każdemu na dowolnej platformie. Informacje będę szyfrowane end-to-end, zapewniając poufność.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Wyczyść filtry lub użyj innej frazy"
   },
   "generatorNudgeTitle": {
     "message": "Szybkie tworzenie haseł"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Usuń z archiwum"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "itemsInArchive": {
     "message": "Elementy w archiwum"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Zarchiwizowane elementy są wykluczone z wyników wyszukiwania i sugestii autouzupełniania. Czy na pewno chcesz archiwizować element?"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
     "message": "Kod pocztowy"

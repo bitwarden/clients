@@ -130,12 +130,11 @@ export abstract class KeyService {
    * Generates a new user key
    * @deprecated Interacting with the master key directly is prohibited.
    * For new features please use the KM provided SDK methods for user cryptography initialization or reach out to the KM team.
-   * @throws Error when master key is null and there is no active user
-   * @param masterKey The user's master key. When null, grabs master key from active user.
+   * @throws Error when master key is null or undefined.
+   * @param masterKey The user's master key.
    * @returns A new user key and the master key protected version of it
    */
-  abstract makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]>;
-
+  abstract makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]>;
   /**
    * Clears the user's stored version of the user key
    * @param userId The desired user

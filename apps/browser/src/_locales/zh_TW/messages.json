@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "需要進階版會員才能使用封存功能。"
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "編輯"
   },
@@ -5663,6 +5666,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "缺少網站"
