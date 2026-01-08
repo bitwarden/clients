@@ -92,7 +92,6 @@ import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
 
 export type Discount = {
   type: DiscountType; // DiscountTypes.AmountOff | DiscountTypes.PercentOff
-  active: boolean; // Whether discount is currently applied
   value: number; // Dollar amount or percentage (20 for 20%)
 };
 ```
@@ -152,7 +151,6 @@ The cart summary component provides flexibility through its structured Cart inpu
     cadence: 'monthly',
     discount: {
       type: 'percent-off',
-      active: true,
       value: 20
     },
     estimatedTax: 8.00
@@ -356,7 +354,6 @@ Show cart with percentage-based discount:
     cadence: 'monthly',
     discount: {
       type: 'percent-off',
-      active: true,
       value: 20
     },
     estimatedTax: 10.40
@@ -391,7 +388,6 @@ Show cart with fixed amount discount:
     cadence: 'annually',
     discount: {
       type: 'amount-off',
-      active: true,
       value: 50.00
     },
     estimatedTax: 95.00
@@ -488,7 +484,6 @@ Show cart with families plan:
 - Use consistent naming and formatting for cart items
 - Include clear quantity and unit pricing information
 - Ensure tax estimates are accurate and clearly labeled
-- Set `active: true` on discounts that should be displayed
 - Use localized strings for CartItem names (for i18n lookup)
 - Provide complete Cart object with all required fields
 - Use "annually" or "monthly" for cadence (not "year" or "month")

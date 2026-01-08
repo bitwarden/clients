@@ -270,7 +270,6 @@ describe("CartSummaryComponent", () => {
         ...mockCart,
         discount: {
           type: DiscountTypes.PercentOff,
-          active: true,
           value: 20,
         },
       };
@@ -296,7 +295,6 @@ describe("CartSummaryComponent", () => {
         ...mockCart,
         discount: {
           type: DiscountTypes.AmountOff,
-          active: true,
           value: 50.0,
         },
       };
@@ -315,33 +313,12 @@ describe("CartSummaryComponent", () => {
       expect(discountAmount.nativeElement.textContent).toContain("-$50.00");
     });
 
-    it("should not display discount when discount is inactive", () => {
-      // Arrange
-      const cartWithInactiveDiscount: Cart = {
-        ...mockCart,
-        discount: {
-          type: DiscountTypes.PercentOff,
-          active: false,
-          value: 20,
-        },
-      };
-      fixture.componentRef.setInput("cart", cartWithInactiveDiscount);
-      fixture.detectChanges();
-
-      // Act / Assert
-      const discountSection = fixture.debugElement.query(
-        By.css('[data-testid="discount-section"]'),
-      );
-      expect(discountSection).toBeFalsy();
-    });
-
     it("should apply discount to total calculation", () => {
       // Arrange
       const cartWithDiscount: Cart = {
         ...mockCart,
         discount: {
           type: DiscountTypes.PercentOff,
-          active: true,
           value: 20,
         },
       };

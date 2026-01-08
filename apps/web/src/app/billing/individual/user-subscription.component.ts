@@ -256,8 +256,8 @@ export class UserSubscriptionComponent implements OnInit {
       return null;
     }
     return discount.amountOff
-      ? { type: DiscountTypes.AmountOff, active: discount.active, value: discount.amountOff }
-      : { type: DiscountTypes.PercentOff, active: discount.active, value: discount.percentOff };
+      ? { type: DiscountTypes.AmountOff, value: discount.amountOff }
+      : { type: DiscountTypes.PercentOff, value: discount.percentOff };
   }
 
   get isSubscriptionActive(): boolean {

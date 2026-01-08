@@ -308,7 +308,6 @@ export const WithPercentDiscount: Story = {
       cadence: "monthly",
       discount: {
         type: DiscountTypes.PercentOff,
-        active: true,
         value: 20,
       },
       estimatedTax: 10.4,
@@ -336,7 +335,6 @@ export const WithAmountDiscount: Story = {
       cadence: "annually",
       discount: {
         type: DiscountTypes.AmountOff,
-        active: true,
         value: 50.0,
       },
       estimatedTax: 95.0,
