@@ -30,7 +30,6 @@ import {
   Fido2ClientService as Fido2ClientServiceAbstraction,
   PublicKeyCredentialParam,
   UserRequestedFallbackAbortReason,
-  UserVerification,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
