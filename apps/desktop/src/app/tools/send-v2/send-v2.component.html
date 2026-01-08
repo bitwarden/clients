@@ -1,5 +1,5 @@
 <div id="sends" class="vault">
-  <div class="send-items-panel tw-w-2/5">
+  <div class="send-items-panel tw-w-full">
     <!-- Header with Send title and New button -->
     <app-header>
       @if (!disableSend()) {
@@ -28,28 +28,4 @@
       </tools-send-list>
     </div>
   </div>
-
-  <!-- Edit/Add panel (right side) -->
-  @if (action() == "add" || action() == "edit") {
-    <app-send-add-edit
-      id="addEdit"
-      class="details"
-      [sendId]="sendId()"
-      [type]="selectedSendType()"
-      (onSavedSend)="savedSend($event)"
-      (onCancelled)="closeEditPanel()"
-      (onDeletedSend)="closeEditPanel()"
-    ></app-send-add-edit>
-  }
-
-  <!-- Bitwarden logo (shown when no send is selected) -->
-  @if (!action()) {
-    <div class="logo tw-w-1/2">
-      <div class="content">
-        <div class="inner-content">
-          <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
-        </div>
-      </div>
-    </div>
-  }
 </div>
