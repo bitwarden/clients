@@ -186,7 +186,9 @@ describe("ContextMenuClickedHandler", () => {
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
         expect(copyToClipboard).not.toHaveBeenCalled();
-        if (isTotp) {expect(totpService.getCode$).not.toHaveBeenCalled();}
+        if (isTotp) {
+          expect(totpService.getCode$).not.toHaveBeenCalled();
+        }
       });
     });
 
