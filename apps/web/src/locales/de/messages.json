@@ -2634,6 +2634,9 @@
   "key": {
     "message": "Schlüssel"
   },
+  "unnamedKey": {
+    "message": "Unbenannter Schlüssel"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Verifizierungscode"
   },
@@ -3142,6 +3145,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "restartPremium": {
     "message": "Premium neu starten"
@@ -4212,10 +4218,10 @@
     }
   },
   "userAcceptedTransfer": {
-    "message": "Accepted transfer to organization ownership."
+    "message": "Eigentumsübertragung an die Organisation akzeptiert."
   },
   "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "Widerrufen wegen Ablehnung der Übertragung an die Organisation."
   },
   "invitedUserId": {
     "message": "Benutzer $ID$ eingeladen.",
@@ -11606,6 +11612,9 @@
   "unArchive": {
     "message": "Nicht mehr archivieren"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "unArchiveAndSave": {
     "message": "Nicht mehr archivieren und speichern"
   },
@@ -12298,6 +12307,9 @@
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
   },
+  "resizeSideNavigation": {
+    "message": "Größe der Seitennavigation ändern"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Nicht-wiederherstellbare Tresor-Einträge löschen"
   },
@@ -12436,7 +12448,7 @@
     "message": "Du hast Bitwarden Premium"
   },
   "viewAndManagePremiumSubscription": {
-    "message": "View and manage your Premium subscription"
+    "message": "Dein Premium-Abonnement anzeigen und verwalten"
   },
   "youNeedToUpdateLicenseFile": {
     "message": "Du musst deine Lizenzdatei aktualisieren"
@@ -12472,7 +12484,7 @@
     "message": "Du hast bereits ein Abonnement?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
-    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+    "message": "Öffne die Abonnementseite in deinem Bitwarden Cloud-Konto und lade deine Lizenzdatei herunter. Gehe dann zu dieser Seite zurück und lade sie unten hoch."
   },
   "viewAllPlans": {
     "message": "Alle Tarife anzeigen"

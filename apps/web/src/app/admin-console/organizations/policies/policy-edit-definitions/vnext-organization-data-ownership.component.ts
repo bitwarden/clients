@@ -1,12 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
-import { lastValueFrom, Observable } from "rxjs";
+import { lastValueFrom } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
@@ -28,10 +25,6 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefiniti
   type = PolicyType.OrganizationDataOwnership;
   component = vNextOrganizationDataOwnershipPolicyComponent;
   showDescription = false;
-
-  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation);
-  }
 }
 
 @Component({

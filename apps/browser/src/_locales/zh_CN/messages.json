@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "需要高级会员才能使用归档。"
   },
+  "itemRestored": {
+    "message": "项目已恢复"
+  },
   "edit": {
     "message": "编辑"
   },
@@ -1486,7 +1489,7 @@
     "message": "选择一个文件"
   },
   "itemsTransferred": {
-    "message": "项目已传输"
+    "message": "项目已转移"
   },
   "maxFileSize": {
     "message": "文件最大为 500 MB。"
@@ -3804,7 +3807,7 @@
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "桌面",
+    "message": "桌面端",
     "description": "Desktop app"
   },
   "webVault": {
@@ -4856,7 +4859,7 @@
     "message": "新增"
   },
   "removeItem": {
-    "message": "删除 $NAME$",
+    "message": "移除 $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -5664,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
   },
+  "vulnerablePassword": {
+    "message": "易受攻击的密码。"
+  },
+  "changeNow": {
+    "message": "立即更改"
+  },
   "missingWebsite": {
     "message": "缺少网站"
   },
@@ -5707,7 +5716,7 @@
     "message": "导入现有密码"
   },
   "emptyVaultNudgeBody": {
-    "message": "使用导入器快速将登录传输到 Bitwarden 而无需手动添加。"
+    "message": "使用导入器快速将登录转移到 Bitwarden 而无需手动添加。"
   },
   "emptyVaultNudgeButton": {
     "message": "立即导入"
@@ -6014,7 +6023,7 @@
     "message": "我该如何管理我的密码库？"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "传输项目到 $ORGANIZATION$",
+    "message": "转移项目到 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6023,7 +6032,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以传输您的项目的所有权。",
+    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6032,12 +6041,15 @@
     }
   },
   "acceptTransfer": {
-    "message": "接受传输"
+    "message": "接受转移"
   },
   "declineAndLeave": {
     "message": "拒绝并退出"
   },
   "whyAmISeeingThis": {
     "message": "为什么我会看到这个？"
+  },
+  "resizeSideNavigation": {
+    "message": "调整侧边导航栏大小"
   }
 }

@@ -2634,6 +2634,9 @@
   "key": {
     "message": "Khóa"
   },
+  "unnamedKey": {
+    "message": "Unnamed key"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Mã xác minh"
   },
@@ -3142,6 +3145,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Để lấy lại quyền truy cập vào lưu trữ của bạn, hãy khởi động lại gói đăng ký Cao cấp. Nếu bạn chỉnh sửa chi tiết cho một mục đã lưu trữ trước khi khởi động lại, mục đó sẽ được chuyển trở lại kho của bạn."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "restartPremium": {
     "message": "Khởi động lại gói Cao cấp"
@@ -11606,6 +11612,9 @@
   "unArchive": {
     "message": "Hủy lưu trữ"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "unArchiveAndSave": {
     "message": "Unarchive and save"
   },
@@ -12297,6 +12306,9 @@
   },
   "userVerificationFailed": {
     "message": "Xác minh người dùng thất bại."
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Xóa các mục kho không thể khôi phục"
