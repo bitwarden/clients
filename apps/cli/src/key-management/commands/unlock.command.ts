@@ -88,7 +88,9 @@ export class UnlockCommand {
         return biometricResult;
       }
       // Biometric was cancelled or failed, fall back to password
-      CliUtils.writeLn("Falling back to master password...\n", false, true);
+      if (process.env.BW_QUIET !== "true") {
+        CliUtils.writeLn("Falling back to master password...\n", false, true);
+      }
     }
 
     // Password-based unlock
@@ -123,11 +125,13 @@ export class UnlockCommand {
   private async tryBiometricUnlock(userId: UserId): Promise<Response | null> {
     const biometricName = this.getBiometricName();
     // Write to stderr so it doesn't interfere with --raw output
-    CliUtils.writeLn(
-      `Authenticate with ${biometricName} on Desktop app to continue...`,
-      false,
-      true,
-    );
+    if (process.env.BW_QUIET !== "true") {
+      CliUtils.writeLn(
+        `Authenticate with ${biometricName} on Desktop app to continue...`,
+        false,
+        true,
+      );
+    }
 
     try {
       const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
