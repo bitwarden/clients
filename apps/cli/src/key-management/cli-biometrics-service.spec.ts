@@ -29,6 +29,8 @@ describe("CliBiometricsService", () => {
   const mockUserId = "mock-user-id" as UserId;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -141,6 +143,62 @@ describe("CliBiometricsService", () => {
     it("should always return false for CLI", async () => {
       const result = await service.getShouldAutopromptNow();
       expect(result).toBe(false);
+    });
+  });
+
+  describe("unlockWithBiometricsForUser", () => {
+    it("should return null when desktop returns no key", async () => {
+      mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(true);
+      mockNativeMessagingClient.connect.mockResolvedValue();
+      mockNativeMessagingClient.unlockWithBiometricsForUser.mockResolvedValue(null);
+
+      const result = await service.unlockWithBiometricsForUser(mockUserId);
+
+      expect(result).toBeNull();
+    });
+
+    it("should return UserKey when unlock succeeds and key is valid", async () => {
+      // Create a valid 64-byte key as base64
+      const mockKeyBytes = new Uint8Array(64);
+      mockKeyBytes.fill(1);
+      const mockKeyB64 = Buffer.from(mockKeyBytes).toString("base64");
+
+      mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(true);
+      mockNativeMessagingClient.connect.mockResolvedValue();
+      mockNativeMessagingClient.unlockWithBiometricsForUser.mockResolvedValue(mockKeyB64);
+      keyService.validateUserKey.mockResolvedValue(true);
+
+      const result = await service.unlockWithBiometricsForUser(mockUserId);
+
+      expect(result).not.toBeNull();
+      expect(keyService.validateUserKey).toHaveBeenCalled();
+    });
+
+    it("should return null when key validation fails", async () => {
+      const mockKeyBytes = new Uint8Array(64);
+      mockKeyBytes.fill(1);
+      const mockKeyB64 = Buffer.from(mockKeyBytes).toString("base64");
+
+      mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(true);
+      mockNativeMessagingClient.connect.mockResolvedValue();
+      mockNativeMessagingClient.unlockWithBiometricsForUser.mockResolvedValue(mockKeyB64);
+      keyService.validateUserKey.mockResolvedValue(false);
+
+      const result = await service.unlockWithBiometricsForUser(mockUserId);
+
+      expect(result).toBeNull();
+    });
+
+    it("should throw when biometric unlock fails", async () => {
+      mockNativeMessagingClient.isDesktopAppAvailable.mockResolvedValue(true);
+      mockNativeMessagingClient.connect.mockResolvedValue();
+      mockNativeMessagingClient.unlockWithBiometricsForUser.mockRejectedValue(
+        new Error("Biometric cancelled"),
+      );
+
+      await expect(service.unlockWithBiometricsForUser(mockUserId)).rejects.toThrow(
+        "Biometric unlock failed",
+      );
     });
   });
 

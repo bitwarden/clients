@@ -25,6 +25,8 @@ describe("NativeMessagingClient", () => {
   let client: NativeMessagingClient;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     cryptoFunctionService = mock<CryptoFunctionService>();

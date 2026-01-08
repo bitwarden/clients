@@ -96,6 +96,11 @@ describe("UnlockCommand", () => {
     );
   });
 
+  afterEach(() => {
+    // Clean up environment variables modified in tests
+    delete process.env.BW_NOINTERACTION;
+  });
+
   describe("run", () => {
     test.each([null as unknown as Account, undefined as unknown as Account])(
       "returns error response when the active account is %s",
@@ -157,6 +162,45 @@ describe("UnlockCommand", () => {
         activeAccount.id,
       );
       expect(keyService.setUserKey).not.toHaveBeenCalled();
+    });
+
+    describe("biometric unlock flow", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockReturnValue(of(true));
+        masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
+      });
+
+      it("skips biometrics when password is explicitly provided", async () => {
+        biometricsService.getBiometricsStatusForUser.mockResolvedValue(BiometricsStatus.Available);
+
+        const response = await command.run(mockMasterPassword, {});
+
+        expect(response.success).toEqual(true);
+        expect(biometricsService.unlockWithBiometricsForUser).not.toHaveBeenCalled();
+        expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalled();
+      });
+
+      it("skips biometrics when BW_NOINTERACTION is true", async () => {
+        process.env.BW_NOINTERACTION = "true";
+        biometricsService.getBiometricsStatusForUser.mockResolvedValue(BiometricsStatus.Available);
+
+        const response = await command.run(mockMasterPassword, {});
+
+        expect(response.success).toEqual(true);
+        expect(biometricsService.unlockWithBiometricsForUser).not.toHaveBeenCalled();
+      });
+
+      it("skips biometrics when not available", async () => {
+        process.env.BW_NOINTERACTION = "true";
+        biometricsService.getBiometricsStatusForUser.mockResolvedValue(
+          BiometricsStatus.DesktopDisconnected,
+        );
+
+        const response = await command.run(mockMasterPassword, {});
+
+        expect(response.success).toEqual(true);
+        expect(biometricsService.unlockWithBiometricsForUser).not.toHaveBeenCalled();
+      });
     });
 
     describe("calls convertToKeyConnectorCommand if required", () => {
