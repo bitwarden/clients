@@ -16,24 +16,24 @@ describe("CartSummaryComponent", () => {
     passwordManager: {
       seats: {
         quantity: 5,
-        name: "members",
+        translationKey: "members",
         cost: 50,
       },
       additionalStorage: {
         quantity: 2,
-        name: "additionalStorageGB",
+        translationKey: "additionalStorageGB",
         cost: 10,
       },
     },
     secretsManager: {
       seats: {
         quantity: 3,
-        name: "secretsManagerSeats",
+        translationKey: "secretsManagerSeats",
         cost: 30,
       },
       additionalServiceAccounts: {
         quantity: 2,
-        name: "additionalServiceAccountsV2",
+        translationKey: "additionalServiceAccountsV2",
         cost: 6,
       },
     },
@@ -359,24 +359,24 @@ describe("CartSummaryComponent - Custom Header Template", () => {
       passwordManager: {
         seats: {
           quantity: 5,
-          name: "members",
+          translationKey: "members",
           cost: 50,
         },
         additionalStorage: {
           quantity: 2,
-          name: "additionalStorageGB",
+          translationKey: "additionalStorageGB",
           cost: 10,
         },
       },
       secretsManager: {
         seats: {
           quantity: 3,
-          name: "secretsManagerSeats",
+          translationKey: "secretsManagerSeats",
           cost: 30,
         },
         additionalServiceAccounts: {
           quantity: 2,
-          name: "additionalServiceAccountsV2",
+          translationKey: "additionalServiceAccountsV2",
           cost: 6,
         },
       },
