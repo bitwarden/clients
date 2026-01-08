@@ -1,13 +1,37 @@
 import { inject } from "@angular/core";
-import { CanActivateFn, Router } from "@angular/router";
+import {
+  ActivatedRouteSnapshot,
+  CanActivateFn,
+  Router,
+  RouterStateSnapshot,
+} from "@angular/router";
 import { combineLatest, map, switchMap } from "rxjs";
 
+import { authGuard } from "@bitwarden/angular/auth/guards";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ToastService } from "@bitwarden/components";
+
+/**
+ * Wrapper around the main auth guard to redirect to login if not authenticated.
+ * This is necessary because the main auth guard returns false when not authenticated,
+ * which in a browser context may result in a blank extension page rather than a redirect.
+ */
+export const atRiskPasswordAuthGuard: CanActivateFn = async (
+  route: ActivatedRouteSnapshot,
+  routerState: RouterStateSnapshot,
+) => {
+  const router = inject(Router);
+
+  const authGuardResponse = await authGuard(route, routerState);
+  if (authGuardResponse === true) {
+    return authGuardResponse;
+  }
+  return router.createUrlTree(["/login"]);
+};
 
 export const canAccessAtRiskPasswords: CanActivateFn = () => {
   const accountService = inject(AccountService);
