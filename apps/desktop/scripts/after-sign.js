@@ -31,7 +31,6 @@ async function run(context) {
         fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
       }
       fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
-      shouldResign = true;
     }
   }
 
