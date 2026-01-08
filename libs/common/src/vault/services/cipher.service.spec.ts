@@ -1114,6 +1114,382 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("deleteWithServer()", () => {
+    let mockSdkClient: any;
+    let mockCiphersSdk: any;
+    let mockAdminSdk: any;
+    let mockVaultSdk: any;
+    const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+
+    beforeEach(() => {
+      // Mock the SDK client chain for delete operations
+      mockAdminSdk = {
+        delete: jest.fn().mockResolvedValue(undefined),
+      };
+      mockCiphersSdk = {
+        delete: jest.fn().mockResolvedValue(undefined),
+        admin: jest.fn().mockReturnValue(mockAdminSdk),
+      };
+      mockVaultSdk = {
+        ciphers: jest.fn().mockReturnValue(mockCiphersSdk),
+      };
+      const mockSdkValue = {
+        vault: jest.fn().mockReturnValue(mockVaultSdk),
+      };
+      mockSdkClient = {
+        take: jest.fn().mockReturnValue({
+          value: mockSdkValue,
+          [Symbol.dispose]: jest.fn(),
+        }),
+      };
+
+      // Mock sdkService to return the mock client
+      sdkService.userClient$.mockReturnValue(of(mockSdkClient));
+    });
+
+    it("should call apiService.deleteCipher when feature flag is disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const apiSpy = jest.spyOn(apiService, "deleteCipher").mockResolvedValue(undefined);
+
+      await cipherService.deleteWithServer(testCipherId, userId);
+
+      expect(apiSpy).toHaveBeenCalledWith(testCipherId);
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
+    });
+
+    it("should call apiService.deleteCipherAdmin when feature flag is disabled and asAdmin is true", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const apiSpy = jest.spyOn(apiService, "deleteCipherAdmin").mockResolvedValue(undefined);
+
+      await cipherService.deleteWithServer(testCipherId, userId, true);
+
+      expect(apiSpy).toHaveBeenCalledWith(testCipherId);
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
+    });
+
+    it("should use SDK to delete cipher when feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const apiSpy = jest.spyOn(apiService, "deleteCipher");
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.deleteWithServer(testCipherId, userId);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockCiphersSdk.delete).toHaveBeenCalledWith(testCipherId);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+    });
+
+    it("should use SDK admin delete when feature flag is enabled and asAdmin is true", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const apiSpy = jest.spyOn(apiService, "deleteCipherAdmin");
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.deleteWithServer(testCipherId, userId, true);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockAdminSdk.delete).toHaveBeenCalledWith(testCipherId);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+    });
+  });
+
+  describe("deleteManyWithServer()", () => {
+    let mockSdkClient: any;
+    let mockCiphersSdk: any;
+    let mockAdminSdk: any;
+    let mockVaultSdk: any;
+    const testCipherIds = [
+      "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId,
+      "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CipherId,
+    ];
+
+    beforeEach(() => {
+      // Mock the SDK client chain for delete many operations
+      mockAdminSdk = {
+        delete_many: jest.fn().mockResolvedValue(undefined),
+      };
+      mockCiphersSdk = {
+        delete_many: jest.fn().mockResolvedValue(undefined),
+        admin: jest.fn().mockReturnValue(mockAdminSdk),
+      };
+      mockVaultSdk = {
+        ciphers: jest.fn().mockReturnValue(mockCiphersSdk),
+      };
+      const mockSdkValue = {
+        vault: jest.fn().mockReturnValue(mockVaultSdk),
+      };
+      mockSdkClient = {
+        take: jest.fn().mockReturnValue({
+          value: mockSdkValue,
+          [Symbol.dispose]: jest.fn(),
+        }),
+      };
+
+      // Mock sdkService to return the mock client
+      sdkService.userClient$.mockReturnValue(of(mockSdkClient));
+    });
+
+    it("should call apiService.deleteManyCiphers when feature flag is disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const apiSpy = jest.spyOn(apiService, "deleteManyCiphers").mockResolvedValue(undefined);
+
+      await cipherService.deleteManyWithServer(testCipherIds, userId);
+
+      expect(apiSpy).toHaveBeenCalled();
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
+    });
+
+    it("should call apiService.deleteManyCiphersAdmin when feature flag is disabled and asAdmin is true", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const apiSpy = jest.spyOn(apiService, "deleteManyCiphersAdmin").mockResolvedValue(undefined);
+
+      await cipherService.deleteManyWithServer(testCipherIds, userId, true, orgId);
+
+      expect(apiSpy).toHaveBeenCalled();
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
+    });
+
+    it("should use SDK to delete multiple ciphers when feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const apiSpy = jest.spyOn(apiService, "deleteManyCiphers");
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.deleteManyWithServer(testCipherIds, userId);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockCiphersSdk.delete_many).toHaveBeenCalledWith(testCipherIds);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+    });
+
+    it("should use SDK admin delete many when feature flag is enabled and asAdmin is true", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const apiSpy = jest.spyOn(apiService, "deleteManyCiphersAdmin");
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.deleteManyWithServer(testCipherIds, userId, true, orgId);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockAdminSdk.delete_many).toHaveBeenCalledWith(testCipherIds, orgId);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+    });
+  });
+
+  describe("softDeleteWithServer()", () => {
+    let mockSdkClient: any;
+    let mockCiphersSdk: any;
+    let mockAdminSdk: any;
+    let mockVaultSdk: any;
+    const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+
+    beforeEach(() => {
+      // Mock the SDK client chain for soft delete operations
+      mockAdminSdk = {
+        soft_delete: jest.fn().mockResolvedValue(undefined),
+      };
+      mockCiphersSdk = {
+        soft_delete: jest.fn().mockResolvedValue(undefined),
+        admin: jest.fn().mockReturnValue(mockAdminSdk),
+      };
+      mockVaultSdk = {
+        ciphers: jest.fn().mockReturnValue(mockCiphersSdk),
+      };
+      const mockSdkValue = {
+        vault: jest.fn().mockReturnValue(mockVaultSdk),
+      };
+      mockSdkClient = {
+        take: jest.fn().mockReturnValue({
+          value: mockSdkValue,
+          [Symbol.dispose]: jest.fn(),
+        }),
+      };
+
+      // Mock sdkService to return the mock client
+      sdkService.userClient$.mockReturnValue(of(mockSdkClient));
+    });
+
+    it("should call apiService.putDeleteCipher when feature flag is disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const apiSpy = jest.spyOn(apiService, "putDeleteCipher").mockResolvedValue(undefined);
+
+      await cipherService.softDeleteWithServer(testCipherId, userId);
+
+      expect(apiSpy).toHaveBeenCalledWith(testCipherId);
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
+    });
+
+    it("should call apiService.putDeleteCipherAdmin when feature flag is disabled and asAdmin is true", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const apiSpy = jest.spyOn(apiService, "putDeleteCipherAdmin").mockResolvedValue(undefined);
+
+      await cipherService.softDeleteWithServer(testCipherId, userId, true);
+
+      expect(apiSpy).toHaveBeenCalledWith(testCipherId);
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
+    });
+
+    it("should use SDK to soft delete cipher when feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const apiSpy = jest.spyOn(apiService, "putDeleteCipher");
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.softDeleteWithServer(testCipherId, userId);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockCiphersSdk.soft_delete).toHaveBeenCalledWith(testCipherId);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+    });
+
+    it("should use SDK admin soft delete when feature flag is enabled and asAdmin is true", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const apiSpy = jest.spyOn(apiService, "putDeleteCipherAdmin");
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.softDeleteWithServer(testCipherId, userId, true);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockAdminSdk.soft_delete).toHaveBeenCalledWith(testCipherId);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+    });
+  });
+
+  describe("softDeleteManyWithServer()", () => {
+    let mockSdkClient: any;
+    let mockCiphersSdk: any;
+    let mockAdminSdk: any;
+    let mockVaultSdk: any;
+    const testCipherIds = [
+      "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId,
+      "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CipherId,
+    ];
+
+    beforeEach(() => {
+      // Mock the SDK client chain for soft delete many operations
+      mockAdminSdk = {
+        soft_delete_many: jest.fn().mockResolvedValue(undefined),
+      };
+      mockCiphersSdk = {
+        soft_delete_many: jest.fn().mockResolvedValue(undefined),
+        admin: jest.fn().mockReturnValue(mockAdminSdk),
+      };
+      mockVaultSdk = {
+        ciphers: jest.fn().mockReturnValue(mockCiphersSdk),
+      };
+      const mockSdkValue = {
+        vault: jest.fn().mockReturnValue(mockVaultSdk),
+      };
+      mockSdkClient = {
+        take: jest.fn().mockReturnValue({
+          value: mockSdkValue,
+          [Symbol.dispose]: jest.fn(),
+        }),
+      };
+
+      // Mock sdkService to return the mock client
+      sdkService.userClient$.mockReturnValue(of(mockSdkClient));
+    });
+
+    it("should call apiService.putDeleteManyCiphers when feature flag is disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const apiSpy = jest.spyOn(apiService, "putDeleteManyCiphers").mockResolvedValue(undefined);
+
+      await cipherService.softDeleteManyWithServer(testCipherIds, userId);
+
+      expect(apiSpy).toHaveBeenCalled();
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
+    });
+
+    it("should call apiService.putDeleteManyCiphersAdmin when feature flag is disabled and asAdmin is true", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const apiSpy = jest
+        .spyOn(apiService, "putDeleteManyCiphersAdmin")
+        .mockResolvedValue(undefined);
+
+      await cipherService.softDeleteManyWithServer(testCipherIds, userId, true, orgId);
+
+      expect(apiSpy).toHaveBeenCalled();
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
+    });
+
+    it("should use SDK to soft delete multiple ciphers when feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const apiSpy = jest.spyOn(apiService, "putDeleteManyCiphers");
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.softDeleteManyWithServer(testCipherIds, userId);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockCiphersSdk.soft_delete_many).toHaveBeenCalledWith(testCipherIds);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+    });
+
+    it("should use SDK admin soft delete many when feature flag is enabled and asAdmin is true", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const apiSpy = jest.spyOn(apiService, "putDeleteManyCiphersAdmin");
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.softDeleteManyWithServer(testCipherIds, userId, true, orgId);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockAdminSdk.soft_delete_many).toHaveBeenCalledWith(testCipherIds, orgId);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+    });
+  });
+
   describe("replace (no upsert)", () => {
     // In order to set up initial state we need to manually update the encrypted state
     // which will result in an emission. All tests will have this baseline emission.
