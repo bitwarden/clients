@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "É necessária uma subscrição Premium para utilizar o Arquivo."
   },
+  "itemRestored": {
+    "message": "O item foi restaurado"
+  },
   "edit": {
     "message": "Editar"
   },
@@ -1322,11 +1325,21 @@
   "exportFrom": {
     "message": "Exportar de"
   },
-  "export": {
-    "message": "Exportar"
+  "exportVerb": {
+    "message": "Exportar",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importar"
+  "exportNoun": {
+    "message": "Exportação",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importar",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importação",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formato do ficheiro"
@@ -5654,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
   },
+  "vulnerablePassword": {
+    "message": "Palavra-passe vulnerável."
+  },
+  "changeNow": {
+    "message": "Alterar agora"
+  },
   "missingWebsite": {
     "message": "Site em falta"
   },
@@ -6029,5 +6048,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Porque é que estou a ver isto?"
+  },
+  "resizeSideNavigation": {
+    "message": "Redimensionar navegação lateral"
   }
 }

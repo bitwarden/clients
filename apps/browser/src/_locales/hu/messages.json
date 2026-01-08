@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Az Archívum használatához prémium tagság szükséges."
   },
+  "itemRestored": {
+    "message": "Az elem visszaállításra került."
+  },
   "edit": {
     "message": "Szerkesztés"
   },
@@ -1322,11 +1325,21 @@
   "exportFrom": {
     "message": "Exportálás innen:"
   },
-  "export": {
-    "message": "Exportálás"
+  "exportVerb": {
+    "message": "Exportálás",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importálás"
+  "exportNoun": {
+    "message": "Exportálás",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importálás",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importálás",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Fájlformátum"
@@ -5654,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
   },
+  "vulnerablePassword": {
+    "message": "A jelszó sérülékeny."
+  },
+  "changeNow": {
+    "message": "Módosítás most"
+  },
   "missingWebsite": {
     "message": "Hiányzó webhely"
   },
@@ -6029,5 +6048,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Miért látható ez?"
+  },
+  "resizeSideNavigation": {
+    "message": "Oldalnavigáció átméretezés"
   }
 }

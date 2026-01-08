@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Ново",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Нов адрес"
   },
@@ -1775,11 +1779,21 @@
   "exportFrom": {
     "message": "Изнасяне от"
   },
-  "export": {
-    "message": "Изнасяне"
+  "exportNoun": {
+    "message": "Изнасяне",
+    "description": "The noun form of the word Export"
   },
-  "import": {
-    "message": "Внасяне"
+  "exportVerb": {
+    "message": "Изнасяне",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Внасяне",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Внасяне",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат на файла"
@@ -2399,6 +2413,10 @@
   },
   "deleteSendConfirmation": {
     "message": "Сигурни ли сте, че искате да изтриете това изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copySendLink": {
+    "message": "Копиране на връзката към Изпращането",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -4021,9 +4039,15 @@
     "message": "Изпращайте чувствителна информация сигурно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Няма резултати от търсенето"
+  },
   "sendsBodyNoItems": {
     "message": "Споделяйте сигурно файлове и данни с всекиго, през всяка система. Информацията Ви ще бъде защитена с шифроване от край до край, а видимостта ѝ ще бъде ограничена.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
   "generatorNudgeTitle": {
     "message": "Създавайте пароли бързо"
@@ -4282,6 +4306,9 @@
   "unArchive": {
     "message": "Изваждане от архива"
   },
+  "archived": {
+    "message": "Архивирано"
+  },
   "itemsInArchive": {
     "message": "Елементи в архива"
   },
@@ -4302,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  },
+  "unArchiveAndSave": {
+    "message": "Разархивиране и запазване"
+  },
+  "restartPremium": {
+    "message": "Подновяване на платения абонамент"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Вашият абонамент за платения план е приключил"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Ако искате отново да получите достъп до архива си, трябва да подновите платения си абонамент. Ако редактирате данните за архивиран елемент преди подновяването, той ще бъде върнат в трезора."
+  },
+  "itemRestored": {
+    "message": "Записът бе възстановен"
   },
   "zipPostalCodeLabel": {
     "message": "Пощенски код"
@@ -4377,6 +4419,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "Изтичане на времето за сесията"
+  },
+  "resizeSideNavigation": {
+    "message": "Преоразмеряване на страничната навигация"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Тази настройка се управлява от организацията Ви."
