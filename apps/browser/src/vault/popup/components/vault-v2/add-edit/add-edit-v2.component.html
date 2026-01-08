@@ -7,17 +7,14 @@
     [backAction]="handleBackButton"
     showBackButton
   >
-    <ng-container slot="end">
-      <span
-        *ngIf="previouslyCouldArchive"
-        bitBadge
-        variant="secondary"
-        [appA11yTitle]="'archived' | i18n"
-      >
-        {{ "archived" | i18n }}
-      </span>
-      <app-pop-out />
-    </ng-container>
+    @if (config?.originalCipher?.archivedDate) {
+      <ng-container slot="end">
+        <span bitBadge variant="secondary" [appA11yTitle]="'archived' | i18n">
+          {{ "archived" | i18n }}
+        </span>
+        <app-pop-out />
+      </ng-container>
+    }
   </popup-header>
 
   <vault-cipher-form
