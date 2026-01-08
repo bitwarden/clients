@@ -19,6 +19,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -27,7 +28,6 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
-import { ArchiveCipherUtilitiesService } from "@bitwarden/vault";
 
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 
@@ -88,13 +88,23 @@ describe("VaultItemDialogComponent", () => {
         { provide: DIALOG_DATA, useValue: { ...baseParams } },
         { provide: DialogRef, useValue: {} },
         { provide: DialogService, useValue: {} },
-        { provide: ToastService, useValue: {} },
+        {
+          provide: ToastService,
+          useValue: {
+            showToast: () => {},
+          },
+        },
         { provide: MessagingService, useValue: {} },
         { provide: LogService, useValue: {} },
         { provide: CipherService, useValue: {} },
-        { provide: AccountService, useValue: { activeAccount$: of({}) } },
-        { provide: AccountService, useValue: { activeAccount$: { pipe: () => ({}) } } },
-        { provide: ConfigService, useValue: { getFeatureFlag: () => Promise.resolve(false) } },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "UserId" }) } },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag: () => Promise.resolve(false),
+            getFeatureFlag$: () => of(false),
+          },
+        },
         { provide: Router, useValue: {} },
         { provide: ActivatedRoute, useValue: {} },
         {
@@ -111,6 +121,8 @@ describe("VaultItemDialogComponent", () => {
           useValue: {
             userCanArchive$: jest.fn().mockReturnValue(of(true)),
             hasArchiveFlagEnabled$: jest.fn().mockReturnValue(of(true)),
+            archiveWithServer: jest.fn().mockResolvedValue({}),
+            unarchiveWithServer: jest.fn().mockResolvedValue({}),
           },
         },
         {
@@ -155,17 +167,12 @@ describe("VaultItemDialogComponent", () => {
         },
         {
           provide: PlatformUtilsService,
-          useValue: mock<PlatformUtilsService>(),
-        },
-        {
-          provide: ArchiveCipherUtilitiesService,
           useValue: {
-            archiveCipher: jest.fn().mockResolvedValue(undefined),
-            unarchiveCipher: jest.fn().mockResolvedValue(undefined),
+            getClientType: jest.fn().mockReturnValue("Web"),
           },
         },
         { provide: SyncService, useValue: {} },
-        { provide: PlatformUtilsService, useValue: {} },
+        { provide: CipherRiskService, useValue: {} },
       ],
     }).compileComponents();
 
@@ -218,32 +225,27 @@ describe("VaultItemDialogComponent", () => {
 
   describe("archive", () => {
     it("calls archiveService to archive the cipher", async () => {
-      const archiveService = TestBed.inject(ArchiveCipherUtilitiesService);
+      const archiveService = TestBed.inject(CipherArchiveService);
       component.setTestCipher({ id: "111-222-333-4444" });
       component.setTestParams({ mode: "view" });
       fixture.detectChanges();
 
       await component.archive();
 
-      expect(archiveService.archiveCipher).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "111-222-333-4444" }),
-        true,
-      );
+      expect(archiveService.archiveWithServer).toHaveBeenCalledWith("111-222-333-4444", "UserId");
     });
   });
 
   describe("unarchive", () => {
     it("calls archiveService to unarchive the cipher", async () => {
-      const archiveService = TestBed.inject(ArchiveCipherUtilitiesService);
+      const archiveService = TestBed.inject(CipherArchiveService);
       component.setTestCipher({ id: "111-222-333-4444" });
-      component.setTestParams({ mode: "view" });
+      component.setTestParams({ mode: "form" });
       fixture.detectChanges();
 
       await component.unarchive();
 
-      expect(archiveService.unarchiveCipher).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "111-222-333-4444" }),
-      );
+      expect(archiveService.unarchiveWithServer).toHaveBeenCalledWith("111-222-333-4444", "UserId");
     });
   });
 
@@ -251,7 +253,7 @@ describe("VaultItemDialogComponent", () => {
     it("should show archive button when the user can archive the item and the item can be archived", () => {
       component.setTestCipher({ canBeArchived: true });
       (component as any).userCanArchive$ = of(true);
-      component.setTestParams({ mode: "view" });
+      component.setTestParams({ mode: "form" });
       fixture.detectChanges();
       const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
       expect(archiveButton).toBeTruthy();
@@ -260,7 +262,7 @@ describe("VaultItemDialogComponent", () => {
     it("should not show archive button when the user cannot archive the item", () => {
       (component as any).userCanArchive$ = of(false);
       component.setTestCipher({});
-      component.setTestParams({ mode: "view" });
+      component.setTestParams({ mode: "form" });
       fixture.detectChanges();
       const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
       expect(archiveButton).toBeFalsy();
@@ -268,7 +270,7 @@ describe("VaultItemDialogComponent", () => {
 
     it("should not show archive button when the item cannot be archived", () => {
       component.setTestCipher({ canBeArchived: false });
-      component.setTestParams({ mode: "view" });
+      component.setTestParams({ mode: "form" });
       fixture.detectChanges();
       const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
       expect(archiveButton).toBeFalsy();
@@ -278,7 +280,7 @@ describe("VaultItemDialogComponent", () => {
   describe("unarchive button", () => {
     it("should show the unarchive button when the item is archived", () => {
       component.setTestCipher({ isArchived: true });
-      component.setTestParams({ mode: "view" });
+      component.setTestParams({ mode: "form" });
       fixture.detectChanges();
       const unarchiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-unarchive']"));
       expect(unarchiveButton).toBeTruthy();
@@ -286,7 +288,7 @@ describe("VaultItemDialogComponent", () => {
 
     it("should not show the unarchive button when the item is not archived", () => {
       component.setTestCipher({ isArchived: false });
-      component.setTestParams({ mode: "view" });
+      component.setTestParams({ mode: "form" });
       fixture.detectChanges();
       const unarchiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-unarchive']"));
       expect(unarchiveButton).toBeFalsy();
@@ -296,7 +298,8 @@ describe("VaultItemDialogComponent", () => {
   describe("submitButtonText$", () => {
     it("should return 'unArchiveAndSave' when premium is false and cipher is archived", (done) => {
       jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(false));
-      component["cipherIsArchived"] = true;
+      component.setTestCipher({ isArchived: true });
+      fixture.detectChanges();
 
       component["submitButtonText$"].subscribe((text) => {
         expect(text).toBe("unArchiveAndSave");
@@ -306,7 +309,8 @@ describe("VaultItemDialogComponent", () => {
 
     it("should return 'save' when cipher is archived and user has premium", (done) => {
       jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(true));
-      component["cipherIsArchived"] = true;
+      component.setTestCipher({ isArchived: true });
+      fixture.detectChanges();
 
       component["submitButtonText$"].subscribe((text) => {
         expect(text).toBe("save");
@@ -316,7 +320,8 @@ describe("VaultItemDialogComponent", () => {
 
     it("should return 'save' when cipher is not archived", (done) => {
       jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(false));
-      component["cipherIsArchived"] = false;
+      component.setTestCipher({ isArchived: false });
+      fixture.detectChanges();
 
       component["submitButtonText$"].subscribe((text) => {
         expect(text).toBe("save");

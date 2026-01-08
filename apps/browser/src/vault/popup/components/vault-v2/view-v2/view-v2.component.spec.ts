@@ -27,9 +27,11 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
@@ -100,6 +102,8 @@ describe("ViewV2Component", () => {
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
   };
 
+  const cipherArchiveService = mock<CipherArchiveService>();
+
   beforeEach(async () => {
     mockCipherService.cipherViews$.mockClear();
     mockCipherService.deleteWithServer.mockClear();
@@ -113,6 +117,10 @@ describe("ViewV2Component", () => {
     back.mockClear();
     showToast.mockClear();
     showPasswordPrompt.mockClear();
+    cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
+    cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
+    cipherArchiveService.archiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
+    cipherArchiveService.unarchiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
 
     await TestBed.configureTestingModule({
       imports: [ViewV2Component],
@@ -160,12 +168,7 @@ describe("ViewV2Component", () => {
         },
         {
           provide: CipherArchiveService,
-          useValue: {
-            userCanArchive$: jest.fn().mockReturnValue(of(true)),
-            hasArchiveFlagEnabled$: jest.fn().mockReturnValue(of(true)),
-            archiveWithServer: jest.fn().mockResolvedValue(null),
-            unarchiveWithServer: jest.fn().mockResolvedValue(null),
-          },
+          useValue: cipherArchiveService,
         },
         {
           provide: OrganizationService,
@@ -213,6 +216,10 @@ describe("ViewV2Component", () => {
             archiveCipher: jest.fn().mockResolvedValue(null),
             unarchiveCipher: jest.fn().mockResolvedValue(null),
           },
+        },
+        {
+          provide: CipherRiskService,
+          useValue: mock<CipherRiskService>(),
         },
       ],
     })

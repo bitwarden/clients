@@ -57,6 +57,7 @@ describe("AddEditV2Component", () => {
   const setHistory = jest.fn();
   const collect = jest.fn().mockResolvedValue(null);
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
+  const cipherArchiveService = mock<CipherArchiveService>();
 
   beforeEach(async () => {
     buildConfig.mockClear();
@@ -65,6 +66,9 @@ describe("AddEditV2Component", () => {
     back.mockClear();
     collect.mockClear();
     openSimpleDialog.mockClear();
+
+    cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
+    cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
 
     addEditCipherInfo$ = new BehaviorSubject<AddEditCipherInfo | null>(null);
     cipherServiceMock = mock<CipherService>({
@@ -93,10 +97,7 @@ describe("AddEditV2Component", () => {
         { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
         {
           provide: CipherArchiveService,
-          useValue: {
-            userCanArchive$: jest.fn().mockReturnValue(of(false)),
-            hasArchiveFlagEnabled$: jest.fn().mockReturnValue(of(true)),
-          },
+          useValue: cipherArchiveService,
         },
         {
           provide: ArchiveCipherUtilitiesService,
@@ -419,7 +420,7 @@ describe("AddEditV2Component", () => {
     });
 
     it("shows the archive button when the user can archive and the cipher can be archived", fakeAsync(() => {
-      jest.spyOn(component["archiveService"], "userCanArchive$").mockReturnValueOnce(of(true));
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(true));
       queryParams$.next({ cipherId: "222-333-444-5555" });
       tick();
       fixture.detectChanges();
@@ -429,7 +430,7 @@ describe("AddEditV2Component", () => {
     }));
 
     it("does not show the archive button when the user cannot archive", fakeAsync(() => {
-      jest.spyOn(component["archiveService"], "userCanArchive$").mockReturnValueOnce(of(false));
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
       queryParams$.next({ cipherId: "222-333-444-5555" });
 
       tick();
@@ -440,7 +441,7 @@ describe("AddEditV2Component", () => {
     }));
 
     it("does not show the archive button when the cipher cannot be archived", fakeAsync(() => {
-      jest.spyOn(component["archiveService"], "userCanArchive$").mockReturnValueOnce(of(true));
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(true));
       buildConfigResponse.originalCipher = { archivedDate: new Date(), edit: true } as Cipher;
       queryParams$.next({ cipherId: "222-333-444-5555" });
 
