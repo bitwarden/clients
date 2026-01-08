@@ -38,6 +38,7 @@ import {
   DesktopFido2UserInterfaceService,
   DesktopFido2UserInterfaceSession,
 } from "../../services/desktop-fido2-user-interface.service";
+import { CipherViewLike, CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 @Component({
   standalone: true,
@@ -61,8 +62,8 @@ import {
 export class Fido2VaultComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
   private destroy$ = new Subject<void>();
-  private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
-  ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
+  private ciphersSubject = new BehaviorSubject<CipherViewLike[]>([]);
+  ciphers$: Observable<CipherViewLike[]> = this.ciphersSubject.asObservable();
   cipherIds$: Observable<string[]> | undefined;
   readonly Icons = { BitwardenShield };
 
@@ -88,7 +89,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async chooseCipher(cipher: CipherView): Promise<void> {
+  async chooseCipher(cipher: CipherViewLike): Promise<void> {
     if (!this.session) {
       await this.dialogService.openSimpleDialog({
         title: { key: "unexpectedErrorShort" },
@@ -103,7 +104,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     }
 
     const isConfirmed = await this.validateCipherAccess(cipher);
-    this.session.confirmChosenCipher(cipher.id, isConfirmed);
+    this.session.confirmChosenCipher(cipher.id as string, isConfirmed);
 
     await this.closeModal();
   }
@@ -146,17 +147,21 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe({
-        next: (ciphers) => this.ciphersSubject.next(ciphers as CipherView[]),
+        next: (ciphers) => this.ciphersSubject.next(ciphers),
         error: (error: unknown) => this.logService.error("Failed to load ciphers", error),
       });
   }
 
-  private async validateCipherAccess(cipher: CipherView): Promise<boolean> {
+  getSubtitle(cipher: CipherViewLike): string | undefined {
+    return CipherViewLikeUtils.subtitle(cipher)
+  }
+
+  private async validateCipherAccess(cipher: CipherViewLike): Promise<boolean> {
     if (cipher.reprompt !== CipherRepromptType.None) {
       return this.passwordRepromptService.showPasswordPrompt();
     }
 
-    const username = cipher.login.username ?? cipher.name;
+    const username = CipherViewLikeUtils.getLogin(cipher).username ?? cipher.name;
     return this.session.promptForUserVerification(username, "Verify it's you to log in");
   }
 }

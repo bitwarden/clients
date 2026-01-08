@@ -34,6 +34,7 @@ import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.
 
 import { NativeAutofillUserVerificationCommand } from "../../platform/main/autofill/user-verification.command";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 /**
  * This type is used to pass the window position from the native UI
@@ -152,10 +153,10 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
             return;
           }
           const cipherView = await firstValueFrom(this.cipherService.cipherListViews$(activeUserId).pipe(map((ciphers) => {
-            return ciphers.find((cipher) => cipher.id == selectedCipherId && !cipher.deletedDate) as CipherView;
+            return ciphers.find((cipher) => cipher.id == selectedCipherId && !cipher.deletedDate);
           })));
 
-          const username = cipherView.login.username ?? cipherView.name
+          const username = CipherViewLikeUtils.getLogin(cipherView).username ?? cipherView.name
           try {
             // TODO: internationalization
             const isConfirmed = await this.promptForUserVerification(username, "Verify it's you to log in with Bitwarden.");
