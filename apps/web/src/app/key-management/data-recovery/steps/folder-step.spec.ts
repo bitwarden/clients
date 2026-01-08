@@ -247,7 +247,7 @@ describe("FolderStep", () => {
         folders: [
           { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
           { id: "folder-2", name: { encryptedString: "encrypted-name-2" } },
-        ] as unknown as Folder[],
+        ] as Folder[],
       };
 
       (PureCrypto.symmetric_decrypt_string as jest.Mock).mockImplementation(() => {
