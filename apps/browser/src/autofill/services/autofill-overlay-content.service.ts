@@ -1086,15 +1086,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         pageDetails,
       )
     ) {
-      const hasUsernameField = [...this.formFieldElements.values()].some((field) =>
-        this.inlineMenuFieldQualificationService.isUsernameField(field),
-      );
-
-      if (hasUsernameField) {
-        void this.setQualifiedLoginFillType(autofillFieldData);
-      } else {
-        this.setQualifiedAccountCreationFillType(autofillFieldData);
-      }
+      this.setQualifiedAccountCreationFillType(autofillFieldData);
       return false;
     }
 
