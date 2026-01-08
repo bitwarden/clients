@@ -7,10 +7,7 @@
       >
         <h1 class="tw-text-base tw-font-semibold tw-m-0">{{ "send" | i18n }}</h1>
         @if (!disableSend()) {
-          <tools-new-send-dropdown-v2
-            [buttonType]="'primary'"
-            (addSend)="addSend($event)"
-          ></tools-new-send-dropdown-v2>
+          <tools-new-send-dropdown-v2 [buttonType]="'primary'" (addSend)="addSend($event)" />
         }
       </div>
 
