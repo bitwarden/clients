@@ -153,9 +153,6 @@ export class ContextMenuClickedHandler {
     }
 
     await this.accountService.setAccountActivity(activeUserId, new Date());
-    if (!cipher) {
-      return;
-    }
     switch (info.parentMenuItemId) {
       case AUTOFILL_ID:
       case AUTOFILL_IDENTITY_ID:
@@ -164,6 +161,10 @@ export class ContextMenuClickedHandler {
 
         if (cipherType) {
           await openAddEditVaultItemPopout(tab, { cipherType });
+          break;
+        }
+
+        if (!cipher) {
           break;
         }
 
@@ -185,7 +186,7 @@ export class ContextMenuClickedHandler {
           break;
         }
 
-        if (!cipher.login?.username) {
+        if (!cipher || !cipher.login?.username) {
           break;
         }
 
@@ -197,7 +198,7 @@ export class ContextMenuClickedHandler {
           break;
         }
 
-        if (!cipher.login?.password) {
+        if (!cipher || !cipher.login?.password) {
           break;
         }
 
@@ -222,7 +223,7 @@ export class ContextMenuClickedHandler {
           break;
         }
 
-        if (!cipher.login?.totp) {
+        if (!cipher || !cipher.login?.totp) {
           break;
         }
 
