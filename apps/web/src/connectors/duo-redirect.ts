@@ -1,9 +1,28 @@
 import { getQsParam } from "./common";
 import { TranslationService } from "./translation.service";
-import { buildMobileCallbackUri } from "./utils/callbackUri";
 
 const mobileDesktopCallback = "bitwarden://duo-callback";
 let localeService: TranslationService | null = null;
+
+function appLinkHost(): string {
+  const h = window.location.hostname || "";
+  if (h.endsWith("bitwarden.eu")) {
+    return "bitwarden.eu";
+  }
+  if (h.endsWith("bitwarden.pw")) {
+    return "bitwarden.pw";
+  }
+  return "bitwarden.com";
+}
+
+function buildMobileDuoCallbackUriFromParam(): string {
+  const scheme = (getQsParam("deeplinkScheme") || "").toLowerCase();
+  const path = "duo-callback";
+  if (scheme === "https") {
+    return `https://${appLinkHost()}/duo-callback`;
+  }
+  return `bitwarden://${path}`;
+}
 
 window.addEventListener("load", async () => {
   const redirectUrl = getQsParam("duoFramelessUrl");
@@ -39,25 +58,23 @@ window.addEventListener("load", async () => {
   } else if (client === "browser") {
     window.postMessage({ command: "duoResult", code, state }, window.location.origin);
     displayHandoffMessage(client);
-  } else if (client === "mobile" || client === "desktop") {
-    if (client === "desktop") {
-      displayHandoffMessage(client);
-      document.location.replace(
-        mobileDesktopCallback +
-          "?code=" +
-          encodeURIComponent(code) +
-          "&state=" +
-          encodeURIComponent(state),
-      );
-    } else {
-      document.location.replace(
-        buildMobileCallbackUri("duo") +
-          "?code=" +
-          encodeURIComponent(code) +
-          "&state=" +
-          encodeURIComponent(state),
-      );
-    }
+  } else if (client === "mobile") {
+    document.location.replace(
+      buildMobileDuoCallbackUriFromParam() +
+        "?code=" +
+        encodeURIComponent(code) +
+        "&state=" +
+        encodeURIComponent(state),
+    );
+  } else if (client === "desktop") {
+    displayHandoffMessage(client);
+    document.location.replace(
+      mobileDesktopCallback +
+        "?code=" +
+        encodeURIComponent(code) +
+        "&state=" +
+        encodeURIComponent(state),
+    );
   }
 });
 
