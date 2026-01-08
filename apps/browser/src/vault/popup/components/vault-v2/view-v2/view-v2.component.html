@@ -1,13 +1,13 @@
 <popup-page>
   <popup-header slot="header" [pageTitle]="headerText" showBackButton>
-    @if (cipher.isArchived) {
-      <ng-container slot="end">
+    <ng-container slot="end">
+      @if (cipher.isArchived) {
         <span bitBadge variant="secondary" [appA11yTitle]="'archived' | i18n">
           {{ "archived" | i18n }}
         </span>
-        <app-pop-out />
-      </ng-container>
-    }
+      }
+      <app-pop-out />
+    </ng-container>
   </popup-header>
 
   <app-cipher-view *ngIf="cipher" [cipher]="cipher"></app-cipher-view>

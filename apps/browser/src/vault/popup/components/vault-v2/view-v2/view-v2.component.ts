@@ -117,10 +117,6 @@ export class ViewV2Component {
   senderTabId?: number;
 
   protected showFooter$: Observable<boolean>;
-  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.archiveService.userCanArchive$(userId)),
-  );
 
   constructor(
     private passwordRepromptService: PasswordRepromptService,
