@@ -14,6 +14,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { KeyService } from "../../abstractions/key.service";
 import { UserAsymmetricKeysRegenerationApiService } from "../abstractions/user-asymmetric-key-regeneration-api.service";
 import { UserAsymmetricKeysRegenerationService } from "../abstractions/user-asymmetric-key-regeneration.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 
 export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmetricKeysRegenerationService {
   constructor(
@@ -24,6 +25,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     private sdkService: SdkService,
     private apiService: ApiService,
     private configService: ConfigService,
+    private accountCryptographicStateService: AccountCryptographicStateService
   ) {}
 
   async regenerateIfNeeded(userId: UserId): Promise<void> {
@@ -162,6 +164,11 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     }
 
     await this.keyService.setPrivateKey(makeKeyPairResponse.userKeyEncryptedPrivateKey, userId);
+    await this.accountCryptographicStateService.setAccountCryptographicState({
+      "V1": {
+        private_key: makeKeyPairResponse.userKeyEncryptedPrivateKey
+      }
+    }, userId);
     this.logService.info(
       "[UserAsymmetricKeyRegeneration] User's asymmetric keys successfully regenerated.",
     );

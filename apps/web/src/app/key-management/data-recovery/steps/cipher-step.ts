@@ -5,6 +5,7 @@ import { DialogService } from "@bitwarden/components";
 import { LogRecorder } from "../log-recorder";
 
 import { RecoveryStep, RecoveryWorkingData } from "./recovery-step";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 export class CipherStep implements RecoveryStep {
   title = "recoveryStepCipherTitle";
@@ -14,7 +15,8 @@ export class CipherStep implements RecoveryStep {
 
   constructor(
     private apiService: ApiService,
-    private cipherService: CipherEncryptionService,
+    private cipherEncryptionService: CipherEncryptionService,
+    private cipherService: CipherService,
     private dialogService: DialogService,
   ) {}
 
@@ -31,7 +33,7 @@ export class CipherStep implements RecoveryStep {
     const userCiphers = workingData.ciphers.filter((c) => c.organizationId == null);
     for (const cipher of userCiphers) {
       try {
-        await this.cipherService.decrypt(cipher, workingData.userId);
+        await this.cipherEncryptionService.decrypt(cipher, workingData.userId);
         this.decryptableCipherIds.push(cipher.id);
       } catch {
         logger.record(`Cipher ID ${cipher.id} was undecryptable`);
@@ -76,6 +78,7 @@ export class CipherStep implements RecoveryStep {
     for (const cipherId of this.undecryptableCipherIds) {
       try {
         await this.apiService.deleteCipher(cipherId);
+        await this.cipherService.delete(cipherId, workingData.userId);
         logger.record(`Deleted cipher ${cipherId}`);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);

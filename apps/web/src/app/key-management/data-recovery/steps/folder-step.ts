@@ -6,6 +6,7 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 import { LogRecorder } from "../log-recorder";
 
 import { RecoveryStep, RecoveryWorkingData } from "./recovery-step";
+import { FolderService,InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 
 export class FolderStep implements RecoveryStep {
   title = "recoveryStepFoldersTitle";
@@ -14,7 +15,8 @@ export class FolderStep implements RecoveryStep {
   private decryptableFolderIds: string[] = [];
 
   constructor(
-    private folderService: FolderApiServiceAbstraction,
+    private folderApiService: FolderApiServiceAbstraction,
+    private internalFolderService: InternalFolderService,
     private dialogService: DialogService,
   ) {}
 
@@ -85,7 +87,9 @@ export class FolderStep implements RecoveryStep {
 
     for (const folderId of this.undecryptableFolderIds) {
       try {
-        await this.folderService.delete(folderId, workingData.userId);
+        await this.folderApiService.delete(folderId, workingData.userId);
+        await this.internalFolderService.clearDecryptedFolderState(workingData.userId);
+
         logger.record(`Deleted folder ${folderId}`);
       } catch (error) {
         logger.record(`Failed to delete folder ${folderId}: ${error}`);
