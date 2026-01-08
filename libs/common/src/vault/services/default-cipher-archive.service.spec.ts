@@ -165,6 +165,7 @@ describe("DefaultCipherArchiveService", () => {
 
       mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      featureFlag.next(true);
 
       const result = await firstValueFrom(service.showSubscriptionEndedMessaging$(userId));
 
@@ -219,7 +220,7 @@ describe("DefaultCipherArchiveService", () => {
           } as any,
         }),
       );
-      mockCipherService.replace.mockResolvedValue(undefined);
+      mockCipherService.upsert.mockResolvedValue(undefined);
     });
 
     it("should archive single cipher", async () => {
@@ -233,13 +234,13 @@ describe("DefaultCipherArchiveService", () => {
         true,
       );
       expect(mockCipherService.ciphers$).toHaveBeenCalledWith(userId);
-      expect(mockCipherService.replace).toHaveBeenCalledWith(
-        expect.objectContaining({
-          [cipherId]: expect.objectContaining({
+      expect(mockCipherService.upsert).toHaveBeenCalledWith(
+        [
+          expect.objectContaining({
             archivedDate: "2024-01-15T10:30:00.000Z",
             revisionDate: "2024-01-15T10:31:00.000Z",
           }),
-        }),
+        ],
         userId,
       );
     });
@@ -282,7 +283,7 @@ describe("DefaultCipherArchiveService", () => {
           } as any,
         }),
       );
-      mockCipherService.replace.mockResolvedValue(undefined);
+      mockCipherService.upsert.mockResolvedValue(undefined);
     });
 
     it("should unarchive single cipher", async () => {
@@ -296,12 +297,12 @@ describe("DefaultCipherArchiveService", () => {
         true,
       );
       expect(mockCipherService.ciphers$).toHaveBeenCalledWith(userId);
-      expect(mockCipherService.replace).toHaveBeenCalledWith(
-        expect.objectContaining({
-          [cipherId]: expect.objectContaining({
+      expect(mockCipherService.upsert).toHaveBeenCalledWith(
+        [
+          expect.objectContaining({
             revisionDate: "2024-01-15T10:31:00.000Z",
           }),
-        }),
+        ],
         userId,
       );
     });
