@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { EMPTY, Observable, of } from "rxjs";
+import { Observable, of } from "rxjs";
 
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,9 +16,7 @@ describe("PhishingDetectionService", () => {
 
   beforeEach(() => {
     logService = { info: jest.fn(), debug: jest.fn(), warning: jest.fn(), error: jest.fn() } as any;
-    phishingDataService = mock<PhishingDataService>({
-      update$: EMPTY,
-    });
+    phishingDataService = mock();
     messageListener = mock<MessageListener>({
       messages$(_commandDefinition) {
         return new Observable();
