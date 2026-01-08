@@ -17,8 +17,9 @@ import { BulkRemoveDialogComponent } from "./components/bulk/bulk-remove-dialog.
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
 import { UserDialogModule } from "./components/member-dialog";
+import { MembersComponent } from "./deprecated_members.component";
 import { MembersRoutingModule } from "./members-routing.module";
-import { MembersComponent } from "./members.component";
+import { vNextMembersComponent } from "./members.component";
 import {
   OrganizationMembersService,
   MemberActionsService,
@@ -44,6 +45,7 @@ import {
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
     MembersComponent,
+    vNextMembersComponent,
     BulkDeleteDialogComponent,
   ],
   providers: [
