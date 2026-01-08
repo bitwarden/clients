@@ -144,8 +144,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
   }
 
+  // Archive button will not show in Admin Console
   protected get showArchiveButton() {
-    if (!this.archiveEnabled()) {
+    if (!this.archiveEnabled() || this.viewingOrgVault) {
       return false;
     }
 
