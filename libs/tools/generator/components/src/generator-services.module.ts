@@ -1,5 +1,4 @@
 import { NgModule } from "@angular/core";
-import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -11,7 +10,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
@@ -38,7 +36,6 @@ import {
   DefaultCredentialGeneratorService,
 } from "@bitwarden/generator-core";
 import { KeyService } from "@bitwarden/key-management";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 export const RANDOMIZER = new SafeInjectionToken<Randomizer>("Randomizer");
 const GENERATOR_SERVICE_PROVIDER = new SafeInjectionToken<providers.CredentialGeneratorProviders>(
@@ -50,11 +47,6 @@ const GENERATOR_SERVICE_PROVIDER = new SafeInjectionToken<providers.CredentialGe
 export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>(
   "SystemServices",
 );
-
-async function getSdkClient(sdk: SdkService) {
-  const sdkService: BitwardenClient = await firstValueFrom(sdk.client$);
-  return sdkService;
-}
 
 /** Shared module containing generator component dependencies */
 @NgModule({
@@ -153,19 +145,13 @@ async function getSdkClient(sdk: SdkService) {
           Object.values(BuiltIn),
         );
 
-        let sdkService;
-        try {
-          sdkService = await getSdkClient(system.sdk);
-        } catch (err) {
-          fail(err);
-        }
         const profile = new providers.GeneratorProfileProvider(userStateDeps, system.policy);
 
         const generator: providers.GeneratorDependencyProvider = {
           randomizer: random,
           client: new RestClient(api, i18n),
           i18nService: i18n,
-          sdk: sdkService,
+          sdk: system.sdk,
           now: Date.now,
         };
 
