@@ -10,6 +10,7 @@ import { LogRecorder } from "../log-recorder";
 
 import { CipherStep } from "./cipher-step";
 import { RecoveryWorkingData } from "./recovery-step";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 describe("CipherStep", () => {
   let cipherStep: CipherStep;
@@ -17,14 +18,16 @@ describe("CipherStep", () => {
   let cipherEncryptionService: MockProxy<CipherEncryptionService>;
   let dialogService: MockProxy<DialogService>;
   let logger: MockProxy<LogRecorder>;
+  let cipherService: MockProxy<CipherService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
     cipherEncryptionService = mock<CipherEncryptionService>();
     dialogService = mock<DialogService>();
     logger = mock<LogRecorder>();
+    cipherService = mock<CipherService>();
 
-    cipherStep = new CipherStep(apiService, cipherEncryptionService, dialogService);
+    cipherStep = new CipherStep(apiService, cipherEncryptionService, cipherService, dialogService);
   });
 
   describe("runDiagnostics", () => {

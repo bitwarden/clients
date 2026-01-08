@@ -16,6 +16,8 @@ import { LogService } from "@bitwarden/logging";
 
 import { DataRecoveryComponent, StepStatus } from "./data-recovery.component";
 import { RecoveryStep, RecoveryWorkingData } from "./steps";
+import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 // Mock SdkLoadService
 jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => ({
@@ -40,6 +42,8 @@ describe("DataRecoveryComponent", () => {
   let mockLogService: MockProxy<LogService>;
   let mockCryptoFunctionService: MockProxy<CryptoFunctionService>;
   let mockFileDownloadService: MockProxy<FileDownloadService>;
+  let mockInternalFolderService: MockProxy<InternalFolderService>;
+  let mockCipherService: MockProxy<CipherService>;
 
   const mockUserId = "user-id" as UserId;
 
@@ -55,6 +59,8 @@ describe("DataRecoveryComponent", () => {
     mockLogService = mock<LogService>();
     mockCryptoFunctionService = mock<CryptoFunctionService>();
     mockFileDownloadService = mock<FileDownloadService>();
+    mockInternalFolderService = mock<InternalFolderService>();
+    mockCipherService = mock<CipherService>();
 
     mockI18nService.t.mockImplementation((key) => `${key}_used-i18n`);
 
@@ -75,6 +81,8 @@ describe("DataRecoveryComponent", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: CryptoFunctionService, useValue: mockCryptoFunctionService },
         { provide: FileDownloadService, useValue: mockFileDownloadService },
+        { provide: InternalFolderService, useValue: mockInternalFolderService },
+        { provide: CipherService, useValue: mockCipherService },
       ],
     }).compileComponents();
 
