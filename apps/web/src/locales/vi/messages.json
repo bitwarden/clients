@@ -3146,6 +3146,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Để lấy lại quyền truy cập vào lưu trữ của bạn, hãy khởi động lại gói đăng ký Cao cấp. Nếu bạn chỉnh sửa chi tiết cho một mục đã lưu trữ trước khi khởi động lại, mục đó sẽ được chuyển trở lại kho của bạn."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "restartPremium": {
     "message": "Khởi động lại gói Cao cấp"
   },
@@ -11608,6 +11611,9 @@
   },
   "unArchive": {
     "message": "Hủy lưu trữ"
+  },
+  "archived": {
+    "message": "Archived"
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"

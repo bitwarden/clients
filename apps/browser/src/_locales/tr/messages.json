@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Arşivi kullanmak için premium üyelik gereklidir."
   },
+  "itemRestored": {
+    "message": "Kayıt geri yüklendi"
+  },
   "edit": {
     "message": "Düzenle"
   },
@@ -5663,6 +5666,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu hesap risk altında ve web sitesi eksik. Bir web sitesi ekleyin ve güvenliğinizi artırmak için parolayı değiştirin."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "Web sitesi eksik"
