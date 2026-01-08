@@ -215,7 +215,6 @@ module.exports.buildConfig = function buildConfig(params) {
       NODE_ENV: NODE_ENV === "production" ? "production" : "development",
       APPLICATION_VERSION: pjson.version,
       CACHE_TAG: Math.random().toString(36).substring(7),
-      SELF_HOSTED: process.env.SELF_HOSTED ?? (ENV === "selfhosted" ? "true" : "false"),
       URLS: envConfig["urls"] ?? {},
       STRIPE_KEY: envConfig["stripeKey"] ?? "",
       BRAINTREE_KEY: envConfig["braintreeKey"] ?? "",
@@ -223,15 +222,6 @@ module.exports.buildConfig = function buildConfig(params) {
       FLAGS: envConfig["flags"] ?? {},
       DEV_FLAGS: NODE_ENV === "development" ? envConfig["devFlags"] : {},
       ADDITIONAL_REGIONS: envConfig["additionalRegions"] ?? [],
-    }),
-    // compile‑time constant for so that at compile time logic branches can be pruned that aren't
-    // possible.
-    new webpack.DefinePlugin({
-      __PM_6962_NATIVE_MOBILE_APPS_CLIENT_UPDATES__: JSON.stringify(
-        (process.env.PM_6962_NATIVE_MOBILE_APPS_CLIENT_UPDATES
-          ? process.env.PM_6962_NATIVE_MOBILE_APPS_CLIENT_UPDATES.toLowerCase() === "true"
-          : ENV !== "selfhosted") === true,
-      ),
     }),
     new AngularWebpackPlugin({
       tsconfig: params.tsConfig,
