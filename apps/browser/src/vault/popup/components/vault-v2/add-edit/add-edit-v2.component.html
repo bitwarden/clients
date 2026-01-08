@@ -12,9 +12,9 @@
         <span bitBadge variant="secondary" [appA11yTitle]="'archived' | i18n">
           {{ "archived" | i18n }}
         </span>
-        <app-pop-out />
       </ng-container>
     }
+    <app-pop-out slot="end" />
   </popup-header>
 
   <vault-cipher-form
