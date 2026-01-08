@@ -1,0 +1,333 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs/blocks";
+import * as StorageCardStories from "./storage-card.component.stories";
+
+<Meta of={StorageCardStories} />
+
+# Storage Card
+
+A visual component for displaying encrypted file storage usage with a progress bar and action
+buttons. The component dynamically adapts its appearance based on storage capacity (empty, used, or
+full).
+
+<Canvas of={StorageCardStories.Empty} />
+
+## Table of Contents
+
+- [Usage](#usage)
+- [API](#api)
+  - [Inputs](#inputs)
+  - [Outputs](#outputs)
+- [Data Structure](#data-structure)
+- [Storage States](#storage-states)
+- [Design](#design)
+- [Examples](#examples)
+  - [Empty](#empty)
+  - [Used](#used)
+  - [Full](#full)
+  - [Low Usage (10%)](#low-usage-10)
+  - [Medium Usage (75%)](#medium-usage-75)
+  - [Nearly Full (95%)](#nearly-full-95)
+  - [Large Storage Pool (1TB)](#large-storage-pool-1tb)
+  - [Small Storage Pool (1GB)](#small-storage-pool-1gb)
+  - [Actions Disabled](#actions-disabled)
+- [Features](#features)
+- [Do's and Don'ts](#dos-and-donts)
+- [Accessibility](#accessibility)
+
+## Usage
+
+The storage card component displays storage usage information on billing pages, account management
+interfaces, and subscription dashboards. It provides visual feedback through a progress bar and
+action buttons for managing storage.
+
+```ts
+import { StorageCardComponent, Storage } from "@bitwarden/subscription";
+```
+
+```html
+<billing-storage-card [storage]="storage" (callToActionClicked)="handleStorageAction($event)">
+</billing-storage-card>
+```
+
+## API
+
+### Inputs
+
+| Input                   | Type      | Description                                                            |
+| ----------------------- | --------- | ---------------------------------------------------------------------- |
+| `storage`               | `Storage` | **Required.** Storage data including available, used, and readable     |
+| `callsToActionDisabled` | `boolean` | Optional. Disables both action buttons when true. Defaults to `false`. |
+
+### Outputs
+
+| Output                | Type                | Description                                             |
+| --------------------- | ------------------- | ------------------------------------------------------- |
+| `callToActionClicked` | `StorageCardAction` | Emitted when a user clicks add or remove storage button |
+
+**StorageCardAction Type:**
+
+```typescript
+type StorageCardAction = "add-storage" | "remove-storage";
+```
+
+## Data Structure
+
+The component uses the `Storage` type:
+
+```typescript
+type Storage = {
+  available: number; // Total GB available
+  used: number; // GB used
+  readableUsed: string; // Formatted string (e.g., "2.5 GB")
+};
+```
+
+## Storage States
+
+The component automatically adapts its appearance based on storage usage:
+
+- **Empty**: 0% used - Gray progress bar, "Storage" title, empty description
+- **Used**: 1-99% used - Blue progress bar, "Storage" title, used description
+- **Full**: 100% used - Red progress bar, "Storage full" title, full description with warning
+
+Key behaviors:
+
+- Progress bar color changes from blue (primary) to red (danger) when full
+- Remove storage button is disabled when storage is full
+- Title changes to "Storage full" when at capacity
+- Description provides context-specific messaging
+
+## Design
+
+The component follows the Bitwarden design system with:
+
+- **Visual Progress Bar**: Animated bar showing storage usage percentage
+- **Responsive Colors**: Blue for normal usage, red for full capacity
+- **Action Buttons**: Secondary button style for add/remove actions
+- **Modern Angular**: Uses signal inputs (`input.required`) and `computed` signals
+- **OnPush Change Detection**: Optimized performance
+- **Typography**: Uses `bitTypography` directives for consistent text styling
+- **Tailwind CSS**: Uses `tw-` prefixed utility classes for styling
+- **Card Layout**: Wrapped in `bit-card` component with consistent spacing
+
+## Examples
+
+### Empty
+
+Storage with no files uploaded:
+
+<Canvas of={StorageCardStories.Empty} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 5,
+    used: 0,
+    readableUsed: '0 GB'
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
+
+### Used
+
+Storage with partial usage (50%):
+
+<Canvas of={StorageCardStories.Used} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 5,
+    used: 2.5,
+    readableUsed: '2.5 GB'
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
+
+### Full
+
+Storage at full capacity with disabled remove button:
+
+<Canvas of={StorageCardStories.Full} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 5,
+    used: 5,
+    readableUsed: '5 GB'
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
+
+**Note:** When storage is full, the "Remove storage" button is disabled and the progress bar turns
+red.
+
+### Low Usage (10%)
+
+Minimal storage usage:
+
+<Canvas of={StorageCardStories.LowUsage} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 5,
+    used: 0.5,
+    readableUsed: '500 MB'
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
+
+### Medium Usage (75%)
+
+Substantial storage usage:
+
+<Canvas of={StorageCardStories.MediumUsage} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 5,
+    used: 3.75,
+    readableUsed: '3.75 GB'
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
+
+### Nearly Full (95%)
+
+Storage approaching capacity:
+
+<Canvas of={StorageCardStories.NearlyFull} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 5,
+    used: 4.75,
+    readableUsed: '4.75 GB'
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
+
+### Large Storage Pool (1TB)
+
+Enterprise-level storage allocation:
+
+<Canvas of={StorageCardStories.LargeStorage} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 1000,
+    used: 734,
+    readableUsed: '734 GB'
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
+
+### Small Storage Pool (1GB)
+
+Minimal storage allocation:
+
+<Canvas of={StorageCardStories.SmallStorage} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 1,
+    used: 0.8,
+    readableUsed: '800 MB'
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
+
+### Actions Disabled
+
+Storage card with action buttons disabled (useful during async operations):
+
+<Canvas of={StorageCardStories.ActionsDisabled} />
+
+```html
+<billing-storage-card
+  [storage]="{
+    available: 5,
+    used: 2.5,
+    readableUsed: '2.5 GB'
+  }"
+  [callsToActionDisabled]="true"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-storage-card>
+```
+
+**Note:** Use `callsToActionDisabled` to prevent user interactions during async operations like
+adding or removing storage.
+
+## Features
+
+- **Visual Progress Bar**: Animated progress indicator showing storage usage percentage
+- **Dynamic Colors**: Blue (primary) for normal usage, red (danger) when full
+- **Context-Aware Titles**: Changes from "Storage" to "Storage full" at capacity
+- **Descriptive Messages**: Clear descriptions of current storage status
+- **Action Buttons**: Add and remove storage with appropriate enabled/disabled states
+- **Automatic Calculations**: Percentage computed from available and used values
+- **Responsive Design**: Adapts to container width with flexible layout
+- **Computed Signals**: Efficient reactive computations using Angular signals
+- **Type Safety**: Strong TypeScript typing for storage data
+- **Internationalization**: All text uses i18n service for translation support
+- **Event Emission**: Typed events for handling user actions
+
+## Do's and Don'ts
+
+### ✅ Do
+
+- Handle both `add-storage` and `remove-storage` events in parent components
+- Provide accurate storage data with `available`, `used`, and `readableUsed` fields
+- Use human-readable format strings (e.g., "2.5 GB", "500 MB") for `readableUsed`
+- Keep `used` value less than or equal to `available` under normal circumstances
+- Update storage data in real-time when user adds or removes storage
+- Disable UI interactions when storage operations are in progress
+- Show loading states during async storage operations
+
+### ❌ Don't
+
+- Omit the `readableUsed` field - it's required for display
+- Use inconsistent units between `available` and `used` (both should be in GB)
+- Allow negative values for storage amounts
+- Ignore the `callToActionClicked` events - they require handling
+- Display inaccurate or stale storage information
+- Override progress bar colors without considering accessibility
+- Show progress percentages greater than 100%
+- Use this component for non-storage related progress indicators
+
+## Accessibility
+
+The component includes:
+
+- **Semantic HTML**: Proper heading hierarchy with `<h3>` and `<p>` tags
+- **Button Accessibility**: Proper `type="button"` attributes on all buttons
+- **Disabled State**: Visual and functional disabled state for remove button when full
+- **Color Contrast**: Sufficient contrast ratios for text and progress bar colors
+- **Keyboard Navigation**: All buttons are keyboard accessible with tab navigation
+- **Focus Management**: Clear focus indicators on interactive elements
+- **Screen Reader Support**: Descriptive text for all storage states and actions
+- **ARIA Compliance**: Uses semantic HTML reducing need for explicit ARIA attributes
+- **Visual Feedback**: Multiple indicators of state (color, text, disabled buttons)

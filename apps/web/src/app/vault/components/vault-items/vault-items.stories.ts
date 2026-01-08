@@ -39,7 +39,9 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { LayoutComponent } from "@bitwarden/components";
+import { LayoutComponent, StorybookGlobalStateProvider } from "@bitwarden/components";
+import { GlobalStateProvider } from "@bitwarden/state";
+import { RoutedVaultFilterService } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/services/routed-vault-filter.service";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -150,12 +152,27 @@ export default {
             hasArchiveFlagEnabled$: of(true),
           },
         },
+        {
+          provide: RoutedVaultFilterService,
+          useValue: {
+            filter$: of({
+              organizationId: null,
+              collectionId: null,
+              folderId: null,
+              type: null,
+            }),
+          },
+        },
       ],
     }),
     applicationConfig({
       providers: [
         importProvidersFrom(RouterModule.forRoot([], { useHash: true })),
         importProvidersFrom(PreloadedEnglishI18nModule),
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
       ],
     }),
   ],
