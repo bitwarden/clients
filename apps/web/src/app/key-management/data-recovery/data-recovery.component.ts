@@ -8,7 +8,9 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
+import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { ButtonModule, DialogService } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
@@ -61,6 +63,8 @@ export class DataRecoveryComponent {
   private cryptoFunctionService = inject(CryptoFunctionService);
   private logService = inject(LogService);
   private fileDownloadService = inject(FileDownloadService);
+  private internalFolderService = inject(InternalFolderService);
+  private cipherService = inject(CipherService);
 
   private logger: LogRecorder = new LogRecorder(this.logService);
   private recoverySteps: RecoveryStep[] = [
@@ -71,8 +75,13 @@ export class DataRecoveryComponent {
       this.dialogService,
       this.cryptoFunctionService,
     ),
-    new FolderStep(this.folderApiService, this.dialogService),
-    new CipherStep(this.apiService, this.cipherEncryptService, this.dialogService),
+    new FolderStep(this.folderApiService, this.internalFolderService, this.dialogService),
+    new CipherStep(
+      this.apiService,
+      this.cipherEncryptService,
+      this.cipherService,
+      this.dialogService,
+    ),
   ];
   private workingData: RecoveryWorkingData | null = null;
 
