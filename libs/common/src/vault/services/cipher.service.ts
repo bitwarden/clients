@@ -1196,12 +1196,15 @@ export class CipherService implements CipherServiceAbstraction {
     await this.encryptedCiphersState(userId).update(() => ciphers);
   }
 
-  async upsert(cipher: CipherData | CipherData[]): Promise<Record<CipherId, CipherData>> {
+  async upsert(
+    cipher: CipherData | CipherData[],
+    userId?: UserId,
+  ): Promise<Record<CipherId, CipherData>> {
     const ciphers = cipher instanceof CipherData ? [cipher] : cipher;
     const res = await this.updateEncryptedCipherState((current) => {
       ciphers.forEach((c) => (current[c.id as CipherId] = c));
       return current;
-    });
+    }, userId);
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -1458,7 +1461,6 @@ export class CipherService implements CipherServiceAbstraction {
         return;
       }
       ciphers[cipherId].deletedDate = new Date().toISOString();
-      ciphers[cipherId].archivedDate = null;
     };
 
     if (typeof id === "string") {
@@ -1656,12 +1658,14 @@ export class CipherService implements CipherServiceAbstraction {
     const key =
       attachment.key != null
         ? attachment.key
-        : await firstValueFrom(
-            this.keyService.orgKeys$(userId).pipe(
-              filterOutNullish(),
-              map((orgKeys) => orgKeys[cipherDomain.organizationId as OrganizationId] as OrgKey),
-            ),
-          );
+        : cipherDomain.organizationId
+          ? await firstValueFrom(
+              this.keyService.orgKeys$(userId).pipe(
+                filterOutNullish(),
+                map((orgKeys) => orgKeys[cipherDomain.organizationId as OrganizationId] as OrgKey),
+              ),
+            )
+          : await firstValueFrom(this.keyService.userKey$(userId).pipe(filterOutNullish()));
     return await this.encryptService.decryptFileData(encBuf, key);
   }
 
@@ -1826,6 +1830,95 @@ export class CipherService implements CipherServiceAbstraction {
       );
     } catch (e) {
       throw new Error((e as ErrorResponse).getSingleMessage());
+    }
+  }
+
+  /**
+   * Upgrade all old attachments for a cipher by downloading, decrypting, re-uploading with new key, and deleting old.
+   * @param cipher
+   * @param userId
+   * @param attachmentId Optional specific attachment ID to upgrade. If not provided, all old attachments will be upgraded.
+   */
+  async upgradeOldCipherAttachments(
+    cipher: CipherView,
+    userId: UserId,
+    attachmentId?: string,
+  ): Promise<CipherView> {
+    if (!cipher.hasOldAttachments) {
+      return cipher;
+    }
+
+    let cipherDomain = await this.get(cipher.id, userId);
+
+    for (const attachmentView of cipher.attachments) {
+      if (
+        attachmentView.key != null ||
+        (attachmentId != null && attachmentView.id !== attachmentId)
+      ) {
+        continue;
+      }
+
+      try {
+        // 1. Get download URL
+        const downloadUrl = await this.getAttachmentDownloadUrl(cipher.id, attachmentView);
+
+        // 2. Download attachment data
+        const dataResponse = await this.apiService.nativeFetch(
+          new Request(downloadUrl, { cache: "no-store" }),
+        );
+
+        if (dataResponse.status !== 200) {
+          throw new Error(`Failed to download attachment. Status: ${dataResponse.status}`);
+        }
+
+        // 3. Decrypt the attachment
+        const decryptedBuffer = await this.getDecryptedAttachmentBuffer(
+          cipher.id as CipherId,
+          attachmentView,
+          dataResponse,
+          userId,
+        );
+
+        // 4. Re-upload with attachment key
+        cipherDomain = await this.saveAttachmentRawWithServer(
+          cipherDomain,
+          attachmentView.fileName,
+          decryptedBuffer,
+          userId,
+        );
+
+        // 5. Delete the old attachment
+        const cipherData = await this.deleteAttachmentWithServer(
+          cipher.id,
+          attachmentView.id,
+          userId,
+        );
+        cipherDomain = new Cipher(cipherData);
+      } catch (e) {
+        this.logService.error(`Failed to upgrade attachment ${attachmentView.id}`, e);
+        throw e;
+      }
+    }
+
+    return await this.decrypt(cipherDomain, userId);
+  }
+
+  private async getAttachmentDownloadUrl(
+    cipherId: string,
+    attachmentView: AttachmentView,
+  ): Promise<string> {
+    try {
+      const attachmentResponse = await this.apiService.getAttachmentData(
+        cipherId,
+        attachmentView.id,
+      );
+      return attachmentResponse.url;
+    } catch (e) {
+      // Fall back to the attachment's stored URL
+      if (e instanceof ErrorResponse && e.statusCode === 404 && attachmentView.url) {
+        return attachmentView.url;
+      }
+      throw new Error(`Failed to get download URL for attachment ${attachmentView.id}`);
     }
   }
 
