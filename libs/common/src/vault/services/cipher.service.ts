@@ -910,9 +910,9 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView | void> {
-    const resultCipherView = firstValueFrom(
+    const resultCipherView = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map(async (sdk) => {
+        switchMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -927,7 +927,7 @@ export class CipherService implements CipherServiceAbstraction {
           return CipherView.fromSdkCipherView(result);
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to encrypt cipher: ${error}`);
+          this.logService.error(`Failed to create cipher: ${error}`);
           return EMPTY;
         }),
       ),
@@ -988,9 +988,9 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const resultCipherView = firstValueFrom(
+    const resultCipherView = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map(async (sdk) => {
+        switchMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -1009,7 +1009,7 @@ export class CipherService implements CipherServiceAbstraction {
           return CipherView.fromSdkCipherView(result);
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to encrypt cipher: ${error}`);
+          this.logService.error(`Failed to update cipher: ${error}`);
           return EMPTY;
         }),
       ),
