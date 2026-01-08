@@ -2634,6 +2634,9 @@
   "key": {
     "message": "Ключ"
   },
+  "unnamedKey": {
+    "message": "Ключ без име"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Код за потвърждаване"
   },
@@ -3142,6 +3145,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Ако искате отново да получите достъп до архива си, трябва да подновите платения си абонамент. Ако редактирате данните за архивиран елемент преди подновяването, той ще бъде върнат в трезора."
+  },
+  "itemRestored": {
+    "message": "Записът бе възстановен"
   },
   "restartPremium": {
     "message": "Подновяване на платения абонамент"
@@ -11606,6 +11612,9 @@
   "unArchive": {
     "message": "Изваждане от архива"
   },
+  "archived": {
+    "message": "Архивирано"
+  },
   "unArchiveAndSave": {
     "message": "Разархивиране и запазване"
   },
@@ -12297,6 +12306,9 @@
   },
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
+  },
+  "resizeSideNavigation": {
+    "message": "Преоразмеряване на страничната навигация"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Изтриване на невъзстановимите елементи от трезора"

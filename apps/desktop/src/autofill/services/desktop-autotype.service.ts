@@ -33,10 +33,9 @@ import { UserId } from "@bitwarden/user-core";
 
 import { AutotypeConfig } from "../models/autotype-config";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
+import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
-
-export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
 
 export const AUTOTYPE_ENABLED = new KeyDefinition<boolean | null>(
   AUTOTYPE_SETTINGS_DISK,
@@ -72,10 +71,9 @@ export class DesktopAutotypeService implements OnDestroy {
   private readonly isPremiumAccount$: Observable<boolean>;
 
   // The enabled/disabled state from the user settings menu
-  autotypeEnabledUserSetting$: Observable<boolean>;
+  autotypeEnabledUserSetting$: Observable<boolean> = of(false);
 
-  // The keyboard shortcut from the user settings menu
-  autotypeKeyboardShortcut$: Observable<string[]> = of(defaultWindowsAutotypeKeyboardShortcut);
+  autotypeKeyboardShortcut$: Observable<string[]> = of(DEFAULT_KEYBOARD_SHORTCUT);
 
   private destroy$ = new Subject<void>();
 
@@ -106,7 +104,7 @@ export class DesktopAutotypeService implements OnDestroy {
     );
 
     this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
-      map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
+      map((shortcut) => shortcut ?? DEFAULT_KEYBOARD_SHORTCUT),
       takeUntil(this.destroy$),
     );
   }
