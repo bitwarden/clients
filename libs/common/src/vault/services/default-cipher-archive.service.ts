@@ -105,7 +105,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
       localCipher.revisionDate = cipher.revisionDate;
     }
 
-    await this.cipherService.upsert(Object.values(currentCiphers), userId);
+    await this.cipherService.upsert(Object.values(localCiphers), userId);
     return response.data[0];
   }
 
@@ -129,7 +129,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
       localCipher.revisionDate = cipher.revisionDate;
     }
 
-    await this.cipherService.upsert(Object.values(currentCiphers), userId);
+    await this.cipherService.upsert(Object.values(localCiphers), userId);
     return response.data[0];
   }
 }

@@ -52,7 +52,6 @@ import {
   CenterPositionStrategy,
 } from "@bitwarden/components";
 import {
-  ArchiveCipherUtilitiesService,
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
@@ -233,7 +232,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ),
   );
 
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$();
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
+
+  protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   /**
    * Flag to indicate if the user can archive items.
@@ -255,6 +256,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.isTrashFilter && !this.showRestore;
   }
 
+  protected get showActionButtons() {
+    return this.cipher !== null && this.params.mode == "form" && this.formConfig.mode !== "clone";
+  }
+
   /**
    * Determines if the user may restore the item.
    * A user may restore items if they have delete permissions and the item is in the trash.
@@ -264,8 +269,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected showRestore: boolean;
-
-  protected cipherIsArchived: boolean = false;
 
   protected get loadingForm() {
     return this.loadForm && !this.formReady;
@@ -279,14 +282,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.showCipherView && !this.isTrashFilter && !this.showRestore;
   }
 
-  protected get showFooterButtons() {
-    // Don't show the footer buttons for new ciphers or when cloning a cipher
-    if (this.cipher == null || (this.params.mode == "form" && this.formConfig.mode === "clone")) {
-      return false;
-    }
-    return true;
-  }
-
   protected get showCipherView() {
     return this.cipher != undefined && (this.params.mode === "view" || this.loadingForm);
   }
@@ -294,11 +289,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected get submitButtonText$(): Observable<string> {
     return this.userHasPremium$.pipe(
       map((hasPremium) =>
-        this.cipherIsArchived && !hasPremium
+        this.isCipherArchived && !hasPremium
           ? this.i18nService.t("unArchiveAndSave")
           : this.i18nService.t("save"),
       ),
     );
+  }
+
+  protected get isCipherArchived() {
+    return this.cipher?.isArchived;
   }
 
   /**
@@ -339,7 +338,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private routedVaultFilterService: RoutedVaultFilterService,
     private archiveService: CipherArchiveService,
-    private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -361,8 +359,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.dialogRef.close();
         return;
       }
-
-      this.cipherIsArchived = this.cipher.isArchived;
 
       this.collections = this.formConfig.collections.filter((c) =>
         this.cipher.collectionIds?.includes(c.id),
@@ -418,15 +414,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       cipherView.collectionIds?.includes(c.id),
     );
 
-    // Track cipher archive state for btn text and badge updates
-    this.cipherIsArchived = this.cipher.isArchived;
-
     // If the cipher was newly created (via add/clone), switch the form to edit for subsequent edits.
     if (this._originalFormMode === "add" || this._originalFormMode === "clone") {
       this.formConfig.mode = "edit";
       this.formConfig.initialValues = null;
     }
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const activeUserId = await firstValueFrom(this.userId$);
     let cipher = await this.cipherService.get(cipherView.id, activeUserId);
 
     // When the form config is used within the Admin Console, retrieve the cipher from the admin endpoint (if not found in local state)
@@ -520,9 +513,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       result.action === AttachmentDialogResult.Removed ||
       result.action === AttachmentDialogResult.Uploaded
     ) {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await firstValueFrom(this.userId$);
 
       let updatedCipherView: CipherView;
 
@@ -591,31 +582,55 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   };
 
   archive = async () => {
-    const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
+    const activeUserId = await firstValueFrom(this.userId$);
+    try {
+      const cipherResponse = await this.archiveService.archiveWithServer(
+        this.cipher.id as CipherId,
+        activeUserId,
+      );
+      this.updateCipherFromArchive(
+        new Date(cipherResponse.revisionDate),
+        cipherResponse.archivedDate ? new Date(cipherResponse.archivedDate) : null,
+      );
 
-    if (!cipherResponse) {
-      return;
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("itemsWereSentToArchive"),
+      });
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
     }
-    this.updateCipherFromArchive(
-      new Date(cipherResponse.revisionDate),
-      cipherResponse.archivedDate ? new Date(cipherResponse.archivedDate) : null,
-    );
   };
 
   unarchive = async () => {
-    const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
-
-    if (!cipherResponse) {
+    const activeUserId = await firstValueFrom(this.userId$);
+    try {
+      const cipherResponse = await this.archiveService.unarchiveWithServer(
+        this.cipher.id as CipherId,
+        activeUserId,
+      );
+      this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("itemWasUnarchived"),
+      });
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
       return;
     }
-    this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
   };
 
   private async getDecryptedCipherView(config: CipherFormConfig) {
     if (config.originalCipher == null) {
       return;
     }
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const activeUserId = await firstValueFrom(this.userId$);
     return await this.cipherService.decrypt(config.originalCipher, activeUserId);
   }
 

@@ -119,7 +119,7 @@ export class ViewV2Component {
   protected userCanArchive$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.archiveService.userCanArchive$(userId)));
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$();
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
 
   constructor(
     private passwordRepromptService: PasswordRepromptService,
