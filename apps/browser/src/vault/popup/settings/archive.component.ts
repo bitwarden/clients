@@ -96,6 +96,10 @@ export class ArchiveComponent {
     startWith(true),
   );
 
+  protected showSubscriptionEndedMessaging$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherArchiveService.showSubscriptionEndedMessaging$(userId)),
+  );
+
   async navigateToPremium() {
     await this.router.navigate(["/premium"]);
   }
