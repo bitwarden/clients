@@ -30,6 +30,7 @@ import {
 import { UpdateLicenseDialogComponent } from "../shared/update-license-dialog.component";
 import { UpdateLicenseDialogResult } from "../shared/update-license-types";
 
+// TODO: Remove with deletion of pm-29594-update-individual-subscription-page
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
