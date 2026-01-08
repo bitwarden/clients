@@ -257,8 +257,16 @@ export class VaultPopupItemsService {
    * Observable that indicates whether the service is currently loading ciphers.
    */
   loading$: Observable<boolean> = merge(
-    this._ciphersLoading$.pipe(map(() => true)),
-    this.remainingCiphers$.pipe(map(() => false)),
+    this._ciphersLoading$.pipe(
+      tap(() => {
+        console.log("[vault popup items service] ciphers loading started");
+      }),
+      map(() => true)),
+    this.remainingCiphers$.pipe(
+      tap(() => {
+        console.log("[vault popup items service] ciphers loading finished");
+      }),
+      map(() => false)),
   ).pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
 
   /** Observable that indicates whether there is search text present.

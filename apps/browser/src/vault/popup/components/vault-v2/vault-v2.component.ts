@@ -143,12 +143,24 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
    * @protected
    */
   protected loading$ = combineLatest([
-    this.vaultPopupLoadingService.loading$,
-    this.readySubject.asObservable(),
+    this.vaultPopupLoadingService.loading$
+      .pipe(tap((loading) => {
+        console.log("vault loading service state:", loading);
+      })),
+    this.readySubject.asObservable()
+      .pipe(
+        tap((ready) => {
+          console.log("vault ready state:", ready);
+        }),
+      )
   ]).pipe(
+    tap(([loading, ready]) => {
+      console.log("vault loading state:", { loading, ready });
+    }),
     map(([loading, ready]) => loading || !ready),
     distinctUntilChanged(),
     tap((loading) => {
+      console.log("vault loading final state:", loading);
       const key = loading ? "loadingVault" : "vaultLoaded";
       void this.liveAnnouncer.announce(this.i18nService.translate(key), "polite");
     }),
