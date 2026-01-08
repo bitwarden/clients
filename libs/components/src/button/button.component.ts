@@ -164,12 +164,13 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       .concat(
         this.showDisabledStyles() || this.disabled()
           ? [
-              "aria-disabled:!tw-bg-secondary-300",
-              "hover:tw-bg-secondary-300",
-              "aria-disabled:tw-border-secondary-300",
-              "hover:tw-border-secondary-300",
-              "aria-disabled:!tw-text-muted",
-              "hover:!tw-text-muted",
+              "aria-disabled:!tw-bg-bg-disabled",
+              "hover:tw-bg-bg-hover",
+              "aria-disabled:tw-border-border-base",
+              "aria-disabled:hover:tw-border-border-base",
+              "hover:tw-border-border-disabled",
+              "aria-disabled:!tw-text-fg-disabled",
+              "hover:!tw-text-fg-disabled",
               "aria-disabled:tw-cursor-not-allowed",
               "hover:tw-no-underline",
             ]
