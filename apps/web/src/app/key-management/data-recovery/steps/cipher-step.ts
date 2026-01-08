@@ -24,7 +24,11 @@ export class CipherStep implements RecoveryStep {
     }
 
     this.undecryptableCipherIds = [];
-    for (const cipher of workingData.ciphers) {
+    // The tool is currently only implemented to handle ciphers that are corrupt for a user. For an organization, the case of
+    // local user not having access to the organization key is not properly handled here, and should be implemented separately.
+    // For now, this just filters out and does not consider corrupt organization ciphers.
+    const userCiphers = workingData.ciphers.filter((c) => c.organizationId == null);
+    for (const cipher of userCiphers) {
       try {
         await this.cipherService.decrypt(cipher, workingData.userId);
       } catch {

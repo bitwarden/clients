@@ -22,14 +22,13 @@ export enum FeatureFlag {
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
+  WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
-  PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM25379_UseNewOrganizationMetadataStructure = "pm-25379-use-new-organization-metadata-structure",
   PM24996_ImplementUpgradeFromFreeDialog = "pm-24996-implement-upgrade-from-free-dialog",
-  PM24033PremiumUpgradeNewDesign = "pm-24033-updat-premium-subscription-page",
   PM26793_FetchPremiumPriceFromPricingService = "pm-26793-fetch-premium-price-from-pricing-service",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
   PM26462_Milestone_3 = "pm-26462-milestone-3",
@@ -45,11 +44,14 @@ export enum FeatureFlag {
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   DataRecoveryTool = "pm-28813-data-recovery-tool",
   ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
+  PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   ChromiumImporterWithABE = "pm-25855-chromium-importer-abe",
+  SendUIRefresh = "pm-28175-send-ui-refresh",
+  SendEmailOTP = "pm-19051-send-email-verification",
 
   /* DIRT */
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
@@ -61,7 +63,6 @@ export enum FeatureFlag {
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
-  AutofillConfirmation = "pm-25083-autofill-confirm-from-search",
   RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
   VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
@@ -105,11 +106,14 @@ export const DefaultFeatureFlagValue = {
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
 
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.ChromiumImporterWithABE]: FALSE,
+  [FeatureFlag.SendUIRefresh]: FALSE,
+  [FeatureFlag.SendEmailOTP]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
@@ -121,7 +125,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
-  [FeatureFlag.AutofillConfirmation]: FALSE,
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
@@ -132,11 +135,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM25379_UseNewOrganizationMetadataStructure]: FALSE,
   [FeatureFlag.PM24996_ImplementUpgradeFromFreeDialog]: FALSE,
-  [FeatureFlag.PM24033PremiumUpgradeNewDesign]: FALSE,
   [FeatureFlag.PM26793_FetchPremiumPriceFromPricingService]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
   [FeatureFlag.PM26462_Milestone_3]: FALSE,
@@ -152,6 +153,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
+  [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
