@@ -102,15 +102,25 @@
               <th bitCell>{{ (organization.useGroups ? "groups" : "collections") | i18n }}</th>
               <th bitCell bitSortable="type">{{ "role" | i18n }}</th>
               <th bitCell>{{ "policies" | i18n }}</th>
-              <th bitCell class="tw-w-10">
-                <button
-                  [bitMenuTriggerFor]="headerMenu"
-                  type="button"
-                  bitIconButton="bwi-ellipsis-v"
-                  size="small"
-                  label="{{ 'options' | i18n }}"
-                  *ngIf="showUserManagementControls()"
-                ></button>
+              <th bitCell>
+                <div class="tw-flex tw-flex-row tw-items-center tw-justify-end tw-gap-2">
+                  <button
+                    type="button"
+                    bitIconButton="bwi-download"
+                    size="small"
+                    [bitAction]="exportMembers"
+                    [disabled]="!firstLoaded"
+                    label="{{ 'export' | i18n }}"
+                  ></button>
+                  <button
+                    [bitMenuTriggerFor]="headerMenu"
+                    type="button"
+                    bitIconButton="bwi-ellipsis-v"
+                    size="small"
+                    label="{{ 'options' | i18n }}"
+                    *ngIf="showUserManagementControls()"
+                  ></button>
+                </div>
 
                 <bit-menu #headerMenu>
                   <ng-container *ngIf="canUseSecretsManager()">
@@ -352,13 +362,16 @@
                 </ng-container>
               </td>
               <td bitCell>
-                <button
-                  [bitMenuTriggerFor]="rowMenu"
-                  type="button"
-                  bitIconButton="bwi-ellipsis-v"
-                  size="small"
-                  label="{{ 'options' | i18n }}"
-                ></button>
+                <div class="tw-flex tw-flex-row tw-items-center tw-justify-end tw-gap-2">
+                  <div class="tw-w-[32px]"></div>
+                  <button
+                    [bitMenuTriggerFor]="rowMenu"
+                    type="button"
+                    bitIconButton="bwi-ellipsis-v"
+                    size="small"
+                    label="{{ 'options' | i18n }}"
+                  ></button>
+                </div>
 
                 <bit-menu #rowMenu>
                   <ng-container *ngIf="showUserManagementControls()">
