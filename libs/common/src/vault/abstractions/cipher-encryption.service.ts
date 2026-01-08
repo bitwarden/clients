@@ -21,6 +21,16 @@ export abstract class CipherEncryptionService {
   abstract encrypt(model: CipherView, userId: UserId): Promise<EncryptionContext | undefined>;
 
   /**
+   * Encrypts multiple ciphers using the SDK for the given userId.
+   *
+   * @param models The cipher views to encrypt
+   * @param userId The user ID to initialize the SDK client with
+   *
+   * @returns A promise that resolves to an array of encryption contexts
+   */
+  abstract encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]>;
+
+  /**
    * Move the cipher to the specified organization by re-encrypting its keys with the organization's key.
    * The cipher.organizationId will be updated to the new organizationId.
    * @param model The cipher view to move to the organization
