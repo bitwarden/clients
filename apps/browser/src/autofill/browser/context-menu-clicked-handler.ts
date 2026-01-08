@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -147,6 +145,9 @@ export class ContextMenuClickedHandler {
     }
 
     await this.accountService.setAccountActivity(activeUserId, new Date());
+    if (!cipher) {
+      return;
+    }
     switch (info.parentMenuItemId) {
       case AUTOFILL_ID:
       case AUTOFILL_IDENTITY_ID:
