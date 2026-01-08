@@ -11,6 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
@@ -49,6 +50,11 @@ const GENERATOR_SERVICE_PROVIDER = new SafeInjectionToken<providers.CredentialGe
 export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>(
   "SystemServices",
 );
+
+async function getSdkClient(sdk: SdkService) {
+  const sdkService: BitwardenClient = await firstValueFrom(sdk.client$);
+  return sdkService;
+}
 
 /** Shared module containing generator component dependencies */
 @NgModule({
@@ -147,7 +153,12 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
           Object.values(BuiltIn),
         );
 
-        const sdkService: BitwardenClient = await firstValueFrom(system.sdk.client$);
+        let sdkService;
+        try {
+          sdkService = await getSdkClient(system.sdk);
+        } catch (err) {
+          fail(err);
+        }
         const profile = new providers.GeneratorProfileProvider(userStateDeps, system.policy);
 
         const generator: providers.GeneratorDependencyProvider = {
