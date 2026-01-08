@@ -1490,6 +1490,116 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("getAllFromApiForOrganization()", () => {
+    let mockSdkClient: any;
+    let mockCiphersSdk: any;
+    let mockAdminSdk: any;
+    let mockVaultSdk: any;
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+    const mockSdkCipherView1 = {
+      id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
+      name: "Test Cipher 1",
+    };
+    const mockSdkCipherView2 = {
+      id: "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23",
+      name: "Test Cipher 2",
+    };
+
+    beforeEach(() => {
+      // Mock the SDK client chain for list_org_ciphers
+      mockAdminSdk = {
+        list_org_ciphers: jest.fn().mockResolvedValue({
+          successes: [mockSdkCipherView1, mockSdkCipherView2],
+          failures: [],
+        }),
+      };
+      mockCiphersSdk = {
+        admin: jest.fn().mockReturnValue(mockAdminSdk),
+      };
+      mockVaultSdk = {
+        ciphers: jest.fn().mockReturnValue(mockCiphersSdk),
+      };
+      const mockSdkValue = {
+        vault: jest.fn().mockReturnValue(mockVaultSdk),
+      };
+      mockSdkClient = {
+        take: jest.fn().mockReturnValue({
+          value: mockSdkValue,
+          [Symbol.dispose]: jest.fn(),
+        }),
+      };
+
+      // Mock sdkService to return the mock client
+      sdkService.userClient$.mockReturnValue(of(mockSdkClient));
+    });
+
+    it("should call apiService.getCiphersOrganization when feature flag is disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const mockResponse = {
+        data: [],
+      } as any;
+
+      const apiSpy = jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockResolvedValue(mockResponse);
+
+      await cipherService.getAllFromApiForOrganization(testOrgId, true);
+
+      expect(apiSpy).toHaveBeenCalledWith(testOrgId, true);
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
+    });
+
+    it("should call apiService.getCiphersOrganization without includeMemberItems when not provided", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const mockResponse = { data: [] } as any;
+      const apiSpy = jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockResolvedValue(mockResponse);
+
+      await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(apiSpy).toHaveBeenCalledWith(testOrgId, undefined);
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
+    });
+
+    it("should use SDK to list organization ciphers when feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const apiSpy = jest.spyOn(apiService, "getCiphersOrganization");
+
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId, true);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(testOrgId, true);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(result).toHaveLength(2);
+      expect(result[0]).toBeInstanceOf(CipherView);
+      expect(result[1]).toBeInstanceOf(CipherView);
+    });
+
+    it("should use SDK with includeMemberItems=false when not provided", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const apiSpy = jest.spyOn(apiService, "getCiphersOrganization");
+
+      await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(testOrgId, false);
+      expect(apiSpy).not.toHaveBeenCalled();
+    });
+  });
+
   describe("replace (no upsert)", () => {
     // In order to set up initial state we need to manually update the encrypted state
     // which will result in an emission. All tests will have this baseline emission.

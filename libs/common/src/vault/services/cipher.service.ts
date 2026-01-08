@@ -723,11 +723,60 @@ export class CipherService implements CipherServiceAbstraction {
     organizationId: string,
     includeMemberItems?: boolean,
   ): Promise<CipherView[]> {
+    const useSdk = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
+    );
+    if (useSdk) {
+      return this.getAllFromApiForOrganization_sdk(organizationId, includeMemberItems ?? false);
+    }
+
     const response = await this.apiService.getCiphersOrganization(
       organizationId,
       includeMemberItems,
     );
     return await this.decryptOrganizationCiphersResponse(response, organizationId);
+  }
+
+  private async getAllFromApiForOrganization_sdk(
+    organizationId: string,
+    includeMemberItems: boolean,
+  ): Promise<CipherView[]> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    const result = await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const decryptResult = await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .list_org_ciphers(asUuid(organizationId), includeMemberItems);
+
+          // Convert successful decryptions to CipherView[]
+          const cipherViews = decryptResult.successes.map((sdkCipherView: any) =>
+            CipherView.fromSdkCipherView(sdkCipherView),
+          );
+
+          // Sort by locale (matching existing behavior)
+          cipherViews.sort(this.getLocaleSortingFunction());
+
+          return cipherViews;
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to list organization ciphers: ${error}`);
+          return [];
+        }),
+      ),
+    );
+
+    return result;
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
