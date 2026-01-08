@@ -1,4 +1,4 @@
-import { FocusKeyManager, CdkTrapFocus } from "@angular/cdk/a11y";
+import { FocusKeyManager, CdkTrapFocus, FocusableOption } from "@angular/cdk/a11y";
 import {
   Component,
   Output,
@@ -34,9 +34,11 @@ export class MenuComponent implements AfterContentInit {
 
   ngAfterContentInit() {
     if (this.ariaRole() === "menu") {
-      this.keyManager = new FocusKeyManager(this.menuItems())
+      this.keyManager = new FocusKeyManager(
+        this.menuItems() as unknown as (FocusableOption & MenuItemComponent)[],
+      )
         .withWrap()
-        .skipPredicate((item) => !!item.disabled);
+        .skipPredicate((item) => !!(item as MenuItemComponent).disabled());
     }
   }
 }

@@ -1,20 +1,60 @@
 import { OverlayModule } from "@angular/cdk/overlay";
+import { NgTemplateOutlet } from "@angular/common";
+import { Component } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { AsyncActionsModule } from "../async-actions";
 import { ButtonModule } from "../button/button.module";
+import { IconButtonModule } from "../icon-button";
 import { I18nMockService } from "../utils";
 
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 import { MenuModule } from "./menu.module";
+
+const template = /*html*/ `
+  <div class="tw-h-40">
+      <button type="button" bitButton buttonType="secondary" [bitMenuTriggerFor]="myMenu">Open menu</button>
+    </div>
+
+    <bit-menu #myMenu>
+      <button type="button" bitMenuItem [bitAction]="action">Perform action {{ statusEmoji }}</button>
+    </bit-menu>
+  `;
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template,
+  selector: "app-promise-example",
+  imports: [
+    NgTemplateOutlet,
+    AsyncActionsModule,
+    ButtonModule,
+    IconButtonModule,
+    OverlayModule,
+    MenuModule,
+  ],
+})
+class PromiseExampleComponent {
+  statusEmoji = "🟡";
+  action = async () => {
+    await new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+        this.statusEmoji = "🟢";
+      }, 5000);
+    });
+  };
+}
 
 export default {
   title: "Component Library/Menu",
   component: MenuTriggerForDirective,
   decorators: [
     moduleMetadata({
-      imports: [MenuModule, OverlayModule, ButtonModule],
+      imports: [MenuModule, OverlayModule, ButtonModule, PromiseExampleComponent],
       providers: [
         {
           provide: I18nService,
@@ -84,5 +124,12 @@ export const ClosedMenu: Story = {
           Disabled button
         </button>
       </bit-menu>`,
+  }),
+};
+
+export const InProgressMenuItem: Story = {
+  render: (args) => ({
+    props: args,
+    template: `<app-promise-example></app-promise-example>`,
   }),
 };
