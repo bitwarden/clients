@@ -3,7 +3,13 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BadgeComponent, ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  BadgeComponent,
+  ButtonModule,
+  CenterPositionStrategy,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,6 +71,8 @@ export class AutoConfirmExtensionSetupDialogComponent {
   constructor(public dialogRef: DialogRef<boolean>) {}
 
   static open(dialogService: DialogService) {
-    return dialogService.open<boolean>(AutoConfirmExtensionSetupDialogComponent);
+    return dialogService.open<boolean>(AutoConfirmExtensionSetupDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+    });
   }
 }
