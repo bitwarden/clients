@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "There are no members to list."
   },
+  "noMembersToExport": {
+    "message": "There are no members to export."
+  },
   "noEventsInList": {
     "message": "There are no events to list."
   },
@@ -2536,6 +2539,9 @@
   },
   "enabled": {
     "message": "Turned on"
+  },
+  "optionEnabled": {
+    "message": "Enabled"
   },
   "restoreAccess": {
     "message": "Restore access"
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "Revoked"
   },
+  "accepted": {
+    "message": "Accepted"
+  },
   "sendLink": {
     "message": "Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Enrolled in account recovery"
+  },
+  "enrolled": {
+    "message": "Enrolled"
+  },
+  "notEnrolled": {
+    "message": "Not enrolled"
   },
   "withdrawAccountRecovery": {
     "message": "Withdraw from account recovery"
