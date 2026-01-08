@@ -166,7 +166,6 @@ describe("UnlockCommand", () => {
 
     describe("biometric unlock flow", () => {
       beforeEach(() => {
-        configService.getFeatureFlag$.mockReturnValue(of(true));
         masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
       });
 
