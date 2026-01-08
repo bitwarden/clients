@@ -3,14 +3,24 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { BehaviorSubject, firstValueFrom, map, switchMap, tap } from "rxjs";
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  FormControl,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { pin } from "@bitwarden/common/tools/rx";
@@ -26,6 +36,7 @@ import {
   IconButtonModule,
   SectionComponent,
   SectionHeaderComponent,
+  SelectModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -51,6 +62,7 @@ import { SendFormContainer } from "../../send-form-container";
     ReactiveFormsModule,
     SectionComponent,
     SectionHeaderComponent,
+    SelectModule,
     TypographyModule,
   ],
 })
@@ -65,12 +77,41 @@ export class SendOptionsComponent implements OnInit {
   originalSendView: SendView;
   disableHideEmail = false;
   passwordRemoved = false;
+  emailVerificationFeatureFlag$ = this.configService.getFeatureFlag$(FeatureFlag.SendEmailOTP);
+  hasPremium$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    ),
+  );
+
+  authTypes = [
+    { name: this.i18nService.t("none"), value: null },
+    { name: this.i18nService.t("password"), value: "password" },
+    { name: this.i18nService.t("specificPeople"), value: "email" },
+  ];
+
+  availableAuthTypes$ = combineLatest([this.emailVerificationFeatureFlag$, this.hasPremium$]).pipe(
+    map(([enabled, hasPremium]) => {
+      if (!enabled) {
+        return this.authTypes.filter((t) => t.value !== "email");
+      }
+      return this.authTypes.map((t) => {
+        if (t.value === "email" && !hasPremium) {
+          return { ...t, disabled: true };
+        }
+        return t;
+      });
+    }),
+  );
+
   sendOptionsForm = this.formBuilder.group({
     maxAccessCount: [null as number],
     accessCount: [null as number],
     notes: [null as string],
     password: [null as string],
     hideEmail: [false as boolean],
+    authType: [null as string],
+    emails: [null as string],
   });
 
   get hasPassword(): boolean {
@@ -99,6 +140,8 @@ export class SendOptionsComponent implements OnInit {
     private toastService: ToastService,
     private generatorService: CredentialGeneratorService,
     private accountService: AccountService,
+    private configService: ConfigService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.sendFormContainer.registerChildForm("sendOptionsForm", this.sendOptionsForm);
 
@@ -130,10 +173,48 @@ export class SendOptionsComponent implements OnInit {
             password: value.password,
             hideEmail: value.hideEmail,
             notes: value.notes,
+            emails: value.emails,
           });
           return send;
         });
       });
+
+    this.sendOptionsForm
+      .get("authType")
+      .valueChanges.pipe(takeUntilDestroyed())
+      .subscribe((type) => {
+        const emailsControl = this.sendOptionsForm.get("emails");
+        const passwordControl = this.sendOptionsForm.get("password");
+
+        if (type === "password") {
+          emailsControl.setValue(null);
+          emailsControl.clearValidators();
+          passwordControl.setValidators([Validators.required]);
+        } else if (type === "email") {
+          passwordControl.setValue(null);
+          passwordControl.clearValidators();
+          emailsControl.setValidators([Validators.required, this.emailListValidator()]);
+        } else {
+          emailsControl.setValue(null);
+          emailsControl.clearValidators();
+          passwordControl.setValue(null);
+          passwordControl.clearValidators();
+        }
+        emailsControl.updateValueAndValidity();
+        passwordControl.updateValueAndValidity();
+      });
+  }
+
+  emailListValidator(): ValidatorFn {
+    return (control: FormControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+      const emails = control.value.split(",").map((e: string) => e.trim());
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const invalidEmails = emails.filter((e: string) => e.length > 0 && !emailRegex.test(e));
+      return invalidEmails.length > 0 ? { invalidEmails: true } : null;
+    };
   }
 
   generatePassword = async () => {
@@ -189,6 +270,12 @@ export class SendOptionsComponent implements OnInit {
         password: this.hasPassword ? "************" : null, // 12 masked characters as a placeholder
         hideEmail: this.sendFormContainer.originalSendView.hideEmail,
         notes: this.sendFormContainer.originalSendView.notes,
+        authType: this.hasPassword
+          ? "password"
+          : this.sendFormContainer.originalSendView.emails?.length > 0
+            ? "email"
+            : null,
+        emails: this.sendFormContainer.originalSendView.emails?.join(", "),
       });
     }
     if (this.hasPassword) {
