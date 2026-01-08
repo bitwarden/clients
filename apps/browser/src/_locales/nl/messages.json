@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Je hebt een Premium-abonnement nodig om te kunnen archiveren."
   },
+  "itemRestored": {
+    "message": "Item is hersteld"
+  },
   "edit": {
     "message": "Bewerken"
   },
@@ -1322,11 +1325,21 @@
   "exportFrom": {
     "message": "Exporteren vanuit"
   },
-  "export": {
-    "message": "Exporteren"
+  "exportVerb": {
+    "message": "Exporteren",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importeren"
+  "exportNoun": {
+    "message": "Exporteren",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importeren",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importeren",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Bestandsindeling"
@@ -5654,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
   },
+  "vulnerablePassword": {
+    "message": "Kwetsbaar wachtwoord."
+  },
+  "changeNow": {
+    "message": "Nu wijzigen"
+  },
   "missingWebsite": {
     "message": "Ontbrekende website"
   },
@@ -6029,5 +6048,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Waarom zie ik dit?"
+  },
+  "resizeSideNavigation": {
+    "message": "Formaat zijnavigatie wijzigen"
   }
 }

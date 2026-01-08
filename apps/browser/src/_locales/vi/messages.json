@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Cần là thành viên cao cấp để sử dụng tính năng Lưu trữ."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Sửa"
   },
@@ -1322,11 +1325,21 @@
   "exportFrom": {
     "message": "Xuất từ"
   },
-  "export": {
-    "message": "Export"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Import"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Định dạng tập tin"
@@ -5654,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Thông tin đăng nhập này có rủi ro và thiếu một trang web. Hãy thêm trang web và đổi mật khẩu để tăng cường bảo mật."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Thiếu trang web"
   },
@@ -6029,5 +6048,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Tại sao tôi thấy điều này?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

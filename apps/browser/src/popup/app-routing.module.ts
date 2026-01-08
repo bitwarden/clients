@@ -42,6 +42,7 @@ import {
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
+import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
@@ -68,6 +69,7 @@ import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router
 import { RouteCacheOptions } from "../platform/services/popup-view-cache-background.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
 import { CredentialGeneratorComponent } from "../tools/popup/generator/credential-generator.component";
+import { firefoxPopoutGuard } from "../tools/popup/guards/firefox-popout.guard";
 import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/send-v2/add-edit/send-add-edit.component";
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
@@ -89,6 +91,7 @@ import {
 } from "../vault/popup/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
+import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
 import { ArchiveComponent } from "../vault/popup/settings/archive.component";
 import { DownloadBitwardenComponent } from "../vault/popup/settings/download-bitwarden.component";
@@ -262,7 +265,7 @@ const routes: Routes = [
   {
     path: "import",
     component: ImportBrowserV2Component,
-    canActivate: [authGuard],
+    canActivate: [authGuard, firefoxPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -332,6 +335,12 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
+    path: "admin",
+    component: AdminSettingsComponent,
+    canActivate: [authGuard, canAccessAutoConfirmSettings],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
     path: "clone-cipher",
     component: AddEditV2Component,
     canActivate: [authGuard],
@@ -340,13 +349,13 @@ const routes: Routes = [
   {
     path: "add-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard],
+    canActivate: [authGuard, firefoxPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "edit-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard],
+    canActivate: [authGuard, firefoxPopoutGuard()],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

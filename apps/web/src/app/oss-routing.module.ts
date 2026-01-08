@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
 
+import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import {
@@ -56,7 +57,6 @@ import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/gua
 
 import { flagEnabled, Flags } from "../utils/flags";
 
-import { organizationPolicyGuard } from "./admin-console/organizations/guards/org-policy.guard";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
@@ -748,7 +748,7 @@ const routes: Routes = [
             loadComponent: () =>
               import("./tools/import/import-web.component").then((mod) => mod.ImportWebComponent),
             data: {
-              titleId: "import",
+              titleId: "importNoun",
             } satisfies RouteDataProperties,
           },
           {
@@ -758,7 +758,7 @@ const routes: Routes = [
                 (mod) => mod.ExportWebComponent,
               ),
             data: {
-              titleId: "export",
+              titleId: "exportNoun",
             } satisfies RouteDataProperties,
           },
           {
