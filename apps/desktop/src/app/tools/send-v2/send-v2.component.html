@@ -3,10 +3,7 @@
     <!-- Header with Send title and New button -->
     <app-header>
       @if (!disableSend()) {
-        <tools-new-send-dropdown-v2
-          [buttonType]="'primary'"
-          (addSend)="addSend($event)"
-        ></tools-new-send-dropdown-v2>
+        <tools-new-send-dropdown-v2 buttonType="primary" (addSend)="addSend($event)" />
       }
     </app-header>
     <div class="tw-my-4 tw-px-4">
