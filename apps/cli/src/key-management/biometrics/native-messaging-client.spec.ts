@@ -1,119 +1,212 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import { IpcSocketService } from "./ipc-socket.service";
 import { NativeMessagingClient } from "./native-messaging-client";
 
-// Mock the IpcSocketService module
+// Mock only the IPC boundary - everything else uses real implementations where possible
 jest.mock("./ipc-socket.service");
 
 describe("NativeMessagingClient", () => {
-  let keyService: MockProxy<KeyService>;
-  let encryptService: MockProxy<EncryptService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let appIdService: MockProxy<AppIdService>;
-  let logService: MockProxy<LogService>;
+  let keyService: MockProxy<KeyService>;
   let accountService: MockProxy<AccountService>;
-  let mockIpcSocketService: jest.Mocked<IpcSocketService>;
-
+  let mockIpcSocket: jest.Mocked<IpcSocketService>;
   let client: NativeMessagingClient;
+
+  const mockUserId = "mock-user-id" as UserId;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    keyService = mock<KeyService>();
-    encryptService = mock<EncryptService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
     appIdService = mock<AppIdService>();
-    logService = mock<LogService>();
+    appIdService.getAppId.mockResolvedValue("test-app-id");
+    keyService = mock<KeyService>();
     accountService = mock<AccountService>();
 
-    // Set up the mock IpcSocketService
-    mockIpcSocketService = {
+    // Mock active account
+    accountService.activeAccount$ = new BehaviorSubject({
+      id: mockUserId,
+      email: "test@example.com",
+    }).asObservable() as any;
+
+    // Mock only the IPC socket boundary
+    mockIpcSocket = {
       isSocketAvailable: jest.fn(),
-      connect: jest.fn(),
+      connect: jest.fn().mockResolvedValue(undefined),
       disconnect: jest.fn(),
-      isConnected: jest.fn(),
       onMessage: jest.fn(),
       onDisconnect: jest.fn(),
       sendMessage: jest.fn(),
       getSocketPath: jest.fn(),
     } as unknown as jest.Mocked<IpcSocketService>;
 
-    (IpcSocketService as jest.Mock).mockImplementation(() => mockIpcSocketService);
+    (IpcSocketService as jest.Mock).mockImplementation(() => mockIpcSocket);
 
     client = new NativeMessagingClient(
       keyService,
-      encryptService,
+      mock<EncryptService>(),
       cryptoFunctionService,
       appIdService,
-      logService,
+      mock<LogService>(),
       accountService,
     );
   });
 
-  describe("isDesktopAppAvailable", () => {
-    it("should return false when socket does not exist", async () => {
-      mockIpcSocketService.isSocketAvailable.mockResolvedValue(false);
+  describe("connection lifecycle", () => {
+    it("checks socket availability", async () => {
+      mockIpcSocket.isSocketAvailable.mockResolvedValue(true);
+      expect(await client.isDesktopAppAvailable()).toBe(true);
 
-      const result = await client.isDesktopAppAvailable();
-
-      expect(result).toBe(false);
-      expect(mockIpcSocketService.isSocketAvailable).toHaveBeenCalled();
+      mockIpcSocket.isSocketAvailable.mockResolvedValue(false);
+      expect(await client.isDesktopAppAvailable()).toBe(false);
     });
 
-    it("should return true when socket exists", async () => {
-      mockIpcSocketService.isSocketAvailable.mockResolvedValue(true);
-
-      const result = await client.isDesktopAppAvailable();
-
-      expect(result).toBe(true);
-      expect(mockIpcSocketService.isSocketAvailable).toHaveBeenCalled();
-    });
-  });
-
-  describe("connect", () => {
-    it("should throw when connection fails", async () => {
-      appIdService.getAppId.mockResolvedValue("test-app-id");
-      mockIpcSocketService.connect.mockRejectedValue(new Error("Connection failed"));
-
-      await expect(client.connect()).rejects.toThrow("Connection failed");
-    });
-
-    it("should connect successfully when desktop app is available", async () => {
-      appIdService.getAppId.mockResolvedValue("test-app-id");
-      mockIpcSocketService.connect.mockResolvedValue();
-
+    it("connects and sets up handlers", async () => {
       await client.connect();
 
-      expect(mockIpcSocketService.connect).toHaveBeenCalled();
-      expect(mockIpcSocketService.onMessage).toHaveBeenCalled();
-      expect(mockIpcSocketService.onDisconnect).toHaveBeenCalled();
+      expect(mockIpcSocket.connect).toHaveBeenCalled();
+      expect(mockIpcSocket.onMessage).toHaveBeenCalled();
+      expect(mockIpcSocket.onDisconnect).toHaveBeenCalled();
     });
 
-    it("should not reconnect if already connected", async () => {
-      appIdService.getAppId.mockResolvedValue("test-app-id");
-      mockIpcSocketService.connect.mockResolvedValue();
-
+    it("only connects once", async () => {
       await client.connect();
-      await client.connect(); // Second call
+      await client.connect();
 
-      // Should only connect once
-      expect(mockIpcSocketService.connect).toHaveBeenCalledTimes(1);
+      expect(mockIpcSocket.connect).toHaveBeenCalledTimes(1);
     });
-  });
 
-  describe("disconnect", () => {
-    it("should disconnect from socket", () => {
+    it("disconnects", () => {
       client.disconnect();
+      expect(mockIpcSocket.disconnect).toHaveBeenCalled();
+    });
+  });
 
-      expect(mockIpcSocketService.disconnect).toHaveBeenCalled();
+  describe("message handling", () => {
+    let messageHandler: (message: unknown) => void;
+
+    beforeEach(async () => {
+      mockIpcSocket.onMessage.mockImplementation((handler) => {
+        messageHandler = handler;
+      });
+
+      // Set up crypto for encryption handshake
+      cryptoFunctionService.rsaGenerateKeyPair.mockResolvedValue([
+        new Uint8Array(32),
+        new Uint8Array(32),
+      ]);
+
+      await client.connect();
+    });
+
+    describe("wrongUserId", () => {
+      it("rejects pending operations and disconnects", async () => {
+        // Start an operation that triggers secureCommunication
+        const operation = (client as any).secureCommunication();
+        await new Promise((r) => setImmediate(r));
+
+        // Desktop sends wrongUserId (doesn't include messageId - this is the bug we fixed)
+        messageHandler({ command: "wrongUserId", appId: "test-app-id" });
+
+        await expect(operation).rejects.toThrow("Account mismatch");
+        expect(mockIpcSocket.disconnect).toHaveBeenCalled();
+      });
+    });
+
+    describe("invalidateEncryption", () => {
+      it("rejects pending operations and disconnects", async () => {
+        const operation = (client as any).secureCommunication();
+        await new Promise((r) => setImmediate(r));
+
+        messageHandler({ command: "invalidateEncryption", appId: "test-app-id" });
+
+        await expect(operation).rejects.toThrow("invalidated");
+        expect(mockIpcSocket.disconnect).toHaveBeenCalled();
+      });
+
+      it("ignores messages for other apps", async () => {
+        const operation = (client as any).secureCommunication();
+        await new Promise((r) => setImmediate(r));
+
+        // Message for different app - should be ignored
+        messageHandler({ command: "invalidateEncryption", appId: "other-app-id" });
+
+        // Operation should still be pending (not rejected)
+        // We can't easily test this without timeout, so just verify disconnect wasn't called
+        expect(mockIpcSocket.disconnect).not.toHaveBeenCalled();
+
+        // Clean up - send the real message to complete the test
+        messageHandler({ command: "wrongUserId", appId: "test-app-id" });
+        await expect(operation).rejects.toThrow();
+      });
+    });
+
+    describe("disconnected", () => {
+      it("disconnects the socket", () => {
+        messageHandler({ command: "disconnected" });
+
+        expect(mockIpcSocket.disconnect).toHaveBeenCalled();
+      });
+    });
+
+    describe("verifyDesktopIPCFingerprint", () => {
+      it("displays fingerprint for verification when secure channel exists", async () => {
+        const mockFingerprint = ["word1", "word2", "word3", "word4", "word5"];
+        keyService.getFingerprint.mockResolvedValue(mockFingerprint);
+
+        // Set up a secure channel with a public key
+        (client as any).secureChannel = {
+          publicKey: new Uint8Array(32),
+        };
+
+        messageHandler({ command: "verifyDesktopIPCFingerprint" });
+        await new Promise((r) => setImmediate(r));
+
+        expect(keyService.getFingerprint).toHaveBeenCalledWith(
+          "test-app-id",
+          expect.any(Uint8Array),
+        );
+      });
+    });
+  });
+
+  describe("onDisconnect handler", () => {
+    it("rejects all pending callbacks", async () => {
+      let disconnectHandler: () => void;
+      mockIpcSocket.onDisconnect.mockImplementation((handler) => {
+        disconnectHandler = handler;
+      });
+
+      await client.connect();
+
+      // Add pending callbacks
+      const callbacks = (client as any).callbacks as Map<number, any>;
+      const errors: Error[] = [];
+
+      for (let i = 0; i < 3; i++) {
+        callbacks.set(i, {
+          resolver: jest.fn(),
+          rejecter: (e: Error) => errors.push(e),
+          timeout: setTimeout(() => {}, 60000),
+        });
+      }
+
+      disconnectHandler!();
+
+      expect(errors).toHaveLength(3);
+      expect(errors[0].message).toContain("Disconnected");
+      expect(callbacks.size).toBe(0);
     });
   });
 });

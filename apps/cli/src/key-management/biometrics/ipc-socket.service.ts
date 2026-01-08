@@ -88,7 +88,6 @@ export class IpcSocketService {
     // Check sandboxed path first (most common for Mac App Store users)
     try {
       fs.accessSync(sandboxedPath);
-      this.logService.debug(`[IPC] Using sandboxed socket path: ${sandboxedPath}`);
       return sandboxedPath;
     } catch {
       // Socket not found at sandboxed path
@@ -97,14 +96,12 @@ export class IpcSocketService {
     // Check non-sandboxed path
     try {
       fs.accessSync(nonSandboxedPath);
-      this.logService.debug(`[IPC] Using non-sandboxed socket path: ${nonSandboxedPath}`);
       return nonSandboxedPath;
     } catch {
       // Socket not found at non-sandboxed path either
     }
 
-    // Default to sandboxed path (will fail with clear error message)
-    this.logService.debug(`[IPC] Socket not found, defaulting to: ${sandboxedPath}`);
+    // Default to sandboxed path (will fail with clear error message when connecting)
     return sandboxedPath;
   }
 
@@ -131,13 +128,13 @@ export class IpcSocketService {
     }
 
     const socketPath = this.getSocketPath();
-    this.logService.debug(`[IPC] Connecting to socket at: ${socketPath}`);
+    this.logService.info(`[IPC] Connecting to socket at: ${socketPath}`);
 
     return new Promise((resolve, reject) => {
       const socket = net.createConnection(socketPath);
 
       socket.on("connect", () => {
-        this.logService.debug("[IPC] Socket connected");
+        this.logService.info("[IPC] Socket connected");
         this.socket = socket;
         resolve();
       });
@@ -154,7 +151,7 @@ export class IpcSocketService {
       });
 
       socket.on("close", () => {
-        this.logService.debug("[IPC] Socket closed");
+        this.logService.info("[IPC] Socket closed");
         this.socket = null;
         this.messageBuffer = Buffer.alloc(0);
         if (this.disconnectHandler) {
@@ -222,7 +219,7 @@ export class IpcSocketService {
     messageBytes.copy(buffer, 4);
 
     this.socket.write(buffer);
-    this.logService.debug(`[IPC] Sent message: ${messageStr.substring(0, 100)}...`);
+    this.logService.info(`[IPC] Sent message: ${messageStr.substring(0, 100)}...`);
   }
 
   /**
@@ -250,7 +247,7 @@ export class IpcSocketService {
 
       try {
         const message = JSON.parse(messageStr);
-        this.logService.debug(`[IPC] Received message: ${messageStr.substring(0, 100)}...`);
+        this.logService.info(`[IPC] Received message: ${messageStr.substring(0, 100)}...`);
 
         if (this.messageHandler) {
           this.messageHandler(message);

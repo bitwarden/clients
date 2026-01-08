@@ -1,3 +1,4 @@
+import * as chalk from "chalk";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,7 +17,8 @@ import { CliUtils } from "../../utils";
 import { IpcSocketService } from "./ipc-socket.service";
 
 const MESSAGE_VALID_TIMEOUT = 10 * 1000; // 10 seconds
-const MESSAGE_NO_RESPONSE_TIMEOUT = 60 * 1000; // 60 seconds
+const DEFAULT_TIMEOUT = 10 * 1000; // 10 seconds for protocol messages
+const USER_INTERACTION_TIMEOUT = 60 * 1000; // 60 seconds for operations requiring user action (e.g. Touch ID)
 const HASH_ALGORITHM_FOR_ENCRYPTION = "sha1";
 
 type Message = {
@@ -68,6 +70,7 @@ type SecureChannel = {
   publicKey: Uint8Array;
   sharedSecret?: SymmetricCryptoKey;
   setupResolve?: (value?: unknown) => void;
+  setupReject?: (reason?: unknown) => void;
 };
 
 /**
@@ -142,7 +145,7 @@ export class NativeMessagingClient {
         // Clear timeouts and reject all pending callbacks
         for (const callback of this.callbacks.values()) {
           clearTimeout(callback.timeout);
-          callback.rejecter("disconnected");
+          callback.rejecter(new Error("Disconnected from Desktop app"));
         }
         this.callbacks.clear();
       });
@@ -169,8 +172,13 @@ export class NativeMessagingClient {
 
   /**
    * Send a command to the desktop app and wait for a response.
+   * @param message The message to send
+   * @param timeoutMs Optional timeout in milliseconds (defaults to DEFAULT_TIMEOUT)
    */
-  async callCommand(message: Message): Promise<ReceivedMessage> {
+  async callCommand(
+    message: Message,
+    timeoutMs: number = DEFAULT_TIMEOUT,
+  ): Promise<ReceivedMessage> {
     const messageId = this.messageId++;
 
     const callback = new Promise<ReceivedMessage>((resolver, rejecter) => {
@@ -179,9 +187,9 @@ export class NativeMessagingClient {
         if (this.callbacks.has(messageId)) {
           this.logService.info("[Native Messaging] Message timed out and received no response");
           this.callbacks.delete(messageId);
-          rejecter({ message: "timeout" });
+          rejecter(new Error("Message timed out waiting for Desktop app response"));
         }
-      }, MESSAGE_NO_RESPONSE_TIMEOUT);
+      }, timeoutMs);
 
       this.callbacks.set(messageId, {
         resolver: resolver as (value: unknown) => void,
@@ -202,9 +210,11 @@ export class NativeMessagingClient {
       if (cb) {
         clearTimeout(cb.timeout);
         this.callbacks.delete(messageId);
-        cb.rejecter("errorConnecting");
+        // Reject the callback with the original error (don't throw separately
+        // to avoid creating a floating rejected promise)
+        cb.rejecter(e instanceof Error ? e : new Error(String(e)));
       }
-      throw e;
+      // Don't throw - return the already-rejected callback promise instead
     }
 
     return callback;
@@ -277,7 +287,7 @@ export class NativeMessagingClient {
       case "connected":
         // This shouldn't happen when connecting directly (not via proxy)
         // but handle it gracefully just in case
-        this.logService.debug("[Native Messaging] Received connected message");
+        this.logService.info("[Native Messaging] Received connected message");
         break;
 
       case "disconnected":
@@ -294,26 +304,54 @@ export class NativeMessagingClient {
         await this.handleSetupEncryption(message);
         break;
 
-      case "invalidateEncryption":
+      case "invalidateEncryption": {
         if (message.appId !== this.appId) {
           return;
         }
-        this.logService.warning(
+        this.logService.info(
           "[Native Messaging] Secure channel encountered an error; disconnecting...",
         );
+        const invalidError = new Error("Encryption channel invalidated by Desktop app");
+        // Reject the secure channel setup if in progress
+        if (this.secureChannel?.setupReject) {
+          this.secureChannel.setupReject(invalidError);
+        }
         this.secureChannel = null;
+        // Reject ALL pending callbacks - the secure channel is invalid
+        for (const callback of this.callbacks.values()) {
+          clearTimeout(callback.timeout);
+          callback.rejecter(invalidError);
+        }
+        this.callbacks.clear();
         this.connected = false;
-
-        if (message.messageId != null && this.callbacks.has(message.messageId)) {
-          this.callbacks.get(message.messageId)?.rejecter({ message: "invalidateEncryption" });
-        }
+        // Disconnect AFTER clearing callbacks so onDisconnect doesn't double-reject
+        this.ipcSocket.disconnect();
         break;
+      }
 
-      case "wrongUserId":
-        if (message.messageId != null && this.callbacks.has(message.messageId)) {
-          this.callbacks.get(message.messageId)?.rejecter({ message: "wrongUserId" });
+      case "wrongUserId": {
+        this.logService.info(
+          "[Native Messaging] Account mismatch: CLI and Desktop app are logged into different accounts",
+        );
+        const wrongUserError = new Error(
+          "Account mismatch: CLI and Desktop app are logged into different accounts",
+        );
+        // Reject the secure channel setup if in progress
+        if (this.secureChannel?.setupReject) {
+          this.secureChannel.setupReject(wrongUserError);
         }
+        this.secureChannel = null;
+        // Reject ALL pending callbacks - the connection is invalid for this user
+        for (const callback of this.callbacks.values()) {
+          clearTimeout(callback.timeout);
+          callback.rejecter(wrongUserError);
+        }
+        this.callbacks.clear();
+        this.connected = false;
+        // Disconnect AFTER clearing callbacks so onDisconnect doesn't double-reject
+        this.ipcSocket.disconnect();
         break;
+      }
 
       case "verifyDesktopIPCFingerprint":
         this.logService.info("[Native Messaging] Desktop app requested fingerprint verification.");
@@ -325,7 +363,7 @@ export class NativeMessagingClient {
         break;
 
       case "rejectedDesktopIPCFingerprint":
-        this.logService.warning("[Native Messaging] Desktop app rejected fingerprint.");
+        this.logService.info("[Native Messaging] Desktop app rejected fingerprint.");
         break;
 
       default:
@@ -442,11 +480,12 @@ export class NativeMessagingClient {
       },
     });
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       this.secureChannel = {
         publicKey,
         privateKey,
         setupResolve: resolve,
+        setupReject: reject,
       };
     });
   }
@@ -465,20 +504,15 @@ export class NativeMessagingClient {
     );
 
     // Write to stderr so it doesn't interfere with command output
-    const writeLn = (line: string) => CliUtils.writeLn(line, false, true);
+    const writeLn = (s: string) => CliUtils.writeLn(s, false, true);
+
     writeLn("");
-    writeLn("┌────────────────────────────────────────────────────────────┐");
-    writeLn("│            Bitwarden Desktop App Verification              │");
-    writeLn("├────────────────────────────────────────────────────────────┤");
-    writeLn("│                                                            │");
-    writeLn("│  Verify this fingerprint matches the one shown in the     │");
-    writeLn("│  Bitwarden Desktop app to confirm the secure connection.  │");
-    writeLn("│                                                            │");
-    writeLn("│  Fingerprint:                                              │");
-    writeLn(`│    ${fingerprint.join("-")}`.padEnd(61) + "│");
-    writeLn("│                                                            │");
-    writeLn("│  Accept the connection in the Desktop app to continue.    │");
-    writeLn("└────────────────────────────────────────────────────────────┘");
+    writeLn(chalk.bold("Bitwarden Desktop App Verification"));
+    writeLn("Verify this fingerprint matches the one shown in the Desktop app:");
+    writeLn("");
+    writeLn(chalk.cyan(`  ${fingerprint.join("-")}`));
+    writeLn("");
+    writeLn("Accept the connection in the Desktop app to continue.");
     writeLn("");
   }
 
@@ -508,10 +542,13 @@ export class NativeMessagingClient {
    * Returns the user key if successful.
    */
   async unlockWithBiometricsForUser(userId: UserId): Promise<string | null> {
-    const response = await this.callCommand({
-      command: BiometricsCommands.UnlockWithBiometricsForUser,
-      userId: userId,
-    });
+    const response = await this.callCommand(
+      {
+        command: BiometricsCommands.UnlockWithBiometricsForUser,
+        userId: userId,
+      },
+      USER_INTERACTION_TIMEOUT,
+    );
 
     if (response.response) {
       return response.userKeyB64 ?? null;
@@ -524,9 +561,12 @@ export class NativeMessagingClient {
    * Authenticate with biometrics (without returning keys).
    */
   async authenticateWithBiometrics(): Promise<boolean> {
-    const response = await this.callCommand({
-      command: BiometricsCommands.AuthenticateWithBiometrics,
-    });
+    const response = await this.callCommand(
+      {
+        command: BiometricsCommands.AuthenticateWithBiometrics,
+      },
+      USER_INTERACTION_TIMEOUT,
+    );
     return response.response === true;
   }
 
