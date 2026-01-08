@@ -1447,12 +1447,17 @@ export class CipherService implements CipherServiceAbstraction {
     await this.clearCache(userId);
   }
 
-  async deleteManyWithServer(ids: string[], userId: UserId, asAdmin = false): Promise<any> {
+  async deleteManyWithServer(
+    ids: string[],
+    userId: UserId,
+    asAdmin = false,
+    orgId?: OrganizationId,
+  ): Promise<any> {
     const useSdk = await this.configService.getFeatureFlag(
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
     if (useSdk) {
-      return this.deleteManyWithServer_sdk(ids, userId, asAdmin);
+      return this.deleteManyWithServer_sdk(ids, userId, asAdmin, orgId);
     }
 
     const request = new CipherBulkDeleteRequest(ids);
@@ -1468,6 +1473,7 @@ export class CipherService implements CipherServiceAbstraction {
     ids: string[],
     userId: UserId,
     asAdmin = false,
+    orgId?: OrganizationId,
   ): Promise<any> {
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -1477,14 +1483,16 @@ export class CipherService implements CipherServiceAbstraction {
           }
           using ref = sdk.take();
           if (asAdmin) {
+            if (orgId == null) {
+              throw new Error("Organization ID is required for admin delete.");
+            }
             await ref.value
               .vault()
               .ciphers()
               .admin()
               .delete_many(
                 ids.map((id) => asUuid(id)),
-                null, // TODO: This is required in the SDK - need to remove from SDK or require here
-                // But how did it work before????? The server also throws a 404 if not provided....
+                asUuid(orgId),
               );
           } else {
             await ref.value
@@ -1701,12 +1709,17 @@ export class CipherService implements CipherServiceAbstraction {
     await this.clearCache(userId);
   }
 
-  async softDeleteManyWithServer(ids: string[], userId: UserId, asAdmin = false): Promise<any> {
+  async softDeleteManyWithServer(
+    ids: string[],
+    userId: UserId,
+    asAdmin = false,
+    orgId?: OrganizationId,
+  ): Promise<any> {
     const useSdk = await this.configService.getFeatureFlag(
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
     if (useSdk) {
-      return this.softDeleteManyWithServer_sdk(ids, userId, asAdmin);
+      return this.softDeleteManyWithServer_sdk(ids, userId, asAdmin, orgId);
     }
 
     const request = new CipherBulkDeleteRequest(ids);
@@ -1719,7 +1732,12 @@ export class CipherService implements CipherServiceAbstraction {
     await this.softDelete(ids, userId);
   }
 
-  async softDeleteManyWithServer_sdk(ids: string[], userId: UserId, asAdmin = false): Promise<any> {
+  async softDeleteManyWithServer_sdk(
+    ids: string[],
+    userId: UserId,
+    asAdmin = false,
+    orgId?: OrganizationId,
+  ): Promise<any> {
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -1734,8 +1752,7 @@ export class CipherService implements CipherServiceAbstraction {
               .admin()
               .soft_delete_many(
                 ids.map((id) => asUuid(id)),
-                null, // TODO: This is required in the SDK - need to remove from SDK or require here
-                // But how did it work before????? The server also throws a 404 if not provided....
+                asUuid(orgId),
               );
           } else {
             await ref.value

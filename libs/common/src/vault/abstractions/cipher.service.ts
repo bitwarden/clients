@@ -222,7 +222,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any>;
   abstract delete(id: string | string[], userId: UserId): Promise<any>;
   abstract deleteWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
-  abstract deleteManyWithServer(ids: string[], userId: UserId, asAdmin?: boolean): Promise<any>;
+  abstract deleteManyWithServer(
+    ids: string[],
+    userId: UserId,
+    asAdmin?: boolean,
+    orgId?: OrganizationId,
+  ): Promise<any>;
   abstract deleteAttachment(
     id: string,
     revisionDate: string,
@@ -240,7 +245,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract getLocaleSortingFunction(): (a: CipherViewLike, b: CipherViewLike) => number;
   abstract softDelete(id: string | string[], userId: UserId): Promise<any>;
   abstract softDeleteWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
-  abstract softDeleteManyWithServer(ids: string[], userId: UserId, asAdmin?: boolean): Promise<any>;
+  abstract softDeleteManyWithServer(
+    ids: string[],
+    userId: UserId,
+    asAdmin?: boolean,
+    orgId?: OrganizationId,
+  ): Promise<any>;
   abstract restore(
     cipher: { id: string; revisionDate: string } | { id: string; revisionDate: string }[],
     userId: UserId,
@@ -266,7 +276,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract getNextIdentityCipher(userId: UserId): Promise<CipherView>;
 
   /**
-   * Decrypts a cipher using either the SDK or the legacy method based on the feature flag.
+   * Decrypts a cipher using either the use-sdk-cipheroperationsSDK or the legacy method based on the feature flag.
    * @param cipher The cipher to decrypt.
    * @param userId The user ID to use for decryption.
    * @returns A promise that resolves to the decrypted cipher view.
