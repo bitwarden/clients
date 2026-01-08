@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
-import { FakeStateProvider, awaitAsync } from "../../../spec";
+import { FakeStateProvider, awaitAsync, mockAccountInfoWith } from "../../../spec";
 import { FakeAccountService } from "../../../spec/fake-account-service";
 import { UserId } from "../../types/guid";
 import { CloudRegion, Region } from "../abstractions/environment.service";
@@ -28,16 +28,14 @@ describe("EnvironmentService", () => {
 
   beforeEach(async () => {
     accountService = new FakeAccountService({
-      [testUser]: {
+      [testUser]: mockAccountInfoWith({
         name: "name",
         email: "email",
-        emailVerified: false,
-      },
-      [alternateTestUser]: {
+      }),
+      [alternateTestUser]: mockAccountInfoWith({
         name: "name",
         email: "email",
-        emailVerified: false,
-      },
+      }),
     });
     stateProvider = new FakeStateProvider(accountService);
 
@@ -47,9 +45,10 @@ describe("EnvironmentService", () => {
   const switchUser = async (userId: UserId) => {
     accountService.activeAccountSubject.next({
       id: userId,
-      email: "test@example.com",
-      name: `Test Name ${userId}`,
-      emailVerified: false,
+      ...mockAccountInfoWith({
+        email: "test@example.com",
+        name: `Test Name ${userId}`,
+      }),
     });
     await awaitAsync();
   };
