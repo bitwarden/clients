@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "New",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Đường dẫn mới"
   },
@@ -2411,6 +2415,10 @@
     "message": "Bạn có chắc chắn muốn xóa Send này?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Copy Send link",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Sao chép liên kết Send vào bảng nhớ tạm",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Gửi thông tin nhạy cảm một cách an toàn",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
   "sendsBodyNoItems": {
     "message": "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai, trên bất kỳ nền tảng nào. Thông tin của bạn sẽ được mã hóa đầu cuối để hạn chế rủi ro bị lộ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
   },
   "generatorNudgeTitle": {
     "message": "Tạo mật khẩu nhanh chóng"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Hủy lưu trữ"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "itemsInArchive": {
     "message": "Các mục trong kho lưu trữ"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
     "message": "Mã ZIP / Bưu điện"

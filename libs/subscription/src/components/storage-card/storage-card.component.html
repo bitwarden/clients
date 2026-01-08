@@ -1,0 +1,39 @@
+<bit-card class="tw-size-full tw-flex tw-flex-col">
+  <!-- Title and Description -->
+  <div class="tw-flex tw-flex-col tw-gap-3 tw-mb-4">
+    <h3 bitTypography="h3" class="tw-m-0">{{ title() }}</h3>
+    <p bitTypography="body1" class="tw-m-0 tw-text-main">{{ description() }}</p>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="tw-mb-4">
+    <bit-progress
+      [barWidth]="percentageUsed()"
+      [bgColor]="progressBarColor()"
+      [showText]="false"
+      size="small"
+    ></bit-progress>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="tw-flex tw-gap-4">
+    <button
+      bitButton
+      buttonType="secondary"
+      type="button"
+      [disabled]="callsToActionDisabled()"
+      (click)="callToActionClicked.emit('add-storage')"
+    >
+      {{ "addStorage" | i18n }}
+    </button>
+    <button
+      bitButton
+      buttonType="secondary"
+      type="button"
+      [disabled]="callsToActionDisabled() || !canRemoveStorage()"
+      (click)="callToActionClicked.emit('remove-storage')"
+    >
+      {{ "removeStorage" | i18n }}
+    </button>
+  </div>
+</bit-card>
