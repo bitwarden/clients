@@ -221,14 +221,14 @@ export const Loading: Story = {
   },
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   ...Loading,
   args: {
     disabled: true,
   },
 };
 
-export const DisabledWithAttribute: Story = {
+export const InactiveWithAttribute: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
