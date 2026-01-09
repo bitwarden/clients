@@ -1,12 +1,23 @@
-import { Component, computed, inject, input, model, output } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  model,
+  OnDestroy,
+  OnInit,
+  output,
+} from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/client-type";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
@@ -17,6 +28,7 @@ import {
 } from "@bitwarden/components";
 import { BiometricsStatus } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UserId } from "@bitwarden/user-core";
 
 import {
@@ -39,12 +51,14 @@ import {
     IconButtonModule,
   ],
 })
-export class MasterPasswordLockComponent {
+export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   private readonly accountService = inject(AccountService);
   private readonly masterPasswordUnlockService = inject(MasterPasswordUnlockService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly messageListener = inject(MessageListener);
   UnlockOption = UnlockOption;
 
   readonly activeUnlockOption = model.required<UnlockOptionValue>();
@@ -64,12 +78,31 @@ export class MasterPasswordLockComponent {
   successfulUnlock = output<{ userKey: UserKey; masterPassword: string }>();
   logOut = output<void>();
 
+  protected showPassword = false;
+  private destroy$ = new Subject<void>();
+
   formGroup = new FormGroup({
     masterPassword: new FormControl("", {
       validators: [Validators.required],
       updateOn: "submit",
     }),
   });
+
+  async ngOnInit(): Promise<void> {
+    if (this.platformUtilsService.getClientType() === ClientType.Desktop) {
+      this.messageListener
+        .messages$(new CommandDefinition("windowHidden"))
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.showPassword = false;
+        });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   submit = async () => {
     this.formGroup.markAllAsTouched();

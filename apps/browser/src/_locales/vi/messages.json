@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Cần là thành viên cao cấp để sử dụng tính năng Lưu trữ."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Sửa"
   },
@@ -4808,6 +4811,24 @@
   "adminConsole": {
     "message": "Bảng điều khiển dành cho quản trị viên"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
   "accountSecurity": {
     "message": "Bảo mật tài khoản"
   },
@@ -5663,6 +5684,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Thông tin đăng nhập này có rủi ro và thiếu một trang web. Hãy thêm trang web và đổi mật khẩu để tăng cường bảo mật."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "Thiếu trang web"
