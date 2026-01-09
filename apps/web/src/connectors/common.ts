@@ -34,7 +34,7 @@ function appLinkHost(): string {
   if (hostName.endsWith("bitwarden.eu")) {
     return "bitwarden.eu";
   }
-  if (hostNamne.endsWith("bitwarden.pw")) {
+  if (hostName.endsWith("bitwarden.pw")) {
     return "bitwarden.pw";
   }
   return "bitwarden.com";
