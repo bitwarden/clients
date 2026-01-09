@@ -35,6 +35,7 @@ import {
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
+import { DesktopHeaderComponent } from "../../layout/header";
 import { AddEditComponent } from "../send/add-edit.component";
 
 const Action = Object.freeze({
@@ -56,6 +57,7 @@ type Action = (typeof Action)[keyof typeof Action];
     AddEditComponent,
     SendListComponent,
     NewSendDropdownV2Component,
+    DesktopHeaderComponent,
   ],
   providers: [
     {
