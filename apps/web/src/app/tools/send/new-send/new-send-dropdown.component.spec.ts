@@ -72,6 +72,7 @@ describe("NewSendDropdownComponent", () => {
     const openSpy = jest.spyOn(SendAddEditDialogComponent, "open");
     const openDrawerSpy = jest.spyOn(SendAddEditDialogComponent, "openDrawer");
     mockConfigService.getFeatureFlag.mockResolvedValue(false);
+    openSpy.mockReturnValue({ closed: of({}) } as any);
 
     await component.createSend(SendType.Text);
 
@@ -85,6 +86,8 @@ describe("NewSendDropdownComponent", () => {
     mockConfigService.getFeatureFlag.mockImplementation(async (key) =>
       key === FeatureFlag.SendUIRefresh ? true : false,
     );
+    const mockRef = { closed: of({}) };
+    openDrawerSpy.mockReturnValue(mockRef as any);
 
     await component.createSend(SendType.Text);
 
