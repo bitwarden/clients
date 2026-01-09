@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Унети пречицу"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Укључите један или два следећа модификатора: Ctrl, Alt, Win, или Shift, и слово."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "Неважећа пречица"

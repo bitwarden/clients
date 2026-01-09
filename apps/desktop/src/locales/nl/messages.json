@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Typ de sneltoets"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Voeg een of twee van de volgende toetsen toe: Ctrl, Alt, Win of Shift, en een letter."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Voeg een of twee van de volgende toetsen toe: Ctrl, Alt, Win en een letter."
   },
   "invalidShortcut": {
     "message": "Ongeldige sneltoets"

@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Vrsta prečaca"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Uključi jedan ili dva modifikatora: Ctrl, Alt, Win ili Shift i slovo."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "Nevažeći prečac"

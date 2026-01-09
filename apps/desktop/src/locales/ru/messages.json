@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Введите сочетание клавиш"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Включите один или два из следующих модификаторов: Ctrl, Alt, Win или Shift и букву."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Включите один или два из следующих модификаторов: Ctrl, Alt, Win и букву."
   },
   "invalidShortcut": {
     "message": "Недопустимое сочетание клавиш"

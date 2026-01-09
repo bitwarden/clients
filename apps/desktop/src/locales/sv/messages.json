@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Inmatningsgenväg"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Inkludera en eller två av följande modifierare: Ctrl, Alt, Win, eller Skift och en bokstav."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Inkludera en eller två av följande modifierare: Ctrl, Alt, Win och en bokstav."
   },
   "invalidShortcut": {
     "message": "Ogiltig genväg"
@@ -4343,7 +4343,7 @@
     "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Objektet har återställts"
   },
   "zipPostalCodeLabel": {
     "message": "Postnummer"

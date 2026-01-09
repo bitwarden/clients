@@ -101,7 +101,7 @@
     }
   },
   "new": {
-    "message": "New",
+    "message": "Nuovo",
     "description": "for adding new items"
   },
   "newUri": {
@@ -2416,7 +2416,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLink": {
-    "message": "Copy Send link",
+    "message": "Copia link del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -4040,14 +4040,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "Nessun risultato"
   },
   "sendsBodyNoItems": {
     "message": "Condividi facilmente file e dati con chiunque, su qualsiasi piattaforma. Le tue informazioni saranno crittografate end-to-end per la massima sicurezza.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Elimina i filtri di ricerca o prova con altri termini"
   },
   "generatorNudgeTitle": {
     "message": "Crea rapidamente password sicure"
@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Premi i tasti da impostare per la scorciatoia"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Includi uno o due dei seguenti modificatori: Ctrl, Alt, Win, o Shift, più una lettera."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "Scorciatoia non valida"
@@ -4307,7 +4307,7 @@
     "message": "Rimuovi dall'Archivio"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Archiviato"
   },
   "itemsInArchive": {
     "message": "Elementi archiviati"
@@ -4331,19 +4331,19 @@
     "message": "Gli elementi archiviati sono esclusi dai risultati di ricerca e dall'auto-riempimento. Vuoi davvero archiviare questo elemento?"
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Togli dall'archivio e salva"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Riavvia Premium"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Il tuo abbonamento Premium è terminato"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "Per recuperare l'accesso al tuo archivio, riavvia il tuo abbonamento Premium. Se modifichi i dettagli di un elemento archiviato prima del riavvio, sarà spostato nella tua cassaforte."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "L'elemento è stato ripristinato"
   },
   "zipPostalCodeLabel": {
     "message": "CAP / codice postale"
@@ -4421,7 +4421,7 @@
     "message": "Timeout della sessione"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Ridimensiona la navigazione laterale"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Questa impostazione è gestita dalla tua organizzazione."
