@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Pro použití funkce Archiv je potřebné prémiové členství."
   },
+  "itemRestored": {
+    "message": "Položka byla obnovena"
+  },
   "edit": {
     "message": "Upravit"
   },
@@ -4808,6 +4811,24 @@
   "adminConsole": {
     "message": "Konzole správce"
   },
+  "admin": {
+    "message": "Administrátor"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatické potvrzení uživatele"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automaticky potvrdit čekající uživatele, když je toto zařízení odemčeno"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Ušetřete čas s automatickým potvrzením uživatele"
+  },
+  "autoConfirmWarning": {
+    "message": "To by mohlo ovlivnit bezpečnost dat Vaší organizace. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Více o rizicích"
+  },
   "accountSecurity": {
     "message": "Zabezpečení účtu"
   },
@@ -5663,6 +5684,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+  },
+  "vulnerablePassword": {
+    "message": "Zranitelné heslo."
+  },
+  "changeNow": {
+    "message": "Změnit nyní"
   },
   "missingWebsite": {
     "message": "Chybějící webová stránka"
