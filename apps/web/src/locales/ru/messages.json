@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Нет участников для отображения."
   },
+  "noMembersToExport": {
+    "message": "Нет участников для экспорта."
+  },
   "noEventsInList": {
     "message": "Нет событий для отображения."
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "Включено"
   },
+  "optionEnabled": {
+    "message": "Включено"
+  },
   "restoreAccess": {
     "message": "Восстановить доступ"
   },
@@ -2633,6 +2639,9 @@
   },
   "key": {
     "message": "Ключ"
+  },
+  "unnamedKey": {
+    "message": "Безымянный ключ"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Код подтверждения"
@@ -3142,6 +3151,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
+  },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
   },
   "restartPremium": {
     "message": "Переподключить Премиум"
@@ -5643,6 +5655,9 @@
   "revoked": {
     "message": "Отозвано"
   },
+  "accepted": {
+    "message": "Принято"
+  },
   "sendLink": {
     "message": "Ссылка на Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6300,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Зарегистрирован на восстановление аккаунта"
+  },
+  "enrolled": {
+    "message": "Зарегистрировано"
+  },
+  "notEnrolled": {
+    "message": "Не зарегистрировано"
   },
   "withdrawAccountRecovery": {
     "message": "Сняться с восстановления аккаунта"
@@ -11606,6 +11627,9 @@
   "unArchive": {
     "message": "Разархивировать"
   },
+  "archived": {
+    "message": "Архивирован"
+  },
   "unArchiveAndSave": {
     "message": "Разархивировать и сохранить"
   },
@@ -12298,6 +12322,9 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Удалить невосстановимые элементы хранилища"
   },
@@ -12479,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "Полная онлайн-защищенность"
+  },
+  "updatePayment": {
+    "message": "Обновить платежную информацию"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Нам не удалось обработать ваш платеж. Пожалуйста, обновите свой способ оплаты или обратитесь за помощью в службу поддержки."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Срок действия вашей подписки истек. Пожалуйста, обратитесь за помощью в службу поддержки."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Ваша подписка будет отменена $DATE$. Вы сможете восстановить ее в любое время до этого момента.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Делитесь еще большим количеством информации с семьями или обеспечьте надежную защиту паролем с командами или организациями."
+  },
+  "youHaveAGracePeriod": {
+    "message": "У вас есть льготный период $DAYS$ дней с даты истечения срока действия вашей подписки. Пожалуйста, оплатите просроченные счета к $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Управление счетами"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Ваша следующая оплата будет за"
+  },
+  "dueOn": {
+    "message": "срок"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Ваша подписка будет приостановлена в"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Ваша подписка была приостановлена"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Ваша подписка будет отменена в"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Ваша подписка была отменена"
+  },
+  "storageFull": {
+    "message": "Хранилище заполнено"
+  },
+  "storageUsedDescription": {
+    "message": "Вы использовали $USED$ из $AVAILABLE$ ГБ вашего зашифрованного файлового хранилища.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Вы использовали все $GB$ вашего зашифрованного хранилища. Чтобы продолжить хранение файлов, добавьте дополнительное хранилище."
   }
 }
