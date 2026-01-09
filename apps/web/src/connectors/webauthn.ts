@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { b64Decode, getQsParam } from "./common";
+import { b64Decode, buildMobileCallbackUriFromParam, getQsParam } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
 
 let parsed = false;
@@ -38,26 +38,6 @@ const enabledBtnClasses = [
   "hover:!tw-text-contrast",
   "hover:tw-no-underline",
 ];
-
-function appLinkHost(): string {
-  const h = window.location.hostname || "";
-  if (h.endsWith("bitwarden.eu")) {
-    return "bitwarden.eu";
-  }
-  if (h.endsWith("bitwarden.pw")) {
-    return "bitwarden.pw";
-  }
-  return "bitwarden.com";
-}
-
-function buildMobileWebauthnCallbackUriFromParam(): string {
-  const scheme = (getQsParam("deeplinkScheme") || "").toLowerCase();
-  const path = `webauthn-callback`;
-  if (scheme === "https") {
-    return `https://${appLinkHost()}/${path}`;
-  }
-  return `bitwarden://${path}`;
-}
 
 document.addEventListener("DOMContentLoaded", () => {
   init();
@@ -245,7 +225,7 @@ function onMessage() {
 
 function error(message: string) {
   if (mobileResponse) {
-    const callbackUri = buildMobileWebauthnCallbackUriFromParam();
+    const callbackUri = buildMobileCallbackUriFromParam("webauthn");
     document.location.replace(callbackUri + "?error=" + encodeURIComponent(message));
     returnButton(callbackUri + "?error=" + encodeURIComponent(message));
   } else {
@@ -262,7 +242,7 @@ function success(assertedCredential: PublicKeyCredential) {
   const dataString = buildDataString(assertedCredential);
 
   if (mobileResponse) {
-    const callbackUri = buildMobileWebauthnCallbackUriFromParam();
+    const callbackUri = buildMobileCallbackUriFromParam("webauthn");
     document.location.replace(callbackUri + "?data=" + encodeURIComponent(dataString));
     returnButton(callbackUri + "?data=" + encodeURIComponent(dataString));
   } else {

@@ -1,28 +1,8 @@
-import { getQsParam } from "./common";
+import { buildMobileCallbackUriFromParam, getQsParam } from "./common";
 import { TranslationService } from "./translation.service";
 
 const mobileDesktopCallback = "bitwarden://duo-callback";
 let localeService: TranslationService | null = null;
-
-function appLinkHost(): string {
-  const h = window.location.hostname || "";
-  if (h.endsWith("bitwarden.eu")) {
-    return "bitwarden.eu";
-  }
-  if (h.endsWith("bitwarden.pw")) {
-    return "bitwarden.pw";
-  }
-  return "bitwarden.com";
-}
-
-function buildMobileDuoCallbackUriFromParam(): string {
-  const scheme = (getQsParam("deeplinkScheme") || "").toLowerCase();
-  const path = "duo-callback";
-  if (scheme === "https") {
-    return `https://${appLinkHost()}/duo-callback`;
-  }
-  return `bitwarden://${path}`;
-}
 
 window.addEventListener("load", async () => {
   const redirectUrl = getQsParam("duoFramelessUrl");
@@ -60,7 +40,7 @@ window.addEventListener("load", async () => {
     displayHandoffMessage(client);
   } else if (client === "mobile") {
     document.location.replace(
-      buildMobileDuoCallbackUriFromParam() +
+      buildMobileCallbackUriFromParam("duo") +
         "?code=" +
         encodeURIComponent(code) +
         "&state=" +
