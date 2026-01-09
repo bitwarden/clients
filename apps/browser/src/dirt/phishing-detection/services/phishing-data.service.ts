@@ -63,7 +63,6 @@ export class PhishingDataService {
   private _triggerUpdate$ = new Subject<void>();
   update$ = this._triggerUpdate$.pipe(
     startWith(undefined), // Always emit once
-    tap(() => this.logService.info(`[PhishingDataService] Update triggered...`)),
     switchMap(() =>
       this._cachedState.state$.pipe(
         first(), // Only take the first value to avoid an infinite loop when updating the cache below
@@ -204,6 +203,7 @@ export class PhishingDataService {
 
   // Runs the update flow in the background and retries up to 3 times on failure
   private async _backgroundUpdate(prev: PhishingData | null): Promise<void> {
+    this.logService.info(`[PhishingDataService] Update triggered...`);
     const phishingData = prev ?? {
       webAddresses: [],
       timestamp: 0,
