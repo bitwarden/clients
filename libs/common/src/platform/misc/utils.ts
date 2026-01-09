@@ -301,7 +301,7 @@ export class Utils {
   }
 
   static fromUtf8ToUrlB64(utfStr: string): string {
-    return Utils.fromBufferToUrlB64(Utils.fromUtf8ToArray(utfStr).buffer as ArrayBuffer);
+    return Utils.fromBufferToUrlB64(Utils.fromUtf8ToArray(utfStr)?.buffer as ArrayBuffer);
   }
 
   static fromB64ToUtf8(b64Str: string): string {
