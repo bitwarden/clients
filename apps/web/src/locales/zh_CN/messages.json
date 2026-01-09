@@ -236,7 +236,7 @@
     "message": "标记为关键的应用程序"
   },
   "criticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ 个标记为关键的应用程序",
+    "message": "$COUNT$ 个应用程序标记为关键",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -341,7 +341,7 @@
     "message": "总的应用程序"
   },
   "applicationsNeedingReview": {
-    "message": "应用程序需要审查"
+    "message": "需要审查的应用程序"
   },
   "newApplicationsCardTitle": {
     "message": "审查新应用程序"
@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "没有可列出的成员。"
   },
+  "noMembersToExport": {
+    "message": "没有可导出的成员。"
+  },
   "noEventsInList": {
     "message": "没有可列出的事件。"
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "已启用"
   },
+  "optionEnabled": {
+    "message": "已启用"
+  },
   "restoreAccess": {
     "message": "恢复访问权限"
   },
@@ -3219,7 +3225,7 @@
     "message": "您的方案包含了 7 天的免费试用。在试用期结束前，不会从您的付款方式中扣款。您可以随时取消。"
   },
   "paymentInformation": {
-    "message": "支付信息"
+    "message": "付款信息"
   },
   "billingInformation": {
     "message": "计费信息"
@@ -3228,7 +3234,7 @@
     "message": "在 7 天免费试用期间，不会从您的付款方式中扣款。"
   },
   "creditCard": {
-    "message": "支付卡"
+    "message": "信用卡"
   },
   "paypalClickSubmit": {
     "message": "选择 PayPal 按钮登录您的 PayPal 账户，然后点击下面的「提交」按钮继续。"
@@ -5235,7 +5241,7 @@
     "message": "您的 API 密钥可用于验证 Bitwarden 公共 API。"
   },
   "apiKeyRotateDesc": {
-    "message": "轮换 API 密钥将使前一个密钥失效。如果您认为当前密钥不再安全，可以轮换 API 密钥。"
+    "message": "轮换 API 密钥将使之前的密钥失效。如果您认为当前密钥不再安全，您可以轮换您的 API 密钥。"
   },
   "apiKeyWarning": {
     "message": "您的 API 密钥拥有组织的全部访问权限。请严格保密。"
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "已撤销"
   },
+  "accepted": {
+    "message": "已接受"
+  },
   "sendLink": {
     "message": "Send 链接",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5941,7 +5950,7 @@
     "message": "自动用户确认可能对您的组织数据带来安全风险。"
   },
   "autoConfirmAcceptSecurityRiskLearnMore": {
-    "message": "进一步了解此风险",
+    "message": "了解此风险",
     "description": "The is the link copy for the first check box option in the edit policy dialog"
   },
   "autoConfirmSingleOrgRequired": {
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "已注册账户恢复"
+  },
+  "enrolled": {
+    "message": "已注册"
+  },
+  "notEnrolled": {
+    "message": "未注册"
   },
   "withdrawAccountRecovery": {
     "message": "撤销账户恢复"
@@ -10852,7 +10867,7 @@
     "message": "进一步了解搜索密码库"
   },
   "learnMoreAboutYourAccountFingerprintPhrase": {
-    "message": "进一步了解账户指纹短语"
+    "message": "了解您的账户指纹短语"
   },
   "impactOfRotatingYourEncryptionKey": {
     "message": "轮换加密密钥的影响"
@@ -12491,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "全面的在线安全防护"
+  },
+  "updatePayment": {
+    "message": "更新付款信息"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "我们无法处理您的付款。请更新您的付款方式或联系支持团队寻求帮助。"
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "您的订阅已过期。请联系支持团队寻求帮助。"
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "您的订阅将于 $DATE$ 取消。在此日期之前，您可以随时恢复订阅。",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "使用家庭版共享更多内容，或使用团队版或企业版获得强大、可信赖的密码安全防护。"
+  },
+  "youHaveAGracePeriod": {
+    "message": "从您的订阅到期之日起，您有 $DAYS$ 天的宽限期。请在 $DATE$ 之前处理逾期未支付的账单。",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "管理账单"
+  },
+  "yourNextChargeIsFor": {
+    "message": "您的下一次收费是用于"
+  },
+  "dueOn": {
+    "message": "到期日期为"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "您的订阅将被暂停于"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "您的订阅被暂停于"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "您的订阅将被取消于"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "您的订阅被取消于"
+  },
+  "storageFull": {
+    "message": "存储空间已满"
+  },
+  "storageUsedDescription": {
+    "message": "总计 $AVAILABLE$ GB 加密文件存储空间，您已使用 $USED$ GB。",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "您已使用了全部的 $GB$ GB 加密存储空间。要继续存储文件，请添加更多存储空间。"
   }
 }

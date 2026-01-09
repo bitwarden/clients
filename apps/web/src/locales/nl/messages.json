@@ -1747,7 +1747,10 @@
     "message": "Er zijn geen gebruikers om weer te geven."
   },
   "noMembersInList": {
-    "message": "Er zijn geen leden op weer te geven."
+    "message": "Er zijn geen leden om weer te geven."
+  },
+  "noMembersToExport": {
+    "message": "Er zijn geen leden om te exporteren."
   },
   "noEventsInList": {
     "message": "Er zijn geen gebeurtenissen om weer te geven."
@@ -2535,6 +2538,9 @@
     "message": "Inschakelen"
   },
   "enabled": {
+    "message": "Ingeschakeld"
+  },
+  "optionEnabled": {
     "message": "Ingeschakeld"
   },
   "restoreAccess": {
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "Ingetrokken"
   },
+  "accepted": {
+    "message": "Geaccepteerd"
+  },
   "sendLink": {
     "message": "Send-koppeling",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Aangemeld bij accountherstel"
+  },
+  "enrolled": {
+    "message": "Ingeschreven"
+  },
+  "notEnrolled": {
+    "message": "Niet ingeschreven"
   },
   "withdrawAccountRecovery": {
     "message": "Afmelden voor accountherstel"
@@ -12491,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "Online beveiliging voltooien"
+  },
+  "updatePayment": {
+    "message": "Update payment"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Your subscription has expired. Please contact the support team for assistance."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Manage invoices"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Your next charge is for"
+  },
+  "dueOn": {
+    "message": "due on"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Your subscription will be suspended on"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Your subscription was suspended on"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Your subscription will be canceled on"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Your subscription was canceled on"
+  },
+  "storageFull": {
+    "message": "Storage full"
+  },
+  "storageUsedDescription": {
+    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   }
 }

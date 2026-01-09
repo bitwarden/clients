@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Žádní členové k zobrazení."
   },
+  "noMembersToExport": {
+    "message": "Žádní členové pro export."
+  },
   "noEventsInList": {
     "message": "Žádné události k zobrazení."
   },
@@ -2536,6 +2539,9 @@
   },
   "enabled": {
     "message": "Zapnuto"
+  },
+  "optionEnabled": {
+    "message": "Povoleno"
   },
   "restoreAccess": {
     "message": "Obnovit přístup"
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "Odvoláno"
   },
+  "accepted": {
+    "message": "Přijato"
+  },
   "sendLink": {
     "message": "Odkaz pro Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Zapsán do obnovení účtu"
+  },
+  "enrolled": {
+    "message": "Zapsán"
+  },
+  "notEnrolled": {
+    "message": "Nezapsán"
   },
   "withdrawAccountRecovery": {
     "message": "Odstoupit z obnovení účtu"
@@ -12491,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "Dokončit online zabezpečení"
+  },
+  "updatePayment": {
+    "message": "Aktualizovat platbu"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Nemohli jsme zpracovat Vaši platbu. Aktualizujte způsob platby nebo kontaktujte tým podpory pro pomoc."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Vaše předplatné vypršelo. Kontaktujte tým podpory pro pomoc."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Zrušení Vašeho předplatného je naplánováno na $DATE$. Před tím ho můžete kdykoli obnovit.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Sdílejte ještě více s rodinami, nebo získejte mocné, důvěryhodné heslo s týmy nebo Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Máte lhůtu k odkladu $DAYS$ dnů od data vypršení předplatného. Vyřešte poslední splatné faktury do $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Spravovat faktury"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Vaše další platba je za"
+  },
+  "dueOn": {
+    "message": "splatná"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Vaše předplatné bude pozastaveno"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Vaše předplatné bylo pozastaveno dne"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Vaše předplatné bude zrušeno dne"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Vaše předplatné bylo zrušeno dne"
+  },
+  "storageFull": {
+    "message": "Úložiště je plné"
+  },
+  "storageUsedDescription": {
+    "message": "Využili jste $USED$ z $AVAILABLE$ GB Vašeho šifrovaného úložiště.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Využili jste celých $GB$ GB Vašeho šifrovaného úložiště. Chcete-li pokračovat v ukládání souborů, přidejte další úložiště."
   }
 }

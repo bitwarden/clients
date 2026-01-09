@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Nincsenek megjeleníthető tagok."
   },
+  "noMembersToExport": {
+    "message": "Nincsenek exportálható tagok."
+  },
   "noEventsInList": {
     "message": "Nincsenek megjeleníthető események."
   },
@@ -2535,6 +2538,9 @@
     "message": "Engedélyezés"
   },
   "enabled": {
+    "message": "Engedélyezve"
+  },
+  "optionEnabled": {
     "message": "Engedélyezve"
   },
   "restoreAccess": {
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "A visszavonás megtörtént."
   },
+  "accepted": {
+    "message": "Elfogadva"
+  },
   "sendLink": {
     "message": "Send hivatkozás",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Megtörtént a regisztráció fiók helyreállításra."
+  },
+  "enrolled": {
+    "message": "Feliratkozott"
+  },
+  "notEnrolled": {
+    "message": "Nem feliratkozott"
   },
   "withdrawAccountRecovery": {
     "message": "Kilépés a fiók helyreállításból"
@@ -12491,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "Teljes körű online biztonság"
+  },
+  "updatePayment": {
+    "message": "Fizetés frissítése"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Nem lehetett feldolgozni a fizetést. Frissítsük a fizetési módot vagy forduljunk segítségért az ügyfélszolgálathoz."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Az előfizetés lejárt. Forduljunk a támogató csapathoz segítségért."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Az előfizetés az időzítés szerint lejár: $DATE$. Ezt megelőzően bármikor visszaállíthatjuk.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Osszunk meg még többet a Családi csomaggal vagy kapjunk hatékony, megbízható jelszóbiztonságot a Teams vagy az Enterprise segítségével."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Az előfizetés lejárati dátumától számítva $DAYS$ nap türelmi időszak áll rendelkezésére az előfizetés fenntartásához. Rendezzük a lejárt számlákat a következő időpontig: $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Számlák kezelése"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Következő terhelés"
+  },
+  "dueOn": {
+    "message": "esedékes"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Az előfizetés felfüggesztésre kerül:"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Az előfizetés felfüggesztésre került:"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Az előfizetés törlésre kerül:"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Az előfizetés törlésre került:"
+  },
+  "storageFull": {
+    "message": "A tárhely megtelt."
+  },
+  "storageUsedDescription": {
+    "message": "$USED$ / $AVAILABLE$ GB lett felhasználva a titkosított fájl tárolóból.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "A titkosított tárhely összes $GB$ mérete felhasználásra került. A fájlok tárolásának folytatásához adjunk hozzá további tárhelyet."
   }
 }

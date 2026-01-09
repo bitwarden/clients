@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Keine Mitglieder zum Anzeigen vorhanden."
   },
+  "noMembersToExport": {
+    "message": "Es gibt keine Mitglieder zum Exportieren."
+  },
   "noEventsInList": {
     "message": "Keine Ereignisse vorhanden."
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "Aktiviert"
   },
+  "optionEnabled": {
+    "message": "Aktiviert"
+  },
   "restoreAccess": {
     "message": "Zugriff wiederherstellen"
   },
@@ -3147,7 +3153,7 @@
     "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Eintrag wurde wiederhergestellt"
   },
   "restartPremium": {
     "message": "Premium neu starten"
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "Widerrufen"
   },
+  "accepted": {
+    "message": "Akzeptiert"
+  },
   "sendLink": {
     "message": "Send-Link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Für Kontowiederherstellung registriert"
+  },
+  "enrolled": {
+    "message": "Registriert"
+  },
+  "notEnrolled": {
+    "message": "Nicht registriert"
   },
   "withdrawAccountRecovery": {
     "message": "Von Kontowiederherstellung abmelden"
@@ -11613,7 +11628,7 @@
     "message": "Nicht mehr archivieren"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Archiviert"
   },
   "unArchiveAndSave": {
     "message": "Nicht mehr archivieren und speichern"
@@ -12491,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "Umfassende Online-Sicherheit"
+  },
+  "updatePayment": {
+    "message": "Zahlungsmethode aktualisieren"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Wir konnten deine Zahlung nicht verarbeiten. Bitte aktualisiere deine Zahlungsmethode oder wende dich an das Support-Team, um Hilfe zu erhalten."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Dein Abonnement ist abgelaufen. Bitte kontaktiere das Support-Team für Hilfe."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Dein Abonnement wird am $DATE$ gekündigt. Du kannst es davor jederzeit wieder reaktivieren.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Teile noch mehr mit Families oder erhalte eine leistungsstarke und vertrauenswürdige Passwortsicherheit mit Teams oder Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Du hast eine Nachfrist von $DAYS$ Tagen ab Ablaufdatum deines Abonnements. Bitte begleiche die letzten fälligen Rechnungen bis zum $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Rechnungen verwalten"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Deine nächste Abbuchung erfolgt am"
+  },
+  "dueOn": {
+    "message": "fällig am"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Dein Abonnement wird deaktiviert am"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Dein Abonnement wurde deaktiviert am"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Dein Abonnement wird gekündigt am"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Dein Abonnement wurde gekündigt am"
+  },
+  "storageFull": {
+    "message": "Speicher voll"
+  },
+  "storageUsedDescription": {
+    "message": "Du hast $USED$ von $AVAILABLE$ GB deines verschlüsselten Datenspeichers verwendet.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Du hast die gesamten $GB$ GB deines verschlüsselten Speichers verwendet. Um mit dem Speichern von Dateien fortzufahren, füge mehr Speicher hinzu."
   }
 }
