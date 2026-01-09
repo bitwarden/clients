@@ -229,6 +229,9 @@ export class SearchService implements SearchServiceAbstraction {
     filter: ((cipher: C) => boolean) | ((cipher: C) => boolean)[] = null,
     ciphers: C[],
   ): Promise<C[]> {
+    const queryId = Math.random().toString(36).substring(2, 15);
+    console.log("[search service] searchCiphers called with query:", query, "queryId:", queryId);
+    console.log("[search service] is searching set to true", queryId);
     this._isCipherSearching$.next(true);
     const results: C[] = [];
     const searchStartTime = performance.now();
@@ -249,26 +252,35 @@ export class SearchService implements SearchServiceAbstraction {
       ciphers = ciphers.filter(filter as (cipher: C) => boolean);
     }
 
+    console.log("[search service] filtered ciphers count:", ciphers.length, "queryId:", queryId);
+
     if (!(await this.isSearchable(userId, query))) {
+      console.log("[search service] query not searchable, returning all ciphers", "queryId:", queryId);
       this._isCipherSearching$.next(false);
       return ciphers;
     }
 
+    console.log("[search service] waiting if indexing is in progress", "queryId:", queryId);
     if (await this.getIsIndexing(userId)) {
       await new Promise((r) => setTimeout(r, 250));
       if (await this.getIsIndexing(userId)) {
         await new Promise((r) => setTimeout(r, 500));
       }
     }
+    console.log("[search service] proceeding with search", "queryId:", queryId);
 
     const index = await this.getIndexForSearch(userId);
     if (index == null) {
       // Fall back to basic search if index is not available
+      console.log("[search service] lunr index not available, performing basic search", "queryId:", queryId);
       const basicResults = this.searchCiphersBasic(ciphers, query);
       this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
+      console.log("[search service] lunr index not available, performed basic search", "queryId:", queryId);
       this._isCipherSearching$.next(false);
       return basicResults;
     }
+
+    console.log("[search service] performing lunr search", "queryId:", queryId);
 
     const ciphersMap = new Map<string, C>();
     ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
@@ -292,6 +304,7 @@ export class SearchService implements SearchServiceAbstraction {
           q.term(t, {});
         });
       });
+      console.log("[search service] lunr search completed", "queryId:", queryId);
     }
 
     if (searchResults != null) {
@@ -302,6 +315,7 @@ export class SearchService implements SearchServiceAbstraction {
       });
     }
     this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
+    console.log("[search service] search complete, found results:", results.length, "queryId:", queryId);
     this._isCipherSearching$.next(false);
     return results;
   }
