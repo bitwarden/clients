@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Няма членове за показване."
   },
+  "noMembersToExport": {
+    "message": "Няма членове за изнасяне."
+  },
   "noEventsInList": {
     "message": "Няма събития за показване."
   },
@@ -2535,6 +2538,9 @@
     "message": "Включване"
   },
   "enabled": {
+    "message": "Включено"
+  },
+  "optionEnabled": {
     "message": "Включено"
   },
   "restoreAccess": {
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "Отнет достъп"
   },
+  "accepted": {
+    "message": "Прието"
+  },
   "sendLink": {
     "message": "Изпращане на връзката",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Включен във възстановяването на профили"
+  },
+  "enrolled": {
+    "message": "Enrolled"
+  },
+  "notEnrolled": {
+    "message": "Not enrolled"
   },
   "withdrawAccountRecovery": {
     "message": "Оттегляне от възстановяването на профили"
@@ -12491,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "Пълна сигурност в Интернет"
+  },
+  "updatePayment": {
+    "message": "Актуализиране на плащанията"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Плащането не беше успешно. Моля, актуализирайте разплащателния си метод или се свържете с екипа по поддръжката за съдействие."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Абонаментът Ви е изтекъл. Моля, свържете се с екипа по поддръжката за съдействие."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Абонаментът Ви по план ще бъде преустановен на $DATE$. Можете да го подновите по всяко време преди това.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Споделяйте още повече със Семейния план, или преминете към подсилената защита на паролите с Екипния план или този за големи организации."
+  },
+  "youHaveAGracePeriod": {
+    "message": "След като просрочите периода на абонамента си, разполагате с още $DAYS$ дни,. Моля, заплатете старите фактури до $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Управление на фактурите"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Следващото Ви таксуване ще бъде"
+  },
+  "dueOn": {
+    "message": "с крайна дата"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Абонаментът Ви ще бъде спрян на"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Абонаментът Ви беше спрян на"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Абонаментът Ви ще бъде прекратен на"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Абонаментът Ви беше прекратен на"
+  },
+  "storageFull": {
+    "message": "Mястото за съхранение е пълно"
+  },
+  "storageUsedDescription": {
+    "message": "Използвали сте $USED$ от $AVAILABLE$ GB от наличното си място за съхранение на шифровани данни.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Използвали сте всичките си $GB$ GB от наличното си място за съхранение на шифровани данни. Ако искате да продължите да добавяте файлове, добавете повече място за съхранение."
   }
 }

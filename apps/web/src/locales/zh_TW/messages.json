@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "沒有可列出的成員。"
   },
+  "noMembersToExport": {
+    "message": "There are no members to export."
+  },
   "noEventsInList": {
     "message": "沒有可列出的事件。"
   },
@@ -2536,6 +2539,9 @@
   },
   "enabled": {
     "message": "已啟用"
+  },
+  "optionEnabled": {
+    "message": "Enabled"
   },
   "restoreAccess": {
     "message": "還原存取權限"
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "已撤銷"
   },
+  "accepted": {
+    "message": "Accepted"
+  },
   "sendLink": {
     "message": "Send 連結",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "已注冊帳戶復原"
+  },
+  "enrolled": {
+    "message": "Enrolled"
+  },
+  "notEnrolled": {
+    "message": "Not enrolled"
   },
   "withdrawAccountRecovery": {
     "message": "撤銷帳戶復原"
@@ -12491,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "完整的線上安全防護"
+  },
+  "updatePayment": {
+    "message": "Update payment"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Your subscription has expired. Please contact the support team for assistance."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Manage invoices"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Your next charge is for"
+  },
+  "dueOn": {
+    "message": "due on"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Your subscription will be suspended on"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Your subscription was suspended on"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Your subscription will be canceled on"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Your subscription was canceled on"
+  },
+  "storageFull": {
+    "message": "Storage full"
+  },
+  "storageUsedDescription": {
+    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
   }
 }

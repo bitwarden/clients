@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Não há membros para listar."
   },
+  "noMembersToExport": {
+    "message": "Não há membros para exportar."
+  },
   "noEventsInList": {
     "message": "Não há eventos para listar."
   },
@@ -2535,6 +2538,9 @@
     "message": "Ativar"
   },
   "enabled": {
+    "message": "Ativado"
+  },
+  "optionEnabled": {
     "message": "Ativado"
   },
   "restoreAccess": {
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "Revogados"
   },
+  "accepted": {
+    "message": "Aceito"
+  },
   "sendLink": {
     "message": "Link do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Inscrito na recuperação de conta"
+  },
+  "enrolled": {
+    "message": "Inscrito"
+  },
+  "notEnrolled": {
+    "message": "Não inscrito"
   },
   "withdrawAccountRecovery": {
     "message": "Retirar-se da recuperação de conta"
@@ -12491,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "Segurança on-line completa"
+  },
+  "updatePayment": {
+    "message": "Atualizar pagamento"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Não pudemos processar seu pagamento. Atualize seu método de pagamento ou entre em contato com a equipe de suporte para assistência."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Sua assinatura expirou. Entre em contato com a equipe de suporte para obter assistência."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Sua assinatura está agendada para ser cancelada em $DATE$. Você pode reestabelecê-la a qualquer momento antes disso.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Compartilhe ainda mais com o Famílias, ou receba segurança poderosa e confiável de senhas com o Equipes ou o Empresarial."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Você tem um período de tolerância de $DAYS$ dias até a data de expiração da sua assinatura. Resolva as faturas atrasadas até $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Gerenciar faturas"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Sua próxima cobrança é de"
+  },
+  "dueOn": {
+    "message": "para"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Sua assinatura será suspensa em"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Sua assinatura foi suspensa em"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Sua assinatura será cancelada em"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Sua assinatura foi cancelada em"
+  },
+  "storageFull": {
+    "message": "Armazenamento cheio"
+  },
+  "storageUsedDescription": {
+    "message": "Você usou $USED$ dos $AVAILABLE$ GB do seu armazenamento de arquivos criptografados.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Você usou todos os $GB$ GB do seu armazenamento criptografado. Para continuar armazenando arquivos, adicione mais armazenamento."
   }
 }

@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Il n'y a pas de membres à répertorier."
   },
+  "noMembersToExport": {
+    "message": "Il n'y a aucun membre à exporter."
+  },
   "noEventsInList": {
     "message": "Aucun événement à afficher."
   },
@@ -2535,6 +2538,9 @@
     "message": "Activer"
   },
   "enabled": {
+    "message": "Activé"
+  },
+  "optionEnabled": {
     "message": "Activé"
   },
   "restoreAccess": {
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "Révoqué"
   },
+  "accepted": {
+    "message": "Accepté"
+  },
   "sendLink": {
     "message": "Lien du Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Inscrit à la récupération du compte"
+  },
+  "enrolled": {
+    "message": "Inscrit"
+  },
+  "notEnrolled": {
+    "message": "Non inscrit"
   },
   "withdrawAccountRecovery": {
     "message": "Retirer de la récupération du compte"
@@ -12491,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "Sécurité en ligne complète"
+  },
+  "updatePayment": {
+    "message": "Mettre à jour le paiement"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Nous n'avons pas pu traiter votre paiement. Veuillez mettre à jour votre méthode de paiement ou contactez l'équipe de support pour obtenir de l'assistance."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Votre abonnement a expiré. Veuillez contacter l'équipe de suuport pour obtenir de l'assistance."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Votre abonnement est programmé pour terminer le $DATE$. Vous pouvez le rétablir à tout moment avant cette date.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Partagez encore plus avec Familles, ou obtenez une sécurité de mot de passe puissante et fiable avec Équipes ou Entreprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Vous bénéficiez d'une période de grace de $DAYS$ jours suivants la date d'expiration de votre abonnement. Veuillez régler les paiements en souffrance pour les factures dont les échéances sont passées d'ici le $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Gérer les factures"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Votre prochaine charge est de"
+  },
+  "dueOn": {
+    "message": "dû le"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Votre abonnement sera suspendu le"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Votre abonnement a été suspendu le"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Votre abonnement sera annulé le"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Votre abonnement a été annulé le"
+  },
+  "storageFull": {
+    "message": "Stockage plein"
+  },
+  "storageUsedDescription": {
+    "message": "Vous avez utilisé $USED$ sur $AVAILABLE$ Go de votre stockage de fichiers chiffré.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Vous avez utilisé tous les $GB$ Go de votre stockage chiffré. Pour continuer à stocker des fichiers, ajoutez plus de stockage."
   }
 }
