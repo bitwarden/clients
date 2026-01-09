@@ -68,7 +68,7 @@
     "message": "Uma dica de senha principal pode ajudá-lo(a) a lembrá-la caso você esqueça."
   },
   "masterPassHintText": {
-    "message": "Se você esquecer sua senha, a dica de senha pode ser enviada ao seu e-mail. $CURRENT$/$MAXIMUM$ caracteres máximos.",
+    "message": "Se você esquecer sua senha, a dica da senha pode ser enviada ao seu e-mail. $CURRENT$ do máximo de $MAXIMUM$ caracteres.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -203,13 +203,13 @@
     "message": "Preenchimento automático"
   },
   "autoFillLogin": {
-    "message": "Preencher credencial automaticamente"
+    "message": "Preencher credencial"
   },
   "autoFillCard": {
-    "message": "Preencher cartão automaticamente"
+    "message": "Preencher cartão"
   },
   "autoFillIdentity": {
-    "message": "Preencher identidade automaticamente"
+    "message": "Preencher identidade"
   },
   "fillVerificationCode": {
     "message": "Preencher código de verificação"
@@ -249,7 +249,7 @@
     "message": "Conecte-se ao seu cofre"
   },
   "autoFillInfo": {
-    "message": "Não há credenciais disponíveis para preencher automaticamente na aba atual do navegador."
+    "message": "Não há credenciais disponíveis para preencher na aba atual do navegador."
   },
   "addLogin": {
     "message": "Adicionar uma credencial"
@@ -436,8 +436,8 @@
   "sync": {
     "message": "Sincronizar"
   },
-  "syncVaultNow": {
-    "message": "Sincronizar cofre agora"
+  "syncNow": {
+    "message": "Sincronizar agora"
   },
   "lastSync": {
     "message": "Última sincronização:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Aplicativo web do Bitwarden"
-  },
-  "importItems": {
-    "message": "Importar itens"
   },
   "select": {
     "message": "Selecionar"
@@ -588,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Um plano Premium é necessário para usar o arquivamento."
   },
+  "itemRestored": {
+    "message": "O item foi restaurado"
+  },
   "edit": {
     "message": "Editar"
   },
@@ -688,16 +688,16 @@
     "message": "Opções de desbloqueio"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação do tempo limite do cofre."
+    "message": "Configure um método de desbloqueio para alterar a ação do limite de tempo do cofre."
   },
   "unlockMethodNeeded": {
     "message": "Configure um método de desbloqueio nas Configurações"
   },
   "sessionTimeoutHeader": {
-    "message": "Tempo limite da sessão"
+    "message": "Limite de tempo da sessão"
   },
   "vaultTimeoutHeader": {
-    "message": "Tempo limite do cofre"
+    "message": "Limite de tempo do cofre"
   },
   "otherOptions": {
     "message": "Outras opções"
@@ -758,10 +758,10 @@
     }
   },
   "vaultTimeout": {
-    "message": "Tempo limite do cofre"
+    "message": "Limite de tempo do cofre"
   },
   "vaultTimeout1": {
-    "message": "Tempo limite"
+    "message": "Limite de tempo"
   },
   "lockNow": {
     "message": "Bloquear agora"
@@ -898,7 +898,7 @@
     }
   },
   "autofillError": {
-    "message": "Não é possível preencher automaticamente o item selecionado nesta página. Em vez disso, copie e cole a informação."
+    "message": "Não é possível preencher o item selecionado nesta página. Em vez disso, copie e cole a informação."
   },
   "totpCaptureError": {
     "message": "Não é possível ler o código QR da página atual"
@@ -1123,10 +1123,10 @@
     "message": "Listar as identidades na página da aba para facilitar o preenchimento automático."
   },
   "clickToAutofillOnVault": {
-    "message": "Clique em itens na tela do Cofre para preencher automaticamente"
+    "message": "Clique em itens na tela do Cofre para preencher"
   },
   "clickToAutofill": {
-    "message": "Clique em um item para preenchê-lo automaticamente"
+    "message": "Clicar itens na sugestão para preenchê-lo"
   },
   "clearClipboard": {
     "message": "Limpar área de transferência",
@@ -1325,8 +1325,21 @@
   "exportFrom": {
     "message": "Exportar de"
   },
-  "exportVault": {
-    "message": "Exportar cofre"
+  "exportVerb": {
+    "message": "Exportar",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Exportação",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importação",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importar",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formato do arquivo"
@@ -1367,7 +1380,7 @@
     "message": "Confirmar exportação do cofre"
   },
   "exportWarningDesc": {
-    "message": "Esta exportação contém os dados do seu cofre em um formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo."
+    "message": "Esta exportação contém os dados do seu cofre em um formato sem criptografia. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo."
   },
   "encExportKeyWarningDesc": {
     "message": "Esta exportação criptografa seus dados usando a chave de criptografia da sua conta. Se você rotacionar a chave de criptografia da sua conta, você deve exportar novamente, já que você não será capaz de descriptografar este arquivo de exportação."
@@ -1457,6 +1470,15 @@
   "attachmentSaved": {
     "message": "Anexo salvo"
   },
+  "fixEncryption": {
+    "message": "Corrigir criptografia"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Este arquivo está usando um método de criptografia desatualizado."
+  },
+  "attachmentUpdated": {
+    "message": "Anexo atualizado"
+  },
   "file": {
     "message": "Arquivo"
   },
@@ -1465,6 +1487,9 @@
   },
   "selectFile": {
     "message": "Selecione um arquivo"
+  },
+  "itemsTransferred": {
+    "message": "Itens transferidos"
   },
   "maxFileSize": {
     "message": "O tamanho máximo do arquivo é de 500 MB."
@@ -1563,13 +1588,13 @@
     "message": "Copiar TOTP automaticamente"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Se uma credencial tiver uma chave de autenticador, copie o código de verificação TOTP quando for preenchê-la automaticamente."
+    "message": "Se uma credencial tiver uma chave de autenticador, copie o código de verificação TOTP quando for preenchê-la."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Pedir biometria ao abrir"
   },
   "authenticationTimeout": {
-    "message": "Tempo limite da autenticação atingido"
+    "message": "Limite de tempo da autenticação atingido"
   },
   "authenticationSessionTimedOut": {
     "message": "A sessão de autenticação expirou. Reinicie o processo de autenticação."
@@ -1752,13 +1777,13 @@
     "message": "Site atual"
   },
   "autofillAndAddWebsite": {
-    "message": "Preencher automaticamente e adicionar este site"
+    "message": "Preencher e adicionar este site"
   },
   "autofillWithoutAdding": {
-    "message": "Preencher automaticamente sem adicionar"
+    "message": "Preencher sem adicionar"
   },
   "doNotAutofill": {
-    "message": "Não preencher automaticamente"
+    "message": "Não preencher"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Exibir identidades como sugestões"
@@ -1791,10 +1816,10 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Preencher automaticamente ao carregar a página"
+    "message": "Preenchimento no carregamento da página"
   },
   "enableAutoFillOnPageLoad": {
-    "message": "Preencher automaticamente ao carregar a página"
+    "message": "Preencher ao carregar a página"
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Se um formulário de credencial for detectado, preencha automaticamente quando a página carregar."
@@ -1818,10 +1843,10 @@
     "message": "Usar configuração padrão"
   },
   "autoFillOnPageLoadYes": {
-    "message": "Preencher automaticamente ao carregar a página"
+    "message": "Preencher ao carregar a página"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Não preencher automaticamente ao carregar a página"
+    "message": "Não preencher ao carregar a página"
   },
   "commandOpenPopup": {
     "message": "Abrir pop-up do cofre"
@@ -1830,13 +1855,13 @@
     "message": "Abrir cofre na barra lateral"
   },
   "commandAutofillLoginDesc": {
-    "message": "Preencher automaticamente a última credencial utilizada para o site atual"
+    "message": "Preencher com a última credencial utilizada para o site atual"
   },
   "commandAutofillCardDesc": {
-    "message": "Preencher automaticamente o último cartão utilizado para o site atual"
+    "message": "Preencher com o último cartão utilizado para o site atual"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Preencher automaticamente a última identidade usada para o site atual"
+    "message": "Preencher com a última identidade usada para o site atual"
   },
   "commandGeneratePasswordDesc": {
     "message": "Gere e copie uma nova senha aleatória para a área de transferência"
@@ -2405,10 +2430,10 @@
     "message": "Personalização do cofre"
   },
   "vaultTimeoutAction": {
-    "message": "Ação do tempo limite do cofre"
+    "message": "Ação do limite de tempo do cofre"
   },
   "vaultTimeoutAction1": {
-    "message": "Ação do tempo limite"
+    "message": "Ação do limite de tempo"
   },
   "lock": {
     "message": "Bloquear",
@@ -2440,13 +2465,13 @@
     "message": "Já tem uma conta?"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Desconectar-se irá remover todo o acesso ao seu cofre e requirirá autenticação online após o período de tempo limite. Tem certeza de que deseja usar esta configuração?"
+    "message": "Desconectar-se irá remover todo o acesso ao seu cofre e requirirá autenticação online após o período de limite de tempo. Tem certeza de que deseja usar esta configuração?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
-    "message": "Confirmação da ação do tempo limite"
+    "message": "Confirmação da ação do limite de tempo"
   },
   "autoFillAndSave": {
-    "message": "Preencher automaticamente e salvar"
+    "message": "Preencher e salvar"
   },
   "fillAndSave": {
     "message": "Preencher e salvar"
@@ -2464,7 +2489,7 @@
     "message": "Você ainda deseja preencher esta credencial?"
   },
   "autofillIframeWarning": {
-    "message": "O formulário está hospedado em um domínio diferente do URI da sua credencial salva. Escolha OK para preencher automaticamente mesmo assim, ou Cancelar para parar."
+    "message": "O formulário está hospedado em um domínio diferente do URI da sua credencial salva. Escolha OK para preencher mesmo assim, ou Cancelar para parar."
   },
   "autofillIframeWarningTip": {
     "message": "Para evitar este aviso no futuro, salve este URI, $HOSTNAME$, no seu item de credencial no Bitwarden para este site.",
@@ -2790,7 +2815,7 @@
     "message": "Altere senhas em risco mais rápido"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Atualize suas configurações para poder preencher senhas automaticamente ou gerá-las automaticamente"
+    "message": "Atualize suas configurações para poder preencher ou gerar novas senhas"
   },
   "reviewAtRiskLogins": {
     "message": "Revisar credenciais em risco"
@@ -3158,10 +3183,10 @@
     "message": "Minutos"
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos de política empresarial foram aplicados às suas opções de tempo limite"
+    "message": "Os requisitos de política empresarial foram aplicados às suas opções de limite de tempo"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "As políticas da sua organização configuraram o seu máximo permitido do tempo limite do cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+    "message": "As políticas da sua organização configuraram o seu máximo permitido do limite de tempo do cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3187,7 +3212,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Tempo limite excede a restrição definida pela sua organização: máximo de $HOURS$ hora(s) e $MINUTES$ minuto(s)",
+    "message": "Limite de tempo excede a restrição definida pela sua organização: máximo de $HOURS$ hora(s) e $MINUTES$ minuto(s)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3200,7 +3225,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "As políticas da sua organização estão afetando o tempo limite do seu cofre. \nO tempo limite máximo permitido para o cofre é $HOURS$ hora(s) e $MINUTES$ minuto(s). A ação de tempo limite do seu cofre está configurada como $ACTION$.",
+    "message": "As políticas da sua organização estão afetando o limite de tempo do seu cofre. \nO limite de tempo máximo permitido para o cofre é $HOURS$ hora(s) e $MINUTES$ minuto(s). A ação de limite de tempo do seu cofre está configurada como $ACTION$.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3217,7 +3242,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "As políticas da sua organização configuraram a ação do tempo limite do seu cofre para $ACTION$.",
+    "message": "As políticas da sua organização configuraram a ação do limite de tempo do seu cofre para $ACTION$.",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -3226,7 +3251,7 @@
     }
   },
   "vaultTimeoutTooLarge": {
-    "message": "O tempo limite do seu cofre excede as restrições estabelecidas pela sua organização."
+    "message": "O limite de tempo do seu cofre excede as restrições estabelecidas pela sua organização."
   },
   "vaultExportDisabled": {
     "message": "Exportação de cofre indisponível"
@@ -3239,9 +3264,6 @@
   },
   "copyCustomFieldNameNotUnique": {
     "message": "Nenhum identificador único encontrado."
-  },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Uma senha principal não é mais necessária para os membros da seguinte organização. Confirme o domínio abaixo com o administrador da sua organização."
   },
   "organizationName": {
     "message": "Nome da organização"
@@ -3497,7 +3519,7 @@
     }
   },
   "forwarderNoAccountId": {
-    "message": "Não foi possível obter o ID da conta de e-mail mascarado $SERVICENAME$.",
+    "message": "Não é possível obter o ID da conta de e-mail mascarado do $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
     "placeholders": {
       "servicename": {
@@ -3656,7 +3678,7 @@
     "message": "Solicitação enviada"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Solicitação de autenticação aprovada para $EMAIL$ em $DEVICE$",
+    "message": "Solicitação de acesso aprovada para $EMAIL$ em $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3669,7 +3691,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "Você negou uma tentativa de autenticação de outro dispositivo. Se era você, tente se conectar com o dispositivo novamente."
+    "message": "Você negou uma tentativa de acesso de outro dispositivo. Se era você, tente se conectar com o dispositivo novamente."
   },
   "device": {
     "message": "Dispositivo"
@@ -3693,7 +3715,7 @@
     "message": "Senha fraca identificada e encontrada em um vazamento de dados. Use uma senha forte e única para proteger a sua conta. Tem certeza de que deseja usar essa senha?"
   },
   "checkForBreaches": {
-    "message": "Conferir vazamentos de dados conhecidos por esta senha"
+    "message": "Conferir se esta senha vazou ao público"
   },
   "important": {
     "message": "Importante:"
@@ -3838,13 +3860,13 @@
     "message": "Tipo do dispositivo"
   },
   "loginRequest": {
-    "message": "Solicitação de autenticação"
+    "message": "Solicitação de acesso"
   },
   "thisRequestIsNoLongerValid": {
     "message": "Esta solicitação não é mais válida."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "A solicitação de autenticação já expirou."
+    "message": "A solicitação de acesso já expirou."
   },
   "justNow": {
     "message": "Agora há pouco"
@@ -3935,7 +3957,7 @@
     "message": "Problemas para acessar?"
   },
   "loginApproved": {
-    "message": "Autenticação aprovada"
+    "message": "Acesso aprovado"
   },
   "userEmailMissing": {
     "message": "E-mail do usuário ausente"
@@ -4102,7 +4124,7 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Não é possível preencher automaticamente"
+    "message": "Não é possível preencher"
   },
   "cannotAutofillExactMatch": {
     "message": "A correspondência padrão está configurada como 'Correspondência exata'. O site atual não corresponde exatamente aos detalhes salvos de credencial para este item."
@@ -4205,10 +4227,6 @@
   },
   "ignore": {
     "message": "Ignorar"
-  },
-  "importData": {
-    "message": "Importar dados",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Erro ao importar"
@@ -4662,7 +4680,7 @@
     "message": "Itens sugeridos"
   },
   "autofillSuggestionsTip": {
-    "message": "Salve um item de credencial para este site para preencher automaticamente"
+    "message": "Salve um item de credencial para este site para preencher"
   },
   "yourVaultIsEmpty": {
     "message": "Seu cofre está vazio"
@@ -4738,7 +4756,7 @@
     }
   },
   "autofillTitle": {
-    "message": "Preencher automaticamente - $ITEMNAME$",
+    "message": "Preencher - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -4748,7 +4766,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Preencher automaticamente - $ITEMNAME$ - $FIELD$",
+    "message": "Preencher - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -4793,8 +4811,35 @@
   "adminConsole": {
     "message": "Painel de administração"
   },
+  "admin": {
+    "message": "Administrador"
+  },
+  "automaticUserConfirmation": {
+    "message": "Confirmação automática de usuários"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Confirme automaticamente usuários pendentes quando este dispositivo for desbloqueado"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Economize tempo com a confirmação automática de usuários"
+  },
+  "autoConfirmWarning": {
+    "message": "Isso pode afetar a segurança dos dados da sua organização. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Saiba mais sobre os riscos"
+  },
   "accountSecurity": {
     "message": "Segurança da conta"
+  },
+  "phishingBlocker": {
+    "message": "Bloqueador de phishing"
+  },
+  "enablePhishingDetection": {
+    "message": "Detecção de phishing"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Exiba um aviso antes de acessar sites suspeitos de phishing"
   },
   "notifications": {
     "message": "Notificações"
@@ -4829,7 +4874,7 @@
     }
   },
   "new": {
-    "message": "Novo"
+    "message": "Criar"
   },
   "removeItem": {
     "message": "Remover $NAME$",
@@ -5057,7 +5102,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Preencher automaticamente ao carregar a página?"
+    "message": "Preencher ao carregar a página?"
   },
   "cardExpiredTitle": {
     "message": "Cartão vencido"
@@ -5141,7 +5186,7 @@
     "message": "Use campos ocultos para dados confidenciais como uma senha"
   },
   "checkBoxHelpText": {
-    "message": "Use caixas de seleção se gostaria de preencher automaticamente a caixa de seleção de um formulário, como um lembrar e-mail"
+    "message": "Use caixas de seleção se gostaria de preencher a caixa de seleção de um formulário, como um lembrar e-mail"
   },
   "linkedHelpText": {
     "message": "Use um campo vinculado quando estiver enfrentando problemas com o preenchimento automático com um site específico."
@@ -5299,7 +5344,7 @@
     "message": "Ações da conta"
   },
   "showNumberOfAutofillSuggestions": {
-    "message": "Mostrar número de sugestões de preenchimento automático de credenciais no ícone da extensão"
+    "message": "Mostrar número de sugestões de preenchimento no ícone da extensão"
   },
   "accountAccessRequested": {
     "message": "Acesso à conta solicitado"
@@ -5350,7 +5395,7 @@
     "message": "Tentar novamente"
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Tempo limite mínimo personalizado é 1 minuto."
+    "message": "Limite de tempo mínimo personalizado é 1 minuto."
   },
   "fileSavedToDevice": {
     "message": "Arquivo salvo no dispositivo. Gerencie a partir dos downloads do seu dispositivo."
@@ -5413,7 +5458,7 @@
     "message": "Desbloqueie seu cofre em segundos"
   },
   "unlockVaultDesc": {
-    "message": "Você pode personalizar suas configurações de desbloqueio e tempo limite para acessar seu cofre mais rapidamente."
+    "message": "Você pode personalizar suas configurações de desbloqueio e limite de tempo para acessar seu cofre mais rapidamente."
   },
   "unlockPinSet": {
     "message": "PIN de desbloqueio configurado"
@@ -5640,6 +5685,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Esta credencial está em risco e está sem um site. Adicione um site e altere a senha para segurança melhor."
   },
+  "vulnerablePassword": {
+    "message": "Senha vulnerável."
+  },
+  "changeNow": {
+    "message": "Alterar agora"
+  },
   "missingWebsite": {
     "message": "Site ausente"
   },
@@ -5724,7 +5775,7 @@
     }
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Preenche automaticamente itens para a página atual"
+    "message": "Preenche itens para a página atual"
   },
   "hasItemsVaultNudgeBodyTwo": {
     "message": "Favorite itens para acesso rápido"
@@ -5848,8 +5899,8 @@
   "andMoreFeatures": {
     "message": "E mais!"
   },
-  "planDescPremium": {
-    "message": "Segurança on-line completa"
+  "advancedOnlineSecurity": {
+    "message": "Segurança on-line avançada"
   },
   "upgradeToPremium": {
     "message": "Faça upgrade para o Premium"
@@ -5879,7 +5930,144 @@
   "cardNumberLabel": {
     "message": "Número do cartão"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "A sua organização não está mais usando senhas principais para se conectar ao Bitwarden. Para continuar, verifique a organização e o domínio."
+  },
+  "continueWithLogIn": {
+    "message": "Continuar acessando"
+  },
+  "doNotContinue": {
+    "message": "Não continuar"
+  },
+  "domain": {
+    "message": "Domínio"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Este domínio armazenará as chaves de criptografia da sua conta, então certifique-se que confia nele. Se não tiver certeza, verifique com o seu administrador."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifique sua organização para se conectar"
+  },
+  "organizationVerified": {
+    "message": "Organização verificada"
+  },
+  "domainVerified": {
+    "message": "Domínio verificado"
+  },
+  "leaveOrganizationContent": {
+    "message": "Se você não verificar a sua organização, o seu acesso à organização será revogado."
+  },
+  "leaveNow": {
+    "message": "Sair agora"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifique seu domínio para se conectar"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Para continuar se conectando, verifique este domínio."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Para continuar se conectando, verifique a organização e o domínio."
+  },
   "sessionTimeoutSettingsAction": {
-    "message": "Ação do tempo limite"
+    "message": "Ação do limite de tempo"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Esta configuração é gerenciada pela sua organização."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "A sua organização configurou o limite de tempo máximo da sessão para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "A sua organização configurou o limite de tempo padrão da sessão para imediatamente."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "A sua organização configurou o limite de tempo padrão da sessão para ser no bloqueio do sistema."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "A sua organização configurou o limite de tempo padrão da sessão para ser no reinício do navegador."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "O limite de tempo máximo não pode exceder $HOURS$ hora(s) e $MINUTES$ minuto(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "No reinício do navegador"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Configure um método de desbloqueio para alterar a ação do limite de tempo"
+  },
+  "upgrade": {
+    "message": "Fazer upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Tem certeza de que quer sair?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Se recusar, seus itens pessoais continuarão na sua conta, mas você perderá o acesso aos itens compartilhados e os recursos de organização."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Entre em contato com o seu administrador para recuperar o acesso."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Sair de $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Como gerencio meu cofre?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transferir itens para $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por segurança e conformidade. Clique em aceitar para transferir a propriedade dos seus itens.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Aceitar transferência"
+  },
+  "declineAndLeave": {
+    "message": "Recusar e sair"
+  },
+  "whyAmISeeingThis": {
+    "message": "Por que estou vendo isso?"
+  },
+  "resizeSideNavigation": {
+    "message": "Redimensionar navegação lateral"
   }
 }

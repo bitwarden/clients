@@ -1,0 +1,45 @@
+<bit-dialog dialogSize="large" disablePadding="false" background="alt">
+  <ng-container bitDialogTitle>
+    <span>{{ dialogTitle() | i18n }}</span>
+  </ng-container>
+  <ng-container bitDialogContent>
+    <div
+      class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-text-center tw-h-full tw-px-4 tw-pt-20"
+    >
+      <div class="tw-mb-6 tw-mt-8">
+        <div class="tw-size-[95px] tw-content-center">
+          <bit-icon [icon]="activeSendIcon"></bit-icon>
+        </div>
+      </div>
+
+      <h3 bitTypography="h3" class="tw-mb-2 tw-font-bold">
+        {{ "sendCreatedSuccessfully" | i18n }}
+      </h3>
+
+      <p bitTypography="body1" class="tw-mb-6 tw-max-w-sm">
+        {{ "sendCreatedDescription" | i18n: formattedExpirationTime }}
+      </p>
+
+      <bit-form-field class="tw-w-full tw-max-w-sm tw-mb-4">
+        <bit-label>{{ "sendLink" | i18n }}</bit-label>
+        <input bitInput disabled type="text" [value]="sendLink()" />
+        <button
+          type="button"
+          bitIconButton="bwi-clone"
+          bitSuffix
+          [label]="'copyLink' | i18n"
+          (click)="copyLink()"
+        ></button>
+      </bit-form-field>
+    </div>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" (click)="copyLink()">
+      {{ "copyLink" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

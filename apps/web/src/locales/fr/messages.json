@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Il n'y a pas de membres à répertorier."
   },
+  "noMembersToExport": {
+    "message": "Il n'y a aucun membre à exporter."
+  },
   "noEventsInList": {
     "message": "Aucun événement à afficher."
   },
@@ -1969,17 +1972,16 @@
   "encExportAccountWarningDesc": {
     "message": "Les clés de chiffrement du compte sont spécifiques à chaque utilisateur Bitwarden. Vous ne pouvez donc pas importer d'export chiffré dans un compte différent."
   },
-  "export": {
-    "message": "Exporter"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exporter",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Exporter à partir de"
-  },
-  "exportVault": {
-    "message": "Exporter le coffre"
-  },
-  "exportSecrets": {
-    "message": "Exporter les secrets"
   },
   "fileFormat": {
     "message": "Format de fichier"
@@ -1992,9 +1994,6 @@
   },
   "confirmMasterPassword": {
     "message": "Confirmer le mot de passe principal"
-  },
-  "confirmFormat": {
-    "message": "Confirmer le format"
   },
   "filePassword": {
     "message": "Mot de Passe du Fichier"
@@ -2306,6 +2305,14 @@
   "tools": {
     "message": "Outils"
   },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importer",
+    "description": "The verb form of the word Import"
+  },
   "importData": {
     "message": "Importer des données"
   },
@@ -2533,6 +2540,9 @@
   "enabled": {
     "message": "Activé"
   },
+  "optionEnabled": {
+    "message": "Activé"
+  },
   "restoreAccess": {
     "message": "Restaurer l'Accès"
   },
@@ -2629,6 +2639,9 @@
   },
   "key": {
     "message": "Clé"
+  },
+  "unnamedKey": {
+    "message": "Clé sans nom"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Code de vérification"
@@ -3139,6 +3152,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Pour récupérer l'accès à vos archives, redémarrez votre abonnement Premium. Si vous modifiez les détails d'un élément archivé avant de le redémarrer, il sera déplacé dans votre coffre."
   },
+  "itemRestored": {
+    "message": "L'élément a été restauré"
+  },
   "restartPremium": {
     "message": "Redémarrer Premium"
   },
@@ -3287,6 +3303,9 @@
     "message": "Gérer l'abonnement"
   },
   "launchCloudSubscription": {
+    "message": "Démarrer l'Abonnement Cloud"
+  },
+  "launchCloudSubscriptionSentenceCase": {
     "message": "Démarrer l'Abonnement Cloud"
   },
   "storage": {
@@ -4204,6 +4223,12 @@
       }
     }
   },
+  "userAcceptedTransfer": {
+    "message": "Transfert accepté à la propriété de l'organisation."
+  },
+  "userDeclinedTransfer": {
+    "message": "Révoqué pour le refus du transfert vers la propriété de l'organisation."
+  },
   "invitedUserId": {
     "message": "Utilisateur $ID$ invité.",
     "placeholders": {
@@ -5075,7 +5100,7 @@
     "message": "4 heures"
   },
   "onRefresh": {
-    "message": "Au rechargement de la page"
+    "message": "À l'actualisation du navigateur"
   },
   "dateUpdated": {
     "message": "Mis à jour",
@@ -5169,8 +5194,20 @@
     "message": "Réparer",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Corriger le chiffrement"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Ce fichier utilise une méthode de chiffrement obsolète."
+  },
+  "attachmentUpdated": {
+    "message": "Pièce jointe mise à jour"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "Il y a d'anciennes pièces jointes dans votre coffre qui doivent être réparées avant que vous ne puissiez régénérer la clé de chiffrement de votre compte."
+  },
+  "itemsTransferred": {
+    "message": "Éléments transférés"
   },
   "yourAccountsFingerprint": {
     "message": "Phrase d'empreinte de votre compte",
@@ -5617,6 +5654,9 @@
   },
   "revoked": {
     "message": "Révoqué"
+  },
+  "accepted": {
+    "message": "Accepté"
   },
   "sendLink": {
     "message": "Lien du Send",
@@ -6276,6 +6316,12 @@
   "enrolledAccountRecovery": {
     "message": "Inscrit à la récupération du compte"
   },
+  "enrolled": {
+    "message": "Inscrit"
+  },
+  "notEnrolled": {
+    "message": "Non inscrit"
+  },
   "withdrawAccountRecovery": {
     "message": "Retirer de la récupération du compte"
   },
@@ -6452,6 +6498,32 @@
   },
   "bulkReinviteMessage": {
     "message": "Réinvité avec succès."
+  },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ ont été réinvités",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ des utilisateurs de $SELECTEDCOUNT$ ont été ré-invités. $EXCLUDEDCOUNT$ n'ont pas été invités en raison de la limite d'invitation de $LIMIT$.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
   },
   "bulkRemovedMessage": {
     "message": "Supprimé avec succès"
@@ -6773,8 +6845,8 @@
   "vaultTimeoutRangeError": {
     "message": "Le délai de mise en veille du coffre n'est pas dans l'intervalle de temps autorisé."
   },
-  "disablePersonalVaultExport": {
-    "message": "Supprimer l'exportation individuelle du coffre"
+  "disableExport": {
+    "message": "Supprimer l'exportation"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Ne pas autoriser les membres à exporter des données de leur coffre individuel."
@@ -7094,9 +7166,6 @@
   "invalidVerificationCode": {
     "message": "Code de vérification invalide"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Un mot de passe maître n'est plus requis pour les membres de l'organisation suivante. Veuillez confirmer le domaine ci-dessous avec l'administrateur de votre organisation."
-  },
   "keyConnectorDomain": {
     "message": "Domaine Key Connector"
   },
@@ -7154,8 +7223,8 @@
   "enabledSso": {
     "message": "SSO activé"
   },
-  "disabledSso": {
-    "message": "SSO désactivé"
+  "ssoTurnedOff": {
+    "message": "SSO éteint"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ doit se connecter avec une Authentification Unique (SSO)",
@@ -8718,9 +8787,6 @@
   "server": {
     "message": "Serveur"
   },
-  "exportData": {
-    "message": "Exporter les données"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Exportation des Données Secrètes de l'Organisation"
   },
@@ -9447,6 +9513,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "La connexion SSO est requise"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Le courriel est requis pour le SSO"
   },
   "selectedRegionFlag": {
     "message": "Drapeau de la région sélectionnée"
@@ -11558,6 +11627,12 @@
   "unArchive": {
     "message": "Désarchiver"
   },
+  "archived": {
+    "message": "Archivé"
+  },
+  "unArchiveAndSave": {
+    "message": "Désarchiver et enregistrer"
+  },
   "itemsInArchive": {
     "message": "Éléments dans l'archive"
   },
@@ -11961,8 +12036,8 @@
   "familiesMembership": {
     "message": "Abonnement à Familles"
   },
-  "planDescPremium": {
-    "message": "Sécurité en ligne complète"
+  "advancedOnlineSecurity": {
+    "message": "Sécurité en ligne avancée"
   },
   "planDescFamiliesV2": {
     "message": "Sécurité Premium pour votre famille"
@@ -12199,6 +12274,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Votre organisation n'utilise plus les mots de passe principaux pour se connecter à Bitwarden. Pour continuer, vérifiez l'organisation et le domaine."
+  },
+  "continueWithLogIn": {
+    "message": "Continuer avec la connexion"
+  },
+  "doNotContinue": {
+    "message": "Ne pas continuer"
+  },
+  "domain": {
+    "message": "Domaine"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Ce domaine stockera les clés de chiffrement de votre compte, alors assurez-vous que vous lui faites confiance. Si vous n'êtes pas sûr, vérifiez auprès de votre administrateur."
+  },
+  "verifyYourOrganization": {
+    "message": "Vérifiez votre organisation pour vous connecter"
+  },
+  "organizationVerified": {
+    "message": "Organisation vérifiée"
+  },
+  "domainVerified": {
+    "message": "Domaine vérifié"
+  },
+  "leaveOrganizationContent": {
+    "message": "Si vous ne vérifiez pas votre organisation, votre accès à l'organisation sera révoqué."
+  },
+  "leaveNow": {
+    "message": "Quitter maintenant"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Vérifiez votre domaine pour vous connecter"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Pour continuer à vous connecter, vérifiez ce domaine."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Pour continuer à vous connecter, vérifiez l'organisation et le domaine."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Aucune application critique n'est sélectionnée"
   },
@@ -12207,5 +12321,264 @@
   },
   "userVerificationFailed": {
     "message": "La vérification de l'utilisateur a échoué."
+  },
+  "resizeSideNavigation": {
+    "message": "Redimensionner la navigation latérale"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Supprimer les éléments non récupérables du coffre"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Certains éléments de votre coffre n'ont pu être récupérés. Voulez-vous supprimer ces éléments non récupérables de votre coffre ?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Supprimer les dossiers non récupérables"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Certains de vos dossiers n'ont pu être récupérés. Voulez-vous supprimer ces dossiers irrécupérables de votre coffre ?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Remplacer la clé de chiffrement"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Votre paire de clés de chiffrement à clé publique n'a pu être récupérée. Voulez-vous remplacer votre clé de chiffrement par une nouvelle paire de clés ? Cela vous demandera de reconfigurer les accès d'urgence existants et les adhésions à l'organisation."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Synchronisation des données"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Vérification de l'intégrité de la clé de chiffrement"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Vérification des informations de l'utilisateur"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Vérification de l'intégrité de l'élément du coffre"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Vérification de l'intégrité du dossier"
+  },
+  "dataRecoveryTitle": {
+    "message": "Récupération des données et Diagnostics"
+  },
+  "dataRecoveryDescription": {
+    "message": "Utilisez l'outil de récupération de données pour diagnostiquer et réparer les problèmes avec votre compte. Après avoir exécuté les diagnostics, vous avez la possibilité d'enregistrer les journaux de diagnostic pour la prise en charge et l'option de réparer tous les problèmes détectés."
+  },
+  "runDiagnostics": {
+    "message": "Lancer le diagnostique"
+  },
+  "repairIssues": {
+    "message": "Réparer les problèmes"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Enregistrer les journaux de diagnostic"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Ce paramètre est géré par votre organisation."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Votre organisation a réglé le délai d'expiration de session maximal à $HOURS$ heure(s) et $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Votre organisation a défini le délai d'expiration de session par défaut sur À l'actualisation du navigateur."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Le délai d'expiration de session maximal ne peut pas dépasser $HOURS$ heure(s) et $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "À l'actualisation du navigateur"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Êtes-vous sûr de vouloir quitter ?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "En refusant, vos éléments personnels resteront dans votre compte, mais vous perdrez l'accès aux éléments partagés et aux fonctionnalités de l'organisation."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contactez votre administrateur pour regagner l'accès."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Quitter $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Comment gérer mon coffre ?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transférer les éléments vers $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ exige que tous les éléments soient détenus par l’organisation pour des raisons de sécurité et de conformité. Cliquez sur Accepter pour transférer la propriété de vos éléments.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accepter le transfert"
+  },
+  "declineAndLeave": {
+    "message": "Refuser et quitter"
+  },
+  "whyAmISeeingThis": {
+    "message": "Pourquoi est-ce que je vois ça ?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Vous avez Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Afficher et gérer votre abonnement Premium"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Vous devrez mettre à jour votre fichier de licence"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Téléverser le fichier de licence"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Téléverser votre fichier de licence"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Téléversez votre fichier de licence Premium"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Votre nom de fichier de licence sera similaire à : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Vous avez déjà un abonnement ?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Ouvrez la page d'abonnement sur votre compte cloud Bitwarden et téléchargez votre fichier de licence. Puis revenez à cet écran et téléversez-le ci-dessous."
+  },
+  "viewAllPlans": {
+    "message": "Afficher tous les forfaits"
+  },
+  "planDescPremium": {
+    "message": "Sécurité en ligne complète"
+  },
+  "updatePayment": {
+    "message": "Mettre à jour le paiement"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Nous n'avons pas pu traiter votre paiement. Veuillez mettre à jour votre méthode de paiement ou contactez l'équipe de support pour obtenir de l'assistance."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Votre abonnement a expiré. Veuillez contacter l'équipe de suuport pour obtenir de l'assistance."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Votre abonnement est programmé pour terminer le $DATE$. Vous pouvez le rétablir à tout moment avant cette date.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Partagez encore plus avec Familles, ou obtenez une sécurité de mot de passe puissante et fiable avec Équipes ou Entreprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Vous bénéficiez d'une période de grace de $DAYS$ jours suivants la date d'expiration de votre abonnement. Veuillez régler les paiements en souffrance pour les factures dont les échéances sont passées d'ici le $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Gérer les factures"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Votre prochaine charge est de"
+  },
+  "dueOn": {
+    "message": "dû le"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Votre abonnement sera suspendu le"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Votre abonnement a été suspendu le"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Votre abonnement sera annulé le"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Votre abonnement a été annulé le"
+  },
+  "storageFull": {
+    "message": "Stockage plein"
+  },
+  "storageUsedDescription": {
+    "message": "Vous avez utilisé $USED$ sur $AVAILABLE$ Go de votre stockage de fichiers chiffré.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Vous avez utilisé tous les $GB$ Go de votre stockage chiffré. Pour continuer à stocker des fichiers, ajoutez plus de stockage."
   }
 }

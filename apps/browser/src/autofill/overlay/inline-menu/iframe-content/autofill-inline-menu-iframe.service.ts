@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
@@ -15,14 +13,17 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private readonly setElementStyles = setElementStyles;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private port: chrome.runtime.Port | null = null;
-  private portKey: string;
+  private portKey?: string;
   private readonly extensionOrigin: string;
   private iframeMutationObserver: MutationObserver;
-  private iframe: HTMLIFrameElement;
-  private ariaAlertElement: HTMLDivElement;
-  private ariaAlertTimeout: number | NodeJS.Timeout;
-  private delayedCloseTimeout: number | NodeJS.Timeout;
-  private fadeInTimeout: number | NodeJS.Timeout;
+  /**
+   *  Initialized in initMenuIframe which makes it safe to assert non null by lifecycle.
+   */
+  private iframe!: HTMLIFrameElement;
+  private ariaAlertElement?: HTMLDivElement;
+  private ariaAlertTimeout: number | NodeJS.Timeout | null = null;
+  private delayedCloseTimeout: number | NodeJS.Timeout | null = null;
+  private fadeInTimeout: number | NodeJS.Timeout | null = null;
   private readonly fadeInOpacityTransition = "opacity 125ms ease-out 0s";
   private readonly fadeOutOpacityTransition = "opacity 65ms ease-out 0s";
   private iframeStyles: Partial<CSSStyleDeclaration> = {
@@ -50,7 +51,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   };
   private foreignMutationsCount = 0;
   private mutationObserverIterations = 0;
-  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
+  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout | null = null;
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
     initAutofillInlineMenuButton: ({ message }) => this.initAutofillInlineMenu(message),
     initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenu(message),
@@ -134,7 +135,9 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     this.port.onDisconnect.addListener(this.handlePortDisconnect);
     this.port.onMessage.addListener(this.handlePortMessage);
 
-    this.announceAriaAlert(this.ariaAlert, 2000);
+    if (this.ariaAlert) {
+      this.announceAriaAlert(this.ariaAlert, 2000);
+    }
   };
 
   /**
@@ -155,7 +158,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
     this.ariaAlertTimeout = globalThis.setTimeout(async () => {
       const isFieldFocused = await this.sendExtensionMessage("checkIsFieldCurrentlyFocused");
-      if (isFieldFocused || triggeredByUser) {
+      if ((isFieldFocused || triggeredByUser) && this.ariaAlertElement) {
         this.shadow.appendChild(this.ariaAlertElement);
       }
       this.ariaAlertTimeout = null;
@@ -242,7 +245,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    */
   private initAutofillInlineMenuList(message: AutofillInlineMenuIframeExtensionMessage) {
     const { theme } = message;
-    let borderColor: string;
+    let borderColor: string | undefined;
     let verifiedTheme = theme;
     if (verifiedTheme === ThemeTypes.System) {
       verifiedTheme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
@@ -274,8 +277,8 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    *
    * @param position - The position styles to apply to the iframe
    */
-  private updateIframePosition(position: Partial<CSSStyleDeclaration>) {
-    if (!globalThis.document.hasFocus()) {
+  private updateIframePosition(position?: Partial<CSSStyleDeclaration>) {
+    if (!position || !globalThis.document.hasFocus()) {
       return;
     }
 
@@ -295,7 +298,9 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       this.handleFadeInInlineMenuIframe();
     }
 
-    this.announceAriaAlert(this.ariaAlert, 2000);
+    if (this.ariaAlert) {
+      this.announceAriaAlert(this.ariaAlert, 2000);
+    }
   }
 
   /**
@@ -359,8 +364,8 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * @param customElement - The element to update the styles for
    * @param styles - The styles to apply to the element
    */
-  private updateElementStyles(customElement: HTMLElement, styles: Partial<CSSStyleDeclaration>) {
-    if (!customElement) {
+  private updateElementStyles(customElement: HTMLElement, styles?: Partial<CSSStyleDeclaration>) {
+    if (!customElement || !styles) {
       return;
     }
 
