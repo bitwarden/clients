@@ -30,8 +30,8 @@ export function b64Decode(str: string, spaceAsPlus = false) {
 }
 
 function appLinkHost(): string {
-  const hostNamne = window.location.hostname || "";
-  if (hostNamne.endsWith("bitwarden.eu")) {
+  const hostName = window.location.hostname || "";
+  if (hostName.endsWith("bitwarden.eu")) {
     return "bitwarden.eu";
   }
   if (hostNamne.endsWith("bitwarden.pw")) {
