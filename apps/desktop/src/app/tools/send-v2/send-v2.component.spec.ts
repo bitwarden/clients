@@ -20,11 +20,16 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { SendItemsService, SendListFiltersService } from "@bitwarden/send-ui";
-
-import { AddEditComponent } from "../send/add-edit.component";
+import {
+  SendItemsService,
+  SendListFiltersService,
+  DefaultSendFormConfigService,
+  SendAddEditDialogComponent,
+  SendFormConfig,
+} from "@bitwarden/send-ui";
 
 import { SendV2Component } from "./send-v2.component";
 
@@ -37,12 +42,16 @@ describe("SendV2Component", () => {
   let sendItemsService: MockProxy<SendItemsService>;
   let sendListFiltersService: MockProxy<SendListFiltersService>;
   let changeDetectorRef: MockProxy<ChangeDetectorRef>;
+  let sendFormConfigService: MockProxy<DefaultSendFormConfigService>;
+  let dialogService: MockProxy<DialogService>;
 
   beforeEach(async () => {
     sendService = mock<SendService>();
     accountService = mock<AccountService>();
     policyService = mock<PolicyService>();
     changeDetectorRef = mock<ChangeDetectorRef>();
+    sendFormConfigService = mock<DefaultSendFormConfigService>();
+    dialogService = mock<DialogService>();
 
     // Mock SendItemsService with all required observables
     sendItemsService = mock<SendItemsService>();
@@ -78,7 +87,8 @@ describe("SendV2Component", () => {
         { provide: PolicyService, useValue: policyService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: SendApiService, useValue: mock<SendApiService>() },
-        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: DialogService, useValue: dialogService },
+        { provide: DefaultSendFormConfigService, useValue: sendFormConfigService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: AccountService, useValue: accountService },
         { provide: SendItemsService, useValue: sendItemsService },
@@ -97,7 +107,16 @@ describe("SendV2Component", () => {
           },
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(SendV2Component, {
+        set: {
+          providers: [
+            { provide: DefaultSendFormConfigService, useValue: sendFormConfigService },
+            { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
+          ],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(SendV2Component);
     component = fixture.componentInstance;
@@ -108,28 +127,82 @@ describe("SendV2Component", () => {
   });
 
   it("initializes with correct default action", () => {
-    expect(component.action()).toBe("");
+    expect(component["action"]()).toBe("");
   });
 
   describe("addSend", () => {
-    it("sets action to Add", async () => {
-      await component.addSend(SendType.Text);
-      expect(component.action()).toBe("add");
+    beforeEach(() => {
+      jest.clearAllMocks();
     });
 
-    it("calls resetAndLoad on addEditComponent when component exists", async () => {
-      const mockAddEdit = mock<AddEditComponent>();
-      mockAddEdit.resetAndLoad.mockResolvedValue();
-      jest.spyOn(component as any, "addEditComponent").mockReturnValue(mockAddEdit);
+    it("opens dialog with correct config for Text send", async () => {
+      const mockConfig = { mode: "add", sendType: SendType.Text } as SendFormConfig;
+      const mockDialogRef = { closed: of(true) };
 
-      await component.addSend(SendType.Text);
+      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
+      const openDrawerSpy = jest
+        .spyOn(SendAddEditDialogComponent, "openDrawer")
+        .mockReturnValue(mockDialogRef as any);
 
-      expect(mockAddEdit.resetAndLoad).toHaveBeenCalled();
+      await component["addSend"](SendType.Text);
+
+      expect(sendFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        SendType.Text,
+      );
+      expect(openDrawerSpy).toHaveBeenCalled();
+      expect(openDrawerSpy.mock.calls[0][1]).toEqual({
+        formConfig: mockConfig,
+      });
     });
 
-    it("does not throw when addEditComponent is null", async () => {
-      jest.spyOn(component as any, "addEditComponent").mockReturnValue(undefined);
-      await expect(component.addSend(SendType.Text)).resolves.not.toThrow();
+    it("opens dialog with correct config for File send", async () => {
+      const mockConfig = { mode: "add", sendType: SendType.File } as SendFormConfig;
+      const mockDialogRef = { closed: of(true) };
+
+      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
+      const openDrawerSpy = jest
+        .spyOn(SendAddEditDialogComponent, "openDrawer")
+        .mockReturnValue(mockDialogRef as any);
+
+      await component["addSend"](SendType.File);
+
+      expect(sendFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        SendType.File,
+      );
+      expect(openDrawerSpy).toHaveBeenCalled();
+      expect(openDrawerSpy.mock.calls[0][1]).toEqual({
+        formConfig: mockConfig,
+      });
+    });
+
+    it("calls closeEditPanel when dialog returns result", async () => {
+      const mockConfig = { mode: "add" } as SendFormConfig;
+      const mockDialogRef = { closed: of(true) };
+
+      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
+      jest.spyOn(SendAddEditDialogComponent, "openDrawer").mockReturnValue(mockDialogRef as any);
+      jest.spyOn(component as any, "closeEditPanel");
+
+      await component["addSend"](SendType.Text);
+
+      expect(component["closeEditPanel"]).toHaveBeenCalled();
+    });
+
+    it("does not call closeEditPanel when dialog is cancelled", async () => {
+      const mockConfig = { mode: "add" } as SendFormConfig;
+      const mockDialogRef = { closed: of(undefined) };
+
+      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
+      jest.spyOn(SendAddEditDialogComponent, "openDrawer").mockReturnValue(mockDialogRef as any);
+      jest.spyOn(component as any, "closeEditPanel");
+
+      await component["addSend"](SendType.Text);
+
+      expect(component["closeEditPanel"]).not.toHaveBeenCalled();
     });
   });
 
@@ -147,7 +220,7 @@ describe("SendV2Component", () => {
 
   describe("savedSend", () => {
     it("selects the saved send", async () => {
-      jest.spyOn(component as any, "selectSend").mockResolvedValue();
+      jest.spyOn(component as any, "selectSend").mockResolvedValue(undefined);
 
       const mockSend = new SendView();
       mockSend.id = "saved-send-id";
@@ -159,51 +232,58 @@ describe("SendV2Component", () => {
   });
 
   describe("selectSend", () => {
-    it("sets action to Edit and updates sendId", async () => {
-      await component["selectSend"]("new-send-id");
-
-      expect(component["action"]()).toBe("edit");
-      expect(component["sendId"]()).toBe("new-send-id");
+    beforeEach(() => {
+      jest.clearAllMocks();
     });
 
-    it("updates addEditComponent when it exists", async () => {
-      const mockAddEdit = mock<AddEditComponent>();
-      mockAddEdit.refresh.mockResolvedValue();
-      jest.spyOn(component as any, "addEditComponent").mockReturnValue(mockAddEdit);
+    it("opens dialog with correct config for editing send", async () => {
+      const mockConfig = { mode: "edit", sendId: "test-send-id" } as SendFormConfig;
+      const mockDialogRef = { closed: of(true) };
+
+      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
+      const openDrawerSpy = jest
+        .spyOn(SendAddEditDialogComponent, "openDrawer")
+        .mockReturnValue(mockDialogRef as any);
 
       await component["selectSend"]("test-send-id");
 
-      expect(mockAddEdit.sendId).toBe("test-send-id");
-      expect(mockAddEdit.refresh).toHaveBeenCalled();
+      expect(sendFormConfigService.buildConfig).toHaveBeenCalledWith("edit", "test-send-id");
+      expect(openDrawerSpy).toHaveBeenCalled();
+      expect(openDrawerSpy.mock.calls[0][1]).toEqual({
+        formConfig: mockConfig,
+      });
     });
 
-    it("does not reload if same send is already selected in edit mode", async () => {
-      const mockAddEdit = mock<AddEditComponent>();
-      jest.spyOn(component as any, "addEditComponent").mockReturnValue(mockAddEdit);
-      component["sendId"].set("same-id");
-      component["action"].set("edit");
+    it("calls closeEditPanel when dialog returns result", async () => {
+      const mockConfig = { mode: "edit" } as SendFormConfig;
+      const mockDialogRef = { closed: of(true) };
 
-      await component["selectSend"]("same-id");
+      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
+      jest.spyOn(SendAddEditDialogComponent, "openDrawer").mockReturnValue(mockDialogRef as any);
+      jest.spyOn(component as any, "closeEditPanel");
 
-      expect(mockAddEdit.refresh).not.toHaveBeenCalled();
+      await component["selectSend"]("test-send-id");
+
+      expect(component["closeEditPanel"]).toHaveBeenCalled();
     });
 
-    it("reloads if selecting different send", async () => {
-      const mockAddEdit = mock<AddEditComponent>();
-      mockAddEdit.refresh.mockResolvedValue();
-      jest.spyOn(component as any, "addEditComponent").mockReturnValue(mockAddEdit);
-      component["sendId"].set("old-id");
-      component["action"].set("edit");
+    it("does not call closeEditPanel when dialog is cancelled", async () => {
+      const mockConfig = { mode: "edit" } as SendFormConfig;
+      const mockDialogRef = { closed: of(undefined) };
 
-      await component["selectSend"]("new-id");
+      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
+      jest.spyOn(SendAddEditDialogComponent, "openDrawer").mockReturnValue(mockDialogRef as any);
+      jest.spyOn(component as any, "closeEditPanel");
 
-      expect(mockAddEdit.refresh).toHaveBeenCalled();
+      await component["selectSend"]("test-send-id");
+
+      expect(component["closeEditPanel"]).not.toHaveBeenCalled();
     });
   });
 
   describe("onEditSend", () => {
     it("selects the send for editing", async () => {
-      jest.spyOn(component as any, "selectSend").mockResolvedValue();
+      jest.spyOn(component as any, "selectSend").mockResolvedValue(undefined);
       const mockSend = new SendView();
       mockSend.id = "edit-send-id";
 
