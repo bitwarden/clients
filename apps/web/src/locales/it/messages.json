@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Nessun membro da mostrare."
   },
+  "noMembersToExport": {
+    "message": "Nessun elemento da esportare."
+  },
   "noEventsInList": {
     "message": "Nessun evento da mostrare."
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "Attivato"
   },
+  "optionEnabled": {
+    "message": "Attivo"
+  },
   "restoreAccess": {
     "message": "Ripristina accesso"
   },
@@ -2635,7 +2641,7 @@
     "message": "Chiave"
   },
   "unnamedKey": {
-    "message": "Unnamed key"
+    "message": "Chiave senza nome"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Codice di verifica"
@@ -3147,7 +3153,7 @@
     "message": "Per recuperare l'accesso al tuo archivio, riavvia il tuo abbonamento Premium. Se modifichi i dettagli di un elemento archiviato prima del riavvio, sarà spostato nella tua cassaforte."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "L'elemento è stato ripristinato"
   },
   "restartPremium": {
     "message": "Riavvia Premium"
@@ -5649,6 +5655,9 @@
   "revoked": {
     "message": "Revocato"
   },
+  "accepted": {
+    "message": "Approvato"
+  },
   "sendLink": {
     "message": "Link del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6306,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Iscritto al recupero dell'account"
+  },
+  "enrolled": {
+    "message": "Registrato"
+  },
+  "notEnrolled": {
+    "message": "Non registrato"
   },
   "withdrawAccountRecovery": {
     "message": "Rifiuta il recupero dell'account"
@@ -11613,7 +11628,7 @@
     "message": "Togli dall'archivio"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Archiviato"
   },
   "unArchiveAndSave": {
     "message": "Togli dall'archivio e salva"
@@ -12308,7 +12323,7 @@
     "message": "Verifica dell'utente non riuscita."
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Ridimensiona la navigazione laterale"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Elimina gli oggetti della cassaforte non recuperabili"
@@ -12491,5 +12506,79 @@
   },
   "planDescPremium": {
     "message": "Sicurezza online completa"
+  },
+  "updatePayment": {
+    "message": "Aggiorna il metodo di pagamento"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Non è stato possibile elaborare la transazione. Aggiorna il metodo di pagamento o contatta l'assistenza."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Il tuo abbonamento è scaduto. Contatta il team di supporto per ricevere assistenza."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Il tuo abbonamento è programmato per terminare il $DATE$. Puoi ripristinarlo in qualsiasi momento prima di quella data.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Condividi ancora di più con il piano famiglie, o rafforza le protezioni con Team o Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Hai un periodo di grazia di $DAYS$ giorni dalla fine dell'abbonamento. Ti preghiamo di provvedere ai pagamenti entro il $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Gestisci le fatture"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Il tuo prossimo addebito è programmato"
+  },
+  "dueOn": {
+    "message": "per"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Il tuo abbonamento sarà sospeso il"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Il tuo abbonamento è stato sospeso il"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Il tuo abbonamento terminerà il"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Il tuo abbonamento è terminato il"
+  },
+  "storageFull": {
+    "message": "Spazio di archiviazione pieno"
+  },
+  "storageUsedDescription": {
+    "message": "Hai usato $USED$ GB su $AVAILABLE$ del tuo archivio file crittografato.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Hai usato tutti i $GB$ GB del tuo spazio di archiviazione crittografato. Per archiviare altri file, aggiungi altro spazio."
   }
 }
