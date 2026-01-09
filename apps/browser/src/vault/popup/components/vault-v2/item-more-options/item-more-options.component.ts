@@ -204,12 +204,15 @@ export class ItemMoreOptionsComponent {
     }
 
     const uris = cipher.login?.uris ?? [];
-    const cipherHasAllExactMatchLoginUris =
-      uris.length > 0 && uris.every((u) => u.uri && u.match === UriMatchStrategy.Exact);
-
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
 
-    if (cipherHasAllExactMatchLoginUris || uriMatchStrategy === UriMatchStrategy.Exact) {
+    const showExactMatchDialog =
+      uris.length === 0
+        ? uriMatchStrategy === UriMatchStrategy.Exact
+        : // all saved URIs are exact match
+          uris.every((u) => (u.match ?? uriMatchStrategy) === UriMatchStrategy.Exact);
+
+    if (showExactMatchDialog) {
       await this.dialogService.openSimpleDialog({
         title: { key: "cannotAutofill" },
         content: { key: "cannotAutofillExactMatch" },
