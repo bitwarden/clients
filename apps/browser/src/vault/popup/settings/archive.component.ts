@@ -222,7 +222,7 @@ export class ArchiveComponent {
    * Get the organization tier type for the given cipher.
    */
   orgTierType({ organizationId }: CipherViewLike) {
-    return this.orgMap().get(organizationId as string)?.productTierType;
+    return this.orgMap()?.get(organizationId as string)?.productTierType;
   }
 
   /**
