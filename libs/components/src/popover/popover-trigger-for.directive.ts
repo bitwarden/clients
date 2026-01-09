@@ -32,6 +32,7 @@ export class PopoverTriggerForDirective implements OnDestroy {
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
   private hasInitialized = false;
+  private rafId: number | null = null;
 
   get positions() {
     if (!this.position()) {
@@ -80,15 +81,15 @@ export class PopoverTriggerForDirective implements OnDestroy {
       // Initial open - wait for layout to stabilize
       // First RAF: Waits for Angular's change detection to complete and queues the next paint
       // Second RAF: Ensures the browser has actually painted that frame and all layout/position calculations are final
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
+      this.rafId = requestAnimationFrame(() => {
+        this.rafId = requestAnimationFrame(() => {
           if (this.popoverOpen() && !this.overlayRef) {
             this.openPopover();
+            this.hasInitialized = true;
           }
+          this.rafId = null;
         });
       });
-
-      this.hasInitialized = true;
     });
   }
 
@@ -142,6 +143,11 @@ export class PopoverTriggerForDirective implements OnDestroy {
     this.closedEventsSub = null;
     this.overlayRef?.dispose();
     this.overlayRef = null;
+
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
   }
 
   ngOnDestroy() {
