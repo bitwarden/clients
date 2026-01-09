@@ -641,7 +641,12 @@ pub mod autofill {
         threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
     };
     use serde::{de::DeserializeOwned, Deserialize, Serialize};
+    use tokio::sync::oneshot;
     use tracing::error;
+
+    /// In our callback management, 0 is a reserved sequence number indicating that a message does not
+    /// have a callback.
+    const NO_CALLBACK_INDICATOR: u32 = 0;
 
     #[napi]
     pub async fn run_command(value: String) -> napi::Result<String> {
@@ -688,6 +693,20 @@ pub mod autofill {
     pub struct PasskeyMessage<T: Serialize + DeserializeOwned> {
         pub sequence_number: u32,
         pub value: Result<T, BitwardenError>,
+    }
+
+    #[derive(Serialize, Deserialize)]
+    #[serde(tag = "request", content = "params", rename_all = "camelCase")]
+    pub enum HostRequest {
+        UserVerification(UserVerificationRequest),
+    }
+
+    #[derive(Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct HostRequestMessage {
+        request_id: u32,
+        #[serde(flatten)]
+        request: HostRequest,
     }
 
     #[napi(object)]
@@ -777,6 +796,9 @@ pub mod autofill {
     #[napi]
     pub struct AutofillIpcServer {
         server: desktop_core::ipc::server::Server,
+        // We need to keep track of the callbacks so we can call them when we receive a response
+        host_callbacks_counter: AtomicU32,
+        host_callbacks: Arc<Mutex<HashMap<u32, oneshot::Sender<Result<HostResponse, String>>>>>,
     }
 
     // FIXME: Remove unwraps! They panic and terminate the whole application.
@@ -941,7 +963,12 @@ pub mod autofill {
                 ))
             })?;
 
-            Ok(AutofillIpcServer { server })
+            Ok(AutofillIpcServer {
+                server,
+                // Start at 1 since 0 is reserved for "no callback" scenarios
+                host_callbacks_counter: AtomicU32::new(NO_CALLBACK_INDICATOR + 1),
+                host_callbacks: Arc::new(Mutex::new(HashMap::new())),
+            })
         }
 
         /// Return the path to the IPC server.
