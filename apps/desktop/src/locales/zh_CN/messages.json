@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "输入快捷键"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "包含以下一个或两个修饰符：Ctrl、Alt、Win 或 Shift，外加一个字母。"
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "包含以下修饰键中的一个或两个：Ctrl、Alt、Win，以及一个字母。"
   },
   "invalidShortcut": {
     "message": "无效的快捷键"
