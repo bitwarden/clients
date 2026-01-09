@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Zadajte klávesovú skratku"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Použite jeden alebo dva z nasledujúcich modifikátorov: Ctrl, Alt, Win, alebo Shift a písmeno."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Použite jeden alebo dva z nasledujúcich modifikátorov: Ctrl, Alt, Win a písmeno."
   },
   "invalidShortcut": {
     "message": "Neplatná klávesová skratka"

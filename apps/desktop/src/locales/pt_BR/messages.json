@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Atalho de digitação"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win, ou Shift, e uma letra."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win, e uma letra."
   },
   "invalidShortcut": {
     "message": "Atalho inválido"

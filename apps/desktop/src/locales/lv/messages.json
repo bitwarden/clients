@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Ievadīt īsinājumtaustiņus"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Jāiekļauj viens vai divi no šiem taustiņiem - Ctrl, Alt, Win vai Shift - un burts."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Jāiekļauj viens vai divi no šiem taustiņiem: Ctrl, Alt, Win un burts."
   },
   "invalidShortcut": {
     "message": "Nederīgi īsinājumtaustiņi"

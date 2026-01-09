@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "הקלד קיצור דרך"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "כלול אחד או שניים ממקשי הצירוף הבאים: Ctrl, Alt, Win, או Shift, ואות."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "קיצור דרך לא חוקי"
