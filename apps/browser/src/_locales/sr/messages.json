@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Премијум чланство је неопходно за употребу Архиве."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Уреди"
   },
@@ -5664,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Ова пријава је ризична и недостаје веб локација. Додајте веб страницу и промените лозинку за јачу сигурност."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Недостаје веб страница"
   },
@@ -6039,5 +6048,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Зашто видите ово?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

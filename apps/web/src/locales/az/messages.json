@@ -2140,7 +2140,7 @@
     "message": "Davam etsəniz, hazırkı seansınız bitəcək, təkrar giriş etməyiniz tələb olunacaq. Digər cihazlardakı aktiv seanslar, bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "changePasswordWarning": {
-    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saat ərzində çıxış sonlandırılacaq."
+    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində sonlandırılacaq."
   },
   "emailChanged": {
     "message": "E-poçt dəyişdirildi"
@@ -2633,6 +2633,9 @@
   },
   "key": {
     "message": "Açar"
+  },
+  "unnamedKey": {
+    "message": "Adsız açar"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Doğrulama kodu"
@@ -3142,6 +3145,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "restartPremium": {
     "message": "\"Premium\"u yenidən başlat"
@@ -11606,6 +11612,9 @@
   "unArchive": {
     "message": "Arxivdən çıxart"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "unArchiveAndSave": {
     "message": "Arxivdən çıxart və saxla"
   },
@@ -12297,6 +12306,9 @@
   },
   "userVerificationFailed": {
     "message": "İstifadəçi doğrulaması uğursuz oldu."
+  },
+  "resizeSideNavigation": {
+    "message": "Yan naviqasiyanı yeni. ölçüləndir"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Geri qaytarıla bilməyən seyf elementlərini sil"

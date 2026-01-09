@@ -2634,6 +2634,9 @@
   "key": {
     "message": "Chiave"
   },
+  "unnamedKey": {
+    "message": "Unnamed key"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Codice di verifica"
   },
@@ -3142,6 +3145,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Per recuperare l'accesso al tuo archivio, riavvia il tuo abbonamento Premium. Se modifichi i dettagli di un elemento archiviato prima del riavvio, sarà spostato nella tua cassaforte."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "restartPremium": {
     "message": "Riavvia Premium"
@@ -11606,6 +11612,9 @@
   "unArchive": {
     "message": "Togli dall'archivio"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "unArchiveAndSave": {
     "message": "Togli dall'archivio e salva"
   },
@@ -12297,6 +12306,9 @@
   },
   "userVerificationFailed": {
     "message": "Verifica dell'utente non riuscita."
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Elimina gli oggetti della cassaforte non recuperabili"
