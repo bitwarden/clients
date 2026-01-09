@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Autotype-Tastaturkürzel"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Füge einen oder zwei der folgenden Modifikatoren ein: Strg, Alt, Win oder Umschalttaste, sowie einen Buchstaben."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Füge einen oder zwei der folgenden Modifikatoren ein: Strg, Alt, Win und einen Buchstaben."
   },
   "invalidShortcut": {
     "message": "Ungültiges Tastaturkürzel"
@@ -4307,7 +4307,7 @@
     "message": "Wiederherstellen"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Archiviert"
   },
   "itemsInArchive": {
     "message": "Einträge im Archiv"
@@ -4331,19 +4331,19 @@
     "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Nicht mehr archivieren und speichern"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Premium neu starten"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Dein Premium-Abonnement ist abgelaufen"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Eintrag wurde wiederhergestellt"
   },
   "zipPostalCodeLabel": {
     "message": "PLZ / Postleitzahl"
