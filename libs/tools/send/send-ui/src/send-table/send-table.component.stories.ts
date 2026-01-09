@@ -58,6 +58,7 @@ dataSource.data = [
   createMockSend(6, {
     name: "Max Access Reached",
     type: SendType.Text,
+    authType: AuthType.Password,
     maxAccessCount: 5,
     accessCount: 5,
     password: "123",
