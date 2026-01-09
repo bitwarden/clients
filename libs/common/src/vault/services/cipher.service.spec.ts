@@ -46,7 +46,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
 
 import { CipherService } from "./cipher.service";
-import { ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
+import { DECRYPTED_CIPHERS, ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
 
 const ENCRYPTED_TEXT = "This data has been encrypted";
 function encryptText(clearText: string | Uint8Array) {
@@ -1597,6 +1597,81 @@ describe("Cipher Service", () => {
       expect(mockSdkClient.take).toHaveBeenCalled();
       expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(testOrgId, false);
       expect(apiSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getAllDecrypted()", () => {
+    let mockSdkClient: any;
+    let mockCiphersSdk: any;
+    let mockVaultSdk: any;
+    const mockSdkCipherView1 = {
+      id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
+      name: "Test Cipher 1",
+    };
+    const mockSdkCipherView2 = {
+      id: "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23",
+      name: "Test Cipher 2",
+    };
+
+    beforeEach(() => {
+      // Mock the SDK client chain for list
+      mockCiphersSdk = {
+        list: jest.fn().mockResolvedValue({
+          successes: [mockSdkCipherView1, mockSdkCipherView2],
+          failures: [],
+        }),
+      };
+      mockVaultSdk = {
+        ciphers: jest.fn().mockReturnValue(mockCiphersSdk),
+      };
+      const mockSdkValue = {
+        vault: jest.fn().mockReturnValue(mockVaultSdk),
+      };
+      mockSdkClient = {
+        take: jest.fn().mockReturnValue({
+          value: mockSdkValue,
+          [Symbol.dispose]: jest.fn(),
+        }),
+      };
+
+      // Mock sdkService to return the mock client
+      sdkService.userClient$.mockReturnValue(of(mockSdkClient));
+
+      // Clear the decrypted cache to ensure we test the decrypt path
+      stateProvider.singleUser.getFake(mockUserId, DECRYPTED_CIPHERS).nextState({});
+    });
+
+    it("should use SDK to list and decrypt ciphers when feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(mockSdkClient.take).toHaveBeenCalled();
+      expect(mockCiphersSdk.list).toHaveBeenCalled();
+      expect(result).toHaveLength(2);
+      expect(result[0]).toBeInstanceOf(CipherView);
+      expect(result[1]).toBeInstanceOf(CipherView);
+    });
+
+    it("should not call SDK when feature flag is disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      // Just verify SDK is not called - don't test the full legacy path
+      // as it would require complex mocking of keyService observables
+      stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).nextState({});
+
+      try {
+        await cipherService.getAllDecrypted(mockUserId);
+      } catch {
+        // Expected to fail due to missing keyService mocks, but that's okay
+        // We just want to verify SDK wasn't called
+      }
+
+      expect(mockSdkClient.take).not.toHaveBeenCalled();
     });
   });
 
