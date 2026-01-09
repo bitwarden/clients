@@ -78,10 +78,14 @@ export class PopoverTriggerForDirective implements OnDestroy {
         return;
       }
 
+      if (this.rafId !== null) {
+        return;
+      }
+
       // Initial open - wait for layout to stabilize
       // First RAF: Waits for Angular's change detection to complete and queues the next paint
-      // Second RAF: Ensures the browser has actually painted that frame and all layout/position calculations are final
       this.rafId = requestAnimationFrame(() => {
+        // Second RAF: Ensures the browser has actually painted that frame and all layout/position calculations are final
         this.rafId = requestAnimationFrame(() => {
           if (this.popoverOpen() && !this.overlayRef) {
             this.openPopover();
