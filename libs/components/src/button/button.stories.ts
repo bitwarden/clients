@@ -160,19 +160,57 @@ export const SuccessGhost: Story = {
   },
 };
 
+const sizeTemplate = /*html*/ `
+  <div class="tw-flex tw-flex-col tw-gap-8">
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block">Primary small</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primaryOutline" [size]="size" [block]="block">Primary outline small</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primaryGhost" [size]="size" [block]="block">Primary ghost small</button>
+        
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block">Secondary small</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block">subtle small</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block">subtle outline small</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block">subtle ghost small</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block">Danger small</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block">Danger outline small</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block">Danger ghost small</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block">warning small</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block">warning outline small</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block">warning ghost small</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block">success small</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block">success outline small</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block">success ghost small</button>
+      </div>
+    </div>
+`;
+
 export const Small: Story = {
   render: (args) => ({
     props: args,
-    template: /*html*/ `
-    <div class="tw-flex tw-gap-4 tw-mb-6 tw-items-center">
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block">Primary small</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block">Secondary small</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block">Danger small</button>
-    </div>
-    `,
+    template: sizeTemplate,
   }),
   args: {
     size: "small",
+  },
+};
+
+export const Large: Story = {
+  render: (args) => ({
+    props: args,
+    template: sizeTemplate,
+  }),
+  args: {
+    size: "large",
   },
 };
 
