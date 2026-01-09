@@ -31,7 +31,11 @@ interface Animal {
       <button class="tw-mr-2" bitButton type="button" (click)="openDialogNonDismissable()">
         Open Non-Dismissable Dialog
       </button>
-      <button bitButton type="button" (click)="openDrawer()">Open Drawer</button>
+      <button class="tw-mr-2" bitButton type="button" (click)="openDrawer()">Open Drawer</button>
+      <button class="tw-mr-2" bitButton size="small" type="button" (click)="openSmallDrawer()">
+        Open Small Drawer
+      </button>
+      <button bitButton type="button" (click)="openLargeDrawer()">Open Large Drawer</button>
     </bit-layout>
   `,
   imports: [ButtonModule, LayoutComponent],
@@ -63,13 +67,29 @@ class StoryDialogComponent {
       },
     });
   }
+
+  openSmallDrawer() {
+    this.dialogService.openDrawer(SmallDrawerContentComponent, {
+      data: {
+        animal: "panda",
+      },
+    });
+  }
+
+  openLargeDrawer() {
+    this.dialogService.openDrawer(LargeDrawerContentComponent, {
+      data: {
+        animal: "panda",
+      },
+    });
+  }
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
-    <bit-dialog title="Dialog Title" dialogSize="large">
+    <bit-dialog title="Dialog Title">
       <span bitDialogContent>
         Dialog body text goes here.
         <br />
@@ -100,7 +120,6 @@ class StoryDialogContentComponent {
   template: `
     <bit-dialog
       title="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-      dialogSize="large"
     >
       <span bitDialogContent>
         Dialog body text goes here.
@@ -117,6 +136,64 @@ class StoryDialogContentComponent {
   imports: [DialogModule, ButtonModule],
 })
 class NonDismissableContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
+
+  get animal() {
+    return this.data?.animal;
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template: `
+    <bit-dialog title="Small Drawer" dialogSize="small">
+      <span bitDialogContent>
+        Dialog body text goes here.
+        <br />
+        Animal: {{ animal }}
+      </span>
+      <ng-container bitDialogFooter>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+      </ng-container>
+    </bit-dialog>
+  `,
+  imports: [DialogModule, ButtonModule],
+})
+class SmallDrawerContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
+
+  get animal() {
+    return this.data?.animal;
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template: `
+    <bit-dialog title="Large Drawer" dialogSize="large">
+      <span bitDialogContent>
+        Dialog body text goes here.
+        <br />
+        Animal: {{ animal }}
+      </span>
+      <ng-container bitDialogFooter>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+      </ng-container>
+    </bit-dialog>
+  `,
+  imports: [DialogModule, ButtonModule],
+})
+class LargeDrawerContentComponent {
   dialogRef = inject(DialogRef);
   private data = inject<Animal>(DIALOG_DATA);
 
@@ -203,6 +280,24 @@ export const Drawer: Story = {
     const canvas = context.canvasElement;
 
     const button = getAllByRole(canvas, "button")[2];
+    await userEvent.click(button);
+  },
+};
+
+export const DrawerSmall: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[3];
+    await userEvent.click(button);
+  },
+};
+
+export const DrawerLarge: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[4];
     await userEvent.click(button);
   },
 };

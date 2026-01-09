@@ -1047,10 +1047,10 @@
     "message": "Element został zapisany"
   },
   "savedWebsite": {
-    "message": "Zapisana witryna"
+    "message": "Zapisana strona internetowa"
   },
   "savedWebsites": {
-    "message": "Zapisane witryny ($COUNT$)",
+    "message": "Zapisane strony internetowe ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1429,7 +1429,7 @@
     "message": "Confirm your identity to continue"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Wpisz hasło główne"
   },
   "updateSettings": {
     "message": "Zaktualizuj ustawienia"
@@ -1771,13 +1771,13 @@
     "message": "W jaki sposób Bitwarden chroni Twoje dane przed phishingiem?"
   },
   "currentWebsite": {
-    "message": "Aktualna witryna"
+    "message": "Obecna strona internetowa"
   },
   "autofillAndAddWebsite": {
-    "message": "Wypełnij automatycznie i dodaj tę witrynę"
+    "message": "Uzupełnij i dodaj stronę internetową"
   },
   "autofillWithoutAdding": {
-    "message": "Automatyczne uzupełnianie bez dodawania"
+    "message": "Uzupełnij bez dodawania"
   },
   "doNotAutofill": {
     "message": "Nie wypełniaj automatycznie"
@@ -5894,7 +5894,7 @@
     "message": "Sejf załadowany"
   },
   "settingDisabledByPolicy": {
-    "message": "To ustawienie jest wyłączone zgodnie z zasadami polityki Twojej organizacji.",
+    "message": "Ustawienie jest wyłączone przez Twoją organizację.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
@@ -5907,10 +5907,10 @@
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Kontynuuj logowanie"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Nie kontynuuj"
   },
   "domain": {
     "message": "Domena"
@@ -5943,7 +5943,7 @@
     "message": "To continue with log in, verify the organization and domain."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Akcja przekroczenia limitu czasu"
+    "message": "Sposób blokady"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "This setting is managed by your organization."
@@ -6002,7 +6002,7 @@
     "message": "Contact your admin to regain access."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Opuść organizację $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6011,10 +6011,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Jak zarządzać sejfami?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Przenieś elementy do organizacji $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6039,5 +6039,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Zmień rozmiar nawigacji bocznej"
   }
 }
