@@ -7,7 +7,7 @@ import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { WrappedSigningKey } from "@bitwarden/common/key-management/types";
+import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
@@ -129,11 +129,11 @@ export abstract class KeyService {
   /**
    * Generates a new user key
    * @deprecated Interacting with the master key directly is prohibited. Use {@link makeUserKeyV1} instead.
-   * @throws Error when master key is null and there is no active user
-   * @param masterKey The user's master key. When null, grabs master key from active user.
+   * @throws Error when master key is null or undefined.
+   * @param masterKey The user's master key.
    * @returns A new user key and the master key protected version of it
    */
-  abstract makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]>;
+  abstract makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]>;
   /**
    * Generates a new user key for a V1 user
    * Note: This will be replaced by a higher level function to initialize a whole users cryptographic state in the near future.
@@ -428,4 +428,8 @@ export abstract class KeyService {
    * @param userId The user id for the key
    */
   abstract validateUserKey(key: UserKey, userId: UserId): Promise<boolean>;
+
+  abstract setSignedPublicKey(signedPublicKey: SignedPublicKey, userId: UserId): Promise<void>;
+
+  abstract userSignedPublicKey$(userId: UserId): Observable<SignedPublicKey | null>;
 }
