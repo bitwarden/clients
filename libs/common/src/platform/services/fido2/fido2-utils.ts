@@ -43,14 +43,14 @@ export class Fido2Utils {
   }
 
   static bufferToString(bufferSource: BufferSource): string {
-    return Fido2Utils.fromBufferToB64(Fido2Utils.bufferSourceToUint8Array(bufferSource))
+    return Fido2Utils.fromBufferToB64(Fido2Utils.bufferSourceToUint8Array(bufferSource).buffer as ArrayBuffer)
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
       .replace(/=/g, "");
   }
 
   static stringToBuffer(str: string): ArrayBuffer {
-    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)).buffer;
+    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)).buffer as ArrayBuffer;
   }
 
   static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {

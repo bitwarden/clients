@@ -8,7 +8,7 @@ export abstract class WebAuthnLoginResponseRequest {
 
   constructor(credential: PublicKeyCredential) {
     this.id = credential.id;
-    this.rawId = Utils.fromBufferToUrlB64(credential.rawId);
+    this.rawId = Utils.fromBufferToUrlB64(new Uint8Array(credential.rawId));
     this.type = credential.type;
 
     // WARNING: do not add PRF information here by mapping

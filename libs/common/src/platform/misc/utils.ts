@@ -205,7 +205,7 @@ export class Utils {
     }
   }
 
-  static fromBufferToUrlB64(buffer: ArrayBuffer): string {
+  static fromBufferToUrlB64(buffer: Uint8Array): string {
     return Utils.fromB64toUrlB64(Utils.fromBufferToB64(buffer));
   }
 
@@ -213,16 +213,16 @@ export class Utils {
     return b64Str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
   }
 
-  static fromBufferToUtf8(buffer: ArrayBuffer): string {
+  static fromBufferToUtf8(buffer: Uint8Array): string {
     return BufferLib.from(buffer).toString("utf8");
   }
 
-  static fromBufferToByteString(buffer: ArrayBuffer): string {
-    return String.fromCharCode.apply(null, new Uint8Array(buffer));
+  static fromBufferToByteString(buffer: Uint8Array): string {
+    return String.fromCharCode.apply(null, buffer);
   }
 
   // ref: https://stackoverflow.com/a/40031979/1090359
-  static fromBufferToHex(buffer: ArrayBuffer): string {
+  static fromBufferToHex(buffer: Uint8Array): string {
     if (Utils.isNode) {
       return Buffer.from(buffer).toString("hex");
     } else {

@@ -213,9 +213,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     );
 
     const masterKey = new SymmetricCryptoKey(decryptedMasterKeyArrayBuffer) as MasterKey;
-    const masterKeyHash = Utils.fromBufferToUtf8(
-      decryptedMasterKeyHashArrayBuffer.buffer as ArrayBuffer,
-    );
+    const masterKeyHash = Utils.fromBufferToUtf8(decryptedMasterKeyHashArrayBuffer);
 
     return {
       masterKey,

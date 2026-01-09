@@ -173,7 +173,7 @@ class MyWebPushConnector implements WebPushConnector {
           // REASON: `Utils.fromBufferToUrlB64` handles null by returning null back to it.
           // its annotation should be updated and then this assertion can be removed.
           // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-          existingSubscription.options?.applicationServerKey!,
+          new Uint8Array(existingSubscription.options?.applicationServerKey!)
         );
 
         if (subscriptionKey !== key) {

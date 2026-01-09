@@ -31,7 +31,7 @@ export class AzureFileUploadService {
     });
 
     const request = new Request(url, {
-      body: data.buffer,
+      body: data.buffer.buffer as ArrayBuffer,
       cache: "no-store",
       method: "PUT",
       headers: headers,

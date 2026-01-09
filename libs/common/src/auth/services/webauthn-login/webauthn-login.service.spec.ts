@@ -39,7 +39,7 @@ describe("WebAuthnLoginService", () => {
     // We must do this to make the mocked classes available for all the
     // assertCredential(...) tests.
     global.PublicKeyCredential = MockPublicKeyCredential as any;
-    global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
+    global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse as any;
 
     // Save the original navigator
     originalNavigator = global.window.navigator;
@@ -143,7 +143,7 @@ describe("WebAuthnLoginService", () => {
         publicKeyCredential.getClientExtensionResults().prf?.results?.first;
       const prfKey = new SymmetricCryptoKey(new Uint8Array(prfResult)) as PrfKey;
 
-      webAuthnLoginPrfKeyService.getLoginWithPrfSalt.mockResolvedValue(saltArrayBuffer);
+      webAuthnLoginPrfKeyService.getLoginWithPrfSalt.mockResolvedValue(new Uint8Array(saltArrayBuffer));
       webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf.mockResolvedValue(prfKey);
 
       // Mock implementations
@@ -271,23 +271,23 @@ function randomBytes(length: number): Uint8Array {
 // so we need to mock them and assign them to the global object to make them available
 // for the tests
 class MockAuthenticatorAssertionResponse implements AuthenticatorAssertionResponse {
-  clientDataJSON: ArrayBuffer = randomBytes(32).buffer;
-  authenticatorData: ArrayBuffer = randomBytes(196).buffer;
-  signature: ArrayBuffer = randomBytes(72).buffer;
-  userHandle: ArrayBuffer = randomBytes(16).buffer;
+  clientDataJSON: ArrayBuffer = randomBytes(32).buffer as ArrayBuffer;
+  authenticatorData: ArrayBuffer = randomBytes(196).buffer as ArrayBuffer;
+  signature: ArrayBuffer = randomBytes(72).buffer as ArrayBuffer;
+  userHandle: ArrayBuffer = randomBytes(16).buffer as ArrayBuffer;
 
-  clientDataJSONB64Str = Utils.fromBufferToUrlB64(this.clientDataJSON);
-  authenticatorDataB64Str = Utils.fromBufferToUrlB64(this.authenticatorData);
-  signatureB64Str = Utils.fromBufferToUrlB64(this.signature);
-  userHandleB64Str = Utils.fromBufferToUrlB64(this.userHandle);
+  clientDataJSONB64Str = Utils.fromBufferToUrlB64(new Uint8Array(this.clientDataJSON));
+  authenticatorDataB64Str = Utils.fromBufferToUrlB64(new Uint8Array(this.authenticatorData));
+  signatureB64Str = Utils.fromBufferToUrlB64(new Uint8Array(this.signature));
+  userHandleB64Str = Utils.fromBufferToUrlB64(new Uint8Array(this.userHandle));
 }
 
 class MockPublicKeyCredential implements PublicKeyCredential {
   authenticatorAttachment = "cross-platform";
   id = "mockCredentialId";
   type = "public-key";
-  rawId: ArrayBuffer = randomBytes(32).buffer;
-  rawIdB64Str = Utils.fromBufferToUrlB64(this.rawId);
+  rawId: ArrayBuffer = randomBytes(32).buffer as ArrayBuffer;
+  rawIdB64Str = Utils.fromBufferToUrlB64(new Uint8Array(this.rawId));
 
   response: MockAuthenticatorAssertionResponse = new MockAuthenticatorAssertionResponse();
 

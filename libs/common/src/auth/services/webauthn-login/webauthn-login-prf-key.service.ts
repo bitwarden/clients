@@ -8,12 +8,12 @@ const LoginWithPrfSalt = "passwordless-login";
 export class WebAuthnLoginPrfKeyService implements WebAuthnLoginPrfKeyServiceAbstraction {
   constructor(private cryptoFunctionService: CryptoFunctionService) {}
 
-  async getLoginWithPrfSalt(): Promise<ArrayBuffer> {
-    return await this.cryptoFunctionService.hash(LoginWithPrfSalt, "sha256");
+  async getLoginWithPrfSalt(): Promise<Uint8Array> {
+    return (await this.cryptoFunctionService.hash(LoginWithPrfSalt, "sha256"));
   }
 
-  async createSymmetricKeyFromPrf(prf: ArrayBuffer): Promise<PrfKey> {
-    return (await this.stretchKey(new Uint8Array(prf))) as PrfKey;
+  async createSymmetricKeyFromPrf(prf: Uint8Array): Promise<PrfKey> {
+    return (await this.stretchKey(prf)) as PrfKey;
   }
 
   // TODO: use keyGenerationService.stretchKey

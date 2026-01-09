@@ -7,11 +7,11 @@ export abstract class WebAuthnLoginPrfKeyServiceAbstraction {
   /**
    * Get the salt used to generate the PRF-output used when logging in with WebAuthn.
    */
-  abstract getLoginWithPrfSalt(): Promise<ArrayBuffer>;
+  abstract getLoginWithPrfSalt(): Promise<Uint8Array>;
 
   /**
    * Create a symmetric key from the PRF-output by stretching it.
    * This should be used as `UpstreamKey` with `RotateableKeySet`.
    */
-  abstract createSymmetricKeyFromPrf(prf: ArrayBuffer): Promise<PrfKey>;
+  abstract createSymmetricKeyFromPrf(prf: Uint8Array): Promise<PrfKey>;
 }

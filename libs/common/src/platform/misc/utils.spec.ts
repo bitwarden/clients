@@ -447,7 +447,7 @@ describe("Utils Service", () => {
       "should correctly round trip convert from base64 to ArrayBuffer and back",
       () => {
         // Convert known base64 string to ArrayBuffer
-        const bufferFromB64 = Utils.fromB64ToArray(b64HelloWorldString).buffer;
+        const bufferFromB64 = Utils.fromB64ToArray(b64HelloWorldString).buffer as ArrayBuffer;
 
         // Convert the ArrayBuffer back to a base64 string
         const roundTrippedB64String = Utils.fromBufferToB64(bufferFromB64);
@@ -487,13 +487,13 @@ describe("Utils Service", () => {
     }
 
     runInBothEnvironments("should convert an ArrayBuffer to a hex string", () => {
-      const buffer = new Uint8Array([0, 1, 10, 16, 255]).buffer;
+      const buffer = new Uint8Array([0, 1, 10, 16, 255]);
       const hexString = Utils.fromBufferToHex(buffer);
       expect(hexString).toBe("00010a10ff");
     });
 
     runInBothEnvironments("should handle an empty buffer", () => {
-      const buffer = new ArrayBuffer(0);
+      const buffer = new Uint8Array(0);
       const hexString = Utils.fromBufferToHex(buffer);
       expect(hexString).toBe("");
     });
@@ -501,7 +501,7 @@ describe("Utils Service", () => {
     runInBothEnvironments(
       "should correctly convert a large buffer containing a repeating sequence of all 256 unique byte values to hex",
       () => {
-        const largeBuffer = new Uint8Array(1024).map((_, index) => index % 256).buffer;
+        const largeBuffer = new Uint8Array(1024).map((_, index) => index % 256);
         const hexString = Utils.fromBufferToHex(largeBuffer);
         const expectedHexString = createSequentialHexByteString(256).repeat(4);
         expect(hexString).toBe(expectedHexString);
@@ -509,7 +509,7 @@ describe("Utils Service", () => {
     );
 
     runInBothEnvironments("should correctly convert a buffer with a single byte to hex", () => {
-      const singleByteBuffer = new Uint8Array([0xab]).buffer;
+      const singleByteBuffer = new Uint8Array([0xab]);
       const hexString = Utils.fromBufferToHex(singleByteBuffer);
       expect(hexString).toBe("ab");
     });
@@ -517,7 +517,7 @@ describe("Utils Service", () => {
     runInBothEnvironments(
       "should correctly convert a buffer with an odd number of bytes to hex",
       () => {
-        const oddByteBuffer = new Uint8Array([0x01, 0x23, 0x45, 0x67, 0x89]).buffer;
+        const oddByteBuffer = new Uint8Array([0x01, 0x23, 0x45, 0x67, 0x89]);
         const hexString = Utils.fromBufferToHex(oddByteBuffer);
         expect(hexString).toBe("0123456789");
       },
@@ -527,7 +527,7 @@ describe("Utils Service", () => {
   describe("hexStringToArrayBuffer(...)", () => {
     test("should convert a hex string to an ArrayBuffer correctly", () => {
       const hexString = "ff0a1b"; // Arbitrary hex string
-      const expectedResult = new Uint8Array([255, 10, 27]).buffer;
+      const expectedResult = new Uint8Array([255, 10, 27]).buffer as ArrayBuffer;
       const result = Utils.hexStringToArrayBuffer(hexString);
       expect(new Uint8Array(result)).toEqual(new Uint8Array(expectedResult));
     });
@@ -541,7 +541,7 @@ describe("Utils Service", () => {
 
     test("should convert a hex string representing zero to an ArrayBuffer correctly", () => {
       const hexString = "00";
-      const expectedResult = new Uint8Array([0]).buffer;
+      const expectedResult = new Uint8Array([0]).buffer as ArrayBuffer;
       const result = Utils.hexStringToArrayBuffer(hexString);
       expect(new Uint8Array(result)).toEqual(new Uint8Array(expectedResult));
     });
@@ -556,7 +556,7 @@ describe("Utils Service", () => {
     test("should convert a long hex string to an ArrayBuffer correctly", () => {
       const hexString = "0102030405060708090a0b0c0d0e0f";
       const expectedResult = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
-        .buffer;
+        .buffer as ArrayBuffer;
       const result = Utils.hexStringToArrayBuffer(hexString);
       expect(new Uint8Array(result)).toEqual(new Uint8Array(expectedResult));
     });
@@ -566,10 +566,10 @@ describe("Utils Service", () => {
     runInBothEnvironments(
       "should allow round-trip conversion from ArrayBuffer to hex and back",
       () => {
-        const originalBuffer = new Uint8Array([10, 20, 30, 40, 255]).buffer; // arbitrary buffer
+        const originalBuffer = new Uint8Array([10, 20, 30, 40, 255]); // arbitrary buffer
         const hexString = Utils.fromBufferToHex(originalBuffer);
         const roundTripBuffer = Utils.hexStringToArrayBuffer(hexString);
-        expect(new Uint8Array(roundTripBuffer)).toEqual(new Uint8Array(originalBuffer));
+        expect(new Uint8Array(roundTripBuffer)).toEqual(originalBuffer);
       },
     );
 
@@ -578,7 +578,7 @@ describe("Utils Service", () => {
       () => {
         const hexString = "0a141e28ff"; // arbitrary hex string
         const bufferFromHex = Utils.hexStringToArrayBuffer(hexString);
-        const roundTripHexString = Utils.fromBufferToHex(bufferFromHex);
+        const roundTripHexString = Utils.fromBufferToHex(new Uint8Array(bufferFromHex));
         expect(roundTripHexString).toBe(hexString);
       },
     );
@@ -761,13 +761,13 @@ describe("Utils Service", () => {
     });
 
     runInBothEnvironments("should convert an ArrayBuffer to a utf8 string", () => {
-      const buffer = new Uint8Array(asciiHelloWorldArray).buffer;
+      const buffer = new Uint8Array(asciiHelloWorldArray);
       const str = Utils.fromBufferToUtf8(buffer);
       expect(str).toBe(asciiHelloWorld);
     });
 
     runInBothEnvironments("should handle an empty buffer", () => {
-      const buffer = new ArrayBuffer(0);
+      const buffer = new Uint8Array(0);
       const str = Utils.fromBufferToUtf8(buffer);
       expect(str).toBe("");
     });
@@ -798,7 +798,7 @@ describe("Utils Service", () => {
       ];
 
       cases.forEach((c) => {
-        const buffer = new Uint8Array(c.input).buffer;
+        const buffer = new Uint8Array(c.input);
         const str = Utils.fromBufferToUtf8(buffer);
         // Match the expected output
         expect(str).toBe(c.output);

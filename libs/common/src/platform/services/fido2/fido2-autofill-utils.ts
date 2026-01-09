@@ -21,7 +21,7 @@ export async function getCredentialsForAutofill(
 
       // Credentials are stored as a GUID or b64 string with `b64.` prepended,
       // but we need to return them as a URL-safe base64 string
-      const credId = Utils.fromBufferToUrlB64(parseCredentialId(credential.credentialId));
+      const credId = Utils.fromBufferToUrlB64(new Uint8Array(parseCredentialId(credential.credentialId)));
 
       return {
         cipherId: cipher.id,

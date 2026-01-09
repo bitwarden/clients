@@ -433,7 +433,7 @@ describe("FidoAuthenticatorService", () => {
         ],
         excludeCredentialDescriptorList: params.excludeCredentialDescriptorList ?? [
           {
-            id: randomBytes(16),
+            id: randomBytes(16).buffer as ArrayBuffer,
             transports: ["internal"],
             type: "public-key",
           },

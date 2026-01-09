@@ -19,7 +19,7 @@ export class AssertionOptionsResponse
       ...c,
       id: Utils.fromUrlB64ToArray(c.id).buffer,
     }));
-    this.challenge = Utils.fromUrlB64ToArray(this.getResponseProperty("challenge"));
+    this.challenge = Utils.fromUrlB64ToArray(this.getResponseProperty("challenge")).buffer as ArrayBuffer;
     this.extensions = this.getResponseProperty("extensions");
     this.rpId = this.getResponseProperty("rpId");
     this.timeout = this.getResponseProperty("timeout");

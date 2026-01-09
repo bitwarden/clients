@@ -28,7 +28,10 @@ const mockUser1 = "testUser1" as UserId;
 
 const createSub = (key: string) => {
   return {
-    options: { applicationServerKey: Utils.fromUrlB64ToArray(key), userVisibleOnly: true },
+    options: {
+      applicationServerKey: Utils.fromUrlB64ToArray(key).buffer as ArrayBuffer,
+      userVisibleOnly: true,
+    },
     endpoint: `web.push.endpoint/?${Utils.newGuid()}`,
     expirationTime: 5,
     getKey: () => null,

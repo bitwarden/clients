@@ -43,7 +43,7 @@ describe("guid-utils", () => {
     it.each(workingExamples)(
       "returns UUID in standard format when given a valid UUID array buffer",
       (expected, input) => {
-        const result = guidToStandardFormat(input);
+        const result = guidToStandardFormat(input.buffer as ArrayBuffer);
 
         expect(result).toEqual(expected);
       },

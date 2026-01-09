@@ -9,7 +9,7 @@ describe("credential-id-utils", () => {
         new Uint8Array([
           0x08, 0xd7, 0x0b, 0x74, 0xe9, 0xf5, 0x45, 0x22, 0xa4, 0x25, 0xe5, 0xdc, 0xd4, 0x01, 0x07,
           0xe7,
-        ]).buffer,
+        ]).buffer as ArrayBuffer,
       );
     });
 
@@ -20,7 +20,7 @@ describe("credential-id-utils", () => {
         new Uint8Array([
           0x08, 0xd7, 0x0b, 0x74, 0xe9, 0xf5, 0x45, 0x22, 0xa4, 0x25, 0xe5, 0xdc, 0xd4, 0x01, 0x07,
           0xe7,
-        ]).buffer,
+        ]).buffer as ArrayBuffer,
       );
     });
 
@@ -39,8 +39,8 @@ describe("credential-id-utils", () => {
 
   describe("compareCredentialIds", () => {
     it("returns true when the two credential IDs are equal", () => {
-      const a = new Uint8Array([0x01, 0x02, 0x03]);
-      const b = new Uint8Array([0x01, 0x02, 0x03]);
+      const a = new Uint8Array([0x01, 0x02, 0x03]).buffer as ArrayBuffer;
+      const b = new Uint8Array([0x01, 0x02, 0x03]).buffer as ArrayBuffer;
 
       const result = compareCredentialIds(a, b);
 
@@ -48,8 +48,8 @@ describe("credential-id-utils", () => {
     });
 
     it("returns false when the two credential IDs are not equal", () => {
-      const a = new Uint8Array([0x01, 0x02, 0x03]);
-      const b = new Uint8Array([0x01, 0x02, 0x04]);
+      const a = new Uint8Array([0x01, 0x02, 0x03]).buffer as ArrayBuffer;
+      const b = new Uint8Array([0x01, 0x02, 0x04]).buffer as ArrayBuffer;
 
       const result = compareCredentialIds(a, b);
 
@@ -57,8 +57,8 @@ describe("credential-id-utils", () => {
     });
 
     it("returns false when the two credential IDs have different lengths", () => {
-      const a = new Uint8Array([0x01, 0x02, 0x03]);
-      const b = new Uint8Array([0x01, 0x02, 0x03, 0x04]);
+      const a = new Uint8Array([0x01, 0x02, 0x03]).buffer as ArrayBuffer;
+      const b = new Uint8Array([0x01, 0x02, 0x03, 0x04]).buffer as ArrayBuffer;
 
       const result = compareCredentialIds(a, b);
 

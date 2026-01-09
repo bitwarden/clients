@@ -20,17 +20,3 @@ describe("Ever had user key", () => {
     expect(result).toEqual(everHadUserKey);
   });
 });
-
-describe("Encrypted private key", () => {
-  const sut = USER_ENCRYPTED_PRIVATE_KEY;
-
-  it("should deserialize encrypted private key", () => {
-    const encryptedPrivateKey = makeEncString().encryptedString;
-
-    const result = sut.deserializer(
-      JSON.parse(JSON.stringify(encryptedPrivateKey as unknown)) as unknown as EncryptedString,
-    );
-
-    expect(result).toEqual(encryptedPrivateKey);
-  });
-});

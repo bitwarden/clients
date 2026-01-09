@@ -9,7 +9,7 @@ export function parseCredentialId(encodedCredentialId: string): ArrayBuffer {
       return Fido2Utils.stringToBuffer(encodedCredentialId.slice(4));
     }
 
-    return guidToRawFormat(encodedCredentialId).buffer;
+    return guidToRawFormat(encodedCredentialId).buffer as ArrayBuffer;
   } catch {
     return undefined;
   }
