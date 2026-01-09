@@ -373,7 +373,8 @@ export class ItemMoreOptionsComponent {
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
-      content: { key: "archiveItemConfirmDesc" },
+      content: { key: "archiveItemDialogContent" },
+      acceptButtonText: { key: "archiveVerb" },
       type: "info",
     });
 

@@ -747,7 +747,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
-      content: { key: "archiveItemConfirmDesc" },
+      content: { key: "archiveItemDialogContent" },
+      acceptButtonText: { key: "archiveVerb" },
       type: "info",
     });
 
