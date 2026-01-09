@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Нет участников для отображения."
   },
+  "noMembersToExport": {
+    "message": "Нет участников для экспорта."
+  },
   "noEventsInList": {
     "message": "Нет событий для отображения."
   },
@@ -1969,8 +1972,13 @@
   "encExportAccountWarningDesc": {
     "message": "Ключи шифрования уникальны для каждой учетной записи Bitwarden, поэтому нельзя импортировать зашифрованное хранилище в другой аккаунт."
   },
-  "export": {
-    "message": "Экспорт"
+  "exportNoun": {
+    "message": "Экспорт",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Экспортировать",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Экспорт из"
@@ -2297,8 +2305,13 @@
   "tools": {
     "message": "Инструменты"
   },
-  "import": {
-    "message": "Импорт"
+  "importNoun": {
+    "message": "Импорт",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Импортировать",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Импорт данных"
@@ -2527,6 +2540,9 @@
   "enabled": {
     "message": "Включено"
   },
+  "optionEnabled": {
+    "message": "Включено"
+  },
   "restoreAccess": {
     "message": "Восстановить доступ"
   },
@@ -2623,6 +2639,9 @@
   },
   "key": {
     "message": "Ключ"
+  },
+  "unnamedKey": {
+    "message": "Безымянный ключ"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Код подтверждения"
@@ -3133,6 +3152,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
   },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
+  },
   "restartPremium": {
     "message": "Переподключить Премиум"
   },
@@ -3281,6 +3303,9 @@
     "message": "Управление подпиской"
   },
   "launchCloudSubscription": {
+    "message": "Запустить облачную подписку"
+  },
+  "launchCloudSubscriptionSentenceCase": {
     "message": "Запустить облачную подписку"
   },
   "storage": {
@@ -4197,6 +4222,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Принятая передача в собственность организации."
+  },
+  "userDeclinedTransfer": {
+    "message": "Отозван в связи с отказом в передаче в собственность организации."
   },
   "invitedUserId": {
     "message": "Приглашен пользователь $ID$.",
@@ -5624,6 +5655,9 @@
   "revoked": {
     "message": "Отозвано"
   },
+  "accepted": {
+    "message": "Принято"
+  },
   "sendLink": {
     "message": "Ссылка на Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6281,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Зарегистрирован на восстановление аккаунта"
+  },
+  "enrolled": {
+    "message": "Зарегистрировано"
+  },
+  "notEnrolled": {
+    "message": "Не зарегистрировано"
   },
   "withdrawAccountRecovery": {
     "message": "Сняться с восстановления аккаунта"
@@ -11587,6 +11627,9 @@
   "unArchive": {
     "message": "Разархивировать"
   },
+  "archived": {
+    "message": "Архивирован"
+  },
   "unArchiveAndSave": {
     "message": "Разархивировать и сохранить"
   },
@@ -12279,6 +12322,9 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Удалить невосстановимые элементы хранилища"
   },
@@ -12412,5 +12458,127 @@
   },
   "whyAmISeeingThis": {
     "message": "Почему я это вижу?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "У вас Bitwarden Премиум"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Просматривайте свою премиум-подписку и управляйте ею"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Вам нужно будет обновить свой файл лицензии"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Загрузить файл лицензии"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Загрузите ваш файл лицензии"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Загрузите ваш файл лицензии Премиум"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Название вашего файла лицензии будет похоже на $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Уже есть подписка?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Откройте страницу подписки в своем аккаунте Bitwarden cloud и скачайте файл лицензии. Затем вернитесь на этот экран и загрузите его ниже."
+  },
+  "viewAllPlans": {
+    "message": "Посмотреть все планы"
+  },
+  "planDescPremium": {
+    "message": "Полная онлайн-защищенность"
+  },
+  "updatePayment": {
+    "message": "Обновить платежную информацию"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Нам не удалось обработать ваш платеж. Пожалуйста, обновите свой способ оплаты или обратитесь за помощью в службу поддержки."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Срок действия вашей подписки истек. Пожалуйста, обратитесь за помощью в службу поддержки."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Ваша подписка будет отменена $DATE$. Вы сможете восстановить ее в любое время до этого момента.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Делитесь еще большим количеством информации с семьями или обеспечьте надежную защиту паролем с командами или организациями."
+  },
+  "youHaveAGracePeriod": {
+    "message": "У вас есть льготный период $DAYS$ дней с даты истечения срока действия вашей подписки. Пожалуйста, оплатите просроченные счета к $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Управление счетами"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Ваша следующая оплата будет за"
+  },
+  "dueOn": {
+    "message": "срок"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Ваша подписка будет приостановлена в"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Ваша подписка была приостановлена"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Ваша подписка будет отменена в"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Ваша подписка была отменена"
+  },
+  "storageFull": {
+    "message": "Хранилище заполнено"
+  },
+  "storageUsedDescription": {
+    "message": "Вы использовали $USED$ из $AVAILABLE$ ГБ вашего зашифрованного файлового хранилища.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Вы использовали все $GB$ вашего зашифрованного хранилища. Чтобы продолжить хранение файлов, добавьте дополнительное хранилище."
   }
 }

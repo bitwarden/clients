@@ -71,8 +71,15 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
 
   /** Returns true when the user has previously archived ciphers but lost their premium membership. */
   showSubscriptionEndedMessaging$(userId: UserId): Observable<boolean> {
-    return combineLatest([this.archivedCiphers$(userId), this.userHasPremium$(userId)]).pipe(
-      map(([archivedCiphers, hasPremium]) => archivedCiphers.length > 0 && !hasPremium),
+    return combineLatest([
+      this.archivedCiphers$(userId),
+      this.userHasPremium$(userId),
+      this.hasArchiveFlagEnabled$,
+    ]).pipe(
+      map(
+        ([archivedCiphers, hasPremium, flagEnabled]) =>
+          flagEnabled && archivedCiphers.length > 0 && !hasPremium,
+      ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
   }
@@ -95,7 +102,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
       localCipher.revisionDate = cipher.revisionDate;
     }
 
-    await this.cipherService.replace(currentCiphers, userId);
+    await this.cipherService.upsert(Object.values(currentCiphers), userId);
   }
 
   async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
@@ -116,6 +123,6 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
       localCipher.revisionDate = cipher.revisionDate;
     }
 
-    await this.cipherService.replace(currentCiphers, userId);
+    await this.cipherService.upsert(Object.values(currentCiphers), userId);
   }
 }

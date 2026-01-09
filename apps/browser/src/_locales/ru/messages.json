@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Для использования архива требуется премиум-статус."
   },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
+  },
   "edit": {
     "message": "Изменить"
   },
@@ -1322,11 +1325,21 @@
   "exportFrom": {
     "message": "Экспорт из"
   },
-  "export": {
-    "message": "Экспорт"
+  "exportVerb": {
+    "message": "Экспортировать",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Импорт"
+  "exportNoun": {
+    "message": "Экспорт",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Импорт",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Импортировать",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат файла"
@@ -4798,6 +4811,24 @@
   "adminConsole": {
     "message": "консоли администратора"
   },
+  "admin": {
+    "message": "Администратор"
+  },
+  "automaticUserConfirmation": {
+    "message": "Автоматическое подтверждение пользователя"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Автоматически подтверждать ожидающих пользователей пока это устройство разблокировано"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Экономьте время благодаря автоматическому подтверждению пользователей"
+  },
+  "autoConfirmWarning": {
+    "message": "Это может повлиять на безопасность данных вашей организации. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Узнайте о рисках"
+  },
   "accountSecurity": {
     "message": "Безопасность аккаунта"
   },
@@ -5654,6 +5685,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
   },
+  "vulnerablePassword": {
+    "message": "Уязвимый пароль."
+  },
+  "changeNow": {
+    "message": "Изменить сейчас"
+  },
   "missingWebsite": {
     "message": "Отсутствует сайт"
   },
@@ -6029,5 +6066,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Почему я это вижу?"
+  },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
   }
 }

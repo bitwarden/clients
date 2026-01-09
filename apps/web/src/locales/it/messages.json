@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Nessun membro da mostrare."
   },
+  "noMembersToExport": {
+    "message": "Nessun elemento da esportare."
+  },
   "noEventsInList": {
     "message": "Nessun evento da mostrare."
   },
@@ -1969,8 +1972,13 @@
   "encExportAccountWarningDesc": {
     "message": "Le chiavi di cifratura dell'account sono uniche per ogni account utente Bitwarden, quindi non è possibile importare un'esportazione cifrata in un account diverso."
   },
-  "export": {
-    "message": "Esporta"
+  "exportNoun": {
+    "message": "Esporta",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Esporta",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Esporta da"
@@ -2297,8 +2305,13 @@
   "tools": {
     "message": "Strumenti"
   },
-  "import": {
-    "message": "Import"
+  "importNoun": {
+    "message": "Importa",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importa",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Importa dati"
@@ -2527,6 +2540,9 @@
   "enabled": {
     "message": "Attivato"
   },
+  "optionEnabled": {
+    "message": "Attivo"
+  },
   "restoreAccess": {
     "message": "Ripristina accesso"
   },
@@ -2623,6 +2639,9 @@
   },
   "key": {
     "message": "Chiave"
+  },
+  "unnamedKey": {
+    "message": "Chiave senza nome"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Codice di verifica"
@@ -3133,6 +3152,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Per recuperare l'accesso al tuo archivio, riavvia il tuo abbonamento Premium. Se modifichi i dettagli di un elemento archiviato prima del riavvio, sarà spostato nella tua cassaforte."
   },
+  "itemRestored": {
+    "message": "L'elemento è stato ripristinato"
+  },
   "restartPremium": {
     "message": "Riavvia Premium"
   },
@@ -3281,6 +3303,9 @@
     "message": "Gestisci abbonamento"
   },
   "launchCloudSubscription": {
+    "message": "Avvia abbonamento cloud"
+  },
+  "launchCloudSubscriptionSentenceCase": {
     "message": "Avvia abbonamento cloud"
   },
   "storage": {
@@ -4197,6 +4222,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Trasferimento di proprietà all'organizzazione accettato."
+  },
+  "userDeclinedTransfer": {
+    "message": "Revocato per il rifiuto di trasferimento di proprietà all'organizzazione."
   },
   "invitedUserId": {
     "message": "Utente $ID$ invitato.",
@@ -5624,6 +5655,9 @@
   "revoked": {
     "message": "Revocato"
   },
+  "accepted": {
+    "message": "Approvato"
+  },
   "sendLink": {
     "message": "Link del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6281,6 +6315,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Iscritto al recupero dell'account"
+  },
+  "enrolled": {
+    "message": "Registrato"
+  },
+  "notEnrolled": {
+    "message": "Non registrato"
   },
   "withdrawAccountRecovery": {
     "message": "Rifiuta il recupero dell'account"
@@ -11587,8 +11627,11 @@
   "unArchive": {
     "message": "Togli dall'archivio"
   },
+  "archived": {
+    "message": "Archiviato"
+  },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Togli dall'archivio e salva"
   },
   "itemsInArchive": {
     "message": "Elementi archiviati"
@@ -12232,43 +12275,43 @@
     }
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "La tua organizzazione non utilizza più le password principali per accedere a Bitwarden. Per continuare, verifica l'organizzazione e il dominio."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Accedi e continua"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Non continuare"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Dominio"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Questo dominio memorizzerà le chiavi di crittografia del tuo account, quindi assicurati di impostarlo come affidabile. Se non hai la certezza che lo sia, verifica con l'amministratore."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Verifica la tua organizzazione per accedere"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organizzazione verificata"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Dominio verificato"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Se non verifichi l'organizzazione, il tuo accesso sarà revocato."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Abbandona"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Verifica il tuo dominio per accedere"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Per continuare con l'accesso, verifica questo dominio."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Per continuare con l'accesso, verifica l'organizzazione e il dominio."
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Non ci sono applicazioni contrassegnate come critiche"
@@ -12278,6 +12321,9 @@
   },
   "userVerificationFailed": {
     "message": "Verifica dell'utente non riuscita."
+  },
+  "resizeSideNavigation": {
+    "message": "Ridimensiona la navigazione laterale"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Elimina gli oggetti della cassaforte non recuperabili"
@@ -12412,5 +12458,127 @@
   },
   "whyAmISeeingThis": {
     "message": "Perché vedo questo avviso?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Hai Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Visualizza e gestisci il tuo abbonamento Premium"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Dovrai aggiornare il tuo file di licenza"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Carica il file di licenza"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Carica il file di licenza"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Carica il tuo file di licenza Premium"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Il nome del file di licenza sarà simile a $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Hai già un abbonamento?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Vai alla pagina degli abbonamenti del tuo account Bitwarden e scarica il file di licenza, poi torna a caricarlo qui."
+  },
+  "viewAllPlans": {
+    "message": "Visualizza tutti i piani"
+  },
+  "planDescPremium": {
+    "message": "Sicurezza online completa"
+  },
+  "updatePayment": {
+    "message": "Aggiorna il metodo di pagamento"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Non è stato possibile elaborare la transazione. Aggiorna il metodo di pagamento o contatta l'assistenza."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Il tuo abbonamento è scaduto. Contatta il team di supporto per ricevere assistenza."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Il tuo abbonamento è programmato per terminare il $DATE$. Puoi ripristinarlo in qualsiasi momento prima di quella data.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Condividi ancora di più con il piano famiglie, o rafforza le protezioni con Team o Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Hai un periodo di grazia di $DAYS$ giorni dalla fine dell'abbonamento. Ti preghiamo di provvedere ai pagamenti entro il $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Gestisci le fatture"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Il tuo prossimo addebito è programmato"
+  },
+  "dueOn": {
+    "message": "per"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Il tuo abbonamento sarà sospeso il"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Il tuo abbonamento è stato sospeso il"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Il tuo abbonamento terminerà il"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Il tuo abbonamento è terminato il"
+  },
+  "storageFull": {
+    "message": "Spazio di archiviazione pieno"
+  },
+  "storageUsedDescription": {
+    "message": "Hai usato $USED$ GB su $AVAILABLE$ del tuo archivio file crittografato.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Hai usato tutti i $GB$ GB del tuo spazio di archiviazione crittografato. Per archiviare altri file, aggiungi altro spazio."
   }
 }
