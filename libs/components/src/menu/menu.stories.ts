@@ -1,6 +1,6 @@
 import { OverlayModule } from "@angular/cdk/overlay";
 import { NgTemplateOutlet } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,15 +19,14 @@ const template = /*html*/ `
     </div>
 
     <bit-menu #myMenu>
-      <button type="button" bitMenuItem [bitAction]="action">Perform action {{ statusEmoji }}</button>
+      <button type="button" bitMenuItem [bitAction]="action">Perform action</button>
     </bit-menu>
   `;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template,
   selector: "app-promise-example",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgTemplateOutlet,
     AsyncActionsModule,
@@ -38,12 +37,10 @@ const template = /*html*/ `
   ],
 })
 class PromiseExampleComponent {
-  statusEmoji = "🟡";
   action = async () => {
-    await new Promise<void>((resolve, reject) => {
+    await new Promise<void>((resolve) => {
       setTimeout(() => {
         resolve();
-        this.statusEmoji = "🟢";
       }, 5000);
     });
   };

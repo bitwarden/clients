@@ -26,6 +26,7 @@ import { ariaDisableElement } from "../utils";
 export class MenuItemComponent implements ButtonLikeAbstraction {
   readonly disabled = model<boolean>(false);
   readonly loading = model<boolean>(false);
+
   readonly elementRef = inject(ElementRef<HTMLButtonElement>);
 
   protected readonly disabledAttr = computed(() => {
