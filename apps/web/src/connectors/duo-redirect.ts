@@ -1,4 +1,4 @@
-import { buildMobileCallbackUriFromParam, getQsParam } from "./common";
+import { buildMobileDeeplinkUriFromParam, getQsParam } from "./common";
 import { TranslationService } from "./translation.service";
 
 const mobileDesktopCallback = "bitwarden://duo-callback";
@@ -40,7 +40,7 @@ window.addEventListener("load", async () => {
     displayHandoffMessage(client);
   } else if (client === "mobile") {
     document.location.replace(
-      buildMobileCallbackUriFromParam("duo") +
+      buildMobileDeeplinkUriFromParam("duo") +
         "?code=" +
         encodeURIComponent(code) +
         "&state=" +

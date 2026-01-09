@@ -40,7 +40,7 @@ function appLinkHost(): string {
   return "bitwarden.com";
 }
 
-export function buildMobileCallbackUriFromParam(kind: "duo" | "webauthn"): string {
+export function buildMobileDeeplinkUriFromParam(kind: "duo" | "webauthn"): string {
   const scheme = (getQsParam("deeplinkScheme") || "").toLowerCase();
   const path = `${kind}-callback`;
   if (scheme === "https") {
