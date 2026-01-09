@@ -101,10 +101,20 @@ function parseParameters() {
     return;
   }
 
+  // Determine if this is a mobile-initiated flow via query param
+  const client: string | null = getQsParam("client");
+
+  if (client === "mobile") {
+    mobileResponse = true;
+  }
+
   parentUrl = getQsParam("parent");
   if (!parentUrl) {
-    error("No parent.");
-    return;
+    // In non-mobile flows we must have a parent for postMessage handoff
+    if (!mobileResponse) {
+      error("No parent.");
+      return;
+    }
   } else {
     parentUrl = decodeURIComponent(parentUrl);
     parentOrigin = new URL(parentUrl).origin;
@@ -152,7 +162,8 @@ function parseParametersV2() {
     return;
   }
 
-  mobileResponse = dataObj.callbackUri != null || dataObj.mobile === true;
+  // Treat presence of callbackUri/mobile in payload as mobile, or preserve existing mobileResponse (e.g., set by client=mobile)
+  mobileResponse = mobileResponse || dataObj.callbackUri != null || dataObj.mobile === true;
   webauthnJson = dataObj.data;
   headerText = dataObj.headerText;
   btnText = dataObj.btnText;
