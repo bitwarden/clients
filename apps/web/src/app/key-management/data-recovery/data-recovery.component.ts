@@ -94,9 +94,15 @@ export class DataRecoveryComponent {
     }
 
     this.hasStarted.set(true);
+
     this.status.set(StepStatus.InProgress);
     this.diagnosticsCompleted.set(false);
+    await this.runDiagnosticsInternal();
+    this.status.set(StepStatus.Completed);
+    this.diagnosticsCompleted.set(true);
+  };
 
+  private async runDiagnosticsInternal() {
     this.logger.record("Starting diagnostics...");
     this.workingData = {
       userId: null,
@@ -106,18 +112,6 @@ export class DataRecoveryComponent {
       ciphers: [],
       folders: [],
     };
-
-    await this.runDiagnosticsInternal();
-
-    this.status.set(StepStatus.Completed);
-    this.diagnosticsCompleted.set(true);
-  };
-
-  private async runDiagnosticsInternal() {
-    if (!this.workingData) {
-      this.logger.record("No working data available");
-      return;
-    }
 
     const currentSteps = this.steps();
     let hasAnyFailures = false;
@@ -182,7 +176,10 @@ export class DataRecoveryComponent {
 
       // Re-run diagnostics after recovery
       this.logger.record("Re-running diagnostics to verify recovery...");
+
+      this.diagnosticsCompleted.set(false);
       await this.runDiagnosticsInternal();
+      this.diagnosticsCompleted.set(true);
 
       this.status.set(StepStatus.Completed);
     } catch (error) {
