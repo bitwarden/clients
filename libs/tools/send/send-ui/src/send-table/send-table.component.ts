@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AuthType } from "@bitwarden/common/tools/send/enums/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import {
@@ -37,6 +38,7 @@ import {
 })
 export class SendTableComponent {
   protected readonly sendType = SendType;
+  protected readonly authType = AuthType;
 
   /**
    * The data source containing the Send items to display in the table.
