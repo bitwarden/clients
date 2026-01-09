@@ -72,7 +72,7 @@ module.exports = {
         code: rgba("--color-text-code"),
       },
       background: {
-        DEFAULT: rgba("--color-background"),
+        DEFAULT: "var(--color-bg-primary)",
         alt: rgba("--color-background-alt"),
         alt2: rgba("--color-background-alt2"),
         alt3: rgba("--color-background-alt3"),
