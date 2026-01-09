@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "需要高级会员才能使用归档。"
   },
+  "itemRestored": {
+    "message": "项目已恢复"
+  },
   "edit": {
     "message": "编辑"
   },
@@ -4856,7 +4859,7 @@
     "message": "新增"
   },
   "removeItem": {
-    "message": "删除 $NAME$",
+    "message": "移除 $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -5664,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
   },
+  "vulnerablePassword": {
+    "message": "易受攻击的密码。"
+  },
+  "changeNow": {
+    "message": "立即更改"
+  },
   "missingWebsite": {
     "message": "缺少网站"
   },
@@ -6039,5 +6048,8 @@
   },
   "whyAmISeeingThis": {
     "message": "为什么我会看到这个？"
+  },
+  "resizeSideNavigation": {
+    "message": "调整侧边导航栏大小"
   }
 }
