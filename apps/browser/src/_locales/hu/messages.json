@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "Adminisztrátori konzol"
   },
+  "admin": {
+    "message": "Adminisztrátor"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatikus felhasználói megerősítés"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "A függőben lévő felhasználók automatikus megerősítése az eszköz zárolásának feloldásakor."
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Idő megtakarítás az automatikus felhasználói megerősítéssel"
+  },
+  "autoConfirmWarning": {
+    "message": "Ez hatással lehet a szervezet adatbiztonságára."
+  },
+  "autoConfirmWarningLink": {
+    "message": "További információ a kockázatokról"
+  },
   "accountSecurity": {
     "message": "Fiókbiztonság"
   },

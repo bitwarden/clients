@@ -586,7 +586,7 @@
     "message": "Per utilizzare Archivio è necessario un abbonamento premium."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "L'elemento è stato ripristinato"
   },
   "edit": {
     "message": "Modifica"
@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "Console di amministrazione"
   },
+  "admin": {
+    "message": "Amministratore"
+  },
+  "automaticUserConfirmation": {
+    "message": "Conferma automatica degli utenti"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Conferma automaticamente gli utenti in sospeso mentre il dispositivo è sbloccato"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Risparmia tempo con la conferma automatica degli utenti"
+  },
+  "autoConfirmWarning": {
+    "message": "Potrebbe influenzare la sicurezza dei dati della tua organizzazione. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Scopri quali sono i rischi"
+  },
   "accountSecurity": {
     "message": "Sicurezza dell'account"
   },
@@ -5668,10 +5686,10 @@
     "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Password vulnerabile."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Cambiala subito!"
   },
   "missingWebsite": {
     "message": "Sito web mancante"
@@ -6050,6 +6068,6 @@
     "message": "Perché vedo questo avviso?"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Ridimensiona la navigazione laterale"
   }
 }

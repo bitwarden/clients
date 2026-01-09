@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "консоли администратора"
   },
+  "admin": {
+    "message": "Администратор"
+  },
+  "automaticUserConfirmation": {
+    "message": "Автоматическое подтверждение пользователя"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Автоматически подтверждать ожидающих пользователей пока это устройство разблокировано"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Экономьте время благодаря автоматическому подтверждению пользователей"
+  },
+  "autoConfirmWarning": {
+    "message": "Это может повлиять на безопасность данных вашей организации. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Узнайте о рисках"
+  },
   "accountSecurity": {
     "message": "Безопасность аккаунта"
   },
