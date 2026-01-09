@@ -586,7 +586,7 @@
     "message": "Für die Nutzung des Archivs ist eine Premium-Mitgliedschaft erforderlich."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Eintrag wurde wiederhergestellt"
   },
   "edit": {
     "message": "Bearbeiten"
@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "Administrator-Konsole"
   },
+  "admin": {
+    "message": "Administrator"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatische Benutzerbestätigung"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Ausstehende Benutzer automatisch bestätigen, während dieses Gerät entsperrt ist"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Spare Zeit durch die automatische Benutzerbestätigung"
+  },
+  "autoConfirmWarning": {
+    "message": "Dies könnte die Datensicherheit deiner Organisation beeinflussen. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Erfahre mehr über die Risiken"
+  },
   "accountSecurity": {
     "message": "Kontosicherheit"
   },
@@ -5668,10 +5686,10 @@
     "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Gefährdetes Passwort."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Jetzt ändern"
   },
   "missingWebsite": {
     "message": "Fehlende Website"

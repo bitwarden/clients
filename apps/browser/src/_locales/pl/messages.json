@@ -586,7 +586,7 @@
     "message": "A premium membership is required to use Archive."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Element został przywrócony"
   },
   "edit": {
     "message": "Edytuj"
@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "Konsola administratora"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
   "accountSecurity": {
     "message": "Bezpieczeństwo konta"
   },
@@ -5671,7 +5689,7 @@
     "message": "Vulnerable password."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Zmień teraz"
   },
   "missingWebsite": {
     "message": "Brak strony internetowej"

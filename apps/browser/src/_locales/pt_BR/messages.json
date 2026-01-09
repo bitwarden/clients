@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "Painel de administração"
   },
+  "admin": {
+    "message": "Administrador"
+  },
+  "automaticUserConfirmation": {
+    "message": "Confirmação automática de usuários"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Confirme automaticamente usuários pendentes quando este dispositivo for desbloqueado"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Economize tempo com a confirmação automática de usuários"
+  },
+  "autoConfirmWarning": {
+    "message": "Isso pode afetar a segurança dos dados da sua organização. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Saiba mais sobre os riscos"
+  },
   "accountSecurity": {
     "message": "Segurança da conta"
   },

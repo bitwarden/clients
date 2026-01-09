@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "Beheerconsole"
   },
+  "admin": {
+    "message": "Beheerder"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatische gebruikersbevestiging"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatisch gebruikers in behandeling bevestigen wanneer dit apparaat is ontgrendeld"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Bespaar tijd met automatische gebruikersbevestiging"
+  },
+  "autoConfirmWarning": {
+    "message": "Dit kan van invloed zijn op de gegevensbeveiliging van je organisatie. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Meer informatie over de risico's"
+  },
   "accountSecurity": {
     "message": "Accountbeveiliging"
   },

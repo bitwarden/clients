@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "管理控制台"
   },
+  "admin": {
+    "message": "管理员"
+  },
+  "automaticUserConfirmation": {
+    "message": "自动用户确认"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "当此设备已解锁时，自动确认待处理的用户"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "通过自动用户确认节省时间"
+  },
+  "autoConfirmWarning": {
+    "message": "这可能会影响您组织的数据安全。"
+  },
+  "autoConfirmWarningLink": {
+    "message": "了解此风险"
+  },
   "accountSecurity": {
     "message": "账户安全"
   },
