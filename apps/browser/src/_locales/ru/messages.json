@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Для использования архива требуется премиум-статус."
   },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
+  },
   "edit": {
     "message": "Изменить"
   },
@@ -5664,6 +5667,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
   },
+  "vulnerablePassword": {
+    "message": "Уязвимый пароль."
+  },
+  "changeNow": {
+    "message": "Изменить сейчас"
+  },
   "missingWebsite": {
     "message": "Отсутствует сайт"
   },
@@ -6039,5 +6048,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Почему я это вижу?"
+  },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
   }
 }

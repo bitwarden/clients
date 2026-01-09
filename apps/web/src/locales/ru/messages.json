@@ -2634,6 +2634,9 @@
   "key": {
     "message": "Ключ"
   },
+  "unnamedKey": {
+    "message": "Безымянный ключ"
+  },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Код подтверждения"
   },
@@ -3142,6 +3145,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
+  },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
   },
   "restartPremium": {
     "message": "Переподключить Премиум"
@@ -11606,6 +11612,9 @@
   "unArchive": {
     "message": "Разархивировать"
   },
+  "archived": {
+    "message": "Архивирован"
+  },
   "unArchiveAndSave": {
     "message": "Разархивировать и сохранить"
   },
@@ -12297,6 +12306,9 @@
   },
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
+  },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Удалить невосстановимые элементы хранилища"
