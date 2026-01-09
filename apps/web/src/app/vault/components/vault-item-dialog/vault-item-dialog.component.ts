@@ -240,8 +240,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * Flag to indicate if the user can archive items.
    * @protected
    */
-  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) => this.archiveService.userCanArchive$(account.id)),
+  protected userCanArchive$ = this.userId$.pipe(
+    switchMap((userId) => this.archiveService.userCanArchive$(userId)),
   );
 
   protected get isTrashFilter() {
