@@ -128,18 +128,13 @@ export abstract class KeyService {
 
   /**
    * Generates a new user key
-   * @deprecated Interacting with the master key directly is prohibited. Use {@link makeUserKeyV1} instead.
+   * @deprecated Interacting with the master key directly is prohibited.
+   * For new features please use the KM provided SDK methods for user cryptography initialization or reach out to the KM team.
    * @throws Error when master key is null or undefined.
    * @param masterKey The user's master key.
    * @returns A new user key and the master key protected version of it
    */
   abstract makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]>;
-  /**
-   * Generates a new user key for a V1 user
-   * Note: This will be replaced by a higher level function to initialize a whole users cryptographic state in the near future.
-   * @returns A new user key
-   */
-  abstract makeUserKeyV1(): Promise<UserKey>;
   /**
    * Clears the user's stored version of the user key
    * @param userId The desired user
@@ -334,9 +329,9 @@ export abstract class KeyService {
   abstract getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]>;
   /**
    * Generates a new keypair
-   * @param key A key to encrypt the private key with. If not provided,
-   * defaults to the user key
-   * @returns A new keypair: [publicKey in Base64, encrypted privateKey]
+   * @deprecated New use-cases of this function are prohibited. Low-level cryptographic constructions and initialization should be done in the SDK.
+   * @param key A symmetric key to wrap the newly created private key with.
+   * @returns A new keypair: [publicKey in Base64, wrapped privateKey]
    * @throws If the provided key is a null-ish value.
    */
   abstract makeKeyPair(key: SymmetricCryptoKey): Promise<[string, EncString]>;
@@ -361,6 +356,8 @@ export abstract class KeyService {
   /**
    * Initialize all necessary crypto keys needed for a new account.
    * Warning! This completely replaces any existing keys!
+   * @deprecated New use cases for cryptography initialization should be done in the SDK.
+   * Current usage is actively being migrated see PM-21771 for details.
    * @param userId The user id of the target user.
    * @returns The user's newly created  public key, private key, and encrypted private key
    * @throws An error if the userId is null or undefined.
