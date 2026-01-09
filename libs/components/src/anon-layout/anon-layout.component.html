@@ -1,40 +1,30 @@
 <bit-landing-layout [hideBackgroundIllustration]="hideBackgroundIllustration()">
   @if (!hideLogo()) {
-    <bit-landing-header class="tw-bg-background-alt" [hideLogo]="hideLogo()">
+    <bit-landing-header [hideLogo]="hideLogo()">
       <div class="tw-ms-auto">
         <ng-content select="[slot=header-actions]"></ng-content>
       </div>
     </bit-landing-header>
   }
-  <div
-    [class]="
-      'tw-flex tw-flex-col tw-items-center tw-flex-1 tw-bg-background-alt tw-p-5 tw-text-main'
-    "
-  >
-    <bit-landing-content [maxWidth]="maxWidth()">
-      <bit-landing-hero
-        class="tw-bg-background-alt"
-        [icon]="icon()"
-        [title]="title()"
-        [subtitle]="subtitle()"
-      ></bit-landing-hero>
-      @if (hideCardWrapper()) {
-        <div class="tw-mb-6 sm:tw-mb-10">
-          <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
-        </div>
-      } @else {
-        <bit-landing-card>
-          <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
-        </bit-landing-card>
-      }
-      <div class="tw-flex tw-flex-col tw-items-center">
-        <ng-content select="[slot=secondary]"></ng-content>
+
+  <bit-landing-content [maxWidth]="maxWidth()">
+    <bit-landing-hero [icon]="icon()" [title]="title()" [subtitle]="subtitle()"></bit-landing-hero>
+    @if (hideCardWrapper()) {
+      <div class="tw-mb-6 sm:tw-mb-10">
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
-    </bit-landing-content>
-  </div>
+    } @else {
+      <bit-landing-card>
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      </bit-landing-card>
+    }
+    <div class="tw-flex tw-flex-col tw-items-center">
+      <ng-content select="[slot=secondary]"></ng-content>
+    </div>
+  </bit-landing-content>
 
   @if (!hideFooter()) {
-    <bit-landing-footer class="tw-bg-background-alt tw-text-center tw-p-5 tw-pt-4 sm:tw-pt-6">
+    <bit-landing-footer>
       @if (showReadonlyHostname()) {
         <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>
       } @else {

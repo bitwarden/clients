@@ -16,9 +16,6 @@ export type LandingContentMaxWidthType =
   selector: "bit-landing-content",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-content.component.html",
-  host: {
-    "[class]": "classList",
-  },
 })
 export class LandingContentComponent {
   /**
@@ -28,7 +25,7 @@ export class LandingContentComponent {
    */
   readonly maxWidth = input<LandingContentMaxWidthType>(LandingContentMaxWidth.Md);
 
-  get classList(): string {
+  get maxWidthClasses(): string {
     const maxWidth = this.maxWidth();
     let maxWidthClass = "";
 
