@@ -1,0 +1,459 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs/blocks";
+import * as SubscriptionCardStories from "./subscription-card.component.stories";
+
+<Meta of={SubscriptionCardStories} />
+
+# Subscription Card
+
+A comprehensive UI component for displaying subscription status, payment details, and contextual
+action prompts based on subscription state. Dynamically adapts its presentation based on the
+subscription status (active, trialing, incomplete, past due, canceled, unpaid, etc.).
+
+<Canvas of={SubscriptionCardStories.Active} />
+
+## Table of Contents
+
+- [Usage](#usage)
+- [API](#api)
+  - [Inputs](#inputs)
+  - [Outputs](#outputs)
+- [Data Structure](#data-structure)
+- [Subscription States](#subscription-states)
+- [Design](#design)
+- [Examples](#examples)
+  - [Active](#active)
+  - [Active With Upgrade](#active-with-upgrade)
+  - [Trial](#trial)
+  - [Trial With Upgrade](#trial-with-upgrade)
+  - [Incomplete Payment](#incomplete-payment)
+  - [Incomplete Expired](#incomplete-expired)
+  - [Past Due](#past-due)
+  - [Pending Cancellation](#pending-cancellation)
+  - [Unpaid](#unpaid)
+  - [Canceled](#canceled)
+  - [Enterprise](#enterprise)
+- [Features](#features)
+- [Do's and Don'ts](#dos-and-donts)
+- [Accessibility](#accessibility)
+
+## Usage
+
+The subscription card component is designed to display comprehensive subscription information on
+billing pages, account management interfaces, and subscription dashboards.
+
+```ts
+import { SubscriptionCardComponent, BitwardenSubscription } from "@bitwarden/subscription";
+```
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="subscription"
+  [showUpgradeButton]="false"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+## API
+
+### Inputs
+
+| Input               | Type                    | Description                                                             |
+| ------------------- | ----------------------- | ----------------------------------------------------------------------- |
+| `title`             | `string`                | **Required.** The title displayed at the top of the card                |
+| `subscription`      | `BitwardenSubscription` | **Required.** The subscription data including status, cart, and storage |
+| `showUpgradeButton` | `boolean`               | **Optional.** Whether to show the upgrade callout (default: `false`)    |
+
+### Outputs
+
+| Output                | Type             | Description                                                |
+| --------------------- | ---------------- | ---------------------------------------------------------- |
+| `callToActionClicked` | `PlanCardAction` | Emitted when a user clicks an action button in the callout |
+
+**PlanCardAction Type:**
+
+```typescript
+type PlanCardAction =
+  | "contact-support"
+  | "manage-invoices"
+  | "reinstate-subscription"
+  | "update-payment"
+  | "upgrade-plan";
+```
+
+## Data Structure
+
+The component uses the `BitwardenSubscription` type, which is a discriminated union based on status:
+
+```typescript
+type BitwardenSubscription = HasCart & HasStorage & (Suspension | Billable | Canceled);
+
+type HasCart = {
+  cart: Cart; // From @bitwarden/pricing
+};
+
+type HasStorage = {
+  storage: {
+    available: number;
+    readableUsed: string;
+    used: number;
+  };
+};
+
+type Suspension = {
+  status: "incomplete" | "incomplete_expired" | "past_due" | "unpaid";
+  suspension: Date;
+  gracePeriod: number;
+};
+
+type Billable = {
+  status: "trialing" | "active";
+  nextCharge: Date;
+  cancelAt?: Date;
+};
+
+type Canceled = {
+  status: "canceled";
+  canceled: Date;
+};
+```
+
+## Subscription States
+
+The component dynamically adapts its appearance and calls-to-action based on the subscription
+status:
+
+- **active**: Subscription is active and paid up
+- **trialing**: Subscription is in trial period
+- **incomplete**: Payment failed, requires action
+- **incomplete_expired**: Payment issue expired, subscription suspended
+- **past_due**: Payment overdue but within grace period
+- **unpaid**: Subscription suspended due to non-payment
+- **canceled**: Subscription was canceled
+
+Each state displays an appropriate badge, callout message, and relevant action buttons.
+
+## Design
+
+The component follows the Bitwarden design system with:
+
+- **Status Badge**: Color-coded badges (success, warning, danger) indicating subscription state
+- **Cart Summary**: Integrated cart summary showing pricing details
+- **Contextual Callouts**: Warning/info/danger callouts with appropriate actions
+- **Modern Angular**: Uses signal inputs (`input.required`, `input`) and `computed` signals
+- **OnPush Change Detection**: Optimized performance with change detection strategy
+- **Typography**: Consistent text styling using the typography module
+- **Tailwind CSS**: Uses `tw-` prefixed utility classes for styling
+- **Responsive Layout**: Flexbox-based layout that adapts to container size
+
+## Examples
+
+### Active
+
+Standard active subscription with regular billing:
+
+<Canvas of={SubscriptionCardStories.Active} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="{
+    status: 'active',
+    nextCharge: new Date('2025-02-15'),
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 1,
+          name: 'members',
+          cost: 10.00
+        }
+      },
+      cadence: 'annually',
+      estimatedTax: 2.71
+    },
+    storage: {
+      available: 1000,
+      used: 234,
+      readableUsed: '234 MB'
+    }
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+### Active With Upgrade
+
+Active subscription with upgrade promotion callout:
+
+<Canvas of={SubscriptionCardStories.ActiveWithUpgrade} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="activeSubscription"
+  [showUpgradeButton]="true"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+### Trial
+
+Subscription in trial period showing next charge date:
+
+<Canvas of={SubscriptionCardStories.Trial} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="{
+    status: 'trialing',
+    nextCharge: new Date('2025-02-01'),
+    cart: {...},
+    storage: {...}
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+### Trial With Upgrade
+
+Trial subscription with upgrade option displayed:
+
+<Canvas of={SubscriptionCardStories.TrialWithUpgrade} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="trialSubscription"
+  [showUpgradeButton]="true"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+### Incomplete Payment
+
+Payment failed, showing warning with update payment action:
+
+<Canvas of={SubscriptionCardStories.Incomplete} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="{
+    status: 'incomplete',
+    suspension: new Date('2025-02-15'),
+    gracePeriod: 7,
+    cart: {...},
+    storage: {...}
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+**Actions available:** Update Payment, Contact Support
+
+### Incomplete Expired
+
+Payment issue expired, subscription has been suspended:
+
+<Canvas of={SubscriptionCardStories.IncompleteExpired} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="{
+    status: 'incomplete_expired',
+    suspension: new Date('2025-01-01'),
+    gracePeriod: 0,
+    cart: {...},
+    storage: {...}
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+**Actions available:** Contact Support
+
+### Past Due
+
+Payment past due with active grace period:
+
+<Canvas of={SubscriptionCardStories.PastDue} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="{
+    status: 'past_due',
+    suspension: new Date('2025-02-05'),
+    gracePeriod: 14,
+    cart: {...},
+    storage: {...}
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+**Actions available:** Manage Invoices
+
+### Pending Cancellation
+
+Active subscription scheduled to be canceled:
+
+<Canvas of={SubscriptionCardStories.PendingCancellation} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="{
+    status: 'active',
+    nextCharge: new Date('2025-02-15'),
+    cancelAt: new Date('2025-03-01'),
+    cart: {...},
+    storage: {...}
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+**Actions available:** Reinstate Subscription
+
+### Unpaid
+
+Subscription suspended due to unpaid invoices:
+
+<Canvas of={SubscriptionCardStories.Unpaid} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="{
+    status: 'unpaid',
+    suspension: new Date('2025-01-20'),
+    gracePeriod: 0,
+    cart: {...},
+    storage: {...}
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+**Actions available:** Manage Invoices
+
+### Canceled
+
+Subscription that has been canceled:
+
+<Canvas of={SubscriptionCardStories.Canceled} />
+
+```html
+<billing-subscription-card
+  [title]="'Premium Subscription'"
+  [subscription]="{
+    status: 'canceled',
+    canceled: new Date('2025-01-15'),
+    cart: {...},
+    storage: {...}
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+**Note:** Canceled subscriptions display no callout or actions.
+
+### Enterprise
+
+Enterprise subscription with multiple products and discount:
+
+<Canvas of={SubscriptionCardStories.Enterprise} />
+
+```html
+<billing-subscription-card
+  [title]="'Enterprise Subscription'"
+  [subscription]="{
+    status: 'active',
+    nextCharge: new Date('2025-03-01'),
+    cart: {
+      passwordManager: {
+        seats: { quantity: 5, name: 'members', cost: 7 },
+        additionalStorage: { quantity: 2, name: 'additionalStorageGB', cost: 0.5 }
+      },
+      secretsManager: {
+        seats: { quantity: 3, name: 'members', cost: 13 },
+        additionalServiceAccounts: { quantity: 5, name: 'additionalServiceAccountsV2', cost: 1 }
+      },
+      discount: { type: 'percent-off', active: true, value: 0.25 },
+      cadence: 'monthly',
+      estimatedTax: 6.4
+    },
+    storage: {
+      available: 7,
+      readableUsed: '7 GB',
+      used: 0
+    }
+  }"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+## Features
+
+- **Dynamic Badge**: Status badge changes color and text based on subscription state
+- **Contextual Callouts**: Warning, info, or danger callouts with relevant messages
+- **Action Buttons**: Context-specific call-to-action buttons (update payment, contact support,
+  etc.)
+- **Cart Summary Integration**: Embedded cart summary with pricing breakdown
+- **Custom Header Support**: Cart summary can display custom headers based on subscription status
+- **Date Formatting**: Consistent date formatting throughout (MMM. d, y format)
+- **Computed Signals**: Efficient reactive computations using Angular signals
+- **Type Safety**: Discriminated union types ensure type-safe subscription data
+- **Internationalization**: All text uses i18n service for translation support
+- **Event Emission**: Emits typed events for handling user actions
+
+## Do's and Don'ts
+
+### ✅ Do
+
+- Handle all `callToActionClicked` events appropriately in parent components
+- Provide complete `BitwardenSubscription` objects with all required fields
+- Use the correct subscription status from the defined status types
+- Include accurate date information for nextCharge, suspension, and cancelAt fields
+- Set `showUpgradeButton` to `true` only when upgrade paths are available
+- Use real translation keys that exist in the i18n messages file
+- Provide accurate storage information with readable format strings
+
+### ❌ Don't
+
+- Omit required fields from the BitwardenSubscription type
+- Use custom status strings not defined in the type
+- Display upgrade buttons for users who cannot upgrade
+- Ignore the `callToActionClicked` events - they require handling
+- Mix subscription states (e.g., having both `canceled` date and `nextCharge`)
+- Provide incorrect dates that don't match the subscription status
+- Override component styles without ensuring accessibility
+- Use placeholder or mock data in production environments
+
+## Accessibility
+
+The component includes:
+
+- **Semantic HTML**: Proper heading hierarchy with `<h2>`, `<h3>`, `<h4>` tags
+- **ARIA Labels**: Badge variants use appropriate semantic colors
+- **Keyboard Navigation**: All action buttons are keyboard accessible
+- **Focus Management**: Clear focus indicators on interactive elements
+- **Color Contrast**: Sufficient contrast ratios for all text and badge variants
+- **Screen Reader Support**: Descriptive text for all interactive elements
+- **Button Types**: Proper `type="button"` attributes on all buttons
+- **Date Formatting**: Human-readable date formats for assistive technologies

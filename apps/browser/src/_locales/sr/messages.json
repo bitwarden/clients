@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Премијум чланство је неопходно за употребу Архиве."
   },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Уреди"
   },
@@ -4808,6 +4811,24 @@
   "adminConsole": {
     "message": "Администраторска конзола"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
   "accountSecurity": {
     "message": "Безбедност налога"
   },
@@ -5664,6 +5685,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Ова пријава је ризична и недостаје веб локација. Додајте веб страницу и промените лозинку за јачу сигурност."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Недостаје веб страница"
   },
@@ -6039,5 +6066,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Зашто видите ово?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }
