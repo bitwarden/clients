@@ -4,7 +4,7 @@ import { once } from "node:events";
 import * as path from "path";
 import * as url from "url";
 
-import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme, screen, session } from "electron";
 import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -122,6 +122,7 @@ export class WindowMain {
         if (!isMacAppStore()) {
           const gotTheLock = app.requestSingleInstanceLock();
           if (!gotTheLock) {
+            dialog.showErrorBox("Error", "An instance of Bitwarden Desktop is already running.");
             app.quit();
             return;
           } else {
