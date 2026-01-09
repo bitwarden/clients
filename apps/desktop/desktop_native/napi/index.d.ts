@@ -21,8 +21,6 @@ export declare namespace autofill {
     /** Prompt a user for user verification using OS APIs. */
     verifyUser(request: UserVerificationRequest): Promise<UserVerificationResponse>
   }
-  export type HostResponse =
-    | { type: 'UserVerification', field0: UserVerificationResponse }
   export interface NativeStatus {
     key: string
     value: string

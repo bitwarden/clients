@@ -645,7 +645,7 @@ pub mod autofill {
         bindgen_prelude::FnArgs,
         threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
     };
-    use serde::{de::DeserializeOwned, Deserialize, Serialize};
+    use serde::{Deserialize, Serialize};
     use tokio::sync::oneshot;
     use tracing::error;
 
@@ -692,12 +692,29 @@ pub mod autofill {
         pub is_focused: bool,
         pub handle: String,
     }
+    #[derive(Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ExtensionRequestMessage {
+        pub sequence_number: u32,
+        #[serde(flatten)]
+        pub request: ExtensionRequest,
+    }
 
     #[derive(Serialize, Deserialize)]
-    #[serde(bound = "T: Serialize + DeserializeOwned")]
-    pub struct PasskeyMessage<T: Serialize + DeserializeOwned> {
-        pub sequence_number: u32,
-        pub value: Result<T, BitwardenError>,
+    #[serde(tag = "request", content = "params", rename_all = "camelCase")]
+    pub enum ExtensionRequest {
+        NativeStatus(NativeStatus),
+        PasskeyAssertion(PasskeyAssertionRequest),
+        PasskeyAssertionWithoutUserInterface(PasskeyAssertionWithoutUserInterfaceRequest),
+        PasskeyRegistration(PasskeyRegistrationRequest),
+        WindowHandle(WindowHandleQueryRequest),
+    }
+
+    #[derive(Serialize)]
+    #[serde(bound = "T: Serialize", rename_all = "camelCase")]
+    struct ExtensionResponse<T> {
+        sequence_number: u32,
+        value: Result<T, BitwardenError>,
     }
 
     #[derive(Serialize, Deserialize)]
@@ -709,10 +726,12 @@ pub mod autofill {
     #[derive(Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     struct HostRequestMessage {
-        request_id: u32,
+        sequence_number: u32,
         #[serde(flatten)]
         request: HostRequest,
     }
+
+    // TODO: HOST RESPONSE MESSAGE
 
     #[napi(object)]
     #[derive(Debug, Serialize, Deserialize)]
@@ -814,17 +833,35 @@ pub mod autofill {
         pub user_verified: bool,
     }
 
-    #[napi]
-    pub enum HostResponse {
+    #[derive(Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct HostResponseMessage {
+        sequence_number: u32,
+        #[serde(flatten)]
+        response: Result<HostResponse, String>,
+    }
+
+    #[derive(Serialize, Deserialize)]
+    #[serde(tag = "response", content = "value", rename_all = "camelCase")]
+    enum HostResponse {
         UserVerification(UserVerificationResponse),
     }
+
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum IpcMessage {
+        HostResponse(HostResponseMessage),
+        ExtensionRequest(ExtensionRequestMessage),
+    }
+
+    type HostCallbacks = Arc<Mutex<HashMap<u32, oneshot::Sender<Result<HostResponse, String>>>>>;
 
     #[napi]
     pub struct AutofillIpcServer {
         server: desktop_core::ipc::server::Server,
         // We need to keep track of the callbacks so we can call them when we receive a response
         host_callbacks_counter: AtomicU32,
-        host_callbacks: Arc<Mutex<HashMap<u32, oneshot::Sender<Result<HostResponse, String>>>>>,
+        host_callbacks: HostCallbacks,
     }
 
     // FIXME: Remove unwraps! They panic and terminate the whole application.
@@ -872,6 +909,8 @@ pub mod autofill {
             >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
+            let host_callbacks: HostCallbacks = Arc::new(Mutex::new(HashMap::new()));
+            let host_callbacks2 = host_callbacks.clone();
             tokio::spawn(async move {
                 while let Some(Message {
                     client_id,
@@ -888,94 +927,75 @@ pub mod autofill {
                                 continue;
                             };
 
-                            match serde_json::from_str::<PasskeyMessage<WindowHandleQueryRequest>>(
-                                &message,
-                            ) {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-
-                                    window_handle_query_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
-                                }
-                                Err(e) => {
-                                    tracing::warn!(error = %e, "Could not deserialize request as WindowHandleQueryRequest. Trying other types...");
-                                }
-                            }
-
-                            match serde_json::from_str::<PasskeyMessage<PasskeyAssertionRequest>>(
-                                &message,
-                            ) {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-
-                                    assertion_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
-                                }
-                                Err(e) => {
-                                    error!(error = %e, "Error deserializing as PasskeyAssertionRequest");
-                                }
-                            }
-
-                            match serde_json::from_str::<
-                                PasskeyMessage<PasskeyAssertionWithoutUserInterfaceRequest>,
-                            >(&message)
-                            {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-
-                                    assertion_without_user_interface_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
-                                }
-                                Err(e) => {
-                                    error!(error = %e, "Error deserializing as PasskeyAssertionWithoutUserInterfaceRequest");
-                                }
-                            }
-
-                            match serde_json::from_str::<PasskeyMessage<PasskeyRegistrationRequest>>(
-                                &message,
-                            ) {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-                                    registration_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
-                                }
-                                Err(e) => {
-                                    error!(error = %e, "Error deserializing PasskeyRegistrationRequest");
-                                }
-                            }
-
-                            match serde_json::from_str::<PasskeyMessage<NativeStatus>>(&message) {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value))
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-                                    native_status_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
-                                }
+                            let msg = match serde_json::from_str::<IpcMessage>(&message) {
+                                Ok(msg) => msg,
                                 Err(error) => {
-                                    error!(%error, "Unable to deserialize as native status.");
+                                    error!(
+                                        %error,
+                                        %message,
+                                        "Received an unknown message from extension"
+                                    );
+                                    continue;
                                 }
-                            }
+                            };
 
-                            error!(message, "Received an unknown message");
+                            match msg {
+                                IpcMessage::HostResponse(msg) => {
+                                    if let Some(tx) = host_callbacks2
+                                        .lock()
+                                        .expect("not poisoned")
+                                        .remove(&msg.sequence_number)
+                                    {
+                                        if let Err(err) = tx.send(msg.response) {
+                                            tracing::error!("");
+                                        }
+                                    }
+                                }
+                                IpcMessage::ExtensionRequest(msg) => match msg.request {
+                                    ExtensionRequest::PasskeyAssertion(assertion_request) => {
+                                        let params =
+                                            (client_id, msg.sequence_number, assertion_request);
+                                        assertion_callback.call(
+                                            Ok(params.into()),
+                                            ThreadsafeFunctionCallMode::NonBlocking,
+                                        );
+                                    }
+                                    ExtensionRequest::PasskeyAssertionWithoutUserInterface(
+                                        assertion_request,
+                                    ) => {
+                                        let params =
+                                            (client_id, msg.sequence_number, assertion_request);
+                                        assertion_without_user_interface_callback.call(
+                                            Ok(params.into()),
+                                            ThreadsafeFunctionCallMode::NonBlocking,
+                                        );
+                                    }
+                                    ExtensionRequest::PasskeyRegistration(assertion_request) => {
+                                        let params =
+                                            (client_id, msg.sequence_number, assertion_request);
+                                        registration_callback.call(
+                                            Ok(params.into()),
+                                            ThreadsafeFunctionCallMode::NonBlocking,
+                                        );
+                                    }
+                                    ExtensionRequest::WindowHandle(window_handle_request) => {
+                                        let params =
+                                            (client_id, msg.sequence_number, window_handle_request);
+                                        window_handle_query_callback.call(
+                                            Ok(params.into()),
+                                            ThreadsafeFunctionCallMode::NonBlocking,
+                                        );
+                                    }
+                                    ExtensionRequest::NativeStatus(status_request) => {
+                                        let params =
+                                            (client_id, msg.sequence_number, status_request);
+                                        native_status_callback.call(
+                                            Ok(params.into()),
+                                            ThreadsafeFunctionCallMode::NonBlocking,
+                                        );
+                                    }
+                                },
+                            }
                         }
                     }
                 }
@@ -993,7 +1013,7 @@ pub mod autofill {
                 server,
                 // Start at 1 since 0 is reserved for "no callback" scenarios
                 host_callbacks_counter: AtomicU32::new(NO_CALLBACK_INDICATOR + 1),
-                host_callbacks: Arc::new(Mutex::new(HashMap::new())),
+                host_callbacks,
             })
         }
 
@@ -1017,7 +1037,7 @@ pub mod autofill {
             sequence_number: u32,
             response: PasskeyRegistrationResponse,
         ) -> napi::Result<u32> {
-            let message = PasskeyMessage {
+            let message = ExtensionResponse {
                 sequence_number,
                 value: Ok(response),
             };
@@ -1031,7 +1051,7 @@ pub mod autofill {
             sequence_number: u32,
             response: PasskeyAssertionResponse,
         ) -> napi::Result<u32> {
-            let message = PasskeyMessage {
+            let message = ExtensionResponse {
                 sequence_number,
                 value: Ok(response),
             };
@@ -1045,7 +1065,7 @@ pub mod autofill {
             sequence_number: u32,
             response: WindowHandleQueryResponse,
         ) -> napi::Result<u32> {
-            let message = PasskeyMessage {
+            let message = ExtensionResponse {
                 sequence_number,
                 value: Ok(response),
             };
@@ -1059,7 +1079,7 @@ pub mod autofill {
             sequence_number: u32,
             error: String,
         ) -> napi::Result<u32> {
-            let message: PasskeyMessage<()> = PasskeyMessage {
+            let message: ExtensionResponse<()> = ExtensionResponse {
                 sequence_number,
                 value: Err(BitwardenError::Internal(error)),
             };
@@ -1072,18 +1092,18 @@ pub mod autofill {
             &self,
             request: UserVerificationRequest,
         ) -> napi::Result<UserVerificationResponse> {
-            let request_id = self
+            let sequence_number = self
                 .host_callbacks_counter
                 .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             let (tx, rx) = oneshot::channel();
             let command = HostRequestMessage {
-                request_id,
+                sequence_number,
                 request: HostRequest::UserVerification(request),
             };
             self.host_callbacks
                 .lock()
                 .expect("not poisoned")
-                .insert(request_id, tx);
+                .insert(sequence_number, tx);
             let json = serde_json::to_string(&command).expect("serde to serialize");
             tracing::debug!(json, "Sending verify user message");
             self.send(0, json)?;
@@ -1104,6 +1124,7 @@ pub mod autofill {
 
         // TODO: Add a way to send a message to a specific client?
         fn send(&self, _client_id: u32, message: String) -> napi::Result<u32> {
+            tracing::debug!(%message, "Sending message to extension");
             self.server
                 .send(message)
                 .map_err(|e| {
