@@ -152,13 +152,11 @@ export class PhishingDataService {
 
     const applicationVersion = await this.platformUtilsService.getApplicationVersion();
 
-    // If checksum matches, return existing data with new timestamp & version
+    // If checksum matches, skip state write to avoid expensive Set rebuild
     const remoteChecksum = await this.fetchPhishingChecksum(this.resourceType);
     if (remoteChecksum && prev.checksum === remoteChecksum) {
-      this.logService.info(
-        `[PhishingDataService] Remote checksum matches local checksum, updating timestamp only.`,
-      );
-      return { ...prev, timestamp, applicationVersion };
+      this.logService.info(`[PhishingDataService] Checksum match, skipping update.`);
+      return null;
     }
     // Checksum is different, data needs to be updated.
 
