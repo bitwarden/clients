@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { EVENTS } from "@bitwarden/common/autofill/constants";
+
 import {
   InlineMenuElementPosition,
   InlineMenuPosition,
@@ -78,6 +80,36 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
   constructor() {
     this.setupMutationObserver();
+    this.setupEventProtection();
+  }
+
+  /**
+   * Sets up document-level capture-phase event listeners to protect the inline menu
+   * elements from being intercepted by page event listeners. This is necessary because
+   * some sites (like Medium) use capture-phase listeners on their document that can
+   * interfere with clicks on our overlay elements.
+   */
+  private setupEventProtection() {
+    const protectEvent = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (!target) {
+        return;
+      }
+
+      // Check if the event target is one of our overlay elements
+      if (
+        this.isElementInlineMenu(target) ||
+        target.closest?.(`${this.buttonElement?.tagName}, ${this.listElement?.tagName}`)
+      ) {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+      }
+    };
+
+    // Add capture-phase listeners to intercept events before page listeners
+    globalThis.document.addEventListener(EVENTS.CLICK, protectEvent, true);
+    globalThis.document.addEventListener(EVENTS.MOUSEDOWN, protectEvent, true);
+    globalThis.document.addEventListener(EVENTS.MOUSEUP, protectEvent, true);
   }
 
   /**
