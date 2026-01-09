@@ -1,6 +1,5 @@
 import { NativeAutofillStatusCommand } from "./status.command";
 import { NativeAutofillSyncCommand } from "./sync.command";
-import { NativeAutofillUserVerificationCommand } from "./user-verification.command";
 
 export type CommandDefinition = {
   namespace: string;
@@ -21,4 +20,4 @@ export type IpcCommandInvoker<C extends CommandDefinition> = (
 ) => Promise<CommandOutput<C["output"]>>;
 
 /** A list of all available commands */
-export type Command = NativeAutofillSyncCommand | NativeAutofillStatusCommand | NativeAutofillUserVerificationCommand;
+export type Command = NativeAutofillSyncCommand | NativeAutofillStatusCommand;

@@ -32,7 +32,7 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
-import { NativeAutofillUserVerificationCommand } from "../../platform/main/autofill/user-verification.command";
+import { NativeAutofillUserVerificationRequest } from "../../platform/main/autofill/user-verification.request";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
@@ -421,21 +421,19 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
     this.logService.debug("Prompting for user verification");
 
-    const uvResult = await ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
-      namespace: "autofill",
-      command: "user-verification",
-      params: {
-        windowHandle: Utils.fromBufferToB64(windowHandle),
-        transactionContext: this.transactionContext,
+     try {
+      const uvResult = await ipc.autofill.verifyUser({
+        // windowHandle: Utils.fromBufferToB64(windowHandle),
+        // transactionContext: this.transactionContext,
+        transactionId: 0,
         username,
         displayHint,
-      },
-    });
-    if (uvResult.type === "error") {
-      this.logService.error("Error getting user verification", uvResult.error);
+      });
+      return uvResult.userVerified;
+    } catch (err) {
+      this.logService.error("Error getting user verification", err);
       return false;
     }
-    return uvResult.type === "success";
   }
 
   async informExcludedCredential(existingCipherIds: string[]): Promise<void> {

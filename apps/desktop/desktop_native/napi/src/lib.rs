@@ -635,6 +635,11 @@ pub mod autostart {
 
 #[napi]
 pub mod autofill {
+    use std::{
+        collections::HashMap,
+        sync::{atomic::AtomicU32, Arc, Mutex},
+    };
+
     use desktop_core::ipc::server::{Message, MessageType};
     use napi::{
         bindgen_prelude::FnArgs,
@@ -791,6 +796,27 @@ pub mod autofill {
         pub client_data_hash: Vec<u8>,
         pub authenticator_data: Vec<u8>,
         pub credential_id: Vec<u8>,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct UserVerificationRequest {
+        pub transaction_id: u32,
+        pub display_hint: String,
+        pub username: Option<String>,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct UserVerificationResponse {
+        pub user_verified: bool,
+    }
+
+    #[napi]
+    pub enum HostResponse {
+        UserVerification(UserVerificationResponse),
     }
 
     #[napi]
@@ -1038,6 +1064,42 @@ pub mod autofill {
                 value: Err(BitwardenError::Internal(error)),
             };
             self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        /// Prompt a user for user verification using OS APIs.
+        #[napi]
+        pub async fn verify_user(
+            &self,
+            request: UserVerificationRequest,
+        ) -> napi::Result<UserVerificationResponse> {
+            let request_id = self
+                .host_callbacks_counter
+                .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            let (tx, rx) = oneshot::channel();
+            let command = HostRequestMessage {
+                request_id,
+                request: HostRequest::UserVerification(request),
+            };
+            self.host_callbacks
+                .lock()
+                .expect("not poisoned")
+                .insert(request_id, tx);
+            let json = serde_json::to_string(&command).expect("serde to serialize");
+            tracing::debug!(json, "Sending verify user message");
+            self.send(0, json)?;
+
+            match rx.await {
+                Ok(Ok(HostResponse::UserVerification(response))) => Ok(response),
+                Ok(Ok(_)) => Err(napi::Error::from_reason(
+                    "Invalid repsonse received for user verification request",
+                )),
+                Ok(Err(err)) => Err(napi::Error::from_reason(format!(
+                    "UV request failed: {err}"
+                ))),
+                Err(err) => Err(napi::Error::from_reason(format!(
+                    "Failed to receive UV request: {err}"
+                ))),
+            }
         }
 
         // TODO: Add a way to send a message to a specific client?

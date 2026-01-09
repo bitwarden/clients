@@ -6,6 +6,7 @@ import { autofill } from "@bitwarden/desktop-napi";
 import { WindowMain } from "../../../main/window.main";
 
 import { CommandDefinition } from "./command";
+import { HostRequestDefinition } from "./request";
 
 type BufferedMessage = {
   channel: string;
@@ -19,6 +20,14 @@ export type RunCommandParams<C extends CommandDefinition> = {
 };
 
 export type RunCommandResult<C extends CommandDefinition> = C["output"];
+
+export type HostRequestParams<R extends HostRequestDefinition> = {
+  namespace: R["namespace"];
+  command: R["name"];
+  params: R["input"];
+};
+
+export type HostRequestResult<R extends HostRequestDefinition> = R["output"];
 
 export class NativeAutofillMain {
   private ipcServer?: autofill.AutofillIpcServer;
@@ -69,6 +78,15 @@ export class NativeAutofillMain {
         return this.runCommand(params);
       },
     );
+
+    ipcMain.handle(
+      "autofill.userVerification",
+      (
+        _event: any,
+        params: autofill.UserVerificationRequest,
+      ): Promise<autofill.UserVerificationResponse> =>{
+        return this.ipcServer.verifyUser(params)
+      });
 
     this.ipcServer = await autofill.AutofillIpcServer.listen(
       "af",

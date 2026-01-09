@@ -14,6 +14,9 @@ export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
 
+  verifyUser: (request: autofill.UserVerificationRequest): Promise<autofill.UserVerificationResponse> =>
+    ipcRenderer.invoke("autofill.userVerification", request),
+
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
   listenPasskeyRegistration: (

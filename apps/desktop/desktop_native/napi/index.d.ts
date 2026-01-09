@@ -18,7 +18,11 @@ export declare namespace autofill {
     completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
     completeWindowHandleQuery(clientId: number, sequenceNumber: number, response: WindowHandleQueryResponse): number
     completeError(clientId: number, sequenceNumber: number, error: string): number
+    /** Prompt a user for user verification using OS APIs. */
+    verifyUser(request: UserVerificationRequest): Promise<UserVerificationResponse>
   }
+  export type HostResponse =
+    | { type: 'UserVerification', field0: UserVerificationResponse }
   export interface NativeStatus {
     key: string
     value: string
@@ -79,6 +83,14 @@ export declare namespace autofill {
     Preferred = 'preferred',
     Required = 'required',
     Discouraged = 'discouraged'
+  }
+  export interface UserVerificationRequest {
+    transactionId: number
+    displayHint: string
+    username?: string
+  }
+  export interface UserVerificationResponse {
+    userVerified: boolean
   }
   export interface WindowHandleQueryRequest {
     windowHandle: string
