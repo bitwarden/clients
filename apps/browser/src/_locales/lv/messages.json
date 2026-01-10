@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "pārvaldības konsolē,"
   },
+  "admin": {
+    "message": "Pārvaldītājs"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automātiska lietotāju apstiprināšana"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automātiski apstiprināt ierindotos lietotājus, kamēr šī ierīce ir atslēgta"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Laika ietaupīšana ar automātisku lietotāju apstiprināšanu"
+  },
+  "autoConfirmWarning": {
+    "message": "Tas varētu ietekmēt apvienības datu drošību. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Uzzināt par riskiem"
+  },
   "accountSecurity": {
     "message": "Konta drošība"
   },

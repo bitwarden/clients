@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "Konzole správce"
   },
+  "admin": {
+    "message": "Administrátor"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatické potvrzení uživatele"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automaticky potvrdit čekající uživatele, když je toto zařízení odemčeno"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Ušetřete čas s automatickým potvrzením uživatele"
+  },
+  "autoConfirmWarning": {
+    "message": "To by mohlo ovlivnit bezpečnost dat Vaší organizace. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Více o rizicích"
+  },
   "accountSecurity": {
     "message": "Zabezpečení účtu"
   },

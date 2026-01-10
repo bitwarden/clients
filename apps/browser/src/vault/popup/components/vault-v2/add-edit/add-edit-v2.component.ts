@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -33,6 +33,8 @@ import {
   BadgeModule,
 } from "@bitwarden/components";
 import {
+  ArchiveCipherUtilitiesService,
+  CipherFormComponent,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormGenerationService,
@@ -162,6 +164,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
   ],
 })
 export class AddEditV2Component implements OnInit, OnDestroy {
+  readonly cipherFormComponent = viewChild(CipherFormComponent);
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
@@ -172,6 +175,18 @@ export class AddEditV2Component implements OnInit, OnDestroy {
 
   get originalCipherId(): CipherId | null {
     return this.config?.originalCipher?.id as CipherId;
+  }
+
+  get cipher(): CipherView {
+    return new CipherView(this.config?.originalCipher);
+  }
+
+  get canCipherBeArchived(): boolean {
+    return this.cipher?.canBeArchived;
+  }
+
+  get isCipherArchived(): boolean {
+    return this.cipher?.isArchived;
   }
 
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
@@ -190,6 +205,8 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
 
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
+
   constructor(
     private route: ActivatedRoute,
     private i18nService: I18nService,
@@ -205,6 +222,7 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private accountService: AccountService,
     private archiveService: CipherArchiveService,
+    private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
   ) {
     this.subscribeToParams();
   }
@@ -331,6 +349,10 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     await BrowserApi.sendMessage("addEditCipherSubmitted");
   }
 
+  get isEditMode(): boolean {
+    return ["edit", "partial-edit"].includes(this.config?.mode);
+  }
+
   subscribeToParams(): void {
     this.route.queryParams
       .pipe(
@@ -436,6 +458,40 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     };
     return this.i18nService.t(translation[type]);
   }
+
+  /**
+   * Update the cipher in the form after archiving/unarchiving.
+   * @param revisionDate The new revision date.
+   * @param archivedDate The new archived date (null if unarchived).
+   **/
+  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
+    this.cipherFormComponent().patchCipher((current) => {
+      current.revisionDate = revisionDate;
+      current.archivedDate = archivedDate;
+      return current;
+    });
+  };
+
+  archive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
+
+    if (!cipherResponse) {
+      return;
+    }
+    this.updateCipherFromArchive(
+      new Date(cipherResponse.revisionDate),
+      new Date(cipherResponse.archivedDate),
+    );
+  };
+
+  unarchive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
+
+    if (!cipherResponse) {
+      return;
+    }
+    this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
+  };
 
   delete = async () => {
     const confirmed = await this.dialogService.openSimpleDialog({

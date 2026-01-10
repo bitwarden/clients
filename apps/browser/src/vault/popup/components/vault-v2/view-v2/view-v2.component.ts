@@ -44,6 +44,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  ArchiveCipherUtilitiesService,
   ChangeLoginPasswordService,
   CipherViewComponent,
   CopyCipherFieldService,
@@ -117,6 +118,10 @@ export class ViewV2Component {
   senderTabId?: number;
 
   protected showFooter$: Observable<boolean>;
+  protected userCanArchive$ = this.accountService.activeAccount$
+    .pipe(getUserId)
+    .pipe(switchMap((userId) => this.archiveService.userCanArchive$(userId)));
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
 
   constructor(
     private passwordRepromptService: PasswordRepromptService,
@@ -135,6 +140,7 @@ export class ViewV2Component {
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
     private archiveService: CipherArchiveService,
+    private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
   ) {
     this.subscribeToParams();
   }
@@ -274,6 +280,24 @@ export class ViewV2Component {
       title: null,
       message: this.i18nService.t("restoredItem"),
     });
+  };
+
+  archive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
+
+    if (!cipherResponse) {
+      return;
+    }
+    this.cipher.archivedDate = new Date(cipherResponse.archivedDate);
+  };
+
+  unarchive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
+
+    if (!cipherResponse) {
+      return;
+    }
+    this.cipher.archivedDate = null;
   };
 
   protected deleteCipher() {

@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -23,7 +23,9 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
+import { DialogService } from "@bitwarden/components";
 import {
+  ArchiveCipherUtilitiesService,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormMode,
@@ -50,15 +52,15 @@ describe("AddEditV2Component", () => {
   let cipherServiceMock: MockProxy<CipherService>;
 
   const buildConfigResponse = { originalCipher: {} } as CipherFormConfig;
-  const buildConfig = jest.fn((mode: CipherFormMode) =>
-    Promise.resolve({ ...buildConfigResponse, mode }),
-  );
+  const buildConfig = jest.fn((mode) => Promise.resolve({ ...buildConfigResponse, mode }));
   const queryParams$ = new BehaviorSubject({});
   const disable = jest.fn();
   const navigate = jest.fn();
   const back = jest.fn().mockResolvedValue(null);
   const setHistory = jest.fn();
   const collect = jest.fn().mockResolvedValue(null);
+  const openSimpleDialog = jest.fn().mockResolvedValue(true);
+  const cipherArchiveService = mock<CipherArchiveService>();
 
   beforeEach(async () => {
     buildConfig.mockClear();
@@ -66,6 +68,10 @@ describe("AddEditV2Component", () => {
     navigate.mockClear();
     back.mockClear();
     collect.mockClear();
+    openSimpleDialog.mockClear();
+
+    cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
+    cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
 
     addEditCipherInfo$ = new BehaviorSubject<AddEditCipherInfo | null>(null);
     cipherServiceMock = mock<CipherService>({
@@ -88,14 +94,10 @@ describe("AddEditV2Component", () => {
         {
           provide: CipherAuthorizationService,
           useValue: {
-            canDeleteCipher$: jest.fn().mockReturnValue(true),
+            canDeleteCipher$: jest.fn().mockReturnValue(of(true)),
           },
         },
         { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
-        {
-          provide: CipherArchiveService,
-          useValue: { userCanArchive$: jest.fn().mockReturnValue(of(false)) },
-        },
         {
           provide: TaskService,
           useValue: mock<TaskService>(),
@@ -108,11 +110,27 @@ describe("AddEditV2Component", () => {
           provide: BillingAccountProfileStateService,
           useValue: mock<BillingAccountProfileStateService>(),
         },
+        {
+          provide: CipherArchiveService,
+          useValue: cipherArchiveService,
+        },
+        {
+          provide: ArchiveCipherUtilitiesService,
+          useValue: {
+            archiveCipher: jest.fn().mockResolvedValue(null),
+            unarchiveCipher: jest.fn().mockResolvedValue(null),
+          },
+        },
       ],
     })
       .overrideProvider(CipherFormConfigService, {
         useValue: {
           buildConfig,
+        },
+      })
+      .overrideProvider(DialogService, {
+        useValue: {
+          openSimpleDialog,
         },
       })
       .compileComponents();
@@ -395,10 +413,7 @@ describe("AddEditV2Component", () => {
     }));
 
     it("sets it to 'save' when the user is able to archive the item", fakeAsync(() => {
-      const archiveService = TestBed.inject(CipherArchiveService);
-      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(true));
-
-      buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
+      buildConfigResponse.originalCipher = { isArchived: false } as any;
 
       queryParams$.next({});
 
@@ -409,72 +424,119 @@ describe("AddEditV2Component", () => {
     }));
 
     it("sets it to 'unarchiveAndSave' when the user cannot archive and the item is archived", fakeAsync(() => {
-      const archiveService = TestBed.inject(CipherArchiveService);
-      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(false));
-      buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
+      buildConfigResponse.originalCipher = { isArchived: true } as any;
 
       queryParams$.next({});
-
       tick();
-      fixture.detectChanges();
 
       const submitBtn = fixture.debugElement.query(By.css("button[type=submit]"));
-      expect(submitBtn.nativeElement.textContent.trim()).toBe("unarchiveAndSave");
+      expect(submitBtn.nativeElement.textContent.trim()).toBe("save");
     }));
   });
 
-  describe("archive badge", () => {
+  describe("archive", () => {
+    it("calls archiveCipherUtilsService service to archive the cipher", async () => {
+      buildConfigResponse.originalCipher = { id: "222-333-444-5555", edit: true } as Cipher;
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      await fixture.whenStable();
+      await component.archive();
+
+      expect(component["archiveCipherUtilsService"].archiveCipher).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "222-333-444-5555" }),
+        true,
+      );
+    });
+  });
+
+  describe("unarchive", () => {
+    it("calls archiveCipherUtilsService service to unarchive the cipher", async () => {
+      buildConfigResponse.originalCipher = {
+        id: "222-333-444-5555",
+        archivedDate: new Date(),
+        edit: true,
+      } as Cipher;
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      await component.unarchive();
+
+      expect(component["archiveCipherUtilsService"].unarchiveCipher).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "222-333-444-5555" }),
+      );
+    });
+  });
+
+  describe("archive button", () => {
     beforeEach(() => {
       // prevent form from rendering
       jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+      buildConfigResponse.originalCipher = { archivedDate: undefined, edit: true } as Cipher;
     });
 
-    it("shows the archive badge when the cipher is archived and the user can no longer archive", waitForAsync(async () => {
-      const archiveService = TestBed.inject(CipherArchiveService);
-      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(false));
-      buildConfigResponse.originalCipher = { archivedDate: new Date() } as any;
-
-      queryParams$.next({});
-
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      const badge = fixture.debugElement.query(By.css("[bitBadge]"));
-      expect(badge).toBeTruthy();
-      expect(badge.nativeElement.textContent.trim()).toBe("archived");
-    }));
-
-    it("does not show the archive badge when the cipher is not archived", fakeAsync(() => {
-      const archiveService = TestBed.inject(CipherArchiveService);
-      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(false));
-
-      buildConfigResponse.originalCipher = {} as Cipher;
-
-      queryParams$.next({});
+    it("shows the archive button when the user can archive and the cipher can be archived", fakeAsync(() => {
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(true));
+      queryParams$.next({ cipherId: "222-333-444-5555" });
       tick();
       fixture.detectChanges();
 
-      const badge = fixture.debugElement.query(By.css("span[bitBadge]"));
-      expect(badge).toBeNull();
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeTruthy();
     }));
 
-    it("does not show the archive badge when the user can archive and the cipher is archived", waitForAsync(async () => {
-      const archiveService = TestBed.inject(CipherArchiveService);
-      (archiveService.userCanArchive$ as jest.Mock).mockReturnValue(of(true));
+    it("does not show the archive button when the user cannot archive", fakeAsync(() => {
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
+      queryParams$.next({ cipherId: "222-333-444-5555" });
 
-      buildConfigResponse.originalCipher = { archivedDate: new Date() } as Cipher;
-      fixture.destroy();
-      fixture = TestBed.createComponent(AddEditV2Component);
-      component = fixture.componentInstance;
-      jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
-
-      queryParams$.next({});
-
-      await fixture.whenStable();
+      tick();
       fixture.detectChanges();
 
-      const badge = fixture.debugElement.query(By.css("span[bitBadge]"));
-      expect(badge).toBeNull();
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeFalsy();
+    }));
+
+    it("does not show the archive button when the cipher cannot be archived", fakeAsync(() => {
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(true));
+      buildConfigResponse.originalCipher = { archivedDate: new Date(), edit: true } as Cipher;
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      tick();
+      fixture.detectChanges();
+
+      const archiveBtn = fixture.debugElement.query(By.css("button[biticonbutton='bwi-archive']"));
+      expect(archiveBtn).toBeFalsy();
+    }));
+  });
+
+  describe("unarchive button", () => {
+    beforeEach(() => {
+      // prevent form from rendering
+      jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+      buildConfigResponse.originalCipher = { edit: true } as Cipher;
+    });
+
+    it("shows the unarchive button when the cipher is archived", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { archivedDate: new Date(), edit: true } as Cipher;
+
+      tick();
+      fixture.detectChanges();
+
+      const unarchiveBtn = fixture.debugElement.query(
+        By.css("button[biticonbutton='bwi-unarchive']"),
+      );
+      expect(unarchiveBtn).toBeTruthy();
+    }));
+
+    it("does not show the unarchive button when the cipher is not archived", fakeAsync(() => {
+      queryParams$.next({ cipherId: "222-333-444-5555" });
+
+      tick();
+      fixture.detectChanges();
+
+      const unarchiveBtn = fixture.debugElement.query(
+        By.css("button[biticonbutton='bwi-unarchive']"),
+      );
+      expect(unarchiveBtn).toBeFalsy();
     }));
   });
 

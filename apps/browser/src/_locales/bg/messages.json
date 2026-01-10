@@ -4811,6 +4811,24 @@
   "adminConsole": {
     "message": "Административна конзола"
   },
+  "admin": {
+    "message": "Администратор"
+  },
+  "automaticUserConfirmation": {
+    "message": "Автоматично потвърждение на потребителите"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Автоматично потвърждение на потребителите, когато това устройство е отключено"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Спестете време с автоматичното потвърждение на потребителите"
+  },
+  "autoConfirmWarning": {
+    "message": "Това може да се отрази на сигурността на данните в организацията Ви. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Научете повече за рисковете"
+  },
   "accountSecurity": {
     "message": "Защита на регистрацията"
   },

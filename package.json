@@ -174,7 +174,7 @@
     "big-integer": "1.6.52",
     "braintree-web-drop-in": "1.46.0",
     "buffer": "6.0.3",
-    "bufferutil": "4.0.9",
+    "bufferutil": "4.1.0",
     "chalk": "4.1.2",
     "commander": "14.0.0",
     "core-js": "3.47.0",

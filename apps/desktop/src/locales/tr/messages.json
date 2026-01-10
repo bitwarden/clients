@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Kısayolu yazın"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Aşağıdaki değiştirici tuşlardan birini veya ikisini (Ctrl, Alt, Win ya da Shift) ve bir harf kullanın."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "Geçersiz kısayol"
