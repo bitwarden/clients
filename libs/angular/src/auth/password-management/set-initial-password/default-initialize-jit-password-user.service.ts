@@ -9,12 +9,6 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordUnlockData } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import {
-  SignedPublicKey,
-  SignedSecurityState,
-  WrappedSigningKey,
-} from "@bitwarden/common/key-management/types";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
@@ -43,7 +37,6 @@ export class DefaultInitializeJitPasswordUserService implements InitializeJitPas
     private readonly userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private readonly accountCryptographicStateService: AccountCryptographicStateService,
     private readonly registerSdkService: RegisterSdkService,
-    private readonly securityStateService: SecurityStateService,
   ) {}
 
   async initializeUser(
@@ -107,23 +100,6 @@ export class DefaultInitializeJitPasswordUserService implements InitializeJitPas
     // Set account cryptography state
     await this.accountCryptographicStateService.setAccountCryptographicState(
       registerResult.account_cryptographic_state,
-      userId,
-    );
-    // Legacy individual states
-    await this.keyService.setPrivateKey(
-      registerResult.account_cryptographic_state.V2.private_key,
-      userId,
-    );
-    await this.keyService.setSignedPublicKey(
-      registerResult.account_cryptographic_state.V2.signed_public_key as SignedPublicKey,
-      userId,
-    );
-    await this.keyService.setUserSigningKey(
-      registerResult.account_cryptographic_state.V2.signing_key as WrappedSigningKey,
-      userId,
-    );
-    await this.securityStateService.setAccountSecurityState(
-      registerResult.account_cryptographic_state.V2.security_state as SignedSecurityState,
       userId,
     );
 
