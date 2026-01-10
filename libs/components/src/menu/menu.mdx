@@ -38,3 +38,8 @@ prior to being clicked and `aria-expanded="true"` after the user clicks the elem
 
 User should be able to navigate the opened menu via the up and down arrow keys and close the menu
 using the escape key or clicking out of the menu.
+
+Are you using a menu item to open a dialog? Be sure to pass the `restoreFocus` config option to the
+`dialog.open` method, specifying where the user's focus should return to upon dialog close. (The
+menu closes when the dialog launches, so the built-in strategy of returning focus to the trigger
+element is not possible, since the trigger element menu item is gone.)

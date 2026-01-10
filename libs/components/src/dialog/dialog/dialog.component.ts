@@ -11,6 +11,7 @@ import {
   DestroyRef,
   computed,
   signal,
+  AfterViewInit,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, switchMap } from "rxjs";
@@ -62,10 +63,11 @@ const drawerSizeToWidth = {
     SpinnerComponent,
   ],
 })
-export class DialogComponent {
+export class DialogComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly scrollableBody = viewChild.required(CdkScrollable);
   private readonly scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
+  private readonly dialogSection = viewChild.required<ElementRef<HTMLElement>>("dialogSection");
 
   protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
@@ -150,5 +152,17 @@ export class DialogComponent {
 
   onAnimationEnd() {
     this.animationCompleted.set(true);
+  }
+
+  ngAfterViewInit() {
+    // Use setTimeout to ensure focus is captured after Angular's change detection
+    // and the dialog's focus trap has been initialized
+    setTimeout(() => {
+      const section = this.dialogSection().nativeElement;
+      const focusableElement = section.querySelector("[cdkFocusInitial]") as HTMLElement;
+      if (focusableElement && document.activeElement !== focusableElement) {
+        focusableElement.focus();
+      }
+    }, 0);
   }
 }

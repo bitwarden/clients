@@ -1,12 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, output } from "@angular/core";
+import { Component, input, output, viewChild } from "@angular/core";
 import { map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { ButtonModule, MenuModule } from "@bitwarden/components";
+import { ButtonComponent, ButtonModule, MenuModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -32,6 +32,8 @@ export class NewCipherMenuComponent {
   folderAdded = output();
   collectionAdded = output();
   cipherAdded = output<CipherType>();
+
+  readonly newCipherButton = viewChild<ButtonComponent>("newItemDropdown");
 
   constructor(private restrictedItemTypesService: RestrictedItemTypesService) {}
 
