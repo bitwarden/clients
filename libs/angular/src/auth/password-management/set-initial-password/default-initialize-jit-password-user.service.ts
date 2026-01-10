@@ -106,39 +106,36 @@ export class DefaultInitializeJitPasswordUserService implements InitializeJitPas
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
-    const masterKey = SymmetricCryptoKey.fromString(registerResult.master_key) as MasterKey;
-
-    await this.updateAccountDecryptionProperties(
-      masterKey,
-      fromSdkKdfConfig(registerResult.master_password_unlock.kdf),
-      [
-        SymmetricCryptoKey.fromString(registerResult.user_key) as UserKey,
-        new EncString(registerResult.master_password_unlock.masterKeyWrappedUserKey),
-      ],
-      userId,
-    );
-
     await this.masterPasswordService.setMasterPasswordUnlockData(
       MasterPasswordUnlockData.fromSdk(registerResult.master_password_unlock),
       userId,
     );
 
-    const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
-      newPassword,
-      masterKey,
-      HashPurpose.LocalAuthorization,
+    await this.keyService.setUserKey(
+      SymmetricCryptoKey.fromString(registerResult.user_key) as UserKey,
+      userId,
     );
 
-    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
+    const masterKey = SymmetricCryptoKey.fromString(registerResult.master_key) as MasterKey;
+
+    await this.updateLegacyState(
+      newPassword,
+      masterKey,
+      fromSdkKdfConfig(registerResult.master_password_unlock.kdf),
+      new EncString(registerResult.master_password_unlock.masterKeyWrappedUserKey),
+      userId,
+    );
   }
 
-  private async updateAccountDecryptionProperties(
+  // Deprecated legacy support - to be removed in future
+  private async updateLegacyState(
+    newPassword: string,
     masterKey: MasterKey,
     kdfConfig: KdfConfig,
-    masterKeyEncryptedUserKey: [UserKey, EncString],
+    masterKeyWrappedUserKey: EncString,
     userId: UserId,
   ) {
+    // TODO Remove HasMasterPassword from UserDecryptionOptions https://bitwarden.atlassian.net/browse/PM-23475
     const userDecryptionOpts = await firstValueFrom(
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
     );
@@ -147,14 +144,20 @@ export class DefaultInitializeJitPasswordUserService implements InitializeJitPas
       userId,
       userDecryptionOpts,
     );
+
+    // TODO Remove KDF state https://bitwarden.atlassian.net/browse/PM-30661
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
-    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
+    // TODO Remove master key memory state https://bitwarden.atlassian.net/browse/PM-23477
     await this.masterPasswordService.setMasterKey(masterKey, userId);
-    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
-      masterKeyEncryptedUserKey[1],
-      userId,
+    // TODO Remove master key memory state https://bitwarden.atlassian.net/browse/PM-23477
+    await this.masterPasswordService.setMasterKeyEncryptedUserKey(masterKeyWrappedUserKey, userId);
+
+    // TODO Remove "LocalAuthorization" master key hash https://bitwarden.atlassian.net/browse/PM-23476
+    const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
+      newPassword,
+      masterKey,
+      HashPurpose.LocalAuthorization,
     );
-    await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
+    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
   }
 }
