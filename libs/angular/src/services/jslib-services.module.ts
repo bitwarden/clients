@@ -18,6 +18,8 @@ import {
   ChangePasswordService,
   DefaultChangePasswordService,
 } from "@bitwarden/angular/auth/password-management/change-password";
+import { DefaultInitializeJitPasswordUserService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-initialize-jit-password-user.service";
+import { InitializeJitPasswordUserService } from "@bitwarden/angular/auth/password-management/set-initial-password/initialize-jit-password-user.service.abstraction";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -1583,7 +1585,18 @@ const safeProviders: SafeProvider[] = [
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
       AccountCryptographicStateService,
-      ConfigService,
+    ],
+  }),
+  safeProvider({
+    provide: InitializeJitPasswordUserService,
+    useClass: DefaultInitializeJitPasswordUserService,
+    deps: [
+      KdfConfigService,
+      KeyService,
+      InternalMasterPasswordServiceAbstraction,
+      OrganizationApiServiceAbstraction,
+      InternalUserDecryptionOptionsServiceAbstraction,
+      AccountCryptographicStateService,
       RegisterSdkService,
       SecurityStateService,
     ],

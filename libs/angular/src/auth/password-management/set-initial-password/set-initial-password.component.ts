@@ -3,6 +3,10 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import {
+  InitializeJitPasswordCredentials,
+  InitializeJitPasswordUserService,
+} from "@bitwarden/angular/auth/password-management/set-initial-password/initialize-jit-password-user.service.abstraction";
 import { DeactivatedOrg } from "@bitwarden/assets/svg";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -22,13 +26,15 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { assertTruthy, assertNonNullish } from "@bitwarden/common/auth/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   AnonLayoutWrapperDataService,
   ButtonModule,
@@ -82,10 +88,12 @@ export class SetInitialPasswordComponent implements OnInit {
     private policyService: PolicyService,
     private router: Router,
     private setInitialPasswordService: SetInitialPasswordService,
+    private initializeJitPasswordUserService: InitializeJitPasswordUserService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private syncService: SyncService,
     private toastService: ToastService,
     private validationService: ValidationService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -99,6 +107,49 @@ export class SetInitialPasswordComponent implements OnInit {
     await this.getOrgInfo();
 
     this.initializing = false;
+  }
+
+  protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
+    this.submitting = true;
+
+    switch (this.userType) {
+      case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER: {
+        const accountEncryptionV2 = await this.configService.getFeatureFlag(
+          FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration,
+        );
+
+        if (accountEncryptionV2) {
+          await this.setInitialPasswordJitMPUserV2Encryption(passwordInputResult);
+        } else {
+          await this.setInitialPassword(passwordInputResult);
+        }
+        break;
+      }
+      case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
+        await this.setInitialPassword(passwordInputResult);
+        break;
+      case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
+        await this.setInitialPasswordTdeOffboarding(passwordInputResult);
+        break;
+      default:
+        this.logService.error(
+          `Unexpected user type: ${this.userType}. Could not set initial password.`,
+        );
+        this.validationService.showError("Unexpected user type. Could not set initial password.");
+    }
+  }
+
+  protected async logout() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "logOut" },
+      content: { key: "logOutConfirmation" },
+      acceptButtonText: { key: "logOut" },
+      type: "warning",
+    });
+
+    if (confirmed) {
+      this.messagingService.send("logout");
+    }
   }
 
   private async establishUserType() {
@@ -189,22 +240,36 @@ export class SetInitialPasswordComponent implements OnInit {
     }
   }
 
-  protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
-    this.submitting = true;
+  private async setInitialPasswordJitMPUserV2Encryption(passwordInputResult: PasswordInputResult) {
+    const ctx = "Could not set initial password for SSO JIT master password encryption user.";
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
+    assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
+    assertTruthy(this.orgId, "orgId", ctx);
+    assertTruthy(this.userId, "userId", ctx);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
+    assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
 
-    switch (this.userType) {
-      case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER:
-      case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
-        await this.setInitialPassword(passwordInputResult);
-        break;
-      case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
-        await this.setInitialPasswordTdeOffboarding(passwordInputResult);
-        break;
-      default:
-        this.logService.error(
-          `Unexpected user type: ${this.userType}. Could not set initial password.`,
-        );
-        this.validationService.showError("Unexpected user type. Could not set initial password.");
+    try {
+      const credentials: InitializeJitPasswordCredentials = {
+        newPasswordHint: passwordInputResult.newPasswordHint,
+        orgSsoIdentifier: this.orgSsoIdentifier,
+        orgId: this.orgId as OrganizationId,
+        resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
+        newPassword: passwordInputResult.newPassword,
+        salt: passwordInputResult.salt,
+      };
+
+      await this.initializeJitPasswordUserService.initializeUser(credentials, this.userId);
+
+      this.showSuccessToastByUserType();
+
+      this.submitting = false;
+      await this.router.navigate(["vault"]);
+    } catch (e) {
+      this.logService.error("Error setting initial password", e);
+      this.validationService.showError(e);
+      this.submitting = false;
     }
   }
 
@@ -305,19 +370,6 @@ export class SetInitialPasswordComponent implements OnInit {
         title: "",
         message: this.i18nService.t("masterPasswordSuccessfullySet"),
       });
-    }
-  }
-
-  protected async logout() {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "logOut" },
-      content: { key: "logOutConfirmation" },
-      acceptButtonText: { key: "logOut" },
-      type: "warning",
-    });
-
-    if (confirmed) {
-      this.messagingService.send("logout");
     }
   }
 }

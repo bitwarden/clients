@@ -15,6 +15,8 @@ import {
 import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
+import { DefaultInitializeJitPasswordUserService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-initialize-jit-password-user.service";
+import { InitializeJitPasswordUserService } from "@bitwarden/angular/auth/password-management/set-initial-password/initialize-jit-password-user.service.abstraction";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -133,6 +135,7 @@ import {
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
+import { WebInitializeJitPasswordUserService } from "@bitwarden/web-vault/app/auth/core/services/password-management/set-initial-password/web-initialize-jit-password-user.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
@@ -322,10 +325,26 @@ const safeProviders: SafeProvider[] = [
       OrganizationInviteService,
       RouterService,
       AccountCryptographicStateService,
-      ConfigService,
+    ],
+  }),
+  safeProvider({
+    provide: DefaultInitializeJitPasswordUserService,
+    useClass: DefaultInitializeJitPasswordUserService,
+    deps: [
+      KdfConfigService,
+      KeyServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+      OrganizationApiServiceAbstraction,
+      InternalUserDecryptionOptionsServiceAbstraction,
+      AccountCryptographicStateService,
       RegisterSdkService,
       SecurityStateService,
     ],
+  }),
+  safeProvider({
+    provide: InitializeJitPasswordUserService,
+    useClass: WebInitializeJitPasswordUserService,
+    deps: [DefaultInitializeJitPasswordUserService, OrganizationInviteService, RouterService],
   }),
   safeProvider({
     provide: AppIdService,
