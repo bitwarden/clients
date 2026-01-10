@@ -31,14 +31,34 @@
       {{ "cancel" | i18n }}
     </button>
 
-    <button
-      slot="end"
-      *ngIf="canDeleteCipher$ | async"
-      [bitAction]="delete"
-      type="button"
-      buttonType="danger"
-      bitIconButton="bwi-trash"
-      [label]="'delete' | i18n"
-    ></button>
+    <ng-container slot="end">
+      @if (isEditMode) {
+        @if ((archiveFlagEnabled$ | async) && isCipherArchived) {
+          <button
+            type="button"
+            [bitAction]="unarchive"
+            bitIconButton="bwi-unarchive"
+            [label]="'unarchive' | i18n"
+          ></button>
+        }
+        @if ((userCanArchive$ | async) && canCipherBeArchived) {
+          <button
+            type="button"
+            [bitAction]="archive"
+            bitIconButton="bwi-archive"
+            [label]="'archiveVerb' | i18n"
+          ></button>
+        }
+      }
+      @if (canDeleteCipher$ | async) {
+        <button
+          [bitAction]="delete"
+          type="button"
+          buttonType="danger"
+          bitIconButton="bwi-trash"
+          [label]="'delete' | i18n"
+        ></button>
+      }
+    </ng-container>
   </popup-footer>
 </popup-page>
