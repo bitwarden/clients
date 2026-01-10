@@ -24,7 +24,13 @@ import {
   tap,
 } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   getOrganizationById,
@@ -38,6 +44,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -80,17 +87,20 @@ export interface CollectionAssignmentParams {
   isSingleCipherAdmin?: boolean;
 }
 
-export enum CollectionAssignmentResult {
-  Saved = "saved",
-  Canceled = "canceled",
-}
+export const CollectionAssignmentResult = {
+  Saved: "saved",
+  Canceled: "canceled",
+} as const;
+
+export type CollectionAssignmentResult = UnionOfValues<typeof CollectionAssignmentResult>;
 
 const MY_VAULT_ID = "MyVault";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "assign-collections",
   templateUrl: "assign-collections.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -104,25 +114,41 @@ const MY_VAULT_ID = "MyVault";
   ],
 })
 export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() params: CollectionAssignmentParams;
 
   /**
    * Submit button instance that will be disabled or marked as loading when the form is submitting.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() submitBtn?: ButtonComponent;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   editableItemCountChange = new EventEmitter<number>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCollectionAssign = new EventEmitter<CollectionAssignmentResult>();
 
   formGroup = this.formBuilder.group({
     selectedOrg: [null],
     collections: [<SelectItemView[]>[], [Validators.required]],
   });
+
+  /**
+   * Collections that are already assigned to the cipher and are read-only. These cannot be removed.
+   * @protected
+   */
+  protected readOnlyCollectionNames: string[] = [];
 
   protected totalItemCount: number;
   protected editableItemCount: number;
@@ -299,12 +325,25 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
     );
 
+    await this.setReadOnlyCollectionNames();
+
+    const canAccessDefaultCollection = this.canAccessDefaultCollection(
+      this.params.availableCollections,
+    );
+
     this.availableCollections = this.params.availableCollections
       .filter((collection) => {
-        return collection.canEditItems(org);
+        if (canAccessDefaultCollection) {
+          return collection.canEditItems(org);
+        }
+
+        return (
+          collection.canEditItems(org) && collection.type !== CollectionTypes.DefaultUserCollection
+        );
       })
       .map((c) => ({
-        icon: "bwi-collection",
+        icon:
+          c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
         id: c.id,
         labelName: c.name,
         listName: c.name,
@@ -317,7 +356,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     if (this.params.activeCollection) {
       this.selectCollections([
         {
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
           id: this.params.activeCollection.id,
           labelName: this.params.activeCollection.name,
           listName: this.params.activeCollection.name,
@@ -345,7 +384,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           collection.id !== this.params.activeCollection?.id,
       )
       .map((collection) => ({
-        icon: "bwi-collection",
+        icon: collection.icon,
         id: collection.id,
         labelName: collection.labelName,
         listName: collection.listName,
@@ -409,7 +448,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       )
       .subscribe((collections) => {
         this.availableCollections = collections.map((c) => ({
-          icon: "bwi-collection",
+          icon:
+            c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
           id: c.id,
           labelName: c.name,
           listName: c.name,
@@ -423,18 +463,28 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
    * @returns An observable of the collections for the organization.
    */
   private getCollectionsForOrganization(orgId: OrganizationId): Observable<CollectionView[]> {
-    return combineLatest([
-      this.collectionService.decryptedCollections$,
-      this.accountService.activeAccount$.pipe(
-        switchMap((account) => this.organizationService.organizations$(account?.id)),
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        combineLatest([
+          this.collectionService.decryptedCollections$(userId),
+          this.organizationService.organizations$(userId),
+        ]),
       ),
-    ]).pipe(
       map(([collections, organizations]) => {
         const org = organizations.find((o) => o.id === orgId);
         this.orgName = org.name;
 
-        return collections.filter((c) => {
-          return c.organizationId === orgId && !c.readOnly;
+        const orgCollections = collections.filter((c) => c.organizationId === orgId);
+
+        const canAccessDefaultCollection = this.canAccessDefaultCollection(collections);
+
+        return orgCollections.filter((c) => {
+          if (canAccessDefaultCollection) {
+            return !c.readOnly;
+          }
+
+          return !c.readOnly && c.type !== CollectionTypes.DefaultUserCollection;
         });
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -494,11 +544,54 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private async updateAssignedCollections(cipherView: CipherView, userId: UserId) {
     const { collections } = this.formGroup.getRawValue();
     cipherView.collectionIds = collections.map((i) => i.id as CollectionId);
-    const cipher = await this.cipherService.encrypt(cipherView, userId);
+    const { cipher } = await this.cipherService.encrypt(cipherView, userId);
     if (this.params.isSingleCipherAdmin) {
       await this.cipherService.saveCollectionsWithServerAdmin(cipher);
     } else {
       await this.cipherService.saveCollectionsWithServer(cipher, userId);
     }
+  }
+
+  /**
+   * Only display collections that are read-only and are assigned to the ciphers.
+   */
+  private async setReadOnlyCollectionNames() {
+    const { availableCollections, ciphers } = this.params;
+
+    const organization = await firstValueFrom(
+      this.organizations$.pipe(map((orgs) => orgs.find((o) => o.id === this.selectedOrgId))),
+    );
+
+    this.readOnlyCollectionNames = availableCollections
+      .filter((c) => {
+        return (
+          c.readOnly &&
+          ciphers.some((cipher) => cipher.collectionIds.includes(c.id)) &&
+          !c.canEditItems(organization)
+        );
+      })
+      .map((c) => c.name);
+  }
+
+  /**
+   * Determines if the ciphers to be assigned can be assigned to the Default Collection.
+   * When false, the Default Collections should be excluded from the list of available collections.
+   */
+  private canAccessDefaultCollection(collections: CollectionView[]): boolean {
+    const collectionsObject = Object.fromEntries(collections.map((c) => [c.id, c]));
+
+    const allCiphersUnassignedOrInDefault = this.params.ciphers.every(
+      (cipher) =>
+        !cipher.collectionIds.length ||
+        cipher.collectionIds.some(
+          (cId) => collectionsObject[cId]?.type === CollectionTypes.DefaultUserCollection,
+        ),
+    );
+
+    // When all ciphers are either:
+    // - unassigned
+    // - already in a Default Collection
+    // then the Default Collection can be shown.
+    return allCiphersUnassignedOrInDefault;
   }
 }

@@ -126,12 +126,11 @@ describe("Browser Utils Service", () => {
         configurable: true,
         value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
       });
-      jest.spyOn(BrowserPlatformUtilsService, "isFirefox");
 
       browserPlatformUtilsService.getDevice();
 
       expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.FirefoxExtension);
-      expect(BrowserPlatformUtilsService.isFirefox).toHaveBeenCalledTimes(1);
+      expect(browserPlatformUtilsService.isFirefox()).toBe(true);
     });
   });
 
@@ -151,7 +150,7 @@ describe("Browser Utils Service", () => {
         callback(undefined);
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(false);
     });
@@ -161,31 +160,33 @@ describe("Browser Utils Service", () => {
         callback(message.command === "checkVaultPopupHeartbeat");
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(true);
     });
 
     it("returns false if special error is sent", async () => {
       chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
-        chrome.runtime.lastError = new Error(
+        (chrome.runtime.lastError as any) = new Error(
           "Could not establish connection. Receiving end does not exist.",
         );
         callback(undefined);
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(false);
 
-      chrome.runtime.lastError = null;
+      (chrome.runtime.lastError as any) = null;
     });
   });
 
   describe("copyToClipboard", () => {
     const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
     const sendMessageToAppSpy = jest.spyOn(SafariApp, "sendMessageToApp");
-    const clipboardServiceCopySpy = jest.spyOn(BrowserClipboardService, "copy");
+    const clipboardServiceCopySpy = jest
+      .spyOn(BrowserClipboardService, "copy")
+      .mockResolvedValue(undefined);
     let triggerOffscreenCopyToClipboardSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -281,7 +282,9 @@ describe("Browser Utils Service", () => {
   describe("readFromClipboard", () => {
     const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
     const sendMessageToAppSpy = jest.spyOn(SafariApp, "sendMessageToApp");
-    const clipboardServiceReadSpy = jest.spyOn(BrowserClipboardService, "read");
+    const clipboardServiceReadSpy = jest
+      .spyOn(BrowserClipboardService, "read")
+      .mockResolvedValue("");
 
     beforeEach(() => {
       getManifestVersionSpy.mockReturnValue(2);
@@ -351,6 +354,33 @@ describe("Browser Utils Service", () => {
       const result = await browserPlatformUtilsService.readFromClipboard();
 
       expect(result).toBe("");
+    });
+  });
+
+  describe("isChromium", () => {
+    const chromiumDevices: DeviceType[] = [
+      DeviceType.ChromeExtension,
+      DeviceType.EdgeExtension,
+      DeviceType.OperaExtension,
+      DeviceType.VivaldiExtension,
+    ];
+
+    const nonChromiumDevices: DeviceType[] = [
+      DeviceType.FirefoxExtension,
+      DeviceType.SafariExtension,
+    ];
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test.each(chromiumDevices)("returns true when getDevice() is %s", (deviceType) => {
+      jest.spyOn(browserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(browserPlatformUtilsService.isChromium()).toBe(true);
+    });
+
+    test.each(nonChromiumDevices)("returns false when getDevice() is %s", (deviceType) => {
+      jest.spyOn(browserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(browserPlatformUtilsService.isChromium()).toBe(false);
     });
   });
 });

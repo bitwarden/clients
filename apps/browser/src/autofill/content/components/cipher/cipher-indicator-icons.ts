@@ -1,30 +1,37 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../../../content/components/constants/styles";
 import { Business, Family } from "../../../content/components/icons";
 
-// @TODO connect data source to icon checks
-// @TODO support other indicator types (attachments, etc)
-export function CipherInfoIndicatorIcons({
-  isBusinessOrg,
-  isFamilyOrg,
-  theme,
-}: {
-  isBusinessOrg?: boolean;
-  isFamilyOrg?: boolean;
-  theme: Theme;
-}) {
-  const indicatorIcons = [
-    ...(isBusinessOrg ? [Business({ color: themes[theme].text.muted, theme })] : []),
-    ...(isFamilyOrg ? [Family({ color: themes[theme].text.muted, theme })] : []),
-  ];
+import { OrganizationCategories, OrganizationCategory } from "./types";
 
-  return indicatorIcons.length
-    ? html` <span class=${cipherInfoIndicatorIconsStyles}> ${indicatorIcons} </span> `
-    : null; // @TODO null case should be handled by parent
+const cipherIndicatorIconsMap: Record<
+  OrganizationCategory,
+  (args: { color: string; theme: Theme }) => TemplateResult
+> = {
+  [OrganizationCategories.business]: Business,
+  [OrganizationCategories.family]: Family,
+};
+
+export type CipherInfoIndicatorIconsProps = {
+  organizationCategories?: OrganizationCategory[];
+  theme: Theme;
+};
+
+export function CipherInfoIndicatorIcons({
+  organizationCategories = [],
+  theme,
+}: CipherInfoIndicatorIconsProps) {
+  return html`
+    <span class=${cipherInfoIndicatorIconsStyles}>
+      ${organizationCategories.map((name) =>
+        cipherIndicatorIconsMap[name]?.({ color: themes[theme].text.muted, theme }),
+      )}
+    </span>
+  `;
 }
 
 const cipherInfoIndicatorIconsStyles = css`

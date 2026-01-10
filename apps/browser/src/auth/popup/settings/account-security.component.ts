@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -23,27 +22,35 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { FingerprintDialogComponent, VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
+import { LockService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { DeviceType } from "@bitwarden/common/enums";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutOption,
-  VaultTimeoutService,
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
+  DialogRef,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -56,6 +63,7 @@ import {
   SelectModule,
   TypographyModule,
   ToastService,
+  SwitchComponent,
 } from "@bitwarden/components";
 import {
   KeyService,
@@ -63,10 +71,14 @@ import {
   BiometricStateService,
   BiometricsStatus,
 } from "@bitwarden/key-management";
+import {
+  SessionTimeoutInputLegacyComponent,
+  SessionTimeoutSettingsComponent,
+} from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -74,9 +86,10 @@ import { SetPinComponent } from "../components/set-pin.component";
 
 import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "account-security.component.html",
-  standalone: true,
   imports: [
     CardComponent,
     CheckboxModule,
@@ -95,8 +108,11 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    SessionTimeoutSettingsComponent,
+    SpotlightComponent,
     TypographyModule,
-    VaultTimeoutInputComponent,
+    SessionTimeoutInputLegacyComponent,
+    SwitchComponent,
   ],
 })
 export class AccountSecurityComponent implements OnInit, OnDestroy {
@@ -108,7 +124,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   hasVaultTimeoutPolicy = false;
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
-  showAutoPrompt = true;
   pinEnabled$: Observable<boolean> = of(true);
 
   form = this.formBuilder.group({
@@ -118,47 +133,75 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     pinLockWithMasterPassword: false,
     biometric: false,
     enableAutoBiometricsPrompt: true,
+    enablePhishingDetection: true,
   });
 
-  private refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
+  protected showAccountSecurityNudge$: Observable<boolean> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.vaultNudgesService.showNudgeSpotlight$(NudgeType.AccountSecurity, userId),
+      ),
+    );
+
+  protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
+  protected readonly phishingDetectionAvailable$: Observable<boolean>;
+
+  protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
+  private readonly BIOMETRICS_POLLING_INTERVAL = 2000;
 
   constructor(
     private accountService: AccountService,
+    private configService: ConfigService,
     private pinService: PinServiceAbstraction,
     private policyService: PolicyService,
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private vaultTimeoutService: VaultTimeoutService,
+    private lockService: LockService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     public messagingService: MessagingService,
     private environmentService: EnvironmentService,
     private keyService: KeyService,
-    private stateService: StateService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
-  ) {}
+    private vaultNudgesService: NudgesService,
+    private validationService: ValidationService,
+    private logService: LogService,
+    private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
+  ) {
+    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
+      FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    );
+
+    // Check if user phishing detection available
+    this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
+  }
 
   async ngOnInit() {
-    // Firefox popup closes when unfocused by biometrics, blocking all unlock methods
-    if (this.platformUtilsService.getDevice() === DeviceType.FirefoxExtension) {
-      this.showAutoPrompt = false;
-    }
-
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
     this.showMasterPasswordOnClientRestartOption = hasMasterPassword;
-    const maximumVaultTimeoutPolicy = this.policyService.get$(PolicyType.MaximumVaultTimeout);
-    if ((await firstValueFrom(this.policyService.get$(PolicyType.MaximumVaultTimeout))) != null) {
+    const maximumVaultTimeoutPolicy = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+      ),
+      getFirstPolicy,
+    );
+    if ((await firstValueFrom(maximumVaultTimeoutPolicy)) != null) {
       this.hasVaultTimeoutPolicy = true;
     }
 
+    // Determine platform-specific timeout options
     const showOnLocked =
-      !this.platformUtilsService.isFirefox() && !this.platformUtilsService.isSafari();
+      !this.platformUtilsService.isFirefox() &&
+      !this.platformUtilsService.isSafari() &&
+      !(this.platformUtilsService.isOpera() && navigator.platform === "MacIntel");
 
     this.vaultTimeoutOptions = [
       { name: this.i18nService.t("immediately"), value: 0 },
@@ -195,7 +238,12 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       timeout = VaultTimeoutStringType.OnRestart;
     }
 
-    this.pinEnabled$ = this.policyService.get$(PolicyType.RemoveUnlockWithPin).pipe(
+    this.pinEnabled$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
+      ),
+      getFirstPolicy,
       map((policy) => {
         return policy == null || !policy.enabled;
       }),
@@ -213,24 +261,29 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       enableAutoBiometricsPrompt: await firstValueFrom(
         this.biometricStateService.promptAutomatically$,
       ),
+      enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
-    timer(0, 1000)
+    timer(0, this.BIOMETRICS_POLLING_INTERVAL)
       .pipe(
         switchMap(async () => {
-          const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
-          const biometricSettingAvailable =
-            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) ||
-            (status !== BiometricsStatus.DesktopDisconnected &&
-              status !== BiometricsStatus.NotEnabledInConnectedDesktopApp) ||
-            (await this.vaultTimeoutSettingsService.isBiometricLockSet());
+          const biometricSettingAvailable = await this.biometricsService.canEnableBiometricUnlock();
           if (!biometricSettingAvailable) {
             this.form.controls.biometric.disable({ emitEvent: false });
           } else {
             this.form.controls.biometric.enable({ emitEvent: false });
           }
 
+          // Biometrics status shouldn't be checked if permissions are needed.
+          const needsPermissionPrompt =
+            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
+            !this.platformUtilsService.isSafari();
+          if (needsPermissionPrompt) {
+            return;
+          }
+
+          const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
             this.biometricUnavailabilityReason = this.i18nService.t(
               "biometricsStatusHelptextDesktopDisconnected",
@@ -242,6 +295,13 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.biometricUnavailabilityReason = this.i18nService.t(
               "biometricsStatusHelptextNotEnabledInDesktop",
               activeAccount.email,
+            );
+          } else if (
+            status === BiometricsStatus.HardwareUnavailable &&
+            !biometricSettingAvailable
+          ) {
+            this.biometricUnavailabilityReason = this.i18nService.t(
+              "biometricsStatusHelptextHardwareUnavailable",
             );
           } else {
             this.biometricUnavailabilityReason = "";
@@ -287,12 +347,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (value) => {
           const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
-          const pinKeyEncryptedUserKey =
-            (await this.pinService.getPinKeyEncryptedUserKeyPersistent(userId)) ||
-            (await this.pinService.getPinKeyEncryptedUserKeyEphemeral(userId));
-          await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
-          await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-          await this.pinService.storePinKeyEncryptedUserKey(pinKeyEncryptedUserKey, value, userId);
+          const pin = await this.pinService.getPin(userId);
+          await this.pinService.setPin(pin, value ? "EPHEMERAL" : "PERSISTENT", userId);
           this.refreshTimeoutSettings$.next();
         }),
         takeUntil(this.destroy$),
@@ -319,6 +375,16 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (enabled) => {
           await this.biometricStateService.setPromptAutomatically(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    this.form.controls.enablePhishingDetection.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+          await this.phishingDetectionSettingsService.setEnabled(userId, enabled);
         }),
         takeUntil(this.destroy$),
       )
@@ -393,6 +459,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
   }
 
+  protected async dismissAccountSecurityNudge() {
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (!activeAccount) {
+      return;
+    }
+    await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, activeAccount.id);
+  }
+
   async saveVaultTimeoutAction(value: VaultTimeoutAction) {
     if (value === VaultTimeoutAction.LogOut) {
       const confirmed = await this.dialogService.openSimpleDialog({
@@ -444,8 +518,17 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       this.form.controls.pin.setValue(userHasPinSet, { emitEvent: false });
       const requireReprompt = (await this.pinService.getPinLockType(userId)) == "EPHEMERAL";
       this.form.controls.pinLockWithMasterPassword.setValue(requireReprompt, { emitEvent: false });
+      if (userHasPinSet) {
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("unlockPinSet"),
+        });
+        await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, userId);
+      }
     } else {
-      await this.vaultTimeoutSettingsService.clear();
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.pinService.unsetPin(userId);
     }
   }
 
@@ -485,13 +568,25 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         return;
       }
 
-      await this.keyService.refreshAdditionalKeys();
+      try {
+        const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+        await this.keyService.refreshAdditionalKeys(userId);
 
-      const successful = await this.trySetupBiometrics();
-      this.form.controls.biometric.setValue(successful);
-      await this.biometricStateService.setBiometricUnlockEnabled(successful);
-      if (!successful) {
-        await this.biometricStateService.setFingerprintValidated(false);
+        const successful = await this.trySetupBiometrics();
+        this.form.controls.biometric.setValue(successful);
+        await this.biometricStateService.setBiometricUnlockEnabled(successful);
+        if (!successful) {
+          await this.biometricStateService.setFingerprintValidated(false);
+          return;
+        }
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("unlockWithBiometricSet"),
+        });
+      } catch (error) {
+        this.form.controls.biometric.setValue(false);
+        this.validationService.showError(error);
       }
     } else {
       await this.biometricStateService.setBiometricUnlockEnabled(false);
@@ -547,6 +642,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.i18nService.t("errorEnableBiometricTitle"),
             this.i18nService.t("errorEnableBiometricDesc"),
           );
+          setupResult = false;
+          return;
         }
         setupResult = true;
       } catch (e) {
@@ -622,10 +719,16 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async openAcctFingerprintDialog() {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const publicKey = await firstValueFrom(this.keyService.userPublicKey$(activeUserId));
+    if (publicKey == null) {
+      this.logService.error(
+        "[AccountSecurityComponent] No public key available for the user: " +
+          activeUserId +
+          " fingerprint can't be displayed.",
+      );
+      return;
+    }
     const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
 
     const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
@@ -636,7 +739,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async lock() {
-    await this.vaultTimeoutService.lock();
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    await this.lockService.lock(activeUserId);
   }
 
   async logOut() {

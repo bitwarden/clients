@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { VendorId } from "@bitwarden/common/tools/extension";
 import { IntegrationId } from "@bitwarden/common/tools/integration";
 import { ApiSettings } from "@bitwarden/common/tools/integration/rpc";
 
@@ -29,8 +30,11 @@ export const Integrations = Object.freeze({
 
 const integrations = new Map(Object.values(Integrations).map((i) => [i.id, i]));
 
-export function getForwarderConfiguration(id: IntegrationId): ForwarderConfiguration<ApiSettings> {
-  const maybeForwarder = integrations.get(id);
+export function getForwarderConfiguration(
+  id: IntegrationId | VendorId,
+): ForwarderConfiguration<ApiSettings> {
+  // these casts are for compatibility; `IntegrationId` is the old form of `VendorId`
+  const maybeForwarder = integrations.get(id as string as IntegrationId & VendorId);
 
   if (maybeForwarder && "forwarder" in maybeForwarder) {
     return maybeForwarder as ForwarderConfiguration<ApiSettings>;

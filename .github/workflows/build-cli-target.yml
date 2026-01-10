@@ -1,11 +1,16 @@
+# This workflow is intended to be run when we need to build the client and produce artifacts that require secrets
+# when the PR source branch does not have access to secrets (e.g. a fork).
+# This workflow will run in the context of the target of the PR and have access to secrets.
+# This should only be done after reviewing the PR to ensure that no malicious code has been introduced,
+# as it could allow the code on the forked branch to have access to workflow secrets.
+
 name: Build CLI on PR Target
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    branches-ignore:
-      - 'l10n_master'
-      - 'cf-pages'
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
     paths:
       - 'apps/cli/**'
       - 'libs/**'
@@ -23,11 +28,16 @@ jobs:
   check-run:
     name: Check PR run
     uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+    permissions:
+      contents: read
 
   run-workflow:
-    name: Run Build CLI on PR Target
+    name: Build CLI
     needs: check-run
     if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
     uses: ./.github/workflows/build-cli.yml
     secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
 

@@ -1,14 +1,21 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DialogConfig,
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
+import { SharedModule } from "../../../shared/shared.module";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
 
@@ -21,14 +28,18 @@ export type EmergencyAccessAddEditDialogData = {
   readOnly: boolean;
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EmergencyAccessAddEditDialogResult {
   Saved = "saved",
   Canceled = "canceled",
   Deleted = "deleted",
 }
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "emergency-access-add-edit",
   templateUrl: "emergency-access-add-edit.component.html",
+  imports: [SharedModule, PremiumBadgeComponent],
 })
 export class EmergencyAccessAddEditComponent implements OnInit {
   loading = true;

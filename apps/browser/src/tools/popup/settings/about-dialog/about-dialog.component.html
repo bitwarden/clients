@@ -6,7 +6,7 @@
   <div bitDialogContent>
     <p>&copy; Bitwarden Inc. 2015-{{ year }}</p>
 
-    <div #version class="user-select">
+    <div #version>
       <p>{{ "version" | i18n }}: {{ version$ | async }}</p>
       <p>SDK: {{ sdkVersion$ | async }}</p>
       <ng-container *ngIf="data$ | async as data">
@@ -42,12 +42,12 @@
       </ng-container>
     </div>
   </div>
-  <div bitDialogFooter>
+  <ng-container bitDialogFooter>
     <button bitButton bitDialogClose buttonType="primary" type="button">
       {{ "close" | i18n }}
     </button>
     <button bitButton type="button" (click)="copyVersion()">
       {{ "copy" | i18n }}
     </button>
-  </div>
+  </ng-container>
 </bit-simple-dialog>

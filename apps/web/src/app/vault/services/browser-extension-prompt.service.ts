@@ -2,20 +2,26 @@ import { DestroyRef, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, fromEvent } from "rxjs";
 
-import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 
-export enum BrowserPromptState {
-  Loading = "loading",
-  Error = "error",
-  Success = "success",
-  ManualOpen = "manualOpen",
-  MobileBrowser = "mobileBrowser",
-}
+import { WebBrowserInteractionService } from "./web-browser-interaction.service";
 
-type PromptErrorStates = BrowserPromptState.Error | BrowserPromptState.ManualOpen;
+export const BrowserPromptState = {
+  Loading: "loading",
+  Error: "error",
+  Success: "success",
+  ManualOpen: "manualOpen",
+  MobileBrowser: "mobileBrowser",
+} as const;
+
+export type BrowserPromptState = UnionOfValues<typeof BrowserPromptState>;
+
+type PromptErrorStates = typeof BrowserPromptState.Error | typeof BrowserPromptState.ManualOpen;
 
 @Injectable({
   providedIn: "root",
@@ -33,6 +39,7 @@ export class BrowserExtensionPromptService {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private destroyRef: DestroyRef,
     private platformUtilsService: PlatformUtilsService,
+    private webBrowserInteractionService: WebBrowserInteractionService,
   ) {}
 
   start(): void {
@@ -49,21 +56,36 @@ export class BrowserExtensionPromptService {
       this.setErrorState(BrowserPromptState.ManualOpen);
       return;
     }
+  }
 
-    this.checkForBrowserExtension();
+  registerPopupUrl(url: string) {
+    this.checkForBrowserExtension(url);
   }
 
   /** Post a message to the extension to open */
-  openExtension() {
-    window.postMessage({ command: VaultMessages.OpenPopup });
+  async openExtension(url: string, setManualErrorTimeout = false) {
+    if (url == VaultMessages.OpenAtRiskPasswords) {
+      window.postMessage({ command: url });
+    } else {
+      await this.webBrowserInteractionService.openExtension(ExtensionPageUrls[url]);
+    }
+    // Optionally, configure timeout to show the manual open error state if
+    // the extension does not open within one second.
+    if (setManualErrorTimeout) {
+      this.clearExtensionCheckTimeout();
+
+      this.extensionCheckTimeout = window.setTimeout(() => {
+        this.setErrorState(BrowserPromptState.ManualOpen);
+      }, 750);
+    }
   }
 
   /** Send message checking for the browser extension */
-  private checkForBrowserExtension() {
+  private checkForBrowserExtension(url: string) {
     fromEvent<MessageEvent>(window, "message")
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((event) => {
-        void this.getMessages(event);
+        void this.getMessages(event, url);
       });
 
     window.postMessage({ command: VaultMessages.checkBwInstalled });
@@ -75,9 +97,9 @@ export class BrowserExtensionPromptService {
   }
 
   /** Handle window message events */
-  private getMessages(event: any) {
+  private async getMessages(event: any, url: string) {
     if (event.data.command === VaultMessages.HasBwInstalled) {
-      this.openExtension();
+      await this.openExtension(url);
     }
 
     if (event.data.command === VaultMessages.PopupOpened) {

@@ -1,0 +1,37 @@
+<ng-container *ngIf="canCreateCipher() || canCreateCollection() || canCreateFolder()">
+  <div>
+    <button
+      bitButton
+      buttonType="primary"
+      type="button"
+      [bitMenuTriggerFor]="addOptions"
+      id="newItemDropdown"
+      [appA11yTitle]="'new' | i18n"
+    >
+      <i class="bwi bwi-plus" aria-hidden="true"></i>
+      {{ "new" | i18n }}
+    </button>
+    <bit-menu #addOptions aria-labelledby="newItemDropdown">
+      @for (item of cipherMenuItems$ | async; track item.type) {
+        <button type="button" bitMenuItem (click)="cipherAdded.emit(item.type)">
+          <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
+          {{ item.labelKey | i18n }}
+        </button>
+      }
+      <bit-menu-divider *ngIf="canCreateCipher()"></bit-menu-divider>
+      <button *ngIf="canCreateFolder()" type="button" bitMenuItem (click)="folderAdded.emit()">
+        <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
+        {{ "folder" | i18n }}
+      </button>
+      <button
+        *ngIf="canCreateCollection()"
+        type="button"
+        bitMenuItem
+        (click)="collectionAdded.emit()"
+      >
+        <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+        {{ "collection" | i18n }}
+      </button>
+    </bit-menu>
+  </div>
+</ng-container>

@@ -2,11 +2,9 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import {
-  PinServiceAbstraction,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { DeviceType } from "@bitwarden/common/enums";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -101,6 +99,22 @@ describe("DesktopLockComponentService", () => {
     it("returns null", () => {
       const result = service.getPreviousUrl();
       expect(result).toBeNull();
+    });
+  });
+
+  describe("popOutBrowserExtension", () => {
+    it("throws platform not supported error", () => {
+      expect(() => service.popOutBrowserExtension()).toThrow(
+        "Method not supported on this platform.",
+      );
+    });
+  });
+
+  describe("closeBrowserExtensionPopout", () => {
+    it("throws platform not supported error", () => {
+      expect(() => service.closeBrowserExtensionPopout()).toThrow(
+        "Method not supported on this platform.",
+      );
     });
   });
 

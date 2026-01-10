@@ -6,6 +6,7 @@ import { BehaviorSubject, ReplaySubject, Subject, map, switchMap, takeUntil, tap
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   SemanticLogger,
@@ -19,23 +20,23 @@ import {
   ItemModule,
   NoItemsModule,
 } from "@bitwarden/components";
-import { CredentialGeneratorService } from "@bitwarden/generator-core";
+import { AlgorithmsByType, CredentialGeneratorService } from "@bitwarden/generator-core";
 import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
 
-import { GeneratorModule } from "./generator.module";
+import { translate } from "./util";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "bit-credential-generator-history",
   templateUrl: "credential-generator-history.component.html",
   imports: [
-    ColorPasswordModule,
     CommonModule,
+    ColorPasswordModule,
     IconButtonModule,
     NoItemsModule,
     JslibModule,
     ItemModule,
-    GeneratorModule,
   ],
 })
 export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, OnDestroy {
@@ -45,9 +46,12 @@ export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, O
   constructor(
     private generatorService: CredentialGeneratorService,
     private history: GeneratorHistoryService,
+    private i18nService: I18nService,
     private logService: LogService,
   ) {}
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   account: Account;
 
@@ -58,6 +62,8 @@ export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, O
    *
    *  @warning this may reveal sensitive information in plaintext.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   debug: boolean = false;
 
@@ -94,13 +100,19 @@ export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, O
   }
 
   protected getCopyText(credential: GeneratedCredential) {
-    const info = this.generatorService.algorithm(credential.category);
-    return info.copy;
+    // there isn't a way way to look up category metadata so
+    //   bodge it by looking up algorithm metadata
+    const [id] = AlgorithmsByType[credential.category];
+    const info = this.generatorService.algorithm(id);
+    return translate(info.i18nKeys.copyCredential, this.i18nService);
   }
 
   protected getGeneratedValueText(credential: GeneratedCredential) {
-    const info = this.generatorService.algorithm(credential.category);
-    return info.credentialType;
+    // there isn't a way way to look up category metadata so
+    //   bodge it by looking up algorithm metadata
+    const [id] = AlgorithmsByType[credential.category];
+    const info = this.generatorService.algorithm(id);
+    return translate(info.i18nKeys.credentialType, this.i18nService);
   }
 
   ngOnDestroy() {

@@ -2,11 +2,23 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { concatMap, filter, firstValueFrom, map, Observable, Subject, takeUntil, tap } from "rxjs";
+import {
+  concatMap,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  Subject,
+  switchMap,
+  takeUntil,
+  tap,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import {
   VaultTimeout,
@@ -21,10 +33,28 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DialogService } from "@bitwarden/components";
+import { SessionTimeoutInputLegacyComponent } from "@bitwarden/key-management-ui";
+import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
+import { HeaderModule } from "../layouts/header/header.module";
+import { SharedModule } from "../shared";
+
+/**
+ * @deprecated Use {@link AppearanceComponent} and {@link SessionTimeoutComponent} instead.
+ *
+ * TODO Cleanup once feature flag enabled: https://bitwarden.atlassian.net/browse/PM-27297
+ */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-preferences",
   templateUrl: "preferences.component.html",
+  imports: [
+    SharedModule,
+    HeaderModule,
+    PermitCipherDetailsPopoverComponent,
+    SessionTimeoutInputLegacyComponent,
+  ],
 })
 export class PreferencesComponent implements OnInit, OnDestroy {
   // For use in template
@@ -100,7 +130,12 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     this.availableVaultTimeoutActions$ =
       this.vaultTimeoutSettingsService.availableVaultTimeoutActions$();
 
-    this.vaultTimeoutPolicyCallout = this.policyService.get$(PolicyType.MaximumVaultTimeout).pipe(
+    this.vaultTimeoutPolicyCallout = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+      ),
+      getFirstPolicy,
       filter((policy) => policy != null),
       map((policy) => {
         let timeout;
@@ -181,6 +216,8 @@ export class PreferencesComponent implements OnInit, OnDestroy {
       values.vaultTimeout,
       values.vaultTimeoutAction,
     );
+
+    // Save other preferences (theme, locale, favicons)
     await this.domainSettingsService.setShowFavicons(values.enableFavicons);
     await this.themeStateService.setSelectedTheme(values.theme);
     await this.i18nService.setLocale(values.locale);

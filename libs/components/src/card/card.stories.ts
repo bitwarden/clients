@@ -11,7 +11,7 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { CardComponent } from "./card.component";
 
 export default {
-  title: "Component Library/Card",
+  title: "Component Library/Cards/Card",
   component: CardComponent,
   decorators: [
     moduleMetadata({
@@ -82,18 +82,5 @@ export const WithinSections: Story = {
             </bit-card>
           </bit-section>
       `,
-  }),
-};
-
-export const WithoutBorderRadius: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-    <bit-layout>
-      <bit-card>
-        <p bitTypography="body1" class="!tw-mb-0">Cards used in <code>bit-layout</code> will not have a border radius</p>
-      </bit-card>
-    </bit-layout>
-    `,
   }),
 };

@@ -1,3 +1,5 @@
+import { CipherIconDetails } from "@bitwarden/common/vault/icon/build-cipher-icon";
+
 export const CipherTypes = {
   Login: 1,
   SecureNote: 2,
@@ -14,12 +16,13 @@ export const CipherRepromptTypes = {
 
 type CipherRepromptType = (typeof CipherRepromptTypes)[keyof typeof CipherRepromptTypes];
 
-export type WebsiteIconData = {
-  imageEnabled: boolean;
-  image: string;
-  fallbackImage: string;
-  icon: string;
-};
+export type OrganizationCategory =
+  (typeof OrganizationCategories)[keyof typeof OrganizationCategories];
+
+export const OrganizationCategories = {
+  business: "business",
+  family: "family",
+} as const;
 
 type BaseCipherData<CipherTypeValue> = {
   id: string;
@@ -27,7 +30,7 @@ type BaseCipherData<CipherTypeValue> = {
   type: CipherTypeValue;
   reprompt: CipherRepromptType;
   favorite: boolean;
-  icon: WebsiteIconData;
+  icon: CipherIconDetails;
 };
 
 export type CipherData = BaseCipherData<CipherType> & {
@@ -50,4 +53,5 @@ export type NotificationCipherData = BaseCipherData<typeof CipherTypes.Login> & 
   login?: {
     username: string;
   };
+  organizationCategories?: OrganizationCategory[];
 };

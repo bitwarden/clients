@@ -1,8 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -14,12 +15,21 @@ import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { Field } from "../models/domain/field";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
+import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
+import { CipherViewLike } from "../utils/cipher-view-like-utils";
+
+export type EncryptionContext = {
+  cipher: Cipher;
+  /** The Id of the user that encrypted the cipher. It should always represent a UserId, even for Organization-owned ciphers */
+  encryptedFor: UserId;
+};
 
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
+  abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**
@@ -31,7 +41,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    *
    * An empty array indicates that all ciphers were successfully decrypted.
    */
-  abstract failedToDecryptCiphers$(userId: UserId): Observable<CipherView[]>;
+  abstract failedToDecryptCiphers$(userId: UserId): Observable<CipherView[] | null>;
   abstract clearCache(userId: UserId): Promise<void>;
   abstract encrypt(
     model: CipherView,
@@ -39,7 +49,16 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     keyForEncryption?: SymmetricCryptoKey,
     keyForCipherKeyDecryption?: SymmetricCryptoKey,
     originalCipher?: Cipher,
-  ): Promise<Cipher>;
+  ): Promise<EncryptionContext>;
+  /**
+   * Encrypts multiple ciphers for the given user.
+   *
+   * @param models The cipher views to encrypt
+   * @param userId The user ID to encrypt for
+   *
+   * @returns A promise that resolves to an array of encryption contexts
+   */
+  abstract encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]>;
   abstract encryptFields(fieldsModel: FieldView[], key: SymmetricCryptoKey): Promise<Field[]>;
   abstract encryptField(fieldModel: FieldView, key: SymmetricCryptoKey): Promise<Field>;
   abstract get(id: string, userId: UserId): Promise<Cipher>;
@@ -55,14 +74,22 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
+    /** When true, will override the match strategy for the cipher if it is Never. */
+    overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
-  abstract filterCiphersForUrl(
-    ciphers: CipherView[],
+  abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
+  abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
+    ciphers: C[],
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
+    /** When true, will override the match strategy for the cipher if it is Never. */
+    overrideNeverMatchStrategy?: true,
+  ): Promise<C[]>;
+  abstract getAllFromApiForOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
   ): Promise<CipherView[]>;
-  abstract getAllFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
   /**
    * Gets ciphers belonging to the specified organization that the user has explicit collection level access to.
    * Ciphers that are not assigned to any collections are only included for users with admin access.
@@ -91,7 +118,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    *
    * @returns A promise that resolves to the created cipher
    */
-  abstract createWithServer(cipher: Cipher, orgAdmin?: boolean): Promise<Cipher>;
+  abstract createWithServer(
+    { cipher, encryptedFor }: EncryptionContext,
+    orgAdmin?: boolean,
+  ): Promise<Cipher>;
   /**
    * Update a cipher with the server
    * @param cipher The cipher to update
@@ -101,15 +131,25 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @returns A promise that resolves to the updated cipher
    */
   abstract updateWithServer(
-    cipher: Cipher,
+    { cipher, encryptedFor }: EncryptionContext,
     orgAdmin?: boolean,
     isNotClone?: boolean,
   ): Promise<Cipher>;
+
+  /**
+   * Move a cipher to an organization by re-encrypting its keys with the organization's key.
+   * @param cipher The cipher to move
+   * @param organizationId The Id of the organization to move the cipher to
+   * @param collectionIds The collection Ids to assign the cipher to in the organization
+   * @param userId The Id of the user performing the operation
+   * @param originalCipher Optional original cipher that will be used to compare/update password history
+   */
   abstract shareWithServer(
     cipher: CipherView,
     organizationId: string,
     collectionIds: string[],
     userId: UserId,
+    originalCipher?: Cipher,
   ): Promise<Cipher>;
   abstract shareManyWithServer(
     ciphers: CipherView[],
@@ -130,6 +170,17 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     admin?: boolean,
   ): Promise<Cipher>;
+  /**
+   * Upgrade all old attachments for a cipher by downloading, decrypting, re-uploading with new key, and deleting old.
+   * @param cipher - The cipher with old attachments to upgrade
+   * @param userId - The user ID
+   * @param attachmentId - If provided, only upgrade the attachment with this ID
+   */
+  abstract upgradeOldCipherAttachments(
+    cipher: CipherView,
+    userId: UserId,
+    attachmentId?: string,
+  ): Promise<CipherView>;
   /**
    * Save the collections for a cipher with the server
    *
@@ -165,9 +216,13 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * Update the local store of CipherData with the provided data. Values are upserted into the existing store.
    *
    * @param cipher The cipher data to upsert. Can be a single CipherData object or an array of CipherData objects.
+   * @param userId Optional user ID for whom the cipher data is being upserted.
    * @returns A promise that resolves to a record of updated cipher store, keyed by their cipher ID. Returns all ciphers, not just those updated
    */
-  abstract upsert(cipher: CipherData | CipherData[]): Promise<Record<CipherId, CipherData>>;
+  abstract upsert(
+    cipher: CipherData | CipherData[],
+    userId?: UserId,
+  ): Promise<Record<CipherId, CipherData>>;
   abstract replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any>;
   abstract clear(userId?: string): Promise<void>;
   abstract moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any>;
@@ -184,10 +239,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     id: string,
     attachmentId: string,
     userId: UserId,
+    admin: boolean,
   ): Promise<CipherData>;
-  abstract sortCiphersByLastUsed(a: CipherView, b: CipherView): number;
-  abstract sortCiphersByLastUsedThenName(a: CipherView, b: CipherView): number;
-  abstract getLocaleSortingFunction(): (a: CipherView, b: CipherView) => number;
+  abstract sortCiphersByLastUsed(a: CipherViewLike, b: CipherViewLike): number;
+  abstract sortCiphersByLastUsedThenName(a: CipherViewLike, b: CipherViewLike): number;
+  abstract getLocaleSortingFunction(): (a: CipherViewLike, b: CipherViewLike) => number;
   abstract softDelete(id: string | string[], userId: UserId): Promise<any>;
   abstract softDeleteWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
   abstract softDeleteManyWithServer(ids: string[], userId: UserId, asAdmin?: boolean): Promise<any>;
@@ -196,7 +252,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
   ): Promise<any>;
   abstract restoreWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
-  abstract restoreManyWithServer(ids: string[], orgId?: string): Promise<void>;
+  abstract restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void>;
   abstract getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<any>;
   abstract setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId): Promise<void>;
   /**
@@ -214,4 +270,39 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<CipherWithIdRequest[]>;
   abstract getNextCardCipher(userId: UserId): Promise<CipherView>;
   abstract getNextIdentityCipher(userId: UserId): Promise<CipherView>;
+
+  /**
+   * Decrypts a cipher using either the SDK or the legacy method based on the feature flag.
+   * @param cipher The cipher to decrypt.
+   * @param userId The user ID to use for decryption.
+   * @returns A promise that resolves to the decrypted cipher view.
+   */
+  abstract decrypt(cipher: Cipher, userId: UserId): Promise<CipherView>;
+  /**
+   * Decrypts an attachment's content from a response object.
+   *
+   * @param cipherId The ID of the cipher that owns the attachment
+   * @param attachment The attachment view object
+   * @param response The response object containing the encrypted content
+   * @param userId The user ID whose key will be used for decryption
+   * @param useLegacyDecryption When true, forces the use of the legacy decryption method
+   * even when the SDK feature is enabled. This is helpful for domains of
+   * the application that have yet to be moved into the SDK, i.e. emergency access.
+   * TODO: PM-25469 - this should be obsolete once emergency access is moved to the SDK.
+   *
+   * @returns A promise that resolves to the decrypted content
+   */
+  abstract getDecryptedAttachmentBuffer(
+    cipherId: CipherId,
+    attachment: AttachmentView,
+    response: Response,
+    userId: UserId,
+    useLegacyDecryption?: boolean,
+  ): Promise<Uint8Array>;
+
+  /**
+   * Decrypts the full `CipherView` for a given `CipherViewLike`.
+   * When a `CipherView` instance is passed, it returns it as is.
+   */
+  abstract getFullCipherView(c: CipherViewLike): Promise<CipherView>;
 }

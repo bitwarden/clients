@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Observable, map, concatMap, share, ReplaySubject, timer, combineLatest, of } from "rxjs";
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import {
   SingleUserState,
   StateProvider,
@@ -25,9 +25,13 @@ const ONE_MINUTE = 1000 * 60;
  *
  *  DO NOT USE THIS for synchronized data.
  */
-export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
-  implements SingleUserState<Outer>
-{
+export class SecretState<
+  Outer,
+  Id,
+  Plaintext extends object,
+  Disclosed,
+  Secret,
+> implements SingleUserState<Outer> {
   // The constructor is private to avoid creating a circular dependency when
   // wiring the derived and secret states together.
   private constructor(

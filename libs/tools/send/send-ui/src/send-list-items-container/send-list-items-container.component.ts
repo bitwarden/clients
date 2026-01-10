@@ -25,6 +25,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [
     CommonModule,
@@ -40,16 +42,19 @@ import {
   ],
   selector: "app-send-list-items-container",
   templateUrl: "send-list-items-container.component.html",
-  standalone: true,
 })
 export class SendListItemsContainerComponent {
   sendType = SendType;
   /**
    * The list of sends to display.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   sends: SendView[] = [];
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   headerText: string;
 

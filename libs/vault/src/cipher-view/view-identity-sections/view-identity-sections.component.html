@@ -1,4 +1,4 @@
-<bit-section *ngIf="showPersonalDetails">
+<section *ngIf="hasPersonalDetails" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "personalDetails" | i18n }}</h2>
   </bit-section-header>
@@ -17,7 +17,7 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [appA11yTitle]="'copyName' | i18n"
+        [label]="'copyName' | i18n"
         [appCopyClick]="cipher.identity.fullName"
         showToast
         [valueLabel]="'name' | i18n"
@@ -37,7 +37,7 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [appA11yTitle]="'copyUsername' | i18n"
+        [label]="'copyUsername' | i18n"
         [appCopyClick]="cipher.identity.username"
         showToast
         [valueLabel]="'username' | i18n"
@@ -56,7 +56,7 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [appA11yTitle]="'copyCompany' | i18n"
+        [label]="'copyCompany' | i18n"
         [appCopyClick]="cipher.identity.company"
         showToast
         [valueLabel]="'company' | i18n"
@@ -64,9 +64,9 @@
       ></button>
     </bit-form-field>
   </read-only-cipher-card>
-</bit-section>
+</section>
 
-<bit-section *ngIf="showIdentificationDetails">
+<section *ngIf="hasIdentificationDetails" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "identification" | i18n }}</h2>
   </bit-section-header>
@@ -93,7 +93,7 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [appA11yTitle]="'copySSN' | i18n"
+        [label]="'copySSN' | i18n"
         [appCopyClick]="cipher.identity.ssn"
         showToast
         [valueLabel]="'ssn' | i18n"
@@ -123,7 +123,7 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [appA11yTitle]="'copyPassportNumber' | i18n"
+        [label]="'copyPassportNumber' | i18n"
         [appCopyClick]="cipher.identity.passportNumber"
         showToast
         [valueLabel]="'passportNumber' | i18n"
@@ -145,7 +145,7 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [appA11yTitle]="'copyLicenseNumber' | i18n"
+        [label]="'copyLicenseNumber' | i18n"
         [appCopyClick]="cipher.identity.licenseNumber"
         showToast
         [valueLabel]="'licenseNumber' | i18n"
@@ -153,9 +153,9 @@
       ></button>
     </bit-form-field>
   </read-only-cipher-card>
-</bit-section>
+</section>
 
-<bit-section *ngIf="showContactDetails">
+<section *ngIf="hasContactDetails" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "contactInfo" | i18n }}</h2>
   </bit-section-header>
@@ -168,7 +168,7 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [appA11yTitle]="'copyEmail' | i18n"
+        [label]="'copyEmail' | i18n"
         [appCopyClick]="cipher.identity.email"
         showToast
         [valueLabel]="'email' | i18n"
@@ -182,7 +182,7 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [appA11yTitle]="'copyPhone' | i18n"
+        [label]="'copyPhone' | i18n"
         [appCopyClick]="cipher.identity.phone"
         showToast
         [valueLabel]="'phone' | i18n"
@@ -204,7 +204,7 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [appA11yTitle]="'copyAddress' | i18n"
+        [label]="'copyAddress' | i18n"
         [appCopyClick]="addressFields"
         showToast
         [valueLabel]="'address' | i18n"
@@ -212,4 +212,4 @@
       ></button>
     </bit-form-field>
   </read-only-cipher-card>
-</bit-section>
+</section>

@@ -5,12 +5,15 @@ import { ActivatedRoute, Router, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { Observable, firstValueFrom, of } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -26,7 +29,10 @@ describe("ProductSwitcherService", () => {
   let providerService: MockProxy<ProviderService>;
   let accountService: FakeAccountService;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let configService: MockProxy<ConfigService>;
   let activeRouteParams = convertToParamMap({ organizationId: "1234" });
+  let singleOrgPolicyEnabled = false;
   const getLastSync = jest.fn().mockResolvedValue(new Date("2024-05-14"));
   const userId = Utils.newGuid() as UserId;
 
@@ -46,11 +52,14 @@ describe("ProductSwitcherService", () => {
     providerService = mock<ProviderService>();
     accountService = mockAccountServiceWith(userId);
     platformUtilsService = mock<PlatformUtilsService>();
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     router.url = "/";
     router.events = of({});
     organizationService.organizations$.mockReturnValue(of([{}] as Organization[]));
-    providerService.getAll.mockResolvedValue([] as Provider[]);
+    providerService.providers$.mockReturnValue(of([]) as Observable<Provider[]>);
     platformUtilsService.isSelfHost.mockReturnValue(false);
 
     TestBed.configureTestingModule({
@@ -68,15 +77,23 @@ describe("ProductSwitcherService", () => {
           },
         },
         {
-          provide: I18nPipe,
+          provide: I18nService,
           useValue: {
-            transform: (key: string) => key,
+            t: (id: string, p1?: string | number, p2?: string | number, p3?: string | number) => id,
           },
         },
         {
           provide: SyncService,
           useValue: { getLastSync },
         },
+        {
+          provide: PolicyService,
+          useValue: {
+            policyAppliesToUser$: () => of(singleOrgPolicyEnabled),
+          },
+        },
+        { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
+        { provide: ConfigService, useValue: configService },
       ],
     });
   });
@@ -184,6 +201,14 @@ describe("ProductSwitcherService", () => {
         expect(products.bento.find((p) => p.name === "Admin Console")).toBeDefined();
         expect(products.other.find((p) => p.name === "Organizations")).toBeUndefined();
       });
+
+      it("does not include Organizations when the user's single org policy is enabled", async () => {
+        singleOrgPolicyEnabled = true;
+        initiateService();
+        const products = await firstValueFrom(service.products$);
+
+        expect(products.other.find((p) => p.name === "Organizations")).not.toBeDefined();
+      });
     });
 
     describe("Provider Portal", () => {
@@ -196,7 +221,7 @@ describe("ProductSwitcherService", () => {
       });
 
       it("is included when there are providers", async () => {
-        providerService.getAll.mockResolvedValue([{ id: "67899" }] as Provider[]);
+        providerService.providers$.mockReturnValue(of([{ id: "67899" }]) as Observable<Provider[]>);
 
         initiateService();
 
@@ -247,7 +272,7 @@ describe("ProductSwitcherService", () => {
     });
 
     it("marks Provider Portal as active", async () => {
-      providerService.getAll.mockResolvedValue([{ id: "67899" }] as Provider[]);
+      providerService.providers$.mockReturnValue(of([{ id: "67899" }]) as Observable<Provider[]>);
       router.url = "/providers/";
 
       initiateService();
@@ -308,5 +333,58 @@ describe("ProductSwitcherService", () => {
     const { appRoute } = products.bento.find((p) => p.name === "Admin Console");
 
     expect(appRoute).toEqual(["/organizations", "111-22-33"]);
+  });
+
+  describe("shouldShowPremiumUpgradeButton$", () => {
+    it("returns false when feature flag is disabled", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+
+      initiateService();
+
+      const shouldShow = await firstValueFrom(service.shouldShowPremiumUpgradeButton$);
+
+      expect(shouldShow).toBe(false);
+    });
+
+    it("returns false when there is no active account", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      accountService.activeAccount$ = of(null);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+
+      initiateService();
+
+      const shouldShow = await firstValueFrom(service.shouldShowPremiumUpgradeButton$);
+
+      expect(shouldShow).toBe(false);
+    });
+
+    it("returns true when feature flag is enabled, account exists, and user has no premium", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+
+      initiateService();
+
+      const shouldShow = await firstValueFrom(service.shouldShowPremiumUpgradeButton$);
+
+      expect(shouldShow).toBe(true);
+      expect(billingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
+        userId,
+      );
+    });
+
+    it("returns false when feature flag is enabled, account exists, but user has premium", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+
+      initiateService();
+
+      const shouldShow = await firstValueFrom(service.shouldShowPremiumUpgradeButton$);
+
+      expect(shouldShow).toBe(false);
+      expect(billingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
+        userId,
+      );
+    });
   });
 });

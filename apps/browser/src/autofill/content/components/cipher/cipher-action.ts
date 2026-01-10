@@ -3,29 +3,49 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { BadgeButton } from "../../../content/components/buttons/badge-button";
 import { EditButton } from "../../../content/components/buttons/edit-button";
 import { NotificationTypes } from "../../../notification/abstractions/notification-bar";
+import { I18n } from "../common-types";
+import { selectedCipher as selectedCipherSignal } from "../signals/selected-cipher";
+
+export type CipherActionProps = {
+  cipherId: string;
+  handleAction?: (e: Event) => void;
+  i18n: I18n;
+  itemName: string;
+  notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
+  theme: Theme;
+  username?: string;
+};
 
 export function CipherAction({
+  cipherId,
   handleAction = () => {
     /* no-op */
   },
+  i18n,
+  itemName,
   notificationType,
   theme,
-}: {
-  handleAction?: (e: Event) => void;
-  notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
-  theme: Theme;
-}) {
+  username,
+}: CipherActionProps) {
+  const selectCipherHandleAction = (e: Event) => {
+    selectedCipherSignal.set(cipherId);
+    try {
+      handleAction(e);
+    } finally {
+      selectedCipherSignal.set(null);
+    }
+  };
   return notificationType === NotificationTypes.Change
     ? BadgeButton({
-        buttonAction: handleAction,
-        // @TODO localize
-        buttonText: "Update item",
+        buttonAction: selectCipherHandleAction,
+        buttonText: i18n.notificationUpdate,
+        itemName,
         theme,
+        username,
       })
     : EditButton({
         buttonAction: handleAction,
-        // @TODO localize
-        buttonText: "Edit item",
+        buttonText: i18n.notificationEditTooltip,
         theme,
       });
 }

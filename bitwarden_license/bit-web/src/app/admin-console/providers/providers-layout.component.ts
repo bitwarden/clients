@@ -7,18 +7,33 @@ import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { BusinessUnitPortalLogo, Icon, ProviderPortalLogo } from "@bitwarden/assets/svg";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
+import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { IconModule } from "@bitwarden/components";
-import { ProviderPortalLogo } from "@bitwarden/web-vault/app/admin-console/icons/provider-portal-logo";
+import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
+import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.module";
 
+import { ProviderWarningsService } from "../../billing/providers/warnings/services";
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "providers-layout",
   templateUrl: "providers-layout.component.html",
-  standalone: true,
-  imports: [CommonModule, RouterModule, JslibModule, WebLayoutModule, IconModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    JslibModule,
+    WebLayoutModule,
+    IconModule,
+    TaxIdWarningComponent,
+  ],
 })
 export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected readonly logo = ProviderPortalLogo;
@@ -26,33 +41,73 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected provider$: Observable<Provider>;
 
-  protected isBillable: Observable<boolean>;
+  protected logo$: Observable<Icon>;
+
   protected canAccessBilling$: Observable<boolean>;
+
+  protected clientsTranslationKey$: Observable<string>;
+
+  protected subscriber$: Observable<NonIndividualSubscriber>;
+  protected getTaxIdWarning$: () => Observable<TaxIdWarningType>;
 
   constructor(
     private route: ActivatedRoute,
     private providerService: ProviderService,
+    private providerWarningsService: ProviderWarningsService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
     document.body.classList.remove("layout_frontend");
 
-    this.provider$ = this.route.params.pipe(
-      switchMap((params) => this.providerService.get$(params.providerId)),
+    const providerId$: Observable<string> = this.route.params.pipe(
+      map((params) => params.providerId),
+    );
+
+    this.provider$ = combineLatest([
+      providerId$,
+      this.accountService.activeAccount$.pipe(getUserId),
+    ]).pipe(
+      switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)),
       takeUntil(this.destroy$),
     );
 
-    this.isBillable = this.provider$.pipe(
-      map((provider) => provider?.providerStatus === ProviderStatusType.Billable),
-      takeUntil(this.destroy$),
-    );
-
-    this.canAccessBilling$ = combineLatest([this.isBillable, this.provider$]).pipe(
-      map(
-        ([hasConsolidatedBilling, provider]) => hasConsolidatedBilling && provider.isProviderAdmin,
+    this.logo$ = this.provider$.pipe(
+      map((provider) =>
+        provider.providerType === ProviderType.BusinessUnit
+          ? BusinessUnitPortalLogo
+          : ProviderPortalLogo,
       ),
-      takeUntil(this.destroy$),
     );
+
+    this.canAccessBilling$ = this.provider$.pipe(map((provider) => provider.isProviderAdmin));
+
+    this.clientsTranslationKey$ = this.provider$.pipe(
+      map((provider) =>
+        provider.providerType === ProviderType.BusinessUnit ? "businessUnits" : "clients",
+      ),
+    );
+
+    this.provider$
+      .pipe(
+        switchMap((provider) =>
+          this.providerWarningsService.showProviderSuspendedDialog$(provider),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    this.subscriber$ = this.provider$.pipe(
+      map((provider) => ({
+        type: "provider",
+        data: provider,
+      })),
+    );
+
+    this.getTaxIdWarning$ = () =>
+      this.provider$.pipe(
+        switchMap((provider) => this.providerWarningsService.getTaxIdWarning$(provider)),
+      );
   }
 
   ngOnDestroy() {
@@ -67,4 +122,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   showSettingsTab(provider: Provider) {
     return provider.isProviderAdmin;
   }
+
+  refreshTaxIdWarning = () => this.providerWarningsService.refreshTaxIdWarning();
 }

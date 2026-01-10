@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
+import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { Verification } from "@bitwarden/common/auth/types/verification";
@@ -9,9 +10,13 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { SharedModule } from "../../../shared";
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "app-deauthorize-sessions",
   templateUrl: "deauthorize-sessions.component.html",
+  imports: [SharedModule, UserVerificationFormInputComponent],
 })
 export class DeauthorizeSessionsComponent {
   deauthForm = this.formBuilder.group({

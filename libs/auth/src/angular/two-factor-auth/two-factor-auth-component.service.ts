@@ -1,10 +1,7 @@
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 
-export enum LegacyKeyMigrationAction {
-  PREVENT_LOGIN_AND_SHOW_REQUIRE_MIGRATION_WARNING,
-  NAVIGATE_TO_MIGRATION_COMPONENT,
-}
-
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DuoLaunchAction {
   DIRECT_LAUNCH,
   SINGLE_ACTION_POPOUT,
@@ -33,18 +30,6 @@ export abstract class TwoFactorAuthComponentService {
    * Removes the popup width extension.
    */
   abstract removePopupWidthExtension?(): void;
-
-  /**
-   * We used to use the user's master key to encrypt their data. We deprecated that approach
-   * and now use a user key. This method should be called if we detect that the user
-   * is still using the old master key encryption scheme (server sends down a flag to
-   * indicate this). This method then determines what action to take based on the client.
-   *
-   * We have two possible actions:
-   * 1. Prevent the user from logging in and show a warning that they need to migrate their key on the web client today.
-   * 2. Navigate the user to the key migration component on the web client.
-   */
-  abstract determineLegacyKeyMigrationAction(): LegacyKeyMigrationAction;
 
   /**
    * Optionally closes any single action popouts (extension only).

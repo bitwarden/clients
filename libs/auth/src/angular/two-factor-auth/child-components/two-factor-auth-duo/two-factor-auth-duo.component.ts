@@ -1,4 +1,3 @@
-import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -7,7 +6,10 @@ import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  DialogModule,
   ButtonModule,
   LinkModule,
   TypographyModule,
@@ -23,8 +25,9 @@ import {
   TwoFactorAuthDuoComponentService,
 } from "./two-factor-auth-duo-component.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-duo",
   template: "",
   imports: [
@@ -42,7 +45,11 @@ import {
   providers: [],
 })
 export class TwoFactorAuthDuoComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() tokenEmitter = new EventEmitter<string>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() providerData: any;
 
   duoFramelessUrl: string | undefined = undefined;

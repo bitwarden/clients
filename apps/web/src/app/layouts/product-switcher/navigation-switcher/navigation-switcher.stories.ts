@@ -1,22 +1,31 @@
 import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { LayoutComponent, NavigationModule } from "@bitwarden/components";
+import {
+  LayoutComponent,
+  NavigationModule,
+  StorybookGlobalStateProvider,
+} from "@bitwarden/components";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { I18nMockService } from "@bitwarden/components/src/utils/i18n-mock.service";
+import { GlobalStateProvider } from "@bitwarden/state";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ProductSwitcherService } from "../shared/product-switcher.service";
 
@@ -24,7 +33,10 @@ import { NavigationProductSwitcherComponent } from "./navigation-switcher.compon
 
 @Directive({
   selector: "[mockOrgs]",
+  standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 class MockOrganizationService implements Partial<OrganizationService> {
   private static _orgs = new BehaviorSubject<Organization[]>([]);
 
@@ -32,6 +44,8 @@ class MockOrganizationService implements Partial<OrganizationService> {
     return MockOrganizationService._orgs.asObservable();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set mockOrgs(orgs: Organization[]) {
     MockOrganizationService._orgs.next(orgs);
@@ -40,14 +54,19 @@ class MockOrganizationService implements Partial<OrganizationService> {
 
 @Directive({
   selector: "[mockProviders]",
+  standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 class MockProviderService implements Partial<ProviderService> {
   private static _providers = new BehaviorSubject<Provider[]>([]);
 
-  async getAll() {
-    return await firstValueFrom(MockProviderService._providers);
+  providers$() {
+    return MockProviderService._providers.asObservable();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set mockProviders(providers: Provider[]) {
     MockProviderService._providers.next(providers);
@@ -61,11 +80,14 @@ class MockSyncService implements Partial<SyncService> {
 }
 
 class MockAccountService implements Partial<AccountService> {
+  // We can't use mockAccountInfoWith() here because we can't take a dependency on @bitwarden/common/spec.
+  // This is because that package relies on jest dependencies that aren't available here.
   activeAccount$?: Observable<Account> = of({
     id: "test-user-id" as UserId,
     name: "Test User 1",
     email: "test@email.com",
     emailVerified: true,
+    creationDate: new Date("2024-01-01T00:00:00.000Z"),
   });
 }
 
@@ -75,15 +97,33 @@ class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
   }
 }
 
+class MockBillingAccountProfileStateService implements Partial<BillingAccountProfileStateService> {
+  hasPremiumFromAnySource$(userId: UserId): Observable<boolean> {
+    return of(false);
+  }
+}
+
+class MockConfigService implements Partial<ConfigService> {
+  getFeatureFlag$<Flag extends FeatureFlag>(key: Flag): Observable<FeatureFlagValueType<Flag>> {
+    return of(false);
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-layout",
   template: `<ng-content></ng-content>`,
+  standalone: false,
 })
 class StoryLayoutComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-content",
   template: ``,
+  standalone: false,
 })
 class StoryContentComponent {}
 
@@ -104,26 +144,30 @@ export default {
         MockProviderService,
         StoryLayoutComponent,
         StoryContentComponent,
-        I18nPipe,
       ],
-      imports: [NavigationModule, RouterModule, LayoutComponent],
+      imports: [NavigationModule, RouterModule, LayoutComponent, I18nPipe],
       providers: [
         { provide: OrganizationService, useClass: MockOrganizationService },
         { provide: AccountService, useClass: MockAccountService },
         { provide: ProviderService, useClass: MockProviderService },
         { provide: SyncService, useClass: MockSyncService },
         { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
-        ProductSwitcherService,
         {
-          provide: I18nPipe,
-          useFactory: () => ({
-            transform: (key: string) => translations[key],
-          }),
+          provide: BillingAccountProfileStateService,
+          useClass: MockBillingAccountProfileStateService,
         },
+        { provide: ConfigService, useClass: MockConfigService },
+        ProductSwitcherService,
         {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService(translations);
+          },
+        },
+        {
+          provide: PolicyService,
+          useValue: {
+            policyAppliesToUser$: () => of(false),
           },
         },
       ],
@@ -144,6 +188,10 @@ export default {
             },
           ]),
         ),
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
       ],
     }),
   ],

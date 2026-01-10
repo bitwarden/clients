@@ -10,19 +10,28 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "[sponsoring-org-row]",
   templateUrl: "sponsoring-org-row.component.html",
+  standalone: false,
 })
 export class SponsoringOrgRowComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() sponsoringOrg: Organization = null;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() isSelfHosted = false;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() sponsorshipRemoved = new EventEmitter();
 
   statusMessage = "loading";
@@ -36,9 +45,9 @@ export class SponsoringOrgRowComponent implements OnInit {
     private logService: LogService,
     private dialogService: DialogService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private policyService: PolicyService,
     private accountService: AccountService,
+    private organizationSponsorshipApiService: OrganizationSponsorshipApiServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -54,7 +63,7 @@ export class SponsoringOrgRowComponent implements OnInit {
     this.isFreeFamilyPolicyEnabled$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
       ),
       map(
         (policies) =>
@@ -75,7 +84,10 @@ export class SponsoringOrgRowComponent implements OnInit {
   }
 
   async resendEmail() {
-    await this.apiService.postResendSponsorshipOffer(this.sponsoringOrg.id);
+    await this.organizationSponsorshipApiService.postResendSponsorshipOffer(
+      this.sponsoringOrg.id,
+      this.sponsoringOrg.familySponsorshipFriendlyName,
+    );
     this.toastService.showToast({
       variant: "success",
       title: null,
@@ -106,7 +118,7 @@ export class SponsoringOrgRowComponent implements OnInit {
       return;
     }
 
-    await this.apiService.deleteRevokeSponsorship(this.sponsoringOrg.id);
+    await this.organizationSponsorshipApiService.deleteRevokeSponsorship(this.sponsoringOrg.id);
     this.toastService.showToast({
       variant: "success",
       title: null,

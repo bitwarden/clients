@@ -5,12 +5,13 @@ import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
@@ -98,10 +99,16 @@ export class SendReceiveCommand extends DownloadCommand {
           this.sendAccessRequest,
           apiUrl,
         );
+
+        const decryptBufferFn = async (resp: globalThis.Response) => {
+          const encBuf = await EncArrayBuffer.fromResponse(resp);
+          return this.encryptService.decryptFileData(encBuf, this.decKey);
+        };
+
         return await this.saveAttachmentToFile(
           downloadData.url,
-          this.decKey,
           response?.file?.fileName,
+          decryptBufferFn,
           options.output,
         );
       }

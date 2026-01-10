@@ -71,7 +71,7 @@ export abstract class BaseBulkConfirmComponent implements OnInit {
         if (publicKey == null) {
           continue;
         }
-        const encryptedKey = await this.encryptService.rsaEncrypt(key.key, publicKey);
+        const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(key, publicKey);
         userIdsWithKeys.push({
           id: user.id,
           key: encryptedKey.encryptedString,

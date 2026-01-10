@@ -1,5 +1,4 @@
 import { A11yModule } from "@angular/cdk/a11y";
-import { DialogModule } from "@angular/cdk/dialog";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { LayoutModule } from "@angular/cdk/layout";
 import { OverlayModule } from "@angular/cdk/overlay";
@@ -10,28 +9,26 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { AvatarModule, ButtonModule, FormFieldModule, ToastModule } from "@bitwarden/components";
+import {
+  DialogModule,
+  AvatarModule,
+  ButtonModule,
+  FormFieldModule,
+  ToastModule,
+  CalloutModule,
+  LinkModule,
+} from "@bitwarden/components";
 
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
-import { ExtensionAnonLayoutWrapperComponent } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
-import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
-import { VaultTimeoutInputComponent } from "../auth/popup/settings/vault-timeout-input.component";
-import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
-import { TwoFactorOptionsComponentV1 } from "../auth/popup/two-factor-options-v1.component";
-import { TwoFactorComponentV1 } from "../auth/popup/two-factor-v1.component";
-import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PopOutComponent } from "../platform/popup/components/pop-out.component";
-import { HeaderComponent } from "../platform/popup/header.component";
 import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
@@ -40,7 +37,7 @@ import { FilePopoutCalloutComponent } from "../tools/popup/components/file-popou
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { UserVerificationComponent } from "./components/user-verification.component";
+import { ExtensionAnonLayoutWrapperComponent } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { ServicesModule } from "./services/services.module";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -80,28 +77,15 @@ import "../platform/popup/locales";
     PopupTabNavigationComponent,
     PopupFooterComponent,
     PopupHeaderComponent,
-    HeaderComponent,
     UserVerificationDialogComponent,
     CurrentAccountComponent,
     FormFieldModule,
     ExtensionAnonLayoutWrapperComponent,
+    CalloutModule,
+    LinkModule,
   ],
-  declarations: [
-    AppComponent,
-    ColorPasswordPipe,
-    ColorPasswordCountPipe,
-    SetPasswordComponent,
-    SsoComponentV1,
-    TabsV2Component,
-    TwoFactorComponentV1,
-    TwoFactorOptionsComponentV1,
-    UpdateTempPasswordComponent,
-    UserVerificationComponent,
-    VaultTimeoutInputComponent,
-    RemovePasswordComponent,
-    EnvironmentSelectorComponent,
-  ],
-  exports: [],
+  declarations: [AppComponent, ColorPasswordPipe, ColorPasswordCountPipe, TabsV2Component],
+  exports: [CalloutModule],
   providers: [CurrencyPipe, DatePipe],
   bootstrap: [AppComponent],
 })

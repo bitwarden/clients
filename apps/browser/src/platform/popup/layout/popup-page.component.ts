@@ -1,30 +1,40 @@
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, inject, Input, signal } from "@angular/core";
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  signal,
+} from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ScrollLayoutHostDirective } from "@bitwarden/components";
 
 @Component({
   selector: "popup-page",
   templateUrl: "popup-page.component.html",
-  standalone: true,
   host: {
     class: "tw-h-full tw-flex tw-flex-col tw-overflow-y-hidden",
   },
-  imports: [CommonModule],
+  imports: [CommonModule, ScrollLayoutHostDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PopupPageComponent {
   protected i18nService = inject(I18nService);
 
-  @Input() loading = false;
+  readonly loading = input<boolean>(false);
 
-  @Input({ transform: booleanAttribute })
-  disablePadding = false;
+  readonly disablePadding = input(false, { transform: booleanAttribute });
 
-  protected scrolled = signal(false);
+  /** Hides any overflow within the page content */
+  readonly hideOverflow = input(false, { transform: booleanAttribute });
+
+  protected readonly scrolled = signal(false);
   isScrolled = this.scrolled.asReadonly();
 
   /** Accessible loading label for the spinner. Defaults to "loading" */
-  @Input() loadingText?: string = this.i18nService.t("loading");
+  readonly loadingText = input<string | undefined>(this.i18nService.t("loading"));
 
   handleScroll(event: Event) {
     this.scrolled.set((event.currentTarget as HTMLElement).scrollTop !== 0);

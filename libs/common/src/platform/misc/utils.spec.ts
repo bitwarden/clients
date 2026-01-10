@@ -302,7 +302,7 @@ describe("Utils Service", () => {
       expect(b64String).toBe(b64HelloWorldString);
     });
 
-    runInBothEnvironments("should return an empty string for an empty ArrayBuffer", () => {
+    runInBothEnvironments("should return empty string for an empty ArrayBuffer", () => {
       const buffer = new Uint8Array([]).buffer;
       const b64String = Utils.fromBufferToB64(buffer);
       expect(b64String).toBe("");
@@ -311,6 +311,81 @@ describe("Utils Service", () => {
     runInBothEnvironments("should return null for null input", () => {
       const b64String = Utils.fromBufferToB64(null);
       expect(b64String).toBeNull();
+    });
+
+    runInBothEnvironments("returns null for undefined input", () => {
+      const b64 = Utils.fromBufferToB64(undefined as unknown as ArrayBuffer);
+      expect(b64).toBeNull();
+    });
+
+    runInBothEnvironments("returns empty string for empty input", () => {
+      const b64 = Utils.fromBufferToB64(new ArrayBuffer(0));
+      expect(b64).toBe("");
+    });
+
+    runInBothEnvironments("accepts Uint8Array directly", () => {
+      const u8 = new Uint8Array(asciiHelloWorldArray);
+      const b64 = Utils.fromBufferToB64(u8);
+      expect(b64).toBe(b64HelloWorldString);
+    });
+
+    runInBothEnvironments("respects byteOffset/byteLength (view window)", () => {
+      // [xx, 'hello world', yy] — view should only encode the middle slice
+      const prefix = [1, 2, 3];
+      const suffix = [4, 5];
+      const all = new Uint8Array([...prefix, ...asciiHelloWorldArray, ...suffix]);
+      const view = new Uint8Array(all.buffer, prefix.length, asciiHelloWorldArray.length);
+      const b64 = Utils.fromBufferToB64(view);
+      expect(b64).toBe(b64HelloWorldString);
+    });
+
+    runInBothEnvironments("handles DataView (ArrayBufferView other than Uint8Array)", () => {
+      const u8 = new Uint8Array(asciiHelloWorldArray);
+      const dv = new DataView(u8.buffer, 0, u8.byteLength);
+      const b64 = Utils.fromBufferToB64(dv);
+      expect(b64).toBe(b64HelloWorldString);
+    });
+
+    runInBothEnvironments("handles DataView with offset/length window", () => {
+      // Buffer: [xx, 'hello world', yy]
+      const prefix = [9, 9, 9];
+      const suffix = [8, 8];
+      const all = new Uint8Array([...prefix, ...asciiHelloWorldArray, ...suffix]);
+
+      // DataView over just the "hello world" window
+      const dv = new DataView(all.buffer, prefix.length, asciiHelloWorldArray.length);
+
+      const b64 = Utils.fromBufferToB64(dv);
+      expect(b64).toBe(b64HelloWorldString);
+    });
+
+    runInBothEnvironments(
+      "encodes empty view (offset-length window of zero) as empty string",
+      () => {
+        const backing = new Uint8Array([1, 2, 3, 4]);
+        const emptyView = new Uint8Array(backing.buffer, 2, 0);
+        const b64 = Utils.fromBufferToB64(emptyView);
+        expect(b64).toBe("");
+      },
+    );
+
+    runInBothEnvironments("does not mutate the input", () => {
+      const original = new Uint8Array(asciiHelloWorldArray);
+      const copyBefore = new Uint8Array(original); // snapshot
+      Utils.fromBufferToB64(original);
+      expect(original).toEqual(copyBefore); // unchanged
+    });
+
+    it("produces the same Base64 in Node vs non-Node mode", () => {
+      const bytes = new Uint8Array(asciiHelloWorldArray);
+
+      Utils.isNode = true;
+      const nodeB64 = Utils.fromBufferToB64(bytes);
+
+      Utils.isNode = false;
+      const browserB64 = Utils.fromBufferToB64(bytes);
+
+      expect(browserB64).toBe(nodeB64);
     });
   });
 
@@ -614,6 +689,32 @@ describe("Utils Service", () => {
     });
   });
 
+  describe("invalidUrlPatterns", () => {
+    it("should return false if no invalid patterns are found", () => {
+      const urlString = "https://www.example.com/api/my/account/status";
+
+      const actual = Utils.invalidUrlPatterns(urlString);
+
+      expect(actual).toBe(false);
+    });
+
+    it("should return true if an invalid pattern is found", () => {
+      const urlString = "https://www.example.com/api/%2e%2e/secret";
+
+      const actual = Utils.invalidUrlPatterns(urlString);
+
+      expect(actual).toBe(true);
+    });
+
+    it("should return true if an invalid pattern is found in a param", () => {
+      const urlString = "https://www.example.com/api/history?someToken=../secret";
+
+      const actual = Utils.invalidUrlPatterns(urlString);
+
+      expect(actual).toBe(true);
+    });
+  });
+
   describe("getUrl", () => {
     it("assumes a http protocol if no protocol is specified", () => {
       const urlString = "www.exampleapp.com.au:4000";
@@ -703,6 +804,75 @@ describe("Utils Service", () => {
         expect(str).toBe(c.output);
         // Make sure it matches with the Node.js Buffer output
         expect(str).toBe(Buffer.from(buffer).toString("utf8"));
+      });
+    });
+  });
+
+  describe("fromUtf8ToB64(...)", () => {
+    const originalIsNode = Utils.isNode;
+
+    afterEach(() => {
+      Utils.isNode = originalIsNode;
+    });
+
+    runInBothEnvironments("should handle empty string", () => {
+      const str = Utils.fromUtf8ToB64("");
+      expect(str).toBe("");
+    });
+
+    runInBothEnvironments("should convert a normal b64 string", () => {
+      const str = Utils.fromUtf8ToB64(asciiHelloWorld);
+      expect(str).toBe(b64HelloWorldString);
+    });
+
+    runInBothEnvironments("should convert various special characters", () => {
+      const cases = [
+        { input: "»", output: "wrs=" },
+        { input: "¦", output: "wqY=" },
+        { input: "£", output: "wqM=" },
+        { input: "é", output: "w6k=" },
+        { input: "ö", output: "w7Y=" },
+        { input: "»»", output: "wrvCuw==" },
+      ];
+      cases.forEach((c) => {
+        const utfStr = c.input;
+        const str = Utils.fromUtf8ToB64(utfStr);
+        expect(str).toBe(c.output);
+      });
+    });
+  });
+
+  describe("fromB64ToUtf8(...)", () => {
+    const originalIsNode = Utils.isNode;
+
+    afterEach(() => {
+      Utils.isNode = originalIsNode;
+    });
+
+    runInBothEnvironments("should handle empty string", () => {
+      const str = Utils.fromB64ToUtf8("");
+      expect(str).toBe("");
+    });
+
+    runInBothEnvironments("should convert a normal b64 string", () => {
+      const str = Utils.fromB64ToUtf8(b64HelloWorldString);
+      expect(str).toBe(asciiHelloWorld);
+    });
+
+    runInBothEnvironments("should handle various special characters", () => {
+      const cases = [
+        { input: "wrs=", output: "»" },
+        { input: "wqY=", output: "¦" },
+        { input: "wqM=", output: "£" },
+        { input: "w6k=", output: "é" },
+        { input: "w7Y=", output: "ö" },
+        { input: "wrvCuw==", output: "»»" },
+      ];
+
+      cases.forEach((c) => {
+        const b64Str = c.input;
+        const str = Utils.fromB64ToUtf8(b64Str);
+        expect(str).toBe(c.output);
       });
     });
   });

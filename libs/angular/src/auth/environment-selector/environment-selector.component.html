@@ -1,0 +1,48 @@
+<ng-container
+  *ngIf="{
+    selectedRegion: selectedRegion$ | async,
+  } as data"
+>
+  <div class="tw-mb-1">
+    <bit-menu #environmentOptions>
+      <button
+        *ngFor="let region of availableRegions; let i = index"
+        bitMenuItem
+        type="button"
+        [attr.aria-pressed]="data.selectedRegion === region ? 'true' : 'false'"
+        (click)="toggle(region.key)"
+      >
+        <i
+          class="bwi bwi-fw bwi-sm bwi-check"
+          style="padding-bottom: 1px"
+          aria-hidden="true"
+          [style.visibility]="data.selectedRegion === region ? 'visible' : 'hidden'"
+        ></i>
+        <span>{{ region.domain }}</span>
+      </button>
+      <button
+        bitMenuItem
+        type="button"
+        [attr.aria-pressed]="data.selectedRegion ? 'false' : 'true'"
+        (click)="toggle(ServerEnvironmentType.SelfHosted)"
+      >
+        <i
+          class="bwi bwi-fw bwi-sm bwi-check"
+          style="padding-bottom: 1px"
+          aria-hidden="true"
+          [style.visibility]="data.selectedRegion ? 'hidden' : 'visible'"
+        ></i>
+        <span>{{ "selfHostedServer" | i18n }}</span>
+      </button>
+    </bit-menu>
+    <div bitTypography="body2">
+      {{ "accessing" | i18n }}:
+      <button [bitMenuTriggerFor]="environmentOptions" bitLink type="button">
+        <b class="tw-text-primary-600 tw-font-medium">{{
+          data.selectedRegion?.domain || ("selfHostedServer" | i18n)
+        }}</b>
+        <i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</ng-container>

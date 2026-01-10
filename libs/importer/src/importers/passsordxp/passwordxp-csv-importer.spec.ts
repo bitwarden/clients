@@ -1,10 +1,14 @@
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ImportResult } from "../../models/import-result";
 import { dutchHeaders } from "../spec-data/passwordxp-csv/dutch-headers";
 import { germanHeaders } from "../spec-data/passwordxp-csv/german-headers";
 import { noFolder } from "../spec-data/passwordxp-csv/no-folder.csv";
-import { withFolders } from "../spec-data/passwordxp-csv/passwordxp-with-folders.csv";
+import {
+  withFolders,
+  withMultipleFolders,
+} from "../spec-data/passwordxp-csv/passwordxp-with-folders.csv";
 import { withoutFolders } from "../spec-data/passwordxp-csv/passwordxp-without-folders.csv";
 
 import { PasswordXPCsvImporter } from "./passwordxp-csv-importer";
@@ -143,7 +147,7 @@ describe("PasswordXPCsvImporter", () => {
   });
 
   it("should convert folders to collections when importing into an organization", async () => {
-    importer.organizationId = "someOrg";
+    importer.organizationId = "someOrg" as OrganizationId;
     const result: ImportResult = await importer.parse(withFolders);
     expect(result.success).toBe(true);
     expect(result.ciphers.length).toBe(5);
@@ -166,5 +170,23 @@ describe("PasswordXPCsvImporter", () => {
     collectionRelationship = result.collectionRelationships.shift();
     expect(collectionRelationship).toEqual([4, 2]);
     collectionRelationship = result.collectionRelationships.shift();
+  });
+
+  it("should convert multi-level folders to collections when importing into an organization", async () => {
+    importer.organizationId = "someOrg" as OrganizationId;
+    const result: ImportResult = await importer.parse(withMultipleFolders);
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toBe(5);
+
+    expect(result.collections.length).toBe(3);
+    expect(result.collections[0].name).toEqual("Test Folder");
+    expect(result.collections[1].name).toEqual("Test Folder/Level 2 Folder");
+    expect(result.collections[2].name).toEqual("Test Folder/Level 2 Folder/Level 3 Folder");
+
+    expect(result.collectionRelationships.length).toBe(4);
+    expect(result.collectionRelationships[0]).toEqual([1, 0]);
+    expect(result.collectionRelationships[1]).toEqual([2, 1]);
+    expect(result.collectionRelationships[2]).toEqual([3, 1]);
+    expect(result.collectionRelationships[3]).toEqual([4, 2]);
   });
 });

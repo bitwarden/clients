@@ -1,0 +1,64 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'downloadBitwarden' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+  <h2 bitTypography="h6">
+    {{ "getTheMobileApp" | i18n }}
+  </h2>
+  <bit-card>
+    <span bitTypography="body2">
+      {{ "getTheMobileAppDesc" | i18n }}
+    </span>
+    <div class="tw-flex tw-items-center tw-justify-center tw-my-4">
+      <img
+        src="../../../images/download-qr.png"
+        alt=""
+        class="tw-w-[43%] tw-border-solid tw-border tw-border-secondary-300 tw-rounded-lg"
+      />
+    </div>
+    <div class="tw-flex tw-justify-center tw-gap-4">
+      <a
+        class="tw-w-[43%] !tw-py-0"
+        target="_blank"
+        href="https://apps.apple.com/app/bitwarden-password-manager/id1137397744"
+        bitLink
+      >
+        <img
+          class="tw-w-full"
+          src="../../../images/app-store.png"
+          alt="{{ 'downloadOnTheAppStore' | i18n }}"
+        />
+      </a>
+      <a
+        class="tw-w-[43%] !tw-py-0"
+        target="_blank"
+        href="https://play.google.com/store/apps/details?id=com.x8bit.bitwarden"
+        bitLink
+      >
+        <img
+          class="tw-w-full"
+          src="../../../images/google-play.png"
+          alt="{{ 'getItOnGooglePlay' | i18n }}"
+        />
+      </a>
+    </div>
+  </bit-card>
+
+  <h2 class="tw-mt-6" bitTypography="h6">
+    {{ "getTheDesktopApp" | i18n }}
+  </h2>
+  <bit-card>
+    <span bitTypography="body2">{{ "getTheDesktopAppDesc" | i18n }}</span>
+    <a
+      class="tw-text-primary-600 tw-mt-4 tw-flex tw-no-underline tw-gap-2 tw-items-center"
+      href="https://bitwarden.com/download/#downloads-desktop"
+      bitLink
+      target="_blank"
+    >
+      {{ "downloadFromBitwardenNow" | i18n }}
+      <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+    </a>
+  </bit-card>
+</popup-page>

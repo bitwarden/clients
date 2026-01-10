@@ -1,4 +1,3 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -9,6 +8,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -22,8 +22,9 @@ import { KeyService } from "@bitwarden/key-management";
  * Used to verify the user's Master Password for the "Master Password Re-prompt" feature only.
  * See UserVerificationComponent for any other situation where you need to verify the user's identity.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-password-reprompt",
   imports: [
     JslibModule,

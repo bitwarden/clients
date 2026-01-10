@@ -18,17 +18,14 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
-  CardComponent,
   FormFieldModule,
   ItemModule,
-  SectionComponent,
   SelectModule,
   ToastService,
   TypographyModule,
@@ -40,10 +37,11 @@ import { SendForm, SendFormContainer } from "../send-form-container";
 
 import { SendDetailsComponent } from "./send-details/send-details.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-form",
   templateUrl: "./send-form.component.html",
-  standalone: true,
   providers: [
     {
       provide: SendFormContainer,
@@ -52,8 +50,6 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
   ],
   imports: [
     AsyncActionsModule,
-    CardComponent,
-    SectionComponent,
     TypographyModule,
     ItemModule,
     FormFieldModule,
@@ -64,6 +60,8 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
   ],
 })
 export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, SendFormContainer {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
   private destroyRef = inject(DestroyRef);
@@ -73,27 +71,37 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   /**
    * The form ID to use for the form. Used to connect it to a submit button.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) formId: string;
 
   /**
    * The configuration for the add/edit form. Used to determine which controls are shown and what values are available.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) config: SendFormConfig;
 
   /**
    * Optional submit button that will be disabled or marked as loading when the form is submitting.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   submitBtn?: ButtonComponent;
 
   /**
    * Event emitted when the send is created successfully.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSendCreated = new EventEmitter<SendView>();
 
   /**
    * Event emitted when the send is updated successfully.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSendUpdated = new EventEmitter<SendView>();
 
   /**
@@ -216,10 +224,6 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     if (this.config.mode === "add") {
       this.onSendCreated.emit(sendView);
       return;
-    }
-
-    if (Utils.isNullOrWhitespace(this.updatedSendView.password)) {
-      this.updatedSendView.password = null;
     }
 
     this.toastService.showToast({

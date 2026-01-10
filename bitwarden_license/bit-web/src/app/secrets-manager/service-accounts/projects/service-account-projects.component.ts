@@ -22,9 +22,12 @@ import {
 } from "../../shared/access-policies/access-policy-selector/models/ap-item-view.type";
 import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-service-account-projects",
   templateUrl: "./service-account-projects.component.html",
+  standalone: false,
 })
 export class ServiceAccountProjectsComponent implements OnInit, OnDestroy {
   private currentAccessPolicies: ApItemViewType[];

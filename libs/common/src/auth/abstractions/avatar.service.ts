@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UserId } from "../../types/guid";
@@ -9,7 +7,7 @@ export abstract class AvatarService {
    * An observable monitoring the active user's avatar color.
    * The observable updates when the avatar color changes.
    */
-  avatarColor$: Observable<string | null>;
+  abstract avatarColor$: Observable<string | null>;
   /**
    * Sets the avatar color of the active user
    *

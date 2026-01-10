@@ -3,8 +3,6 @@ import { Policy as AdminPolicy } from "@bitwarden/common/admin-console/models/do
 
 import { PolicyEvaluator } from "../abstractions";
 
-import { GeneratorConstraints } from "./generator-constraints";
-
 /** Determines how to construct a password generator policy */
 export type PolicyConfiguration<Policy, Settings> = {
   type: PolicyType;
@@ -22,15 +20,4 @@ export type PolicyConfiguration<Policy, Settings> = {
    *   Use `toConstraints` instead.
    */
   createEvaluator: (policy: Policy) => PolicyEvaluator<Policy, Settings>;
-
-  /** Converts policy service data into actionable policy constraints.
-   *
-   *  @param policy - the policy to map into policy constraints.
-   *  @param email - the default email to extend.
-   *
-   * @remarks this version includes constraints needed for the reactive forms;
-   *  it was introduced so that the constraints can be incrementally introduced
-   *  as the new UI is built.
-   */
-  toConstraints: (policy: Policy, email: string) => GeneratorConstraints<Settings>;
 };

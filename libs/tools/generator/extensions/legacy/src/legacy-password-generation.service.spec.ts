@@ -1,13 +1,12 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { IntegrationId } from "@bitwarden/common/tools/integration";
+import { VendorId } from "@bitwarden/common/tools/extension";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   GeneratorService,
   DefaultPassphraseGenerationOptions,
   DefaultPasswordGenerationOptions,
-  Policies,
   PassphraseGenerationOptions,
   PassphraseGeneratorPolicy,
   PasswordGenerationOptions,
@@ -38,12 +37,17 @@ const PasswordGeneratorOptionsEvaluator = policies.PasswordGeneratorOptionsEvalu
 
 function createPassphraseGenerator(
   options: PassphraseGenerationOptions = {},
-  policy: PassphraseGeneratorPolicy = Policies.Passphrase.disabledValue,
+  policy?: PassphraseGeneratorPolicy,
 ) {
   let savedOptions = options;
   const generator = mock<GeneratorService<PassphraseGenerationOptions, PassphraseGeneratorPolicy>>({
     evaluator$(id: UserId) {
-      const evaluator = new PassphraseGeneratorOptionsEvaluator(policy);
+      const active = policy ?? {
+        minNumberWords: 0,
+        capitalize: false,
+        includeNumber: false,
+      };
+      const evaluator = new PassphraseGeneratorOptionsEvaluator(active);
       return of(evaluator);
     },
     options$(id: UserId) {
@@ -63,12 +67,21 @@ function createPassphraseGenerator(
 
 function createPasswordGenerator(
   options: PasswordGenerationOptions = {},
-  policy: PasswordGeneratorPolicy = Policies.Password.disabledValue,
+  policy?: PasswordGeneratorPolicy,
 ) {
   let savedOptions = options;
   const generator = mock<GeneratorService<PasswordGenerationOptions, PasswordGeneratorPolicy>>({
     evaluator$(id: UserId) {
-      const evaluator = new PasswordGeneratorOptionsEvaluator(policy);
+      const active = policy ?? {
+        minLength: 0,
+        useUppercase: false,
+        useLowercase: false,
+        useNumbers: false,
+        numberCount: 0,
+        useSpecial: false,
+        specialCount: 0,
+      };
+      const evaluator = new PasswordGeneratorOptionsEvaluator(active);
       return of(evaluator);
     },
     options$(id: UserId) {
@@ -118,7 +131,13 @@ describe("LegacyPasswordGenerationService", () => {
   describe("generatePassword", () => {
     it("invokes the inner password generator to generate passwords", async () => {
       const innerPassword = createPasswordGenerator();
-      const generator = new LegacyPasswordGenerationService(null, null, innerPassword, null, null);
+      const generator = new LegacyPasswordGenerationService(
+        null!,
+        null!,
+        innerPassword,
+        null!,
+        null!,
+      );
       const options = { type: "password" } as PasswordGeneratorOptions;
 
       await generator.generatePassword(options);
@@ -129,11 +148,11 @@ describe("LegacyPasswordGenerationService", () => {
     it("invokes the inner passphrase generator to generate passphrases", async () => {
       const innerPassphrase = createPassphraseGenerator();
       const generator = new LegacyPasswordGenerationService(
-        null,
-        null,
-        null,
+        null!,
+        null!,
+        null!,
         innerPassphrase,
-        null,
+        null!,
       );
       const options = { type: "passphrase" } as PasswordGeneratorOptions;
 
@@ -147,11 +166,11 @@ describe("LegacyPasswordGenerationService", () => {
     it("invokes the inner passphrase generator", async () => {
       const innerPassphrase = createPassphraseGenerator();
       const generator = new LegacyPasswordGenerationService(
-        null,
-        null,
-        null,
+        null!,
+        null!,
+        null!,
         innerPassphrase,
-        null,
+        null!,
       );
       const options = {} as PasswordGeneratorOptions;
 
@@ -185,7 +204,7 @@ describe("LegacyPasswordGenerationService", () => {
       const navigation = createNavigationGenerator({
         type: "passphrase",
         username: "word",
-        forwarder: "simplelogin" as IntegrationId,
+        forwarder: "simplelogin" as VendorId,
       });
       const accountService = mockAccountServiceWith(SomeUser);
       const generator = new LegacyPasswordGenerationService(
@@ -193,7 +212,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
-        null,
+        null!,
       );
 
       const [result] = await generator.getOptions();
@@ -220,16 +239,16 @@ describe("LegacyPasswordGenerationService", () => {
     });
 
     it("sets default options when an inner service lacks a value", async () => {
-      const innerPassword = createPasswordGenerator(null);
-      const innerPassphrase = createPassphraseGenerator(null);
-      const navigation = createNavigationGenerator(null);
+      const innerPassword = createPasswordGenerator(null!);
+      const innerPassphrase = createPassphraseGenerator(null!);
+      const navigation = createNavigationGenerator(null!);
       const accountService = mockAccountServiceWith(SomeUser);
       const generator = new LegacyPasswordGenerationService(
         accountService,
         navigation,
         innerPassword,
         innerPassphrase,
-        null,
+        null!,
       );
 
       const [result] = await generator.getOptions();
@@ -277,7 +296,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
-        null,
+        null!,
       );
 
       const [, policy] = await generator.getOptions();
@@ -323,7 +342,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
-        null,
+        null!,
       );
 
       const [result] = await generator.enforcePasswordGeneratorPoliciesOnOptions(options);
@@ -363,7 +382,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
-        null,
+        null!,
       );
 
       const [result] = await generator.enforcePasswordGeneratorPoliciesOnOptions(options);
@@ -409,7 +428,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
-        null,
+        null!,
       );
 
       const [, policy] = await generator.enforcePasswordGeneratorPoliciesOnOptions({});
@@ -441,7 +460,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
-        null,
+        null!,
       );
       const options = {
         type: "password" as const,
@@ -474,7 +493,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
-        null,
+        null!,
       );
       const options = {
         type: "passphrase" as const,
@@ -496,7 +515,7 @@ describe("LegacyPasswordGenerationService", () => {
       const navigation = createNavigationGenerator({
         type: "password",
         username: "forwarded",
-        forwarder: "firefoxrelay" as IntegrationId,
+        forwarder: "firefoxrelay" as VendorId,
       });
       const accountService = mockAccountServiceWith(SomeUser);
       const generator = new LegacyPasswordGenerationService(
@@ -504,7 +523,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
-        null,
+        null!,
       );
       const options = {
         type: "passphrase" as const,
@@ -533,9 +552,9 @@ describe("LegacyPasswordGenerationService", () => {
       const accountService = mockAccountServiceWith(SomeUser);
       const generator = new LegacyPasswordGenerationService(
         accountService,
-        null,
-        null,
-        null,
+        null!,
+        null!,
+        null!,
         history,
       );
 
@@ -552,9 +571,9 @@ describe("LegacyPasswordGenerationService", () => {
       const accountService = mockAccountServiceWith(SomeUser);
       const generator = new LegacyPasswordGenerationService(
         accountService,
-        null,
-        null,
-        null,
+        null!,
+        null!,
+        null!,
         history,
       );
 

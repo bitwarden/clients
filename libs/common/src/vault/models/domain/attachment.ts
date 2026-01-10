@@ -1,21 +1,22 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Attachment as SdkAttachment } from "@bitwarden/sdk-internal";
+
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { AttachmentData } from "../data/attachment.data";
 import { AttachmentView } from "../view/attachment.view";
 
 export class Attachment extends Domain {
-  id: string;
-  url: string;
-  size: string;
-  sizeName: string; // Readable size, ex: "4.2 KB" or "1.43 GB"
-  key: EncString;
-  fileName: EncString;
+  id?: string;
+  url?: string;
+  size?: string;
+  sizeName?: string; // Readable size, ex: "4.2 KB" or "1.43 GB"
+  key?: EncString;
+  fileName?: EncString;
 
   constructor(obj?: AttachmentData) {
     super();
@@ -23,68 +24,57 @@ export class Attachment extends Domain {
       return;
     }
 
+    this.id = obj.id;
+    this.url = obj.url;
     this.size = obj.size;
-    this.buildDomainModel(
-      this,
-      obj,
-      {
-        id: null,
-        url: null,
-        sizeName: null,
-        fileName: null,
-        key: null,
-      },
-      ["id", "url", "sizeName"],
-    );
+    this.sizeName = obj.sizeName;
+    this.fileName = conditionalEncString(obj.fileName);
+    this.key = conditionalEncString(obj.key);
   }
 
   async decrypt(
-    orgId: string,
+    decryptionKey: SymmetricCryptoKey,
     context = "No Cipher Context",
-    encKey?: SymmetricCryptoKey,
   ): Promise<AttachmentView> {
     const view = await this.decryptObj<Attachment, AttachmentView>(
       this,
       new AttachmentView(this),
       ["fileName"],
-      orgId,
-      encKey,
+      decryptionKey,
       "DomainType: Attachment; " + context,
     );
 
     if (this.key != null) {
-      view.key = await this.decryptAttachmentKey(orgId, encKey);
+      view.key = await this.decryptAttachmentKey(decryptionKey);
+      view.encryptedKey = this.key; // Keep the encrypted key for the view
     }
 
     return view;
   }
 
-  private async decryptAttachmentKey(orgId: string, encKey?: SymmetricCryptoKey) {
+  private async decryptAttachmentKey(
+    decryptionKey: SymmetricCryptoKey,
+  ): Promise<SymmetricCryptoKey | undefined> {
     try {
-      if (encKey == null) {
-        encKey = await this.getKeyForDecryption(orgId);
+      if (this.key == null) {
+        return undefined;
       }
 
       const encryptService = Utils.getContainerService().getEncryptService();
-      const decValue = await encryptService.decryptToBytes(this.key, encKey);
-      return new SymmetricCryptoKey(decValue);
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const decValue = await encryptService.unwrapSymmetricKey(this.key, decryptionKey);
+      return decValue;
     } catch (e) {
-      // TODO: error?
+      // eslint-disable-next-line no-console
+      console.error("[Attachment] Error decrypting attachment", e);
+      return undefined;
     }
-  }
-
-  private async getKeyForDecryption(orgId: string) {
-    const keyService = Utils.getContainerService().getKeyService();
-    return orgId != null
-      ? await keyService.getOrgKey(orgId)
-      : await keyService.getUserKeyWithLegacySupport();
   }
 
   toAttachmentData(): AttachmentData {
     const a = new AttachmentData();
-    a.size = this.size;
+    if (this.size != null) {
+      a.size = this.size;
+    }
     this.buildDataModel(
       this,
       a,
@@ -100,17 +90,55 @@ export class Attachment extends Domain {
     return a;
   }
 
-  static fromJSON(obj: Partial<Jsonify<Attachment>>): Attachment {
+  static fromJSON(obj: Partial<Jsonify<Attachment>> | undefined): Attachment | undefined {
     if (obj == null) {
-      return null;
+      return undefined;
     }
 
-    const key = EncString.fromJSON(obj.key);
-    const fileName = EncString.fromJSON(obj.fileName);
+    const attachment = new Attachment();
+    attachment.id = obj.id;
+    attachment.url = obj.url;
+    attachment.size = obj.size;
+    attachment.sizeName = obj.sizeName;
+    attachment.key = encStringFrom(obj.key);
+    attachment.fileName = encStringFrom(obj.fileName);
 
-    return Object.assign(new Attachment(), obj, {
-      key,
-      fileName,
-    });
+    return attachment;
+  }
+
+  /**
+   * Maps to SDK Attachment
+   *
+   * @returns {SdkAttachment} - The SDK Attachment object
+   */
+  toSdkAttachment(): SdkAttachment {
+    return {
+      id: this.id,
+      url: this.url,
+      size: this.size,
+      sizeName: this.sizeName,
+      fileName: this.fileName?.toSdk(),
+      key: this.key?.toSdk(),
+    };
+  }
+
+  /**
+   * Maps an SDK Attachment object to an Attachment
+   * @param obj - The SDK attachment object
+   */
+  static fromSdkAttachment(obj?: SdkAttachment): Attachment | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const attachment = new Attachment();
+    attachment.id = obj.id;
+    attachment.url = obj.url;
+    attachment.size = obj.size;
+    attachment.sizeName = obj.sizeName;
+    attachment.fileName = encStringFrom(obj.fileName);
+    attachment.key = encStringFrom(obj.key);
+
+    return attachment;
   }
 }

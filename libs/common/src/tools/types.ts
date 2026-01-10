@@ -2,6 +2,11 @@ import { Simplify } from "type-fest";
 
 import { IntegrationId } from "./integration";
 
+/** When this is a string, it contains the i18n key. When it is an object, the `literal` member
+ *  contains text that should not be translated.
+ */
+export type I18nKeyOrLiteral = string | { literal: string };
+
 /** Constraints that are shared by all primitive field types */
 type PrimitiveConstraint = {
   /** `true` indicates the field is required; otherwise the field is optional */

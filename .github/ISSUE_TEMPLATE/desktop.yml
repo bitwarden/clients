@@ -73,6 +73,7 @@ body:
         - Homebrew
         - Chocolatey
         - Snap
+        - Flatpak
         - Other
     validations:
       required: true

@@ -55,6 +55,7 @@ export const SupportedTranslationLocales: string[] = [
   "sl",
   "sr",
   "sv",
+  "ta",
   "te",
   "th",
   "tr",

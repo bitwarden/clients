@@ -1,8 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { import_ssh_key } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SshKey as SshKeyDomain } from "../../vault/models/domain/ssh-key";
 import { SshKeyView as SshKeyView } from "../../vault/models/view/ssh-key.view";
 
@@ -17,19 +16,32 @@ export class SshKeyExport {
     return req;
   }
 
-  static toView(req: SshKeyExport, view = new SshKeyView()) {
-    const parsedKey = import_ssh_key(req.privateKey);
-    view.privateKey = parsedKey.privateKey;
-    view.publicKey = parsedKey.publicKey;
-    view.keyFingerprint = parsedKey.fingerprint;
+  static toView(req?: SshKeyExport, view = new SshKeyView()): SshKeyView | undefined {
+    if (req == null) {
+      return undefined;
+    }
+
+    // Validate required fields
+    if (!req.privateKey || req.privateKey.trim() === "") {
+      throw new Error("SSH key private key is required.");
+    }
+    if (!req.publicKey || req.publicKey.trim() === "") {
+      throw new Error("SSH key public key is required.");
+    }
+    if (!req.keyFingerprint || req.keyFingerprint.trim() === "") {
+      throw new Error("SSH key fingerprint is required.");
+    }
+
+    view.privateKey = req.privateKey;
+    view.publicKey = req.publicKey;
+    view.keyFingerprint = req.keyFingerprint;
     return view;
   }
 
   static toDomain(req: SshKeyExport, domain = new SshKeyDomain()) {
-    const parsedKey = import_ssh_key(req.privateKey);
-    domain.privateKey = new EncString(parsedKey.privateKey);
-    domain.publicKey = new EncString(parsedKey.publicKey);
-    domain.keyFingerprint = new EncString(parsedKey.fingerprint);
+    domain.privateKey = new EncString(req.privateKey);
+    domain.publicKey = new EncString(req.publicKey);
+    domain.keyFingerprint = new EncString(req.keyFingerprint);
     return domain;
   }
 

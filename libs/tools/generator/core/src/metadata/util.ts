@@ -12,23 +12,23 @@ import {
 
 /** Returns true when the input algorithm is a password algorithm. */
 export function isPasswordAlgorithm(
-  algorithm: CredentialAlgorithm,
+  algorithm: CredentialAlgorithm | null,
 ): algorithm is PasswordAlgorithm {
   return AlgorithmsByType.password.includes(algorithm as any);
 }
 
 /** Returns true when the input algorithm is a username algorithm. */
 export function isUsernameAlgorithm(
-  algorithm: CredentialAlgorithm,
+  algorithm: CredentialAlgorithm | null,
 ): algorithm is UsernameAlgorithm {
   return AlgorithmsByType.username.includes(algorithm as any);
 }
 
 /** Returns true when the input algorithm is a forwarder integration. */
 export function isForwarderExtensionId(
-  algorithm: CredentialAlgorithm,
+  algorithm: CredentialAlgorithm | null,
 ): algorithm is ForwarderExtensionId {
-  return algorithm && typeof algorithm === "object" && "forwarder" in algorithm;
+  return !!(algorithm && typeof algorithm === "object" && "forwarder" in algorithm);
 }
 
 /** Extract a `VendorId` from a `CredentialAlgorithm`.

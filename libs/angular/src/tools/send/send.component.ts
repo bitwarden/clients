@@ -9,9 +9,9 @@ import {
   from,
   switchMap,
   takeUntil,
+  combineLatest,
 } from "rxjs";
 
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -24,6 +24,7 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 @Directive()
@@ -85,18 +86,23 @@ export class SendComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.DisableSend)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((policyAppliesToActiveUser) => {
-        this.disableSend = policyAppliesToActiveUser;
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((policyAppliesToUser) => {
+        this.disableSend = policyAppliesToUser;
       });
 
-    this._searchText$
+    combineLatest([this._searchText$, this.accountService.activeAccount$.pipe(getUserId)])
       .pipe(
-        switchMap((searchText) => from(this.searchService.isSearchable(userId, searchText))),
+        switchMap(([searchText, userId]) =>
+          from(this.searchService.isSearchable(userId, searchText)),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((isSearchable) => {

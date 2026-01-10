@@ -1,7 +1,6 @@
 <details #details class="tw-rounded-sm tw-bg-background-alt tw-text-main" (toggle)="toggle()" open>
   <summary class="tw-list-none tw-p-2 tw-px-4">
     <div class="tw-flex tw-select-none tw-items-center tw-gap-4">
-      <i class="bwi bwi-dashboard tw-text-3xl tw-text-primary-600" aria-hidden="true"></i>
       <div class="tw-text-lg">{{ title }}</div>
       <bit-progress class="tw-flex-1" [showText]="false" [barWidth]="barWidth"></bit-progress>
       <span *ngIf="tasks.length > 0; else spinner">

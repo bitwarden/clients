@@ -5,6 +5,7 @@ import { NgControl } from "@angular/forms";
 
 @Directive({
   selector: "input[appInputStripSpaces]",
+  standalone: false,
 })
 export class InputStripSpacesDirective {
   constructor(

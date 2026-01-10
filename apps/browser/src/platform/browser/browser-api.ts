@@ -2,7 +2,10 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
+import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
+import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { DeviceType } from "@bitwarden/common/enums";
+import { LogService } from "@bitwarden/logging";
 import { isBrowserSafariApi } from "@bitwarden/platform";
 
 import { TabMessage } from "../../types/tab-messages";
@@ -28,6 +31,62 @@ export class BrowserApi {
    */
   static isManifestVersion(expectedVersion: 2 | 3) {
     return BrowserApi.manifestVersion === expectedVersion;
+  }
+
+  /**
+   * Helper method that attempts to distinguish whether a message sender is internal to the extension or not.
+   *
+   * Currently this is done through source origin matching, and frameId checking (only top-level frames are internal).
+   * @param sender a message sender
+   * @param logger an optional logger to log validation results
+   * @returns whether or not the sender appears to be internal to the extension
+   */
+  static senderIsInternal(
+    sender: chrome.runtime.MessageSender | undefined,
+    logger?: LogService,
+  ): boolean {
+    if (!sender?.origin) {
+      logger?.warning("[BrowserApi] Message sender has no origin");
+      return false;
+    }
+    const extensionUrl =
+      (typeof chrome !== "undefined" && chrome.runtime?.getURL("")) ||
+      (typeof browser !== "undefined" && browser.runtime?.getURL("")) ||
+      "";
+
+    if (!extensionUrl) {
+      logger?.warning("[BrowserApi] Unable to determine extension URL");
+      return false;
+    }
+
+    // Normalize both URLs by removing trailing slashes
+    const normalizedOrigin = sender.origin.replace(/\/$/, "").toLowerCase();
+    const normalizedExtensionUrl = extensionUrl.replace(/\/$/, "").toLowerCase();
+
+    if (!normalizedOrigin.startsWith(normalizedExtensionUrl)) {
+      logger?.warning(
+        `[BrowserApi] Message sender origin (${normalizedOrigin}) does not match extension URL (${normalizedExtensionUrl})`,
+      );
+      return false;
+    }
+
+    // We only send messages from the top-level frame, but frameId is only set if tab is set, which for popups it is not.
+    if ("frameId" in sender && sender.frameId !== 0) {
+      logger?.warning("[BrowserApi] Message sender is not from the top-level frame");
+      return false;
+    }
+
+    logger?.info("[BrowserApi] Message sender appears to be internal");
+    return true;
+  }
+
+  /**
+   * Gets all open browser windows, including their tabs.
+   *
+   * @returns A promise that resolves to an array of browser windows.
+   */
+  static async getWindows(): Promise<chrome.windows.Window[]> {
+    return new Promise((resolve) => chrome.windows.getAll({ populate: true }, resolve));
   }
 
   /**
@@ -125,10 +184,31 @@ export class BrowserApi {
   }
 
   static async getTabFromCurrentWindowId(): Promise<chrome.tabs.Tab> | null {
-    return await BrowserApi.tabsQueryFirst({
+    return await BrowserApi.tabsQueryFirstCurrentWindowForSafari({
       active: true,
       windowId: chrome.windows.WINDOW_ID_CURRENT,
     });
+  }
+
+  static getBrowserClientVendor(clientWindow: Window): BrowserClientVendor {
+    const device = BrowserPlatformUtilsService.getDevice(clientWindow);
+
+    switch (device) {
+      case DeviceType.ChromeExtension:
+      case DeviceType.ChromeBrowser:
+        return BrowserClientVendors.Chrome;
+      case DeviceType.OperaExtension:
+      case DeviceType.OperaBrowser:
+        return BrowserClientVendors.Opera;
+      case DeviceType.EdgeExtension:
+      case DeviceType.EdgeBrowser:
+        return BrowserClientVendors.Edge;
+      case DeviceType.VivaldiExtension:
+      case DeviceType.VivaldiBrowser:
+        return BrowserClientVendors.Vivaldi;
+      default:
+        return BrowserClientVendors.Unknown;
+    }
   }
 
   /**
@@ -153,7 +233,7 @@ export class BrowserApi {
   }
 
   static async getTabFromCurrentWindow(): Promise<chrome.tabs.Tab> | null {
-    return await BrowserApi.tabsQueryFirst({
+    return await BrowserApi.tabsQueryFirstCurrentWindowForSafari({
       active: true,
       currentWindow: true,
     });
@@ -180,6 +260,47 @@ export class BrowserApi {
     );
   }
 
+  /**
+   * Closes a browser tab with the given id
+   *
+   * @param tabId The id of the tab to close
+   */
+  static async closeTab(tabId: number): Promise<void> {
+    if (tabId) {
+      if (BrowserApi.isWebExtensionsApi) {
+        await browser.tabs.remove(tabId).catch((error) => {
+          throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+        });
+      } else if (BrowserApi.isChromeApi) {
+        await chrome.tabs.remove(tabId).catch((error) => {
+          throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+        });
+      }
+    }
+  }
+
+  /**
+   * Navigates a browser tab to the given URL
+   *
+   * @param tabId The id of the tab to navigate
+   * @param url The URL to navigate to
+   */
+  static async navigateTabToUrl(tabId: number, url: URL): Promise<void> {
+    if (tabId) {
+      if (BrowserApi.isWebExtensionsApi) {
+        await browser.tabs.update(tabId, { url: url.href }).catch((error) => {
+          throw new Error("Failed to navigate tab to URL: " + error.message);
+        });
+      } else if (BrowserApi.isChromeApi) {
+        chrome.tabs.update(tabId, { url: url.href }, () => {
+          if (chrome.runtime.lastError) {
+            throw new Error("Failed to navigate tab to URL: " + chrome.runtime.lastError.message);
+          }
+        });
+      }
+    }
+  }
+
   static async tabsQuery(options: chrome.tabs.QueryInfo): Promise<chrome.tabs.Tab[]> {
     return new Promise((resolve) => {
       chrome.tabs.query(options, (tabs) => {
@@ -195,6 +316,51 @@ export class BrowserApi {
     }
 
     return null;
+  }
+
+  /**
+   * Drop-in replacement for {@link BrowserApi.tabsQueryFirst}.
+   *
+   * Safari sometimes returns >1 tabs unexpectedly even when
+   * specifying a `windowId` or `currentWindow: true` query option.
+   *
+   * For all of these calls,
+   * ```
+   * await chrome.tabs.query({active: true, currentWindow: true})
+   * await chrome.tabs.query({active: true, windowId: chrome.windows.WINDOW_ID_CURRENT})
+   * await chrome.tabs.query({active: true, windowId: 10})
+   * ```
+   *
+   * Safari could return:
+   * ```
+   * [
+   *   {windowId: 2, pinned: true, title: "Incorrect tab in another window", …},
+   *   {windowId: 10, title: "Correct tab in foreground", …},
+   * ]
+   * ```
+   *
+   * This function captures the current window ID manually before running the query,
+   * then finds and returns the tab with the matching window ID.
+   *
+   * See the `SafariTabsQuery` tests in `browser-api.spec.ts`.
+   *
+   * This workaround can be removed when Safari fixes this bug.
+   */
+  static async tabsQueryFirstCurrentWindowForSafari(
+    options: chrome.tabs.QueryInfo,
+  ): Promise<chrome.tabs.Tab> | null {
+    if (!BrowserApi.isSafariApi) {
+      return await BrowserApi.tabsQueryFirst(options);
+    }
+
+    const currentWindowId = (await BrowserApi.getCurrentWindow()).id;
+    const tabs = await BrowserApi.tabsQuery(options);
+
+    if (tabs.length <= 1 || currentWindowId == null) {
+      return tabs[0];
+    }
+
+    return tabs.find((t) => t.windowId === currentWindowId) ?? tabs[0];
   }
 
   static tabSendMessageData(
@@ -241,6 +407,14 @@ export class BrowserApi {
     responseCallback?: (response: T) => void,
   ) {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
+  }
+
+  static getRuntimeURL(path: string): string {
+    if (BrowserApi.isWebExtensionsApi) {
+      return browser.runtime.getURL(path);
+    } else if (BrowserApi.isChromeApi) {
+      return chrome.runtime.getURL(path);
+    }
   }
 
   static async onWindowCreated(callback: (win: chrome.windows.Window) => any) {
@@ -369,7 +543,7 @@ export class BrowserApi {
    * @param event - The event in which to add the listener to.
    * @param callback - The callback you want registered onto the event.
    */
-  static addListener<T extends (...args: readonly unknown[]) => unknown>(
+  static addListener<T extends (...args: readonly any[]) => any>(
     event: chrome.events.Event<T>,
     callback: T,
   ) {
@@ -559,29 +733,27 @@ export class BrowserApi {
    */
   static executeScriptInTab(
     tabId: number,
-    details: chrome.tabs.InjectDetails,
+    details: chrome.extensionTypes.InjectDetails,
     scriptingApiDetails?: {
       world: chrome.scripting.ExecutionWorld;
     },
   ): Promise<unknown> {
     if (BrowserApi.isManifestVersion(3)) {
-      const target: chrome.scripting.InjectionTarget = {
-        tabId,
-      };
+      let target: chrome.scripting.InjectionTarget;
 
       if (typeof details.frameId === "number") {
-        target.frameIds = [details.frameId];
-      }
-
-      if (!target.frameIds?.length && details.allFrames) {
-        target.allFrames = details.allFrames;
+        target = { tabId, frameIds: [details.frameId] };
+      } else if (details.allFrames) {
+        target = { tabId, allFrames: true };
+      } else {
+        target = { tabId };
       }
 
       return chrome.scripting.executeScript({
         target,
         files: details.file ? [details.file] : null,
         injectImmediately: details.runAt === "document_start",
-        world: scriptingApiDetails?.world || "ISOLATED",
+        world: scriptingApiDetails?.world || chrome.scripting.ExecutionWorld.ISOLATED,
       });
     }
 
@@ -596,6 +768,10 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    if (!(await BrowserApi.permissionsGranted(["privacy"]))) {
+      return false;
+    }
+
     const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
 

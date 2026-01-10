@@ -13,12 +13,15 @@ import {
 import { BehaviorSubject, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { UserVerificationBiometricsIcon } from "@bitwarden/assets/svg";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { UserVerificationOptions } from "@bitwarden/common/auth/types/user-verification-options";
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -29,8 +32,6 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 
-import { UserVerificationBiometricsIcon } from "../icons";
-
 import { ActiveClientVerificationOption } from "./active-client-verification-option.enum";
 
 /**
@@ -39,6 +40,8 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
  * This is exposed to the parent component via the ControlValueAccessor interface (e.g. bind it to a FormControl).
  * Use UserVerificationService to verify the user's input.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-user-verification-form-input",
   templateUrl: "user-verification-form-input.component.html",
@@ -54,7 +57,6 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
       transition(":enter", [style({ opacity: 0 }), animate("100ms", style({ opacity: 1 }))]),
     ]),
   ],
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -69,8 +71,12 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
   ],
 })
 export class UserVerificationFormInputComponent implements ControlValueAccessor, OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() verificationType: "server" | "client" = "server"; // server represents original behavior
   private _invalidSecret = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get invalidSecret() {
     return this._invalidSecret;
@@ -88,11 +94,17 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
     }
     this.secret.updateValueAndValidity({ emitEvent: false });
   }
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() invalidSecretChange = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() activeClientVerificationOptionChange =
     new EventEmitter<ActiveClientVerificationOption>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() biometricsVerificationResultChange = new EventEmitter<boolean>();
 
   readonly Icons = { UserVerificationBiometricsIcon };

@@ -1,17 +1,22 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
 
-import { PasswordInputResult, RegistrationFinishService } from "@bitwarden/auth/angular";
+import {
+  InputPasswordFlow,
+  PasswordInputResult,
+  RegistrationFinishService,
+} from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import {
   OrganizationBillingServiceAbstraction as OrganizationBillingService,
   OrganizationInformation,
@@ -24,31 +29,36 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
+import { UserId } from "@bitwarden/user-core";
+import { Trial } from "@bitwarden/web-vault/app/billing/trial-initiation/trial-billing-step/trial-billing-step.service";
 
-import { AcceptOrganizationInviteService } from "../../../auth/organization-invite/accept-organization.service";
-import {
-  OrganizationCreatedEvent,
-  SubscriptionProduct,
-  TrialOrganizationType,
-} from "../../../billing/accounts/trial-initiation/trial-billing-step.component";
 import { RouterService } from "../../../core/router.service";
+import { OrganizationCreatedEvent } from "../trial-billing-step/trial-billing-step.component";
 import { VerticalStepperComponent } from "../vertical-stepper/vertical-stepper.component";
 
 export type InitiationPath =
   | "Password Manager trial from marketing website"
   | "Secrets Manager trial from marketing website";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-complete-trial-initiation",
   templateUrl: "complete-trial-initiation.component.html",
+  standalone: false,
 })
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
-  @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild("stepper", { static: false }) verticalStepper!: VerticalStepperComponent;
+
+  inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
+  initializing = true;
 
   /** Password Manager or Secrets Manager */
-  product: ProductType;
+  product?: ProductType;
   /** The tier of product being subscribed to */
-  productTier: ProductTierType;
+  productTier!: ProductTierType;
   /** Product types that display steppers for Password Manager */
   stepperProductTypes: ProductTierType[] = [
     ProductTierType.Teams,
@@ -69,14 +79,16 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   orgId = "";
   orgLabel = "";
   billingSubLabel = "";
-  enforcedPolicyOptions: MasterPasswordPolicyOptions;
+  enforcedPolicyOptions?: MasterPasswordPolicyOptions;
 
   /** User's email address associated with the trial */
   email = "";
   /** Token from the backend associated with the email verification */
-  emailVerificationToken: string;
+  emailVerificationToken?: string;
   loading = false;
-  productTierValue: number;
+  productTierValue?: ProductTierType;
+
+  trialLength!: number;
 
   orgInfoFormGroup = this.formBuilder.group({
     name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
@@ -84,7 +96,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   });
 
   private destroy$ = new Subject<void>();
-  protected readonly SubscriptionProduct = SubscriptionProduct;
   protected readonly ProductType = ProductType;
   protected trialPaymentOptional$ = this.configService.getFeatureFlag$(
     FeatureFlag.TrialPaymentOptional,
@@ -100,12 +111,13 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private routerService: RouterService,
     private organizationBillingService: OrganizationBillingService,
-    private acceptOrganizationInviteService: AcceptOrganizationInviteService,
+    private organizationInviteService: OrganizationInviteService,
     private toastService: ToastService,
     private registrationFinishService: RegistrationFinishService,
     private validationService: ValidationService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -119,7 +131,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       // Show email validation toast when coming from email
       if (qParams.fromEmail && qParams.fromEmail === "true") {
         this.toastService.showToast({
-          title: null,
+          title: "",
           message: this.i18nService.t("emailVerifiedV2"),
           variant: "success",
         });
@@ -151,15 +163,23 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
         this.useTrialStepper = true;
       }
 
+      this.trialLength = qParams.trialLength ? parseInt(qParams.trialLength) : 7;
+
       // Are they coming from an email for sponsoring a families organization
       // After logging in redirect them to setup the families sponsorship
       this.setupFamilySponsorship(qParams.sponsorshipToken);
     });
 
-    const invite = await this.acceptOrganizationInviteService.getOrganizationInvite();
-    let policies: Policy[] | null = null;
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    let policies: Policy[] | undefined | null = null;
 
-    if (invite != null) {
+    if (
+      invite != null &&
+      invite.organizationId &&
+      invite.token &&
+      invite.email &&
+      invite.organizationUserId
+    ) {
       try {
         policies = await this.policyApiService.getPoliciesByToken(
           invite.organizationId,
@@ -173,9 +193,12 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
 
     if (policies !== null) {
-      this.policyService
-        .masterPasswordPolicyOptions$(policies)
-        .pipe(takeUntil(this.destroy$))
+      this.accountService.activeAccount$
+        .pipe(
+          getUserId,
+          switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
+          takeUntil(this.destroy$),
+        )
         .subscribe((enforcedPasswordPolicyOptions) => {
           this.enforcedPolicyOptions = enforcedPasswordPolicyOptions;
         });
@@ -186,6 +209,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.orgInfoFormGroup.controls.name.markAsTouched();
       });
+
+    this.initializing = false;
   }
 
   ngOnDestroy(): void {
@@ -198,17 +223,19 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     if (event.selectedIndex === 1 && this.orgInfoFormGroup.controls.name.value === "") {
       this.orgInfoSubLabel = this.planInfoLabel;
     } else if (event.previouslySelectedIndex === 1) {
-      this.orgInfoSubLabel = this.orgInfoFormGroup.controls.name.value;
+      this.orgInfoSubLabel = this.orgInfoFormGroup.controls.name.value!;
     }
   }
 
   async orgNameEntrySubmit(): Promise<void> {
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const isTrialPaymentOptional = await firstValueFrom(this.trialPaymentOptional$);
 
-    if (isTrialPaymentOptional) {
-      await this.createOrganizationOnTrial();
+    /** Only skip payment if the flag is on AND trialLength > 0 */
+    if (isTrialPaymentOptional && this.trialLength > 0) {
+      await this.createOrganizationOnTrial(activeUserId);
     } else {
-      await this.conditionallyCreateOrganization();
+      await this.conditionallyCreateOrganization(activeUserId);
     }
   }
 
@@ -220,11 +247,11 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   }
 
   /** create an organization on trial without payment method */
-  async createOrganizationOnTrial() {
+  async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
     let trialInitiationPath: InitiationPath = "Password Manager trial from marketing website";
     let plan: PlanInformation = {
-      type: this.getPlanType(),
+      type: await this.getPlanType(),
       passwordManagerSeats: 1,
     };
 
@@ -239,15 +266,21 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
 
     const organization: OrganizationInformation = {
-      name: this.orgInfoFormGroup.value.name,
-      billingEmail: this.orgInfoFormGroup.value.billingEmail,
+      name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
+      billingEmail:
+        this.orgInfoFormGroup.value.billingEmail == null
+          ? ""
+          : this.orgInfoFormGroup.value.billingEmail,
       initiationPath: trialInitiationPath,
     };
 
-    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod({
-      organization,
-      plan,
-    });
+    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod(
+      {
+        organization,
+        plan,
+      },
+      activeUserId,
+    );
 
     this.orgId = response?.id;
     this.billingSubLabel = response.name.toString();
@@ -260,14 +293,21 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     this.verticalStepper.previous();
   }
 
-  getPlanType() {
+  async getPlanType() {
+    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM26462_Milestone_3,
+    );
+    const familyPlan = milestone3FeatureEnabled
+      ? PlanType.FamiliesAnnually
+      : PlanType.FamiliesAnnually2025;
+
     switch (this.productTier) {
       case ProductTierType.Teams:
         return PlanType.TeamsAnnually;
       case ProductTierType.Enterprise:
         return PlanType.EnterpriseAnnually;
       case ProductTierType.Families:
-        return PlanType.FamiliesAnnually;
+        return familyPlan;
       case ProductTierType.Free:
         return PlanType.Free;
       default:
@@ -305,32 +345,40 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
-  get trialOrganizationType(): TrialOrganizationType {
-    if (this.productTier === ProductTierType.Free) {
-      return null;
-    }
-
-    return this.productTier;
-  }
+  readonly showBillingStep$ = this.trialPaymentOptional$.pipe(
+    map((trialPaymentOptional) => {
+      return (
+        (!trialPaymentOptional && !this.isSecretsManagerFree) ||
+        (trialPaymentOptional && this.trialLength === 0)
+      );
+    }),
+  );
 
   /** Create an organization unless the trial is for secrets manager */
-  async conditionallyCreateOrganization(): Promise<void> {
+  async conditionallyCreateOrganization(activeUserId: UserId): Promise<void> {
     if (!this.isSecretsManagerFree) {
       this.verticalStepper.next();
       return;
     }
 
-    const response = await this.organizationBillingService.startFree({
-      organization: {
-        name: this.orgInfoFormGroup.value.name,
-        billingEmail: this.orgInfoFormGroup.value.billingEmail,
+    const response = await this.organizationBillingService.startFree(
+      {
+        organization: {
+          name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
+          billingEmail:
+            this.orgInfoFormGroup.value.billingEmail == null
+              ? ""
+              : this.orgInfoFormGroup.value.billingEmail,
+          initiationPath: "Password Manager trial from marketing website",
+        },
+        plan: {
+          type: 0,
+          subscribeToSecretsManager: true,
+          isFromSecretsManagerTrial: true,
+        },
       },
-      plan: {
-        type: 0,
-        subscribeToSecretsManager: true,
-        isFromSecretsManagerTrial: true,
-      },
-    });
+      activeUserId,
+    );
 
     this.orgId = response.id;
     this.verticalStepper.next();
@@ -350,14 +398,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const captchaToken = await this.finishRegistration(passwordInputResult);
+    await this.finishRegistration(passwordInputResult);
 
-    if (captchaToken == null) {
-      this.submitting = false;
-      return;
-    }
-
-    await this.logIn(passwordInputResult.password, captchaToken);
+    await this.logIn(passwordInputResult.newPassword);
 
     this.submitting = false;
 
@@ -373,26 +416,43 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Logs the user in based using the token received by the `finishRegistration` method */
-  private async logIn(masterPassword: string, captchaBypassToken: string): Promise<void> {
-    const credentials = new PasswordLoginCredentials(
-      this.email,
-      masterPassword,
-      captchaBypassToken,
-      null,
-    );
+  /** Logs the user in */
+  private async logIn(masterPassword: string): Promise<void> {
+    const credentials = new PasswordLoginCredentials(this.email, masterPassword);
 
     await this.loginStrategyService.logIn(credentials);
   }
 
-  finishRegistration(passwordInputResult: PasswordInputResult) {
+  async finishRegistration(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
     return this.registrationFinishService
       .finishRegistration(this.email, passwordInputResult, this.emailVerificationToken)
-      .catch((e) => {
+      .catch((e: unknown): null => {
         this.validationService.showError(e);
         this.submitting = false;
         return null;
       });
+  }
+
+  get trial(): Trial {
+    const product =
+      this.product === ProductType.PasswordManager ? "passwordManager" : "secretsManager";
+
+    const tier =
+      this.productTier === ProductTierType.Families
+        ? "families"
+        : this.productTier === ProductTierType.Teams
+          ? "teams"
+          : "enterprise";
+
+    return {
+      organization: {
+        name: this.orgInfoFormGroup.value.name!,
+        email: this.orgInfoFormGroup.value.billingEmail!,
+      },
+      product,
+      tier,
+      length: this.trialLength,
+    };
   }
 }

@@ -6,6 +6,7 @@ import {
   awaitAsync,
   FakeAccountService,
   FakeStateProvider,
+  mockAccountInfoWith,
   ObservableTracker,
 } from "../../../spec";
 import { Account } from "../../auth/abstractions/account.service";
@@ -23,17 +24,19 @@ import { UserStateSubject } from "./user-state-subject";
 const SomeUser = "some user" as UserId;
 const SomeAccount = {
   id: SomeUser,
-  email: "someone@example.com",
-  emailVerified: true,
-  name: "Someone",
+  ...mockAccountInfoWith({
+    email: "someone@example.com",
+    name: "Someone",
+  }),
 };
 const SomeAccount$ = new BehaviorSubject<Account>(SomeAccount);
 
 const SomeOtherAccount = {
   id: "some other user" as UserId,
-  email: "someone@example.com",
-  emailVerified: true,
-  name: "Someone",
+  ...mockAccountInfoWith({
+    email: "someone@example.com",
+    name: "Someone",
+  }),
 };
 
 type TestType = { foo: string };
@@ -90,6 +93,7 @@ const SomeProvider = {
   } as LegacyEncryptorProvider,
   state: SomeStateProvider,
   log: disabledSemanticLoggerProvider,
+  now: () => 100,
 };
 
 function fooMaxLength(maxLength: number): StateConstraints<TestType> {

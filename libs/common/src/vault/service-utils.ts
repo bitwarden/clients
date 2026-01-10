@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+
 import { ITreeNodeObject, TreeNode } from "./models/domain/tree-node";
 
 export class ServiceUtils {
@@ -24,38 +25,24 @@ export class ServiceUtils {
       return;
     }
 
+    // 'end' indicates we've traversed as far as we can based on the object name
     const end: boolean = partIndex === parts.length - 1;
     const partName: string = parts[partIndex];
 
-    for (let i = 0; i < nodeTree.length; i++) {
-      if (nodeTree[i].node.name !== partName) {
-        continue;
-      }
-      if (end && nodeTree[i].node.id !== obj.id) {
-        // Another node exists with the same name as the node being added
-        nodeTree.push(new TreeNode(obj, parent, partName));
-        return;
-      }
-      // Move down the tree to the next level
-      ServiceUtils.nestedTraverse(
-        nodeTree[i].children,
-        partIndex + 1,
-        parts,
-        obj,
-        nodeTree[i],
-        delimiter,
-      );
+    // If we're at the end, just add the node - it doesn't matter what else is here
+    if (end) {
+      nodeTree.push(new TreeNode(obj, parent, partName));
       return;
     }
 
-    // If there's no node here with the same name...
-    if (nodeTree.filter((n) => n.node.name === partName).length === 0) {
-      // And we're at the end of the path given, add the node
-      if (end) {
-        nodeTree.push(new TreeNode(obj, parent, partName));
-        return;
-      }
-      // And we're not at the end of the path, combine the current name with the next name
+    // Get matching nodes at this level by name
+    // NOTE: this is effectively a loop so we only want to do it once
+    const matchingNodes = nodeTree.filter((n) => n.node.name === partName);
+
+    // If there are no matching nodes...
+    if (matchingNodes.length === 0) {
+      // And we're not at the end of the path (because we didn't trigger the early return above),
+      // combine the current name with the next name.
       // 1, *1.2, 1.2.1 becomes
       // 1, *1.2/1.2.1
       const newPartName = partName + delimiter + parts[partIndex + 1];
@@ -67,14 +54,25 @@ export class ServiceUtils {
         parent,
         delimiter,
       );
+    } else {
+      // There is a node here with the same name, descend into it
+      ServiceUtils.nestedTraverse(
+        matchingNodes[0].children,
+        partIndex + 1,
+        parts,
+        obj,
+        matchingNodes[0],
+        delimiter,
+      );
+      return;
     }
   }
 
   /**
    * Searches a tree for a node with a matching `id`
-   * @param {TreeNode<T>} nodeTree - A single TreeNode branch that will be searched
+   * @param {TreeNode<T extends ITreeNodeObject>} nodeTree - A single TreeNode branch that will be searched
    * @param {string} id - The id of the node to be found
-   * @returns {TreeNode<T>} The node with a matching `id`
+   * @returns {TreeNode<T extends ITreeNodeObject>} The node with a matching `id`
    */
   static getTreeNodeObject<T extends ITreeNodeObject>(
     nodeTree: TreeNode<T>,
@@ -96,9 +94,9 @@ export class ServiceUtils {
 
   /**
    * Searches an array of tree nodes for a node with a matching `id`
-   * @param {TreeNode<T>} nodeTree - An array of TreeNode branches that will be searched
+   * @param {TreeNode<T extends ITreeNodeObject>} nodeTree - An array of TreeNode branches that will be searched
    * @param {string} id - The id of the node to be found
-   * @returns {TreeNode<T>} The node with a matching `id`
+   * @returns {TreeNode<T extends ITreeNodeObject>} The node with a matching `id`
    */
   static getTreeNodeObjectFromList<T extends ITreeNodeObject>(
     nodeTree: TreeNode<T>[],

@@ -69,8 +69,8 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 if let url = panel.url {
                     do {
                         let fileManager = FileManager.default
-                        if !fileManager.fileExists(atPath: url.absoluteString) {
-                            fileManager.createFile(atPath: url.absoluteString, contents: Data(),
+                        if !fileManager.fileExists(atPath: url.path) {
+                            fileManager.createFile(atPath: url.path, contents: Data(),
                                                    attributes: nil)
                         }
                         try data.write(to: url)
@@ -152,7 +152,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 response.userInfo = [
                     SFExtensionMessageKey: [
                         "message": [
-                            "command": "biometricUnlock",
+                            "command": "unlockWithBiometricsForUser",
                             "response": false,
                             "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                             "messageId": messageId,
@@ -177,7 +177,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 response.userInfo = [
                     SFExtensionMessageKey: [
                         "message": [
-                            "command": "biometricUnlock",
+                            "command": "unlockWithBiometricsForUser",
                             "response": false,
                             "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                             "messageId": messageId,
@@ -209,7 +209,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
                         response.userInfo = [ SFExtensionMessageKey: [
                             "message": [
-                                "command": "biometricUnlock",
+                                "command": "unlockWithBiometricsForUser",
                                 "response": true,
                                 "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                                 "userKeyB64": result!.replacingOccurrences(of: "\"", with: ""),
@@ -220,7 +220,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                         response.userInfo = [
                             SFExtensionMessageKey: [
                                 "message": [
-                                    "command": "biometricUnlock",
+                                    "command": "unlockWithBiometricsForUser",
                                     "response": true,
                                     "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                                     "messageId": messageId,

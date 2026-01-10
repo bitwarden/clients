@@ -20,7 +20,12 @@ import {
   startWith,
   pairwise,
   MonoTypeOperatorFunction,
+  Cons,
+  scan,
+  filter,
 } from "rxjs";
+
+import { ObservableTuple } from "./rx.rxjs";
 
 /** Returns its input. */
 function identity(value: any): any {
@@ -164,26 +169,30 @@ export function ready<T>(watch$: Observable<any> | Observable<any>[]) {
   );
 }
 
-export function withLatestReady<Source, Watch>(
-  watch$: Observable<Watch>,
-): OperatorFunction<Source, [Source, Watch]> {
+export function withLatestReady<Source, Watch extends readonly unknown[]>(
+  ...watches$: [...ObservableTuple<Watch>]
+): OperatorFunction<Source, Cons<Source, Watch>> {
   return connect((source$) => {
     // these subscriptions are safe because `source$` connects only after there
     // is an external subscriber.
     const source = new ReplaySubject<Source>(1);
     source$.subscribe(source);
-    const watch = new ReplaySubject<Watch>(1);
-    watch$.subscribe(watch);
+
+    const watches = watches$.map((w) => {
+      const watch$ = new ReplaySubject<unknown>(1);
+      w.subscribe(watch$);
+      return watch$;
+    }) as [...ObservableTuple<Watch>];
 
     // `concat` is subscribed immediately after it's returned, at which point
-    // `zip` blocks until all items in `watching$` are ready. If that occurs
+    // `zip` blocks until all items in `watches` are ready. If that occurs
     // after `source$` is hot, then the replay subject sends the last-captured
-    // emission through immediately. Otherwise, `ready` waits for the next
-    // emission
-    return concat(zip(watch).pipe(first(), ignoreElements()), source).pipe(
-      withLatestFrom(watch),
+    // emission through immediately. Otherwise, `withLatestFrom` waits for the
+    // next emission
+    return concat(zip(watches).pipe(first(), ignoreElements()), source).pipe(
+      withLatestFrom(...watches),
       takeUntil(anyComplete(source)),
-    );
+    ) as Observable<Cons<Source, Watch>>;
   });
 }
 
@@ -236,5 +245,56 @@ export function pin<T>(options?: {
         return value;
       }
     }),
+  );
+}
+
+/** maps a value to a result and keeps a cache of the mapping
+ *  @param mapResult - maps the stream to a result; this function must return
+ *    a value. It must not return null or undefined.
+ *  @param options.size - the number of entries in the cache
+ *  @param options.key - maps the source to a cache key
+ *  @remarks this method is useful for optimization of expensive
+ *    `mapResult` calls. It's also useful when an interned reference type
+ *    is needed.
+ */
+export function memoizedMap<Source, Result extends NonNullable<any>>(
+  mapResult: (source: Source) => Result,
+  options?: { size?: number; key?: (source: Source) => unknown },
+): OperatorFunction<Source, Result> {
+  return pipe(
+    // scan's accumulator contains the cache
+    scan(
+      ([cache], source) => {
+        const key: unknown = options?.key?.(source) ?? source;
+
+        // cache hit?
+        let result = cache?.get(key);
+        if (result) {
+          return [cache, result] as const;
+        }
+
+        // cache miss
+        result = mapResult(source);
+        cache?.set(key, result);
+
+        // trim cache
+        const overage = cache.size - (options?.size ?? 1);
+        if (overage > 0) {
+          Array.from(cache?.keys() ?? [])
+            .slice(0, overage)
+            .forEach((k) => cache?.delete(k));
+        }
+
+        return [cache, result] as const;
+      },
+      // FIXME: upgrade to a least-recently-used cache
+      [new Map(), null] as [Map<unknown, Result>, Source | null],
+    ),
+
+    // encapsulate cache
+    map(([, result]) => result),
+
+    // preserve `NonNullable` constraint on `Result`
+    filter((result): result is Result => !!result),
   );
 }

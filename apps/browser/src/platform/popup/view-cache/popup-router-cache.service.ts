@@ -5,16 +5,21 @@ import { Injectable, inject } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
   CanActivateFn,
+  Data,
   NavigationEnd,
   Router,
   UrlSerializer,
+  UrlTree,
 } from "@angular/router";
-import { filter, first, firstValueFrom, map, Observable, switchMap, tap } from "rxjs";
+import { filter, first, firstValueFrom, map, Observable, of, switchMap, tap } from "rxjs";
 
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
-import { POPUP_ROUTE_HISTORY_KEY } from "../../../platform/services/popup-view-cache-background.service";
-import BrowserPopupUtils from "../browser-popup-utils";
+import {
+  POPUP_ROUTE_HISTORY_KEY,
+  RouteHistoryCacheState,
+} from "../../../platform/services/popup-view-cache-background.service";
+import BrowserPopupUtils from "../../browser/browser-popup-utils";
 
 /**
  * Preserves route history when opening and closing the popup
@@ -31,13 +36,17 @@ export class PopupRouterCacheService {
 
   private hasNavigated = false;
 
+  private _hasRestoredCache = false;
+  get hasRestoredCache() {
+    return this._hasRestoredCache;
+  }
+
   constructor() {
     // init history with existing state
     this.history$()
       .pipe(first())
       .subscribe(
-        (history) =>
-          Array.isArray(history) && history.forEach((location) => this.location.go(location)),
+        (history) => Array.isArray(history) && history.forEach(({ url }) => this.location.go(url)),
       );
 
     // update state when route change occurs
@@ -48,31 +57,33 @@ export class PopupRouterCacheService {
           // `Location.back()` can now be called successfully
           this.hasNavigated = true;
         }),
-        filter((_event: NavigationEnd) => {
+        map((event) => {
           const state: ActivatedRouteSnapshot = this.router.routerState.snapshot.root;
 
           let child = state.firstChild;
           while (child.firstChild) {
             child = child.firstChild;
           }
-
-          return !child?.data?.doNotSaveUrl ?? true;
+          return { event, data: child.data };
         }),
-        switchMap((event) => this.push(event.url)),
+        filter(({ data }) => {
+          return !data?.doNotSaveUrl;
+        }),
+        switchMap(({ event, data }) => this.push(event.url, data)),
       )
       .subscribe();
   }
 
-  history$(): Observable<string[]> {
+  history$(): Observable<RouteHistoryCacheState[]> {
     return this.state.state$;
   }
 
-  async setHistory(state: string[]): Promise<string[]> {
+  async setHistory(state: RouteHistoryCacheState[]): Promise<RouteHistoryCacheState[]> {
     return this.state.update(() => state);
   }
 
   /** Get the last item from the history stack, or `null` if empty */
-  last$(): Observable<string | null> {
+  last$(): Observable<RouteHistoryCacheState | null> {
     return this.history$().pipe(
       map((history) => {
         if (!history || history.length === 0) {
@@ -86,20 +97,40 @@ export class PopupRouterCacheService {
   /**
    * If in browser popup, push new route onto history stack
    */
-  private async push(url: string) {
-    if (!BrowserPopupUtils.inPopup(window) || url === (await firstValueFrom(this.last$()))) {
+  private async push(url: string, data: Data) {
+    if (
+      !BrowserPopupUtils.inPopup(window) ||
+      url === (await firstValueFrom(this.last$().pipe(map((h) => h?.url))))
+    ) {
       return;
     }
-    await this.state.update((prevState) => (prevState == null ? [url] : prevState.concat(url)));
+
+    const routeEntry: RouteHistoryCacheState = {
+      url,
+      options: {
+        resetRouterCacheOnTabChange: data?.resetRouterCacheOnTabChange ?? false,
+      },
+    };
+
+    await this.state.update((prevState) =>
+      prevState == null ? [routeEntry] : prevState.concat(routeEntry),
+    );
   }
 
   /**
    * Navigate back in history
    */
-  async back() {
-    await this.state.update((prevState) => (prevState ? prevState.slice(0, -1) : []));
+  async back(updateCache = false) {
+    if (!updateCache && !BrowserPopupUtils.inPopup(window)) {
+      this.location.back();
+      return;
+    }
 
-    if (this.hasNavigated) {
+    const history = await this.state.update((prevState) =>
+      prevState ? prevState.slice(0, -1) : [],
+    );
+
+    if (this.hasNavigated && history.length) {
       this.location.back();
       return;
     }
@@ -107,22 +138,35 @@ export class PopupRouterCacheService {
     // if no history is present, fallback to vault page
     await this.router.navigate([""]);
   }
+
+  /**
+   * Mark the cache as restored to prevent the router `popupRouterCacheGuard` from
+   * redirecting to the last visited route again this session.
+   */
+  markCacheRestored() {
+    this._hasRestoredCache = true;
+  }
 }
 
 /**
  * Redirect to the last visited route. Should be applied to root route.
  **/
-export const popupRouterCacheGuard = (() => {
+export const popupRouterCacheGuard = ((): Observable<true | UrlTree> => {
   const popupHistoryService = inject(PopupRouterCacheService);
   const urlSerializer = inject(UrlSerializer);
 
+  if (popupHistoryService.hasRestoredCache) {
+    return of(true);
+  }
+
   return popupHistoryService.last$().pipe(
-    map((url: string) => {
-      if (!url) {
+    map((entry) => {
+      if (!entry) {
         return true;
       }
 
-      return urlSerializer.parse(url);
+      popupHistoryService.markCacheRestored();
+      return urlSerializer.parse(entry.url);
     }),
   );
 }) satisfies CanActivateFn;

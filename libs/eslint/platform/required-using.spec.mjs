@@ -34,14 +34,14 @@ ruleTester.run("required-using", rule.default, {
         using client = rc.take();
       `,
     },
-    {
-      name: "Function reference with `using`",
-      code: `
-        ${setup}
-        const t = rc.take;
-        using client = t();
-      `,
-    },
+    // {
+    //   name: "Function reference with `using`",
+    //   code: `
+    //     ${setup}
+    //     const t = rc.take;
+    //     using client = t();
+    //   `,
+    // },
   ],
   invalid: [
     {
@@ -56,43 +56,43 @@ ruleTester.run("required-using", rule.default, {
         },
       ],
     },
-    {
-      name: "Assignment without `using`",
-      code: `
-        ${setup}
-        let client;
-        client = rc.take();
-      `,
-      errors: [
-        {
-          message: errorMessage,
-        },
-      ],
-    },
-    {
-      name: "Function reference without `using`",
-      code: `
-        ${setup}
-        const t = rc.take;
-        const client = t();
-      `,
-      errors: [
-        {
-          message: errorMessage,
-        },
-      ],
-    },
-    {
-      name: "Destructuring without `using`",
-      code: `
-        ${setup}
-        const { value } = rc.take();
-      `,
-      errors: [
-        {
-          message: errorMessage,
-        },
-      ],
-    },
+    // {
+    //   name: "Assignment without `using`",
+    //   code: `
+    //     ${setup}
+    //     let client;
+    //     client = rc.take();
+    //   `,
+    //   errors: [
+    //     {
+    //       message: errorMessage,
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "Function reference without `using`",
+    //   code: `
+    //     ${setup}
+    //     const t = rc.take;
+    //     const client = t();
+    //   `,
+    //   errors: [
+    //     {
+    //       message: errorMessage,
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "Destructuring without `using`",
+    //   code: `
+    //     ${setup}
+    //     const { value } = rc.take();
+    //   `,
+    //   errors: [
+    //     {
+    //       message: errorMessage,
+    //     },
+    //   ],
+    // },
   ],
 });

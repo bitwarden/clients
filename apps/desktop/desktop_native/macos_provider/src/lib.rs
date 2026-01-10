@@ -1,22 +1,33 @@
 #![cfg(target_os = "macos")]
+#![allow(clippy::disallowed_macros)] // uniffi macros trip up clippy's evaluation
 
 use std::{
     collections::HashMap,
-    sync::{atomic::AtomicU32, Arc, Mutex},
+    sync::{atomic::AtomicU32, Arc, Mutex, Once},
     time::Instant,
 };
 
 use futures::FutureExt;
-use log::{error, info};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use tracing::{error, info};
+use tracing_subscriber::{
+    filter::{EnvFilter, LevelFilter},
+    layer::SubscriberExt,
+    util::SubscriberInitExt,
+};
 
 uniffi::setup_scaffolding!();
 
 mod assertion;
 mod registration;
 
-use assertion::{PasskeyAssertionRequest, PreparePasskeyAssertionCallback};
+use assertion::{
+    PasskeyAssertionRequest, PasskeyAssertionWithoutUserInterfaceRequest,
+    PreparePasskeyAssertionCallback,
+};
 use registration::{PasskeyRegistrationRequest, PreparePasskeyRegistrationCallback};
+
+static INIT: Once = Once::new();
 
 #[derive(uniffi::Enum, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -24,6 +35,13 @@ pub enum UserVerification {
     Preferred,
     Required,
     Discouraged,
+}
+
+#[derive(uniffi::Record, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Position {
+    pub x: i32,
+    pub y: i32,
 }
 
 #[derive(Debug, uniffi::Error, Serialize, Deserialize)]
@@ -39,6 +57,14 @@ trait Callback: Send + Sync {
     fn error(&self, error: BitwardenError);
 }
 
+#[derive(uniffi::Enum, Debug)]
+/// Store the connection status between the macOS credential provider extension
+/// and the desktop application's IPC server.
+pub enum ConnectionStatus {
+    Connected,
+    Disconnected,
+}
+
 #[derive(uniffi::Object)]
 pub struct MacOSProviderClient {
     to_server_send: tokio::sync::mpsc::Sender<String>,
@@ -47,28 +73,60 @@ pub struct MacOSProviderClient {
     response_callbacks_counter: AtomicU32,
     #[allow(clippy::type_complexity)]
     response_callbacks_queue: Arc<Mutex<HashMap<u32, (Box<dyn Callback>, Instant)>>>,
+
+    // Flag to track connection status - atomic for thread safety without locks
+    connection_status: Arc<std::sync::atomic::AtomicBool>,
 }
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// Store native desktop status information to use for IPC communication
+/// between the application and the macOS credential provider.
+pub struct NativeStatus {
+    key: String,
+    value: String,
+}
+
+// In our callback management, 0 is a reserved sequence number indicating that a message does not
+// have a callback.
+const NO_CALLBACK_INDICATOR: u32 = 0;
 
 #[uniffi::export]
 impl MacOSProviderClient {
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     #[uniffi::constructor]
     pub fn connect() -> Self {
-        let _ = oslog::OsLogger::new("com.bitwarden.desktop.autofill-extension")
-            .level_filter(log::LevelFilter::Trace)
-            .init();
+        INIT.call_once(|| {
+            let filter = EnvFilter::builder()
+                // Everything logs at `INFO`
+                .with_default_directive(LevelFilter::INFO.into())
+                .from_env_lossy();
+
+            tracing_subscriber::registry()
+                .with(filter)
+                .with(tracing_oslog::OsLogger::new(
+                    "com.bitwarden.desktop.autofill-extension",
+                    "default",
+                ))
+                .init();
+        });
 
         let (from_server_send, mut from_server_recv) = tokio::sync::mpsc::channel(32);
         let (to_server_send, to_server_recv) = tokio::sync::mpsc::channel(32);
 
         let client = MacOSProviderClient {
             to_server_send,
-            response_callbacks_counter: AtomicU32::new(0),
+            response_callbacks_counter: AtomicU32::new(1), /* Start at 1 since 0 is reserved for
+                                                            * "no callback" scenarios */
             response_callbacks_queue: Arc::new(Mutex::new(HashMap::new())),
+            connection_status: Arc::new(std::sync::atomic::AtomicBool::new(false)),
         };
 
-        let path = desktop_core::ipc::path("autofill");
+        let path = desktop_core::ipc::path("af");
 
         let queue = client.response_callbacks_queue.clone();
+        let connection_status = client.connection_status.clone();
 
         std::thread::spawn(move || {
             let rt = tokio::runtime::Builder::new_current_thread()
@@ -86,9 +144,11 @@ impl MacOSProviderClient {
                     match serde_json::from_str::<SerializedMessage>(&message) {
                         Ok(SerializedMessage::Command(CommandMessage::Connected)) => {
                             info!("Connected to server");
+                            connection_status.store(true, std::sync::atomic::Ordering::Relaxed);
                         }
                         Ok(SerializedMessage::Command(CommandMessage::Disconnected)) => {
                             info!("Disconnected from server");
+                            connection_status.store(false, std::sync::atomic::Ordering::Relaxed);
                         }
                         Ok(SerializedMessage::Message {
                             sequence_number,
@@ -102,21 +162,21 @@ impl MacOSProviderClient {
                                 match value {
                                     Ok(value) => {
                                         if let Err(e) = cb.complete(value) {
-                                            error!("Error deserializing message: {e}");
+                                            error!(error = %e, "Error deserializing message");
                                         }
                                     }
                                     Err(e) => {
-                                        error!("Error processing message: {e:?}");
+                                        error!(error = ?e, "Error processing message");
                                         cb.error(e)
                                     }
                                 }
                             }
                             None => {
-                                error!("No callback found for sequence number: {sequence_number}")
+                                error!(sequence_number, "No callback found for sequence number")
                             }
                         },
                         Err(e) => {
-                            error!("Error deserializing message: {e}");
+                            error!(error = %e, "Error deserializing message");
                         }
                     };
                 }
@@ -126,12 +186,17 @@ impl MacOSProviderClient {
         client
     }
 
+    pub fn send_native_status(&self, key: String, value: String) {
+        let status = NativeStatus { key, value };
+        self.send_message(status, None);
+    }
+
     pub fn prepare_passkey_registration(
         &self,
         request: PasskeyRegistrationRequest,
         callback: Arc<dyn PreparePasskeyRegistrationCallback>,
     ) {
-        self.send_message(request, Box::new(callback));
+        self.send_message(request, Some(Box::new(callback)));
     }
 
     pub fn prepare_passkey_assertion(
@@ -139,7 +204,26 @@ impl MacOSProviderClient {
         request: PasskeyAssertionRequest,
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
-        self.send_message(request, Box::new(callback));
+        self.send_message(request, Some(Box::new(callback)));
+    }
+
+    pub fn prepare_passkey_assertion_without_user_interface(
+        &self,
+        request: PasskeyAssertionWithoutUserInterfaceRequest,
+        callback: Arc<dyn PreparePasskeyAssertionCallback>,
+    ) {
+        self.send_message(request, Some(Box::new(callback)));
+    }
+
+    pub fn get_connection_status(&self) -> ConnectionStatus {
+        let is_connected = self
+            .connection_status
+            .load(std::sync::atomic::Ordering::Relaxed);
+        if is_connected {
+            ConnectionStatus::Connected
+        } else {
+            ConnectionStatus::Disconnected
+        }
     }
 }
 
@@ -161,6 +245,7 @@ enum SerializedMessage {
 }
 
 impl MacOSProviderClient {
+    #[allow(clippy::unwrap_used)]
     fn add_callback(&self, callback: Box<dyn Callback>) -> u32 {
         let sequence_number = self
             .response_callbacks_counter
@@ -168,18 +253,23 @@ impl MacOSProviderClient {
 
         self.response_callbacks_queue
             .lock()
-            .unwrap()
+            .expect("response callbacks queue mutex should not be poisoned")
             .insert(sequence_number, (callback, Instant::now()));
 
         sequence_number
     }
 
+    #[allow(clippy::unwrap_used)]
     fn send_message(
         &self,
         message: impl Serialize + DeserializeOwned,
-        callback: Box<dyn Callback>,
+        callback: Option<Box<dyn Callback>>,
     ) {
-        let sequence_number = self.add_callback(callback);
+        let sequence_number = if let Some(callback) = callback {
+            self.add_callback(callback)
+        } else {
+            NO_CALLBACK_INDICATOR
+        };
 
         let message = serde_json::to_string(&SerializedMessage::Message {
             sequence_number,
@@ -189,16 +279,17 @@ impl MacOSProviderClient {
 
         if let Err(e) = self.to_server_send.blocking_send(message) {
             // Make sure we remove the callback from the queue if we can't send the message
-            if let Some((cb, _)) = self
-                .response_callbacks_queue
-                .lock()
-                .unwrap()
-                .remove(&sequence_number)
-            {
-                cb.error(BitwardenError::Internal(format!(
-                    "Error sending message: {}",
-                    e
-                )));
+            if sequence_number != NO_CALLBACK_INDICATOR {
+                if let Some((callback, _)) = self
+                    .response_callbacks_queue
+                    .lock()
+                    .expect("response callbacks queue mutex should not be poisoned")
+                    .remove(&sequence_number)
+                {
+                    callback.error(BitwardenError::Internal(format!(
+                        "Error sending message: {e}"
+                    )));
+                }
             }
         }
     }

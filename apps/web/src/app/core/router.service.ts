@@ -74,7 +74,8 @@ export class RouterService {
 
         const titleId: string = child?.snapshot?.data?.titleId;
         const rawTitle: string = child?.snapshot?.data?.title;
-        const updateUrl = !child?.snapshot?.data?.doNotSaveUrl ?? true;
+
+        const updateUrl = !child?.snapshot?.data?.doNotSaveUrl;
 
         if (titleId != null || rawTitle != null) {
           const newTitle = rawTitle != null ? rawTitle : i18nService.t(titleId);

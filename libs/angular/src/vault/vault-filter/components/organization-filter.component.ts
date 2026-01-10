@@ -11,27 +11,43 @@ import { VaultFilter } from "../models/vault-filter.model";
 
 @Directive()
 export class OrganizationFilterComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hide = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collapsedFilterNodes: Set<string>;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizations: Organization[];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter;
-  @Input() activePersonalOwnershipPolicy: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() activeOrganizationDataOwnership: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeSingleOrganizationPolicy: boolean;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onNodeCollapseStateChange: EventEmitter<ITreeNodeObject> =
     new EventEmitter<ITreeNodeObject>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onFilterChange: EventEmitter<VaultFilter> = new EventEmitter<VaultFilter>();
 
   get displayMode(): DisplayMode {
     let displayMode: DisplayMode = "organizationMember";
     if (this.organizations == null || this.organizations.length < 1) {
       displayMode = "noOrganizations";
-    } else if (this.activePersonalOwnershipPolicy && !this.activeSingleOrganizationPolicy) {
-      displayMode = "personalOwnershipPolicy";
-    } else if (!this.activePersonalOwnershipPolicy && this.activeSingleOrganizationPolicy) {
+    } else if (this.activeOrganizationDataOwnership && !this.activeSingleOrganizationPolicy) {
+      displayMode = "organizationDataOwnershipPolicy";
+    } else if (!this.activeOrganizationDataOwnership && this.activeSingleOrganizationPolicy) {
       displayMode = "singleOrganizationPolicy";
-    } else if (this.activePersonalOwnershipPolicy && this.activeSingleOrganizationPolicy) {
-      displayMode = "singleOrganizationAndPersonalOwnershipPolicies";
+    } else if (this.activeOrganizationDataOwnership && this.activeSingleOrganizationPolicy) {
+      displayMode = "singleOrganizationAndOrganizatonDataOwnershipPolicies";
     }
 
     return displayMode;

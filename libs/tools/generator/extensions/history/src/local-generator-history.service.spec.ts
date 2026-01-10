@@ -2,11 +2,12 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
+import { Type } from "@bitwarden/generator-core";
 import { KeyService } from "@bitwarden/key-management";
 
 import { FakeStateProvider, awaitAsync, mockAccountServiceWith } from "../../../../../common/spec";
@@ -22,8 +23,11 @@ describe("LocalGeneratorHistoryService", () => {
   const userKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
 
   beforeEach(() => {
-    encryptService.encrypt.mockImplementation((p) => Promise.resolve(p as unknown as EncString));
-    encryptService.decryptToUtf8.mockImplementation((c) => Promise.resolve(c.encryptedString));
+    encryptService.encryptString.mockImplementation((p) =>
+      Promise.resolve(p as unknown as EncString),
+    );
+    // in the test environment `c.encryptedString` always has a value
+    encryptService.decryptString.mockImplementation((c) => Promise.resolve(c.encryptedString!));
     keyService.getUserKey.mockImplementation(() => Promise.resolve(userKey));
     keyService.userKey$.mockImplementation(() => of(true as unknown as UserKey));
   });
@@ -48,35 +52,35 @@ describe("LocalGeneratorHistoryService", () => {
       const stateProvider = new FakeStateProvider(mockAccountServiceWith(SomeUser));
       const history = new LocalGeneratorHistoryService(encryptService, keyService, stateProvider);
 
-      await history.track(SomeUser, "example", "password");
+      await history.track(SomeUser, "example", Type.password);
       await awaitAsync();
       const [result] = await firstValueFrom(history.credentials$(SomeUser));
 
-      expect(result).toMatchObject({ credential: "example", category: "password" });
+      expect(result).toMatchObject({ credential: "example", category: Type.password });
     });
 
     it("stores a passphrase", async () => {
       const stateProvider = new FakeStateProvider(mockAccountServiceWith(SomeUser));
       const history = new LocalGeneratorHistoryService(encryptService, keyService, stateProvider);
 
-      await history.track(SomeUser, "example", "passphrase");
+      await history.track(SomeUser, "example", Type.password);
       await awaitAsync();
       const [result] = await firstValueFrom(history.credentials$(SomeUser));
 
-      expect(result).toMatchObject({ credential: "example", category: "passphrase" });
+      expect(result).toMatchObject({ credential: "example", category: Type.password });
     });
 
     it("stores a specific date when one is provided", async () => {
       const stateProvider = new FakeStateProvider(mockAccountServiceWith(SomeUser));
       const history = new LocalGeneratorHistoryService(encryptService, keyService, stateProvider);
 
-      await history.track(SomeUser, "example", "password", new Date(100));
+      await history.track(SomeUser, "example", Type.password, new Date(100));
       await awaitAsync();
       const [result] = await firstValueFrom(history.credentials$(SomeUser));
 
       expect(result).toEqual({
         credential: "example",
-        category: "password",
+        category: Type.password,
         generationDate: new Date(100),
       });
     });
@@ -85,13 +89,13 @@ describe("LocalGeneratorHistoryService", () => {
       const stateProvider = new FakeStateProvider(mockAccountServiceWith(SomeUser));
       const history = new LocalGeneratorHistoryService(encryptService, keyService, stateProvider);
 
-      await history.track(SomeUser, "example", "password");
-      await history.track(SomeUser, "example", "password");
-      await history.track(SomeUser, "example", "passphrase");
+      await history.track(SomeUser, "example", Type.password);
+      await history.track(SomeUser, "example", Type.password);
+      await history.track(SomeUser, "example", Type.password);
       await awaitAsync();
       const [firstResult, secondResult] = await firstValueFrom(history.credentials$(SomeUser));
 
-      expect(firstResult).toMatchObject({ credential: "example", category: "password" });
+      expect(firstResult).toMatchObject({ credential: "example", category: Type.password });
       expect(secondResult).toBeUndefined();
     });
 
@@ -99,13 +103,13 @@ describe("LocalGeneratorHistoryService", () => {
       const stateProvider = new FakeStateProvider(mockAccountServiceWith(SomeUser));
       const history = new LocalGeneratorHistoryService(encryptService, keyService, stateProvider);
 
-      await history.track(SomeUser, "secondResult", "password");
-      await history.track(SomeUser, "firstResult", "password");
+      await history.track(SomeUser, "secondResult", Type.password);
+      await history.track(SomeUser, "firstResult", Type.password);
       await awaitAsync();
       const [firstResult, secondResult] = await firstValueFrom(history.credentials$(SomeUser));
 
-      expect(firstResult).toMatchObject({ credential: "firstResult", category: "password" });
-      expect(secondResult).toMatchObject({ credential: "secondResult", category: "password" });
+      expect(firstResult).toMatchObject({ credential: "firstResult", category: Type.password });
+      expect(secondResult).toMatchObject({ credential: "secondResult", category: Type.password });
     });
 
     it("removes history items exceeding maxTotal configuration", async () => {
@@ -114,12 +118,12 @@ describe("LocalGeneratorHistoryService", () => {
         maxTotal: 1,
       });
 
-      await history.track(SomeUser, "removed result", "password");
-      await history.track(SomeUser, "example", "password");
+      await history.track(SomeUser, "removed result", Type.password);
+      await history.track(SomeUser, "example", Type.password);
       await awaitAsync();
       const [firstResult, secondResult] = await firstValueFrom(history.credentials$(SomeUser));
 
-      expect(firstResult).toMatchObject({ credential: "example", category: "password" });
+      expect(firstResult).toMatchObject({ credential: "example", category: Type.password });
       expect(secondResult).toBeUndefined();
     });
 
@@ -129,8 +133,8 @@ describe("LocalGeneratorHistoryService", () => {
         maxTotal: 1,
       });
 
-      await history.track(SomeUser, "some user example", "password");
-      await history.track(AnotherUser, "another user example", "password");
+      await history.track(SomeUser, "some user example", Type.password);
+      await history.track(AnotherUser, "another user example", Type.password);
       await awaitAsync();
       const [someFirstResult, someSecondResult] = await firstValueFrom(
         history.credentials$(SomeUser),
@@ -141,12 +145,12 @@ describe("LocalGeneratorHistoryService", () => {
 
       expect(someFirstResult).toMatchObject({
         credential: "some user example",
-        category: "password",
+        category: Type.password,
       });
       expect(someSecondResult).toBeUndefined();
       expect(anotherFirstResult).toMatchObject({
         credential: "another user example",
-        category: "password",
+        category: Type.password,
       });
       expect(anotherSecondResult).toBeUndefined();
     });
@@ -165,7 +169,7 @@ describe("LocalGeneratorHistoryService", () => {
     it("returns null when the credential wasn't found", async () => {
       const stateProvider = new FakeStateProvider(mockAccountServiceWith(SomeUser));
       const history = new LocalGeneratorHistoryService(encryptService, keyService, stateProvider);
-      await history.track(SomeUser, "example", "password");
+      await history.track(SomeUser, "example", Type.password);
 
       const result = await history.take(SomeUser, "not found");
 
@@ -175,20 +179,20 @@ describe("LocalGeneratorHistoryService", () => {
     it("returns a matching credential", async () => {
       const stateProvider = new FakeStateProvider(mockAccountServiceWith(SomeUser));
       const history = new LocalGeneratorHistoryService(encryptService, keyService, stateProvider);
-      await history.track(SomeUser, "example", "password");
+      await history.track(SomeUser, "example", Type.password);
 
       const result = await history.take(SomeUser, "example");
 
       expect(result).toMatchObject({
         credential: "example",
-        category: "password",
+        category: Type.password,
       });
     });
 
     it("removes a matching credential", async () => {
       const stateProvider = new FakeStateProvider(mockAccountServiceWith(SomeUser));
       const history = new LocalGeneratorHistoryService(encryptService, keyService, stateProvider);
-      await history.track(SomeUser, "example", "password");
+      await history.track(SomeUser, "example", Type.password);
 
       await history.take(SomeUser, "example");
       await awaitAsync();

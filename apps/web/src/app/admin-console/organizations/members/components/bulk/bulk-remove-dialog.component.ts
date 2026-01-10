@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
 import {
@@ -10,7 +9,7 @@ import {
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 
 import { BaseBulkRemoveComponent } from "./base-bulk-remove.component";
 import { BulkUserDetails } from "./bulk-status.component";
@@ -20,8 +19,11 @@ type BulkRemoveDialogParams = {
   users: BulkUserDetails[];
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-remove-dialog.component.html",
+  standalone: false,
 })
 export class BulkRemoveDialogComponent extends BaseBulkRemoveComponent {
   organizationId: string;

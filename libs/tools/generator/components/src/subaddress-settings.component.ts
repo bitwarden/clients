@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   Component,
   EventEmitter,
@@ -10,37 +8,45 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map, ReplaySubject, skip, Subject, takeUntil, withLatestFrom } from "rxjs";
 
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { FormFieldModule } from "@bitwarden/components";
 import {
   CredentialGeneratorService,
-  Generators,
+  BuiltIn,
   SubaddressGenerationOptions,
 } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 /** Options group for plus-addressed emails */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-subaddress-settings",
   templateUrl: "subaddress-settings.component.html",
+  imports: [ReactiveFormsModule, FormFieldModule, JslibModule, I18nPipe],
 })
 export class SubaddressSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
-   *  @param accountService queries user availability
    *  @param generatorService settings and policy logic
    *  @param formBuilder reactive form controls
    */
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
-    private accountService: AccountService,
   ) {}
 
   /** Binds the component to a specific user's settings.
+   *  @remarks this is initialized to null but since it's a required input it'll
+   *     never have that value in practice.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
-  account: Account;
+  account: Account = null!;
 
   protected account$ = new ReplaySubject<Account>(1);
 
@@ -53,18 +59,20 @@ export class SubaddressSettingsComponent implements OnInit, OnChanges, OnDestroy
   /** Emits settings updates and completes if the settings become unavailable.
    * @remarks this does not emit the initial settings. If you would like
    *   to receive live settings updates including the initial update,
-   *   use `CredentialGeneratorService.settings$(...)` instead.
+   *   use `CredentialGeneratorService.settings(...)` instead.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onUpdated = new EventEmitter<SubaddressGenerationOptions>();
 
   /** The template's control bindings */
   protected settings = this.formBuilder.group({
-    subaddressEmail: [Generators.subaddress.settings.initial.subaddressEmail],
+    subaddressEmail: [""],
   });
 
   async ngOnInit() {
-    const settings = await this.generatorService.settings(Generators.subaddress, {
+    const settings = await this.generatorService.settings(BuiltIn.plusAddress, {
       account$: this.account$,
     });
 
@@ -78,7 +86,7 @@ export class SubaddressSettingsComponent implements OnInit, OnChanges, OnDestroy
     this.saveSettings
       .pipe(
         withLatestFrom(this.settings.valueChanges),
-        map(([, settings]) => settings),
+        map(([, settings]) => settings as SubaddressGenerationOptions),
         takeUntil(this.destroyed$),
       )
       .subscribe(settings);

@@ -18,8 +18,9 @@ import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-password-history-v2",
   templateUrl: "vault-password-history-v2.component.html",
   imports: [
@@ -69,8 +70,6 @@ export class PasswordHistoryV2Component implements OnInit {
     const activeUserId = activeAccount.id as UserId;
 
     const cipher = await this.cipherService.get(cipherId, activeUserId);
-    this.cipher = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
+    this.cipher = await this.cipherService.decrypt(cipher, activeUserId);
   }
 }

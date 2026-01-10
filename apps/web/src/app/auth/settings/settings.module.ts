@@ -6,7 +6,6 @@ import { UserKeyRotationModule } from "../../key-management/key-rotation/user-ke
 import { SharedModule } from "../../shared";
 import { EmergencyAccessModule } from "../emergency-access";
 
-import { ChangePasswordComponent } from "./change-password.component";
 import { WebauthnLoginSettingsModule } from "./webauthn-login-settings";
 
 @NgModule({
@@ -17,8 +16,8 @@ import { WebauthnLoginSettingsModule } from "./webauthn-login-settings";
     PasswordCalloutComponent,
     UserKeyRotationModule,
   ],
-  declarations: [ChangePasswordComponent],
+  declarations: [],
   providers: [],
-  exports: [ChangePasswordComponent],
+  exports: [],
 })
 export class AuthSettingsModule {}

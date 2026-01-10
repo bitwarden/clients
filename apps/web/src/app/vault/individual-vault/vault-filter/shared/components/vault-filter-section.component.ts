@@ -1,24 +1,34 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, InjectionToken, Injector, Input, OnDestroy, OnInit } from "@angular/core";
-import { Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
 import { VaultFilterService } from "../../services/abstractions/vault-filter.service";
 import { VaultFilterSection, VaultFilterType } from "../models/vault-filter-section.type";
 import { VaultFilter } from "../models/vault-filter.model";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-filter-section",
   templateUrl: "vault-filter-section.component.html",
+  standalone: false,
 })
 export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private activeUserId$ = getUserId(this.accountService.activeAccount$);
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() section: VaultFilterSection;
 
   data: TreeNode<VaultFilterType>;
@@ -29,6 +39,7 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   constructor(
     private vaultFilterService: VaultFilterService,
     private injector: Injector,
+    private accountService: AccountService,
   ) {
     this.vaultFilterService.collapsedFilterNodes$
       .pipe(takeUntil(this.destroy$))
@@ -85,6 +96,11 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   }
 
   async onFilterSelect(filterNode: TreeNode<VaultFilterType>) {
+    if (this.section?.premiumOptions?.blockFilterAction) {
+      await this.section.premiumOptions.blockFilterAction();
+      return;
+    }
+
     await this.section?.action(filterNode);
   }
 
@@ -112,6 +128,10 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     return this.section?.options;
   }
 
+  get premiumFeature() {
+    return this.section?.premiumOptions?.showBadgeForNonPremium;
+  }
+
   get divider() {
     return this.section?.divider;
   }
@@ -126,7 +146,8 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     } else {
       this.collapsedFilterNodes.add(node.id);
     }
-    await this.vaultFilterService.setCollapsedFilterNodes(this.collapsedFilterNodes);
+    const userId = await firstValueFrom(this.activeUserId$);
+    await this.vaultFilterService.setCollapsedFilterNodes(this.collapsedFilterNodes, userId);
   }
 
   // an injector is necessary to pass data into a dynamic component

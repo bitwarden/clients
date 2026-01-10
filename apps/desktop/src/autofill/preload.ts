@@ -5,9 +5,16 @@ import type { autofill } from "@bitwarden/desktop-napi";
 import { Command } from "../platform/main/autofill/command";
 import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
 
+import { AutotypeConfig } from "./models/autotype-config";
+import { AutotypeMatchError } from "./models/autotype-errors";
+import { AutotypeVaultData } from "./models/autotype-vault-data";
+import { AUTOTYPE_IPC_CHANNELS } from "./models/ipc-channels";
+
 export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
+
+  listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
   listenPasskeyRegistration: (
     fn: (
@@ -85,6 +92,101 @@ export default {
             sequenceNumber,
             response,
           });
+        });
+      },
+    );
+  },
+  listenPasskeyAssertionWithoutUserInterface: (
+    fn: (
+      clientId: number,
+      sequenceNumber: number,
+      request: autofill.PasskeyAssertionWithoutUserInterfaceRequest,
+      completeCallback: (error: Error | null, response: autofill.PasskeyAssertionResponse) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.passkeyAssertionWithoutUserInterface",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          request: autofill.PasskeyAssertionWithoutUserInterfaceRequest;
+        },
+      ) => {
+        const { clientId, sequenceNumber, request } = data;
+        fn(clientId, sequenceNumber, request, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              clientId,
+              sequenceNumber,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completePasskeyAssertion", {
+            clientId,
+            sequenceNumber,
+            response,
+          });
+        });
+      },
+    );
+  },
+  listenNativeStatus: (
+    fn: (clientId: number, sequenceNumber: number, status: { key: string; value: string }) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.nativeStatus",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          status: { key: string; value: string };
+        },
+      ) => {
+        const { clientId, sequenceNumber, status } = data;
+        fn(clientId, sequenceNumber, status);
+      },
+    );
+  },
+  configureAutotype: (config: AutotypeConfig) => {
+    ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.CONFIGURE, config);
+  },
+  toggleAutotype: (enable: boolean) => {
+    ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.TOGGLE, enable);
+  },
+  listenAutotypeRequest: (
+    fn: (
+      windowTitle: string,
+      completeCallback: (error: Error | null, response: AutotypeVaultData | null) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      AUTOTYPE_IPC_CHANNELS.LISTEN,
+      (
+        _event,
+        data: {
+          windowTitle: string;
+        },
+      ) => {
+        const { windowTitle } = data;
+
+        fn(windowTitle, (error, vaultData) => {
+          if (error) {
+            const matchError: AutotypeMatchError = {
+              windowTitle,
+              errorMessage: error.message,
+            };
+            ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR, matchError);
+            return;
+          }
+
+          if (vaultData !== null) {
+            ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, vaultData);
+          }
         });
       },
     );

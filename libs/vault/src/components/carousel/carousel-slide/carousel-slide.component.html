@@ -1,7 +1,7 @@
 <ng-template>
   <div
     role="tabpanel"
-    class="tw-px-4 tw-py-5"
+    [ngClass]="{ 'tw-px-4 tw-py-5': !disablePadding }"
     [attr.tabIndex]="noFocusableChildren ? 0 : undefined"
   >
     <ng-content></ng-content>

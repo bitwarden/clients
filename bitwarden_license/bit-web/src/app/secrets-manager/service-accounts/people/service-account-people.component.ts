@@ -25,9 +25,12 @@ import { ApItemEnum } from "../../shared/access-policies/access-policy-selector/
 import { ApPermissionEnum } from "../../shared/access-policies/access-policy-selector/models/enums/ap-permission.enum";
 import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-service-account-people",
   templateUrl: "./service-account-people.component.html",
+  standalone: false,
 })
 export class ServiceAccountPeopleComponent implements OnInit, OnDestroy {
   private currentAccessPolicies: ApItemViewType[];

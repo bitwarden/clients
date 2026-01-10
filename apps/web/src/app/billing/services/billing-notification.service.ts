@@ -32,4 +32,12 @@ export class BillingNotificationService {
       message: message,
     });
   }
+
+  showError(message: string, title: string = "") {
+    this.toastService.showToast({
+      variant: "error",
+      title,
+      message,
+    });
+  }
 }

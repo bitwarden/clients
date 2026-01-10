@@ -1,15 +1,10 @@
 import {
   AbstractStorageService,
+  ClientLocations,
   ObservableStorageService,
-} from "@bitwarden/common/platform/abstractions/storage.service";
-import {
   PossibleLocation,
   StorageServiceProvider,
-} from "@bitwarden/common/platform/services/storage-service.provider";
-import {
-  ClientLocations,
-  // eslint-disable-next-line import/no-restricted-paths
-} from "@bitwarden/common/platform/state/state-definition";
+} from "@bitwarden/storage-core";
 
 export class WebStorageServiceProvider extends StorageServiceProvider {
   constructor(

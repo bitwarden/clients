@@ -1,6 +1,9 @@
-<bit-section [formGroup]="itemDetailsForm">
+<section [formGroup]="itemDetailsForm" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "itemDetails" | i18n }}</h2>
+    @if (showArchiveBadge()) {
+      <span bitBadge> {{ "archived" | i18n }} </span>
+    }
     <button
       *ngIf="!config.hideIndividualVaultFields"
       slot="end"
@@ -9,8 +12,9 @@
       [bitIconButton]="favoriteIcon"
       role="checkbox"
       [attr.aria-checked]="itemDetailsForm.value.favorite"
-      [appA11yTitle]="'favorite' | i18n"
+      [label]="'favorite' | i18n"
       (click)="toggleFavorite()"
+      [disabled]="favoriteButtonDisabled"
     ></button>
   </bit-section-header>
   <bit-card>
@@ -22,7 +26,7 @@
       <bit-label>{{ "owner" | i18n }}</bit-label>
       <bit-select formControlName="organizationId">
         <bit-option
-          *ngIf="showPersonalOwnerOption"
+          *ngIf="showPersonalOwnershipOption"
           [value]="null"
           [label]="userEmail$ | async"
         ></bit-option>
@@ -57,4 +61,4 @@
       </bit-select>
     </bit-form-field>
   </bit-card>
-</bit-section>
+</section>

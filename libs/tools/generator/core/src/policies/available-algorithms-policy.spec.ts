@@ -2,15 +2,15 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { PolicyId } from "@bitwarden/common/types/guid";
 
-import { CredentialAlgorithms, PasswordAlgorithms } from "../data";
+import { Algorithm, Algorithms, AlgorithmsByType } from "../metadata";
 
 import { availableAlgorithms } from "./available-algorithms-policy";
 
-describe("availableAlgorithmsPolicy", () => {
+describe("availableAlgorithms_vNextPolicy", () => {
   it("returns all algorithms", () => {
     const result = availableAlgorithms([]);
 
-    for (const expected of CredentialAlgorithms) {
+    for (const expected of Algorithms) {
       expect(result).toContain(expected);
     }
   });
@@ -24,13 +24,14 @@ describe("availableAlgorithmsPolicy", () => {
         overridePasswordType: override,
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([policy]);
 
     expect(result).toContain(override);
 
-    for (const expected of PasswordAlgorithms.filter((a) => a !== override)) {
+    for (const expected of AlgorithmsByType[Algorithm.password].filter((a) => a !== override)) {
       expect(result).not.toContain(expected);
     }
   });
@@ -44,13 +45,14 @@ describe("availableAlgorithmsPolicy", () => {
         overridePasswordType: override,
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([policy, policy]);
 
     expect(result).toContain(override);
 
-    for (const expected of PasswordAlgorithms.filter((a) => a !== override)) {
+    for (const expected of AlgorithmsByType[Algorithm.password].filter((a) => a !== override)) {
       expect(result).not.toContain(expected);
     }
   });
@@ -64,6 +66,7 @@ describe("availableAlgorithmsPolicy", () => {
         overridePasswordType: "password",
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
     const passphrase = new Policy({
       id: "" as PolicyId,
@@ -73,13 +76,14 @@ describe("availableAlgorithmsPolicy", () => {
         overridePasswordType: "passphrase",
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([password, passphrase]);
 
     expect(result).toContain("password");
 
-    for (const expected of PasswordAlgorithms.filter((a) => a !== "password")) {
+    for (const expected of AlgorithmsByType[Algorithm.password].filter((a) => a !== "password")) {
       expect(result).not.toContain(expected);
     }
   });
@@ -93,11 +97,12 @@ describe("availableAlgorithmsPolicy", () => {
         some: "policy",
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([policy]);
 
-    for (const expected of CredentialAlgorithms) {
+    for (const expected of Algorithms) {
       expect(result).toContain(expected);
     }
   });
@@ -111,11 +116,12 @@ describe("availableAlgorithmsPolicy", () => {
         some: "policy",
       },
       enabled: false,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([policy]);
 
-    for (const expected of CredentialAlgorithms) {
+    for (const expected of Algorithms) {
       expect(result).toContain(expected);
     }
   });
@@ -129,11 +135,12 @@ describe("availableAlgorithmsPolicy", () => {
         some: "policy",
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([policy]);
 
-    for (const expected of CredentialAlgorithms) {
+    for (const expected of Algorithms) {
       expect(result).toContain(expected);
     }
   });

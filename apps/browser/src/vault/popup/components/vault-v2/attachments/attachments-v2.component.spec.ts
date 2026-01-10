@@ -1,10 +1,12 @@
-import { Component, Input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,22 +26,22 @@ import { PopupRouterCacheService } from "../../../../../platform/popup/view-cach
 import { AttachmentsV2Component } from "./attachments-v2.component";
 
 @Component({
-  standalone: true,
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupHeaderComponent {
-  @Input() pageTitle: string;
-  @Input() backAction: () => void;
+  readonly pageTitle = input<string>();
+  readonly backAction = input<() => void>();
 }
 
 @Component({
-  standalone: true,
   selector: "popup-footer",
   template: `<ng-content></ng-content>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupFooterComponent {
-  @Input() pageTitle: string;
+  readonly pageTitle = input<string>();
 }
 
 describe("AttachmentsV2Component", () => {
@@ -77,6 +79,8 @@ describe("AttachmentsV2Component", () => {
           provide: AccountService,
           useValue: accountService,
         },
+        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
       ],
     })
       .overrideComponent(AttachmentsV2Component, {
@@ -108,7 +112,7 @@ describe("AttachmentsV2Component", () => {
     const submitBtn = fixture.debugElement.queryAll(By.directive(ButtonComponent))[1]
       .componentInstance;
 
-    expect(cipherAttachment.submitBtn).toEqual(submitBtn);
+    expect(cipherAttachment.submitBtn()).toEqual(submitBtn);
   });
 
   it("navigates the user to the edit view `onUploadSuccess`", fakeAsync(() => {

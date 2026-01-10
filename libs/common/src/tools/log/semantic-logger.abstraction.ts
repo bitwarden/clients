@@ -9,6 +9,7 @@ export interface SemanticLogger {
    */
   debug(message: string): void;
 
+  // FIXME: replace Jsonify<T> parameter with structural logging schema type
   /** Logs the content at debug priority.
    *  Debug messages are used for diagnostics, and are typically disabled
    *  in production builds.

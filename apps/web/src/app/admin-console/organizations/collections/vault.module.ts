@@ -1,9 +1,7 @@
 import { NgModule } from "@angular/core";
 
-import { LooseComponentsModule } from "../../../shared/loose-components.module";
 import { SharedModule } from "../../../shared/shared.module";
 import { OrganizationBadgeModule } from "../../../vault/individual-vault/organization-badge/organization-badge.module";
-import { ViewComponent } from "../../../vault/individual-vault/view.component";
 import { CollectionDialogComponent } from "../shared/components/collection-dialog";
 
 import { CollectionNameBadgeComponent } from "./collection-badge";
@@ -15,13 +13,11 @@ import { VaultComponent } from "./vault.component";
   imports: [
     VaultRoutingModule,
     SharedModule,
-    LooseComponentsModule,
     GroupBadgeModule,
     CollectionNameBadgeComponent,
     OrganizationBadgeModule,
     CollectionDialogComponent,
     VaultComponent,
-    ViewComponent,
   ],
 })
 export class VaultModule {}

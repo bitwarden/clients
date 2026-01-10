@@ -4,6 +4,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 @Pipe({
   name: "searchCiphers",
+  standalone: false,
 })
 export class SearchCiphersPipe implements PipeTransform {
   transform(ciphers: CipherView[], searchText: string, deleted = false): CipherView[] {

@@ -1,10 +1,10 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { DialogRef } from "@angular/cdk/dialog";
 import { CdkDragDrop } from "@angular/cdk/drag-drop";
 import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,7 +17,12 @@ import {
 } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
-import { BitPasswordInputToggleDirective, DialogService } from "@bitwarden/components";
+import {
+  DialogRef,
+  BitPasswordInputToggleDirective,
+  DialogService,
+  BitIconButtonComponent,
+} from "@bitwarden/components";
 
 import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
@@ -40,13 +45,16 @@ describe("CustomFieldsComponent", () => {
   let announce: jest.Mock;
   let patchCipher: jest.Mock;
   let config: CipherFormConfig;
+  const formStatusChange$ = new BehaviorSubject<"disabled" | "enabled">("enabled");
 
   beforeEach(async () => {
     open = jest.fn();
     announce = jest.fn().mockResolvedValue(null);
     patchCipher = jest.fn();
     originalCipherView = new CipherView();
-    config = {} as CipherFormConfig;
+    config = {
+      collections: [],
+    } as CipherFormConfig;
 
     await TestBed.configureTestingModule({
       imports: [CustomFieldsComponent],
@@ -64,6 +72,7 @@ describe("CustomFieldsComponent", () => {
             registerChildForm: jest.fn(),
             config,
             getInitialCipherView: jest.fn(() => originalCipherView),
+            formStatusChange$,
           },
         },
         {
@@ -463,6 +472,142 @@ describe("CustomFieldsComponent", () => {
 
       // "reorder boolean label to position 4 of 4"
       expect(announce).toHaveBeenCalledWith("reorderFieldDown boolean label 4 4", "assertive");
+    });
+
+    it("hides reorder buttons when in partial edit mode", () => {
+      originalCipherView.fields = mockFieldViews;
+      config.mode = "partial-edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      toggleItems = fixture.debugElement.queryAll(
+        By.css('button[data-testid="reorder-toggle-button"]'),
+      );
+
+      expect(toggleItems).toHaveLength(0);
+    });
+  });
+
+  it("shows all reorders button when in edit mode and viewPassword is true", () => {
+    originalCipherView.fields = mockFieldViews;
+    originalCipherView.viewPassword = true;
+    config.mode = "edit";
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    const toggleItems = fixture.debugElement.queryAll(
+      By.css('button[data-testid="reorder-toggle-button"]'),
+    );
+    expect(toggleItems).toHaveLength(4);
+  });
+
+  it("shows all reorder buttons except for hidden fields when in edit mode and viewPassword is false", () => {
+    originalCipherView.fields = mockFieldViews;
+    originalCipherView.viewPassword = false;
+    config.mode = "edit";
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    const toggleItems = fixture.debugElement.queryAll(
+      By.css('button[data-testid="reorder-toggle-button"]'),
+    );
+
+    expect(toggleItems).toHaveLength(3);
+  });
+
+  describe("edit button", () => {
+    it("hides the edit button when in partial-edit mode", () => {
+      originalCipherView.fields = mockFieldViews;
+      config.mode = "partial-edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
+      expect(editButtons).toHaveLength(0);
+    });
+
+    it("shows all the edit buttons when in edit mode and viewPassword is true", () => {
+      originalCipherView.fields = mockFieldViews;
+      originalCipherView.viewPassword = true;
+      config.mode = "edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
+      expect(editButtons).toHaveLength(4);
+    });
+
+    it("shows all the edit buttons except for hidden fields when in edit mode and viewPassword is false", () => {
+      originalCipherView.fields = mockFieldViews;
+      originalCipherView.viewPassword = false;
+      config.mode = "edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
+      expect(editButtons).toHaveLength(3);
+    });
+  });
+
+  describe("parent form disabled", () => {
+    beforeEach(() => {
+      originalCipherView!.fields = mockFieldViews;
+      formStatusChange$.next("disabled");
+      component.ngOnInit();
+
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      formStatusChange$.next("enabled");
+      fixture.detectChanges();
+    });
+
+    it("disables edit and reorder buttons", () => {
+      const reorderButtonQuery = By.directive(BitIconButtonComponent);
+      const editButtonQuery = By.directive(BitIconButtonComponent);
+
+      let reorderButton = fixture.debugElement.query(reorderButtonQuery);
+      let editButton = fixture.debugElement.query(editButtonQuery);
+
+      expect(reorderButton.componentInstance.disabled()).toBe(true);
+      expect(editButton.componentInstance.disabled()).toBe(true);
+
+      formStatusChange$.next("enabled");
+      fixture.detectChanges();
+
+      reorderButton = fixture.debugElement.query(reorderButtonQuery);
+      editButton = fixture.debugElement.query(editButtonQuery);
+
+      expect(reorderButton.componentInstance.disabled()).toBe(false);
+      expect(editButton.componentInstance.disabled()).toBe(false);
+    });
+
+    it("hides add field button", () => {
+      const query = By.css('button[data-testid="add-field-button"]');
+
+      let addFieldButton = fixture.debugElement.query(query);
+
+      expect(addFieldButton).toBeNull();
+
+      formStatusChange$.next("enabled");
+      fixture.detectChanges();
+
+      addFieldButton = fixture.debugElement.query(query);
+
+      expect(addFieldButton).not.toBeNull();
     });
   });
 });

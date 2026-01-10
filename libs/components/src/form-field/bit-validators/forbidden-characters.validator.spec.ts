@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FormControl } from "@angular/forms";
 
 import { forbiddenCharacters } from "./forbidden-characters.validator";
@@ -42,6 +40,6 @@ describe("forbiddenCharacters", () => {
   });
 });
 
-function createControl(input: string) {
+function createControl(input: string | null) {
   return new FormControl(input);
 }

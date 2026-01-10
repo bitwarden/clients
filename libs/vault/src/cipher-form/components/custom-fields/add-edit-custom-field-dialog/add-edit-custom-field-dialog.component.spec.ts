@@ -1,8 +1,8 @@
-import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
+import { DIALOG_DATA } from "@bitwarden/components";
 
 import {
   AddEditCustomFieldDialogComponent,
@@ -81,6 +81,26 @@ describe("AddEditCustomFieldDialogComponent", () => {
 
     expect(component.fieldTypeOptions).not.toContainEqual(
       expect.objectContaining({ value: FieldType.Linked }),
+    );
+  });
+
+  it("does not filter out 'Hidden' field type when 'disallowHiddenField' is false", () => {
+    dialogData.disallowHiddenField = false;
+    fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
+    component = fixture.componentInstance;
+
+    expect(component.fieldTypeOptions).toContainEqual(
+      expect.objectContaining({ value: FieldType.Hidden }),
+    );
+  });
+
+  it("filers out 'Hidden' field type when 'disallowHiddenField' is true", () => {
+    dialogData.disallowHiddenField = true;
+    fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
+    component = fixture.componentInstance;
+
+    expect(component.fieldTypeOptions).not.toContainEqual(
+      expect.objectContaining({ value: FieldType.Hidden }),
     );
   });
 });

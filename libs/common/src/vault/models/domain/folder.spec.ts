@@ -1,8 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { makeEncString, makeSymmetricCryptoKey, mockEnc, mockFromJson } from "../../../../spec";
+import {
+  makeEncString,
+  makeSymmetricCryptoKey,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { FolderData } from "../../models/data/folder.data";
 import { Folder } from "../../models/domain/folder";
 
@@ -15,6 +21,7 @@ describe("Folder", () => {
       name: "encName",
       revisionDate: "2022-01-31T12:00:00.000Z",
     };
+    mockContainerService();
   });
 
   it("Convert", () => {
@@ -33,7 +40,7 @@ describe("Folder", () => {
     folder.name = mockEnc("encName");
     folder.revisionDate = new Date("2022-01-31T12:00:00.000Z");
 
-    const view = await folder.decrypt();
+    const view = await folder.decrypt(null);
 
     expect(view).toEqual({
       id: "id",
@@ -43,7 +50,7 @@ describe("Folder", () => {
   });
 
   describe("fromJSON", () => {
-    jest.mock("../../../platform/models/domain/enc-string");
+    jest.mock("../../../key-management/crypto/models/enc-string");
     jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
     it("initializes nested objects", () => {
@@ -70,8 +77,9 @@ describe("Folder", () => {
 
     beforeEach(() => {
       encryptService = mock<EncryptService>();
-      encryptService.decryptToUtf8.mockImplementation((value) => {
-        return Promise.resolve(value.data);
+      // Platform code is not migrated yet
+      encryptService.decryptString.mockImplementation((_value, _key) => {
+        return Promise.resolve("encName");
       });
     });
 

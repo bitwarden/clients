@@ -375,7 +375,7 @@ describe("BrowserApi", () => {
   describe("executeScriptInTab", () => {
     it("calls to the extension api to execute a script within the give tabId", async () => {
       const tabId = 1;
-      const injectDetails = mock<chrome.tabs.InjectDetails>();
+      const injectDetails = mock<chrome.extensionTypes.InjectDetails>();
       jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
       (chrome.tabs.executeScript as jest.Mock).mockImplementation(
         (tabId, injectDetails, callback) => callback(executeScriptResult),
@@ -393,7 +393,7 @@ describe("BrowserApi", () => {
 
     it("calls the manifest v3 scripting API if the extension manifest is for v3", async () => {
       const tabId = 1;
-      const injectDetails = mock<chrome.tabs.InjectDetails>({
+      const injectDetails = mock<chrome.extensionTypes.InjectDetails>({
         file: "file.js",
         allFrames: true,
         runAt: "document_start",
@@ -419,7 +419,7 @@ describe("BrowserApi", () => {
     it("injects the script into a specified frameId when the extension is built for manifest v3", async () => {
       const tabId = 1;
       const frameId = 2;
-      const injectDetails = mock<chrome.tabs.InjectDetails>({
+      const injectDetails = mock<chrome.extensionTypes.InjectDetails>({
         file: "file.js",
         allFrames: true,
         runAt: "document_start",
@@ -443,7 +443,7 @@ describe("BrowserApi", () => {
 
     it("injects the script into the MAIN world context when injecting a script for manifest v3", async () => {
       const tabId = 1;
-      const injectDetails = mock<chrome.tabs.InjectDetails>({
+      const injectDetails = mock<chrome.extensionTypes.InjectDetails>({
         file: null,
         allFrames: true,
         runAt: "document_start",
@@ -589,4 +589,113 @@ describe("BrowserApi", () => {
       );
     });
   });
+
+  /*
+   * Safari sometimes returns >1 tabs unexpectedly even when
+   * specificing a `windowId` or `currentWindow: true` query option.
+   *
+   * For example, when there are >=2 windows with an active pinned tab,
+   * the pinned tab will always be included as the first entry in the array,
+   * while the correct tab is included as the second entry.
+   *
+   * These tests can remain as verification when Safari fixes this bug.
+   */
+  describe.each([{ isSafariApi: true }, { isSafariApi: false }])(
+    "SafariTabsQuery %p",
+    ({ isSafariApi }) => {
+      let originalIsSafariApi = BrowserApi.isSafariApi;
+      const expectedWindowId = 10;
+      const wrongWindowId = expectedWindowId + 1;
+      const raceConditionWindowId = expectedWindowId + 2;
+      const mismatchedWindowId = expectedWindowId + 3;
+
+      const resolvedTabsQueryResult = [
+        mock<chrome.tabs.Tab>({
+          title: "tab[0] is a pinned tab from another window",
+          pinned: true,
+          windowId: wrongWindowId,
+        }),
+        mock<chrome.tabs.Tab>({
+          title: "tab[1] is the tab with the correct foreground window",
+          windowId: expectedWindowId,
+        }),
+      ];
+
+      function mockCurrentWindowId(id: number | null) {
+        jest
+          .spyOn(BrowserApi, "getCurrentWindow")
+          .mockResolvedValue(mock<chrome.windows.Window>({ id }));
+      }
+
+      beforeEach(() => {
+        originalIsSafariApi = BrowserApi.isSafariApi;
+        BrowserApi.isSafariApi = isSafariApi;
+        mockCurrentWindowId(expectedWindowId);
+        jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue(resolvedTabsQueryResult);
+      });
+
+      afterEach(() => {
+        BrowserApi.isSafariApi = originalIsSafariApi;
+        jest.restoreAllMocks();
+      });
+
+      describe.each([BrowserApi.getTabFromCurrentWindow, BrowserApi.getTabFromCurrentWindowId])(
+        "%p",
+        (getCurrTabFn) => {
+          it("returns the first tab when the query result has one tab", async () => {
+            const expectedSingleTab = resolvedTabsQueryResult[0];
+            jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([expectedSingleTab]);
+            const actualTab = await getCurrTabFn();
+            expect(actualTab).toBe(expectedSingleTab);
+          });
+
+          it("returns the first tab when the current window ID is mismatched", async () => {
+            mockCurrentWindowId(mismatchedWindowId);
+            const actualTab = await getCurrTabFn();
+            expect(actualTab).toBe(resolvedTabsQueryResult[0]);
+          });
+
+          it("returns the first tab when the current window ID is unavailable", async () => {
+            mockCurrentWindowId(null);
+            const actualTab = await getCurrTabFn();
+            expect(actualTab).toBe(resolvedTabsQueryResult[0]);
+          });
+
+          if (isSafariApi) {
+            it("returns the tab with the current window ID", async () => {
+              const actualTab = await getCurrTabFn();
+              expect(actualTab.windowId).toBe(expectedWindowId);
+            });
+
+            it(`returns the tab with the current window ID at the time of calling [Function ${getCurrTabFn.name}]`, async () => {
+              jest.spyOn(BrowserApi, "tabsQuery").mockImplementation(() => {
+                /*
+                 * Simulate rapid clicking/switching between windows, e.g.
+                 * 1. From Window A, call `getCurrTabFn()`
+                 * 2. getCurrTabFn() calls `await BrowserApi.tabsQuery()`
+                 * 3. Users switches to Window B before the `await` returns
+                 * 4. getCurrTabFn() calls `await BrowserApi.getCurrentWindow()`
+                 * ^ This now returns Window B and filters the results erroneously
+                 */
+                mockCurrentWindowId(raceConditionWindowId);
+
+                return Promise.resolve(resolvedTabsQueryResult);
+              });
+
+              const actualTab = await getCurrTabFn();
+              expect(actualTab.windowId).toBe(expectedWindowId);
+            });
+          } /* !isSafariApi */ else {
+            it("falls back to tabsQueryFirst", async () => {
+              const tabsQueryFirstSpy = jest.spyOn(BrowserApi, "tabsQueryFirst");
+              const actualTab = await getCurrTabFn();
+
+              expect(tabsQueryFirstSpy).toHaveBeenCalled();
+              expect(actualTab).toBe(resolvedTabsQueryResult[0]);
+            });
+          }
+        },
+      );
+    },
+  );
 });

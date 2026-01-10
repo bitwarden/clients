@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { UserId } from "@bitwarden/common/types/guid";
 
 export abstract class SsoLoginServiceAbstraction {
@@ -71,6 +73,10 @@ export abstract class SsoLoginServiceAbstraction {
    */
   abstract setSsoEmail: (email: string) => Promise<void>;
   /**
+   * Clear the SSO email
+   */
+  abstract clearSsoEmail: () => Promise<void>;
+  /**
    * Gets the value of the active user's organization sso identifier.
    *
    * This should only be used post successful SSO login once the user is initialized.
@@ -86,4 +92,24 @@ export abstract class SsoLoginServiceAbstraction {
     organizationIdentifier: string,
     userId: UserId | undefined,
   ) => Promise<void>;
+
+  /**
+   * A cache list of user emails for whom the `PolicyType.RequireSso` policy is applied (that is, a list
+   * of users who are required to authenticate via SSO only). The cache lives on the current device only.
+   */
+  abstract ssoRequiredCache$: Observable<Set<string> | null>;
+
+  /**
+   * Remove an email from the cached list of emails that must authenticate via SSO.
+   */
+  abstract removeFromSsoRequiredCacheIfPresent: (email: string) => Promise<void>;
+
+  /**
+   * Check if the user is required to authenticate via SSO. If so, add their email to a cache list.
+   * We'll use this cache list to display ONLY the "Use single sign-on" button to the
+   * user the next time they are on the /login page.
+   *
+   * If the user is not required to authenticate via SSO, remove their email from the cache list if it is present.
+   */
+  abstract updateSsoRequiredCache: (ssoLoginEmail: string, userId: UserId) => Promise<void>;
 }

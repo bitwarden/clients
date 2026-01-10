@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
@@ -9,6 +9,7 @@ import {
   NotificationType,
 } from "../../../notification/abstractions/notification-bar";
 import { NotificationCipherData } from "../cipher/types";
+import { CollectionView, FolderView, I18n, OrgView } from "../common-types";
 import { themes, spacing } from "../constants/styles";
 
 import { NotificationBody, componentClassPrefix as notificationBodyClassPrefix } from "./body";
@@ -18,31 +19,46 @@ import {
   componentClassPrefix as notificationHeaderClassPrefix,
 } from "./header";
 
-export function NotificationContainer({
-  handleCloseNotification,
-  i18n,
-  theme = ThemeTypes.Light,
-  type,
-  ciphers,
-  handleSaveAction,
-  handleEditOrUpdateAction,
-}: NotificationBarIframeInitData & {
+export type NotificationContainerProps = NotificationBarIframeInitData & {
   handleCloseNotification: (e: Event) => void;
   handleSaveAction: (e: Event) => void;
   handleEditOrUpdateAction: (e: Event) => void;
 } & {
-  i18n: { [key: string]: string };
+  ciphers?: NotificationCipherData[];
+  collections?: CollectionView[];
+  folders?: FolderView[];
+  headerMessage?: string;
+  i18n: I18n;
+  isLoading?: boolean;
+  organizations?: OrgView[];
+  personalVaultIsAllowed?: boolean;
+  notificationTestId: string;
   type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
-  ciphers: NotificationCipherData[];
-}) {
-  const headerMessage = getHeaderMessage(i18n, type);
-  const showBody = true;
+};
+
+export function NotificationContainer({
+  handleCloseNotification,
+  handleEditOrUpdateAction,
+  handleSaveAction,
+  ciphers,
+  collections,
+  folders,
+  headerMessage,
+  i18n,
+  isLoading,
+  organizations,
+  personalVaultIsAllowed = true,
+  notificationTestId,
+  theme = ThemeTypes.Light,
+  type,
+}: NotificationContainerProps) {
+  const showBody = type !== NotificationTypes.Unlock;
 
   return html`
-    <div class=${notificationContainerStyles(theme)}>
+    <div data-testid="${notificationTestId}" class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
-        standalone: showBody,
+        i18n,
         message: headerMessage,
         theme,
       })}
@@ -52,13 +68,19 @@ export function NotificationContainer({
             ciphers,
             notificationType: type,
             theme,
+            i18n,
           })
-        : null}
+        : nothing}
       ${NotificationFooter({
         handleSaveAction,
-        theme,
-        notificationType: type,
+        collections,
+        folders,
         i18n,
+        isLoading,
+        notificationType: type,
+        organizations,
+        personalVaultIsAllowed,
+        theme,
       })}
     </div>
   `;
@@ -78,20 +100,7 @@ const notificationContainerStyles = (theme: Theme) => css`
   }
 
   [class*="${notificationBodyClassPrefix}-"] {
-    margin: ${spacing["3"]} 0 ${spacing["1.5"]} ${spacing["3"]};
+    margin: ${spacing["3"]} 0 0 ${spacing["3"]};
     padding-right: ${spacing["3"]};
   }
 `;
-
-function getHeaderMessage(i18n: { [key: string]: string }, type?: NotificationType) {
-  switch (type) {
-    case NotificationTypes.Add:
-      return i18n.saveAsNewLoginAction;
-    case NotificationTypes.Change:
-      return i18n.updateLoginPrompt;
-    case NotificationTypes.Unlock:
-      return "";
-    default:
-      return undefined;
-  }
-}

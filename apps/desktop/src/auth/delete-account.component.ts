@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
@@ -10,6 +9,7 @@ import { VerificationWithSecret } from "@bitwarden/common/auth/types/verificatio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
@@ -20,9 +20,10 @@ import {
 
 import { UserVerificationComponent } from "../app/components/user-verification.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-delete-account",
-  standalone: true,
   templateUrl: "delete-account.component.html",
   imports: [
     JslibModule,

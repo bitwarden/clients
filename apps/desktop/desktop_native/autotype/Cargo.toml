@@ -1,0 +1,23 @@
+[package]
+name = "autotype"
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+itertools.workspace = true
+mockall = "=0.14.0"
+serial_test = "=3.2.0"
+tracing.workspace = true
+windows = { workspace = true, features = [
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+] }
+windows-core = { workspace = true }
+
+[lints]
+workspace = true

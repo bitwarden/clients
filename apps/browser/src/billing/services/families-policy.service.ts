@@ -1,3 +1,5 @@
+// FIXME (PM-22628): angular imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { Injectable } from "@angular/core";
 import { map, Observable, of, switchMap } from "rxjs";
 
@@ -47,7 +49,7 @@ export class FamiliesPolicyService {
               map((organizations) => organizations.find((org) => org.canManageSponsorships)?.id),
               switchMap((enterpriseOrgId) =>
                 this.policyService
-                  .getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId)
+                  .policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId)
                   .pipe(
                     map(
                       (policies) =>

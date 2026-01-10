@@ -1,3 +1,4 @@
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import {
@@ -17,7 +18,9 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
   [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
-  [VaultMessages.OpenPopup]: () => handleOpenPopupMessage(),
+  [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
+  [VaultMessages.OpenBrowserExtensionToUrl]: ({ data }) =>
+    handleOpenBrowserExtensionToUrlMessage(data),
 };
 
 /**
@@ -73,22 +76,40 @@ function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: s
   sendExtensionRuntimeMessage({ command, data: data.data, remember, referrer });
 }
 
-function handleOpenPopupMessage() {
-  sendExtensionRuntimeMessage({ command: VaultMessages.OpenPopup });
+/** @deprecated use {@link handleOpenBrowserExtensionToUrlMessage} */
+function handleOpenAtRiskPasswordsMessage() {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords });
+}
+
+function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUrls }) {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenBrowserExtensionToUrl, url });
 }
 
 /**
- * Handles the window message event.
+ * Handles window message events, validating source and extracting referrer for security.
  *
  * @param event - The window message event
  */
 function handleWindowMessageEvent(event: MessageEvent) {
-  const { source, data } = event;
+  const { source, data, origin } = event;
   if (source !== window || !data?.command) {
     return;
   }
 
-  const referrer = source.location.hostname;
+  // Extract hostname from event.origin for secure referrer validation in background script
+  let referrer: string;
+  // Sandboxed iframe or opaque origin support
+  if (origin === "null") {
+    referrer = "null";
+  } else {
+    try {
+      const originUrl = new URL(origin);
+      referrer = originUrl.hostname;
+    } catch {
+      return;
+    }
+  }
+
   const handler = windowMessageHandlers[data.command];
   if (handler) {
     handler({ data, referrer });

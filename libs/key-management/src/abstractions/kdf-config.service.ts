@@ -6,6 +6,6 @@ import { KdfConfig } from "../models/kdf-config";
 
 export abstract class KdfConfigService {
   abstract setKdfConfig(userId: UserId, KdfConfig: KdfConfig): Promise<void>;
-  abstract getKdfConfig(): Promise<KdfConfig>;
+  abstract getKdfConfig(userId: UserId): Promise<KdfConfig>;
   abstract getKdfConfig$(userId: UserId): Observable<KdfConfig | null>;
 }

@@ -5,6 +5,8 @@ import {
   GENERATOR_MEMORY,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+import { VendorId } from "@bitwarden/common/tools/extension";
+import { Vendor } from "@bitwarden/common/tools/extension/vendor/data";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import { ApiSettings, IntegrationRequest } from "@bitwarden/common/tools/integration/rpc";
 import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
@@ -159,7 +161,7 @@ const forwarder = Object.freeze({
 
 // integration-wide configuration
 export const Fastmail = Object.freeze({
-  id: "fastmail" as IntegrationId,
+  id: Vendor.fastmail as IntegrationId & VendorId,
   name: "Fastmail",
   baseUrl: "https://api.fastmail.com",
   selfHost: "maybe",

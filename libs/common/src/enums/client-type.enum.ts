@@ -1,8 +1,1 @@
-export enum ClientType {
-  Web = "web",
-  Browser = "browser",
-  Desktop = "desktop",
-  // Mobile = "mobile",
-  Cli = "cli",
-  // DirectoryConnector = "connector",
-}
+export { ClientType } from "@bitwarden/client-type";

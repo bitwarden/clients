@@ -2,7 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { EmailRandomizer } from "../../engine";
 import { CatchallConstraints } from "../../policies/catchall-constraints";
-import { CatchallGenerationOptions, GeneratorDependencyProvider } from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { CatchallGenerationOptions } from "../../types";
 import { Profile } from "../data";
 import { CoreProfileMetadata } from "../profile-metadata";
 import { isCoreProfile } from "../util";
@@ -19,11 +20,13 @@ describe("email - catchall generator metadata", () => {
   });
 
   describe("profiles[account]", () => {
-    let accountProfile: CoreProfileMetadata<CatchallGenerationOptions> = null;
+    let accountProfile: CoreProfileMetadata<CatchallGenerationOptions> = null!;
     beforeEach(() => {
       const profile = catchall.profiles[Profile.account];
-      if (isCoreProfile(profile)) {
+      if (isCoreProfile(profile!)) {
         accountProfile = profile;
+      } else {
+        throw new Error("this branch should never run");
       }
     });
 

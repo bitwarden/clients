@@ -21,11 +21,3 @@
     max-width: 100px;
   }
 }
-
-.recovery-code-img {
-  @include themify($themes) {
-    content: url("../images/two-factor/rc" + themed("mfaLogoSuffix"));
-    max-width: 100px;
-    max-height: 45px;
-  }
-}

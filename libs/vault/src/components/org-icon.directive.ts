@@ -5,11 +5,14 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 export type OrgIconSize = "default" | "small" | "large";
 
 @Directive({
-  standalone: true,
   selector: "[appOrgIcon]",
 })
 export class OrgIconDirective {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) tierType!: ProductTierType;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() size?: OrgIconSize = "default";
 
   constructor(

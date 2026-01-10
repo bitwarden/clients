@@ -1,13 +1,15 @@
 export { AngleDown } from "./angle-down";
+export { AngleUp } from "./angle-up";
 export { BrandIconContainer } from "./brand-icon-container";
 export { Business } from "./business";
 export { Close } from "./close";
+export { CollectionShared } from "./collection-shared";
 export { ExclamationTriangle } from "./exclamation-triangle";
+export { ExternalLink } from "./external-link";
 export { Family } from "./family";
 export { Folder } from "./folder";
 export { Globe } from "./globe";
-export { PartyHorn } from "./party-horn";
 export { PencilSquare } from "./pencil-square";
 export { Shield } from "./shield";
+export { Spinner } from "./spinner";
 export { User } from "./user";
-export { Warning } from "./warning";

@@ -1,24 +1,41 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnDestroy, OnInit, Output } from "@angular/core";
-import { FormBuilder, FormControl, Validators } from "@angular/forms";
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, map } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { DisableTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/disable-two-factor-authenticator.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/update-two-factor-authenticator.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  FormFieldModule,
+  IconModule,
+  InputModule,
+  LinkModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-base.component";
 
@@ -36,14 +53,33 @@ declare global {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup-authenticator",
   templateUrl: "two-factor-setup-authenticator.component.html",
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    DialogModule,
+    FormFieldModule,
+    InputModule,
+    LinkModule,
+    TypographyModule,
+    CalloutModule,
+    ButtonModule,
+    IconModule,
+    I18nPipe,
+    AsyncActionsModule,
+    JslibModule,
+  ],
 })
 export class TwoFactorSetupAuthenticatorComponent
   extends TwoFactorSetupMethodBaseComponent
   implements OnInit, OnDestroy
 {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onChangeStatus = new EventEmitter<boolean>();
   type = TwoFactorProviderType.Authenticator;
   key: string;
@@ -60,7 +96,7 @@ export class TwoFactorSetupAuthenticatorComponent
   constructor(
     @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorAuthenticatorResponse>,
     private dialogRef: DialogRef,
-    apiService: ApiService,
+    twoFactorService: TwoFactorService,
     i18nService: I18nService,
     userVerificationService: UserVerificationService,
     private formBuilder: FormBuilder,
@@ -72,7 +108,7 @@ export class TwoFactorSetupAuthenticatorComponent
     protected toastService: ToastService,
   ) {
     super(
-      apiService,
+      twoFactorService,
       i18nService,
       platformUtilsService,
       logService,
@@ -122,7 +158,7 @@ export class TwoFactorSetupAuthenticatorComponent
     request.key = this.key;
     request.userVerificationToken = this.userVerificationToken;
 
-    const response = await this.apiService.putTwoFactorAuthenticator(request);
+    const response = await this.twoFactorService.putTwoFactorAuthenticator(request);
     await this.processResponse(response);
     this.onUpdated.emit(true);
   }
@@ -142,7 +178,7 @@ export class TwoFactorSetupAuthenticatorComponent
     request.type = this.type;
     request.key = this.key;
     request.userVerificationToken = this.userVerificationToken;
-    await this.apiService.deleteTwoFactorAuthenticator(request);
+    await this.twoFactorService.deleteTwoFactorAuthenticator(request);
     this.enabled = false;
     this.toastService.showToast({
       variant: "success",

@@ -1,11 +1,23 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, HostBinding, Input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+} from "@angular/core";
 
 import { FocusableElement } from "../shared/focusable-element";
 
-export type BadgeVariant = "primary" | "secondary" | "success" | "danger" | "warning" | "info";
+export type BadgeVariant =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "danger"
+  | "warning"
+  | "info"
+  | "notification";
 
 const styles: Record<BadgeVariant, string[]> = {
   primary: ["tw-bg-primary-100", "tw-border-primary-700", "!tw-text-primary-700"],
@@ -14,6 +26,11 @@ const styles: Record<BadgeVariant, string[]> = {
   danger: ["tw-bg-danger-100", "tw-border-danger-700", "!tw-text-danger-700"],
   warning: ["tw-bg-warning-100", "tw-border-warning-700", "!tw-text-warning-700"],
   info: ["tw-bg-info-100", "tw-border-info-700", "!tw-text-info-700"],
+  notification: [
+    "tw-bg-notification-100",
+    "tw-border-notification-600",
+    "!tw-text-notification-600",
+  ],
 };
 
 const hoverStyles: Record<BadgeVariant, string[]> = {
@@ -27,17 +44,63 @@ const hoverStyles: Record<BadgeVariant, string[]> = {
   danger: ["hover:tw-bg-danger-600", "hover:tw-border-danger-600", "hover:!tw-text-contrast"],
   warning: ["hover:tw-bg-warning-600", "hover:tw-border-warning-600", "hover:!tw-text-black"],
   info: ["hover:tw-bg-info-600", "hover:tw-border-info-600", "hover:!tw-text-black"],
+  notification: [
+    "hover:tw-bg-notification-600",
+    "hover:tw-border-notification-600",
+    "hover:!tw-text-contrast",
+  ],
 };
-
+/**
+ * Badges are primarily used as labels, counters, and small buttons.
+ * Typically Badges are only used with text set to `text-xs`. If additional sizes are needed, the component configurations may be reviewed and adjusted.
+ *
+ * The Badge directive can be used on a `<span>` (non clickable events), or an `<a>` or `<button>` tag
+ *
+ * > `NOTE:` The Focus and Hover states only apply to badges used for interactive events.
+ *
+ * > `NOTE:` The `disabled` state only applies to buttons.
+ */
 @Component({
   selector: "span[bitBadge], a[bitBadge], button[bitBadge]",
   providers: [{ provide: FocusableElement, useExisting: BadgeComponent }],
   imports: [CommonModule],
   templateUrl: "badge.component.html",
-  standalone: true,
+  host: {
+    "[class]": "classList()",
+    "[attr.title]": "titleAttr()",
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BadgeComponent implements FocusableElement {
-  @HostBinding("class") get classList() {
+  private readonly el = inject(ElementRef<HTMLElement>);
+
+  private readonly hasHoverEffects = this.el.nativeElement.nodeName !== "SPAN";
+
+  /**
+   * Optional override for the automatic badge title attribute when truncating.
+   * When truncating is enabled and this is not provided, the badge will automatically
+   * use its text content as the title.
+   */
+  readonly title = input<string>();
+
+  /**
+   * Visual variant that determines the badge's color scheme.
+   */
+  readonly variant = input<BadgeVariant>("primary");
+
+  /**
+   * Whether to truncate long text with ellipsis when it exceeds maxWidthClass.
+   * When enabled, a title attribute is automatically added for accessibility.
+   */
+  readonly truncate = input(true);
+
+  /**
+   * Tailwind max-width class to apply when truncating is enabled.
+   * Must be a valid Tailwind max-width utility class (e.g., "tw-max-w-40", "tw-max-w-xs").
+   */
+  readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
+
+  protected readonly classList = computed(() => {
     return [
       "tw-inline-block",
       "tw-py-1",
@@ -64,41 +127,20 @@ export class BadgeComponent implements FocusableElement {
       "disabled:hover:!tw-text-muted",
       "disabled:tw-cursor-not-allowed",
     ]
-      .concat(styles[this.variant])
-      .concat(this.hasHoverEffects ? [...hoverStyles[this.variant], "tw-min-w-10"] : [])
-      .concat(this.truncate ? this.maxWidthClass : []);
-  }
-  @HostBinding("attr.title") get titleAttr() {
-    if (this.title !== undefined) {
-      return this.title;
+      .concat(styles[this.variant()])
+      .concat(this.hasHoverEffects ? [...hoverStyles[this.variant()], "tw-min-w-10"] : [])
+      .concat(this.truncate() ? this.maxWidthClass() : []);
+  });
+
+  protected readonly titleAttr = computed(() => {
+    const title = this.title();
+    if (title !== undefined) {
+      return title;
     }
-    return this.truncate ? this.el.nativeElement.textContent.trim() : null;
-  }
-
-  /**
-   * Optional override for the automatic badge title when truncating.
-   */
-  @Input() title?: string;
-
-  /**
-   * Variant, sets the background color of the badge.
-   */
-  @Input() variant: BadgeVariant = "primary";
-
-  /**
-   * Truncate long text
-   */
-  @Input() truncate = true;
-
-  @Input() maxWidthClass: `tw-max-w-${string}` = "tw-max-w-40";
+    return this.truncate() ? this.el.nativeElement?.textContent?.trim() : null;
+  });
 
   getFocusTarget() {
     return this.el.nativeElement;
-  }
-
-  private hasHoverEffects = false;
-
-  constructor(private el: ElementRef<HTMLElement>) {
-    this.hasHoverEffects = el?.nativeElement?.nodeName != "SPAN";
   }
 }

@@ -8,10 +8,9 @@ import { Directive, signal } from "@angular/core";
  */
 @Directive({
   selector: "[bitDrawerHost]",
-  standalone: true,
 })
 export class DrawerHostDirective {
-  private _portal = signal<Portal<unknown> | undefined>(undefined);
+  private readonly _portal = signal<Portal<unknown> | undefined>(undefined);
 
   /** The portal to display */
   portal = this._portal.asReadonly();

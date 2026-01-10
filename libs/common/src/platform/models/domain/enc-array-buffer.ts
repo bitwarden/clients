@@ -2,14 +2,13 @@
 // @ts-strict-ignore
 import { Utils } from "../../../platform/misc/utils";
 import { EncryptionType } from "../../enums";
-import { Encrypted } from "../../interfaces/encrypted";
 
 const ENC_TYPE_LENGTH = 1;
 const IV_LENGTH = 16;
 const MAC_LENGTH = 32;
 const MIN_DATA_LENGTH = 1;
 
-export class EncArrayBuffer implements Encrypted {
+export class EncArrayBuffer {
   readonly encryptionType: EncryptionType = null;
   readonly dataBytes: Uint8Array = null;
   readonly ivBytes: Uint8Array = null;
@@ -57,6 +56,41 @@ export class EncArrayBuffer implements Encrypted {
     );
   }
 
+  static fromParts(
+    encryptionType: EncryptionType,
+    iv: Uint8Array,
+    data: Uint8Array,
+    mac: Uint8Array | undefined | null,
+  ) {
+    if (encryptionType == null || iv == null || data == null) {
+      throw new Error("encryptionType, iv, and data must be provided");
+    }
+
+    switch (encryptionType) {
+      case EncryptionType.AesCbc256_B64:
+      case EncryptionType.AesCbc256_HmacSha256_B64:
+        EncArrayBuffer.validateIvLength(iv);
+        EncArrayBuffer.validateMacLength(encryptionType, mac);
+        break;
+      default:
+        throw new Error(`Unknown EncryptionType ${encryptionType} for EncArrayBuffer.fromParts`);
+    }
+
+    let macLen = 0;
+    if (mac != null) {
+      macLen = mac.length;
+    }
+
+    const bytes = new Uint8Array(1 + iv.byteLength + macLen + data.byteLength);
+    bytes.set([encryptionType], 0);
+    bytes.set(iv, 1);
+    if (mac != null) {
+      bytes.set(mac, 1 + iv.byteLength);
+    }
+    bytes.set(data, 1 + iv.byteLength + macLen);
+    return new EncArrayBuffer(bytes);
+  }
+
   static async fromResponse(response: {
     arrayBuffer: () => Promise<ArrayBuffer>;
   }): Promise<EncArrayBuffer> {
@@ -70,5 +104,28 @@ export class EncArrayBuffer implements Encrypted {
   static fromB64(b64: string) {
     const buffer = Utils.fromB64ToArray(b64);
     return new EncArrayBuffer(buffer);
+  }
+
+  static validateIvLength(iv: Uint8Array) {
+    if (iv == null || iv.length !== IV_LENGTH) {
+      throw new Error("Invalid IV length");
+    }
+  }
+
+  static validateMacLength(encType: EncryptionType, mac: Uint8Array | null | undefined) {
+    switch (encType) {
+      case EncryptionType.AesCbc256_B64:
+        if (mac != null) {
+          throw new Error("mac must not be provided for AesCbc256_B64");
+        }
+        break;
+      case EncryptionType.AesCbc256_HmacSha256_B64:
+        if (mac == null || mac.length !== MAC_LENGTH) {
+          throw new Error("Invalid MAC length");
+        }
+        break;
+      default:
+        throw new Error("Invalid encryption type and mac combination");
+    }
   }
 }

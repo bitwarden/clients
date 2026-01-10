@@ -3,8 +3,11 @@
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { KeyService } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
@@ -34,9 +37,9 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     emergencyAccessId?: string,
     providerInviteToken?: string,
     providerUserId?: string,
-  ): Promise<string> {
+  ): Promise<void> {
     const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(
-      passwordInputResult.masterKey,
+      passwordInputResult.newMasterKey,
     );
 
     if (!newUserKey || !newEncUserKey) {
@@ -57,9 +60,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       providerUserId,
     );
 
-    const capchaBypassToken = await this.accountApiService.registerFinish(registerRequest);
-
-    return capchaBypassToken;
+    return await this.accountApiService.registerFinish(registerRequest);
   }
 
   protected async buildRegisterRequest(
@@ -81,8 +82,8 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
 
     const registerFinishRequest = new RegisterFinishRequest(
       email,
-      passwordInputResult.masterKeyHash,
-      passwordInputResult.hint,
+      passwordInputResult.newServerMasterKeyHash,
+      passwordInputResult.newPasswordHint,
       encryptedUserKey,
       userAsymmetricKeysRequest,
       passwordInputResult.kdfConfig.kdfType,

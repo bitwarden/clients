@@ -5,9 +5,11 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
@@ -32,13 +34,14 @@ describe("AutoSubmitLoginBackground", () => {
   let scriptInjectorService: MockProxy<ScriptInjectorService>;
   let authStatus$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
-  let configService: MockProxy<ConfigService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let policyDetails: MockProxy<Policy>;
-  let automaticAppLogInPolicy$: BehaviorSubject<Policy>;
-  let policyAppliesToActiveUser$: BehaviorSubject<boolean>;
+  let automaticAppLogInPolicy$: BehaviorSubject<Policy[]>;
+  let policyAppliesToUser$: BehaviorSubject<boolean>;
   let policyService: MockProxy<PolicyService>;
   let autoSubmitLoginBackground: AutoSubmitLoginBackground;
+  let accountService: FakeAccountService;
+  const mockUserId = Utils.newGuid() as UserId;
   const validIpdUrl1 = "https://example.com";
   const validIpdUrl2 = "https://subdomain.example3.com";
   const validAutoSubmitHost = "some-valid-url.com";
@@ -51,9 +54,6 @@ describe("AutoSubmitLoginBackground", () => {
     authStatus$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = authStatus$;
-    configService = mock<ConfigService>({
-      getFeatureFlag: jest.fn().mockResolvedValue(true),
-    });
     platformUtilsService = mock<PlatformUtilsService>();
     policyDetails = mock<Policy>({
       enabled: true,
@@ -61,20 +61,21 @@ describe("AutoSubmitLoginBackground", () => {
         idpHost: `${validIpdUrl1} , https://example2.com/some/sub-route ,${validIpdUrl2}, [invalidValue] ,,`,
       },
     });
-    automaticAppLogInPolicy$ = new BehaviorSubject<Policy>(policyDetails);
-    policyAppliesToActiveUser$ = new BehaviorSubject<boolean>(true);
+    automaticAppLogInPolicy$ = new BehaviorSubject<Policy[]>([policyDetails]);
+    policyAppliesToUser$ = new BehaviorSubject<boolean>(true);
     policyService = mock<PolicyService>({
-      get$: jest.fn().mockReturnValue(automaticAppLogInPolicy$),
-      policyAppliesToActiveUser$: jest.fn().mockReturnValue(policyAppliesToActiveUser$),
+      policiesByType$: jest.fn().mockReturnValue(automaticAppLogInPolicy$),
+      policyAppliesToUser$: jest.fn().mockReturnValue(policyAppliesToUser$),
     });
+    accountService = mockAccountServiceWith(mockUserId);
     autoSubmitLoginBackground = new AutoSubmitLoginBackground(
       logService,
       autofillService,
       scriptInjectorService,
       authService,
-      configService,
       platformUtilsService,
       policyService,
+      accountService,
     );
   });
 
@@ -82,9 +83,9 @@ describe("AutoSubmitLoginBackground", () => {
     jest.clearAllMocks();
   });
 
-  describe("when the AutoSubmitLoginBackground feature is disabled", () => {
+  describe("when conditions prevent auto-submit policy activation", () => {
     it("destroys all event listeners when the AutomaticAppLogIn policy is not enabled", async () => {
-      automaticAppLogInPolicy$.next(mock<Policy>({ ...policyDetails, enabled: false }));
+      automaticAppLogInPolicy$.next([mock<Policy>({ ...policyDetails, enabled: false })]);
 
       await autoSubmitLoginBackground.init();
 
@@ -92,7 +93,7 @@ describe("AutoSubmitLoginBackground", () => {
     });
 
     it("destroys all event listeners when the AutomaticAppLogIn policy does not apply to the current user", async () => {
-      policyAppliesToActiveUser$.next(false);
+      policyAppliesToUser$.next(false);
 
       await autoSubmitLoginBackground.init();
 
@@ -100,7 +101,7 @@ describe("AutoSubmitLoginBackground", () => {
     });
 
     it("destroys all event listeners when the idpHost is not specified in the AutomaticAppLogIn policy", async () => {
-      automaticAppLogInPolicy$.next(mock<Policy>({ ...policyDetails, data: { idpHost: "" } }));
+      automaticAppLogInPolicy$.next([mock<Policy>({ ...policyDetails, data: { idpHost: "" } })]);
 
       await autoSubmitLoginBackground.init();
 
@@ -108,12 +109,12 @@ describe("AutoSubmitLoginBackground", () => {
     });
   });
 
-  describe("when the AutoSubmitLoginBackground feature is enabled", () => {
-    let webRequestDetails: chrome.webRequest.WebRequestBodyDetails;
+  describe("when the AutomaticAppLogIn policy is valid and active", () => {
+    let webRequestDetails: chrome.webRequest.WebRequestDetails;
 
     describe("starting the auto-submit login workflow", () => {
       beforeEach(async () => {
-        webRequestDetails = mock<chrome.webRequest.WebRequestBodyDetails>({
+        webRequestDetails = mock<chrome.webRequest.WebRequestDetails>({
           initiator: validIpdUrl1,
           url: validAutoSubmitUrl,
           type: "main_frame",
@@ -195,7 +196,7 @@ describe("AutoSubmitLoginBackground", () => {
 
     describe("cancelling an active auto-submit login workflow", () => {
       beforeEach(async () => {
-        webRequestDetails = mock<chrome.webRequest.WebRequestBodyDetails>({
+        webRequestDetails = mock<chrome.webRequest.WebRequestDetails>({
           initiator: validIpdUrl1,
           url: validAutoSubmitUrl,
           type: "main_frame",
@@ -261,9 +262,9 @@ describe("AutoSubmitLoginBackground", () => {
           autofillService,
           scriptInjectorService,
           authService,
-          configService,
           platformUtilsService,
           policyService,
+          accountService,
         );
         jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(tab);
       });
@@ -279,7 +280,7 @@ describe("AutoSubmitLoginBackground", () => {
       });
 
       describe("requests that occur within a sub-frame", () => {
-        const webRequestDetails = mock<chrome.webRequest.WebRequestBodyDetails>({
+        const webRequestDetails = mock<chrome.webRequest.WebRequestDetails>({
           url: validAutoSubmitUrl,
           frameId: 1,
         });
@@ -323,7 +324,7 @@ describe("AutoSubmitLoginBackground", () => {
         it("updates the most recent idp host when a tab is activated", async () => {
           jest.spyOn(BrowserApi, "getTab").mockResolvedValue(newTab);
 
-          triggerTabOnActivatedEvent(mock<chrome.tabs.TabActiveInfo>({ tabId: newTabId }));
+          triggerTabOnActivatedEvent(mock<chrome.tabs.OnActivatedInfo>({ tabId: newTabId }));
           await flushPromises();
 
           expect(autoSubmitLoginBackground["mostRecentIdpHost"]).toStrictEqual({
@@ -335,7 +336,7 @@ describe("AutoSubmitLoginBackground", () => {
         it("updates the most recent id host when a tab is updated", () => {
           triggerTabOnUpdatedEvent(
             newTabId,
-            mock<chrome.tabs.TabChangeInfo>({ url: validIpdUrl1 }),
+            mock<chrome.tabs.OnUpdatedInfo>({ url: validIpdUrl1 }),
             newTab,
           );
 
@@ -388,7 +389,7 @@ describe("AutoSubmitLoginBackground", () => {
               tabId: newTabId,
             };
 
-            triggerTabOnRemovedEvent(newTabId, mock<chrome.tabs.TabRemoveInfo>());
+            triggerTabOnRemovedEvent(newTabId, mock<chrome.tabs.OnRemovedInfo>());
 
             expect(autoSubmitLoginBackground["currentAutoSubmitHostData"]).toStrictEqual({});
           });
@@ -402,14 +403,14 @@ describe("AutoSubmitLoginBackground", () => {
           tabId: tabId,
         };
         triggerWebRequestOnBeforeRedirectEvent(
-          mock<chrome.webRequest.WebRedirectionResponseDetails>({
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
             url: validIpdUrl1,
             redirectUrl: validIpdUrl2,
             frameId: 0,
           }),
         );
         triggerWebRequestOnBeforeRedirectEvent(
-          mock<chrome.webRequest.WebRedirectionResponseDetails>({
+          mock<chrome.webRequest.OnBeforeRedirectDetails>({
             url: validIpdUrl2,
             redirectUrl: validAutoSubmitUrl,
             frameId: 0,
@@ -417,7 +418,7 @@ describe("AutoSubmitLoginBackground", () => {
         );
 
         triggerWebRequestOnBeforeRequestEvent(
-          mock<chrome.webRequest.WebRequestBodyDetails>({
+          mock<chrome.webRequest.WebRequestDetails>({
             tabId: tabId,
             url: `https://${validAutoSubmitHost}`,
             initiator: null,

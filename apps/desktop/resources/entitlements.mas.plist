@@ -12,16 +12,14 @@
 	<array>
 		<string>LTZ2PFU5D6.com.bitwarden.desktop</string>
 	</array>
-	<key>com.apple.security.network.client</key>
-	<true/>
-	<key>com.apple.security.files.user-selected.read-write</key>
+	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
 	<key>com.apple.security.device.usb</key>
 	<true/>
-	<!--
-	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
+	<key>com.apple.security.files.user-selected.read-write</key>
 	<true/>
-	-->
+	<key>com.apple.security.network.client</key>
+	<true/>
 	<key>com.apple.security.temporary-exception.files.home-relative-path.read-write</key>
 	<array>
 		<string>/Library/Application Support/Mozilla/NativeMessagingHosts/</string>
@@ -34,9 +32,9 @@
 		<string>/Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/</string>
-        <string>/Library/Application Support/Vivaldi/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/Vivaldi/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/Zen/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/net.imput.helium</string>
 	</array>
-	<key>com.apple.security.cs.allow-jit</key>
-	<true/>
 </dict>
 </plist>

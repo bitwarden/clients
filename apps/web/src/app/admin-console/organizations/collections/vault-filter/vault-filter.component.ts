@@ -5,11 +5,15 @@ import { firstValueFrom, Subject } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../vault/individual-vault/vault-filter/components/vault-filter.component";
@@ -21,15 +25,20 @@ import {
 } from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter-section.type";
 import { CollectionFilter } from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter.type";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-organization-vault-filter",
   templateUrl:
     "../../../../vault/individual-vault/vault-filter/components/vault-filter.component.html",
+  standalone: false,
 })
 export class VaultFilterComponent
   extends BaseVaultFilterComponent
   implements OnInit, OnDestroy, OnChanges
 {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set organization(value: Organization) {
     if (value && value !== this._organization) {
       this._organization = value;
@@ -47,7 +56,11 @@ export class VaultFilterComponent
     protected toastService: ToastService,
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
-    protected configService: ConfigService,
+    protected accountService: AccountService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
+    protected cipherService: CipherService,
+    protected cipherArchiveService: CipherArchiveService,
+    premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     super(
       vaultFilterService,
@@ -57,7 +70,11 @@ export class VaultFilterComponent
       toastService,
       billingApiService,
       dialogService,
-      configService,
+      accountService,
+      restrictedItemTypesService,
+      cipherService,
+      cipherArchiveService,
+      premiumUpgradePromptService,
     );
   }
 
@@ -86,8 +103,8 @@ export class VaultFilterComponent
     const collapsedNodes = await firstValueFrom(this.vaultFilterService.collapsedFilterNodes$);
 
     collapsedNodes.delete("AllCollections");
-
-    await this.vaultFilterService.setCollapsedFilterNodes(collapsedNodes);
+    const userId = await firstValueFrom(this.activeUserId$);
+    await this.vaultFilterService.setCollapsedFilterNodes(collapsedNodes, userId);
   }
 
   protected async addCollectionFilter(): Promise<VaultFilterSection> {
@@ -102,14 +119,14 @@ export class VaultFilterComponent
           id: "AllCollections",
           name: "collections",
           type: "all",
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
         },
         [
           {
             id: "AllCollections",
             name: "Collections",
             type: "all",
-            icon: "bwi-collection",
+            icon: "bwi-collection-shared",
           },
         ],
       ),
@@ -124,7 +141,7 @@ export class VaultFilterComponent
 
   async buildAllFilters(): Promise<VaultFilterList> {
     const builderFilter = {} as VaultFilterList;
-    builderFilter.typeFilter = await this.addTypeFilter(["favorites"]);
+    builderFilter.typeFilter = await this.addTypeFilter(["favorites"], this._organization?.id);
     builderFilter.collectionFilter = await this.addCollectionFilter();
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;

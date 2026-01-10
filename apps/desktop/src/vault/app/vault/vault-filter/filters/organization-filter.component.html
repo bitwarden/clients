@@ -1,6 +1,6 @@
 <ng-container *ngIf="show">
   <ng-container [ngSwitch]="displayMode">
-    <ng-container *ngSwitchCase="'personalOwnershipPolicy'">
+    <ng-container *ngSwitchCase="'organizationDataOwnershipPolicy'">
       <div class="filter-heading" [ngClass]="{ active: !hasActiveFilter }">
         <button
           type="button"
@@ -49,7 +49,7 @@
               <i class="bwi bwi-fw bwi-business" aria-hidden="true"></i>
               &nbsp;{{ organization.name }}
             </button>
-            <span *ngIf="!organization.enabled" class="ml-auto">
+            <span *ngIf="!organization.enabled" class="tw-ml-auto">
               <i
                 class="bwi bwi-fw bwi-exclamation-triangle text-danger mr-auto"
                 attr.aria-label="{{ 'organizationIsDisabled' | i18n }}"
@@ -124,7 +124,7 @@
               <i class="bwi bwi-fw bwi-business" aria-hidden="true"></i>
               &nbsp;{{ organization.name }}
             </button>
-            <span *ngIf="!organization.enabled" class="ml-auto">
+            <span *ngIf="!organization.enabled" class="tw-ml-auto">
               <i
                 class="bwi bwi-fw bwi-exclamation-triangle text-danger mr-auto"
                 attr.aria-label="{{ 'organizationIsDisabled' | i18n }}"

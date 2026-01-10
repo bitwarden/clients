@@ -17,7 +17,6 @@ describe("InlineMenuFieldQualificationService", () => {
       fields: [],
     });
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
-    inlineMenuFieldQualificationService["inlineMenuFieldQualificationFlagSet"] = true;
   });
 
   describe("isFieldForLoginForm", () => {
@@ -222,7 +221,7 @@ describe("InlineMenuFieldQualificationService", () => {
 
             expect(
               inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
-            ).toBe(false);
+            ).toBe(true);
           });
         });
 
@@ -510,7 +509,7 @@ describe("InlineMenuFieldQualificationService", () => {
 
             expect(
               inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
-            ).toBe(false);
+            ).toBe(true);
           });
 
           it("is structured on a page with no password fields but has other types of fields in the form", () => {
@@ -569,7 +568,7 @@ describe("InlineMenuFieldQualificationService", () => {
             ).toBe(false);
           });
 
-          it("contains a disabled autocomplete type when multiple password fields are on the page", () => {
+          it("will not exclude a field by autocomplete type when it is the only viewable password field on the page", () => {
             const field = mock<AutofillField>({
               type: "text",
               autoCompleteType: "off",
@@ -600,7 +599,7 @@ describe("InlineMenuFieldQualificationService", () => {
 
             expect(
               inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
-            ).toBe(false);
+            ).toBe(true);
           });
         });
       });

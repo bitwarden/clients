@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { UserId } from "../../../types/guid";
+import { EncryptionContext } from "../../abstractions/cipher.service";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CardApi } from "../api/card.api";
@@ -10,12 +12,12 @@ import { LoginUriApi } from "../api/login-uri.api";
 import { LoginApi } from "../api/login.api";
 import { SecureNoteApi } from "../api/secure-note.api";
 import { SshKeyApi } from "../api/ssh-key.api";
-import { Cipher } from "../domain/cipher";
 
 import { AttachmentRequest } from "./attachment.request";
 import { PasswordHistoryRequest } from "./password-history.request";
 
 export class CipherRequest {
+  encryptedFor: UserId;
   type: CipherType;
   folderId: string;
   organizationId: string;
@@ -33,17 +35,20 @@ export class CipherRequest {
   attachments: { [id: string]: string };
   attachments2: { [id: string]: AttachmentRequest };
   lastKnownRevisionDate: Date;
+  archivedDate: Date | null;
   reprompt: CipherRepromptType;
   key: string;
 
-  constructor(cipher: Cipher) {
+  constructor({ cipher, encryptedFor }: EncryptionContext) {
     this.type = cipher.type;
+    this.encryptedFor = encryptedFor;
     this.folderId = cipher.folderId;
     this.organizationId = cipher.organizationId;
     this.name = cipher.name ? cipher.name.encryptedString : null;
     this.notes = cipher.notes ? cipher.notes.encryptedString : null;
     this.favorite = cipher.favorite;
     this.lastKnownRevisionDate = cipher.revisionDate;
+    this.archivedDate = cipher.archivedDate;
     this.reprompt = cipher.reprompt;
     this.key = cipher.key?.encryptedString;
 
@@ -196,6 +201,7 @@ export class CipherRequest {
         this.attachments[attachment.id] = fileName;
         const attachmentRequest = new AttachmentRequest();
         attachmentRequest.fileName = fileName;
+        attachmentRequest.lastKnownRevisionDate = cipher.revisionDate;
         if (attachment.key != null) {
           attachmentRequest.key = attachment.key.encryptedString;
         }

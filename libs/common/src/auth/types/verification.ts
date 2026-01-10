@@ -3,7 +3,11 @@ import { VerificationType } from "../enums/verification-type";
 import { MasterPasswordPolicyResponse } from "../models/response/master-password-policy.response";
 
 export type OtpVerification = { type: VerificationType.OTP; secret: string };
-export type MasterPasswordVerification = { type: VerificationType.MasterPassword; secret: string };
+export type MasterPasswordVerification = {
+  type: VerificationType.MasterPassword;
+  /** Secret here means the master password, *NOT* a hash of it */
+  secret: string;
+};
 export type PinVerification = { type: VerificationType.PIN; secret: string };
 export type BiometricsVerification = { type: VerificationType.Biometrics };
 
@@ -21,6 +25,8 @@ export function verificationHasSecret(
 export type ServerSideVerification = OtpVerification | MasterPasswordVerification;
 
 export type MasterPasswordVerificationResponse = {
+  /** @deprecated */
   masterKey: MasterKey;
+  email: string;
   policyOptions: MasterPasswordPolicyResponse | null;
 };

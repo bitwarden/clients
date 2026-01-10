@@ -68,7 +68,7 @@ describe("DeleteAttachmentComponent", () => {
   it("renders delete button", () => {
     const deleteButton = fixture.debugElement.query(By.css("button"));
 
-    expect(deleteButton.attributes["title"]).toBe("deleteAttachmentName");
+    expect(deleteButton.attributes["aria-label"]).toBe("deleteAttachmentName");
   });
 
   it("does not delete when the user cancels the dialog", async () => {
@@ -99,6 +99,7 @@ describe("DeleteAttachmentComponent", () => {
       "5555-444-3333",
       "222-3333-4444",
       "UserId",
+      false,
     );
   });
 

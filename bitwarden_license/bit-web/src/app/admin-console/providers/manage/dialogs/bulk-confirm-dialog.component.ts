@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import {
   OrganizationUserBulkPublicKeyResponse,
@@ -13,11 +13,15 @@ import { ProviderUserBulkConfirmRequest } from "@bitwarden/common/admin-console/
 import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
 import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { DialogService } from "@bitwarden/components";
+import { ProviderId } from "@bitwarden/common/types/guid";
+import { ProviderKey } from "@bitwarden/common/types/key";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { BaseBulkConfirmComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/base-bulk-confirm.component";
 import { BulkUserDetails } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
@@ -27,12 +31,16 @@ type BulkConfirmDialogParams = {
   users: BulkUserDetails[];
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl:
     "../../../../../../../../apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-confirm-dialog.component.html",
+  standalone: false,
 })
 export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
   providerId: string;
+  providerKey$: Observable<ProviderKey>;
 
   constructor(
     private apiService: ApiService,
@@ -40,15 +48,21 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
     protected encryptService: EncryptService,
     @Inject(DIALOG_DATA) protected dialogParams: BulkConfirmDialogParams,
     protected i18nService: I18nService,
+    private accountService: AccountService,
   ) {
     super(keyService, encryptService, i18nService);
 
     this.providerId = dialogParams.providerId;
+    this.providerKey$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.providerKeys$(userId)),
+      map((providerKeysById) => providerKeysById?.[this.providerId as ProviderId]),
+    );
     this.users = dialogParams.users;
   }
 
-  protected getCryptoKey = (): Promise<SymmetricCryptoKey> =>
-    this.keyService.getProviderKey(this.providerId);
+  protected getCryptoKey = async (): Promise<SymmetricCryptoKey> =>
+    await firstValueFrom(this.providerKey$);
 
   protected getPublicKeys = async (): Promise<
     ListResponse<OrganizationUserBulkPublicKeyResponse | ProviderUserBulkPublicKeyResponse>

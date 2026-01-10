@@ -1,6 +1,24 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import {
+  ActiveSendIcon,
+  DeactivatedOrg,
+  DevicesIcon,
+  DomainIcon,
+  EmptyTrash,
+  GearIcon,
+  NoCredentialsIcon,
+  NoFolders,
+  NoResults,
+  NoSendsIcon,
+  RestrictedView,
+  Security,
+  VaultOpen,
+} from "@bitwarden/assets/svg";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { ButtonModule } from "../button";
+import { I18nMockService } from "../utils";
 
 import { NoItemsComponent } from "./no-items.component";
 import { NoItemsModule } from "./no-items.module";
@@ -11,6 +29,12 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [ButtonModule, NoItemsModule],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: new I18nMockService({ loading: "Loading" }),
+        },
+      ],
     }),
   ],
   parameters: {
@@ -23,11 +47,27 @@ export default {
 
 type Story = StoryObj<NoItemsComponent>;
 
+const Icons = {
+  EmptyTrash,
+  NoFolders,
+  NoResults,
+  NoSendsIcon,
+  VaultOpen,
+  DeactivatedOrg,
+  ActiveSendIcon,
+  DevicesIcon,
+  Security,
+  NoCredentialsIcon,
+  RestrictedView,
+  DomainIcon,
+  GearIcon,
+};
+
 export const Default: Story = {
   render: (args) => ({
     props: args,
-    template: `
-    <bit-no-items class="tw-text-main">
+    template: /*html*/ `
+    <bit-no-items class="tw-text-main" [icon]="icon">
       <ng-container slot="title">No items found</ng-container>
       <ng-container slot="description">Your description here.</ng-container>
       <button
@@ -42,4 +82,14 @@ export const Default: Story = {
     </bit-no-items>
     `,
   }),
+  args: {
+    icon: NoResults,
+  },
+  argTypes: {
+    icon: {
+      options: Object.keys(Icons),
+      mapping: Icons,
+      control: { type: "select" },
+    },
+  },
 };

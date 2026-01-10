@@ -2,7 +2,9 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { KdfType } from "@bitwarden/key-management";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { PasswordRequest } from "../../models/request/password.request";
 import { SetPasswordRequest } from "../../models/request/set-password.request";
@@ -40,8 +42,7 @@ describe("MasterPasswordApiService", () => {
           publicKey: "publicKey",
           encryptedPrivateKey: "encryptedPrivateKey",
         },
-        KdfType.PBKDF2_SHA256,
-        600_000,
+        new PBKDF2KdfConfig(600_000),
       );
 
       // Act

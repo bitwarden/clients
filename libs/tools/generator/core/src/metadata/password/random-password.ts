@@ -3,19 +3,16 @@ import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
 import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
 import { deepFreeze } from "@bitwarden/common/tools/util";
 
-import { PasswordRandomizer } from "../../engine";
+import { PasswordRandomizer, SdkPasswordRandomizer } from "../../engine";
 import { DynamicPasswordPolicyConstraints, passwordLeastPrivilege } from "../../policies";
-import {
-  CredentialGenerator,
-  GeneratorDependencyProvider,
-  PasswordGeneratorSettings,
-} from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { CredentialGenerator, PasswordGeneratorSettings } from "../../types";
 import { Algorithm, Profile, Type } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 
 const password: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
   id: Algorithm.password,
-  category: Type.password,
+  type: Type.password,
   weight: 100,
   i18nKeys: {
     name: "password",
@@ -33,7 +30,10 @@ const password: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
     create(
       dependencies: GeneratorDependencyProvider,
     ): CredentialGenerator<PasswordGeneratorSettings> {
-      return new PasswordRandomizer(dependencies.randomizer);
+      if (dependencies.sdk == undefined) {
+        return new PasswordRandomizer(dependencies.randomizer, dependencies.now);
+      }
+      return new SdkPasswordRandomizer(dependencies.sdk, dependencies.now);
     },
   },
   profiles: {

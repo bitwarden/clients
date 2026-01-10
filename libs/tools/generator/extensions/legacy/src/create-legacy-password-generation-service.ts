@@ -25,7 +25,7 @@ export function legacyPasswordGenerationServiceFactory(
   stateProvider: StateProvider,
 ): PasswordGenerationServiceAbstraction {
   const randomizer = new KeyServiceRandomizer(keyService);
-  const passwordRandomizer = new PasswordRandomizer(randomizer);
+  const passwordRandomizer = new PasswordRandomizer(randomizer, Date.now);
 
   const passwords = new DefaultGeneratorService(
     new PasswordGeneratorStrategy(passwordRandomizer, stateProvider),

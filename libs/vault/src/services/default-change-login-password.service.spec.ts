@@ -4,8 +4,14 @@
  */
 
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -16,32 +22,30 @@ import { DefaultChangeLoginPasswordService } from "./default-change-login-passwo
 describe("DefaultChangeLoginPasswordService", () => {
   let service: DefaultChangeLoginPasswordService;
 
-  let mockShouldNotExistResponse: Response;
-  let mockWellKnownResponse: Response;
-
   const mockApiService = mock<ApiService>();
+  const mockDomainSettingsService = mock<DomainSettingsService>();
+
+  const showFavicons$ = new BehaviorSubject<boolean>(true);
 
   beforeEach(() => {
-    mockApiService.nativeFetch.mockClear();
+    mockApiService.fetch.mockClear();
+    mockApiService.fetch.mockImplementation(() =>
+      Promise.resolve({ ok: true, json: () => Promise.resolve({ uri: null }) } as Response),
+    );
 
-    // Default responses to success state
-    mockShouldNotExistResponse = new Response("Not Found", { status: 404 });
-    mockWellKnownResponse = new Response("OK", { status: 200 });
+    mockDomainSettingsService.showFavicons$ = showFavicons$;
 
-    mockApiService.nativeFetch.mockImplementation((request) => {
-      if (
-        request.url.endsWith("resource-that-should-not-exist-whose-status-code-should-not-be-200")
-      ) {
-        return Promise.resolve(mockShouldNotExistResponse);
-      }
+    const mockEnvironmentService = {
+      environment$: of({
+        getIconsUrl: () => "https://icons.bitwarden.com",
+      } as Environment),
+    } as EnvironmentService;
 
-      if (request.url.endsWith(".well-known/change-password")) {
-        return Promise.resolve(mockWellKnownResponse);
-      }
-
-      throw new Error("Unexpected request");
-    });
-    service = new DefaultChangeLoginPasswordService(mockApiService);
+    service = new DefaultChangeLoginPasswordService(
+      mockApiService,
+      mockEnvironmentService,
+      mockDomainSettingsService,
+    );
   });
 
   it("should return null for non-login ciphers", async () => {
@@ -78,7 +82,7 @@ describe("DefaultChangeLoginPasswordService", () => {
     expect(url).toBeNull();
   });
 
-  it("should check the origin for a reliable status code", async () => {
+  it("should call the icons url endpoint", async () => {
     const cipher = {
       type: CipherType.Login,
       login: Object.assign(new LoginView(), {
@@ -88,35 +92,42 @@ describe("DefaultChangeLoginPasswordService", () => {
 
     await service.getChangePasswordUrl(cipher);
 
-    expect(mockApiService.nativeFetch).toHaveBeenCalledWith(
+    expect(mockApiService.fetch).toHaveBeenCalledWith(
       expect.objectContaining({
-        url: "https://example.com/.well-known/resource-that-should-not-exist-whose-status-code-should-not-be-200",
+        url: "https://icons.bitwarden.com/change-password-uri?uri=https%3A%2F%2Fexample.com%2F",
       }),
     );
   });
 
-  it("should attempt to fetch the well-known change password URL", async () => {
+  it("should return the original URI when unable to verify the response", async () => {
+    mockApiService.fetch.mockImplementation(() =>
+      Promise.resolve({ ok: true, json: () => Promise.resolve({ uri: null }) } as Response),
+    );
+
     const cipher = {
       type: CipherType.Login,
       login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://example.com" }],
+        uris: [{ uri: "https://example.com/" }],
       }),
     } as CipherView;
 
-    await service.getChangePasswordUrl(cipher);
+    const url = await service.getChangePasswordUrl(cipher);
 
-    expect(mockApiService.nativeFetch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        url: "https://example.com/.well-known/change-password",
-      }),
-    );
+    expect(url).toBe("https://example.com/");
   });
 
-  it("should return the well-known change password URL when successful at verifying the response", async () => {
+  it("should return the well known change url from the response", async () => {
+    mockApiService.fetch.mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ uri: "https://example.com/.well-known/change-password" }),
+      } as Response);
+    });
+
     const cipher = {
       type: CipherType.Login,
       login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://example.com" }],
+        uris: [{ uri: "https://example.com/" }, { uri: "https://working.com/" }],
       }),
     } as CipherView;
 
@@ -125,49 +136,20 @@ describe("DefaultChangeLoginPasswordService", () => {
     expect(url).toBe("https://example.com/.well-known/change-password");
   });
 
-  it("should return the original URI when unable to verify the response", async () => {
-    mockShouldNotExistResponse = new Response("Ok", { status: 200 });
-
-    const cipher = {
-      type: CipherType.Login,
-      login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://example.com/" }],
-      }),
-    } as CipherView;
-
-    const url = await service.getChangePasswordUrl(cipher);
-
-    expect(url).toBe("https://example.com/");
-  });
-
-  it("should return the original URI when the well-known URL is not found", async () => {
-    mockWellKnownResponse = new Response("Not Found", { status: 404 });
-
-    const cipher = {
-      type: CipherType.Login,
-      login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://example.com/" }],
-      }),
-    } as CipherView;
-
-    const url = await service.getChangePasswordUrl(cipher);
-
-    expect(url).toBe("https://example.com/");
-  });
-
   it("should try the next URI if the first one fails", async () => {
-    mockApiService.nativeFetch.mockImplementation((request) => {
-      if (
-        request.url.endsWith("resource-that-should-not-exist-whose-status-code-should-not-be-200")
-      ) {
-        return Promise.resolve(mockShouldNotExistResponse);
+    mockApiService.fetch.mockImplementation((request) => {
+      if (request.url.includes("no-wellknown.com")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ uri: null }),
+        } as Response);
       }
 
-      if (request.url.endsWith(".well-known/change-password")) {
-        if (request.url.includes("working.com")) {
-          return Promise.resolve(mockWellKnownResponse);
-        }
-        return Promise.resolve(new Response("Not Found", { status: 404 }));
+      if (request.url.includes("working.com")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ uri: "https://working.com/.well-known/change-password" }),
+        } as Response);
       }
 
       throw new Error("Unexpected request");
@@ -183,5 +165,21 @@ describe("DefaultChangeLoginPasswordService", () => {
     const url = await service.getChangePasswordUrl(cipher);
 
     expect(url).toBe("https://working.com/.well-known/change-password");
+  });
+
+  it("returns the first URI when `showFavicons$` setting is disabled", async () => {
+    showFavicons$.next(false);
+
+    const cipher = {
+      type: CipherType.Login,
+      login: Object.assign(new LoginView(), {
+        uris: [{ uri: "https://example.com/" }, { uri: "https://another.com/" }],
+      }),
+    } as CipherView;
+
+    const url = await service.getChangePasswordUrl(cipher);
+
+    expect(url).toBe("https://example.com/");
+    expect(mockApiService.fetch).not.toHaveBeenCalled();
   });
 });

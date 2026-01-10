@@ -23,7 +23,7 @@ export abstract class LoginComponentService {
    * Gets the organization policies if there is an organization invite.
    * - Used by: Web
    */
-  getOrgPoliciesFromOrgInvite?: () => Promise<PasswordPolicies | null>;
+  getOrgPoliciesFromOrgInvite?: (email: string) => Promise<PasswordPolicies | null>;
 
   /**
    * Indicates whether login with passkey is supported on the given client
@@ -34,6 +34,14 @@ export abstract class LoginComponentService {
    * Redirects the user to the SSO login page, either via route or in a new browser window.
    */
   redirectToSsoLogin: (email: string) => Promise<void | null>;
+
+  /**
+   * Redirects the user to the SSO login page with organization SSO identifier, either via route or in a new browser window.
+   */
+  redirectToSsoLoginWithOrganizationSsoIdentifier: (
+    email: string,
+    orgSsoIdentifier: string | null | undefined,
+  ) => Promise<void | null>;
 
   /**
    * Shows the back button.

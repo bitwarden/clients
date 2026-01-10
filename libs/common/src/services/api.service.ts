@@ -1,13 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
-  CollectionRequest,
   CollectionResponse,
+  CreateCollectionRequest,
+  UpdateCollectionRequest,
 } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
@@ -24,12 +29,10 @@ import { ProviderUserBulkRequest } from "../admin-console/models/request/provide
 import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
 import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
-import { SelectionReadOnlyRequest } from "../admin-console/models/request/selection-read-only.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
-import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
@@ -43,9 +46,8 @@ import {
   ProviderUserUserDetailsResponse,
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
+import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
-import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
 import { EmailRequest } from "../auth/models/request/email.request";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
@@ -57,46 +59,22 @@ import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
 import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
-import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
 import { UpdateProfileRequest } from "../auth/models/request/update-profile.request";
-import { UpdateTwoFactorAuthenticatorRequest } from "../auth/models/request/update-two-factor-authenticator.request";
-import { UpdateTwoFactorDuoRequest } from "../auth/models/request/update-two-factor-duo.request";
-import { UpdateTwoFactorEmailRequest } from "../auth/models/request/update-two-factor-email.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "../auth/models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "../auth/models/request/update-two-factor-web-authn.request";
-import { UpdateTwoFactorYubikeyOtpRequest } from "../auth/models/request/update-two-factor-yubikey-otp.request";
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
-import { DeviceVerificationResponse } from "../auth/models/response/device-verification.response";
-import { IdentityCaptchaResponse } from "../auth/models/response/identity-captcha.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { PreloginResponse } from "../auth/models/response/prelogin.response";
-import { RegisterResponse } from "../auth/models/response/register.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
-import { TwoFactorAuthenticatorResponse } from "../auth/models/response/two-factor-authenticator.response";
-import { TwoFactorDuoResponse } from "../auth/models/response/two-factor-duo.response";
-import { TwoFactorEmailResponse } from "../auth/models/response/two-factor-email.response";
-import { TwoFactorProviderResponse } from "../auth/models/response/two-factor-provider.response";
-import { TwoFactorRecoverResponse } from "../auth/models/response/two-factor-recover.response";
-import {
-  ChallengeResponse,
-  TwoFactorWebAuthnResponse,
-} from "../auth/models/response/two-factor-web-authn.response";
-import { TwoFactorYubiKeyResponse } from "../auth/models/response/two-factor-yubi-key.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
-import { PaymentRequest } from "../billing/models/request/payment.request";
-import { TaxInfoUpdateRequest } from "../billing/models/request/tax-info-update.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
-import { BillingPaymentResponse } from "../billing/models/response/billing-payment.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
-import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
-import { DeviceType } from "../enums";
+import { ClientType, DeviceType, HttpStatusCode } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
@@ -106,13 +84,11 @@ import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { PreloginRequest } from "../models/request/prelogin.request";
-import { RegisterRequest } from "../models/request/register.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { EventResponse } from "../models/response/event.response";
@@ -120,7 +96,7 @@ import { ListResponse } from "../models/response/list.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
-import { EnvironmentService } from "../platform/abstractions/environment.service";
+import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 import { flagEnabled } from "../platform/misc/flags";
@@ -142,6 +118,12 @@ import { AttachmentResponse } from "../vault/models/response/attachment.response
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
+import { InsecureUrlNotAllowedError } from "./api-errors";
+
+export type HttpOperations = {
+  createRequest: (url: string, request: RequestInit) => Request;
+};
+
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual
  * api services. The `send` method is still allowed to be used within api services. For background
@@ -150,9 +132,7 @@ import { OptionalCipherResponse } from "../vault/models/response/optional-cipher
 export class ApiService implements ApiServiceAbstraction {
   private device: DeviceType;
   private deviceType: string;
-  private isWebClient = false;
-  private isDesktopClient = false;
-  private refreshTokenPromise: Promise<string> | undefined;
+  private refreshTokenPromise: Record<UserId, Promise<string>> = {};
 
   /**
    * The message (responseJson.ErrorModel.Message) that comes back from the server when a new device verification is required.
@@ -169,26 +149,12 @@ export class ApiService implements ApiServiceAbstraction {
     private logService: LogService,
     private logoutCallback: (logoutReason: LogoutReason) => Promise<void>,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private readonly accountService: AccountService,
+    private readonly httpOperations: HttpOperations,
     private customUserAgent: string = null,
   ) {
     this.device = platformUtilsService.getDevice();
     this.deviceType = this.device.toString();
-    this.isWebClient =
-      this.device === DeviceType.IEBrowser ||
-      this.device === DeviceType.ChromeBrowser ||
-      this.device === DeviceType.EdgeBrowser ||
-      this.device === DeviceType.FirefoxBrowser ||
-      this.device === DeviceType.OperaBrowser ||
-      this.device === DeviceType.SafariBrowser ||
-      this.device === DeviceType.UnknownBrowser ||
-      this.device === DeviceType.VivaldiBrowser;
-    this.isDesktopClient =
-      this.device === DeviceType.WindowsDesktop ||
-      this.device === DeviceType.MacOsDesktop ||
-      this.device === DeviceType.LinuxDesktop ||
-      this.device === DeviceType.WindowsCLI ||
-      this.device === DeviceType.MacOsCLI ||
-      this.device === DeviceType.LinuxCLI;
   }
 
   // Auth APIs
@@ -202,8 +168,8 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<
     | IdentityTokenResponse
     | IdentityTwoFactorResponse
-    | IdentityCaptchaResponse
     | IdentityDeviceVerificationResponse
+    | IdentitySsoRequiredResponse
   > {
     const headers = new Headers({
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
@@ -213,7 +179,6 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-    request.alterIdentityTokenHeaders(headers);
 
     const identityToken =
       request instanceof UserApiTokenRequest
@@ -223,9 +188,9 @@ export class ApiService implements ApiServiceAbstraction {
     const env = await firstValueFrom(this.environmentService.environment$);
 
     const response = await this.fetch(
-      new Request(env.getIdentityUrl() + "/connect/token", {
+      this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify(identityToken),
-        credentials: await this.getCredentials(),
+        credentials: await this.getCredentials(env),
         cache: "no-store",
         headers: headers,
         method: "POST",
@@ -248,24 +213,24 @@ export class ApiService implements ApiServiceAbstraction {
         return new IdentityTwoFactorResponse(responseJson);
       } else if (
         response.status === 400 &&
-        responseJson.HCaptcha_SiteKey &&
-        Object.keys(responseJson.HCaptcha_SiteKey).length
-      ) {
-        return new IdentityCaptchaResponse(responseJson);
-      } else if (
-        response.status === 400 &&
         responseJson?.ErrorModel?.Message === ApiService.NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE
       ) {
         return new IdentityDeviceVerificationResponse(responseJson);
+      } else if (response.status === 400 && responseJson?.SsoOrganizationIdentifier) {
+        return new IdentitySsoRequiredResponse(responseJson);
       }
     }
 
     return Promise.reject(new ErrorResponse(responseJson, response.status, true));
   }
 
-  async refreshIdentityToken(): Promise<any> {
+  async refreshIdentityToken(userId: UserId | null = null): Promise<any> {
+    const normalizedUser = (userId ??= await this.getActiveUser());
+    if (normalizedUser == null) {
+      throw new Error("No user provided and no active user, cannot refresh the identity token.");
+    }
     try {
-      await this.refreshToken();
+      await this.refreshToken(normalizedUser);
     } catch (e) {
       this.logService.error("Error refreshing access token: ", e);
       throw e;
@@ -312,11 +277,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new SubscriptionResponse(r);
   }
 
-  async getTaxInfo(): Promise<TaxInfoResponse> {
-    const r = await this.send("GET", "/accounts/tax", null, true, true);
-    return new TaxInfoResponse(r);
-  }
-
   async putProfile(request: UpdateProfileRequest): Promise<ProfileResponse> {
     const r = await this.send("PUT", "/accounts/profile", request, true, true);
     return new ProfileResponse(r);
@@ -325,10 +285,6 @@ export class ApiService implements ApiServiceAbstraction {
   async putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse> {
     const r = await this.send("PUT", "/accounts/avatar", request, true, true);
     return new ProfileResponse(r);
-  }
-
-  putTaxInfo(request: TaxInfoUpdateRequest): Promise<any> {
-    return this.send("PUT", "/accounts/tax", request, true, false);
   }
 
   async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
@@ -369,19 +325,6 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("POST", "/accounts/password-hint", request, false, false);
   }
 
-  async postRegister(request: RegisterRequest): Promise<RegisterResponse> {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const r = await this.send(
-      "POST",
-      "/accounts/register",
-      request,
-      false,
-      true,
-      env.getIdentityUrl(),
-    );
-    return new RegisterResponse(r);
-  }
-
   async postPremium(data: FormData): Promise<PaymentResponse> {
     const r = await this.send("POST", "/accounts/premium", data, true, true);
     return new PaymentResponse(r);
@@ -394,10 +337,6 @@ export class ApiService implements ApiServiceAbstraction {
   async postAccountStorage(request: StorageRequest): Promise<PaymentResponse> {
     const r = await this.send("POST", "/accounts/storage", request, true, true);
     return new PaymentResponse(r);
-  }
-
-  postAccountPayment(request: PaymentRequest): Promise<void> {
-    return this.send("POST", "/accounts/payment", request, true, false);
   }
 
   postAccountLicense(data: FormData): Promise<any> {
@@ -460,11 +399,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new BillingHistoryResponse(r);
   }
 
-  async getUserBillingPayment(): Promise<BillingPaymentResponse> {
-    const r = await this.send("GET", "/accounts/billing/payment-method", null, true, true);
-    return new BillingPaymentResponse(r);
-  }
-
   // Cipher APIs
 
   async getCipher(id: string): Promise<CipherResponse> {
@@ -482,14 +416,15 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  async getCiphersOrganization(organizationId: string): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send(
-      "GET",
-      "/ciphers/organization-details?organizationId=" + organizationId,
-      null,
-      true,
-      true,
-    );
+  async getCiphersOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<ListResponse<CipherResponse>> {
+    let url = "/ciphers/organization-details?organizationId=" + organizationId;
+    if (includeMemberItems) {
+      url += `&includeMemberItems=${includeMemberItems}`;
+    }
+    const r = await this.send("GET", url, null, true, true);
     return new ListResponse(r, CipherResponse);
   }
 
@@ -548,8 +483,9 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  putShareCiphers(request: CipherBulkShareRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/share", request, true, false);
+  async putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>> {
+    const r = await this.send("PUT", "/ciphers/share", request, true, true);
+    return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
   async putCipherCollections(
@@ -637,30 +573,21 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentResponse(r);
   }
 
+  async getAttachmentDataAdmin(
+    cipherId: string,
+    attachmentId: string,
+  ): Promise<AttachmentResponse> {
+    const path = "/ciphers/" + cipherId + "/attachment/" + attachmentId + "/admin";
+    const r = await this.send("GET", path, null, true, true);
+    return new AttachmentResponse(r);
+  }
+
   async postCipherAttachment(
     id: string,
     request: AttachmentRequest,
   ): Promise<AttachmentUploadDataResponse> {
     const r = await this.send("POST", "/ciphers/" + id + "/attachment/v2", request, true, true);
     return new AttachmentUploadDataResponse(r);
-  }
-
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  async postCipherAttachmentLegacy(id: string, data: FormData): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment", data, true, true);
-    return new CipherResponse(r);
-  }
-
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  async postCipherAttachmentAdminLegacy(id: string, data: FormData): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment-admin", data, true, true);
-    return new CipherResponse(r);
   }
 
   deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {
@@ -673,7 +600,7 @@ export class ApiService implements ApiServiceAbstraction {
       "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
       null,
       true,
-      false,
+      true,
     );
   }
 
@@ -771,7 +698,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postCollection(
     organizationId: string,
-    request: CollectionRequest,
+    request: CreateCollectionRequest,
   ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "POST",
@@ -786,7 +713,7 @@ export class ApiService implements ApiServiceAbstraction {
   async putCollection(
     organizationId: string,
     id: string,
-    request: CollectionRequest,
+    request: UpdateCollectionRequest,
   ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "PUT",
@@ -796,20 +723,6 @@ export class ApiService implements ApiServiceAbstraction {
       true,
     );
     return new CollectionAccessDetailsResponse(r);
-  }
-
-  async putCollectionUsers(
-    organizationId: string,
-    id: string,
-    request: SelectionReadOnlyRequest[],
-  ): Promise<any> {
-    await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/collections/" + id + "/users",
-      request,
-      true,
-      false,
-    );
   }
 
   deleteCollection(organizationId: string, id: string): Promise<any> {
@@ -827,20 +740,6 @@ export class ApiService implements ApiServiceAbstraction {
       "DELETE",
       "/organizations/" + organizationId + "/collections",
       new CollectionBulkDeleteRequest(collectionIds),
-      true,
-      false,
-    );
-  }
-
-  deleteCollectionUser(
-    organizationId: string,
-    id: string,
-    organizationUserId: string,
-  ): Promise<any> {
-    return this.send(
-      "DELETE",
-      "/organizations/" + organizationId + "/collections/" + id + "/user/" + organizationUserId,
-      null,
       true,
       false,
     );
@@ -891,208 +790,11 @@ export class ApiService implements ApiServiceAbstraction {
   // Sync APIs
 
   async getSync(): Promise<SyncResponse> {
-    const path = this.isDesktopClient || this.isWebClient ? "/sync?excludeDomains=true" : "/sync";
+    const path = !this.platformUtilsService.supportsAutofill()
+      ? "/sync?excludeDomains=true"
+      : "/sync";
     const r = await this.send("GET", path, null, true, true);
     return new SyncResponse(r);
-  }
-
-  // Two-factor APIs
-
-  async getTwoFactorProviders(): Promise<ListResponse<TwoFactorProviderResponse>> {
-    const r = await this.send("GET", "/two-factor", null, true, true);
-    return new ListResponse(r, TwoFactorProviderResponse);
-  }
-
-  async getTwoFactorOrganizationProviders(
-    organizationId: string,
-  ): Promise<ListResponse<TwoFactorProviderResponse>> {
-    const r = await this.send(
-      "GET",
-      "/organizations/" + organizationId + "/two-factor",
-      null,
-      true,
-      true,
-    );
-    return new ListResponse(r, TwoFactorProviderResponse);
-  }
-
-  async getTwoFactorAuthenticator(
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorAuthenticatorResponse> {
-    const r = await this.send("POST", "/two-factor/get-authenticator", request, true, true);
-    return new TwoFactorAuthenticatorResponse(r);
-  }
-
-  async getTwoFactorEmail(request: SecretVerificationRequest): Promise<TwoFactorEmailResponse> {
-    const r = await this.send("POST", "/two-factor/get-email", request, true, true);
-    return new TwoFactorEmailResponse(r);
-  }
-
-  async getTwoFactorDuo(request: SecretVerificationRequest): Promise<TwoFactorDuoResponse> {
-    const r = await this.send("POST", "/two-factor/get-duo", request, true, true);
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async getTwoFactorOrganizationDuo(
-    organizationId: string,
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorDuoResponse> {
-    const r = await this.send(
-      "POST",
-      "/organizations/" + organizationId + "/two-factor/get-duo",
-      request,
-      true,
-      true,
-    );
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async getTwoFactorYubiKey(request: SecretVerificationRequest): Promise<TwoFactorYubiKeyResponse> {
-    const r = await this.send("POST", "/two-factor/get-yubikey", request, true, true);
-    return new TwoFactorYubiKeyResponse(r);
-  }
-
-  async getTwoFactorWebAuthn(
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorWebAuthnResponse> {
-    const r = await this.send("POST", "/two-factor/get-webauthn", request, true, true);
-    return new TwoFactorWebAuthnResponse(r);
-  }
-
-  async getTwoFactorWebAuthnChallenge(
-    request: SecretVerificationRequest,
-  ): Promise<ChallengeResponse> {
-    const r = await this.send("POST", "/two-factor/get-webauthn-challenge", request, true, true);
-    return new ChallengeResponse(r);
-  }
-
-  async getTwoFactorRecover(request: SecretVerificationRequest): Promise<TwoFactorRecoverResponse> {
-    const r = await this.send("POST", "/two-factor/get-recover", request, true, true);
-    return new TwoFactorRecoverResponse(r);
-  }
-
-  async putTwoFactorAuthenticator(
-    request: UpdateTwoFactorAuthenticatorRequest,
-  ): Promise<TwoFactorAuthenticatorResponse> {
-    const r = await this.send("PUT", "/two-factor/authenticator", request, true, true);
-    return new TwoFactorAuthenticatorResponse(r);
-  }
-
-  async deleteTwoFactorAuthenticator(
-    request: DisableTwoFactorAuthenticatorRequest,
-  ): Promise<TwoFactorProviderResponse> {
-    const r = await this.send("DELETE", "/two-factor/authenticator", request, true, true);
-    return new TwoFactorProviderResponse(r);
-  }
-
-  async putTwoFactorEmail(request: UpdateTwoFactorEmailRequest): Promise<TwoFactorEmailResponse> {
-    const r = await this.send("PUT", "/two-factor/email", request, true, true);
-    return new TwoFactorEmailResponse(r);
-  }
-
-  async putTwoFactorDuo(request: UpdateTwoFactorDuoRequest): Promise<TwoFactorDuoResponse> {
-    const r = await this.send("PUT", "/two-factor/duo", request, true, true);
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async putTwoFactorOrganizationDuo(
-    organizationId: string,
-    request: UpdateTwoFactorDuoRequest,
-  ): Promise<TwoFactorDuoResponse> {
-    const r = await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/two-factor/duo",
-      request,
-      true,
-      true,
-    );
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async putTwoFactorYubiKey(
-    request: UpdateTwoFactorYubikeyOtpRequest,
-  ): Promise<TwoFactorYubiKeyResponse> {
-    const r = await this.send("PUT", "/two-factor/yubikey", request, true, true);
-    return new TwoFactorYubiKeyResponse(r);
-  }
-
-  async putTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnRequest,
-  ): Promise<TwoFactorWebAuthnResponse> {
-    const response = request.deviceResponse.response as AuthenticatorAttestationResponse;
-    const data: any = Object.assign({}, request);
-
-    data.deviceResponse = {
-      id: request.deviceResponse.id,
-      rawId: btoa(request.deviceResponse.id),
-      type: request.deviceResponse.type,
-      extensions: request.deviceResponse.getClientExtensionResults(),
-      response: {
-        AttestationObject: Utils.fromBufferToB64(response.attestationObject),
-        clientDataJson: Utils.fromBufferToB64(response.clientDataJSON),
-      },
-    };
-
-    const r = await this.send("PUT", "/two-factor/webauthn", data, true, true);
-    return new TwoFactorWebAuthnResponse(r);
-  }
-
-  async deleteTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnDeleteRequest,
-  ): Promise<TwoFactorWebAuthnResponse> {
-    const r = await this.send("DELETE", "/two-factor/webauthn", request, true, true);
-    return new TwoFactorWebAuthnResponse(r);
-  }
-
-  async putTwoFactorDisable(request: TwoFactorProviderRequest): Promise<TwoFactorProviderResponse> {
-    const r = await this.send("PUT", "/two-factor/disable", request, true, true);
-    return new TwoFactorProviderResponse(r);
-  }
-
-  async putTwoFactorOrganizationDisable(
-    organizationId: string,
-    request: TwoFactorProviderRequest,
-  ): Promise<TwoFactorProviderResponse> {
-    const r = await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/two-factor/disable",
-      request,
-      true,
-      true,
-    );
-    return new TwoFactorProviderResponse(r);
-  }
-
-  postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any> {
-    return this.send("POST", "/two-factor/send-email", request, true, false);
-  }
-
-  postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any> {
-    return this.send("POST", "/two-factor/send-email-login", request, false, false);
-  }
-
-  async getDeviceVerificationSettings(): Promise<DeviceVerificationResponse> {
-    const r = await this.send(
-      "GET",
-      "/two-factor/get-device-verification-settings",
-      null,
-      true,
-      true,
-    );
-    return new DeviceVerificationResponse(r);
-  }
-
-  async putDeviceVerificationSettings(
-    request: DeviceVerificationRequest,
-  ): Promise<DeviceVerificationResponse> {
-    const r = await this.send(
-      "PUT",
-      "/two-factor/device-verification-settings",
-      request,
-      true,
-      true,
-    );
-    return new DeviceVerificationResponse(r);
   }
 
   // Organization APIs
@@ -1337,6 +1039,72 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
+  async getEventsSecret(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/secrets/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
+  async getEventsServiceAccount(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/service-account/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
+  async getEventsProject(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/projects/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
   async getEventsOrganization(
     id: string,
     start: string,
@@ -1423,11 +1191,16 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-    const env = await firstValueFrom(this.environmentService.environment$);
+
+    const env = await firstValueFrom(
+      userId == null
+        ? this.environmentService.environment$
+        : this.environmentService.getEnvironment$(userId),
+    );
     const response = await this.fetch(
-      new Request(env.getEventsUrl() + "/collect", {
+      this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
         cache: "no-store",
-        credentials: await this.getCredentials(),
+        credentials: await this.getCredentials(env),
         method: "POST",
         body: JSON.stringify(request),
         headers: headers,
@@ -1443,13 +1216,6 @@ export class ApiService implements ApiServiceAbstraction {
   async getUserPublicKey(id: string): Promise<UserKeyResponse> {
     const r = await this.send("GET", "/users/" + id + "/public-key", null, true, true);
     return new UserKeyResponse(r);
-  }
-
-  // HIBP APIs
-
-  async getHibpBreach(username: string): Promise<BreachAccountResponse[]> {
-    const r = await this.send("GET", "/hibp/breach?username=" + username, null, true, true);
-    return r.map((a: any) => new BreachAccountResponse(a));
   }
 
   // Misc
@@ -1469,10 +1235,14 @@ export class ApiService implements ApiServiceAbstraction {
   async getMasterKeyFromKeyConnector(
     keyConnectorUrl: string,
   ): Promise<KeyConnectorUserKeyResponse> {
-    const authHeader = await this.getActiveBearerToken();
+    const activeUser = await this.getActiveUser();
+    if (activeUser == null) {
+      throw new Error("No active user, cannot get master key from key connector.");
+    }
+    const authHeader = await this.getActiveBearerToken(activeUser);
 
     const response = await this.fetch(
-      new Request(keyConnectorUrl + "/user-keys", {
+      this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
         cache: "no-store",
         method: "GET",
         headers: new Headers({
@@ -1482,8 +1252,8 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
 
@@ -1494,10 +1264,14 @@ export class ApiService implements ApiServiceAbstraction {
     keyConnectorUrl: string,
     request: KeyConnectorUserKeyRequest,
   ): Promise<void> {
-    const authHeader = await this.getActiveBearerToken();
+    const activeUser = await this.getActiveUser();
+    if (activeUser == null) {
+      throw new Error("No active user, cannot post key to key connector.");
+    }
+    const authHeader = await this.getActiveBearerToken(activeUser);
 
     const response = await this.fetch(
-      new Request(keyConnectorUrl + "/user-keys", {
+      this.httpOperations.createRequest(keyConnectorUrl + "/user-keys", {
         cache: "no-store",
         method: "POST",
         headers: new Headers({
@@ -1509,15 +1283,15 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
   }
 
   async getKeyConnectorAlive(keyConnectorUrl: string) {
     const response = await this.fetch(
-      new Request(keyConnectorUrl + "/alive", {
+      this.httpOperations.createRequest(keyConnectorUrl + "/alive", {
         cache: "no-store",
         method: "GET",
         headers: new Headers({
@@ -1527,34 +1301,25 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
   }
 
-  async getOrganizationExport(organizationId: string): Promise<OrganizationExportResponse> {
-    const r = await this.send(
-      "GET",
-      "/organizations/" + organizationId + "/export",
-      null,
-      true,
-      true,
-    );
-    return new OrganizationExportResponse(r);
-  }
-
-  // Helpers
-
-  async getActiveBearerToken(): Promise<string> {
-    let accessToken = await this.tokenService.getAccessToken();
-    if (await this.tokenService.tokenNeedsRefresh()) {
-      accessToken = await this.refreshToken();
+  async getActiveBearerToken(userId: UserId): Promise<string> {
+    let accessToken = await this.tokenService.getAccessToken(userId);
+    if (await this.tokenService.tokenNeedsRefresh(userId)) {
+      accessToken = await this.refreshToken(userId);
     }
     return accessToken;
   }
 
   async fetch(request: Request): Promise<Response> {
+    if (!request.url.startsWith("https://") && !this.platformUtilsService.isDev()) {
+      throw new InsecureUrlNotAllowedError();
+    }
+
     if (request.method === "GET") {
       request.headers.set("Cache-Control", "no-store");
       request.headers.set("Pragma", "no-cache");
@@ -1564,6 +1329,11 @@ export class ApiService implements ApiServiceAbstraction {
       "Bitwarden-Client-Version",
       await this.platformUtilsService.getApplicationVersionNumber(),
     );
+
+    const packageType = await this.platformUtilsService.packageType();
+    if (packageType != null) {
+      request.headers.set("Bitwarden-Package-Type", packageType);
+    }
     return this.nativeFetch(request);
   }
 
@@ -1586,9 +1356,9 @@ export class ApiService implements ApiServiceAbstraction {
     const env = await firstValueFrom(this.environmentService.environment$);
     const path = `/sso/prevalidate?domainHint=${encodeURIComponent(identifier)}`;
     const response = await this.fetch(
-      new Request(env.getIdentityUrl() + path, {
+      this.httpOperations.createRequest(env.getIdentityUrl() + path, {
         cache: "no-store",
-        credentials: await this.getCredentials(),
+        credentials: await this.getCredentials(env),
         headers: headers,
         method: "GET",
       }),
@@ -1598,7 +1368,7 @@ export class ApiService implements ApiServiceAbstraction {
       const body = await response.json();
       return new SsoPreValidateResponse(body);
     } else {
-      const error = await this.handleError(response, false, true);
+      const error = await this.handleApiRequestError(response, false);
       return Promise.reject(error);
     }
   }
@@ -1630,18 +1400,6 @@ export class ApiService implements ApiServiceAbstraction {
       true,
     );
     return new OrganizationSponsorshipSyncStatusResponse(response);
-  }
-
-  async deleteRevokeSponsorship(sponsoringOrganizationId: string): Promise<void> {
-    return await this.send(
-      "DELETE",
-      "/organization/sponsorship/" +
-        (this.platformUtilsService.isSelfHost() ? "self-hosted/" : "") +
-        sponsoringOrganizationId,
-      null,
-      true,
-      false,
-    );
   }
 
   async deleteRemoveSponsorship(sponsoringOrgId: string): Promise<void> {
@@ -1682,37 +1440,28 @@ export class ApiService implements ApiServiceAbstraction {
     );
   }
 
-  async postResendSponsorshipOffer(sponsoringOrgId: string): Promise<void> {
-    return await this.send(
-      "POST",
-      "/organization/sponsorship/" + sponsoringOrgId + "/families-for-enterprise/resend",
-      null,
-      true,
-      false,
-    );
-  }
-
   // Keep the running refreshTokenPromise to prevent parallel calls.
-  protected refreshToken(): Promise<string> {
-    if (this.refreshTokenPromise === undefined) {
-      this.refreshTokenPromise = this.internalRefreshToken();
-      void this.refreshTokenPromise.finally(() => {
-        this.refreshTokenPromise = undefined;
+  protected refreshToken(userId: UserId): Promise<string> {
+    if (this.refreshTokenPromise[userId] === undefined) {
+      // TODO: Have different promise for each user
+      this.refreshTokenPromise[userId] = this.internalRefreshToken(userId);
+      void this.refreshTokenPromise[userId].finally(() => {
+        delete this.refreshTokenPromise[userId];
       });
     }
-    return this.refreshTokenPromise;
+    return this.refreshTokenPromise[userId];
   }
 
-  private async internalRefreshToken(): Promise<string> {
-    const refreshToken = await this.tokenService.getRefreshToken();
+  private async internalRefreshToken(userId: UserId): Promise<string> {
+    const refreshToken = await this.tokenService.getRefreshToken(userId);
     if (refreshToken != null && refreshToken !== "") {
-      return this.refreshAccessToken();
+      return await this.refreshAccessToken(userId);
     }
 
-    const clientId = await this.tokenService.getClientId();
-    const clientSecret = await this.tokenService.getClientSecret();
+    const clientId = await this.tokenService.getClientId(userId);
+    const clientSecret = await this.tokenService.getClientSecret(userId);
     if (!Utils.isNullOrWhitespace(clientId) && !Utils.isNullOrWhitespace(clientSecret)) {
-      return this.refreshApiToken();
+      return await this.refreshApiToken(userId);
     }
 
     this.refreshAccessTokenErrorCallback();
@@ -1720,8 +1469,8 @@ export class ApiService implements ApiServiceAbstraction {
     throw new Error("Cannot refresh access token, no refresh token or api keys are stored.");
   }
 
-  protected async refreshAccessToken(): Promise<string> {
-    const refreshToken = await this.tokenService.getRefreshToken();
+  private async refreshAccessToken(userId: UserId): Promise<string> {
+    const refreshToken = await this.tokenService.getRefreshToken(userId);
     if (refreshToken == null || refreshToken === "") {
       throw new Error();
     }
@@ -1734,17 +1483,17 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
 
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const decodedToken = await this.tokenService.decodeAccessToken();
+    const env = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+    const decodedToken = await this.tokenService.decodeAccessToken(userId);
     const response = await this.fetch(
-      new Request(env.getIdentityUrl() + "/connect/token", {
+      this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify({
           grant_type: "refresh_token",
           client_id: decodedToken.client_id,
           refresh_token: refreshToken,
         }),
         cache: "no-store",
-        credentials: await this.getCredentials(),
+        credentials: await this.getCredentials(env),
         headers: headers,
         method: "POST",
       }),
@@ -1774,14 +1523,14 @@ export class ApiService implements ApiServiceAbstraction {
       );
       return refreshedTokens.accessToken;
     } else {
-      const error = await this.handleError(response, true, true);
+      const error = await this.handleTokenRefreshRequestError(response);
       return Promise.reject(error);
     }
   }
 
-  protected async refreshApiToken(): Promise<string> {
-    const clientId = await this.tokenService.getClientId();
-    const clientSecret = await this.tokenService.getClientSecret();
+  protected async refreshApiToken(userId: UserId): Promise<string> {
+    const clientId = await this.tokenService.getClientId(userId);
+    const clientSecret = await this.tokenService.getClientSecret(userId);
 
     const appId = await this.appIdService.getAppId();
     const deviceRequest = new DeviceRequest(appId, this.platformUtilsService);
@@ -1798,7 +1547,12 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     const newDecodedAccessToken = await this.tokenService.decodeAccessToken(response.accessToken);
-    const userId = newDecodedAccessToken.sub;
+
+    if (newDecodedAccessToken.sub !== userId) {
+      throw new Error(
+        `Token was supposed to be refreshed for ${userId} but the token we got back was for ${newDecodedAccessToken.sub}`,
+      );
+    }
 
     const vaultTimeoutAction = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
@@ -1819,21 +1573,118 @@ export class ApiService implements ApiServiceAbstraction {
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     path: string,
     body: any,
-    authed: boolean,
+    authedOrUserId: UserId | boolean,
     hasResponse: boolean,
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? env.getApiUrl() : apiUrl;
+    // We assume that if there is a UserId making the request, it is also an authenticated
+    // request and we will attempt to add an access token to the request.
+    const userIdMakingRequest = await this.getUserIdMakingRequest(authedOrUserId);
 
-    // Prevent directory traversal from malicious paths
+    const environment = await firstValueFrom(
+      userIdMakingRequest == null
+        ? this.environmentService.environment$
+        : this.environmentService.getEnvironment$(userIdMakingRequest),
+    );
+    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? environment.getApiUrl() : apiUrl;
+
+    const requestUrl = await this.buildSafeApiRequestUrl(apiUrl, path);
+
+    let request = await this.buildRequest(
+      method,
+      userIdMakingRequest,
+      environment,
+      hasResponse,
+      body,
+      alterHeaders,
+    );
+
+    let response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
+
+    // First, check to see if we were making an authenticated request and received an Unauthorized (401)
+    // response.  This could mean that we attempted to make a request with an expired access token.
+    // If so, attempt to refresh the token and try again.
+    if (
+      hasResponse &&
+      userIdMakingRequest != null &&
+      response.status === HttpStatusCode.Unauthorized
+    ) {
+      this.logService.warning(
+        "Unauthorized response received for request to " + path + ". Attempting request again.",
+      );
+      request = await this.buildRequest(
+        method,
+        userIdMakingRequest,
+        environment,
+        hasResponse,
+        body,
+        alterHeaders,
+      );
+      response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
+    }
+
+    // At this point we are processing either the initial response or the response for the retry with the refreshed
+    // access token.
+    const responseType = response.headers.get("content-type");
+    const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
+    const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
+    if (hasResponse && response.status === HttpStatusCode.Ok && responseIsJson) {
+      const responseJson = await response.json();
+      return responseJson;
+    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsCsv) {
+      return await response.text();
+    } else if (
+      response.status !== HttpStatusCode.Ok &&
+      response.status !== HttpStatusCode.NoContent
+    ) {
+      const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
+      return Promise.reject(error);
+    }
+  }
+
+  private buildSafeApiRequestUrl(apiUrl: string, path: string): string {
     const pathParts = path.split("?");
+
+    // Check for path traversal patterns from any URL.
+    const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+
+    const isInvalidUrl = Utils.invalidUrlPatterns(fullUrlPath);
+    if (isInvalidUrl) {
+      throw new Error("The request URL contains dangerous patterns.");
+    }
+
     const requestUrl =
       apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
 
+    return requestUrl;
+  }
+
+  private async getUserIdMakingRequest(authedOrUserId: UserId | boolean): Promise<UserId> {
+    if (authedOrUserId == null) {
+      throw new Error("A user id was given but it was null, cannot complete API request.");
+    }
+
+    let userId: UserId | null = null;
+    if (typeof authedOrUserId === "boolean" && authedOrUserId) {
+      // Backwards compatible for authenticating the active user when `true` is passed in
+      userId = await this.getActiveUser();
+    } else if (typeof authedOrUserId === "string") {
+      userId = authedOrUserId;
+    }
+    return userId;
+  }
+
+  private async buildRequest(
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    userForAccessToken: UserId | null,
+    environment: Environment,
+    hasResponse: boolean,
+    body: string,
+    alterHeaders?: (headers: Headers) => void,
+  ): Promise<RequestInit> {
     const [requestHeaders, requestBody] = await this.buildHeadersAndBody(
-      authed,
+      userForAccessToken,
       hasResponse,
       body,
       alterHeaders,
@@ -1841,29 +1692,17 @@ export class ApiService implements ApiServiceAbstraction {
 
     const requestInit: RequestInit = {
       cache: "no-store",
-      credentials: await this.getCredentials(),
+      credentials: await this.getCredentials(environment),
       method: method,
     };
     requestInit.headers = requestHeaders;
     requestInit.body = requestBody;
-    const response = await this.fetch(new Request(requestUrl, requestInit));
 
-    const responseType = response.headers.get("content-type");
-    const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
-    const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
-    if (hasResponse && response.status === 200 && responseIsJson) {
-      const responseJson = await response.json();
-      return responseJson;
-    } else if (hasResponse && response.status === 200 && responseIsCsv) {
-      return await response.text();
-    } else if (response.status !== 200 && response.status !== 204) {
-      const error = await this.handleError(response, false, authed);
-      return Promise.reject(error);
-    }
+    return requestInit;
   }
 
   private async buildHeadersAndBody(
-    authed: boolean,
+    userForAccessToken: UserId | null,
     hasResponse: boolean,
     body: any,
     alterHeaders: (headers: Headers) => void,
@@ -1885,9 +1724,14 @@ export class ApiService implements ApiServiceAbstraction {
     if (alterHeaders != null) {
       alterHeaders(headers);
     }
-    if (authed) {
-      const authHeader = await this.getActiveBearerToken();
+    if (userForAccessToken != null) {
+      const authHeader = await this.getActiveBearerToken(userForAccessToken);
       headers.set("Authorization", "Bearer " + authHeader);
+    } else {
+      // For unauthenticated requests, we need to tell the server what the device is for flag targeting,
+      // since it won't be able to get it from the access token.
+      const appId = await this.appIdService.getAppId();
+      headers.set("Device-Identifier", appId);
     }
 
     if (body != null) {
@@ -1907,32 +1751,59 @@ export class ApiService implements ApiServiceAbstraction {
     return [headers, requestBody];
   }
 
-  private async handleError(
+  /**
+   * Handle an error response from a request to the Bitwarden API.
+   * If the request is made with an access token (aka the user is authenticated),
+   * and we receive a 401 or 403 response, we will log the user out, as this indicates
+   * that the access token used on the request is either expired or does not have the appropriate permissions.
+   * It is unlikely that it is expired, as we attempt to refresh the token on initial failure.
+   * @param response The response from the API request
+   * @param userIsAuthenticated A boolean indicating whether this is an authenticated request.
+   * @returns An ErrorResponse with a message based on the response status.
+   */
+  private async handleApiRequestError(
     response: Response,
-    tokenError: boolean,
-    authed: boolean,
+    userIsAuthenticated: boolean,
   ): Promise<ErrorResponse> {
+    if (
+      userIsAuthenticated &&
+      (response.status === HttpStatusCode.Unauthorized ||
+        response.status === HttpStatusCode.Forbidden)
+    ) {
+      await this.logoutCallback("invalidAccessToken");
+    }
+
+    const responseJson = await this.getJsonResponse(response);
+    return new ErrorResponse(responseJson, response.status);
+  }
+
+  /**
+   * Handle an error response when trying to refresh an access token.
+   * If the error indicates that the user's session has expired, it will log the user out.
+   * @param response The response from the token refresh request.
+   * @returns An ErrorResponse with a message based on the response status.
+   */
+  private async handleTokenRefreshRequestError(response: Response): Promise<ErrorResponse> {
+    const responseJson = await this.getJsonResponse(response);
+
+    // IdentityServer will return an invalid_grant response if the refresh token has expired.
+    // This means that the user's session has expired, and they need to log out.
+    // We issue the logoutCallback() to log the user out through messaging.
+    if (response.status === HttpStatusCode.BadRequest && responseJson?.error === "invalid_grant") {
+      await this.logoutCallback("sessionExpired");
+    }
+
+    return new ErrorResponse(responseJson, response.status, true);
+  }
+
+  private async getJsonResponse(response: Response): Promise<any> {
     let responseJson: any = null;
     if (this.isJsonResponse(response)) {
       responseJson = await response.json();
-    } else if (this.isTextResponse(response)) {
+    } else if (this.isTextPlainResponse(response)) {
       responseJson = { Message: await response.text() };
     }
-
-    if (authed) {
-      if (
-        response.status === 401 ||
-        response.status === 403 ||
-        (tokenError &&
-          response.status === 400 &&
-          responseJson != null &&
-          responseJson.error === "invalid_grant")
-      ) {
-        await this.logoutCallback("invalidGrantError");
-      }
-    }
-
-    return new ErrorResponse(responseJson, response.status, tokenError);
+    return responseJson;
   }
 
   private qsStringify(params: any): string {
@@ -1943,9 +1814,12 @@ export class ApiService implements ApiServiceAbstraction {
       .join("&");
   }
 
-  private async getCredentials(): Promise<RequestCredentials> {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    if (!this.isWebClient || env.hasBaseUrl()) {
+  private async getActiveUser(): Promise<UserId | null> {
+    return await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+  }
+
+  private async getCredentials(env: Environment): Promise<RequestCredentials> {
+    if (this.platformUtilsService.getClientType() !== ClientType.Web || env.hasBaseUrl()) {
       return "include";
     }
     return undefined;
@@ -1971,8 +1845,8 @@ export class ApiService implements ApiServiceAbstraction {
     return typeHeader != null && typeHeader.indexOf("application/json") > -1;
   }
 
-  private isTextResponse(response: Response): boolean {
+  private isTextPlainResponse(response: Response): boolean {
     const typeHeader = response.headers.get("content-type");
-    return typeHeader != null && typeHeader.indexOf("text") > -1;
+    return typeHeader != null && typeHeader.indexOf("text/plain") > -1;
   }
 }

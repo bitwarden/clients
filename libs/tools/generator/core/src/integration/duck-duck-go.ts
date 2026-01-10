@@ -3,6 +3,8 @@ import {
   GENERATOR_MEMORY,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+import { VendorId } from "@bitwarden/common/tools/extension";
+import { Vendor } from "@bitwarden/common/tools/extension/vendor/data";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import { ApiSettings, IntegrationRequest } from "@bitwarden/common/tools/integration/rpc";
 import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
@@ -89,7 +91,7 @@ const forwarder = Object.freeze({
 
 // integration-wide configuration
 export const DuckDuckGo = Object.freeze({
-  id: "duckduckgo" as IntegrationId,
+  id: Vendor.duckduckgo as IntegrationId & VendorId,
   name: "DuckDuckGo",
   baseUrl: "https://quack.duckduckgo.com/api",
   selfHost: "never",

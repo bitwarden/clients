@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -123,9 +121,9 @@ import {
    * @param fillScript - The autofill script to use
    */
   function triggerAutoSubmitOnForm(fillScript: AutofillScript) {
-    const formOpid = fillScript.autosubmit[0];
+    const formOpid = fillScript.autosubmit?.[0];
 
-    if (formOpid === null) {
+    if (!formOpid) {
       triggerAutoSubmitOnFormlessFields(fillScript);
       return;
     }
@@ -159,8 +157,11 @@ import {
       fillScript.script[fillScript.script.length - 1][1],
     );
 
-    const lastFieldIsPasswordInput =
-      elementIsInputElement(currentElement) && currentElement.type === "password";
+    const lastFieldIsPasswordInput = !!(
+      currentElement &&
+      elementIsInputElement(currentElement) &&
+      currentElement.type === "password"
+    );
 
     while (currentElement && currentElement.tagName !== "HTML") {
       if (submitElementFoundAndClicked(currentElement, lastFieldIsPasswordInput)) {

@@ -1,4 +1,3 @@
-import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnDestroy, OnInit, Output } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
@@ -7,14 +6,17 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { WebAuthnIFrame } from "@bitwarden/common/auth/webauthn-iframe";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  DialogModule,
   ButtonModule,
   LinkModule,
   TypographyModule,
@@ -30,8 +32,9 @@ export interface WebAuthnResult {
   remember?: boolean;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-webauthn",
   templateUrl: "two-factor-auth-webauthn.component.html",
   imports: [
@@ -49,7 +52,11 @@ export interface WebAuthnResult {
   providers: [],
 })
 export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() webAuthnResultEmitter = new EventEmitter<WebAuthnResult>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() webAuthnInNewTabEmitter = new EventEmitter<boolean>();
 
   webAuthnReady = false;

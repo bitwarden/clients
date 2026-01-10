@@ -4,11 +4,12 @@ import { componentWrapperDecorator } from "@storybook/angular";
 import type { Preview } from "@storybook/angular";
 
 import docJson from "../documentation.json";
+
 setCompodocJson(docJson);
 
 const wrapperDecorator = componentWrapperDecorator((story) => {
   return /*html*/ `
-    <div class="tw-bg-background tw-px-5 tw-py-10">
+    <div class="tw-bg-background tw-px-5 tw-py-10 tw-@container">
       ${story}
     </div>
   `;
@@ -26,6 +27,9 @@ const preview: Preview = {
     wrapperDecorator,
   ],
   parameters: {
+    a11y: {
+      context: "#storybook-root",
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -38,9 +42,14 @@ const preview: Preview = {
         order: ["Documentation", ["Introduction", "Colors", "Icons"], "Component Library"],
       },
     },
-    docs: { source: { type: "dynamic", excludeDecorators: true } },
+    docs: {
+      source: {
+        type: "dynamic",
+        excludeDecorators: true,
+      },
+    },
     backgrounds: {
-      disable: true,
+      disabled: true,
     },
   },
   tags: ["autodocs"],

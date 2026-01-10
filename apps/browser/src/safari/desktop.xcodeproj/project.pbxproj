@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03100CAF291891F4008E14EF /* encrypt-worker.js in Resources */ = {isa = PBXBuildFile; fileRef = 03100CAE291891F4008E14EF /* encrypt-worker.js */; };
 		55BC93932CB4268A008CA4C6 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 55BC93922CB4268A008CA4C6 /* assets */; };
 		55E0374D2577FA6B00979016 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E0374C2577FA6B00979016 /* AppDelegate.swift */; };
 		55E037502577FA6B00979016 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 55E0374E2577FA6B00979016 /* Main.storyboard */; };
@@ -53,7 +52,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		03100CAE291891F4008E14EF /* encrypt-worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "encrypt-worker.js"; path = "../../../build/encrypt-worker.js"; sourceTree = "<group>"; };
 		5508DD7926051B5900A85C58 /* libswiftAppKit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftAppKit.tbd; path = usr/lib/swift/libswiftAppKit.tbd; sourceTree = SDKROOT; };
 		55BC93922CB4268A008CA4C6 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../build/assets; sourceTree = "<group>"; };
 		55E037482577FA6B00979016 /* desktop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = desktop.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -155,7 +153,6 @@
 			isa = PBXGroup;
 			children = (
 				55BC93922CB4268A008CA4C6 /* assets */,
-				03100CAE291891F4008E14EF /* encrypt-worker.js */,
 				55E037702577FA6F00979016 /* popup */,
 				55E037712577FA6F00979016 /* background.js */,
 				55E037722577FA6F00979016 /* images */,
@@ -272,7 +269,6 @@
 				55E037802577FA6F00979016 /* background.html in Resources */,
 				55E0377A2577FA6F00979016 /* background.js in Resources */,
 				55E037792577FA6F00979016 /* popup in Resources */,
-				03100CAF291891F4008E14EF /* encrypt-worker.js in Resources */,
 				55BC93932CB4268A008CA4C6 /* assets in Resources */,
 				55E0377C2577FA6F00979016 /* notification in Resources */,
 				55E0377E2577FA6F00979016 /* vendor.js in Resources */,

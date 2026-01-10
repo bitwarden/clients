@@ -1,30 +1,60 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  FormFieldModule,
+  IconModule,
+  InputModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-base.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup-duo",
   templateUrl: "two-factor-setup-duo.component.html",
+  imports: [
+    CommonModule,
+    DialogModule,
+    FormFieldModule,
+    InputModule,
+    TypographyModule,
+    ButtonModule,
+    IconModule,
+    I18nPipe,
+    ReactiveFormsModule,
+    AsyncActionsModule,
+    CalloutModule,
+  ],
 })
 export class TwoFactorSetupDuoComponent
   extends TwoFactorSetupMethodBaseComponent
   implements OnInit
 {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onChangeStatus: EventEmitter<boolean> = new EventEmitter();
 
   type = TwoFactorProviderType.Duo;
@@ -37,7 +67,7 @@ export class TwoFactorSetupDuoComponent
 
   constructor(
     @Inject(DIALOG_DATA) protected data: TwoFactorDuoComponentConfig,
-    apiService: ApiService,
+    twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
@@ -48,7 +78,7 @@ export class TwoFactorSetupDuoComponent
     protected toastService: ToastService,
   ) {
     super(
-      apiService,
+      twoFactorService,
       i18nService,
       platformUtilsService,
       logService,
@@ -58,23 +88,23 @@ export class TwoFactorSetupDuoComponent
     );
   }
 
-  get clientId() {
-    return this.formGroup.get("clientId").value;
+  get clientId(): string {
+    return this.formGroup.get("clientId")?.value || "";
   }
-  get clientSecret() {
-    return this.formGroup.get("clientSecret").value;
+  get clientSecret(): string {
+    return this.formGroup.get("clientSecret")?.value || "";
   }
-  get host() {
-    return this.formGroup.get("host").value;
+  get host(): string {
+    return this.formGroup.get("host")?.value || "";
   }
   set clientId(value: string) {
-    this.formGroup.get("clientId").setValue(value);
+    this.formGroup.get("clientId")?.setValue(value);
   }
   set clientSecret(value: string) {
-    this.formGroup.get("clientSecret").setValue(value);
+    this.formGroup.get("clientSecret")?.setValue(value);
   }
   set host(value: string) {
-    this.formGroup.get("host").setValue(value);
+    this.formGroup.get("host")?.setValue(value);
   }
 
   async ngOnInit() {
@@ -113,9 +143,12 @@ export class TwoFactorSetupDuoComponent
     let response: TwoFactorDuoResponse;
 
     if (this.organizationId != null) {
-      response = await this.apiService.putTwoFactorOrganizationDuo(this.organizationId, request);
+      response = await this.twoFactorService.putTwoFactorOrganizationDuo(
+        this.organizationId,
+        request,
+      );
     } else {
-      response = await this.apiService.putTwoFactorDuo(request);
+      response = await this.twoFactorService.putTwoFactorDuo(request);
     }
 
     this.processResponse(response);
@@ -142,7 +175,10 @@ export class TwoFactorSetupDuoComponent
     dialogService: DialogService,
     config: DialogConfig<TwoFactorDuoComponentConfig>,
   ) => {
-    return dialogService.open<boolean>(TwoFactorSetupDuoComponent, config);
+    return dialogService.open<boolean, TwoFactorDuoComponentConfig>(
+      TwoFactorSetupDuoComponent,
+      config as DialogConfig<TwoFactorDuoComponentConfig, DialogRef<boolean>>,
+    );
   };
 }
 

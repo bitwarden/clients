@@ -1,19 +1,48 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, inject } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
-import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
+import {
+  catchError,
+  concatMap,
+  filter,
+  firstValueFrom,
+  map,
+  of,
+  Subject,
+  takeUntil,
+  tap,
+} from "rxjs";
 
+import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval/login-approval-dialog.component";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
-import { LogoutReason } from "@bitwarden/auth/common";
+import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
+import {
+  AuthRequestServiceAbstraction,
+  LogoutReason,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
+import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -23,42 +52,48 @@ import {
   ToastOptions,
   ToastService,
 } from "@bitwarden/components";
-import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
+import { BiometricsService, BiometricStateService, KeyService } from "@bitwarden/key-management";
 
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
+import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
-import { VaultBrowserStateService } from "../vault/services/vault-browser-state.service";
 
 import { routerTransition } from "./app-routing.animations";
 import { DesktopSyncVerificationDialogComponent } from "./components/desktop-sync-verification-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-root",
   styles: [],
   animations: [routerTransition],
-  template: `
-    <div [@routerTransition]="getRouteElevation(outlet)">
-      <router-outlet #outlet="outlet"></router-outlet>
-    </div>
-    <bit-toast-container></bit-toast-container>
-  `,
+  templateUrl: "app.component.html",
+  standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
   private compactModeService = inject(PopupCompactModeService);
+  private sdkService = inject(SdkService);
 
   private lastActivity: Date;
   private activeUserId: UserId;
-  private recordActivitySubject = new Subject<void>();
   private routerAnimations = false;
+  private processingPendingAuthRequests = false;
+  private shouldRerunAuthRequestProcessing = false;
 
   private destroy$ = new Subject<void>();
+
+  // Show a warning if the SDK is not available.
+  protected showSdkWarning = this.sdkService.client$.pipe(
+    map(() => false),
+    catchError(() => of(true)),
+  );
 
   constructor(
     private authService: AuthService,
     private i18nService: I18nService,
     private router: Router,
-    private stateService: StateService,
-    private vaultBrowserStateService: VaultBrowserStateService,
+    private readonly tokenService: TokenService,
     private cipherService: CipherService,
     private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
@@ -71,22 +106,33 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private biometricsService: BiometricsService,
     private deviceTrustToastService: DeviceTrustToastService,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private keyService: KeyService,
+    private readonly destoryRef: DestroyRef,
+    private readonly documentLangSetter: DocumentLangSetter,
+    private popupSizeService: PopupSizeService,
+    private logService: LogService,
+    private authRequestService: AuthRequestServiceAbstraction,
+    private pendingAuthRequestsState: PendingAuthRequestsStateService,
+    private authRequestAnsweringService: AuthRequestAnsweringService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+
+    const langSubscription = this.documentLangSetter.start();
+    this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
   async ngOnInit() {
     initPopupClosedListener();
 
     this.compactModeService.init();
-
-    // Component states must not persist between closing and reopening the popup, otherwise they become dead objects
-    // Clear them aggressively to make sure this doesn't occur
-    await this.clearComponentStates();
+    await this.popupSizeService.setHeight();
 
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
     });
+
+    this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
     this.authService.activeAccountStatus$
       .pipe(
@@ -119,14 +165,64 @@ export class AppComponent implements OnInit, OnDestroy {
             this.changeDetectorRef.detectChanges();
           } else if (msg.command === "authBlocked" || msg.command === "goHome") {
             await this.router.navigate(["login"]);
-          } else if (
-            msg.command === "locked" &&
-            (msg.userId == null || msg.userId == this.activeUserId)
-          ) {
+          } else if (msg.command === "locked") {
+            if (msg.userId == null) {
+              this.logService.error("'locked' message received without userId.");
+              return;
+            }
+
+            if (msg.userId !== this.activeUserId) {
+              this.logService.error(
+                `'locked' message received with userId ${msg.userId} but active userId is ${this.activeUserId}.`,
+              );
+              return;
+            }
+
             await this.biometricsService.setShouldAutopromptNow(false);
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["lock"]);
+
+            // When user is locked, normally we can just send them the lock screen.
+            // However, for account switching scenarios, we need to consider the TDE lock state.
+            const tdeEnabled = await firstValueFrom(
+              this.userDecryptionOptionsService
+                .userDecryptionOptionsById$(msg.userId)
+                .pipe(map((decryptionOptions) => decryptionOptions?.trustedDeviceOption != null)),
+            );
+
+            const everHadUserKey = await firstValueFrom(
+              this.keyService.everHadUserKey$(msg.userId),
+            );
+            if (tdeEnabled && !everHadUserKey) {
+              await this.router.navigate(["login-initiated"]);
+              return;
+            }
+
+            await this.router.navigate(["lock"]);
+          } else if (msg.command === "openLoginApproval") {
+            if (this.processingPendingAuthRequests) {
+              // If an "openLoginApproval" message is received while we are currently processing other
+              // auth requests, then set a flag so we remember to process that new auth request
+              this.shouldRerunAuthRequestProcessing = true;
+              return;
+            }
+
+            /**
+             * This do/while loop allows us to:
+             * - a) call processPendingAuthRequests() once on "openLoginApproval"
+             * - b) remember to re-call processPendingAuthRequests() if another "openLoginApproval" was
+             *      received while we were processing the original auth requests
+             */
+            do {
+              this.shouldRerunAuthRequestProcessing = false;
+
+              try {
+                await this.processPendingAuthRequests();
+              } catch (error) {
+                this.logService.error(`Error processing pending auth requests: ${error}`);
+                this.shouldRerunAuthRequestProcessing = false; // Reset flag to prevent infinite loop on persistent errors
+              }
+              // If an "openLoginApproval" message was received while processPendingAuthRequests() was running, then
+              // shouldRerunAuthRequestProcessing will have been set to true
+            } while (this.shouldRerunAuthRequestProcessing);
           } else if (msg.command === "showDialog") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -151,6 +247,13 @@ export class AppComponent implements OnInit, OnDestroy {
                 await this.biometricStateService.updateLastProcessReload();
                 window.location.reload();
               }, 2000);
+            } else {
+              // Close browser action popup before extension reload to prevent zombie popup with invalidated context.
+              // This issue occurs in Chromium-based browsers (Chrome, Vivaldi, etc.) where chrome.runtime.reload()
+              // invalidates extension contexts before popup can close naturally
+              if (BrowserPopupUtils.inPopup(window)) {
+                BrowserApi.closePopup(window);
+              }
             }
           } else if (msg.command === "reloadPopup") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -160,10 +263,6 @@ export class AppComponent implements OnInit, OnDestroy {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["/remove-password"]);
-          } else if (msg.command == "update-temp-password") {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["/update-temp-password"]);
           }
         }),
         takeUntil(this.destroy$),
@@ -174,13 +273,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.events.pipe(takeUntil(this.destroy$)).subscribe(async (event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects || event.url || "";
-        if (
-          url.startsWith("/tabs/") &&
-          (window as any).previousPopupUrl != null &&
-          (window as any).previousPopupUrl.startsWith("/tabs/")
-        ) {
-          await this.clearComponentStates();
-        }
         if (url.startsWith("/tabs/")) {
           await this.cipherService.setAddEditCipherInfo(null, this.activeUserId);
         }
@@ -245,17 +337,6 @@ export class AppComponent implements OnInit, OnDestroy {
     return firstValueFrom(dialogRef.closed);
   }
 
-  private async clearComponentStates() {
-    if (!(await this.stateService.getIsAuthenticated())) {
-      return;
-    }
-
-    await Promise.all([
-      this.vaultBrowserStateService.setBrowserGroupingsComponentState(null),
-      this.vaultBrowserStateService.setBrowserVaultItemsComponentState(null),
-    ]);
-  }
-
   // Displaying toasts isn't super useful on the popup due to the reloads we do.
   // However, it is visible for a moment on the FF sidebar logout.
   private async displayLogoutReason(logoutReason: LogoutReason) {
@@ -278,5 +359,40 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     this.toastService.showToast(toastOptions);
+  }
+
+  private async processPendingAuthRequests() {
+    this.processingPendingAuthRequests = true;
+
+    try {
+      // Always query server for all pending requests and open a dialog for each
+      const pendingList = await firstValueFrom(this.authRequestService.getPendingAuthRequests$());
+
+      if (Array.isArray(pendingList) && pendingList.length > 0) {
+        const respondedIds = new Set<string>();
+
+        for (const req of pendingList) {
+          if (req?.id == null) {
+            continue;
+          }
+
+          const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
+            notificationId: req.id,
+          });
+
+          const result = await firstValueFrom(dialogRef.closed);
+
+          if (result !== undefined && typeof result === "boolean") {
+            respondedIds.add(req.id);
+
+            if (respondedIds.size === pendingList.length && this.activeUserId != null) {
+              await this.pendingAuthRequestsState.clear(this.activeUserId);
+            }
+          }
+        }
+      }
+    } finally {
+      this.processingPendingAuthRequests = false;
+    }
   }
 }

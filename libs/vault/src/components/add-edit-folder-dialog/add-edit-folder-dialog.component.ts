@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
@@ -20,7 +19,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
@@ -33,18 +35,21 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-export enum AddEditFolderDialogResult {
-  Created = "created",
-  Deleted = "deleted",
-}
+export const AddEditFolderDialogResult = {
+  Created: "created",
+  Deleted: "deleted",
+} as const;
+
+export type AddEditFolderDialogResult = UnionOfValues<typeof AddEditFolderDialogResult>;
 
 export type AddEditFolderDialogData = {
   /** When provided, dialog will display edit folder variant */
   editFolderConfig?: { folder: FolderView };
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-add-edit-folder-dialog",
   templateUrl: "./add-edit-folder-dialog.component.html",
   imports: [
@@ -59,7 +64,11 @@ export type AddEditFolderDialogData = {
   ],
 })
 export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective) private bitSubmit?: BitSubmitDirective;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("submitBtn") private submitBtn?: ButtonComponent;
 
   folder: FolderView = new FolderView();
@@ -118,7 +127,7 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
 
     try {
       const activeUserId = await firstValueFrom(this.activeUserId$);
-      const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId!);
+      const userKey = await this.keyService.getUserKey(activeUserId!);
       const folder = await this.folderService.encrypt(this.folder, userKey);
       await this.folderApiService.save(folder, activeUserId!);
 

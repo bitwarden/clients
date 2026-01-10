@@ -1,6 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { EMPTY, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";

@@ -14,14 +14,25 @@ import {
   ClEAR_VIEW_CACHE_COMMAND,
   POPUP_VIEW_CACHE_KEY,
   SAVE_VIEW_CACHE_COMMAND,
+  ViewCacheState,
 } from "../../services/popup-view-cache-background.service";
 
 import { PopupViewCacheService } from "./popup-view-cache.service";
 
-@Component({ template: "" })
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template: "",
+  standalone: false,
+})
 export class EmptyComponent {}
 
-@Component({ template: "" })
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template: "",
+  standalone: false,
+})
 export class TestComponent {
   private viewCacheService = inject(PopupViewCacheService);
 
@@ -35,6 +46,7 @@ export class TestComponent {
   signal = this.viewCacheService.signal({
     key: "test-signal",
     initialValue: "initial signal",
+    persistNavigation: true,
   });
 }
 
@@ -42,11 +54,11 @@ describe("popup view cache", () => {
   const configServiceMock = mock<ConfigService>();
   let testBed: TestBed;
   let service: PopupViewCacheService;
-  let fakeGlobalState: FakeGlobalState<Record<string, string>>;
+  let fakeGlobalState: FakeGlobalState<Record<string, ViewCacheState>>;
   let messageSenderMock: MockProxy<MessageSender>;
   let router: Router;
 
-  const initServiceWithState = async (state: Record<string, string>) => {
+  const initServiceWithState = async (state: Record<string, ViewCacheState>) => {
     await fakeGlobalState.update(() => state);
     await service.init();
   };
@@ -106,7 +118,11 @@ describe("popup view cache", () => {
   });
 
   it("should initialize signal from state", async () => {
-    await initServiceWithState({ "foo-123": JSON.stringify("bar") });
+    await initServiceWithState({
+      "foo-123": {
+        value: JSON.stringify("bar"),
+      },
+    });
 
     const injector = TestBed.inject(Injector);
 
@@ -120,7 +136,11 @@ describe("popup view cache", () => {
   });
 
   it("should initialize form from state", async () => {
-    await initServiceWithState({ "test-form-cache": JSON.stringify({ name: "baz" }) });
+    await initServiceWithState({
+      "test-form-cache": {
+        value: JSON.stringify({ name: "baz" }),
+      },
+    });
 
     const fixture = TestBed.createComponent(TestComponent);
     const component = fixture.componentRef.instance;
@@ -138,7 +158,11 @@ describe("popup view cache", () => {
   });
 
   it("should utilize deserializer", async () => {
-    await initServiceWithState({ "foo-123": JSON.stringify("bar") });
+    await initServiceWithState({
+      "foo-123": {
+        value: JSON.stringify("bar"),
+      },
+    });
 
     const injector = TestBed.inject(Injector);
 
@@ -178,6 +202,9 @@ describe("popup view cache", () => {
     expect(messageSenderMock.send).toHaveBeenCalledWith(SAVE_VIEW_CACHE_COMMAND, {
       key: "test-signal",
       value: JSON.stringify("Foobar"),
+      options: {
+        persistNavigation: true,
+      },
     });
   });
 
@@ -192,18 +219,63 @@ describe("popup view cache", () => {
     expect(messageSenderMock.send).toHaveBeenCalledWith(SAVE_VIEW_CACHE_COMMAND, {
       key: "test-form-cache",
       value: JSON.stringify({ name: "Foobar" }),
+      options: {},
     });
   });
 
   it("should clear on 2nd navigation", async () => {
-    await initServiceWithState({ temp: "state" });
+    await initServiceWithState({
+      temp: {
+        value: "state",
+        options: {},
+      },
+    });
 
     await router.navigate(["a"]);
     expect(messageSenderMock.send).toHaveBeenCalledTimes(0);
-    expect(service["_cache"]).toEqual({ temp: "state" });
+    expect(service["_cache"]).toEqual({
+      temp: {
+        value: "state",
+        options: {},
+      },
+    });
 
     await router.navigate(["b"]);
-    expect(messageSenderMock.send).toHaveBeenCalledWith(ClEAR_VIEW_CACHE_COMMAND, {});
+    expect(messageSenderMock.send).toHaveBeenCalledWith(ClEAR_VIEW_CACHE_COMMAND, {
+      routeChange: true,
+    });
     expect(service["_cache"]).toEqual({});
+  });
+
+  it("should respect persistNavigation setting on 2nd navigation", async () => {
+    await initServiceWithState({
+      keepState: {
+        value: "state",
+        options: {
+          persistNavigation: true,
+        },
+      },
+      removeState: {
+        value: "state",
+        options: {
+          persistNavigation: false,
+        },
+      },
+    });
+
+    await router.navigate(["a"]); // first navigation covered in previous test
+
+    await router.navigate(["b"]);
+    expect(messageSenderMock.send).toHaveBeenCalledWith(ClEAR_VIEW_CACHE_COMMAND, {
+      routeChange: true,
+    });
+    expect(service["_cache"]).toEqual({
+      keepState: {
+        value: "state",
+        options: {
+          persistNavigation: true,
+        },
+      },
+    });
   });
 });

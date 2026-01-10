@@ -1,5 +1,5 @@
 <bit-tab-header>
-  <nav bitTabListContainer [attr.aria-label]="label" (keydown)="keyManager.onKeydown($event)">
+  <nav bitTabListContainer [attr.aria-label]="label()" (keydown)="keyManager.onKeydown($event)">
     <ng-content></ng-content>
   </nav>
 </bit-tab-header>

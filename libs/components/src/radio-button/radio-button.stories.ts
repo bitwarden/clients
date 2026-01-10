@@ -1,4 +1,10 @@
-import { FormsModule, ReactiveFormsModule, FormControl, FormGroup } from "@angular/forms";
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormControl,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -165,6 +171,35 @@ export const BlockHint: Story = {
   }),
 };
 
+export const Required: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        radio: new FormControl(0, Validators.required),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-radio-group formControlName="radio" aria-label="Example radio group">
+          <bit-label>Group of radio buttons</bit-label>
+
+          <bit-radio-button [value]="0">
+            <bit-label>First</bit-label>
+          </bit-radio-button>
+
+          <bit-radio-button [value]="1">
+            <bit-label>Second</bit-label>
+          </bit-radio-button>
+
+          <bit-radio-button [value]="2">
+            <bit-label>Third</bit-label>
+          </bit-radio-button>
+        </bit-radio-group>
+      </form>
+    `,
+  }),
+};
+
 export const Disabled: Story = {
   render: () => ({
     props: {
@@ -177,15 +212,15 @@ export const Disabled: Story = {
         <bit-radio-group formControlName="radio" aria-label="Example radio group">
           <bit-label>Group of radio buttons</bit-label>
 
-          <bit-radio-button id="radio-first" [value]="0" [disabled]="true">
+          <bit-radio-button [value]="0" [disabled]="true">
             <bit-label>First</bit-label>
           </bit-radio-button>
 
-          <bit-radio-button id="radio-second" [value]="1" [disabled]="true">
+          <bit-radio-button [value]="1" [disabled]="true">
             <bit-label>Second</bit-label>
           </bit-radio-button>
 
-          <bit-radio-button id="radio-third" [value]="2" [disabled]="true">
+          <bit-radio-button [value]="2" [disabled]="true">
             <bit-label>Third</bit-label>
           </bit-radio-button>
         </bit-radio-group>

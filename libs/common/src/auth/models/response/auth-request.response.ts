@@ -18,6 +18,7 @@ export class AuthRequestResponse extends BaseResponse {
   responseDate?: string;
   isAnswered: boolean;
   isExpired: boolean;
+  deviceId?: string; // could be null or empty
 
   constructor(response: any) {
     super(response);
@@ -33,6 +34,7 @@ export class AuthRequestResponse extends BaseResponse {
     this.creationDate = this.getResponseProperty("CreationDate");
     this.requestApproved = this.getResponseProperty("RequestApproved");
     this.responseDate = this.getResponseProperty("ResponseDate");
+    this.deviceId = this.getResponseProperty("RequestDeviceId");
 
     const requestDate = new Date(this.creationDate);
     const requestDateUTC = Date.UTC(

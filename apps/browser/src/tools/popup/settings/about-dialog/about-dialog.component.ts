@@ -1,4 +1,3 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, ViewChild } from "@angular/core";
 import { Observable, combineLatest, defer, map } from "rxjs";
@@ -9,14 +8,23 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { ButtonModule, DialogModule, ToastService, TypographyModule } from "@bitwarden/components";
+import {
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "about-dialog.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, DialogModule, ButtonModule, TypographyModule],
 })
 export class AboutDialogComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("version") protected version!: ElementRef;
 
   protected year = new Date().getFullYear();

@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -11,6 +10,8 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogService,
@@ -34,24 +35,26 @@ export interface SendItemDialogParams {
   disableForm?: boolean;
 }
 
-export enum SendItemDialogResult {
-  /**
-   * A Send was saved (created or updated).
-   */
-  Saved = "saved",
+/** A result of the Send add/edit dialog. */
+export const SendItemDialogResult = Object.freeze({
+  /** The send item was created or updated. */
+  Saved: "saved",
+  /** The send item was deleted. */
+  Deleted: "deleted",
+} as const);
 
-  /**
-   * A Send was deleted.
-   */
-  Deleted = "deleted",
-}
-
+/** A result of the Send add/edit dialog. */
+export type SendItemDialogResult = {
+  result: (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
+  send?: SendView;
+};
 /**
  * Component for adding or editing a send item.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "send-add-edit-dialog.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     SearchModule,
@@ -92,7 +95,7 @@ export class SendAddEditDialogComponent {
    */
   async onSendCreated(send: SendView) {
     // FIXME Add dialogService.open send-created dialog
-    this.dialogRef.close(SendItemDialogResult.Saved);
+    this.dialogRef.close({ result: SendItemDialogResult.Saved, send });
     return;
   }
 
@@ -100,14 +103,14 @@ export class SendAddEditDialogComponent {
    * Handles the event when the send is updated.
    */
   async onSendUpdated(send: SendView) {
-    this.dialogRef.close(SendItemDialogResult.Saved);
+    this.dialogRef.close({ result: SendItemDialogResult.Saved });
   }
 
   /**
    * Handles the event when the send is deleted.
    */
   async onSendDeleted() {
-    this.dialogRef.close(SendItemDialogResult.Deleted);
+    this.dialogRef.close({ result: SendItemDialogResult.Deleted });
 
     this.toastService.showToast({
       variant: "success",
@@ -151,15 +154,12 @@ export class SendAddEditDialogComponent {
    * @returns The header text.
    */
   private getHeaderText(mode: SendFormMode, type: SendType) {
-    const headerKey =
-      mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
-
-    switch (type) {
-      case SendType.Text:
-        return this.i18nService.t(headerKey, this.i18nService.t("textSend"));
-      case SendType.File:
-        return this.i18nService.t(headerKey, this.i18nService.t("fileSend"));
-    }
+    const isEditMode = mode === "edit" || mode === "partial-edit";
+    const translation = {
+      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
+      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
+    };
+    return this.i18nService.t(translation[type]);
   }
 
   /**
@@ -170,6 +170,21 @@ export class SendAddEditDialogComponent {
    */
   static open(dialogService: DialogService, params: SendItemDialogParams) {
     return dialogService.open<SendItemDialogResult, SendItemDialogParams>(
+      SendAddEditDialogComponent,
+      {
+        data: params,
+      },
+    );
+  }
+
+  /**
+   * Opens the send add/edit dialog in a drawer
+   * @param dialogService Instance of the DialogService.
+   * @param params The parameters for the drawer.
+   * @returns The drawer result.
+   */
+  static openDrawer(dialogService: DialogService, params: SendItemDialogParams) {
+    return dialogService.openDrawer<SendItemDialogResult, SendItemDialogParams>(
       SendAddEditDialogComponent,
       {
         data: params,

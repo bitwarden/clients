@@ -1,3 +1,5 @@
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum BiometricsStatus {
   /** For the biometrics interface, this means that biometric unlock is available and can be used. Querying for the user specifically, this means that biometric can be used for to unlock this user */
   Available,

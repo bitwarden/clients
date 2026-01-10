@@ -1,3 +1,4 @@
+import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
 import { BaseResponse } from "../../../models/response/base.response";
 import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
@@ -14,6 +15,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   use2fa: boolean;
   useApi: boolean;
   useSso: boolean;
+  useOrganizationDomains: boolean;
   useKeyConnector: boolean;
   useScim: boolean;
   useCustomPermissions: boolean;
@@ -21,6 +23,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
+  useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
   seats: number;
@@ -54,7 +57,13 @@ export class ProfileOrganizationResponse extends BaseResponse {
   limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
   userIsManagedByOrganization: boolean;
-  useRiskInsights: boolean;
+  useAccessIntelligence: boolean;
+  useAdminSponsoredFamilies: boolean;
+  useDisableSMAdsForUsers: boolean;
+  isAdminInitiated: boolean;
+  ssoEnabled: boolean;
+  ssoMemberDecryptionType?: MemberDecryptionType;
+  usePhishingBlocker: boolean;
 
   constructor(response: any) {
     super(response);
@@ -68,6 +77,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.use2fa = this.getResponseProperty("Use2fa");
     this.useApi = this.getResponseProperty("UseApi");
     this.useSso = this.getResponseProperty("UseSso");
+    this.useOrganizationDomains = this.getResponseProperty("UseOrganizationDomains");
     this.useKeyConnector = this.getResponseProperty("UseKeyConnector") ?? false;
     this.useScim = this.getResponseProperty("UseScim") ?? false;
     this.useCustomPermissions = this.getResponseProperty("UseCustomPermissions") ?? false;
@@ -75,6 +85,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.useSecretsManager = this.getResponseProperty("UseSecretsManager");
     this.usePasswordManager = this.getResponseProperty("UsePasswordManager");
     this.useActivateAutofillPolicy = this.getResponseProperty("UseActivateAutofillPolicy");
+    this.useAutomaticUserConfirmation = this.getResponseProperty("UseAutomaticUserConfirmation");
     this.selfHost = this.getResponseProperty("SelfHost");
     this.usersGetPremium = this.getResponseProperty("UsersGetPremium");
     this.seats = this.getResponseProperty("Seats");
@@ -120,6 +131,13 @@ export class ProfileOrganizationResponse extends BaseResponse {
       "AllowAdminAccessToAllCollectionItems",
     );
     this.userIsManagedByOrganization = this.getResponseProperty("UserIsManagedByOrganization");
-    this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
+    // Map from backend API property (UseRiskInsights) to domain model property (useAccessIntelligence)
+    this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
+    this.useAdminSponsoredFamilies = this.getResponseProperty("UseAdminSponsoredFamilies");
+    this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers") ?? false;
+    this.isAdminInitiated = this.getResponseProperty("IsAdminInitiated");
+    this.ssoEnabled = this.getResponseProperty("SsoEnabled") ?? false;
+    this.ssoMemberDecryptionType = this.getResponseProperty("SsoMemberDecryptionType");
+    this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
   }
 }

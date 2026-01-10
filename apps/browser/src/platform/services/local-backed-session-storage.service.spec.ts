@@ -46,22 +46,18 @@ describe("LocalBackedSessionStorage", () => {
     it("returns a decrypted value when one is stored in local storage", async () => {
       const encrypted = makeEncString("encrypted");
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
-      encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
+      encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.get("test");
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
-        encrypted,
-        sessionKey,
-        "browser-session-key",
-      ),
-        expect(result).toEqual("decrypted");
+      (expect(encryptService.decryptString).toHaveBeenCalledWith(encrypted, sessionKey),
+        expect(result).toEqual("decrypted"));
     });
 
     it("caches the decrypted value when one is stored in local storage", async () => {
       const encrypted = makeEncString("encrypted");
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
-      encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
+      encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted"));
       await sut.get("test");
       expect(sut["cache"]["test"]).toEqual("decrypted");
     });
@@ -69,22 +65,18 @@ describe("LocalBackedSessionStorage", () => {
     it("returns a decrypted value when one is stored in local storage", async () => {
       const encrypted = makeEncString("encrypted");
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
-      encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
+      encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.get("test");
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
-        encrypted,
-        sessionKey,
-        "browser-session-key",
-      ),
-        expect(result).toEqual("decrypted");
+      (expect(encryptService.decryptString).toHaveBeenCalledWith(encrypted, sessionKey),
+        expect(result).toEqual("decrypted"));
     });
 
     it("caches the decrypted value when one is stored in local storage", async () => {
       const encrypted = makeEncString("encrypted");
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
-      encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
+      encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted"));
       await sut.get("test");
       expect(sut["cache"]["test"]).toEqual("decrypted");
     });
@@ -104,7 +96,7 @@ describe("LocalBackedSessionStorage", () => {
 
     it("returns true when the key is in local storage", async () => {
       localStorage.internalStore["session_test"] = makeEncString("encrypted").encryptedString;
-      encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
+      encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.has("test");
       expect(result).toBe(true);
     });
@@ -119,7 +111,7 @@ describe("LocalBackedSessionStorage", () => {
       async (nullish) => {
         localStorage.internalStore["session_test"] = nullish;
         await expect(sut.has("test")).resolves.toBe(false);
-        expect(encryptService.decryptToUtf8).not.toHaveBeenCalled();
+        expect(encryptService.decryptString).not.toHaveBeenCalled();
       },
     );
   });
@@ -127,7 +119,7 @@ describe("LocalBackedSessionStorage", () => {
   describe("save", () => {
     const encString = makeEncString("encrypted");
     beforeEach(() => {
-      encryptService.encrypt.mockResolvedValue(encString);
+      encryptService.encryptString.mockResolvedValue(encString);
     });
 
     it("logs a warning when saving the same value twice and in a dev environment", async () => {
@@ -157,7 +149,10 @@ describe("LocalBackedSessionStorage", () => {
 
     it("encrypts and saves the value to local storage", async () => {
       await sut.save("test", "value");
-      expect(encryptService.encrypt).toHaveBeenCalledWith(JSON.stringify("value"), sessionKey);
+      expect(encryptService.encryptString).toHaveBeenCalledWith(
+        JSON.stringify("value"),
+        sessionKey,
+      );
       expect(localStorage.internalStore["session_test"]).toEqual(encString.encryptedString);
     });
 

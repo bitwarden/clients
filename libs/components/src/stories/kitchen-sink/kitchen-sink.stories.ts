@@ -6,24 +6,25 @@ import {
   userEvent,
   getAllByRole,
   getByRole,
-  getByLabelText,
   fireEvent,
   getByText,
   getAllByLabelText,
-} from "@storybook/test";
+} from "storybook/test";
 
+import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
-import { DialogService } from "../../dialog";
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../../utils/state-mock";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
 
 import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
-import { KitchenSinkForm } from "./components/kitchen-sink-form.component";
+import { KitchenSinkFormComponent } from "./components/kitchen-sink-form.component";
 import { KitchenSinkMainComponent } from "./components/kitchen-sink-main.component";
-import { KitchenSinkTable } from "./components/kitchen-sink-table.component";
-import { KitchenSinkToggleList } from "./components/kitchen-sink-toggle-list.component";
+import { KitchenSinkTableComponent } from "./components/kitchen-sink-table.component";
+import { KitchenSinkToggleListComponent } from "./components/kitchen-sink-toggle-list.component";
 import { KitchenSinkSharedModule } from "./kitchen-sink-shared.module";
 
 export default {
@@ -34,28 +35,10 @@ export default {
     moduleMetadata({
       imports: [
         KitchenSinkSharedModule,
-        KitchenSinkForm,
+        KitchenSinkFormComponent,
         KitchenSinkMainComponent,
-        KitchenSinkTable,
-        KitchenSinkToggleList,
-      ],
-      providers: [
-        DialogService,
-        {
-          provide: I18nService,
-          useFactory: () => {
-            return new I18nMockService({
-              close: "Close",
-              search: "Search",
-              skipToContent: "Skip to content",
-              submenu: "submenu",
-              toggleCollapse: "toggle collapse",
-              toggleSideNavigation: "Toggle side navigation",
-              yes: "Yes",
-              no: "No",
-            });
-          },
-        },
+        KitchenSinkTableComponent,
+        KitchenSinkToggleListComponent,
       ],
     }),
     applicationConfig({
@@ -71,6 +54,27 @@ export default {
             { useHash: true },
           ),
         ),
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              close: "Close",
+              search: "Search",
+              skipToContent: "Skip to content",
+              submenu: "submenu",
+              toggleCollapse: "toggle collapse",
+              toggleSideNavigation: "Toggle side navigation",
+              yes: "Yes",
+              no: "No",
+              loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
+            });
+          },
+        },
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
       ],
     }),
   ],
@@ -81,25 +85,41 @@ type Story = StoryObj<LayoutComponent>;
 export const Default: Story = {
   render: (args) => {
     return {
-      props: args,
+      props: {
+        ...args,
+        logo: PasswordManagerLogo,
+      },
       template: /* HTML */ `<bit-layout>
         <bit-side-nav>
-          <bit-nav-group text="Password Managers" icon="bwi-collection" [open]="true">
-            <bit-nav-group text="Favorites" icon="bwi-collection" variant="tree" [open]="true">
-              <bit-nav-item text="Bitwarden" route="bitwarden"></bit-nav-item>
-              <bit-nav-divider></bit-nav-divider>
-            </bit-nav-group>
-            <bit-nav-item text="Virtual Scroll" route="virtual-scroll"></bit-nav-item>
+          <bit-nav-logo [openIcon]="logo" route="." [label]="Logo"></bit-nav-logo>
+          <bit-nav-group text="Password Managers" icon="bwi-collection-shared" [open]="true">
+            <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child B" route="b"></bit-nav-item>
+            <bit-nav-item
+              text="Virtual Scroll"
+              route="virtual-scroll"
+              icon="bwi-filter"
+            ></bit-nav-item>
+          </bit-nav-group>
+          <bit-nav-group text="Favorites" icon="bwi-filter">
+            <bit-nav-item text="Favorites Child A" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Favorites Child B"></bit-nav-item>
+            <bit-nav-item text="Favorites Child C" icon="bwi-filter"></bit-nav-item>
           </bit-nav-group>
         </bit-side-nav>
         <router-outlet></router-outlet>
       </bit-layout>`,
     };
   },
+  parameters: {
+    chromatic: {
+      viewports: [640, 1280],
+    },
+  },
 };
 
 export const MenuOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const table = getByRole(canvas, "table");
@@ -113,7 +133,7 @@ export const MenuOpen: Story = {
 };
 
 export const DialogOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const dialogButton = getByRole(canvas, "button", {
@@ -126,7 +146,7 @@ export const DialogOpen: Story = {
 };
 
 export const DrawerOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const drawerButton = getByRole(canvas, "button", {
@@ -139,19 +159,19 @@ export const DrawerOpen: Story = {
 };
 
 export const PopoverOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
-    const passwordLabelIcon = getByLabelText(canvas, "A random password (required)", {
-      selector: "button",
+    const popoverLink = getByRole(canvas, "button", {
+      name: "Popover trigger link",
     });
 
-    await userEvent.click(passwordLabelIcon);
+    await userEvent.click(popoverLink);
   },
 };
 
 export const SimpleDialogOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const submitButton = getByRole(canvas, "button", {
@@ -164,7 +184,7 @@ export const SimpleDialogOpen: Story = {
 };
 
 export const EmptyTab: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const emptyTab = getByRole(canvas, "tab", { name: "Empty tab" });
@@ -173,7 +193,7 @@ export const EmptyTab: Story = {
 };
 
 export const VirtualScrollBlockingDialog: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const navItem = getByText(canvas, "Virtual Scroll");
@@ -185,5 +205,14 @@ export const VirtualScrollBlockingDialog: Story = {
     const dialogButton = getAllByLabelText(canvas, "Options")[0];
 
     await userEvent.click(dialogButton);
+  },
+};
+
+export const ResponsiveSidebar: Story = {
+  render: Default.render,
+  parameters: {
+    chromatic: {
+      viewports: [640, 1280],
+    },
   },
 };

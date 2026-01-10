@@ -1,19 +1,20 @@
-import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, Output, EventEmitter } from "@angular/core";
 import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  DialogModule,
   ButtonModule,
   LinkModule,
   TypographyModule,
@@ -22,10 +23,11 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { TwoFactorAuthEmailComponentService } from "./two-factor-auth-email-component.service";
+import { TwoFactorAuthEmailComponentCacheService } from "./two-factor-auth-email-component-cache.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-email",
   templateUrl: "two-factor-auth-email.component.html",
   imports: [
@@ -40,14 +42,24 @@ import { TwoFactorAuthEmailComponentService } from "./two-factor-auth-email-comp
     AsyncActionsModule,
     FormsModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: TwoFactorAuthEmailComponentCacheService,
+      useClass: TwoFactorAuthEmailComponentCacheService,
+    },
+  ],
 })
 export class TwoFactorAuthEmailComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) tokenFormControl: FormControl | undefined = undefined;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() tokenChange = new EventEmitter<{ token: string }>();
 
   twoFactorEmail: string | undefined = undefined;
-  emailPromise: Promise<any> | undefined = undefined;
-  tokenValue: string = "";
+  emailPromise: Promise<any> | undefined;
+  emailSent = false;
 
   constructor(
     protected i18nService: I18nService,
@@ -55,18 +67,21 @@ export class TwoFactorAuthEmailComponent implements OnInit {
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
     protected logService: LogService,
-    protected apiService: ApiService,
     protected appIdService: AppIdService,
     private toastService: ToastService,
-    private twoFactorAuthEmailComponentService: TwoFactorAuthEmailComponentService,
+    private cacheService: TwoFactorAuthEmailComponentCacheService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await this.twoFactorAuthEmailComponentService.openPopoutIfApprovedForEmail2fa?.();
+    // Check if email was already sent
+    const cachedData = this.cacheService.getCachedData();
+    if (cachedData?.emailSent) {
+      this.emailSent = true;
+    }
 
     const providers = await this.twoFactorService.getProviders();
 
-    if (!providers) {
+    if (!providers || providers.size === 0) {
       throw new Error("User has no 2FA Providers");
     }
 
@@ -78,9 +93,18 @@ export class TwoFactorAuthEmailComponent implements OnInit {
 
     this.twoFactorEmail = email2faProviderData.Email;
 
-    if (providers.size > 1) {
+    if (!this.emailSent) {
       await this.sendEmail(false);
     }
+  }
+
+  /**
+   * Emits the token value to the parent component
+   * @param event - The event object from the input field
+   */
+  onTokenChange(event: Event) {
+    const tokenValue = (event.target as HTMLInputElement).value || "";
+    this.tokenChange.emit({ token: tokenValue });
   }
 
   async sendEmail(doToast: boolean) {
@@ -111,8 +135,12 @@ export class TwoFactorAuthEmailComponent implements OnInit {
       request.deviceIdentifier = await this.appIdService.getAppId();
       request.authRequestAccessCode = (await this.loginStrategyService.getAccessCode()) ?? "";
       request.authRequestId = (await this.loginStrategyService.getAuthRequestId()) ?? "";
-      this.emailPromise = this.apiService.postTwoFactorEmail(request);
+      this.emailPromise = this.twoFactorService.postTwoFactorEmail(request);
       await this.emailPromise;
+
+      this.emailSent = true;
+      this.cacheService.cacheData({ emailSent: this.emailSent });
+
       if (doToast) {
         this.toastService.showToast({
           variant: "success",

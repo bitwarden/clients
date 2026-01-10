@@ -1,17 +1,17 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { BehaviorSubject } from "rxjs";
 
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
@@ -30,7 +30,7 @@ describe("AddEditFolderDialogComponent", () => {
   const save = jest.fn().mockResolvedValue(null);
   const deleteFolder = jest.fn().mockResolvedValue(null);
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
-  const getUserKeyWithLegacySupport = jest.fn().mockResolvedValue("");
+  const getUserKey = jest.fn().mockResolvedValue("");
   const error = jest.fn();
   const close = jest.fn();
   const showToast = jest.fn();
@@ -48,11 +48,7 @@ describe("AddEditFolderDialogComponent", () => {
     showToast.mockClear();
 
     const userId = "" as UserId;
-    const accountInfo: AccountInfo = {
-      email: "",
-      emailVerified: true,
-      name: undefined,
-    };
+    const accountInfo = mockAccountInfoWith();
 
     await TestBed.configureTestingModule({
       imports: [AddEditFolderDialogComponent, NoopAnimationsModule],
@@ -67,7 +63,7 @@ describe("AddEditFolderDialogComponent", () => {
         {
           provide: KeyService,
           useValue: {
-            getUserKeyWithLegacySupport,
+            getUserKey,
           },
         },
         { provide: LogService, useValue: { error } },

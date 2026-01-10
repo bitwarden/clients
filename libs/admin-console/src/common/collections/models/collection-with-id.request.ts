@@ -1,16 +1,18 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Collection } from "./collection";
-import { CollectionRequest } from "./collection.request";
+import { BaseCollectionRequest } from "./collection.request";
 
-export class CollectionWithIdRequest extends CollectionRequest {
+export class CollectionWithIdRequest extends BaseCollectionRequest {
   id: string;
+  name: string;
 
-  constructor(collection?: Collection) {
-    if (collection == null) {
-      return;
+  constructor(collection: Collection) {
+    if (collection == null || collection.name == null || collection.name.encryptedString == null) {
+      throw new Error("CollectionWithIdRequest must contain name.");
     }
-    super(collection);
+    super({
+      externalId: collection.externalId,
+    });
+    this.name = collection.name.encryptedString;
     this.id = collection.id;
   }
 }

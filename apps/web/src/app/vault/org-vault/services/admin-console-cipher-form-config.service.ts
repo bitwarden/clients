@@ -10,6 +10,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -30,18 +31,23 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
   private apiService: ApiService = inject(ApiService);
   private accountService: AccountService = inject(AccountService);
 
-  private allowPersonalOwnership$ = this.policyService
-    .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
-    .pipe(map((p) => !p));
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  private organizationDataOwnershipDisabled$ = this.userId$.pipe(
+    switchMap((userId) =>
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+    ),
+    map((p) => !p),
+  );
 
   private organizationId$ = this.routedVaultFilterService.filter$.pipe(
     map((filter) => filter.organizationId),
     filter((filter) => filter !== undefined),
   );
 
-  private allOrganizations$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) =>
-      this.organizationService.organizations$(account?.id).pipe(
+  private allOrganizations$ = this.userId$.pipe(
+    switchMap((userId) =>
+      this.organizationService.organizations$(userId).pipe(
         map((orgs) => {
           return orgs.filter(
             (o) => o.isMember && o.enabled && o.status === OrganizationUserStatusType.Confirmed,
@@ -55,8 +61,8 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     map(([orgs, orgId]) => orgs.find((o) => o.id === orgId)),
   );
 
-  private allCollections$ = this.organization$.pipe(
-    switchMap(async (org) => await this.collectionAdminService.getAll(org.id)),
+  private allCollections$ = combineLatest([this.organization$, this.userId$]).pipe(
+    switchMap(([org, userId]) => this.collectionAdminService.collectionAdminViews$(org.id, userId)),
   );
 
   async buildConfig(
@@ -64,11 +70,11 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     cipherId?: CipherId,
     cipherType?: CipherType,
   ): Promise<CipherFormConfig> {
-    const [organization, allowPersonalOwnership, allOrganizations, allCollections] =
+    const [organization, organizationDataOwnershipDisabled, allOrganizations, allCollections] =
       await firstValueFrom(
         combineLatest([
           this.organization$,
-          this.allowPersonalOwnership$,
+          this.organizationDataOwnershipDisabled$,
           this.allOrganizations$,
           this.allCollections$,
         ]),
@@ -79,13 +85,14 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     const organizations = mode === "clone" ? allOrganizations : [organization];
     // Only allow the user to assign to their personal vault when cloning and
     // the policies are enabled for it.
-    const allowPersonalOwnershipOnlyForClone = mode === "clone" ? allowPersonalOwnership : false;
+    const disableOrganizationDataOwnershipOnlyForClone =
+      mode === "clone" ? organizationDataOwnershipDisabled : false;
     const cipher = await this.getCipher(cipherId, organization);
     return {
       mode,
       cipherType: cipher?.type ?? cipherType ?? CipherType.Login,
       admin: organization.canEditAllCiphers ?? false,
-      allowPersonalOwnership: allowPersonalOwnershipOnlyForClone,
+      organizationDataOwnershipDisabled: disableOrganizationDataOwnershipOnlyForClone,
       originalCipher: cipher,
       collections: allCollections,
       organizations,
@@ -95,7 +102,7 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     };
   }
 
-  private async getCipher(id: CipherId | null, organization: Organization): Promise<Cipher | null> {
+  async getCipher(id: CipherId | null, organization: Organization): Promise<Cipher | null> {
     if (id == null) {
       return null;
     }

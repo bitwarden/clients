@@ -4,6 +4,7 @@ import { Injectable } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
+  debounceTime,
   firstValueFrom,
   map,
   Observable,
@@ -15,6 +16,7 @@ import {
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -35,7 +37,7 @@ import {
 } from "../../../autofill/services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../utils/vault-popout-window";
 
 @Injectable({
@@ -164,6 +166,7 @@ export class VaultPopupAutofillService {
         }),
       );
     }),
+    debounceTime(50),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -228,8 +231,10 @@ export class VaultPopupAutofillService {
     cipher: CipherView,
     tab: chrome.tabs.Tab,
     pageDetails: PageDetail[],
+    skipPasswordReprompt = false,
   ): Promise<boolean> {
     if (
+      !skipPasswordReprompt &&
       cipher.reprompt !== CipherRepromptType.None &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
@@ -266,6 +271,7 @@ export class VaultPopupAutofillService {
       });
       return false;
     }
+    await this.handleAutofillSuggestionUsed({ cipherId: cipher.id });
 
     return true;
   }
@@ -310,12 +316,22 @@ export class VaultPopupAutofillService {
    * Will copy any TOTP code to the clipboard if available after successful autofill.
    * @param cipher
    * @param closePopup If true, will close the popup window after successful autofill. Defaults to true.
+   * @param skipPasswordReprompt If true, skips the master password reprompt even if the cipher requires it. Defaults to false.
    */
-  async doAutofill(cipher: CipherView, closePopup = true): Promise<boolean> {
+  async doAutofill(
+    cipher: CipherView,
+    closePopup = true,
+    skipPasswordReprompt = false,
+  ): Promise<boolean> {
     const tab = await firstValueFrom(this.currentAutofillTab$);
     const pageDetails = await firstValueFrom(this._currentPageDetails$);
 
-    const didAutofill = await this._internalDoAutofill(cipher, tab, pageDetails);
+    const didAutofill = await this._internalDoAutofill(
+      cipher,
+      tab,
+      pageDetails,
+      skipPasswordReprompt,
+    );
 
     if (didAutofill && closePopup) {
       await this._closePopup(cipher, tab);
@@ -325,13 +341,32 @@ export class VaultPopupAutofillService {
   }
 
   /**
+   * When a user autofills with an autofill suggestion outside of the inline menu,
+   * update the cipher's last used date.
+   *
+   * @param message - The message containing the cipher ID that was used
+   */
+  async handleAutofillSuggestionUsed(message: { cipherId: string }) {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId) {
+      await this.cipherService.updateLastUsedDate(message.cipherId, activeUserId);
+    }
+  }
+
+  /**
    * Attempts to autofill the given cipher and, upon successful autofill, saves the URI to the cipher.
    * Will copy any TOTP code to the clipboard if available after successful autofill.
    * @param cipher The cipher to autofill and save. Only Login ciphers are supported.
    * @param closePopup If true, will close the popup window after successful autofill.
    * If false, will show a success toast instead. Defaults to true.
    */
-  async doAutofillAndSave(cipher: CipherView, closePopup = true): Promise<boolean> {
+  async doAutofillAndSave(
+    cipher: CipherView,
+    closePopup = true,
+    skipPasswordReprompt = false,
+  ): Promise<boolean> {
     // We can only save URIs for login ciphers
     if (cipher.type !== CipherType.Login) {
       return false;
@@ -340,7 +375,12 @@ export class VaultPopupAutofillService {
     const pageDetails = await firstValueFrom(this._currentPageDetails$);
     const tab = await firstValueFrom(this.currentAutofillTab$);
 
-    const didAutofill = await this._internalDoAutofill(cipher, tab, pageDetails);
+    const didAutofill = await this._internalDoAutofill(
+      cipher,
+      tab,
+      pageDetails,
+      skipPasswordReprompt,
+    );
 
     if (!didAutofill) {
       return false;

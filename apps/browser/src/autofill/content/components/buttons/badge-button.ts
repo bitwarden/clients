@@ -5,17 +5,23 @@ import { Theme } from "@bitwarden/common/platform/enums";
 
 import { border, themes, typography, spacing } from "../constants/styles";
 
+export type BadgeButtonProps = {
+  buttonAction: (e: Event) => void;
+  buttonText: string;
+  itemName: string;
+  disabled?: boolean;
+  theme: Theme;
+  username?: string;
+};
+
 export function BadgeButton({
   buttonAction,
   buttonText,
   disabled = false,
+  itemName,
   theme,
-}: {
-  buttonAction: (e: Event) => void;
-  buttonText: string;
-  disabled?: boolean;
-  theme: Theme;
-}) {
+  username,
+}: BadgeButtonProps) {
   const handleButtonClick = (event: Event) => {
     if (!disabled) {
       buttonAction(event);
@@ -26,6 +32,7 @@ export function BadgeButton({
     <button
       type="button"
       title=${buttonText}
+      aria-label=${[buttonText, [itemName, username].filter(Boolean).join(" ")]}
       class=${badgeButtonStyles({ disabled, theme })}
       @click=${handleButtonClick}
     >
@@ -62,6 +69,10 @@ const badgeButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: Them
       border-color: ${themes[theme].primary["600"]};
       background-color: ${themes[theme].primary["600"]};
       color: ${themes[theme].text.contrast};
+    }
+    :focus {
+      outline: 2px solid ${themes[theme].primary["600"]};
+      outline-offset: 2px;
     }
   `}
 `;

@@ -7,20 +7,10 @@ import {
   POPUP_STYLE_DISK,
 } from "@bitwarden/common/platform/state";
 
-import BrowserPopupUtils from "../browser-popup-utils";
-
-/**
- *
- * Value represents width in pixels
- */
-export const PopupWidthOptions = Object.freeze({
-  default: 380,
-  wide: 480,
-  "extra-wide": 600,
-});
-
-type PopupWidthOptions = typeof PopupWidthOptions;
-export type PopupWidthOption = keyof PopupWidthOptions;
+import BrowserPopupUtils, {
+  PopupWidthOption,
+  PopupWidthOptions,
+} from "../../browser/browser-popup-utils";
 
 const POPUP_WIDTH_KEY_DEF = new KeyDefinition<PopupWidthOption>(POPUP_STYLE_DISK, "popup-width", {
   deserializer: (s) => s,
@@ -50,17 +40,40 @@ export class PopupSizeService {
       PopupSizeService.setStyle(width);
       localStorage.setItem(PopupSizeService.LocalStorageKey, width);
     });
+  }
 
+  async setHeight() {
     const isInChromeTab = await BrowserPopupUtils.isInTab();
 
+    /**
+     * To support both browser default zoom and system default zoom, we need to take into account
+     * the full screen height. When system default zoom is >100%, window.innerHeight still outputs
+     * a height equivalent to what it would be at 100%, which can cause the extension window to
+     * render as too tall. So if the screen height is smaller than the max possible extension height,
+     * we should use that to set our extension height. Otherwise, we want to use the window.innerHeight
+     * to support browser zoom.
+     *
+     * This is basically a workaround for what we consider a bug with browsers reporting the wrong
+     * available innerHeight when system zoom is turned on. If that gets fixed, we can remove the code
+     * checking the screen height.
+     */
+    const MAX_EXT_HEIGHT = 600;
+    const extensionInnerHeight = window.innerHeight;
+    // Use a 100px offset when calculating screen height to account for browser container elements
+    const screenAvailHeight = window.screen.availHeight - 100;
+    const availHeight =
+      screenAvailHeight < MAX_EXT_HEIGHT ? screenAvailHeight : extensionInnerHeight;
+
     if (!BrowserPopupUtils.inPopup(window) || isInChromeTab) {
-      window.document.body.classList.add("body-full");
-    } else if (window.innerHeight < 400) {
-      window.document.body.classList.add("body-xxs");
-    } else if (window.innerHeight < 500) {
-      window.document.body.classList.add("body-xs");
-    } else if (window.innerHeight < 600) {
-      window.document.body.classList.add("body-sm");
+      window.document.documentElement.classList.add("body-full");
+    } else if (availHeight < 300) {
+      window.document.documentElement.classList.add("body-3xs");
+    } else if (availHeight < 400) {
+      window.document.documentElement.classList.add("body-xxs");
+    } else if (availHeight < 500) {
+      window.document.documentElement.classList.add("body-xs");
+    } else if (availHeight < 600) {
+      window.document.documentElement.classList.add("body-sm");
     }
   }
 

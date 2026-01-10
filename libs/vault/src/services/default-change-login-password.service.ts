@@ -1,15 +1,23 @@
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { ChangePasswordUriResponse } from "@bitwarden/common/vault/models/response/change-password-uri.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
 
 @Injectable()
 export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordService {
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private environmentService: EnvironmentService,
+    private domainSettingsService: DomainSettingsService,
+  ) {}
 
   /**
    * @inheritDoc
@@ -29,16 +37,19 @@ export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordSer
       return null;
     }
 
-    for (const url of urls) {
-      const [reliable, wellKnownChangeUrl] = await Promise.all([
-        this.hasReliableHttpStatusCode(url.origin),
-        this.getWellKnownChangePasswordUrl(url.origin),
-      ]);
+    const enableFaviconChangePassword = await firstValueFrom(
+      this.domainSettingsService.showFavicons$,
+    );
 
-      // Some servers return a 200 OK for a resource that should not exist
-      // Which means we cannot trust the well-known URL is valid, so we skip it
-      // to avoid potentially sending users to a 404 page
-      if (reliable && wellKnownChangeUrl != null) {
+    // When the setting is not enabled, return the first URL
+    if (!enableFaviconChangePassword) {
+      return urls[0].href;
+    }
+
+    for (const url of urls) {
+      const wellKnownChangeUrl = await this.fetchWellKnownChangePasswordUri(url.href);
+
+      if (wellKnownChangeUrl) {
         return wellKnownChangeUrl;
       }
     }
@@ -48,55 +59,41 @@ export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordSer
   }
 
   /**
-   * Checks if the server returns a non-200 status code for a resource that should not exist.
-   * See https://w3c.github.io/webappsec-change-password-url/response-code-reliability.html#semantics
-   * @param urlOrigin The origin of the URL to check
+   * Fetches the well-known change-password-uri for the given URL.
+   * @returns The full URL to the change password page, or null if it could not be found.
    */
-  private async hasReliableHttpStatusCode(urlOrigin: string): Promise<boolean> {
-    try {
-      const url = new URL(
-        "./.well-known/resource-that-should-not-exist-whose-status-code-should-not-be-200",
-        urlOrigin,
-      );
+  private async fetchWellKnownChangePasswordUri(url: string): Promise<string | null> {
+    const getChangePasswordUriRequest = await this.buildChangePasswordUriRequest(url);
 
-      const request = new Request(url, {
-        method: "GET",
-        mode: "same-origin",
-        credentials: "omit",
-        cache: "no-store",
-        redirect: "follow",
-      });
+    const response = await this.apiService.fetch(getChangePasswordUriRequest);
 
-      const response = await this.apiService.nativeFetch(request);
-      return !response.ok;
-    } catch {
-      return false;
+    if (!response.ok) {
+      return null;
     }
+
+    const data = await response.json();
+
+    const { uri } = new ChangePasswordUriResponse(data);
+
+    return uri;
   }
 
   /**
-   * Builds a well-known change password URL for the given origin. Attempts to fetch the URL to ensure a valid response
-   * is returned. Returns null if the request throws or the response is not 200 OK.
-   * See https://w3c.github.io/webappsec-change-password-url/
-   * @param urlOrigin The origin of the URL to check
+   * Construct the request for the change-password-uri endpoint.
    */
-  private async getWellKnownChangePasswordUrl(urlOrigin: string): Promise<string | null> {
-    try {
-      const url = new URL("./.well-known/change-password", urlOrigin);
+  private async buildChangePasswordUriRequest(cipherUri: string): Promise<Request> {
+    const searchParams = new URLSearchParams();
+    searchParams.set("uri", cipherUri);
 
-      const request = new Request(url, {
-        method: "GET",
-        mode: "same-origin",
-        credentials: "omit",
-        cache: "no-store",
-        redirect: "follow",
-      });
+    // The change-password-uri endpoint lives within the icons service
+    // as it uses decrypted cipher data.
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const iconsUrl = env.getIconsUrl();
 
-      const response = await this.apiService.nativeFetch(request);
+    const url = new URL(`${iconsUrl}/change-password-uri?${searchParams.toString()}`);
 
-      return response.ok ? url.toString() : null;
-    } catch {
-      return null;
-    }
+    return new Request(url, {
+      method: "GET",
+    });
   }
 }

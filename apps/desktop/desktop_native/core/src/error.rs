@@ -9,8 +9,6 @@ pub enum Error {
 
     #[error("Cryptography Error, {0}")]
     Crypto(#[from] CryptoError),
-    #[error("KDF Parameter Error, {0}")]
-    KdfParam(#[from] KdfParamError),
 }
 
 #[derive(Debug, Error)]
@@ -36,16 +34,5 @@ pub enum KdfParamError {
     #[error("Invalid KDF parameters: {0}")]
     InvalidParams(String),
 }
-
-// Ensure that the error messages implement Send and Sync
-#[cfg(test)]
-const _: () = {
-    fn assert_send<T: Send>() {}
-    fn assert_sync<T: Sync>() {}
-    fn assert_all() {
-        assert_send::<Error>();
-        assert_sync::<Error>();
-    }
-};
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;

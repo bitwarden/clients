@@ -3,8 +3,8 @@
     type="radio"
     bitRadio
     [id]="inputId"
-    [disabled]="groupDisabled || disabled"
-    [value]="value"
+    [disabled]="groupDisabled || disabled()"
+    [value]="value()"
     [checked]="selected"
     (change)="onInputChange()"
     (blur)="onBlur()"

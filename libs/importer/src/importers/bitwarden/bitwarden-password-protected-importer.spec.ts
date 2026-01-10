@@ -1,16 +1,22 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
+import { emptyGuid, OrganizationId } from "@bitwarden/common/types/guid";
+import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { KdfType, KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { emptyAccountEncrypted } from "../spec-data/bitwarden-json/account-encrypted.json";
 import { emptyUnencryptedExport } from "../spec-data/bitwarden-json/unencrypted.json";
 
+import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
 import { BitwardenJsonImporter } from "./bitwarden-json-importer";
 import { BitwardenPasswordProtectedImporter } from "./bitwarden-password-protected-importer";
 
@@ -20,7 +26,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let cipherService: MockProxy<CipherService>;
-  let pinService: MockProxy<PinServiceAbstraction>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   const password = Utils.newGuid();
   const promptForPassword_callback = async () => {
@@ -32,15 +38,43 @@ describe("BitwardenPasswordProtectedImporter", () => {
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     cipherService = mock<CipherService>();
-    pinService = mock<PinServiceAbstraction>();
+    keyGenerationService = mock<KeyGenerationService>();
     accountService = mock<AccountService>();
+
+    accountService.activeAccount$ = of({
+      id: emptyGuid as UserId,
+      ...mockAccountInfoWith({
+        email: "test@example.com",
+        name: "Test User",
+      }),
+    });
+
+    const mockOrgId = emptyGuid as OrganizationId;
+    /*
+      The key values below are never read, empty objects are cast as types for compilation type checking only.
+      Tests specific to key contents are in key-service.spec.ts
+    */
+    const mockOrgKey = {} as OrgKey;
+    const mockUserKey = {} as UserKey;
+
+    keyService.orgKeys$.mockImplementation(() =>
+      of({ [mockOrgId]: mockOrgKey } as Record<OrganizationId, OrgKey>),
+    );
+    keyService.userKey$.mockImplementation(() => of(mockUserKey));
+
+    /*
+      Crypto isn’t under test here; keys are just placeholders.
+      Decryption methods are stubbed to always return empty CipherView or string allowing OK import flow.
+    */
+    cipherService.decrypt.mockResolvedValue({} as any);
+    encryptService.decryptString.mockResolvedValue("ok");
 
     importer = new BitwardenPasswordProtectedImporter(
       keyService,
       encryptService,
       i18nService,
       cipherService,
-      pinService,
+      keyGenerationService,
       accountService,
       promptForPassword_callback,
     );
@@ -59,12 +93,33 @@ describe("BitwardenPasswordProtectedImporter", () => {
 
   describe("Account encrypted", () => {
     beforeAll(() => {
-      jest.spyOn(BitwardenJsonImporter.prototype, "parse");
+      jest.spyOn(BitwardenEncryptedJsonImporter.prototype, "parse");
     });
 
-    it("Should call BitwardenJsonImporter", async () => {
-      expect((await importer.parse(emptyAccountEncrypted)).success).toEqual(true);
-      expect(BitwardenJsonImporter.prototype.parse).toHaveBeenCalledWith(emptyAccountEncrypted);
+    beforeEach(() => {
+      accountService.activeAccount$ = of({
+        id: emptyGuid as UserId,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
+      });
+      importer = new BitwardenPasswordProtectedImporter(
+        keyService,
+        encryptService,
+        i18nService,
+        cipherService,
+        keyGenerationService,
+        accountService,
+        promptForPassword_callback,
+      );
+    });
+
+    it("Should call BitwardenEncryptedJsonImporter", async () => {
+      expect((await importer.parse(emptyAccountEncrypted)).success).toEqual(false);
+      expect(BitwardenEncryptedJsonImporter.prototype.parse).toHaveBeenCalledWith(
+        emptyAccountEncrypted,
+      );
     });
   });
 
@@ -92,7 +147,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
     });
 
     it("succeeds with default jdoc", async () => {
-      encryptService.decryptToUtf8.mockReturnValue(Promise.resolve(emptyUnencryptedExport));
+      encryptService.decryptString.mockReturnValue(Promise.resolve(emptyUnencryptedExport));
 
       expect((await importer.parse(JSON.stringify(jDoc))).success).toEqual(true);
     });
@@ -135,6 +190,18 @@ describe("BitwardenPasswordProtectedImporter", () => {
     it("fails if data === null", async () => {
       jDoc.data = null;
       expect((await importer.parse(JSON.stringify(jDoc))).success).toEqual(false);
+    });
+
+    it("returns invalidFilePassword errorMessage if decryptString throws", async () => {
+      encryptService.decryptString.mockImplementation(() => {
+        throw new Error("SDK error");
+      });
+      i18nService.t.mockReturnValue("invalidFilePassword");
+
+      const result = await importer.parse(JSON.stringify(jDoc));
+
+      expect(result.success).toBe(false);
+      expect(result.errorMessage).toBe("invalidFilePassword");
     });
   });
 });

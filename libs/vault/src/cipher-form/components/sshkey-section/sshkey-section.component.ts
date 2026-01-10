@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, inject, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -16,7 +16,6 @@ import {
   CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -26,13 +25,13 @@ import { generate_ssh_key } from "@bitwarden/sdk-internal";
 import { SshImportPromptService } from "../../../services/ssh-import-prompt.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-sshkey-section",
   templateUrl: "./sshkey-section.component.html",
-  standalone: true,
   imports: [
     CardComponent,
-    SectionComponent,
     TypographyModule,
     FormFieldModule,
     ReactiveFormsModule,
@@ -44,11 +43,9 @@ import { CipherFormContainer } from "../../cipher-form-container";
   ],
 })
 export class SshKeySectionComponent implements OnInit {
-  /** The original cipher */
-  @Input() originalCipherView: CipherView;
+  readonly originalCipherView = input<CipherView | null>(null);
 
-  /** True when all fields should be disabled */
-  @Input() disabled: boolean;
+  readonly disabled = input(false);
 
   /**
    * All form fields associated with the ssh key
@@ -62,7 +59,15 @@ export class SshKeySectionComponent implements OnInit {
     keyFingerprint: [""],
   });
 
-  showImport = false;
+  readonly showImport = computed(() => {
+    return (
+      // Web does not support clipboard access
+      this.platformUtilsService.getClientType() !== ClientType.Web &&
+      this.originalCipherView()?.edit
+    );
+  });
+
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
@@ -85,23 +90,31 @@ export class SshKeySectionComponent implements OnInit {
   }
 
   async ngOnInit() {
-    if (this.originalCipherView?.sshKey) {
-      this.setInitialValues();
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+    const sshKeyView = prefillCipher?.sshKey ?? this.originalCipherView()?.sshKey;
+
+    if (sshKeyView) {
+      this.setInitialValues(sshKeyView);
     } else {
       await this.generateSshKey();
     }
 
     this.sshKeyForm.disable();
 
-    // Web does not support clipboard access
-    if (this.platformUtilsService.getClientType() !== ClientType.Web) {
-      this.showImport = true;
-    }
+    // Disable the form if the cipher form container is enabled
+    // to prevent user interaction
+    this.cipherFormContainer.formStatusChange$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((status) => {
+        if (status === "enabled") {
+          this.sshKeyForm.disable();
+        }
+      });
   }
 
   /** Set form initial form values from the current cipher */
-  private setInitialValues() {
-    const { privateKey, publicKey, keyFingerprint } = this.originalCipherView.sshKey;
+  private setInitialValues(sshKeyView: SshKeyView) {
+    const { privateKey, publicKey, keyFingerprint } = sshKeyView;
 
     this.sshKeyForm.setValue({
       privateKey,

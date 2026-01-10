@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
-import { lastValueFrom, Observable, firstValueFrom, switchMap } from "rxjs";
+import { Component, OnInit } from "@angular/core";
+import { lastValueFrom, Observable, firstValueFrom, switchMap, map } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -18,6 +19,8 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared/shared.module";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessStatusType } from "../../emergency-access/enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
@@ -35,21 +38,17 @@ import {
   EmergencyAccessAddEditDialogResult,
 } from "./emergency-access-add-edit.component";
 import {
-  EmergencyAccessTakeoverComponent,
-  EmergencyAccessTakeoverResultType,
-} from "./takeover/emergency-access-takeover.component";
+  EmergencyAccessTakeoverDialogComponent,
+  EmergencyAccessTakeoverDialogResultType,
+} from "./takeover/emergency-access-takeover-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "emergency-access",
   templateUrl: "emergency-access.component.html",
+  imports: [SharedModule, HeaderModule, PremiumBadgeComponent],
 })
 export class EmergencyAccessComponent implements OnInit {
-  @ViewChild("addEdit", { read: ViewContainerRef, static: true }) addEditModalRef: ViewContainerRef;
-  @ViewChild("takeoverTemplate", { read: ViewContainerRef, static: true })
-  takeoverModalRef: ViewContainerRef;
-  @ViewChild("confirmTemplate", { read: ViewContainerRef, static: true })
-  confirmModalRef: ViewContainerRef;
-
   loaded = false;
   canAccessPremium$: Observable<boolean>;
   trustedContacts: GranteeEmergencyAccess[];
@@ -95,15 +94,6 @@ export class EmergencyAccessComponent implements OnInit {
     this.trustedContacts = await this.emergencyAccessService.getEmergencyAccessTrusted();
     this.grantedContacts = await this.emergencyAccessService.getEmergencyAccessGranted();
     this.loaded = true;
-  }
-
-  async premiumRequired() {
-    const canAccessPremium = await firstValueFrom(this.canAccessPremium$);
-
-    if (!canAccessPremium) {
-      this.messagingService.send("premiumRequired");
-      return;
-    }
   }
 
   edit = async (details: GranteeEmergencyAccess) => {
@@ -168,7 +158,15 @@ export class EmergencyAccessComponent implements OnInit {
       });
       const result = await lastValueFrom(dialogRef.closed);
       if (result === EmergencyAccessConfirmDialogResult.Confirmed) {
-        await this.emergencyAccessService.confirm(contact.id, contact.granteeId, publicKey);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+        await this.emergencyAccessService.confirm(
+          contact.id,
+          contact.granteeId,
+          publicKey,
+          activeUserId,
+        );
         updateUser();
         this.toastService.showToast({
           variant: "success",
@@ -179,10 +177,14 @@ export class EmergencyAccessComponent implements OnInit {
       return;
     }
 
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
     this.actionPromise = this.emergencyAccessService.confirm(
       contact.id,
       contact.granteeId,
       publicKey,
+      activeUserId,
     );
     await this.actionPromise;
     updateUser();
@@ -290,21 +292,36 @@ export class EmergencyAccessComponent implements OnInit {
   }
 
   takeover = async (details: GrantorEmergencyAccess) => {
-    const dialogRef = EmergencyAccessTakeoverComponent.open(this.dialogService, {
+    if (!details || !details.email || !details.id) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("grantorDetailsNotFound"),
+      });
+      this.logService.error("Grantor details not found when attempting emergency access takeover");
+
+      return;
+    }
+
+    const grantorName = this.userNamePipe.transform(details);
+
+    const dialogRef = EmergencyAccessTakeoverDialogComponent.open(this.dialogService, {
       data: {
-        name: this.userNamePipe.transform(details),
-        email: details.email,
-        emergencyAccessId: details.id ?? null,
+        grantorName,
+        grantorEmail: details.email,
+        emergencyAccessId: details.id,
       },
     });
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === EmergencyAccessTakeoverResultType.Done) {
+    if (result === EmergencyAccessTakeoverDialogResultType.Done) {
       this.toastService.showToast({
         variant: "success",
-        title: null,
-        message: this.i18nService.t("passwordResetFor", this.userNamePipe.transform(details)),
+        title: "",
+        message: this.i18nService.t("passwordResetFor", grantorName),
       });
     }
+
+    return;
   };
 
   private removeGrantee(details: GranteeEmergencyAccess) {

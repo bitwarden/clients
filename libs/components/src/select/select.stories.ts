@@ -49,10 +49,10 @@ export const Default: Story = {
       <bit-form-field>
         <bit-label>Choose a value</bit-label>
         <bit-select [disabled]="disabled">
-          <bit-option value="value1" label="Value 1" icon="bwi-collection"></bit-option>
-          <bit-option value="value2" label="Value 2" icon="bwi-collection"></bit-option>
-          <bit-option value="value3" label="Value 3" icon="bwi-collection"></bit-option>
-          <bit-option value="value4" label="Value 4" icon="bwi-collection" disabled></bit-option>
+          <bit-option value="value1" label="Value 1" icon="bwi-collection-shared"></bit-option>
+          <bit-option value="value2" label="Value 2" icon="bwi-collection-shared"></bit-option>
+          <bit-option value="value3" label="Value 3" icon="bwi-collection-shared"></bit-option>
+          <bit-option value="value4" label="Value 4" icon="bwi-collection-shared" disabled></bit-option>
         </bit-select>
       </bit-form-field>
     `,

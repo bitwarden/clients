@@ -5,6 +5,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
 
+import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
@@ -14,21 +15,32 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { ToastService } from "@bitwarden/components";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
 
 import {
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
 } from "../../../common";
-import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
-import { InputPasswordComponent } from "../../input-password/input-password.component";
+import {
+  InputPasswordComponent,
+  InputPasswordFlow,
+} from "../../input-password/input-password.component";
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import { RegistrationFinishService } from "./registration-finish.service";
 
+const MarketingInitiative = Object.freeze({
+  Premium: "premium",
+} as const);
+
+type MarketingInitiative = (typeof MarketingInitiative)[keyof typeof MarketingInitiative];
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "auth-registration-finish",
   templateUrl: "./registration-finish.component.html",
   imports: [CommonModule, JslibModule, RouterModule, InputPasswordComponent],
@@ -36,9 +48,16 @@ import { RegistrationFinishService } from "./registration-finish.service";
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
+  inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
   loading = true;
   submitting = false;
   email: string;
+
+  /**
+   * Indicates that the user is coming from a marketing page designed to streamline
+   * users who intend to setup a premium subscription after registration.
+   */
+  premiumInterest = false;
 
   // Note: this token is the email verification token. When it is supplied as a query param,
   // it either comes from the email verification email or, if email verification is disabled server side
@@ -73,6 +92,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private premiumInterestStateService: PremiumInterestStateService,
   ) {}
 
   async ngOnInit() {
@@ -120,6 +140,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       this.providerInviteToken = qParams.providerInviteToken;
       this.providerUserId = qParams.providerUserId;
     }
+
+    if (qParams.fromMarketing != null && qParams.fromMarketing === MarketingInitiative.Premium) {
+      this.premiumInterest = true;
+    }
   }
 
   private async initOrgInviteFlowIfPresent(): Promise<boolean> {
@@ -147,9 +171,8 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
-    let captchaBypassToken: string = null;
     try {
-      captchaBypassToken = await this.registrationFinishService.finishRegistration(
+      await this.registrationFinishService.finishRegistration(
         this.email,
         passwordInputResult,
         this.emailVerificationToken,
@@ -174,12 +197,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
     // login with the new account
     try {
-      const credentials = new PasswordLoginCredentials(
-        this.email,
-        passwordInputResult.password,
-        captchaBypassToken,
-        null,
-      );
+      const credentials = new PasswordLoginCredentials(this.email, passwordInputResult.newPassword);
 
       const authenticationResult = await this.loginStrategyService.logIn(credentials);
 
@@ -188,13 +206,17 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("youHaveBeenLoggedIn"),
-      });
+      await this.loginSuccessHandlerService.run(
+        authenticationResult.userId,
+        authenticationResult.masterPassword ?? null,
+      );
 
-      await this.loginSuccessHandlerService.run(authenticationResult.userId);
+      if (this.premiumInterest) {
+        await this.premiumInterestStateService.setPremiumInterest(
+          authenticationResult.userId,
+          true,
+        );
+      }
 
       await this.router.navigate(["/vault"]);
     } catch (e) {

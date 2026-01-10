@@ -1,11 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { ButtonModule } from "../button";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -16,11 +17,16 @@ import { ToastOptions, ToastService } from "./toast.service";
 const toastServiceExampleTemplate = `
   <button bitButton type="button" (click)="toastService.showToast(toastOptions)">Show Toast</button>
 `;
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "toast-service-example",
   template: toastServiceExampleTemplate,
+  imports: [ButtonModule],
 })
 export class ToastServiceExampleComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   toastOptions?: ToastOptions;
 
@@ -33,8 +39,13 @@ export default {
 
   decorators: [
     moduleMetadata({
-      imports: [CommonModule, BrowserAnimationsModule, ButtonModule, ToastModule],
-      declarations: [ToastServiceExampleComponent],
+      imports: [
+        CommonModule,
+        BrowserAnimationsModule,
+        ButtonModule,
+        ToastModule,
+        ToastServiceExampleComponent,
+      ],
     }),
     applicationConfig({
       providers: [
@@ -48,6 +59,7 @@ export default {
               error: "Error",
               warning: "Warning",
               info: "Info",
+              loading: "Loading",
             });
           },
         },
@@ -75,11 +87,22 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width]">
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="success"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="info"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="warning"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="error"></bit-toast>
+      <div class="tw-min-w tw-max-w-[--bit-toast-width]">
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)}></bit-toast>
+      </div>
+    `,
+  }),
+};
+
+export const Variants: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width] tw-gap-2">
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="success"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="info"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="warning"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="error"></bit-toast>
       </div>
     `,
   }),
@@ -93,8 +116,8 @@ export const LongContent: Story = {
   args: {
     title: "Foo",
     message: [
-      "Lorem ipsum dolor sit amet, consectetur adipisci",
-      "Lorem ipsum dolor sit amet, consectetur adipisci",
+      "Maecenas commodo posuere quam, vel malesuada nulla accumsan ac.",
+      "Pellentesque interdum ligula ante, eget bibendum ante lacinia congue.",
     ],
   },
 };

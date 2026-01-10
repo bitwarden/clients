@@ -6,7 +6,7 @@
           class="tw-max-w-full tw-max-h-40"
           src="../../../../images/at-risk-password-carousel/review_at-risk_logins.light.png"
           appDarkImgSrc="../../../../images/at-risk-password-carousel/review_at-risk_logins.dark.png"
-          [alt]="'reviewAtRiskLoginSlideImgAlt' | i18n"
+          [alt]="'reviewAtRiskLoginSlideImgAltPeriod' | i18n"
         />
         <h2 bitTypography="h2" class="tw-mt-8">{{ "reviewAtRiskLogins" | i18n }}</h2>
         <p bitTypography="body1">
@@ -18,7 +18,7 @@
           class="tw-max-w-full tw-max-h-40"
           src="../../../../images/at-risk-password-carousel/generate_password.light.png"
           appDarkImgSrc="../../../../images/at-risk-password-carousel/generate_password.dark.png"
-          [alt]="'generatePasswordSlideImgAlt' | i18n"
+          [alt]="'generatePasswordSlideImgAltPeriod' | i18n"
         />
         <h2 bitTypography="h2" class="tw-mt-8">{{ "generatePassword" | i18n }}</h2>
         <p bitTypography="body1">
@@ -30,7 +30,7 @@
           class="tw-max-w-full tw-max-h-40"
           src="../../../../images/at-risk-password-carousel/update_login.light.png"
           appDarkImgSrc="../../../../images/at-risk-password-carousel/update_login.dark.png"
-          [alt]="'updateInBitwardenSlideImgAlt' | i18n"
+          [alt]="'updateInBitwardenSlideImgAltPeriod' | i18n"
         />
         <h2 bitTypography="h2" class="tw-mt-8">{{ "updateInBitwarden" | i18n }}</h2>
         <p bitTypography="body1">
@@ -39,7 +39,7 @@
       </vault-carousel-slide>
     </vault-carousel>
   </div>
-  <div bitDialogFooter class="tw-w-full">
+  <ng-container bitDialogFooter>
     <button
       type="button"
       bitButton
@@ -47,8 +47,9 @@
       block
       [disabled]="!dismissBtnEnabled()"
       (click)="dismiss()"
+      data-testid="confirm-carousel-button"
     >
       {{ "reviewAtRiskPasswords" | i18n }}
     </button>
-  </div>
+  </ng-container>
 </bit-simple-dialog>

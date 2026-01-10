@@ -12,7 +12,7 @@
         </bit-hint>
       </bit-form-field>
     </div>
-    <div bitDialogFooter class="tw-flex tw-gap-2 tw-w-full">
+    <ng-container bitDialogFooter>
       <button
         #submitBtn
         bitButton
@@ -33,9 +33,9 @@
         buttonType="danger"
         class="tw-ml-auto"
         bitIconButton="bwi-trash"
-        [appA11yTitle]="'deleteFolder' | i18n"
+        [label]="'deleteFolder' | i18n"
         [bitAction]="deleteFolder"
       ></button>
-    </div>
+    </ng-container>
   </bit-dialog>
 </form>

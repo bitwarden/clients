@@ -6,7 +6,6 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -17,10 +16,12 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { ButtonModule, NoItemsModule } from "@bitwarden/components";
 import {
   NewSendDropdownComponent,
@@ -37,7 +38,7 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
-import { SendV2Component, SendState } from "./send-v2.component";
+import { SendState, SendV2Component } from "./send-v2.component";
 
 describe("SendV2Component", () => {
   let component: SendV2Component;
@@ -64,7 +65,7 @@ describe("SendV2Component", () => {
     });
 
     policyService = mock<PolicyService>();
-    policyService.policyAppliesToActiveUser$.mockReturnValue(of(true)); // Return `true` by default
+    policyService.policyAppliesToUser$.mockReturnValue(of(true)); // Return `true` by default
 
     sendListFiltersService = new SendListFiltersService(mock(), new FormBuilder());
 
@@ -96,9 +97,10 @@ describe("SendV2Component", () => {
           useValue: {
             activeAccount$: of({
               id: "123",
-              email: "test@email.com",
-              emailVerified: true,
-              name: "Test User",
+              ...mockAccountInfoWith({
+                email: "test@email.com",
+                name: "Test User",
+              }),
             }),
           },
         },
