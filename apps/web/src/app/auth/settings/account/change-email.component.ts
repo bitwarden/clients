@@ -2,8 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { LogoutService } from "@bitwarden/auth/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { EmailTokenRequest } from "@bitwarden/common/auth/models/request/email-token.request";

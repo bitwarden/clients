@@ -3,8 +3,8 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import mock, { MockProxy } from "jest-mock-extended/lib/Mock";
 import { firstValueFrom, of } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { LogoutService } from "@bitwarden/auth/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorProviderResponse } from "@bitwarden/common/auth/models/response/two-factor-provider.response";
