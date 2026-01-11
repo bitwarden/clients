@@ -27,6 +27,7 @@ describe("ExtensionLogoutService", () => {
 
     messagingService = mock<MessagingService>();
     accountSwitcherService = mock<AccountSwitcherService>();
+    logService = mock<LogService>();
 
     logoutService = new ExtensionLogoutService(
       messagingService,

@@ -320,7 +320,7 @@ describe("LockComponent", () => {
         acceptButtonText: { key: "logOut" },
         type: "warning",
       });
-      expect(mockLogoutService.logout).toHaveBeenCalledWith(userId);
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(userId, "userInitiated");
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
     });
 
@@ -522,7 +522,7 @@ describe("LockComponent", () => {
       expect(mockLogService.warning).toHaveBeenCalledWith(
         "[LockComponent] User cannot unlock again. Logging out!",
       );
-      expect(mockLogoutService.logout).toHaveBeenCalledWith(userId);
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(userId, "noUnlockOptionsAvailable");
     });
 
     it("should not logout when master password is enabled", async () => {
