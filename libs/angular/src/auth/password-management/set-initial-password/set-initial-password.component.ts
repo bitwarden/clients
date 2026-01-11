@@ -315,6 +315,8 @@ export class SetInitialPasswordComponent implements OnInit {
     });
 
     if (confirmed) {
+      const ctx = "Cannot log out a user without a userId.";
+      assertTruthy(this.userId, "userId", ctx);
       await this.logoutService.logout(this.userId, "userInitiated");
     }
   }
