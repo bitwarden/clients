@@ -499,7 +499,9 @@ export class LockComponent implements OnInit, OnDestroy {
           variant: "error",
           message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
         });
-        this.messagingService.send("logout");
+        if (this.activeAccount?.id != null) {
+          await this.logoutService.logout(this.activeAccount.id, "tooManyInvalidPinAttempts");
+        }
         return;
       }
 

@@ -2,13 +2,13 @@ import { Component, Inject } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { firstValueFrom, Observable } from "rxjs";
 
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { KdfConfig, KdfType } from "@bitwarden/key-management";
 
@@ -32,13 +32,13 @@ export class ChangeKdfConfirmationComponent {
 
   constructor(
     private i18nService: I18nService,
-    private messagingService: MessagingService,
     @Inject(DIALOG_DATA) params: { kdf: KdfType; kdfConfig: KdfConfig },
     private accountService: AccountService,
     private toastService: ToastService,
     private changeKdfService: ChangeKdfService,
     private dialogRef: DialogRef<ChangeKdfConfirmationComponent>,
     configService: ConfigService,
+    private logoutService: LogoutService,
   ) {
     this.kdfConfig = params.kdfConfig;
     this.noLogoutOnKdfChangeFeatureFlag$ = configService.getFeatureFlag$(
@@ -51,6 +51,7 @@ export class ChangeKdfConfirmationComponent {
       return;
     }
     this.loading = true;
+    const activeAccountId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await this.makeKeyAndSave();
     if (await firstValueFrom(this.noLogoutOnKdfChangeFeatureFlag$)) {
       this.toastService.showToast({
@@ -64,7 +65,9 @@ export class ChangeKdfConfirmationComponent {
         title: this.i18nService.t("encKeySettingsChanged"),
         message: this.i18nService.t("logBackIn"),
       });
-      this.messagingService.send("logout");
+      if (activeAccountId) {
+        await this.logoutService.logout(activeAccountId, "kdfSettingsChanged");
+      }
     }
     this.loading = false;
   };

@@ -4,13 +4,13 @@ import mock, { MockProxy } from "jest-mock-extended/lib/Mock";
 import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorProviderResponse } from "@bitwarden/common/auth/models/response/two-factor-provider.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
@@ -43,7 +43,7 @@ describe("ChangeEmailComponent", () => {
         { provide: TwoFactorService, useValue: twoFactorService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: KeyService, useValue: keyService },
-        { provide: MessagingService, useValue: mock<MessagingService>() },
+        { provide: LogoutService, useValue: mock<LogoutService>() },
         { provide: KdfConfigService, useValue: kdfConfigService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: FormBuilder, useClass: FormBuilder },
