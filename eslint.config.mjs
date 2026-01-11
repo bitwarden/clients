@@ -63,7 +63,7 @@ export default tseslint.config(
       // TODO: Enable these.
       "@angular-eslint/component-class-suffix": "error",
       "@angular-eslint/contextual-lifecycle": "error",
-      "@angular-eslint/directive-class-suffix": 0,
+      "@angular-eslint/directive-class-suffix": "error",
       "@angular-eslint/no-empty-lifecycle-method": 0,
       "@angular-eslint/no-input-rename": 0,
       "@angular-eslint/no-inputs-metadata-property": "error",
@@ -71,6 +71,7 @@ export default tseslint.config(
       "@angular-eslint/no-output-on-prefix": 0,
       "@angular-eslint/no-output-rename": "error",
       "@angular-eslint/no-outputs-metadata-property": "error",
+      "@angular-eslint/prefer-inject": 0,
       "@angular-eslint/prefer-on-push-component-change-detection": "error",
       "@angular-eslint/prefer-output-emitter-ref": "error",
       "@angular-eslint/prefer-signals": "error",
@@ -196,7 +197,7 @@ export default tseslint.config(
         {
           // uses negative lookahead to whitelist any class that doesn't start with "tw-"
           // in other words: classnames that start with tw- must be valid TailwindCSS classes
-          whitelist: ["(?!(tw)\\-).*"],
+          whitelist: ["(?!(tw)\\-).*", "tw-app-region-drag", "tw-app-region-no-drag"],
         },
       ],
       "tailwindcss/enforces-negative-arbitrary-values": "error",
@@ -348,6 +349,7 @@ export default tseslint.config(
             "file-selector",
             "mfaType.*",
             "filter.*", // Temporary until filters are migrated
+            "tw-app-region*", // Custom utility for native passkey modals
             "tw-@container",
           ],
         },

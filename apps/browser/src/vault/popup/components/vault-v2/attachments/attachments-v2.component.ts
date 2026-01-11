@@ -51,6 +51,6 @@ export class AttachmentsV2Component {
 
   /** Navigate the user back to the edit screen after uploading an attachment */
   async navigateBack() {
-    await this.popupRouterCacheService.back();
+    await this.popupRouterCacheService.back(true);
   }
 }

@@ -15,7 +15,9 @@ import {
   shareReplay,
   switchMap,
   take,
+  withLatestFrom,
   tap,
+  BehaviorSubject,
 } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
@@ -24,6 +26,11 @@ import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
+import {
+  AutoConfirmExtensionSetupDialogComponent,
+  AutoConfirmState,
+  AutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -40,9 +47,14 @@ import {
   ButtonModule,
   DialogService,
   NoItemsModule,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
+} from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -105,6 +117,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultFadeInOutSkeletonComponent,
     VaultFadeInOutComponent,
   ],
+  providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -125,7 +138,22 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   activeUserId: UserId | null = null;
 
-  private loading$ = this.vaultPopupLoadingService.loading$.pipe(
+  /**
+   * Subject that indicates whether the vault is ready to render
+   * and that all initialization tasks have been completed (ngOnInit).
+   * @private
+   */
+  private readySubject = new BehaviorSubject(false);
+
+  /**
+   * Indicates whether the vault is loading and not yet ready to be displayed.
+   * @protected
+   */
+  protected loading$ = combineLatest([
+    this.vaultPopupLoadingService.loading$,
+    this.readySubject.asObservable(),
+  ]).pipe(
+    map(([loading, ready]) => loading || !ready),
     distinctUntilChanged(),
     tap((loading) => {
       const key = loading ? "loadingVault" : "vaultLoaded";
@@ -135,6 +163,10 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   protected skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
     FeatureFlag.VaultLoadingSkeletons,
+  );
+
+  protected premiumSpotlightFeatureFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.BrowserPremiumSpotlight,
   );
 
   private showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
@@ -164,16 +196,21 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   );
 
   protected showPremiumSpotlight$ = combineLatest([
+    this.premiumSpotlightFeatureFlag$,
     this.showPremiumNudgeSpotlight$,
-    this.showEmptyVaultSpotlight$,
     this.showHasItemsVaultSpotlight$,
     this.hasPremium$,
     this.cipherCount$,
     this.accountAgeInDays$,
   ]).pipe(
     map(
-      ([showNudge, emptyVault, hasItems, hasPremium, count, age]) =>
-        showNudge && !emptyVault && !hasItems && !hasPremium && count >= 5 && age >= 7,
+      ([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) =>
+        featureFlagEnabled &&
+        showPremiumNudge &&
+        !showHasItemsNudge &&
+        !hasPremium &&
+        count >= 5 &&
+        age >= 7,
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -191,14 +228,15 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected showSkeletonsLoaders$ = combineLatest([
     this.loading$,
     this.searchService.isCipherSearching$,
+    this.vaultItemsTransferService.transferInProgress$,
     this.skeletonFeatureFlag$,
   ]).pipe(
-    map(
-      ([loading, cipherSearching, skeletonsEnabled]) =>
-        (loading || cipherSearching) && skeletonsEnabled,
-    ),
+    map(([loading, cipherSearching, transferInProgress, skeletonsEnabled]) => {
+      return (loading || cipherSearching || transferInProgress) && skeletonsEnabled;
+    }),
     distinctUntilChanged(),
     skeletonLoadingDelay(),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
@@ -236,12 +274,15 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private introCarouselService: IntroCarouselService,
     private nudgesService: NudgesService,
     private router: Router,
+    private autoConfirmService: AutomaticUserConfirmationService,
+    private toastService: ToastService,
     private vaultProfileService: VaultProfileService,
     private billingAccountService: BillingAccountProfileStateService,
     private liveAnnouncer: LiveAnnouncer,
     private i18nService: I18nService,
     private configService: ConfigService,
     private searchService: SearchService,
+    private vaultItemsTransferService: VaultItemsTransferService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -296,6 +337,40 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
           cipherIds: ciphers.map((c) => c.id as CipherId),
         });
       });
+
+    const autoConfirmState$ = this.autoConfirmService.configuration$(this.activeUserId);
+
+    combineLatest([
+      this.autoConfirmService.canManageAutoConfirm$(this.activeUserId),
+      autoConfirmState$,
+    ])
+      .pipe(
+        filter(([canManage, state]) => canManage && state.showBrowserNotification === undefined),
+        take(1),
+        switchMap(() => AutoConfirmExtensionSetupDialogComponent.open(this.dialogService).closed),
+        withLatestFrom(autoConfirmState$, this.accountService.activeAccount$.pipe(getUserId)),
+        switchMap(([result, state, userId]) => {
+          const newState: AutoConfirmState = {
+            ...state,
+            enabled: result ?? false,
+            showBrowserNotification: !result,
+          };
+
+          if (result) {
+            this.toastService.showToast({
+              message: this.i18nService.t("autoConfirmEnabled"),
+              variant: "success",
+            });
+          }
+
+          return this.autoConfirmService.upsert(userId, newState);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+    await this.vaultItemsTransferService.enforceOrganizationDataOwnership(this.activeUserId);
+
+    this.readySubject.next(true);
   }
 
   ngOnDestroy() {

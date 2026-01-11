@@ -1,4 +1,4 @@
-import { InjectFlags, InjectOptions, Injector, ProviderToken } from "@angular/core";
+import { InjectOptions, Injector, ProviderToken } from "@angular/core";
 
 export class ModalInjector implements Injector {
   constructor(
@@ -12,8 +12,8 @@ export class ModalInjector implements Injector {
     options: InjectOptions & { optional?: false },
   ): T;
   get<T>(token: ProviderToken<T>, notFoundValue: null, options: InjectOptions): T;
-  get<T>(token: ProviderToken<T>, notFoundValue?: T, options?: InjectOptions | InjectFlags): T;
-  get<T>(token: ProviderToken<T>, notFoundValue?: T, flags?: InjectFlags): T;
+  get<T>(token: ProviderToken<T>, notFoundValue?: T, options?: InjectOptions | null): T;
+  get<T>(token: ProviderToken<T>, notFoundValue?: T, flags?: null): T;
   get(token: any, notFoundValue?: any): any;
   get(token: any, notFoundValue?: any, flags?: any): any {
     return this._additionalTokens.get(token) ?? this._parentInjector.get<any>(token, notFoundValue);

@@ -436,8 +436,8 @@
   "sync": {
     "message": "Szinkronizálás"
   },
-  "syncVaultNow": {
-    "message": "Széf szinkronizálása most"
+  "syncNow": {
+    "message": "Szinkronizálás most"
   },
   "lastSync": {
     "message": "Utolsó szinkronizálás:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden webes alkalmazás"
-  },
-  "importItems": {
-    "message": "Elemek importálása"
   },
   "select": {
     "message": "Kiválaszt"
@@ -585,6 +582,12 @@
   "archiveItemConfirmDesc": {
     "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
   },
+  "upgradeToUseArchive": {
+    "message": "Az Archívum használatához prémium tagság szükséges."
+  },
+  "itemRestored": {
+    "message": "Az elem visszaállításra került."
+  },
   "edit": {
     "message": "Szerkesztés"
   },
@@ -593,6 +596,9 @@
   },
   "viewAll": {
     "message": "Összes megtekintése"
+  },
+  "showAll": {
+    "message": "Összes megjelenítése"
   },
   "viewLess": {
     "message": "kevesebb megjelenítése"
@@ -1319,8 +1325,21 @@
   "exportFrom": {
     "message": "Exportálás innen:"
   },
-  "exportVault": {
-    "message": "Széf exportálása"
+  "exportVerb": {
+    "message": "Exportálás",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Exportálás",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importálás",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importálás",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Fájlformátum"
@@ -1400,6 +1419,27 @@
   "learnMore": {
     "message": "Tudjon meg többet"
   },
+  "migrationsFailed": {
+    "message": "Hiba történt a titkosítási beállítások frissítésekor."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "A titkosítási beállítások frissítése"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most."
+  },
+  "confirmIdentityToContinue": {
+    "message": "A folytatáshoz meg kell erősíteni a személyazonosságot."
+  },
+  "enterYourMasterPassword": {
+    "message": "Mesterjelszó megadása"
+  },
+  "updateSettings": {
+    "message": "Beállítások frissítése"
+  },
+  "later": {
+    "message": "Később"
+  },
   "authenticatorKeyTotp": {
     "message": "Hitelesítő kulcs (egyszeri időalapú)"
   },
@@ -1430,6 +1470,15 @@
   "attachmentSaved": {
     "message": "A melléklet mentésre került."
   },
+  "fixEncryption": {
+    "message": "Titkosítás javítása"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Ez a fájl elavult titkosítási módszert használ."
+  },
+  "attachmentUpdated": {
+    "message": "A melléklet frissítésre került."
+  },
   "file": {
     "message": "Fájl"
   },
@@ -1438,6 +1487,9 @@
   },
   "selectFile": {
     "message": "Válasszunk egy fájlt."
+  },
+  "itemsTransferred": {
+    "message": "Az elemek átvitelre kerültek."
   },
   "maxFileSize": {
     "message": "A naximális fájlméret 500 MB."
@@ -1468,6 +1520,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB titkosított tárhely a fájlmellékleteknek."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ titkosított tárhely a fájlmellékletekhez.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Sürgősségi hozzáférés"
@@ -1866,6 +1927,9 @@
   },
   "expirationYear": {
     "message": "Lejárati év"
+  },
+  "monthly": {
+    "message": "hónap"
   },
   "expiration": {
     "message": "Lejárat"
@@ -3201,9 +3265,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nincs egyedi azonosító."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával."
-  },
   "organizationName": {
     "message": "Szervezet neve"
   },
@@ -4167,10 +4228,6 @@
   "ignore": {
     "message": "Mellőz"
   },
-  "importData": {
-    "message": "Adatok importálása",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Importálási hiba"
   },
@@ -4754,8 +4811,35 @@
   "adminConsole": {
     "message": "Adminisztrátori konzol"
   },
+  "admin": {
+    "message": "Adminisztrátor"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatikus felhasználói megerősítés"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "A függőben lévő felhasználók automatikus megerősítése az eszköz zárolásának feloldásakor."
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Idő megtakarítás az automatikus felhasználói megerősítéssel"
+  },
+  "autoConfirmWarning": {
+    "message": "Ez hatással lehet a szervezet adatbiztonságára."
+  },
+  "autoConfirmWarningLink": {
+    "message": "További információ a kockázatokról"
+  },
   "accountSecurity": {
     "message": "Fiókbiztonság"
+  },
+  "phishingBlocker": {
+    "message": "Adathalászat blokkoló"
+  },
+  "enablePhishingDetection": {
+    "message": "Adathalászat érzékelés"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Figyelmeztetés megjelenítése a gyanús adathalász webhelyek elérése előtt."
   },
   "notifications": {
     "message": "Értesítések"
@@ -4901,6 +4985,9 @@
   },
   "premium": {
     "message": "Prémium"
+  },
+  "unlockFeaturesWithPremium": {
+    "message": "A Prémium segítségével feloldhatjuk a jelentés készítést, a vészhelyzeti hozzáférést és a további biztonsági funkciókat."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Az ingyenes szervezetek nem használhatnak mellékleteket."
@@ -5598,6 +5685,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
   },
+  "vulnerablePassword": {
+    "message": "A jelszó sérülékeny."
+  },
+  "changeNow": {
+    "message": "Módosítás most"
+  },
   "missingWebsite": {
     "message": "Hiányzó webhely"
   },
@@ -5806,17 +5899,17 @@
   "andMoreFeatures": {
     "message": "És még több!"
   },
-  "planDescPremium": {
-    "message": "Teljes körű online biztonság"
+  "advancedOnlineSecurity": {
+    "message": "Bővített online biztonság"
   },
   "upgradeToPremium": {
     "message": "Áttérés Prémium csomagra"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Áttérés a teljes biztonságért"
+  "unlockAdvancedSecurity": {
+    "message": "Fejlett biztonsági funkciók feloldása"
   },
-  "premiumGivesMoreTools": {
-    "message": "A Premium több eszközt ad a biztonság megőrzéséhez, a hatékony munkavégzéshez és az irányítás megőrzéséhez."
+  "unlockAdvancedSecurityDesc": {
+    "message": "A prémium előfizetés több eszközt biztosít a biztonság és az irányítás megőrzéséhez."
   },
   "explorePremium": {
     "message": "Premium felfedezése"
@@ -5837,7 +5930,144 @@
   "cardNumberLabel": {
     "message": "Kártya szám"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "A szervezet már nem használ mesterjelszavakat a Bitwardenbe bejelentkezéshez. A folytatáshoz ellenőrizzük a szervezetet és a tartományt."
+  },
+  "continueWithLogIn": {
+    "message": "Folytatás bejelentkezéssel"
+  },
+  "doNotContinue": {
+    "message": "Nincs folytatás"
+  },
+  "domain": {
+    "message": "Tartomány"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Ez a tartomány tárolja a fiók titkosítási kulcsait, ezért győződjünk meg róla, hogy megbízunk-e benne. Ha nem vagyunk biztos benne, érdeklődjünk adminisztrátornál."
+  },
+  "verifyYourOrganization": {
+    "message": "Szervezet ellenőrzése a bejelentkezéshez"
+  },
+  "organizationVerified": {
+    "message": "A szervezet ellenőrzésre került."
+  },
+  "domainVerified": {
+    "message": "A tartomány ellenőrzésre került."
+  },
+  "leaveOrganizationContent": {
+    "message": "Ha nem ellenőrizzük a szervezetet, a szervezethez hozzáférés visszavonásra kerül."
+  },
+  "leaveNow": {
+    "message": "Elhagyás most"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Tartomány ellenőrzése a bejelentkezéshez"
+  },
+  "verifyYourDomainDescription": {
+    "message": "A bejelentkezés folytatásához ellenőrizzük ezt a tartományt."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "A bejelentkezés folytatásához ellenőrizzük a szervezetet és a tartományt."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Időkifutási művelet"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Ezt a beállítást a szervezet lezeli."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "A szervezet a munkamenet maximális munkamenet időkifutását $HOURS$ órára és $MINUTES$ percre állította be.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "A szervezet az alapértelmezett munkamenet időkifutást Azonnal értékre állította."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "A szervezet az alapértelmezett munkamenet időkifutástr Rendszerzár be értékre állította."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "A szervezet az alapértelmezett munkamenet időkifutást a Böngésző újraindításakor értékre állította."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "A maximális időtúllépés nem haladhatja meg a $HOURS$ óra és $MINUTES$ perc értéket.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Böngésző újraindításkor"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
+  },
+  "upgrade": {
+    "message": "Áttérés"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Biztosan szeretnénk kilépni?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Az elutasítással a személyes elemek a fiókban maradnak, de elveszítjük hozzáférést a megosztott elemekhez és a szervezeti funkciókhoz."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Lépjünk kapcsolatba az adminisztrátorral a hozzáférés visszaszerzéséért."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "$ORGANIZATION$ elhagyása",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Hogyan kezeljem a széfet?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Elemek átvitele $ORGANIZATION$ szervezethez",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében. Kattintás az elfogadásra az elemek tulajdonjogának átruházásához.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Átvitel elfogadása"
+  },
+  "declineAndLeave": {
+    "message": "Elutasítás és kilépés"
+  },
+  "whyAmISeeingThis": {
+    "message": "Miért látható ez?"
+  },
+  "resizeSideNavigation": {
+    "message": "Oldalnavigáció átméretezés"
   }
 }

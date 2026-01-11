@@ -16,6 +16,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -37,7 +38,7 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
-import { SendV2Component, SendState } from "./send-v2.component";
+import { SendState, SendV2Component } from "./send-v2.component";
 
 describe("SendV2Component", () => {
   let component: SendV2Component;
@@ -96,9 +97,10 @@ describe("SendV2Component", () => {
           useValue: {
             activeAccount$: of({
               id: "123",
-              email: "test@email.com",
-              emailVerified: true,
-              name: "Test User",
+              ...mockAccountInfoWith({
+                email: "test@email.com",
+                name: "Test User",
+              }),
             }),
           },
         },

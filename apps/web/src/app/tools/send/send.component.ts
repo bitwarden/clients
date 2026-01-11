@@ -7,7 +7,9 @@ import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/sen
 import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -30,12 +32,14 @@ import {
   SendFormConfig,
   SendAddEditDialogComponent,
   SendItemDialogResult,
+  SendTableComponent,
 } from "@bitwarden/send-ui";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 import { NewSendDropdownComponent } from "./new-send/new-send-dropdown.component";
+import { SendSuccessDrawerDialogComponent } from "./shared";
 
 const BroadcasterSubscriptionId = "SendComponent";
 
@@ -43,7 +47,14 @@ const BroadcasterSubscriptionId = "SendComponent";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send",
-  imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule, NewSendDropdownComponent],
+  imports: [
+    SharedModule,
+    SearchModule,
+    NoItemsModule,
+    HeaderModule,
+    NewSendDropdownComponent,
+    SendTableComponent,
+  ],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],
 })
@@ -77,6 +88,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     toastService: ToastService,
     private addEditFormConfigService: DefaultSendFormConfigService,
     accountService: AccountService,
+    private configService: ConfigService,
   ) {
     super(
       sendService,
@@ -116,6 +128,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
 
   ngOnDestroy() {
     this.dialogService.closeAll();
+    this.dialogService.closeDrawer();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
   }
 
@@ -144,21 +157,41 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
    * @param formConfig The form configuration.
    * */
   async openSendItemDialog(formConfig: SendFormConfig) {
-    // Prevent multiple dialogs from being opened.
-    if (this.sendItemDialogRef) {
+    const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
+    // Prevent multiple dialogs from being opened but allow drawers since they will prevent multiple being open themselves
+    if (this.sendItemDialogRef && !useRefresh) {
       return;
     }
 
-    this.sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
-      formConfig,
-    });
+    if (useRefresh) {
+      this.sendItemDialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+        formConfig,
+      });
+    } else {
+      this.sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
+        formConfig,
+      });
+    }
 
-    const result = await lastValueFrom(this.sendItemDialogRef.closed);
+    const result: SendItemDialogResult = await lastValueFrom(this.sendItemDialogRef.closed);
     this.sendItemDialogRef = undefined;
 
     // If the dialog was closed by deleting the cipher, refresh the vault.
-    if (result === SendItemDialogResult.Deleted || result === SendItemDialogResult.Saved) {
+    if (
+      result?.result === SendItemDialogResult.Deleted ||
+      result?.result === SendItemDialogResult.Saved
+    ) {
       await this.load();
+    }
+
+    if (
+      result?.result === SendItemDialogResult.Saved &&
+      result?.send &&
+      (await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh))
+    ) {
+      this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
+        data: result.send,
+      });
     }
   }
 }

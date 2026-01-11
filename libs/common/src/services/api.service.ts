@@ -63,6 +63,7 @@ import { UpdateProfileRequest } from "../auth/models/request/update-profile.requ
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
@@ -165,7 +166,10 @@ export class ApiService implements ApiServiceAbstraction {
       | SsoTokenRequest
       | WebAuthnLoginTokenRequest,
   ): Promise<
-    IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
+    | IdentityTokenResponse
+    | IdentityTwoFactorResponse
+    | IdentityDeviceVerificationResponse
+    | IdentitySsoRequiredResponse
   > {
     const headers = new Headers({
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
@@ -212,6 +216,8 @@ export class ApiService implements ApiServiceAbstraction {
         responseJson?.ErrorModel?.Message === ApiService.NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE
       ) {
         return new IdentityDeviceVerificationResponse(responseJson);
+      } else if (response.status === 400 && responseJson?.SsoOrganizationIdentifier) {
+        return new IdentitySsoRequiredResponse(responseJson);
       }
     }
 
@@ -1323,6 +1329,11 @@ export class ApiService implements ApiServiceAbstraction {
       "Bitwarden-Client-Version",
       await this.platformUtilsService.getApplicationVersionNumber(),
     );
+
+    const packageType = await this.platformUtilsService.packageType();
+    if (packageType != null) {
+      request.headers.set("Bitwarden-Package-Type", packageType);
+    }
     return this.nativeFetch(request);
   }
 
@@ -1588,6 +1599,7 @@ export class ApiService implements ApiServiceAbstraction {
       body,
       alterHeaders,
     );
+
     let response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
 
     // First, check to see if we were making an authenticated request and received an Unauthorized (401)
@@ -1598,6 +1610,9 @@ export class ApiService implements ApiServiceAbstraction {
       userIdMakingRequest != null &&
       response.status === HttpStatusCode.Unauthorized
     ) {
+      this.logService.warning(
+        "Unauthorized response received for request to " + path + ". Attempting request again.",
+      );
       request = await this.buildRequest(
         method,
         userIdMakingRequest,
