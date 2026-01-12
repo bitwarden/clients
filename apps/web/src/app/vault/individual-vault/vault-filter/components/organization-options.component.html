@@ -46,10 +46,12 @@
           bitMenuItem
           (click)="unlinkSso(organization)"
         >
+          <i class="bwi bwi-fw bwi-minus-circle"></i>
           {{ "unlinkSso" | i18n }}
         </button>
         <ng-template #linkSso>
           <button type="button" bitMenuItem (click)="handleLinkSso(organization)">
+            <i class="bwi bwi-fw bwi-plus-circle"></i>
             {{ "linkSso" | i18n }}
           </button>
         </ng-template>
