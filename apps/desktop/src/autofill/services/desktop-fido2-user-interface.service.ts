@@ -174,7 +174,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
             "shortcut - Assuming user presence and returning cipherId",
             cipherIds[0],
           );
-          return { cipherId: cipherIds[0], userVerified: userVerification };
+          return { cipherId: cipherIds[0], userVerified: false };
         }
       }
 
