@@ -208,16 +208,19 @@ describe("PopoverTriggerForDirective", () => {
       });
       fixture.detectChanges();
 
-      // Click before RAF completes
+      // Click to close before RAF completes - this should cancel the RAF and prevent overlay creation
       const button = fixture.nativeElement.querySelector("button");
       button.click();
       fixture.detectChanges();
 
+      // Verify popoverOpen was set to false
+      expect(directive.popoverOpen()).toBe(false);
+
       tick(16);
       tick(16);
 
-      // Should only create one overlay
-      expect(overlay.create).toHaveBeenCalledTimes(1);
+      // Should NOT have created any overlay because RAF was canceled
+      expect(overlay.create).not.toHaveBeenCalled();
 
       flush();
     }));
