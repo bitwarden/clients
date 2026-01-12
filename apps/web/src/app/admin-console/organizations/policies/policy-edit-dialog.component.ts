@@ -28,7 +28,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
-import { vNextOrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions/vnext-organization-data-ownership.component";
+import { OrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions/organization-data-ownership.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -129,7 +129,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     try {
-      if (this.policyComponent instanceof vNextOrganizationDataOwnershipPolicyComponent) {
+      if (this.policyComponent instanceof OrganizationDataOwnershipPolicyComponent) {
         await this.handleVNextSubmission(this.policyComponent);
       } else {
         await this.handleStandardSubmission();
@@ -158,7 +158,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   }
 
   private async handleVNextSubmission(
-    policyComponent: vNextOrganizationDataOwnershipPolicyComponent,
+    policyComponent: OrganizationDataOwnershipPolicyComponent,
   ): Promise<void> {
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
@@ -173,12 +173,12 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("No encryption key for this organization.");
     }
 
-    const vNextRequest = await policyComponent.buildVNextRequest(orgKey);
+    const request = await policyComponent.buildVNextRequest(orgKey);
 
     await this.policyApiService.putPolicyVNext(
       this.data.organizationId,
       this.data.policy.type,
-      vNextRequest,
+      request,
     );
   }
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
