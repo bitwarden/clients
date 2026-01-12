@@ -111,6 +111,10 @@ export class PopoverTriggerForDirective implements OnDestroy {
   }
 
   private openPopover() {
+    if (this.overlayRef) {
+      return;
+    }
+
     this.popoverOpen.set(true);
     this.overlayRef = this.overlay.create(this.defaultPopoverConfig);
 
