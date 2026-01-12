@@ -150,16 +150,31 @@ export class CipherService implements CipherServiceAbstraction {
         }
 
         return combineLatest([
-          this.encryptedCiphersState(userId).state$,
-          this.localData$(userId),
-          this.keyService.cipherDecryptionKeys$(userId, true),
+          this.encryptedCiphersState(userId).state$.pipe(tap(() => {
+            console.log("[cipher service] fetched encrypted ciphers");
+          })),
+          this.localData$(userId).pipe(tap(() => {
+            console.log("[cipher service] fetched local data");
+          })),
+          this.keyService.cipherDecryptionKeys$(userId, true).pipe(tap(() => {
+            console.log("[cipher service] fetched cipher decryption keys");
+          })),
         ]).pipe(
+          tap(() => {
+            console.log("[cipher service] fetched all dependencies for decryption");
+          }),
           filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
+          tap(() => {
+            console.log("[cipher service] dependencies are not null");
+          }),
           map(([cipherDataState, localData]) =>
             Object.values(cipherDataState).map(
               (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
             ),
           ),
+          tap(() => {
+            console.log("[cipher service] mapped cipher data to Cipher instances");
+          }),
           tap(() => {
             decryptStartTime = performance.now();
           }),
@@ -171,6 +186,7 @@ export class CipherService implements CipherServiceAbstraction {
             return decrypted;
           }),
           tap((decrypted) => {
+            console.log("[cipher service] decryption complete");
             this.logService.measure(
               decryptStartTime,
               "Vault",

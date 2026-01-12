@@ -129,9 +129,26 @@ export class VaultPopupItemsService {
             combineLatest([
               this.cipherService
                 .cipherListViews$(userId)
-                .pipe(filter((ciphers) => ciphers != null)),
-              this.cipherService.failedToDecryptCiphers$(userId),
-              this.restrictedItemTypesService.restricted$,
+                .pipe(
+                  tap(() => {
+                    console.log("[vault popup items service] fetched cipher list views");
+                  }), 
+                  filter((ciphers) => ciphers != null),
+                  tap(() => {
+                    console.log("[vault popup items service] cipher list views are not null");
+                  })
+                ),
+              this.cipherService.failedToDecryptCiphers$(userId)
+                .pipe(
+                  tap(() => {
+                    console.log("[vault popup items service] fetched failed to decrypt ciphers");
+                  })
+                ),
+              this.restrictedItemTypesService.restricted$.pipe(
+                tap(() => {
+                  console.log("[vault popup items service] fetched restricted item types");
+                })
+              ),
             ]),
           ),
           tap(() => {

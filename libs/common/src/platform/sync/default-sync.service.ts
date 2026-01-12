@@ -448,7 +448,7 @@ export class DefaultSyncService extends CoreSyncService {
         masterPasswordUnlockData,
         userId,
       );
-      //await this.kdfConfigService.setKdfConfig(userId, masterPasswordUnlockData.kdf);
+      await this.kdfConfigService.setKdfConfig(userId, masterPasswordUnlockData.kdf);
     }
   }
 }
