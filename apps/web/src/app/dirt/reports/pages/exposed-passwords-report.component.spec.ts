@@ -1,10 +1,8 @@
-import { NO_ERRORS_SCHEMA, Component, ChangeDetectionStrategy } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -14,7 +12,13 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import {
+  DialogService,
+  AsyncActionsModule,
+  ButtonModule,
+  FormFieldModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
@@ -29,6 +33,14 @@ import { cipherData } from "./reports-ciphers.mock";
   standalone: false,
 })
 class MockHeaderComponent {}
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "bit-container",
+  template: "<div></div>",
+  standalone: false,
+})
+class MockBitContainerComponent {}
 
 describe("ExposedPasswordsReportComponent", () => {
   let component: ExposedPasswordsReportComponent;
@@ -47,8 +59,12 @@ describe("ExposedPasswordsReportComponent", () => {
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
     await TestBed.configureTestingModule({
-      declarations: [ExposedPasswordsReportComponent, MockHeaderComponent, I18nPipe],
-      imports: [JslibModule],
+      declarations: [
+        ExposedPasswordsReportComponent,
+        MockHeaderComponent,
+        MockBitContainerComponent,
+      ],
+      imports: [I18nPipe, AsyncActionsModule, ButtonModule, FormFieldModule],
       providers: [
         {
           provide: CipherService,
@@ -91,7 +107,7 @@ describe("ExposedPasswordsReportComponent", () => {
           useValue: adminConsoleCipherFormConfigServiceMock,
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
+      schemas: [],
     }).compileComponents();
   });
 
