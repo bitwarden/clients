@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Az elem az archivumba került."
   },
+  "itemWasUnarchived": {
+    "message": "Az elem visszavételre került az archivumból."
+  },
   "itemUnarchived": {
     "message": "Az elemek visszavéelre kerültek az archivumból."
   },
@@ -4810,6 +4813,39 @@
   },
   "adminConsole": {
     "message": "Adminisztrátori konzol"
+  },
+  "admin": {
+    "message": "Adminisztrátor"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatikus felhasználói megerősítés"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "A függőben lévő felhasználók automatikus megerősítése az eszköz zárolásának feloldásakor."
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Idő megtakarítás az automatikus felhasználói megerősítéssel"
+  },
+  "autoConfirmWarning": {
+    "message": "Ez hatással lehet a szervezet adatbiztonságára."
+  },
+  "autoConfirmWarningLink": {
+    "message": "További információ a kockázatokról"
+  },
+  "autoConfirmSetup": {
+    "message": "Új felhasználók automatikus megerősítése"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Az új felhasználók automatikusan megerősítésre kerülnek, amíg ez az eszköz fel van oldva."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Melyek a lehetséges biztonsági kockázatok?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Az automatikus megerősítés bekapcsolásra került."
+  },
+  "availableNow": {
+    "message": "Elérhető most"
   },
   "accountSecurity": {
     "message": "Fiókbiztonság"

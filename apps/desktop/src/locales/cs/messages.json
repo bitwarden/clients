@@ -4267,7 +4267,7 @@
   "typeShortcut": {
     "message": "Napsat zkratku"
   },
-  "editAutotypeShortcutDescription": {
+  "editAutotypeKeyboardModifiersDescription": {
     "message": "Zahrňte jeden nebo dva z následujících modifikátorů: Ctrl, Alt, Win nebo Shift a písmeno."
   },
   "invalidShortcut": {

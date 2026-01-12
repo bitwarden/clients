@@ -13,7 +13,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
@@ -139,7 +139,7 @@ export class SendV2Component implements OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe(([emptyList, noFilteredResults, currentFilter]) => {
         if (currentFilter?.sendType !== null) {
-          this.title = this.sendTypeTitles[currentFilter.sendType] ?? "allSends";
+          this.title = this.sendTypeTitles[currentFilter.sendType as SendType] ?? "allSends";
         } else {
           this.title = "allSends";
         }

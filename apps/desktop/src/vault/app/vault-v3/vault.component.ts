@@ -31,7 +31,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -143,7 +143,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   cipherId: string | null = null;
   favorites = false;
   type: CipherType | null = null;
-  folderId: string | null = null;
+  folderId: string | null | undefined = null;
   collectionId: string | null = null;
   organizationId: string | null = null;
   myVaultOnly = false;
@@ -970,7 +970,9 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
     this.config.initialValues = {
       ...this.config.initialValues,
+      folderId: this.folderId,
       organizationId: this.addOrganizationId as OrganizationId,
+      collectionIds: this.addCollectionIds as CollectionId[],
     };
   }
 
