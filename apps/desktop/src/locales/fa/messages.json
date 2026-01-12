@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "تایپ میانبر"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "شامل یک یا دو مورد از کلیدهای تغییردهنده زیر: Ctrl، Alt، Win یا Shift و یک حرف."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "میانبر نامعتبر"

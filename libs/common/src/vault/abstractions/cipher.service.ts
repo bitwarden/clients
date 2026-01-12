@@ -50,6 +50,15 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     keyForCipherKeyDecryption?: SymmetricCryptoKey,
     originalCipher?: Cipher,
   ): Promise<EncryptionContext>;
+  /**
+   * Encrypts multiple ciphers for the given user.
+   *
+   * @param models The cipher views to encrypt
+   * @param userId The user ID to encrypt for
+   *
+   * @returns A promise that resolves to an array of encryption contexts
+   */
+  abstract encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]>;
   abstract encryptFields(fieldsModel: FieldView[], key: SymmetricCryptoKey): Promise<Field[]>;
   abstract encryptField(fieldModel: FieldView, key: SymmetricCryptoKey): Promise<Field>;
   abstract get(id: string, userId: UserId): Promise<Cipher>;
