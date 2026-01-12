@@ -21,8 +21,6 @@ import {
   ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -80,8 +78,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   protected ReportStatusEnum = ReportStatus;
 
-  tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
-  isRiskInsightsActivityTabFeatureEnabled: boolean = false;
+  tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllActivity;
 
   appsCount: number = 0;
 
@@ -112,7 +109,6 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
     protected i18nService: I18nService,
     protected dialogService: DialogService,
@@ -120,16 +116,8 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private logService: LogService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
-      this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
+      this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity;
     });
-
-    this.configService
-      .getFeatureFlag$(FeatureFlag.PM22887_RiskInsightsActivityTab)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((isEnabled) => {
-        this.isRiskInsightsActivityTabFeatureEnabled = isEnabled;
-        this.tabIndex = 0; // default to first tab
-      });
   }
 
   async ngOnInit() {
