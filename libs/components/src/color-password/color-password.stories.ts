@@ -17,8 +17,8 @@ export default {
         {
           provide: PlatformUtilsService,
           useValue: {
-             
-            copyToClipboard: (text: string) => {},
+            // eslint-disable-next-line
+            copyToClipboard: (text: string) => console.log(`${text} copied to clipboard`),
           },
         },
       ],
