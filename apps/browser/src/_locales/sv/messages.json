@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Ett premium-medlemskap krävs för att använda Arkiv."
   },
+  "itemRestored": {
+    "message": "Objektet har återställts"
+  },
   "edit": {
     "message": "Redigera"
   },
@@ -4808,6 +4811,24 @@
   "adminConsole": {
     "message": "Adminkonsol"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
   "accountSecurity": {
     "message": "Kontosäkerhet"
   },
@@ -5664,6 +5685,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
   },
+  "vulnerablePassword": {
+    "message": "Sårbart lösenord."
+  },
+  "changeNow": {
+    "message": "Ändra nu"
+  },
   "missingWebsite": {
     "message": "Saknar webbplats"
   },
@@ -6039,5 +6066,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Varför ser jag det här?"
+  },
+  "resizeSideNavigation": {
+    "message": "Ändra storlek på sidnavigering"
   }
 }

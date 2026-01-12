@@ -585,6 +585,9 @@
   "upgradeToUseArchive": {
     "message": "Na použitie archívu je potrebné prémiové členstvo."
   },
+  "itemRestored": {
+    "message": "Položka bola obnovená"
+  },
   "edit": {
     "message": "Upraviť"
   },
@@ -4808,6 +4811,24 @@
   "adminConsole": {
     "message": "Správcovská konzola"
   },
+  "admin": {
+    "message": "Správca"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatické potvrdenie používateľa"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automaticky potvrdzovať čakajúcich používateľov, keď je toto zariadenie odomknuté"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Šetrite čas automatickým potvrdzovaním používateľa"
+  },
+  "autoConfirmWarning": {
+    "message": "Môže mať vplyv na bezpečnosť údajov vašej organizácie. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Dozvedieť sa viac o rizikách"
+  },
   "accountSecurity": {
     "message": "Zabezpečenie účtu"
   },
@@ -5664,6 +5685,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
   },
+  "vulnerablePassword": {
+    "message": "Zraniteľné heslo."
+  },
+  "changeNow": {
+    "message": "Zmeniť teraz"
+  },
   "missingWebsite": {
     "message": "Chýbajúca webová stránka"
   },
@@ -6039,5 +6066,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Prečo to vidím?"
+  },
+  "resizeSideNavigation": {
+    "message": "Zmeniť veľkosť bočnej navigácie"
   }
 }
