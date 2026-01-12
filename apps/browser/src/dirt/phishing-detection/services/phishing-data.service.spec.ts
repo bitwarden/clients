@@ -9,7 +9,12 @@ import {
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { LogService } from "@bitwarden/logging";
 
-import { PhishingDataService, PhishingData, PHISHING_DOMAINS_KEY } from "./phishing-data.service";
+import {
+  PhishingDataService,
+  PhishingData,
+  PhishingMetadata,
+  PHISHING_DATA_KEY,
+} from "./phishing-data.service";
 
 describe("PhishingDataService", () => {
   let service: PhishingDataService;
@@ -19,9 +24,8 @@ describe("PhishingDataService", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   const stateProvider: FakeGlobalStateProvider = new FakeGlobalStateProvider();
 
-  const setMockState = (state: PhishingData) => {
-    stateProvider.getFake(PHISHING_DOMAINS_KEY).stateSubject.next(state);
-    return state;
+  const setMockDataState = (state: PhishingData) => {
+    stateProvider.getFake(PHISHING_DATA_KEY).stateSubject.next(state);
   };
 
   let fetchChecksumSpy: jest.SpyInstance;
@@ -51,43 +55,28 @@ describe("PhishingDataService", () => {
 
   describe("isPhishingWebAddress", () => {
     it("should detect a phishing web address", async () => {
-      setMockState({
-        webAddresses: ["phish.com", "badguy.net"],
-        timestamp: Date.now(),
-        checksum: "abc123",
-        applicationVersion: "1.0.0",
-      });
+      setMockDataState({ webAddresses: ["phish.com", "badguy.net"] });
       const url = new URL("http://phish.com");
       const result = await service.isPhishingWebAddress(url);
       expect(result).toBe(true);
     });
 
     it("should not detect a safe web address", async () => {
-      setMockState({
-        webAddresses: ["phish.com", "badguy.net"],
-        timestamp: Date.now(),
-        checksum: "abc123",
-        applicationVersion: "1.0.0",
-      });
+      setMockDataState({ webAddresses: ["phish.com", "badguy.net"] });
       const url = new URL("http://safe.com");
       const result = await service.isPhishingWebAddress(url);
       expect(result).toBe(false);
     });
 
     it("should match against root web address", async () => {
-      setMockState({
-        webAddresses: ["phish.com", "badguy.net"],
-        timestamp: Date.now(),
-        checksum: "abc123",
-        applicationVersion: "1.0.0",
-      });
+      setMockDataState({ webAddresses: ["phish.com", "badguy.net"] });
       const url = new URL("http://phish.com/about");
       const result = await service.isPhishingWebAddress(url);
       expect(result).toBe(true);
     });
 
     it("should not error on empty state", async () => {
-      setMockState(undefined as any);
+      setMockDataState(undefined as any);
       const url = new URL("http://phish.com/about");
       const result = await service.isPhishingWebAddress(url);
       expect(result).toBe(false);
@@ -96,8 +85,8 @@ describe("PhishingDataService", () => {
 
   describe("getNextWebAddresses", () => {
     it("refetches all web addresses if applicationVersion has changed", async () => {
-      const prev: PhishingData = {
-        webAddresses: ["a.com"],
+      const prevData: PhishingData = { webAddresses: ["a.com"] };
+      const prevMetadata: PhishingMetadata = {
         timestamp: Date.now() - 60000,
         checksum: "old",
         applicationVersion: "1.0.0",
@@ -106,51 +95,75 @@ describe("PhishingDataService", () => {
       fetchWebAddressesSpy.mockResolvedValue(["d.com", "e.com"]);
       platformUtilsService.getApplicationVersion.mockResolvedValue("2.0.0");
 
-      const result = await service.getNextWebAddresses(prev);
+      const result = await service.getNextWebAddresses(prevData, prevMetadata);
 
-      expect(result!.webAddresses).toEqual(["d.com", "e.com"]);
-      expect(result!.checksum).toBe("new");
-      expect(result!.applicationVersion).toBe("2.0.0");
+      expect(result.webAddresses).toEqual(["d.com", "e.com"]);
+      expect(result.metadata.checksum).toBe("new");
+      expect(result.metadata.applicationVersion).toBe("2.0.0");
     });
 
-    it("returns null if checksum matches to skip state update", async () => {
-      const prev: PhishingData = {
-        webAddresses: ["a.com"],
+    it("keeps current checksum if remote checksum is empty", async () => {
+      const prevData: PhishingData = { webAddresses: ["a.com"] };
+      const prevMetadata: PhishingMetadata = {
+        timestamp: Date.now() - 60000,
+        checksum: "existing-checksum",
+        applicationVersion: "1.0.0",
+      };
+      fetchChecksumSpy.mockResolvedValue("");
+
+      const result = await service.getNextWebAddresses(prevData, prevMetadata);
+
+      expect(result.webAddresses).toBeUndefined();
+      expect(result.metadata.checksum).toBe("existing-checksum");
+      expect(result.metadata.timestamp).not.toBe(prevMetadata.timestamp);
+    });
+
+    it("only returns metadata if checksum matches (no webAddresses)", async () => {
+      const prevData: PhishingData = { webAddresses: ["a.com"] };
+      const prevMetadata: PhishingMetadata = {
         timestamp: Date.now() - 60000,
         checksum: "abc",
         applicationVersion: "1.0.0",
       };
       fetchChecksumSpy.mockResolvedValue("abc");
-      const result = await service.getNextWebAddresses(prev);
-      expect(result).toBeNull();
+
+      const result = await service.getNextWebAddresses(prevData, prevMetadata);
+
+      expect(result.webAddresses).toBeUndefined();
+      expect(result.metadata.checksum).toBe("abc");
+      expect(result.metadata.timestamp).not.toBe(prevMetadata.timestamp);
     });
 
     it("patches daily domains if cache is fresh", async () => {
-      const prev: PhishingData = {
-        webAddresses: ["a.com"],
+      const prevData: PhishingData = { webAddresses: ["a.com"] };
+      const prevMetadata: PhishingMetadata = {
         timestamp: Date.now() - 60000,
         checksum: "old",
         applicationVersion: "1.0.0",
       };
       fetchChecksumSpy.mockResolvedValue("new");
       fetchWebAddressesSpy.mockResolvedValue(["b.com", "c.com"]);
-      const result = await service.getNextWebAddresses(prev);
-      expect(result!.webAddresses).toEqual(["a.com", "b.com", "c.com"]);
-      expect(result!.checksum).toBe("new");
+
+      const result = await service.getNextWebAddresses(prevData, prevMetadata);
+
+      expect(result.webAddresses).toEqual(["a.com", "b.com", "c.com"]);
+      expect(result.metadata.checksum).toBe("new");
     });
 
     it("fetches all domains if cache is old", async () => {
-      const prev: PhishingData = {
-        webAddresses: ["a.com"],
+      const prevData: PhishingData = { webAddresses: ["a.com"] };
+      const prevMetadata: PhishingMetadata = {
         timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
         checksum: "old",
         applicationVersion: "1.0.0",
       };
       fetchChecksumSpy.mockResolvedValue("new");
       fetchWebAddressesSpy.mockResolvedValue(["d.com", "e.com"]);
-      const result = await service.getNextWebAddresses(prev);
-      expect(result!.webAddresses).toEqual(["d.com", "e.com"]);
-      expect(result!.checksum).toBe("new");
+
+      const result = await service.getNextWebAddresses(prevData, prevMetadata);
+
+      expect(result.webAddresses).toEqual(["d.com", "e.com"]);
+      expect(result.metadata.checksum).toBe("new");
     });
   });
 });

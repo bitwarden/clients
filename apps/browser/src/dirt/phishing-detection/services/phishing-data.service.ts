@@ -1,5 +1,6 @@
 import {
   catchError,
+  combineLatest,
   EMPTY,
   first,
   firstValueFrom,
@@ -20,11 +21,15 @@ import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bi
 
 import { getPhishingResources, PhishingResourceType } from "../phishing-resources";
 
+/** Stores the actual phishing web addresses (expensive to update - triggers Set rebuild) */
 export type PhishingData = {
   webAddresses: string[];
+};
+
+/** Stores metadata about the cache (cheap to update - no Set rebuild) */
+export type PhishingMetadata = {
   timestamp: number;
   checksum: string;
-
   /**
    * We store the application version to refetch the entire dataset on a new client release.
    * This counteracts daily appends updates not removing inactive or false positive web addresses.
@@ -32,20 +37,33 @@ export type PhishingData = {
   applicationVersion: string;
 };
 
-export const PHISHING_DOMAINS_KEY = new KeyDefinition<PhishingData>(
+export const PHISHING_DATA_KEY = new KeyDefinition<PhishingData>(
   PHISHING_DETECTION_DISK,
-  "phishingDomains",
+  "phishingData",
   {
-    deserializer: (value: PhishingData) =>
-      value ?? { webAddresses: [], timestamp: 0, checksum: "", applicationVersion: "" },
+    deserializer: (value: PhishingData) => value ?? { webAddresses: [] },
+  },
+);
+
+export const PHISHING_METADATA_KEY = new KeyDefinition<PhishingMetadata>(
+  PHISHING_DETECTION_DISK,
+  "phishingMetadata",
+  {
+    deserializer: (value: PhishingMetadata) =>
+      value ?? { timestamp: 0, checksum: "", applicationVersion: "" },
   },
 );
 
 /** Coordinates fetching, caching, and patching of known phishing web addresses */
 export class PhishingDataService {
   private _testWebAddresses = this.getTestWebAddresses();
-  private _cachedState = this.globalStateProvider.get(PHISHING_DOMAINS_KEY);
-  private _webAddresses$ = this._cachedState.state$.pipe(
+
+  // Split state: data (expensive) and metadata (cheap)
+  private _dataState = this.globalStateProvider.get(PHISHING_DATA_KEY);
+  private _metadataState = this.globalStateProvider.get(PHISHING_METADATA_KEY);
+
+  // Only subscribes to data state - metadata updates won't trigger Set rebuild
+  private _webAddresses$ = this._dataState.state$.pipe(
     map(
       (state) =>
         new Set(
@@ -64,10 +82,10 @@ export class PhishingDataService {
   update$ = this._triggerUpdate$.pipe(
     startWith(undefined), // Always emit once
     switchMap(() =>
-      this._cachedState.state$.pipe(
+      combineLatest([this._dataState.state$, this._metadataState.state$]).pipe(
         first(), // Only take the first value to avoid an infinite loop when updating the cache below
-        tap((cachedState) => {
-          void this._backgroundUpdate(cachedState);
+        tap(([data, metadata]) => {
+          void this._backgroundUpdate(data, metadata);
         }),
         catchError((err: unknown) => {
           this.logService.error("[PhishingDataService] Background update failed to start.", err);
@@ -119,25 +137,41 @@ export class PhishingDataService {
     return entries.has(url.hostname);
   }
 
-  async getNextWebAddresses(prev: PhishingData | null): Promise<PhishingData | null> {
-    prev = prev ?? { webAddresses: [], timestamp: 0, checksum: "", applicationVersion: "" };
+  async getNextWebAddresses(
+    prevData: PhishingData | null,
+    prevMetadata: PhishingMetadata | null,
+  ): Promise<{ metadata: PhishingMetadata; webAddresses?: string[] }> {
+    const data = prevData ?? { webAddresses: [] };
+    const metadata = prevMetadata ?? { timestamp: 0, checksum: "", applicationVersion: "" };
+
     const timestamp = Date.now();
-    const prevAge = timestamp - prev.timestamp;
+    const prevAge = timestamp - metadata.timestamp;
     this.logService.info(`[PhishingDataService] Cache age: ${prevAge}`);
 
     const applicationVersion = await this.platformUtilsService.getApplicationVersion();
-
-    // If checksum matches, skip state write to avoid expensive Set rebuild
     const remoteChecksum = await this.fetchPhishingChecksum(this.resourceType);
-    if (remoteChecksum && prev.checksum === remoteChecksum) {
-      this.logService.info(`[PhishingDataService] Checksum match, skipping update.`);
-      return null;
+
+    // If checksum fetch failed/empty, keep current checksum and skip data update
+    if (!remoteChecksum) {
+      this.logService.info(`[PhishingDataService] Checksum fetch returned empty, skipping update.`);
+      return {
+        metadata: { timestamp, checksum: metadata.checksum, applicationVersion },
+      };
     }
+
+    // If checksum matches, only update metadata (no data change needed)
+    if (metadata.checksum === remoteChecksum) {
+      this.logService.info(`[PhishingDataService] Checksum match, updating metadata only.`);
+      return {
+        metadata: { timestamp, checksum: remoteChecksum, applicationVersion },
+      };
+    }
+
     // Checksum is different, data needs to be updated.
 
     // Approach 1: Fetch only new web addresses and append
     const isOneDayOldMax = prevAge <= this.UPDATE_INTERVAL_DURATION;
-    if (isOneDayOldMax && applicationVersion === prev.applicationVersion) {
+    if (isOneDayOldMax && applicationVersion === metadata.applicationVersion) {
       const webAddressesTodayUrl = getPhishingResources(this.resourceType)!.todayUrl;
       const dailyWebAddresses: string[] =
         await this.fetchPhishingWebAddresses(webAddressesTodayUrl);
@@ -145,10 +179,8 @@ export class PhishingDataService {
         `[PhishingDataService] ${dailyWebAddresses.length} new phishing web addresses added`,
       );
       return {
-        webAddresses: prev.webAddresses.concat(dailyWebAddresses),
-        checksum: remoteChecksum,
-        timestamp,
-        applicationVersion,
+        metadata: { timestamp, checksum: remoteChecksum, applicationVersion },
+        webAddresses: data.webAddresses.concat(dailyWebAddresses),
       };
     }
 
@@ -156,10 +188,8 @@ export class PhishingDataService {
     const remoteUrl = getPhishingResources(this.resourceType)!.remoteUrl;
     const remoteWebAddresses = await this.fetchPhishingWebAddresses(remoteUrl);
     return {
+      metadata: { timestamp, checksum: remoteChecksum, applicationVersion },
       webAddresses: remoteWebAddresses,
-      timestamp,
-      checksum: remoteChecksum,
-      applicationVersion,
     };
   }
 
@@ -200,14 +230,11 @@ export class PhishingDataService {
   }
 
   // Runs the update flow in the background and retries up to 3 times on failure
-  private async _backgroundUpdate(prev: PhishingData | null): Promise<void> {
+  private async _backgroundUpdate(
+    prevData: PhishingData | null,
+    prevMetadata: PhishingMetadata | null,
+  ): Promise<void> {
     this.logService.info(`[PhishingDataService] Update triggered...`);
-    const phishingData = prev ?? {
-      webAddresses: [],
-      timestamp: 0,
-      checksum: "",
-      applicationVersion: "",
-    };
     // Start time for logging performance of update
     const startTime = Date.now();
     const maxAttempts = 3;
@@ -215,9 +242,14 @@ export class PhishingDataService {
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        const next = await this.getNextWebAddresses(phishingData);
-        if (next) {
-          await this._cachedState.update(() => next);
+        const result = await this.getNextWebAddresses(prevData, prevMetadata);
+
+        // Always update metadata (cheap - no Set rebuild)
+        await this._metadataState.update(() => result.metadata);
+
+        // Only update data if webAddresses changed (expensive - triggers Set rebuild)
+        if (result.webAddresses) {
+          await this._dataState.update(() => ({ webAddresses: result.webAddresses! }));
 
           // Performance logging
           const elapsed = Date.now() - startTime;
