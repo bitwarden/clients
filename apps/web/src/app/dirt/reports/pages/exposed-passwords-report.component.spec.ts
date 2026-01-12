@@ -1,7 +1,9 @@
+import { NO_ERRORS_SCHEMA, Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -20,6 +22,14 @@ import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/se
 import { ExposedPasswordsReportComponent } from "./exposed-passwords-report.component";
 import { cipherData } from "./reports-ciphers.mock";
 
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-header",
+  template: "<div></div>",
+  standalone: false,
+})
+class MockHeaderComponent {}
+
 describe("ExposedPasswordsReportComponent", () => {
   let component: ExposedPasswordsReportComponent;
   let fixture: ComponentFixture<ExposedPasswordsReportComponent>;
@@ -30,16 +40,15 @@ describe("ExposedPasswordsReportComponent", () => {
   const userId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(userId);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     let cipherFormConfigServiceMock: MockProxy<CipherFormConfigService>;
     syncServiceMock = mock<SyncService>();
     auditService = mock<AuditService>();
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.configureTestingModule({
-      declarations: [ExposedPasswordsReportComponent, I18nPipe],
+    await TestBed.configureTestingModule({
+      declarations: [ExposedPasswordsReportComponent, MockHeaderComponent, I18nPipe],
+      imports: [JslibModule],
       providers: [
         {
           provide: CipherService,
@@ -82,10 +91,7 @@ describe("ExposedPasswordsReportComponent", () => {
           useValue: adminConsoleCipherFormConfigServiceMock,
         },
       ],
-      schemas: [],
-      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
-      errorOnUnknownElements: false,
-      errorOnUnknownProperties: false,
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
   });
 
