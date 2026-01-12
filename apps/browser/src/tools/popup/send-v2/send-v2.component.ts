@@ -139,7 +139,7 @@ export class SendV2Component implements OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe(([emptyList, noFilteredResults, currentFilter]) => {
         if (currentFilter?.sendType !== null) {
-          this.title = this.sendTypeTitles[currentFilter.sendType] ?? "allSends";
+          this.title = this.sendTypeTitles[currentFilter.sendType as SendType] ?? "allSends";
         } else {
           this.title = "allSends";
         }
