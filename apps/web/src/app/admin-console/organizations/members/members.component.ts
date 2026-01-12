@@ -33,6 +33,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -44,12 +47,20 @@ import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/membe
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { BaseMembersComponent } from "../../common/base-members.component";
-import { PeopleTableDataSource } from "../../common/people-table-data-source";
+import {
+  CloudBulkReinviteLimit,
+  MaxCheckedCount,
+  PeopleTableDataSource,
+} from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
 import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
 import { MemberDialogResult, MemberDialogTab } from "./components/member-dialog";
-import { MemberDialogManagerService, OrganizationMembersService } from "./services";
+import {
+  MemberDialogManagerService,
+  MemberExportService,
+  OrganizationMembersService,
+} from "./services";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
 import {
   MemberActionsService,
@@ -70,7 +81,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   userType = OrganizationUserType;
   userStatusType = OrganizationUserStatusType;
   memberTab = MemberDialogTab;
-  protected dataSource = new MembersTableDataSource();
+  protected dataSource: MembersTableDataSource;
 
   readonly organization: Signal<Organization | undefined>;
   status: OrganizationUserStatusType | undefined;
@@ -113,6 +124,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private policyService: PolicyService,
     private policyApiService: PolicyApiServiceAbstraction,
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
+    private memberExportService: MemberExportService,
+    private fileDownloadService: FileDownloadService,
+    private configService: ConfigService,
+    private environmentService: EnvironmentService,
   ) {
     super(
       apiService,
@@ -125,6 +140,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       organizationManagementPreferencesService,
       toastService,
     );
+
+    this.dataSource = new MembersTableDataSource(this.configService, this.environmentService);
 
     const organization$ = this.route.params.pipe(
       concatMap((params) =>
@@ -356,10 +373,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    await this.memberDialogManager.openBulkRemoveDialog(
-      organization,
-      this.dataSource.getCheckedUsers(),
-    );
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
+    await this.memberDialogManager.openBulkRemoveDialog(organization, users);
     this.organizationMetadataService.refreshMetadataCache();
     await this.load(organization);
   }
@@ -369,10 +385,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    await this.memberDialogManager.openBulkDeleteDialog(
-      organization,
-      this.dataSource.getCheckedUsers(),
-    );
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
+    await this.memberDialogManager.openBulkDeleteDialog(organization, users);
     await this.load(organization);
   }
 
@@ -389,11 +404,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    await this.memberDialogManager.openBulkRestoreRevokeDialog(
-      organization,
-      this.dataSource.getCheckedUsers(),
-      isRevoking,
-    );
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
+    await this.memberDialogManager.openBulkRestoreRevokeDialog(organization, users, isRevoking);
     await this.load(organization);
   }
 
@@ -402,8 +415,28 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    const users = this.dataSource.getCheckedUsers();
-    const filteredUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
+    let users: OrganizationUserView[];
+    if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+      users = this.dataSource.getCheckedUsersInVisibleOrder();
+    } else {
+      users = this.dataSource.getCheckedUsers();
+    }
+
+    const allInvitedUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
+
+    // Capture the original count BEFORE enforcing the limit
+    const originalInvitedCount = allInvitedUsers.length;
+
+    // When feature flag is enabled, limit invited users and uncheck the excess
+    let filteredUsers: OrganizationUserView[];
+    if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+      filteredUsers = this.dataSource.limitAndUncheckExcess(
+        allInvitedUsers,
+        CloudBulkReinviteLimit,
+      );
+    } else {
+      filteredUsers = allInvitedUsers;
+    }
 
     if (filteredUsers.length <= 0) {
       this.toastService.showToast({
@@ -417,20 +450,44 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     try {
       const result = await this.memberActionsService.bulkReinvite(
         organization,
-        filteredUsers.map((user) => user.id),
+        filteredUsers.map((user) => user.id as UserId),
       );
 
       if (!result.successful) {
         throw new Error();
       }
 
-      // Bulk Status component open
-      await this.memberDialogManager.openBulkStatusDialog(
-        users,
-        filteredUsers,
-        Promise.resolve(result.successful),
-        this.i18nService.t("bulkReinviteMessage"),
-      );
+      // When feature flag is enabled, show toast instead of dialog
+      if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+        const selectedCount = originalInvitedCount;
+        const invitedCount = filteredUsers.length;
+
+        if (selectedCount > CloudBulkReinviteLimit) {
+          const excludedCount = selectedCount - CloudBulkReinviteLimit;
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t(
+              "bulkReinviteLimitedSuccessToast",
+              CloudBulkReinviteLimit.toLocaleString(),
+              selectedCount.toLocaleString(),
+              excludedCount.toLocaleString(),
+            ),
+          });
+        } else {
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+          });
+        }
+      } else {
+        // Feature flag disabled - show legacy dialog
+        await this.memberDialogManager.openBulkStatusDialog(
+          users,
+          filteredUsers,
+          Promise.resolve(result.successful),
+          this.i18nService.t("bulkReinviteMessage"),
+        );
+      }
     } catch (e) {
       this.validationService.showError(e);
     }
@@ -442,15 +499,14 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
-    await this.memberDialogManager.openBulkConfirmDialog(
-      organization,
-      this.dataSource.getCheckedUsers(),
-    );
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
+    await this.memberDialogManager.openBulkConfirmDialog(organization, users);
     await this.load(organization);
   }
 
   async bulkEnableSM(organization: Organization) {
-    const users = this.dataSource.getCheckedUsers();
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
 
     await this.memberDialogManager.openBulkEnableSecretsManagerDialog(organization, users);
 
@@ -544,4 +600,36 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       .getCheckedUsers()
       .every((member) => member.managedByOrganization && validStatuses.includes(member.status));
   }
+
+  exportMembers = async (): Promise<void> => {
+    try {
+      const members = this.dataSource.data;
+      if (!members || members.length === 0) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("noMembersToExport"),
+        });
+        return;
+      }
+
+      const csvData = this.memberExportService.getMemberExport(members);
+      const fileName = this.memberExportService.getFileName("org-members");
+
+      this.fileDownloadService.download({
+        fileName: fileName,
+        blobData: csvData,
+        blobOptions: { type: "text/plain" },
+      });
+
+      this.toastService.showToast({
+        variant: "success",
+        title: undefined,
+        message: this.i18nService.t("dataExportSuccess"),
+      });
+    } catch (e) {
+      this.validationService.showError(e);
+      this.logService.error(`Failed to export members: ${e}`);
+    }
+  };
 }

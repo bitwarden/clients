@@ -59,9 +59,11 @@ export class ProfileOrganizationResponse extends BaseResponse {
   userIsManagedByOrganization: boolean;
   useAccessIntelligence: boolean;
   useAdminSponsoredFamilies: boolean;
+  useDisableSMAdsForUsers: boolean;
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
+  usePhishingBlocker: boolean;
 
   constructor(response: any) {
     super(response);
@@ -132,8 +134,10 @@ export class ProfileOrganizationResponse extends BaseResponse {
     // Map from backend API property (UseRiskInsights) to domain model property (useAccessIntelligence)
     this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
     this.useAdminSponsoredFamilies = this.getResponseProperty("UseAdminSponsoredFamilies");
+    this.useDisableSMAdsForUsers = this.getResponseProperty("UseDisableSMAdsForUsers") ?? false;
     this.isAdminInitiated = this.getResponseProperty("IsAdminInitiated");
     this.ssoEnabled = this.getResponseProperty("SsoEnabled") ?? false;
     this.ssoMemberDecryptionType = this.getResponseProperty("SsoMemberDecryptionType");
+    this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
   }
 }

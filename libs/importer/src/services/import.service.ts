@@ -12,8 +12,8 @@ import {
 } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ciphers.request";
 import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/request/import-organization-ciphers.request";
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
@@ -119,7 +119,7 @@ export class ImportService implements ImportServiceAbstraction {
     private collectionService: CollectionService,
     private keyService: KeyService,
     private encryptService: EncryptService,
-    private pinService: PinServiceAbstraction,
+    private keyGenerationService: KeyGenerationService,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
@@ -238,7 +238,7 @@ export class ImportService implements ImportServiceAbstraction {
           this.encryptService,
           this.i18nService,
           this.cipherService,
-          this.pinService,
+          this.keyGenerationService,
           this.accountService,
           promptForPassword_callback,
         );
@@ -374,10 +374,13 @@ export class ImportService implements ImportServiceAbstraction {
 
   private async handleIndividualImport(importResult: ImportResult, userId: UserId) {
     const request = new ImportCiphersRequest();
-    for (let i = 0; i < importResult.ciphers.length; i++) {
-      const c = await this.cipherService.encrypt(importResult.ciphers[i], userId);
-      request.ciphers.push(new CipherRequest(c));
+
+    const encryptedCiphers = await this.cipherService.encryptMany(importResult.ciphers, userId);
+
+    for (const encryptedCipher of encryptedCiphers) {
+      request.ciphers.push(new CipherRequest(encryptedCipher));
     }
+
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (importResult.folders != null) {
@@ -400,11 +403,18 @@ export class ImportService implements ImportServiceAbstraction {
     userId: UserId,
   ) {
     const request = new ImportOrganizationCiphersRequest();
-    for (let i = 0; i < importResult.ciphers.length; i++) {
-      importResult.ciphers[i].organizationId = organizationId;
-      const c = await this.cipherService.encrypt(importResult.ciphers[i], userId);
-      request.ciphers.push(new CipherRequest(c));
+
+    // Set organization ID on all ciphers before batch encryption
+    importResult.ciphers.forEach((cipher) => {
+      cipher.organizationId = organizationId;
+    });
+
+    const encryptedCiphers = await this.cipherService.encryptMany(importResult.ciphers, userId);
+
+    for (const encryptedCipher of encryptedCiphers) {
+      request.ciphers.push(new CipherRequest(encryptedCipher));
     }
+
     if (importResult.collections != null) {
       for (let i = 0; i < importResult.collections.length; i++) {
         importResult.collections[i].organizationId = organizationId;

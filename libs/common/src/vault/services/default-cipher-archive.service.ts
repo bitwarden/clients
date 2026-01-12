@@ -18,6 +18,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { CipherArchiveService } from "../abstractions/cipher-archive.service";
+import { CipherData } from "../models/data/cipher.data";
 
 export class DefaultCipherArchiveService implements CipherArchiveService {
   constructor(
@@ -26,10 +27,6 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private configService: ConfigService,
   ) {}
-
-  hasArchiveFlagEnabled$(): Observable<boolean> {
-    return this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive);
-  }
 
   /**
    * Observable that contains the list of ciphers that have been archived.
@@ -61,36 +58,44 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     );
   }
 
-  /**
-   * User can access the archive vault if:
-   * Feature Flag is enabled
-   * There is at least one archived item
-   * ///////////// NOTE /////////////
-   * This is separated from userCanArchive because a user that loses premium status, but has archived items,
-   * should still be able to access their archive vault. The items will be read-only, and can be restored.
-   */
-  showArchiveVault$(userId: UserId): Observable<boolean> {
+  /** Returns true when the archive features should be shown. */
+  hasArchiveFlagEnabled$: Observable<boolean> = this.configService
+    .getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive)
+    .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+
+  /** Returns true when the user has premium from any means. */
+  userHasPremium$(userId: UserId): Observable<boolean> {
+    return this.billingAccountProfileStateService
+      .hasPremiumFromAnySource$(userId)
+      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+  }
+
+  /** Returns true when the user has previously archived ciphers but lost their premium membership. */
+  showSubscriptionEndedMessaging$(userId: UserId): Observable<boolean> {
     return combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive),
       this.archivedCiphers$(userId),
+      this.userHasPremium$(userId),
+      this.hasArchiveFlagEnabled$,
     ]).pipe(
       map(
-        ([archiveFlagEnabled, hasArchivedItems]) =>
-          archiveFlagEnabled && hasArchivedItems.length > 0,
+        ([archivedCiphers, hasPremium, flagEnabled]) =>
+          flagEnabled && archivedCiphers.length > 0 && !hasPremium,
       ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
   }
 
-  async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
+  async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<CipherData> {
     const request = new CipherBulkArchiveRequest(Array.isArray(ids) ? ids : [ids]);
     const r = await this.apiService.send("PUT", "/ciphers/archive", request, true, true);
     const response = new ListResponse(r, CipherResponse);
 
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
+    // prevent mutating ciphers$ state
+    const localCiphers = structuredClone(currentCiphers);
 
     for (const cipher of response.data) {
-      const localCipher = currentCiphers[cipher.id as CipherId];
+      const localCipher = localCiphers[cipher.id as CipherId];
 
       if (localCipher == null) {
         continue;
@@ -100,18 +105,21 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
       localCipher.revisionDate = cipher.revisionDate;
     }
 
-    await this.cipherService.replace(currentCiphers, userId);
+    await this.cipherService.upsert(Object.values(localCiphers), userId);
+    return response.data[0];
   }
 
-  async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
+  async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<CipherData> {
     const request = new CipherBulkUnarchiveRequest(Array.isArray(ids) ? ids : [ids]);
     const r = await this.apiService.send("PUT", "/ciphers/unarchive", request, true, true);
     const response = new ListResponse(r, CipherResponse);
 
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
+    // prevent mutating ciphers$ state
+    const localCiphers = structuredClone(currentCiphers);
 
     for (const cipher of response.data) {
-      const localCipher = currentCiphers[cipher.id as CipherId];
+      const localCipher = localCiphers[cipher.id as CipherId];
 
       if (localCipher == null) {
         continue;
@@ -121,6 +129,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
       localCipher.revisionDate = cipher.revisionDate;
     }
 
-    await this.cipherService.replace(currentCiphers, userId);
+    await this.cipherService.upsert(Object.values(localCiphers), userId);
+    return response.data[0];
   }
 }

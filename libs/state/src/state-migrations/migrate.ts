@@ -70,13 +70,14 @@ import { RemoveAcBannersDismissed } from "./migrations/70-remove-ac-banner-dismi
 import { RemoveNewCustomizationOptionsCalloutDismissed } from "./migrations/71-remove-new-customization-options-callout-dismissed";
 import { RemoveAccountDeprovisioningBannerDismissed } from "./migrations/72-remove-account-deprovisioning-banner-dismissed";
 import { AddMasterPasswordUnlockData } from "./migrations/73-add-master-password-unlock-data";
-import { ClearClipboardDelayToStringMigrator } from "./migrations/74-clear-clipboard-delay-to-string";
+import { RemoveLegacyPin } from "./migrations/74-remove-legacy-pin";
+import { ClearClipboardDelayToStringMigrator } from "./migrations/75-clear-clipboard-delay-to-string";
 import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 74;
+export const CURRENT_VERSION = 75;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -152,7 +153,8 @@ export function createMigrationBuilder() {
     .with(RemoveNewCustomizationOptionsCalloutDismissed, 70, 71)
     .with(RemoveAccountDeprovisioningBannerDismissed, 71, 72)
     .with(AddMasterPasswordUnlockData, 72, 73)
-    .with(ClearClipboardDelayToStringMigrator, 73, CURRENT_VERSION);
+    .with(RemoveLegacyPin, 73, 74)
+    .with(ClearClipboardDelayToStringMigrator, 74, CURRENT_VERSION);
 }
 
 export async function currentVersion(
