@@ -24,24 +24,18 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
-
 import { ButtonModule, DialogService, ToastService } from "@bitwarden/components";
 import {
   NewSendDropdownV2Component,
   SendItemsService,
   SendListComponent,
-  SendListFiltersService,
   SendListState,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
-import { invokeMenu, RendererMenuItem } from "../../../utils";
 import { DesktopHeaderComponent } from "../../layout/header";
-import { SearchBarService } from "../../layout/search/search-bar.service";
 import { AddEditComponent } from "../send/add-edit.component";
 
 const Action = Object.freeze({

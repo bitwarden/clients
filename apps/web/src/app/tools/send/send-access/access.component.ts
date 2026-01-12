@@ -3,20 +3,8 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
-import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
-import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 
 import { SharedModule } from "../../../shared";
 
