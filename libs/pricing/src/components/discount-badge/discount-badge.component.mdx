@@ -38,8 +38,6 @@ import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
 type Discount = {
   /** The type of discount */
   type: DiscountType; // DiscountTypes.AmountOff | DiscountTypes.PercentOff
-  /** Whether the discount is currently active */
-  active: boolean;
   /** The discount value (percentage or amount depending on type) */
   value: number;
 };
@@ -47,8 +45,7 @@ type Discount = {
 
 ## Behavior
 
-- The badge is only displayed when `discount` is provided, `active` is `true`, and `value` is
-  greater than 0.
+- The badge is only displayed when `discount` is provided and `value` is greater than 0.
 - For `percent-off` type: percentage values can be provided as 0-100 (e.g., `20` for 20%) or 0-1
   (e.g., `0.2` for 20%).
 - For `amount-off` type: amount values are formatted as currency (USD) with 2 decimal places.
@@ -62,7 +59,3 @@ type Discount = {
 ### Amount Discount
 
 <Canvas of={DiscountBadgeStories.AmountDiscount} />
-
-### Inactive Discount
-
-<Canvas of={DiscountBadgeStories.InactiveDiscount} />

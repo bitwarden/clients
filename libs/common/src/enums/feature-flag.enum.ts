@@ -31,6 +31,8 @@ export enum FeatureFlag {
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
   PM26462_Milestone_3 = "pm-26462-milestone-3",
   PM23341_Milestone_2 = "pm-23341-milestone-2",
+  PM29594_UpdateIndividualSubscriptionPage = "pm-29594-update-individual-subscription-page",
+  PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -137,6 +139,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
   [FeatureFlag.PM26462_Milestone_3]: FALSE,
   [FeatureFlag.PM23341_Milestone_2]: FALSE,
+  [FeatureFlag.PM29594_UpdateIndividualSubscriptionPage]: FALSE,
+  [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,

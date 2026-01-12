@@ -1,7 +1,7 @@
 import { Discount } from "@bitwarden/pricing";
 
 export type CartItem = {
-  name: string;
+  translationKey: string;
   quantity: number;
   cost: number;
   discount?: Discount;

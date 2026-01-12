@@ -66,9 +66,32 @@ describe("AdditionalOptionsCardComponent", () => {
     });
   });
 
-  describe("callsToActionDisabled", () => {
-    it("should disable both buttons when callsToActionDisabled is true", () => {
-      fixture.componentRef.setInput("callsToActionDisabled", true);
+  describe("button disabled states", () => {
+    it("should enable both buttons by default", () => {
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      expect(buttons[0].nativeElement.disabled).toBe(false);
+      expect(buttons[1].nativeElement.disabled).toBe(false);
+    });
+
+    it("should disable download license button when downloadLicenseDisabled is true", () => {
+      fixture.componentRef.setInput("downloadLicenseDisabled", true);
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      expect(buttons[0].attributes["aria-disabled"]).toBe("true");
+    });
+
+    it("should disable cancel subscription button when cancelSubscriptionDisabled is true", () => {
+      fixture.componentRef.setInput("cancelSubscriptionDisabled", true);
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      expect(buttons[1].attributes["aria-disabled"]).toBe("true");
+    });
+
+    it("should disable both buttons independently", () => {
+      fixture.componentRef.setInput("downloadLicenseDisabled", true);
+      fixture.componentRef.setInput("cancelSubscriptionDisabled", true);
       fixture.detectChanges();
 
       const buttons = fixture.debugElement.queryAll(By.css("button"));
@@ -76,18 +99,23 @@ describe("AdditionalOptionsCardComponent", () => {
       expect(buttons[1].attributes["aria-disabled"]).toBe("true");
     });
 
-    it("should enable both buttons when callsToActionDisabled is false", () => {
-      fixture.componentRef.setInput("callsToActionDisabled", false);
+    it("should allow download enabled while cancel disabled", () => {
+      fixture.componentRef.setInput("downloadLicenseDisabled", false);
+      fixture.componentRef.setInput("cancelSubscriptionDisabled", true);
       fixture.detectChanges();
 
       const buttons = fixture.debugElement.queryAll(By.css("button"));
       expect(buttons[0].nativeElement.disabled).toBe(false);
-      expect(buttons[1].nativeElement.disabled).toBe(false);
+      expect(buttons[1].attributes["aria-disabled"]).toBe("true");
     });
 
-    it("should enable both buttons by default", () => {
+    it("should allow cancel enabled while download disabled", () => {
+      fixture.componentRef.setInput("downloadLicenseDisabled", true);
+      fixture.componentRef.setInput("cancelSubscriptionDisabled", false);
+      fixture.detectChanges();
+
       const buttons = fixture.debugElement.queryAll(By.css("button"));
-      expect(buttons[0].nativeElement.disabled).toBe(false);
+      expect(buttons[0].attributes["aria-disabled"]).toBe("true");
       expect(buttons[1].nativeElement.disabled).toBe(false);
     });
   });
