@@ -4,61 +4,62 @@
     bitIconButton="bwi-ellipsis-v"
     size="small"
     [label]="'moreOptionsLabel' | i18n: cipher.name"
-    [disabled]="decryptionFailure"
     [bitMenuTriggerFor]="moreOptions"
   ></button>
   <bit-menu #moreOptions>
-    <ng-container *ngIf="canAutofill && !hideAutofillOptions">
-      <ng-container *ngIf="autofillAllowed$ | async">
-        <button type="button" bitMenuItem (click)="doAutofill()">
-          {{ "autofill" | i18n }}
+    @if (!decryptionFailure) {
+      <ng-container *ngIf="canAutofill && !hideAutofillOptions">
+        <ng-container *ngIf="autofillAllowed$ | async">
+          <button type="button" bitMenuItem (click)="doAutofill()">
+            {{ "autofill" | i18n }}
+          </button>
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="showViewOption">
+        <button type="button" bitMenuItem (click)="onView()">
+          {{ "view" | i18n }}
         </button>
       </ng-container>
-    </ng-container>
-    <ng-container *ngIf="showViewOption">
-      <button type="button" bitMenuItem (click)="onView()">
-        {{ "view" | i18n }}
+      <button type="button" bitMenuItem (click)="toggleFavorite()">
+        {{ favoriteText | i18n }}
       </button>
-    </ng-container>
-    <button type="button" bitMenuItem (click)="toggleFavorite()">
-      {{ favoriteText | i18n }}
-    </button>
-    @if (canEdit) {
-      <button type="button" bitMenuItem (click)="edit()">
-        {{ "edit" | i18n }}
-      </button>
-    }
-    <ng-container *ngIf="canEdit && canViewPassword">
-      <a bitMenuItem (click)="clone()" *ngIf="canClone$ | async">
-        {{ "clone" | i18n }}
-      </a>
-      <a
-        bitMenuItem
-        *ngIf="canAssignCollections$ | async"
-        (click)="conditionallyNavigateToAssignCollections()"
-      >
-        {{ "assignToCollections" | i18n }}
-      </a>
-    </ng-container>
-    @if (showArchive$ | async) {
-      @if (canArchive$ | async) {
-        <button type="button" bitMenuItem (click)="archive()">
-          {{ "archiveVerb" | i18n }}
+      @if (canEdit) {
+        <button type="button" bitMenuItem (click)="edit()">
+          {{ "edit" | i18n }}
         </button>
-      } @else {
-        <button
-          type="button"
+      }
+      <ng-container *ngIf="canEdit && canViewPassword">
+        <a bitMenuItem (click)="clone()" *ngIf="canClone$ | async">
+          {{ "clone" | i18n }}
+        </a>
+        <a
           bitMenuItem
-          (click)="badge.promptForPremium($event)"
-          [attr.aria-label]="'upgradeToUseArchive' | i18n"
+          *ngIf="canAssignCollections$ | async"
+          (click)="conditionallyNavigateToAssignCollections()"
         >
-          <div class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2">
+          {{ "assignToCollections" | i18n }}
+        </a>
+      </ng-container>
+      @if (showArchive$ | async) {
+        @if (canArchive$ | async) {
+          <button type="button" bitMenuItem (click)="archive()">
             {{ "archiveVerb" | i18n }}
-            <div aria-hidden>
-              <app-premium-badge #badge></app-premium-badge>
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitMenuItem
+            (click)="badge.promptForPremium($event)"
+            [attr.aria-label]="'upgradeToUseArchive' | i18n"
+          >
+            <div class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2">
+              {{ "archiveVerb" | i18n }}
+              <div aria-hidden>
+                <app-premium-badge #badge></app-premium-badge>
+              </div>
             </div>
-          </div>
-        </button>
+          </button>
+        }
       }
     }
     @if (canDelete$ | async) {
