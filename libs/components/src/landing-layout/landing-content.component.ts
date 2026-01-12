@@ -53,6 +53,6 @@ export class LandingContentComponent {
         break;
     }
 
-    return `tw-flex tw-flex-col ${maxWidthClass}`;
+    return `tw-flex tw-flex-col tw-w-full ${maxWidthClass}`;
   }
 }
