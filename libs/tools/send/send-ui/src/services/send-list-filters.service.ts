@@ -5,8 +5,8 @@ import { FormBuilder } from "@angular/forms";
 import { map, Observable, startWith } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ChipSelectOption } from "@bitwarden/components";
 

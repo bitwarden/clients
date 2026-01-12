@@ -6,7 +6,6 @@ import {
   FileUploadService,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SendType } from "../enums/send-type";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendAccessRequest } from "../models/request/send-access.request";
@@ -16,6 +15,7 @@ import { SendFileDownloadDataResponse } from "../models/response/send-file-downl
 import { SendFileUploadDataResponse } from "../models/response/send-file-upload-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
+import { SendType } from "../types/send-type";
 
 import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.abstraction";
 import { InternalSendService } from "./send.service.abstraction";

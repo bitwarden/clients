@@ -11,9 +11,9 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { ButtonModule, I18nMockService, IconModule, ToastService } from "@bitwarden/components";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
