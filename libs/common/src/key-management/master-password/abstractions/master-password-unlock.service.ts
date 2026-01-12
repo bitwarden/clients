@@ -1,6 +1,7 @@
 import { UserId } from "@bitwarden/user-core";
 
 import { UserKey } from "../../../types/key";
+import { MasterPasswordUnlockData } from "../types/master-password.types";
 
 export abstract class MasterPasswordUnlockService {
   /**
@@ -24,4 +25,14 @@ export abstract class MasterPasswordUnlockService {
    * @returns true if the userKey can be decrypted, false otherwise.
    */
   abstract proofOfDecryption(masterPassword: string, userId: UserId): Promise<boolean>;
+
+  /**
+   * Previously unlocking had the side effect of setting the masterKey and masterPasswordHash in state.
+   * This is to preserve that behavior, once masterKey and masterPasswordHash state is removed this should be removed as well.
+   */
+  abstract setLegacyState(
+    masterPassword: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void>;
 }

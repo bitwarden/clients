@@ -88,7 +88,7 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
 
   // Previously unlocking had the side effect of setting the masterKey and masterPasswordHash in state.
   // This is to preserve that behavior, once masterKey and masterPasswordHash state is removed this should be removed as well.
-  private async setLegacyState(
+  async setLegacyState(
     masterPassword: string,
     masterPasswordUnlockData: MasterPasswordUnlockData,
     userId: UserId,
