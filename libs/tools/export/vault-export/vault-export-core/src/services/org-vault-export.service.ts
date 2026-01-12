@@ -383,6 +383,7 @@ export class OrganizationVaultExportService
     decCiphers.forEach((c) => {
       const cipher = new CipherWithIdExport();
       cipher.build(c);
+      delete cipher.key;
       jsonDoc.items.push(cipher);
     });
     return JSON.stringify(jsonDoc, null, "  ");
