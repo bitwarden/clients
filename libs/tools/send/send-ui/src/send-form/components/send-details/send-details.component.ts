@@ -11,7 +11,7 @@ import {
   ValidatorFn,
   ValidationErrors,
 } from "@angular/forms";
-import { firstValueFrom , BehaviorSubject, combineLatest, map, switchMap, tap } from "rxjs";
+import { firstValueFrom, BehaviorSubject, combineLatest, map, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
