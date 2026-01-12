@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Type shortcut"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Tartalmazzon egyet vagy kettőt a következő módosítók közül: Ctrl, Alt, Win és egy betű."
   },
   "invalidShortcut": {
     "message": "Invalid shortcut"

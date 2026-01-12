@@ -506,7 +506,6 @@ export default class MainBackground {
   // DIRT
   private phishingDataService: PhishingDataService;
   private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
-  private phishingDetectionCleanup: (() => void) | null = null;
 
   constructor() {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
@@ -1516,12 +1515,7 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    // Call cleanup from previous initialization if it exists (service worker restart scenario)
-    if (this.phishingDetectionCleanup) {
-      this.phishingDetectionCleanup();
-    }
-
-    this.phishingDetectionCleanup = PhishingDetectionService.initialize(
+    PhishingDetectionService.initialize(
       this.logService,
       this.phishingDataService,
       this.phishingDetectionSettingsService,
@@ -1678,32 +1672,6 @@ export default class MainBackground {
     if (this.overlayBackground) {
       await this.overlayBackground.updateOverlayCiphers();
     }
-  }
-
-  /**
-   * Triggers a phishing cache update in the background.
-   * Called on extension install/update to pre-populate the cache
-   * so it's ready when a premium user logs in.
-   *
-   * Creates a temporary subscription to ensure the update executes even if
-   * there are no other subscribers (install/update scenario). The subscription
-   * is automatically cleaned up after the update completes or errors.
-   */
-  triggerPhishingCacheUpdate(): void {
-    // Create a temporary subscription to ensure the update executes
-    // since update$ uses shareReplay with refCount: true, which requires at least one subscriber
-    const tempSub = this.phishingDataService.update$.subscribe({
-      next: () => {
-        this.logService.debug("[MainBackground] Phishing cache pre-population completed");
-        tempSub.unsubscribe();
-      },
-      error: (err: unknown) => {
-        this.logService.error("[MainBackground] Phishing cache pre-population failed", err);
-        tempSub.unsubscribe();
-      },
-    });
-    // Trigger the update after subscription is created
-    this.phishingDataService.triggerUpdateIfNeeded();
   }
 
   /**
