@@ -525,6 +525,20 @@ describe("VaultExportService", () => {
     const exportedData = actual as ExportedVaultAsString;
     expectEqualFolders(UserFolders, exportedData.data);
   });
+
+  it("does not export the key property in unencrypted exports", async () => {
+    // Create a cipher with a key property
+    const cipherWithKey = generateCipherView(false);
+    (cipherWithKey as any).key = "shouldBeDeleted";
+    cipherService.getAllDecrypted.mockResolvedValue([cipherWithKey]);
+
+    const actual = await exportService.getExport(userId, "json");
+    expect(typeof actual.data).toBe("string");
+    const exportedData = actual as ExportedVaultAsString;
+    const parsed = JSON.parse(exportedData.data);
+    expect(parsed.items.length).toBe(1);
+    expect(parsed.items[0].key).toBeUndefined();
+  });
 });
 
 export class FolderResponse {
