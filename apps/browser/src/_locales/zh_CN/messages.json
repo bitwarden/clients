@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "项目已发送到归档"
   },
+  "itemWasUnarchived": {
+    "message": "项目已取消归档"
+  },
   "itemUnarchived": {
     "message": "项目已取消归档"
   },
@@ -584,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "需要高级会员才能使用归档。"
+  },
+  "itemRestored": {
+    "message": "项目已恢复"
   },
   "edit": {
     "message": "编辑"
@@ -3222,7 +3228,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为 $ACTION$。",
+    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为「$ACTION$」。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4808,6 +4814,39 @@
   "adminConsole": {
     "message": "管理控制台"
   },
+  "admin": {
+    "message": "管理员"
+  },
+  "automaticUserConfirmation": {
+    "message": "自动用户确认"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "当此设备已解锁时，自动确认待处理的用户"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "通过自动用户确认节省时间"
+  },
+  "autoConfirmWarning": {
+    "message": "这可能会影响您组织的数据安全。"
+  },
+  "autoConfirmWarningLink": {
+    "message": "了解此风险"
+  },
+  "autoConfirmSetup": {
+    "message": "自动确认新用户"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "当此设备已解锁时，新用户将被自动确认。"
+  },
+  "autoConfirmSetupHint": {
+    "message": "有哪些潜在的安全风险？"
+  },
+  "autoConfirmEnabled": {
+    "message": "启用了自动确认"
+  },
+  "availableNow": {
+    "message": "目前可用"
+  },
   "accountSecurity": {
     "message": "账户安全"
   },
@@ -4856,7 +4895,7 @@
     "message": "新增"
   },
   "removeItem": {
-    "message": "删除 $NAME$",
+    "message": "移除 $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -5664,6 +5703,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
   },
+  "vulnerablePassword": {
+    "message": "易受攻击的密码。"
+  },
+  "changeNow": {
+    "message": "立即更改"
+  },
   "missingWebsite": {
     "message": "缺少网站"
   },
@@ -6039,5 +6084,8 @@
   },
   "whyAmISeeingThis": {
     "message": "为什么我会看到这个？"
+  },
+  "resizeSideNavigation": {
+    "message": "调整侧边导航栏大小"
   }
 }
