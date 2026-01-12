@@ -4,13 +4,11 @@ import {
   first,
   firstValueFrom,
   map,
-  retry,
   share,
   startWith,
   Subject,
   switchMap,
   tap,
-  timer,
 } from "rxjs";
 
 import { devFlagEnabled, devFlagValue } from "@bitwarden/browser/platform/flags";
@@ -65,39 +63,16 @@ export class PhishingDataService {
   private _triggerUpdate$ = new Subject<void>();
   update$ = this._triggerUpdate$.pipe(
     startWith(undefined), // Always emit once
-    tap(() => this.logService.info(`[PhishingDataService] Update triggered...`)),
     switchMap(() =>
       this._cachedState.state$.pipe(
         first(), // Only take the first value to avoid an infinite loop when updating the cache below
-        switchMap(async (cachedState) => {
-          const next = await this.getNextWebAddresses(cachedState);
-          if (next) {
-            await this._cachedState.update(() => next);
-            this.logService.info(`[PhishingDataService] cache updated`);
-          }
+        tap((cachedState) => {
+          void this._backgroundUpdate(cachedState);
         }),
-        retry({
-          count: 3,
-          delay: (err, count) => {
-            this.logService.error(
-              `[PhishingDataService] Unable to update web addresses. Attempt ${count}.`,
-              err,
-            );
-            return timer(5 * 60 * 1000); // 5 minutes
-          },
-          resetOnSuccess: true,
+        catchError((err: unknown) => {
+          this.logService.error("[PhishingDataService] Background update failed to start.", err);
+          return EMPTY;
         }),
-        catchError(
-          (
-            err: unknown /** Eslint actually crashed if you remove this type: https://github.com/cartant/eslint-plugin-rxjs/issues/122 */,
-          ) => {
-            this.logService.error(
-              "[PhishingDataService] Retries unsuccessful. Unable to update web addresses.",
-              err,
-            );
-            return EMPTY;
-          },
-        ),
       ),
     ),
     share(),
@@ -224,5 +199,48 @@ export class PhishingDataService {
       return webAddresses as string[];
     }
     return [];
+  }
+
+  // Runs the update flow in the background and retries up to 3 times on failure
+  private async _backgroundUpdate(prev: PhishingData | null): Promise<void> {
+    this.logService.info(`[PhishingDataService] Update triggered...`);
+    const phishingData = prev ?? {
+      webAddresses: [],
+      timestamp: 0,
+      checksum: "",
+      applicationVersion: "",
+    };
+    // Start time for logging performance of update
+    const startTime = Date.now();
+    const maxAttempts = 3;
+    const delayMs = 5 * 60 * 1000; // 5 minutes
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const next = await this.getNextWebAddresses(phishingData);
+        if (next) {
+          await this._cachedState.update(() => next);
+
+          // Performance logging
+          const elapsed = Date.now() - startTime;
+          this.logService.info(`[PhishingDataService] cache updated in ${elapsed}ms`);
+        }
+        return;
+      } catch (err) {
+        this.logService.error(
+          `[PhishingDataService] Unable to update web addresses. Attempt ${attempt}.`,
+          err,
+        );
+        if (attempt < maxAttempts) {
+          await new Promise((res) => setTimeout(res, delayMs));
+        } else {
+          const elapsed = Date.now() - startTime;
+          this.logService.error(
+            `[PhishingDataService] Retries unsuccessful after ${elapsed}ms. Unable to update web addresses.`,
+            err,
+          );
+        }
+      }
+    }
   }
 }
