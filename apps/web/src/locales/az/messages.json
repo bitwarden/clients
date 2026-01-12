@@ -2541,7 +2541,7 @@
     "message": "Fəallaşdırıldı"
   },
   "optionEnabled": {
-    "message": "Enabled"
+    "message": "Fəaldır"
   },
   "restoreAccess": {
     "message": "Erişimi bərpa et"
@@ -3153,7 +3153,7 @@
     "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Element bərpa edildi"
   },
   "restartPremium": {
     "message": "\"Premium\"u yenidən başlat"
@@ -5616,6 +5616,37 @@
     "message": "Send yaradıldı",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send uğurla yaradıldı!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Bu Send keçidini kopyala və paylaş. Qeyd etdiyiniz şəxslər buna növbəti $TIME$ ərzində baxa bilər.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ saat",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Yeni Send mətni",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Yeni Send faylı",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "\"Send\"ə düzəliş edildi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5656,7 +5687,7 @@
     "message": "Ləğv edildi"
   },
   "accepted": {
-    "message": "Accepted"
+    "message": "Qəbul edildi"
   },
   "sendLink": {
     "message": "\"Send\" keçidi",
@@ -6317,10 +6348,10 @@
     "message": "Hesab geri qaytarılmasına yazıldınız"
   },
   "enrolled": {
-    "message": "Enrolled"
+    "message": "Yazılma uğurludur"
   },
   "notEnrolled": {
-    "message": "Not enrolled"
+    "message": "Yazılma baş tutmayıb"
   },
   "withdrawAccountRecovery": {
     "message": "Hesab geri qaytarılması üzrə razılığı geri götür"
@@ -11628,7 +11659,7 @@
     "message": "Arxivdən çıxart"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arxivləndi"
   },
   "unArchiveAndSave": {
     "message": "Arxivdən çıxart və saxla"
@@ -11647,6 +11678,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Elementlər arxivə göndərildi"
+  },
+  "itemWasUnarchived": {
+    "message": "Element arxivdən çıxarıldı"
   },
   "itemUnarchived": {
     "message": "Element arxivdən çıxarıldı"
@@ -12508,16 +12542,16 @@
     "message": "Tam onlayn təhlükəsizlik"
   },
   "updatePayment": {
-    "message": "Update payment"
+    "message": "Ödənişi güncəllə"
   },
   "weCouldNotProcessYourPayment": {
-    "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
+    "message": "Ödənişiniz emal olunmadı. Lütfən ödəniş üsulunuzu güncəlləyin, ya da kömək üçün dəstək komandası ilə əlaqə saxlayın."
   },
   "yourSubscriptionHasExpired": {
-    "message": "Your subscription has expired. Please contact the support team for assistance."
+    "message": "Abunəliyinizin vaxtı bitib. Kömək üçün lütfən dəstək komandası ilə əlaqə saxlayın."
   },
   "yourSubscriptionIsScheduledToCancel": {
-    "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
+    "message": "Abunəliyiniz $DATE$ tarixində ləğv ediləcək. Abunəliyinizi bu tarixdən əvvəl təkrar aktivləşdirə bilərsiniz.",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -12526,10 +12560,10 @@
     }
   },
   "premiumShareEvenMore": {
-    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+    "message": "Ailələr planı ilə daha çoxunu paylaşın, ya da Komandalar və ya Müəssisə planı ilə daha güclü və etibarlı parol təhlükəsizliyi əldə edin."
   },
   "youHaveAGracePeriod": {
-    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "message": "Abunəliyinizin bitmə tarixindən etibarən $DAYS$ gün güzəşt dövrünüz var. Lütfən $DATE$ tarixinə qədər vaxtı keçmiş fakturaları həll edin.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -12542,31 +12576,31 @@
     }
   },
   "manageInvoices": {
-    "message": "Manage invoices"
+    "message": "Fakturaları idarə et"
   },
   "yourNextChargeIsFor": {
-    "message": "Your next charge is for"
+    "message": "Növbəti ödəniş haqqı"
   },
   "dueOn": {
-    "message": "due on"
+    "message": "tarix"
   },
   "yourSubscriptionWillBeSuspendedOn": {
-    "message": "Your subscription will be suspended on"
+    "message": "Abunəliyinizin fəaliyyəti dayandırılacaq"
   },
   "yourSubscriptionWasSuspendedOn": {
-    "message": "Your subscription was suspended on"
+    "message": "Abunəliyinizin fəaliyyəti dayandırıldı"
   },
   "yourSubscriptionWillBeCanceledOn": {
-    "message": "Your subscription will be canceled on"
+    "message": "Abunəliyiniz ləğv ediləcək"
   },
   "yourSubscriptionWasCanceledOn": {
-    "message": "Your subscription was canceled on"
+    "message": "Abunəliyiniz ləğv edildi"
   },
   "storageFull": {
-    "message": "Storage full"
+    "message": "Anbar dolub"
   },
   "storageUsedDescription": {
-    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "message": "$AVAILABLE$ GB şifrələnmiş fayl anbarınızın $USED$ qədəri istifadə olunub.",
     "placeholders": {
       "used": {
         "content": "$1",
@@ -12579,6 +12613,6 @@
     }
   },
   "storageFullDescription": {
-    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+    "message": "Bütün $GB$ GB-lıq şifrələnmiş anbar sahənizi istifadə etmisiniz. Faylları saxlaya bilmək üçün daha çox anbar sahəsi əlavə edin."
   }
 }

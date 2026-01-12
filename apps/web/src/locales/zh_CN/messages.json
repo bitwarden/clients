@@ -42,7 +42,7 @@
     "message": "您还没有创建报告"
   },
   "notifiedMembers": {
-    "message": "已通知的成员"
+    "message": "已通知成员"
   },
   "revokeMembers": {
     "message": "撤销成员"
@@ -170,7 +170,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "已通知的成员 ($COUNT$)",
+    "message": "已通知成员 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -365,7 +365,7 @@
     "message": "全部处理完成！"
   },
   "noNewApplicationsToReviewAtThisTime": {
-    "message": "目前没有新应用程序需要审查"
+    "message": "当前没有新应用程序需要审查"
   },
   "organizationHasItemsSavedForApplications": {
     "message": "您的组织已为 $COUNT$ 个应用程序保存了项目",
@@ -3954,7 +3954,7 @@
     }
   },
   "deletedItemId": {
-    "message": "发送项目 $ID$ 到回收站。",
+    "message": "发送了项目 $ID$ 到回收站。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4014,7 +4014,7 @@
     }
   },
   "viewedSecurityCodeItemId": {
-    "message": "查看了项目 $ID$ 的安全代码。",
+    "message": "查看了项目 $ID$ 的安全码。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4059,7 +4059,7 @@
     }
   },
   "copiedSecurityCodeItemId": {
-    "message": "复制了项目 $ID$ 的安全代码。",
+    "message": "复制了项目 $ID$ 的安全码。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5425,7 +5425,7 @@
     "message": "项目已恢复"
   },
   "restoredItemId": {
-    "message": "项目 $ID$ 已恢复",
+    "message": "恢复了项目 $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5614,6 +5614,37 @@
   },
   "createdSend": {
     "message": "Send 已保存",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedSuccessfully": {
+    "message": "Send 创建成功！",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "复制并分享此 Send 链接。您指定的人员可在接下来的 $TIME$ 内查看此 Send。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ 小时",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "新增文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "新增文件 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -6811,7 +6842,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为 $ACTION$。",
+    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为「$ACTION$」。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -11647,6 +11678,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "项目已发送到归档"
+  },
+  "itemWasUnarchived": {
+    "message": "项目已取消归档"
   },
   "itemUnarchived": {
     "message": "项目已取消归档"

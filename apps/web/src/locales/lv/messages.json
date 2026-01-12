@@ -5616,6 +5616,37 @@
     "message": "Send saglabāts",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send tika veiksmīgi izveidots.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Ievieto starpliktuvē un kopīgo šī Send saiti! To $TIME$ no šī brīža var apskatīt cilvēki, kurus norādīji.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ stundas",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Jauns teksta Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Jauns datnes Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send saglabāts",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -11647,6 +11678,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Vienumi tika ievietoti arhīvā"
+  },
+  "itemWasUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
   },
   "itemUnarchived": {
     "message": "Vienums tika izņemts no arhīva"

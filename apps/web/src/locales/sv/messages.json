@@ -1750,7 +1750,7 @@
     "message": "Det finns inga medlemmar att visa."
   },
   "noMembersToExport": {
-    "message": "There are no members to export."
+    "message": "Det finns inga medlemmar att exportera."
   },
   "noEventsInList": {
     "message": "Det finns inga händelser att visa."
@@ -2541,7 +2541,7 @@
     "message": "Aktiverad"
   },
   "optionEnabled": {
-    "message": "Enabled"
+    "message": "Aktiverat"
   },
   "restoreAccess": {
     "message": "Återställ åtkomst"
@@ -5616,6 +5616,37 @@
     "message": "Send har sparats",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send skapades!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Kopiera och dela denna Send-länk. Den kan visas av personer som du har angivet nästa $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ timmar",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Ny Send för text",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Ny Send för fil",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send har sparats",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5656,7 +5687,7 @@
     "message": "Återkallad"
   },
   "accepted": {
-    "message": "Accepted"
+    "message": "Accepterade"
   },
   "sendLink": {
     "message": "Send-länk",
@@ -6317,10 +6348,10 @@
     "message": "Registrerad i kontoåterställning"
   },
   "enrolled": {
-    "message": "Enrolled"
+    "message": "Registrerade"
   },
   "notEnrolled": {
-    "message": "Not enrolled"
+    "message": "Inte registrerade"
   },
   "withdrawAccountRecovery": {
     "message": "Uttag från kontoåterställning"
@@ -11628,7 +11659,7 @@
     "message": "Avarkivera"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arkiverade"
   },
   "unArchiveAndSave": {
     "message": "Avarkivera och spara"
@@ -11647,6 +11678,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Objekten har skickats till arkivet"
+  },
+  "itemWasUnarchived": {
+    "message": "Objektet har avarkiverats"
   },
   "itemUnarchived": {
     "message": "Objektet har avarkiverats"
@@ -12511,7 +12545,7 @@
     "message": "Uppdatera betalning"
   },
   "weCouldNotProcessYourPayment": {
-    "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
+    "message": "Vi kunde inte behandla din betalning. Vänligen uppdatera din betalningsmetod eller kontakta supportteamet för hjälp."
   },
   "yourSubscriptionHasExpired": {
     "message": "Ditt abonnemang har löpt ut. Kontakta supportteamet för hjälp."
@@ -12526,7 +12560,7 @@
     }
   },
   "premiumShareEvenMore": {
-    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+    "message": "Dela ännu mer med Familjer eller få kraftfull, betrodd lösenordssäkerhet med Team eller Enterprise."
   },
   "youHaveAGracePeriod": {
     "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
