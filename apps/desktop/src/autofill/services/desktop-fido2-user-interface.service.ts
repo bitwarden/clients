@@ -18,6 +18,7 @@ import {
   Fido2UserInterfaceSession,
   NewCredentialParams,
   PickCredentialParams,
+UserInteractionRequired,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -130,18 +131,20 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     userVerification,
     assumeUserPresence,
     masterPasswordRepromptRequired,
+    isSilent,
   }: PickCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
     this.logService.debug("pickCredential desktop function", {
       cipherIds,
       userVerification,
       assumeUserPresence,
       masterPasswordRepromptRequired,
+      isSilent,
     });
 
     try {
       // Check if we can return the credential without user interaction
       await this.accountService.setShowHeader(false);
-      if (assumeUserPresence && cipherIds.length === 1 && !masterPasswordRepromptRequired) {
+      if (cipherIds.length === 1 && !masterPasswordRepromptRequired) {
         const selectedCipherId = cipherIds[0];
         if (userVerification) {
           // retrieve the cipher
@@ -166,7 +169,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
             this.logService.debug("Failed to prompt for user verification without showing UI", e)
           }
         }
-        else {
+        else if (assumeUserPresence) {
           this.logService.warning(
             "shortcut - Assuming user presence and returning cipherId",
             cipherIds[0],
@@ -175,11 +178,13 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         }
       }
 
-      this.logService.debug("Could not shortcut, showing UI");
-
-      // TODO: We need to pass context from the original request whether this
-      // should be a silent request or not. Then, we can fail here if it's
-      // supposed to be silent.
+      if (isSilent) {
+        this.logService.info("Could not fulfill request silently, aborting request");
+        throw new UserInteractionRequired()
+      }
+      else {
+        this.logService.debug("Could not shortcut, showing UI");
+      }
 
       // make the cipherIds available to the UI.
       this.availableCipherIdsSubject.next(cipherIds);

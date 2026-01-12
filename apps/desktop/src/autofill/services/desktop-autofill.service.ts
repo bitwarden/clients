@@ -307,7 +307,7 @@ export class DesktopAutofillService implements OnDestroy {
           }
 
           const response = await this.fido2AuthenticatorService.getAssertion(
-            this.convertAssertionRequest(request, true),
+            this.convertAssertionRequest(request, { assumeUserPresence: true, isSilent: true }),
             { windowXy: request.windowXy, handle: clientHandle },
             controller,
             request.context,
@@ -453,15 +453,20 @@ export class DesktopAutofillService implements OnDestroy {
   /**
    *
    * @param request
-   * @param assumeUserPresence For WithoutUserInterface requests, we assume the user is present
+   * @param options For WithoutUserInterface requests, we assume user presence and throw errors if we cannot fulfill the request silently.
    * @returns
    */
   private convertAssertionRequest(
     request:
       | autofill.PasskeyAssertionRequest
       | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
-    assumeUserPresence: boolean = false,
+    options?: {
+      assumeUserPresence?: boolean,
+      isSilent?: boolean,
+    }
+
   ): Fido2AuthenticatorGetAssertionParams {
+    const { assumeUserPresence, isSilent } = options ?? {};
     let allowedCredentials;
     if ("credentialId" in request) {
       allowedCredentials = [
@@ -486,6 +491,7 @@ export class DesktopAutofillService implements OnDestroy {
         request.userVerification === "required" || request.userVerification === "preferred",
       fallbackSupported: false,
       assumeUserPresence,
+      isSilent,
     };
   }
 

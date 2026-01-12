@@ -291,6 +291,7 @@ export class Fido2AuthenticatorService<
           userVerification: params.requireUserVerification,
           assumeUserPresence: params.assumeUserPresence,
           masterPasswordRepromptRequired,
+          isSilent: params.isSilent,
         });
       }
 

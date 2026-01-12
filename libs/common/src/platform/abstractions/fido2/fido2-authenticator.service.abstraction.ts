@@ -153,8 +153,14 @@ export interface Fido2AuthenticatorGetAssertionParams {
   /** Forwarded to user interface */
   fallbackSupported: boolean;
 
-  // Bypass the UI and assume that the user has already interacted with the authenticator
+  /** Bypass the UI and assume that the user has already interacted with the authenticator */
   assumeUserPresence?: boolean;
+
+  /** Signals whether an error should be thrown if an assertion cannot be obtained without showing Bitwarden UI.
+   *
+   * Note that OS user verification prompts are allowed in silent requests.
+  */
+  isSilent?: boolean;
 }
 
 export interface Fido2AuthenticatorGetAssertionResult {

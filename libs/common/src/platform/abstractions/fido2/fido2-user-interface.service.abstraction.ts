@@ -50,6 +50,12 @@ export interface PickCredentialParams {
    * Identifies whether a cipher requires a master password reprompt when getting a credential.
    */
   masterPasswordRepromptRequired?: boolean;
+
+  /** Signals whether an error should be thrown if an assertion cannot be obtained without showing Bitwarden UI.
+   *
+   * Note that OS user verification prompts are allowed in silent requests.
+  */
+  isSilent?: boolean;
 }
 
 /**
@@ -121,3 +127,6 @@ export abstract class Fido2UserInterfaceSession {
    */
   abstract close(): void;
 }
+
+/** Thrown when user interaction is required during a request for a silent assertion. */
+export class UserInteractionRequired extends Error {}
