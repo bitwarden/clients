@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "O item foi enviado para o arquivo"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "O item foi desarquivado"
   },
@@ -4810,6 +4813,39 @@
   },
   "adminConsole": {
     "message": "Painel de administração"
+  },
+  "admin": {
+    "message": "Administrador"
+  },
+  "automaticUserConfirmation": {
+    "message": "Confirmação automática de usuários"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Confirme automaticamente usuários pendentes quando este dispositivo for desbloqueado"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Economize tempo com a confirmação automática de usuários"
+  },
+  "autoConfirmWarning": {
+    "message": "Isso pode afetar a segurança dos dados da sua organização. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Saiba mais sobre os riscos"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
   },
   "accountSecurity": {
     "message": "Segurança da conta"
