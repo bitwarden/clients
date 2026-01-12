@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Položka bola archivovaná"
   },
+  "itemWasUnarchived": {
+    "message": "Položka bola odobraná z archívu"
+  },
   "itemUnarchived": {
     "message": "Položka bola odobraná z archívu"
   },
@@ -584,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "Na použitie archívu je potrebné prémiové členstvo."
+  },
+  "itemRestored": {
+    "message": "Položka bola obnovená"
   },
   "edit": {
     "message": "Upraviť"
@@ -1486,7 +1492,7 @@
     "message": "Vyberte súbor"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Položky boli prenesené"
   },
   "maxFileSize": {
     "message": "Maximálna veľkosť súboru je 500 MB."
@@ -3408,10 +3414,10 @@
     "message": "Použiť možnosti subadresovania svojho poskytovateľa e-mailu."
   },
   "catchallEmail": {
-    "message": "Catch-all e-mail"
+    "message": "Doménový kôš"
   },
   "catchallEmailDesc": {
-    "message": "Použiť doručenú poštu typu catch-all nastavenú na doméne."
+    "message": "Použiť nastavený doménový kôš."
   },
   "random": {
     "message": "Náhodné"
@@ -4808,6 +4814,39 @@
   "adminConsole": {
     "message": "Správcovská konzola"
   },
+  "admin": {
+    "message": "Správca"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatické potvrdenie používateľa"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automaticky potvrdzovať čakajúcich používateľov, keď je toto zariadenie odomknuté"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Šetrite čas automatickým potvrdzovaním používateľa"
+  },
+  "autoConfirmWarning": {
+    "message": "Môže mať vplyv na bezpečnosť údajov vašej organizácie. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Dozvedieť sa viac o rizikách"
+  },
+  "autoConfirmSetup": {
+    "message": "Automaticky potvrdzovať nových používateľov"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Noví používatelia budú automaticky potvrdení, keď je toto zariadenie odomknuté."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Aké sú potenciálne bezpečnostné riziká?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Zapnuté automatické potvrdzovanie"
+  },
+  "availableNow": {
+    "message": "Teraz dostupné"
+  },
   "accountSecurity": {
     "message": "Zabezpečenie účtu"
   },
@@ -5664,6 +5703,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
   },
+  "vulnerablePassword": {
+    "message": "Zraniteľné heslo."
+  },
+  "changeNow": {
+    "message": "Zmeniť teraz"
+  },
   "missingWebsite": {
     "message": "Chýbajúca webová stránka"
   },
@@ -6039,5 +6084,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Prečo to vidím?"
+  },
+  "resizeSideNavigation": {
+    "message": "Zmeniť veľkosť bočnej navigácie"
   }
 }
