@@ -52,6 +52,8 @@ export class SendAuthComponent implements OnInit {
 
   authType = AuthType;
 
+  private expiredAuthAttempts = 0;
+
   readonly loading = signal<boolean>(false);
   readonly error = signal<boolean>(false);
   readonly unavailable = signal<boolean>(false);
@@ -147,10 +149,16 @@ export class SendAuthComponent implements OnInit {
       ? await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(this.id()))
       : await firstValueFrom(this.sendTokenService.getSendAccessToken$(this.id(), sendAccessCreds));
     if (response instanceof SendAccessToken) {
+      this.expiredAuthAttempts = 0;
       this.accessGranted.emit({ accessToken: response });
     } else if (response.kind === "expired") {
+      if (this.expiredAuthAttempts > 2) {
+        return;
+      }
+      this.expiredAuthAttempts++;
       await this.attemptV2Access();
     } else if (response.kind === "expected_server") {
+      this.expiredAuthAttempts = 0;
       if (emailRequired(response.error)) {
         this.sendAuthType.set(AuthType.Email);
       } else if (emailAndOtpRequiredEmailSent(response.error) || emailInvalid(response.error)) {
@@ -180,6 +188,7 @@ export class SendAuthComponent implements OnInit {
         });
       }
     } else {
+      this.expiredAuthAttempts = 0;
       this.error.set(true);
       this.toastService.showToast({
         variant: "error",

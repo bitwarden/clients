@@ -40,14 +40,17 @@ export class SendAccessFileComponent {
   ) {}
 
   protected download = async () => {
-    if (this.send() == null || this.decKey() == null) {
+    const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
+    const accessToken = this.accessToken();
+    const accessRequest = this.accessRequest();
+    const authMissing = (sendEmailOtp && !accessToken) || (!sendEmailOtp && !accessRequest);
+    if (this.send() == null || this.decKey() == null || authMissing) {
       return;
     }
 
-    const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
     const downloadData = sendEmailOtp
-      ? await this.sendApiService.getSendFileDownloadDataV2(this.send(), this.accessToken())
-      : await this.sendApiService.getSendFileDownloadData(this.send(), this.accessRequest());
+      ? await this.sendApiService.getSendFileDownloadDataV2(this.send(), accessToken)
+      : await this.sendApiService.getSendFileDownloadData(this.send(), accessRequest);
 
     if (Utils.isNullOrWhitespace(downloadData.url)) {
       this.toastService.showToast({

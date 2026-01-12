@@ -83,13 +83,14 @@ export class SendViewComponent implements OnInit {
       if (sendEmailOtp) {
         const accessToken = this.accessToken();
         if (!accessToken) {
+          this.authRequired.emit();
           return;
-        } else {
-          response = await this.sendApiService.postSendAccessV2(accessToken);
         }
+        response = await this.sendApiService.postSendAccessV2(accessToken);
       } else {
         const sendResponse = this.sendResponse();
         if (!sendResponse) {
+          this.authRequired.emit();
           return;
         }
         response = sendResponse;
