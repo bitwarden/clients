@@ -113,6 +113,23 @@ export abstract class MasterPasswordServiceAbstraction {
    * @throws If the user ID is missing.
    */
   abstract userHasMasterPassword(userId: UserId): Promise<boolean>;
+
+  /**
+   * Derives a master key from the provided password and master password unlock data,
+   * then sets it to state for the specified user. This is a temporary backwards compatibility function
+   * to support existing code that relies on direct master key access.
+   * Note: This will be removed in https://bitwarden.atlassian.net/browse/PM-30676
+   *
+   * @param password The master password.
+   * @param masterPasswordUnlockData The master password unlock data containing the KDF settings and salt.
+   * @param userId The user ID.
+   * @throws If the password, master password unlock data, or user ID is missing.
+   */
+  abstract setLegacyMasterKeyFromUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void>;
 }
 
 export abstract class InternalMasterPasswordServiceAbstraction extends MasterPasswordServiceAbstraction {
@@ -186,21 +203,4 @@ export abstract class InternalMasterPasswordServiceAbstraction extends MasterPas
    * @returns An observable that emits the master password unlock data or null if not found.
    */
   abstract masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null>;
-
-  /**
-   * Derives a master key from the provided password and master password unlock data,
-   * then sets it to state for the specified user. This is a temporary backwards compatibility function
-   * to support existing code that relies on direct master key access.
-   * Note: This will be removed in https://bitwarden.atlassian.net/browse/PM-30676
-   * 
-   * @param password The master password.
-   * @param masterPasswordUnlockData The master password unlock data containing the KDF settings and salt.
-   * @param userId The user ID.
-   * @throws If the password, master password unlock data, or user ID is missing.
-   */
-  abstract setLegacyMasterKeyFromUnlockData(
-    password: string,
-    masterPasswordUnlockData: MasterPasswordUnlockData,
-    userId: UserId,
-  ): Promise<void>;
 }
