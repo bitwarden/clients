@@ -197,7 +197,7 @@ export abstract class InternalMasterPasswordServiceAbstraction extends MasterPas
    * @param userId The user ID.
    * @throws If the password, master password unlock data, or user ID is missing.
    */
-  abstract setMasterKeyFromUnlockData(
+  abstract setLegacyMasterKeyFromUnlockData(
     password: string,
     masterPasswordUnlockData: MasterPasswordUnlockData,
     userId: UserId,

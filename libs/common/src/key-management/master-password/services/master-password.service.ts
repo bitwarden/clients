@@ -343,7 +343,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
   }
 
-  async setMasterKeyFromUnlockData(
+  async setLegacyMasterKeyFromUnlockData(
     password: string,
     masterPasswordUnlockData: MasterPasswordUnlockData,
     userId: UserId,
