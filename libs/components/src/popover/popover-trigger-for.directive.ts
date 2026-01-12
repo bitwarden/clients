@@ -32,7 +32,8 @@ export class PopoverTriggerForDirective implements OnDestroy {
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
   private hasInitialized = false;
-  private rafId: number | null = null;
+  private rafId1: number | null = null;
+  private rafId2: number | null = null;
   private isDestroyed = false;
 
   get positions() {
@@ -79,21 +80,23 @@ export class PopoverTriggerForDirective implements OnDestroy {
         return;
       }
 
-      if (this.rafId !== null) {
+      if (this.rafId1 !== null || this.rafId2 !== null) {
         return;
       }
 
       // Initial open - wait for layout to stabilize
       // First RAF: Waits for Angular's change detection to complete and queues the next paint
-      this.rafId = requestAnimationFrame(() => {
+      this.rafId1 = requestAnimationFrame(() => {
         // Second RAF: Ensures the browser has actually painted that frame and all layout/position calculations are final
-        this.rafId = requestAnimationFrame(() => {
-          if (this.popoverOpen() && !this.overlayRef) {
-            this.openPopover();
-            this.hasInitialized = true;
+        this.rafId2 = requestAnimationFrame(() => {
+          if (this.isDestroyed || !this.popoverOpen() || this.overlayRef) {
+            return;
           }
-          this.rafId = null;
+          this.openPopover();
+          this.hasInitialized = true;
+          this.rafId2 = null;
         });
+        this.rafId1 = null;
       });
     });
   }
@@ -149,9 +152,13 @@ export class PopoverTriggerForDirective implements OnDestroy {
     this.overlayRef?.dispose();
     this.overlayRef = null;
 
-    if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
+    if (this.rafId1 !== null) {
+      cancelAnimationFrame(this.rafId1);
+      this.rafId1 = null;
+    }
+    if (this.rafId2 !== null) {
+      cancelAnimationFrame(this.rafId2);
+      this.rafId2 = null;
     }
   }
 
