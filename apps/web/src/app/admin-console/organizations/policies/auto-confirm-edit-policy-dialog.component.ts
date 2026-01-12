@@ -22,7 +22,7 @@ import {
   tap,
 } from "rxjs";
 
-import { AutomaticUserConfirmationService } from "@bitwarden/admin-console/common";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -30,7 +30,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import {
@@ -115,7 +114,6 @@ export class AutoConfirmPolicyDialogComponent
     formBuilder: FormBuilder,
     dialogRef: DialogRef<PolicyEditDialogResult>,
     toastService: ToastService,
-    configService: ConfigService,
     keyService: KeyService,
     private organizationService: OrganizationService,
     private policyService: PolicyService,
@@ -131,7 +129,6 @@ export class AutoConfirmPolicyDialogComponent
       formBuilder,
       dialogRef,
       toastService,
-      configService,
       keyService,
     );
 
