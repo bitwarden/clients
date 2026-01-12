@@ -282,7 +282,21 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.folderId = uuidAsString(obj.folderId);
     cipherView.name = obj.name;
     cipherView.notes = obj.notes;
-    cipherView.type = obj.type;
+
+    // SDK returns type as a discriminated union object, extract the actual CipherType
+    const sdkType = (obj.type as any) ?? { login: {} };
+    if ("login" in sdkType) {
+      cipherView.type = CipherType.Login;
+    } else if ("card" in sdkType) {
+      cipherView.type = CipherType.Card;
+    } else if ("identity" in sdkType) {
+      cipherView.type = CipherType.Identity;
+    } else if ("secureNote" in sdkType) {
+      cipherView.type = CipherType.SecureNote;
+    } else if ("sshKey" in sdkType) {
+      cipherView.type = CipherType.SshKey;
+    }
+
     cipherView.favorite = obj.favorite;
     cipherView.organizationUseTotp = obj.organizationUseTotp;
     cipherView.permissions = obj.permissions
@@ -291,12 +305,21 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.edit = obj.edit;
     cipherView.viewPassword = obj.viewPassword;
     cipherView.localData = fromSdkLocalData(obj.localData);
+    // Convert iterables to arrays to ensure .map() works
     cipherView.attachments =
-      obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)!) ?? [];
-    cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)!) ?? [];
+      obj.attachments != null
+        ? Array.from(obj.attachments).map((a) => AttachmentView.fromSdkAttachmentView(a)!)
+        : [];
+    cipherView.fields =
+      obj.fields != null ? Array.from(obj.fields).map((f) => FieldView.fromSdkFieldView(f)!) : [];
     cipherView.passwordHistory =
-      obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)!) ?? [];
-    cipherView.collectionIds = obj.collectionIds?.map((i) => uuidAsString(i)) ?? [];
+      obj.passwordHistory != null
+        ? Array.from(obj.passwordHistory).map(
+            (ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)!,
+          )
+        : [];
+    cipherView.collectionIds =
+      obj.collectionIds != null ? Array.from(obj.collectionIds).map((i) => uuidAsString(i)) : [];
     cipherView.revisionDate = new Date(obj.revisionDate);
     cipherView.creationDate = new Date(obj.creationDate);
     cipherView.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);

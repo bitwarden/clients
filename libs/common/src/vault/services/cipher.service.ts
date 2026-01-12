@@ -509,10 +509,21 @@ export class CipherService implements CipherServiceAbstraction {
 
           const decryptResult = await ref.value.vault().ciphers().list();
 
-          const successViews = decryptResult.successes.map((sdkCipherView: any) =>
+          // Convert successes - SDK returns array of SdkCipherView
+          const successArray = Array.isArray(decryptResult.successes)
+            ? decryptResult.successes
+            : Array.from(decryptResult.successes ?? []);
+
+          const successViews = successArray.map((sdkCipherView: any) =>
             CipherView.fromSdkCipherView(sdkCipherView),
           );
-          const failureViews: CipherView[] = decryptResult.failures.map((failure) => {
+
+          // Convert failures to CipherView with error markers
+          const failureArray = Array.isArray(decryptResult.failures)
+            ? decryptResult.failures
+            : Array.from(decryptResult.failures ?? []);
+
+          const failureViews: CipherView[] = failureArray.map((failure: any) => {
             const cipher = Cipher.fromSdkCipher(failure);
             const cipherView = new CipherView(cipher);
             cipherView.name = DECRYPT_ERROR;
@@ -805,7 +816,6 @@ export class CipherService implements CipherServiceAbstraction {
             .admin()
             .list_org_ciphers(asUuid(organizationId), includeMemberItems);
 
-          // Convert successful decryptions to CipherView[]
           const cipherViews = decryptResult.successes.map((sdkCipherView: any) =>
             CipherView.fromSdkCipherView(sdkCipherView),
           );
