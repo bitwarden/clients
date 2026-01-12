@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "項目已移至封存"
   },
+  "itemWasUnarchived": {
+    "message": "已取消封存項目"
+  },
   "itemUnarchived": {
     "message": "項目取消封存"
   },
@@ -584,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "需要進階版會員才能使用封存功能。"
+  },
+  "itemRestored": {
+    "message": "已還原項目"
   },
   "edit": {
     "message": "編輯"
@@ -4808,6 +4814,39 @@
   "adminConsole": {
     "message": "管理控制台"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "自動使用者確認"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "可能影響您的組織資料安全性。"
+  },
+  "autoConfirmWarningLink": {
+    "message": "了解風險"
+  },
+  "autoConfirmSetup": {
+    "message": "自動確認新使用者"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "潛在的安全性風險有哪些？"
+  },
+  "autoConfirmEnabled": {
+    "message": "開啟自動確認"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
   "accountSecurity": {
     "message": "帳戶安全性"
   },
@@ -5663,6 +5702,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
+  },
+  "vulnerablePassword": {
+    "message": "有安全疑慮的密碼。"
+  },
+  "changeNow": {
+    "message": "立即變更"
   },
   "missingWebsite": {
     "message": "缺少網站"

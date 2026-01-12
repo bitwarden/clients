@@ -10,7 +10,6 @@ import {
   mergeMap,
   Subject,
   switchMap,
-  take,
   takeUntil,
   tap,
 } from "rxjs";
@@ -20,22 +19,14 @@ import { LogoutService } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import {
-  MasterPasswordVerification,
-  MasterPasswordVerificationResponse,
-} from "@bitwarden/common/auth/types/verification";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -115,10 +106,6 @@ export class LockComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected loading = true;
 
-  protected unlockWithMasterPasswordUnlockDataFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.UnlockWithMasterPasswordUnlockData,
-  );
-
   activeAccount: Account | null = null;
 
   clientType?: ClientType;
@@ -144,7 +131,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
   biometricUnlockBtnText?: string;
 
-  // masterPassword = "";
   showPassword = false;
   private enforcedMasterPasswordOptions?: MasterPasswordPolicyOptions = undefined;
 
@@ -164,7 +150,6 @@ export class LockComponent implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private pinService: PinServiceAbstraction,
-    private userVerificationService: UserVerificationService,
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
@@ -189,7 +174,6 @@ export class LockComponent implements OnInit, OnDestroy {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private encryptedMigrator: EncryptedMigrator,
 
-    private configService: ConfigService,
     // desktop deps
     private broadcasterService: BroadcasterService,
   ) {}
@@ -246,19 +230,8 @@ export class LockComponent implements OnInit, OnDestroy {
       .subscribe((activeUnlockOption: UnlockOptionValue | null) => {
         if (activeUnlockOption === UnlockOption.Pin) {
           this.buildPinForm();
-        } else if (activeUnlockOption === UnlockOption.MasterPassword) {
-          this.buildMasterPasswordForm();
         }
       });
-  }
-
-  buildMasterPasswordForm() {
-    this.formGroup = this.formBuilder.group(
-      {
-        masterPassword: ["", [Validators.required]],
-      },
-      { updateOn: "submit" },
-    );
   }
 
   private buildPinForm() {
@@ -406,8 +379,6 @@ export class LockComponent implements OnInit, OnDestroy {
     if (this.activeUnlockOption === UnlockOption.Pin) {
       return await this.unlockViaPin();
     }
-
-    await this.unlockViaMasterPassword();
   };
 
   async logOut() {
@@ -489,25 +460,6 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
-  //TODO PM-25385 This code isn't used and should be removed when removing the UnlockWithMasterPasswordUnlockData feature flag.
-  togglePassword() {
-    this.showPassword = !this.showPassword;
-    const input = document.getElementById(
-      this.unlockOptions?.pin.enabled ? "pin" : "masterPassword",
-    );
-
-    if (input == null) {
-      return;
-    }
-
-    if (this.ngZone.isStable) {
-      input.focus();
-    } else {
-      // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-      this.ngZone.onStable.pipe(take(1)).subscribe(() => input.focus());
-    }
-  }
-
   private validatePin(): boolean {
     if (this.formGroup?.invalid) {
       this.toastService.showToast({
@@ -563,83 +515,6 @@ export class LockComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("unexpectedError"),
       });
     }
-  }
-
-  // TODO PM-25385 remove when removing the UnlockWithMasterPasswordUnlockData feature flag.
-  private validateMasterPassword(): boolean {
-    if (this.formGroup?.invalid) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("masterPasswordRequired"),
-      });
-      return false;
-    }
-
-    return true;
-  }
-
-  // TODO PM-25385 remove when removing the UnlockWithMasterPasswordUnlockData feature flag.
-  async unlockViaMasterPassword() {
-    if (!this.validateMasterPassword() || this.formGroup == null || this.activeAccount == null) {
-      return;
-    }
-
-    const masterPassword = this.formGroup.controls.masterPassword.value;
-
-    const verification = {
-      type: VerificationType.MasterPassword,
-      secret: masterPassword,
-    } as MasterPasswordVerification;
-
-    let passwordValid = false;
-    let masterPasswordVerificationResponse: MasterPasswordVerificationResponse | null = null;
-    try {
-      masterPasswordVerificationResponse =
-        await this.userVerificationService.verifyUserByMasterPassword(
-          verification,
-          this.activeAccount.id,
-          this.activeAccount.email,
-        );
-
-      if (masterPasswordVerificationResponse?.policyOptions != null) {
-        this.enforcedMasterPasswordOptions = MasterPasswordPolicyOptions.fromResponse(
-          masterPasswordVerificationResponse.policyOptions,
-        );
-      } else {
-        this.enforcedMasterPasswordOptions = undefined;
-      }
-
-      passwordValid = true;
-    } catch (e) {
-      this.logService.error(e);
-    }
-
-    if (!passwordValid) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("invalidMasterPassword"),
-      });
-      return;
-    }
-
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-      masterPasswordVerificationResponse!.masterKey,
-      this.activeAccount.id,
-    );
-    if (userKey == null) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("invalidMasterPassword"),
-      });
-      return;
-    }
-
-    await this.setUserKeyAndContinue(userKey, {
-      passwordEvaluation: { masterPassword },
-    });
   }
 
   async successfulMasterPasswordUnlock(event: {
