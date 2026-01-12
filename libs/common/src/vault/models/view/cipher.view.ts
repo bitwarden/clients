@@ -284,17 +284,23 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.notes = obj.notes;
 
     // SDK returns type as a discriminated union object, extract the actual CipherType
-    const sdkType = (obj.type as any) ?? { login: {} };
-    if ("login" in sdkType) {
-      cipherView.type = CipherType.Login;
-    } else if ("card" in sdkType) {
-      cipherView.type = CipherType.Card;
-    } else if ("identity" in sdkType) {
-      cipherView.type = CipherType.Identity;
-    } else if ("secureNote" in sdkType) {
-      cipherView.type = CipherType.SecureNote;
-    } else if ("sshKey" in sdkType) {
-      cipherView.type = CipherType.SshKey;
+    const sdkType: CipherViewType | CipherType = (obj.type as any) ?? CipherType.Login;
+
+    // Handle both discriminated union format and numeric CipherType
+    if (typeof sdkType === "number") {
+      cipherView.type = sdkType;
+    } else if (typeof sdkType === "object" && sdkType !== null) {
+      if ("login" in sdkType) {
+        cipherView.type = CipherType.Login;
+      } else if ("card" in sdkType) {
+        cipherView.type = CipherType.Card;
+      } else if ("identity" in sdkType) {
+        cipherView.type = CipherType.Identity;
+      } else if ("secureNote" in sdkType) {
+        cipherView.type = CipherType.SecureNote;
+      } else if ("sshKey" in sdkType) {
+        cipherView.type = CipherType.SshKey;
+      }
     }
 
     cipherView.favorite = obj.favorite;
