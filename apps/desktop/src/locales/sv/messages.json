@@ -4307,7 +4307,7 @@
     "message": "Avarkivera"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arkiverade"
   },
   "itemsInArchive": {
     "message": "Objekt i arkivet"
@@ -4331,16 +4331,16 @@
     "message": "Arkiverade objekt är uteslutna från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Avarkivera och spara"
   },
   "restartPremium": {
     "message": "Starta om Premium"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Ditt Premium-abonnemang avslutades"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "För att återfå åtkomst till ditt arkiv, starta om Premium-abonnemanget. Om du redigerar detaljer för ett arkiverat objekt innan du startar om kommer det att flyttas tillbaka till ditt valv."
   },
   "itemRestored": {
     "message": "Objektet har återställts"
