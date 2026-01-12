@@ -33,6 +33,7 @@ export class PopoverTriggerForDirective implements OnDestroy {
   private closedEventsSub: Subscription | null = null;
   private hasInitialized = false;
   private rafId: number | null = null;
+  private isDestroyed = false;
 
   get positions() {
     if (!this.position()) {
@@ -69,7 +70,7 @@ export class PopoverTriggerForDirective implements OnDestroy {
     private overlay: Overlay,
   ) {
     effect(() => {
-      if (!this.popoverOpen() || this.overlayRef) {
+      if (this.isDestroyed || !this.popoverOpen() || this.overlayRef) {
         return;
       }
 
@@ -155,6 +156,7 @@ export class PopoverTriggerForDirective implements OnDestroy {
   }
 
   ngOnDestroy() {
+    this.isDestroyed = true;
     this.disposeAll();
   }
 
