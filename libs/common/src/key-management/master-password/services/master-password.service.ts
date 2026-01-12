@@ -342,4 +342,22 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
 
     return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
   }
+
+  async setMasterKeyFromUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    assertNonNullish(password, "password");
+    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
+    assertNonNullish(userId, "userId");
+
+    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
+      password,
+      masterPasswordUnlockData.salt,
+      masterPasswordUnlockData.kdf,
+    )) as MasterKey;
+
+    await this.setMasterKey(masterKey, userId);
+  }
 }
