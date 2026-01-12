@@ -122,6 +122,41 @@ describe("CipherStep", () => {
       expect(logger.record).toHaveBeenCalledWith("Cipher ID cipher-3 was undecryptable");
       expect(logger.record).toHaveBeenCalledWith("Found 2 undecryptable ciphers");
     });
+
+    it("returns correct results when running diagnostics multiple times", async () => {
+      const userId = "user-id" as UserId;
+      const cipher1 = { id: "cipher-1", organizationId: null } as Cipher;
+      const cipher2 = { id: "cipher-2", organizationId: null } as Cipher;
+
+      const workingData: RecoveryWorkingData = {
+        userId,
+        userKey: null,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [cipher1, cipher2],
+        folders: [],
+      };
+
+      // First run: cipher1 succeeds, cipher2 fails
+      cipherEncryptionService.decrypt
+        .mockResolvedValueOnce({} as any)
+        .mockRejectedValueOnce(new Error("Decryption failed"));
+
+      const result1 = await cipherStep.runDiagnostics(workingData, logger);
+
+      expect(result1).toBe(false);
+      expect(cipherStep.canRecover(workingData)).toBe(true);
+
+      // Second run: all ciphers succeed
+      cipherEncryptionService.decrypt.mockResolvedValue({} as any);
+
+      const result2 = await cipherStep.runDiagnostics(workingData, logger);
+
+      expect(result2).toBe(true);
+      expect(cipherStep.canRecover(workingData)).toBe(false);
+      expect(cipherStep["undecryptableCipherIds"]).toHaveLength(0);
+      expect(cipherStep["decryptableCipherIds"]).toHaveLength(2);
+    });
   });
 
   describe("canRecover", () => {
@@ -132,7 +167,10 @@ describe("CipherStep", () => {
         userKey: null,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
-        ciphers: [{ id: "cipher-1", organizationId: null } as Cipher],
+        ciphers: [
+          { id: "cipher-1", organizationId: null } as Cipher,
+          { id: "cipher-2", organizationId: null } as Cipher,
+        ],
         folders: [],
       };
 
@@ -144,14 +182,39 @@ describe("CipherStep", () => {
       expect(result).toBe(false);
     });
 
-    it("returns true when there are undecryptable ciphers", async () => {
+    it("returns true when there are undecryptable ciphers but at least one decryptable cipher", async () => {
       const userId = "user-id" as UserId;
       const workingData: RecoveryWorkingData = {
         userId,
         userKey: null,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
-        ciphers: [{ id: "cipher-1", organizationId: null } as Cipher],
+        ciphers: [
+          { id: "cipher-1", organizationId: null } as Cipher,
+          { id: "cipher-2", organizationId: null } as Cipher,
+        ],
+        folders: [],
+      };
+
+      cipherEncryptionService.decrypt.mockRejectedValueOnce(new Error("Decryption failed"));
+
+      await cipherStep.runDiagnostics(workingData, logger);
+      const result = cipherStep.canRecover(workingData);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false when all ciphers are undecryptable", async () => {
+      const userId = "user-id" as UserId;
+      const workingData: RecoveryWorkingData = {
+        userId,
+        userKey: null,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [
+          { id: "cipher-1", organizationId: null } as Cipher,
+          { id: "cipher-2", organizationId: null } as Cipher,
+        ],
         folders: [],
       };
 
@@ -160,7 +223,7 @@ describe("CipherStep", () => {
       await cipherStep.runDiagnostics(workingData, logger);
       const result = cipherStep.canRecover(workingData);
 
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
   });
 

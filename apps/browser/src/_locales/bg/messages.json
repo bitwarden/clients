@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Елементът беше преместен в архива"
   },
+  "itemWasUnarchived": {
+    "message": "Елементът беше изваден от архива"
+  },
   "itemUnarchived": {
     "message": "Елементът беше изваден от архива"
   },
@@ -584,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "За да се възползвате от архивирането, трябва да ползвате платен абонамент."
+  },
+  "itemRestored": {
+    "message": "Записът бе възстановен"
   },
   "edit": {
     "message": "Редактиране"
@@ -4808,6 +4814,39 @@
   "adminConsole": {
     "message": "Административна конзола"
   },
+  "admin": {
+    "message": "Администратор"
+  },
+  "automaticUserConfirmation": {
+    "message": "Автоматично потвърждение на потребителите"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Автоматично потвърждение на потребителите, когато това устройство е отключено"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Спестете време с автоматичното потвърждение на потребителите"
+  },
+  "autoConfirmWarning": {
+    "message": "Това може да се отрази на сигурността на данните в организацията Ви. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Научете повече за рисковете"
+  },
+  "autoConfirmSetup": {
+    "message": "Автоматично потвърждаване на новите потребители"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Новите потребители ще бъдат потвърждавани автоматично, докато това устройство е отключено."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Какви са възможните рискове за сигурността?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Автоматичното потвърждаване е включено"
+  },
+  "availableNow": {
+    "message": "Налично сега"
+  },
   "accountSecurity": {
     "message": "Защита на регистрацията"
   },
@@ -5664,6 +5703,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
   },
+  "vulnerablePassword": {
+    "message": "Уязвима парола."
+  },
+  "changeNow": {
+    "message": "Промяна сега"
+  },
   "missingWebsite": {
     "message": "Липсващ уеб сайт"
   },
@@ -6039,5 +6084,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Защо виждам това?"
+  },
+  "resizeSideNavigation": {
+    "message": "Преоразмеряване на страничната навигация"
   }
 }
