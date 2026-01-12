@@ -84,7 +84,7 @@ export class SendOptionsComponent implements OnInit {
     ),
   );
 
-  authTypes = [
+  authTypes: { name: string; value: string | null; disabled?: boolean }[] = [
     { name: this.i18nService.t("none"), value: null },
     { name: this.i18nService.t("password"), value: "password" },
     { name: this.i18nService.t("specificPeople"), value: "email" },
