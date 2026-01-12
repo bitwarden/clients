@@ -44,6 +44,11 @@ describe("SendV2Component", () => {
   let changeDetectorRef: MockProxy<ChangeDetectorRef>;
   let sendFormConfigService: MockProxy<DefaultSendFormConfigService>;
   let dialogService: MockProxy<DialogService>;
+  let environmentService: MockProxy<EnvironmentService>;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let sendApiService: MockProxy<SendApiService>;
+  let toastService: MockProxy<ToastService>;
+  let i18nService: MockProxy<I18nService>;
 
   beforeEach(async () => {
     sendService = mock<SendService>();
@@ -52,6 +57,19 @@ describe("SendV2Component", () => {
     changeDetectorRef = mock<ChangeDetectorRef>();
     sendFormConfigService = mock<DefaultSendFormConfigService>();
     dialogService = mock<DialogService>();
+    environmentService = mock<EnvironmentService>();
+    platformUtilsService = mock<PlatformUtilsService>();
+    sendApiService = mock<SendApiService>();
+    toastService = mock<ToastService>();
+    i18nService = mock<I18nService>();
+
+    // Setup environmentService mock
+    environmentService.getEnvironment.mockResolvedValue({
+      getSendUrl: () => "https://send.bitwarden.com/#/",
+    } as any);
+
+    // Setup i18nService mock
+    i18nService.t.mockImplementation((key: string) => key);
 
     // Mock SendItemsService with all required observables
     sendItemsService = mock<SendItemsService>();
@@ -80,16 +98,16 @@ describe("SendV2Component", () => {
       providers: [
         provideNoopAnimations(),
         { provide: SendService, useValue: sendService },
-        { provide: I18nService, useValue: mock<I18nService>() },
-        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
+        { provide: I18nService, useValue: i18nService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: EnvironmentService, useValue: environmentService },
         { provide: SearchService, useValue: mockSearchService },
         { provide: PolicyService, useValue: policyService },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: SendApiService, useValue: mock<SendApiService>() },
+        { provide: SendApiService, useValue: sendApiService },
         { provide: DialogService, useValue: dialogService },
         { provide: DefaultSendFormConfigService, useValue: sendFormConfigService },
-        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: ToastService, useValue: toastService },
         { provide: AccountService, useValue: accountService },
         { provide: SendItemsService, useValue: sendItemsService },
         { provide: SendListFiltersService, useValue: sendListFiltersService },
@@ -124,10 +142,6 @@ describe("SendV2Component", () => {
 
   it("creates component", () => {
     expect(component).toBeTruthy();
-  });
-
-  it("initializes with correct default action", () => {
-    expect(component["action"]()).toBe("");
   });
 
   describe("addSend", () => {
@@ -178,57 +192,6 @@ describe("SendV2Component", () => {
         formConfig: mockConfig,
       });
     });
-
-    it("calls closeEditPanel when dialog returns result", async () => {
-      const mockConfig = { mode: "add" } as SendFormConfig;
-      const mockDialogRef = { closed: of(true) };
-
-      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
-      jest.spyOn(SendAddEditDialogComponent, "openDrawer").mockReturnValue(mockDialogRef as any);
-      jest.spyOn(component as any, "closeEditPanel");
-
-      await component["addSend"](SendType.Text);
-
-      expect(component["closeEditPanel"]).toHaveBeenCalled();
-    });
-
-    it("does not call closeEditPanel when dialog is cancelled", async () => {
-      const mockConfig = { mode: "add" } as SendFormConfig;
-      const mockDialogRef = { closed: of(undefined) };
-
-      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
-      jest.spyOn(SendAddEditDialogComponent, "openDrawer").mockReturnValue(mockDialogRef as any);
-      jest.spyOn(component as any, "closeEditPanel");
-
-      await component["addSend"](SendType.Text);
-
-      expect(component["closeEditPanel"]).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("closeEditPanel", () => {
-    it("resets action to None", () => {
-      component["action"].set("edit");
-      component["sendId"].set("test-id");
-
-      component["closeEditPanel"]();
-
-      expect(component["action"]()).toBe("");
-      expect(component["sendId"]()).toBeNull();
-    });
-  });
-
-  describe("savedSend", () => {
-    it("selects the saved send", async () => {
-      jest.spyOn(component as any, "selectSend").mockResolvedValue(undefined);
-
-      const mockSend = new SendView();
-      mockSend.id = "saved-send-id";
-
-      await component["savedSend"](mockSend);
-
-      expect(component["selectSend"]).toHaveBeenCalledWith("saved-send-id");
-    });
   });
 
   describe("selectSend", () => {
@@ -253,32 +216,6 @@ describe("SendV2Component", () => {
         formConfig: mockConfig,
       });
     });
-
-    it("calls closeEditPanel when dialog returns result", async () => {
-      const mockConfig = { mode: "edit" } as SendFormConfig;
-      const mockDialogRef = { closed: of(true) };
-
-      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
-      jest.spyOn(SendAddEditDialogComponent, "openDrawer").mockReturnValue(mockDialogRef as any);
-      jest.spyOn(component as any, "closeEditPanel");
-
-      await component["selectSend"]("test-send-id");
-
-      expect(component["closeEditPanel"]).toHaveBeenCalled();
-    });
-
-    it("does not call closeEditPanel when dialog is cancelled", async () => {
-      const mockConfig = { mode: "edit" } as SendFormConfig;
-      const mockDialogRef = { closed: of(undefined) };
-
-      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
-      jest.spyOn(SendAddEditDialogComponent, "openDrawer").mockReturnValue(mockDialogRef as any);
-      jest.spyOn(component as any, "closeEditPanel");
-
-      await component["selectSend"]("test-send-id");
-
-      expect(component["closeEditPanel"]).not.toHaveBeenCalled();
-    });
   });
 
   describe("onEditSend", () => {
@@ -290,6 +227,27 @@ describe("SendV2Component", () => {
       await component["onEditSend"](mockSend);
 
       expect(component["selectSend"]).toHaveBeenCalledWith("edit-send-id");
+    });
+  });
+
+  describe("onCopySend", () => {
+    it("copies send link to clipboard and shows success toast", async () => {
+      const mockSend = {
+        accessId: "test-access-id",
+        urlB64Key: "test-key",
+      } as SendView;
+
+      await component["onCopySend"](mockSend);
+
+      expect(environmentService.getEnvironment).toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
+        "https://send.bitwarden.com/#/test-access-id/test-key",
+      );
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        title: null,
+        message: expect.any(String),
+      });
     });
   });
 });

@@ -17,7 +17,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
@@ -64,7 +63,6 @@ export class SendV2Component {
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
   private environmentService = inject(EnvironmentService);
-  private logService = inject(LogService);
   private sendApiService = inject(SendApiService);
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
