@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Vienums tika ievietots arhīvā"
   },
+  "itemWasUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
+  },
   "itemUnarchived": {
     "message": "Vienums tika izņemts no arhīva"
   },
@@ -4810,6 +4813,39 @@
   },
   "adminConsole": {
     "message": "pārvaldības konsolē,"
+  },
+  "admin": {
+    "message": "Pārvaldītājs"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automātiska lietotāju apstiprināšana"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automātiski apstiprināt ierindotos lietotājus, kamēr šī ierīce ir atslēgta"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Laika ietaupīšana ar automātisku lietotāju apstiprināšanu"
+  },
+  "autoConfirmWarning": {
+    "message": "Tas varētu ietekmēt apvienības datu drošību. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Uzzināt par riskiem"
+  },
+  "autoConfirmSetup": {
+    "message": "Automātiski apstiprināt jaunus lietotājus"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Jauni lietotāji tiks automātiski apstiprināti, kamēr šī ierīce ir atslēgta."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Kādi ir iespējamie drošības riski?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Automātiska apstiprināšana ieslēgta"
+  },
+  "availableNow": {
+    "message": "Pieejams tagad"
   },
   "accountSecurity": {
     "message": "Konta drošība"

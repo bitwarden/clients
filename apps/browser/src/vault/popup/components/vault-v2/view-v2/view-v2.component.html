@@ -3,37 +3,47 @@
     <app-pop-out slot="end" />
   </popup-header>
 
-  <app-cipher-view *ngIf="cipher" [cipher]="cipher"></app-cipher-view>
+  @if (cipher) {
+    <app-cipher-view [cipher]="cipher"></app-cipher-view>
+  }
 
   <popup-footer slot="footer" *ngIf="showFooter$ | async">
-    <button
-      *ngIf="!cipher.isDeleted"
-      buttonType="primary"
-      type="button"
-      bitButton
-      (click)="editCipher()"
-    >
-      {{ "edit" | i18n }}
-    </button>
-
-    <button
-      *ngIf="cipher.isDeleted && cipher.permissions.restore"
-      buttonType="primary"
-      type="button"
-      bitButton
-      [bitAction]="restore"
-    >
-      {{ "restore" | i18n }}
-    </button>
-
-    <button
-      slot="end"
-      *ngIf="canDeleteCipher$ | async"
-      [bitAction]="delete"
-      type="button"
-      buttonType="danger"
-      bitIconButton="bwi-trash"
-      [label]="(cipher.isDeleted ? 'deleteForever' : 'delete') | i18n"
-    ></button>
+    @if (!cipher.isDeleted) {
+      <button buttonType="primary" type="button" bitButton (click)="editCipher()">
+        {{ "edit" | i18n }}
+      </button>
+    }
+    @if (cipher.isDeleted && cipher.permissions.restore) {
+      <button buttonType="primary" type="button" bitButton [bitAction]="restore">
+        {{ "restore" | i18n }}
+      </button>
+    }
+    <ng-container slot="end">
+      @if ((archiveFlagEnabled$ | async) && cipher.isArchived) {
+        <button
+          type="button"
+          [bitAction]="unarchive"
+          bitIconButton="bwi-unarchive"
+          [label]="'unarchive' | i18n"
+        ></button>
+      }
+      @if ((userCanArchive$ | async) && cipher.canBeArchived) {
+        <button
+          type="button"
+          [bitAction]="archive"
+          bitIconButton="bwi-archive"
+          [label]="'archiveVerb' | i18n"
+        ></button>
+      }
+      @if (canDeleteCipher$ | async) {
+        <button
+          [bitAction]="delete"
+          type="button"
+          buttonType="danger"
+          bitIconButton="bwi-trash"
+          [label]="(cipher.isDeleted ? 'deleteForever' : 'delete') | i18n"
+        ></button>
+      }
+    </ng-container>
   </popup-footer>
 </popup-page>
