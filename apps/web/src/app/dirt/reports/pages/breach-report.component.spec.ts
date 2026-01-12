@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA, Component, ChangeDetectionStrategy } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -10,6 +10,7 @@ import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/br
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { AsyncActionsModule, ButtonModule, FormFieldModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BreachReportComponent } from "./breach-report.component";
@@ -38,6 +39,13 @@ const breachedAccounts = [
   standalone: false,
 })
 class MockHeaderComponent {}
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "bit-container",
+  template: "<div></div>",
+  standalone: false,
+})
+class MockBitContainerComponent {}
 
 describe("BreachReportComponent", () => {
   let component: BreachReportComponent;
@@ -58,8 +66,8 @@ describe("BreachReportComponent", () => {
     accountService.activeAccount$ = activeAccountSubject;
 
     await TestBed.configureTestingModule({
-      declarations: [BreachReportComponent, MockHeaderComponent],
-      imports: [ReactiveFormsModule, I18nPipe],
+      declarations: [BreachReportComponent, MockHeaderComponent, MockBitContainerComponent],
+      imports: [ReactiveFormsModule, I18nPipe, AsyncActionsModule, ButtonModule, FormFieldModule],
       providers: [
         {
           provide: AuditService,
@@ -74,7 +82,7 @@ describe("BreachReportComponent", () => {
           useValue: mock<I18nService>(),
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
+      schemas: [],
     }).compileComponents();
   });
 
