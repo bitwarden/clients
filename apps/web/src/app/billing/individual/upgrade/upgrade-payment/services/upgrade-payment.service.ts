@@ -143,7 +143,7 @@ export class UpgradePaymentService {
   ): Promise<void> {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
-    await this.accountBillingClient.purchasePremiumSubscription(paymentMethod, billingAddress);
+    await this.accountBillingClient.purchaseSubscription(paymentMethod, billingAddress);
 
     await this.refreshAndSync();
   }

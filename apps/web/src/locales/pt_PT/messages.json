@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Não existem membros para listar."
   },
+  "noMembersToExport": {
+    "message": "Não existem membros para exportar."
+  },
   "noEventsInList": {
     "message": "Não existem eventos para listar."
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "Ativado"
   },
+  "optionEnabled": {
+    "message": "Ativado"
+  },
   "restoreAccess": {
     "message": "Restaurar o acesso"
   },
@@ -2633,6 +2639,9 @@
   },
   "key": {
     "message": "Chave"
+  },
+  "unnamedKey": {
+    "message": "Chave sem nome"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Código de verificação"
@@ -3142,6 +3151,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre."
+  },
+  "itemRestored": {
+    "message": "O item foi restaurado"
   },
   "restartPremium": {
     "message": "Reiniciar Premium"
@@ -5604,6 +5616,37 @@
     "message": "Send criado",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send criado com sucesso!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Copie e partilhe este link do Send. Pode ser visualizado pelas pessoas que especificou durante os próximos $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ horas",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Novo Send de texto",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Novo Send de ficheiro",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send editado",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5642,6 +5685,9 @@
   },
   "revoked": {
     "message": "Revogado"
+  },
+  "accepted": {
+    "message": "Aceite"
   },
   "sendLink": {
     "message": "Link do Send",
@@ -6300,6 +6346,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Inscrito na recuperação de conta"
+  },
+  "enrolled": {
+    "message": "Inscrito"
+  },
+  "notEnrolled": {
+    "message": "Não inscrito"
   },
   "withdrawAccountRecovery": {
     "message": "Retirar-se da recuperação de conta"
@@ -8833,7 +8885,7 @@
     "message": "Ajuda na licença de funcionalidades pagas"
   },
   "selfHostGracePeriodHelp": {
-    "message": "Após a expiração da sua subscrição, tem 60 dias para aplicar um ficheiro de licença atualizado à sua organização. O período de carência termina a $GRACE_PERIOD_END_DATE$.",
+    "message": "Após a expiração da sua subscrição, dispõe de 60 dias para aplicar um ficheiro de licença atualizado à sua organização. O período de tolerância termina a $GRACE_PERIOD_END_DATE$.",
     "placeholders": {
       "GRACE_PERIOD_END_DATE": {
         "content": "$1",
@@ -10034,7 +10086,7 @@
     "description": "The date header used when a subscription is past due."
   },
   "pastDueWarningForChargeAutomatically": {
-    "message": "Dispõe de um período de carência de $DAYS$ dias a partir da data de expiração da sua subscrição para manter a sua subscrição. Por favor, resolva as faturas vencidas até $SUSPENSION_DATE$.",
+    "message": "Dispõe de um período de tolerância de $DAYS$ dias a partir da data de expiração da sua subscrição para manter a subscrição ativa. Por favor, resolva as faturas em atraso até $SUSPENSION_DATE$.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -10048,7 +10100,7 @@
     "description": "A warning shown to the user when their subscription is past due and they are charged automatically."
   },
   "pastDueWarningForSendInvoice": {
-    "message": "Dispõe de um período de carência de $DAYS$ dias a partir da data de vencimento da sua primeira fatura não paga para manter a sua subscrição. Por favor, resolva as faturas vencidas até $SUSPENSION_DATE$.",
+    "message": "Dispõe de um período de tolerância de $DAYS$ dias a partir da data de vencimento da sua primeira fatura em atraso para manter a subscrição ativa. Por favor, resolva as faturas em atraso até $SUSPENSION_DATE$.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -11462,7 +11514,7 @@
     }
   },
   "resellerPastDueWarningMsg": {
-    "message": "A fatura da sua subscrição não foi paga. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $GRACE_PERIOD_END$.",
+    "message": "A fatura da sua subscrição não foi paga. Para garantir a continuidade do serviço, contacte a $RESELLER$ para confirmar a sua renovação antes de $GRACE_PERIOD_END$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -11606,6 +11658,9 @@
   "unArchive": {
     "message": "Desarquivar"
   },
+  "archived": {
+    "message": "Arquivado"
+  },
   "unArchiveAndSave": {
     "message": "Desarquivar e guardar"
   },
@@ -11623,6 +11678,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Os itens foram movidos para o arquivo"
+  },
+  "itemWasUnarchived": {
+    "message": "O item foi desarquivado"
   },
   "itemUnarchived": {
     "message": "O item foi desarquivado"
@@ -12298,6 +12356,9 @@
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
   },
+  "resizeSideNavigation": {
+    "message": "Redimensionar navegação lateral"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Eliminar itens irrecuperáveis do cofre"
   },
@@ -12479,5 +12540,79 @@
   },
   "planDescPremium": {
     "message": "Segurança total online"
+  },
+  "updatePayment": {
+    "message": "Atualizar pagamento"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Não foi possível processar o seu pagamento. Por favor, atualize o seu método de pagamento ou contacte a equipa de suporte para obter assistência."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "A sua subscrição expirou. Por favor, contacte a equipa de suporte para obter assistência."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "A sua subscrição está agendada para ser cancelada em $DATE$. Pode reativá-la a qualquer momento até essa data.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Partilhe ainda mais com o plano Familiar ou obtenha uma segurança de palavras-passe poderosa e fiável com os planos Equipas ou Empresarial."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Dispõe de um período de tolerância de $DAYS$ dias a partir da data de expiração da sua subscrição. Por favor, resolva as faturas em atraso até $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Gerir faturas"
+  },
+  "yourNextChargeIsFor": {
+    "message": "O seu próximo pagamento é de"
+  },
+  "dueOn": {
+    "message": "com vencimento a"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "A sua subscrição será suspensa a"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "A sua subscrição foi suspensa a"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "A sua subscrição será cancelada a"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "A sua subscrição foi cancelada a"
+  },
+  "storageFull": {
+    "message": "Armazenamento cheio"
+  },
+  "storageUsedDescription": {
+    "message": "Utilizou $USED$ de $AVAILABLE$ GB do seu armazenamento de ficheiros encriptados.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Utilizou os $GB$ GB do seu armazenamento encriptado. Para continuar a guardar ficheiros, adicione mais espaço de armazenamento."
   }
 }
