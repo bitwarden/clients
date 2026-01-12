@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Element arxivə göndərildi"
   },
+  "itemWasUnarchived": {
+    "message": "Element arxivdən çıxarıldı"
+  },
   "itemUnarchived": {
     "message": "Element arxivdən çıxarıldı"
   },
@@ -586,7 +589,7 @@
     "message": "Arxivi istifadə etmək üçün premium üzvlük tələb olunur."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Element bərpa edildi"
   },
   "edit": {
     "message": "Düzəliş et"
@@ -4811,6 +4814,39 @@
   "adminConsole": {
     "message": "Admin Konsolu"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Avtomatik istifadəçi təsdiqi"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Bu cihazın kilidi açıq olduqda gözləyən istifadəçiləri avtomatik təsdiqlə"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Avtomatik istifadəçi təsdiqi ilə vaxta qənaət edin"
+  },
+  "autoConfirmWarning": {
+    "message": "Bu, təşkilatınızın veri təhlükəsizliyinə təsir edə bilər. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Risklər barədə öyrən"
+  },
+  "autoConfirmSetup": {
+    "message": "Yeni istifadəçiləri avtomatik təsdiqlə"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Bu cihazın kilidi açıq olduqda yeni istifadəçilər avtomatik təsdiqlənəcək."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Potensial təhlükəsizlik riskləri nələrdir?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Avtomatik təsdiq işə salındı"
+  },
+  "availableNow": {
+    "message": "İndi mmövcuddur"
+  },
   "accountSecurity": {
     "message": "Hesab güvənliyi"
   },
@@ -5668,10 +5704,10 @@
     "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Zəifliyi olan parol."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "İndi dəyişdir"
   },
   "missingWebsite": {
     "message": "Əskik veb sayt"
