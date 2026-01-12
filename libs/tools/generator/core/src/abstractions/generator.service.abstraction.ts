@@ -9,6 +9,7 @@ import { PolicyEvaluator } from "./policy-evaluator.abstraction";
 /** Generates credentials used for user authentication
  *  @typeParam Options the credential generation configuration
  *  @typeParam Policy the policy enforced by the generator
+ * @deprecated Use {@link CredentialGeneratorService} instead.
  */
 export abstract class GeneratorService<Options, Policy> {
   /** An observable monitoring the options saved to disk.

@@ -1,4 +1,4 @@
-<cdk-virtual-scroll-viewport [itemSize]="RowHeight" scrollWindow class="tw-pb-8">
+<cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout class="tw-pb-8">
   <bit-table [dataSource]="dataSource" layout="fixed">
     <ng-container header>
       <tr>
@@ -12,7 +12,7 @@
             (change)="$event ? toggleAll() : null"
             [checked]="selection.hasValue() && isAllSelected"
           />
-          <label class="tw-mb-0 !tw-font-bold !tw-text-muted" for="checkAll">{{
+          <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="checkAll">{{
             "all" | i18n
           }}</label>
         </th>
@@ -22,16 +22,12 @@
           bitCell
           bitSortable="name"
           [fn]="sortByName"
-          [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'"
+          [class]="showExtraColumn ? 'tw-w-3/5' : 'tw-w-full'"
         >
           {{ "name" | i18n }}
         </th>
         <!-- Individual vault -->
-        <th
-          *ngIf="!showAdminActions"
-          bitCell
-          [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'"
-        >
+        <th *ngIf="!showAdminActions" bitCell [class]="showExtraColumn ? 'tw-w-3/5' : 'tw-w-full'">
           {{ "name" | i18n }}
         </th>
         <th bitCell *ngIf="showOwner" class="tw-hidden tw-w-2/5 lg:tw-table-cell">
@@ -52,14 +48,15 @@
           {{ "permission" | i18n }}
         </th>
         <th bitCell class="tw-w-12 tw-text-right">
+          @let menuDisabled = disableMenu$ | async;
           <button
-            [disabled]="disabled || isEmpty || disableMenu"
+            [disabled]="disabled || isEmpty || menuDisabled"
             [bitMenuTriggerFor]="headerMenu"
-            [attr.title]="disableMenu ? ('missingPermissions' | i18n) : ''"
+            [attr.title]="menuDisabled ? ('missingPermissions' | i18n) : ''"
             bitIconButton="bwi-ellipsis-v"
             size="small"
             type="button"
-            appA11yTitle="{{ 'options' | i18n }}"
+            label="{{ 'options' | i18n }}"
           ></button>
           <bit-menu #headerMenu>
             <button *ngIf="bulkMoveAllowed" type="button" bitMenuItem (click)="bulkMoveToFolder()">
@@ -83,14 +80,40 @@
               bitMenuItem
               (click)="assignToCollections()"
             >
-              <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
+              <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
               {{ "assignToCollections" | i18n }}
             </button>
-            <button *ngIf="showBulkTrashOptions" type="button" bitMenuItem (click)="bulkRestore()">
+
+            <button *ngIf="bulkArchiveAllowed" type="button" bitMenuItem (click)="bulkArchive()">
+              <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
+              {{ "archiveVerb" | i18n }}
+            </button>
+
+            <button
+              *ngIf="bulkUnarchiveAllowed"
+              type="button"
+              bitMenuItem
+              (click)="bulkUnarchive()"
+            >
+              <i class="bwi bwi-fw bwi-unarchive" aria-hidden="true"></i>
+              {{ "unArchive" | i18n }}
+            </button>
+
+            <button
+              *ngIf="canRestoreSelected$ | async"
+              type="button"
+              bitMenuItem
+              (click)="bulkRestore()"
+            >
               <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
               {{ "restoreSelected" | i18n }}
             </button>
-            <button *ngIf="showDelete" type="button" bitMenuItem (click)="bulkDelete()">
+            <button
+              *ngIf="canDeleteSelected$ | async"
+              type="button"
+              bitMenuItem
+              (click)="bulkDelete()"
+            >
               <span class="tw-text-danger">
                 <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
                 {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
@@ -139,14 +162,24 @@
           [showPremiumFeatures]="showPremiumFeatures"
           [useEvents]="useEvents"
           [viewingOrgVault]="viewingOrgVault"
-          [cloneable]="canClone(item)"
+          [cloneable]="canClone$(item) | async"
           [organizations]="allOrganizations"
           [collections]="allCollections"
           [checked]="selection.isSelected(item)"
           [canEditCipher]="canEditCipher(item.cipher)"
+          [canAssignCollections]="canAssignCollections(item.cipher)"
           [canManageCollection]="canManageCollection(item.cipher)"
+          [canDeleteCipher]="
+            cipherAuthorizationService.canDeleteCipher$(item.cipher, showAdminActions) | async
+          "
+          [canRestoreCipher]="
+            cipherAuthorizationService.canRestoreCipher$(item.cipher, showAdminActions) | async
+          "
           (checkedToggled)="selection.toggle(item)"
           (onEvent)="event($event)"
+          [userCanArchive]="userCanArchive"
+          [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy"
+          [archiveEnabled]="archiveFeatureEnabled$ | async"
         ></tr>
       </ng-container>
     </ng-template>

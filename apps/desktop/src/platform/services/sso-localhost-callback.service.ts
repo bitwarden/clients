@@ -5,26 +5,56 @@ import * as http from "http";
 import { ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
+import { SsoUrlService } from "@bitwarden/auth/common";
+import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 
 /**
  * The SSO Localhost login service uses a local host listener as fallback in case scheme handling deeplinks does not work.
- * This way it is possible to log in with SSO on appimage, snap, and electron dev using the same methods that the cli uses.
+ * This way it is possible to log in with SSO on appimage and electron dev using the same methods that the cli uses.
  */
 export class SSOLocalhostCallbackService {
   private ssoRedirectUri = "";
+  // We will only track one server at a time for use-case and performance considerations.
+  // This will result in a last-one-wins behavior if multiple SSO flows are started simultaneously.
+  private currentServer: http.Server | null = null;
 
   constructor(
     private environmentService: EnvironmentService,
     private messagingService: MessageSender,
+    private ssoUrlService: SsoUrlService,
   ) {
-    ipcMain.handle("openSsoPrompt", async (event, { codeChallenge, state }) => {
-      const { ssoCode, recvState } = await this.openSsoPrompt(codeChallenge, state);
-      this.messagingService.send("ssoCallback", {
-        code: ssoCode,
-        state: recvState,
-        redirectUri: this.ssoRedirectUri,
+    ipcMain.handle(
+      "openSsoPrompt",
+      async (event, { codeChallenge, state, email, orgSsoIdentifier }) => {
+        // Close any existing server before starting new one
+        if (this.currentServer) {
+          await this.closeCurrentServer();
+        }
+
+        return this.openSsoPrompt(codeChallenge, state, email, orgSsoIdentifier).then(
+          ({ ssoCode, recvState }) => {
+            this.messagingService.send("ssoCallback", {
+              code: ssoCode,
+              state: recvState,
+              redirectUri: this.ssoRedirectUri,
+            });
+          },
+        );
+      },
+    );
+  }
+
+  private async closeCurrentServer(): Promise<void> {
+    if (!this.currentServer) {
+      return;
+    }
+
+    return new Promise<void>((resolve) => {
+      this.currentServer!.close(() => {
+        this.currentServer = null;
+        resolve();
       });
     });
   }
@@ -32,6 +62,8 @@ export class SSOLocalhostCallbackService {
   private async openSsoPrompt(
     codeChallenge: string,
     state: string,
+    email: string,
+    orgSsoIdentifier?: string,
   ): Promise<{ ssoCode: string; recvState: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
@@ -55,6 +87,7 @@ export class SSOLocalhostCallbackService {
               "<p>You may now close this tab and return to the app.</p>" +
               "</body></html>",
           );
+          this.currentServer = null;
           callbackServer.close(() =>
             resolve({
               ssoCode: code,
@@ -69,56 +102,74 @@ export class SSOLocalhostCallbackService {
               "<p>You may now close this tab and return to the app.</p>" +
               "</body></html>",
           );
+          this.currentServer = null;
           callbackServer.close(() => reject());
         }
       });
 
-      let foundPort = false;
-      const webUrl = env.getWebVaultUrl();
-      for (let port = 8065; port <= 8070; port++) {
-        try {
-          this.ssoRedirectUri = "http://localhost:" + port;
-          callbackServer.listen(port, () => {
-            this.messagingService.send("launchUri", {
-              url:
-                webUrl +
-                "/#/sso?clientId=" +
-                "desktop" +
-                "&redirectUri=" +
-                encodeURIComponent(this.ssoRedirectUri) +
-                "&state=" +
-                state +
-                "&codeChallenge=" +
-                codeChallenge,
-            });
-          });
-          foundPort = true;
-          break;
-        } catch {
-          // Ignore error since we run the same command up to 5 times.
-        }
-      }
-      if (!foundPort) {
-        reject();
-      }
+      // Store reference to current server
+      this.currentServer = callbackServer;
 
-      // after 5 minutes, close the server
+      const webUrl = env.getWebVaultUrl();
+
+      const tryNextPort = (port: number) => {
+        if (port > 8070) {
+          this.currentServer = null;
+          reject("All available SSO ports in use");
+          return;
+        }
+
+        this.ssoRedirectUri = "http://localhost:" + port;
+        const ssoUrl = this.ssoUrlService.buildSsoUrl(
+          webUrl,
+          ClientType.Desktop,
+          this.ssoRedirectUri,
+          state,
+          codeChallenge,
+          email,
+          orgSsoIdentifier,
+        );
+
+        // Set up error handler before attempting to listen
+        callbackServer.once("error", (err: any) => {
+          if (err.code === "EADDRINUSE") {
+            // Port is in use, try next port
+            tryNextPort(port + 1);
+          } else {
+            // Another error - reject and set the current server to null
+            // (one server alive at a time)
+            this.currentServer = null;
+            reject();
+          }
+        });
+
+        // Attempt to listen on the port
+        callbackServer.listen(port, () => {
+          // Success - remove error listener and launch SSO
+          callbackServer.removeAllListeners("error");
+
+          this.messagingService.send("launchUri", {
+            url: ssoUrl,
+          });
+        });
+      };
+
+      // Start trying from port 8065
+      tryNextPort(8065);
+
+      // Don't allow any server to stay up for more than 5 minutes;
+      // this gives plenty of time to complete SSO but ensures we don't
+      // have a server running indefinitely.
       setTimeout(
         () => {
+          if (this.currentServer === callbackServer) {
+            this.currentServer = null;
+          }
           callbackServer.close(() => reject());
         },
         5 * 60 * 1000,
       );
     });
-  }
-
-  private getOrgIdentifierFromState(state: string): string {
-    if (state === null || state === undefined) {
-      return null;
-    }
-
-    const stateSplit = state.split("_identifier=");
-    return stateSplit.length > 1 ? stateSplit[1] : null;
   }
 
   private checkState(state: string, checkState: string): boolean {

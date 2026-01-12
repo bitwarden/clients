@@ -47,7 +47,7 @@ describe("DefaultGeneratorNavigationService", () => {
   describe("evaluator$", () => {
     it("emits a GeneratorNavigationEvaluator", async () => {
       const policyService = mock<PolicyService>({
-        getAll$() {
+        policiesByType$() {
           return of([]);
         },
       });
@@ -62,7 +62,7 @@ describe("DefaultGeneratorNavigationService", () => {
   describe("enforcePolicy", () => {
     it("applies policy", async () => {
       const policyService = mock<PolicyService>({
-        getAll$(_type: PolicyType, _user: UserId) {
+        policiesByType$(_type: PolicyType, _user: UserId) {
           return of([
             new Policy({
               id: "" as any,
@@ -70,6 +70,7 @@ describe("DefaultGeneratorNavigationService", () => {
               enabled: true,
               type: PolicyType.PasswordGenerator,
               data: { overridePasswordType: "password" },
+              revisionDate: new Date().toISOString(),
             }),
           ]);
         },

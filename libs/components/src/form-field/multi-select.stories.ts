@@ -6,8 +6,8 @@ import {
   FormGroup,
 } from "@angular/forms";
 import { NgSelectModule } from "@ng-select/ng-select";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -56,7 +56,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=5600%3A24278",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=13213-55392&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
@@ -215,41 +215,76 @@ export const Collections: Story = {
     name: "Select collections",
     hint: "Collections will be assigned to the associated member",
     baseItems: [
-      { id: "1", listName: "Collection 1", labelName: "Collection 1", icon: "bwi-collection" },
-      { id: "2", listName: "Collection 2", labelName: "Collection 2", icon: "bwi-collection" },
-      { id: "3", listName: "Collection 3", labelName: "Collection 3", icon: "bwi-collection" },
+      {
+        id: "1",
+        listName: "Collection 1",
+        labelName: "Collection 1",
+        icon: "bwi-collection-shared",
+      },
+      {
+        id: "2",
+        listName: "Collection 2",
+        labelName: "Collection 2",
+        icon: "bwi-collection-shared",
+      },
+      {
+        id: "3",
+        listName: "Collection 3",
+        labelName: "Collection 3",
+        icon: "bwi-collection-shared",
+      },
       {
         id: "3.5",
         listName: "Child Collection 1 for Parent 1",
         labelName: "Child Collection 1 for Parent 1",
-        icon: "bwi-collection",
+        icon: "bwi-collection-shared",
         parentGrouping: "Parent 1",
       },
       {
         id: "3.55",
         listName: "Child Collection 2 for Parent 1",
         labelName: "Child Collection 2 for Parent 1",
-        icon: "bwi-collection",
+        icon: "bwi-collection-shared",
         parentGrouping: "Parent 1",
       },
       {
         id: "3.59",
         listName: "Child Collection 3 for Parent 1",
         labelName: "Child Collection 3 for Parent 1",
-        icon: "bwi-collection",
+        icon: "bwi-collection-shared",
         parentGrouping: "Parent 1",
       },
       {
         id: "3.75",
         listName: "Child Collection 1 for Parent 2",
         labelName: "Child Collection 1 for Parent 2",
-        icon: "bwi-collection",
+        icon: "bwi-collection-shared",
         parentGrouping: "Parent 2",
       },
-      { id: "4", listName: "Collection 4", labelName: "Collection 4", icon: "bwi-collection" },
-      { id: "5", listName: "Collection 5", labelName: "Collection 5", icon: "bwi-collection" },
-      { id: "6", listName: "Collection 6", labelName: "Collection 6", icon: "bwi-collection" },
-      { id: "7", listName: "Collection 7", labelName: "Collection 7", icon: "bwi-collection" },
+      {
+        id: "4",
+        listName: "Collection 4",
+        labelName: "Collection 4",
+        icon: "bwi-collection-shared",
+      },
+      {
+        id: "5",
+        listName: "Collection 5",
+        labelName: "Collection 5",
+        icon: "bwi-collection-shared",
+      },
+      {
+        id: "6",
+        listName: "Collection 6",
+        labelName: "Collection 6",
+        icon: "bwi-collection-shared",
+      },
+      {
+        id: "7",
+        listName: "Collection 7",
+        labelName: "Collection 7",
+        icon: "bwi-collection-shared",
+      },
     ],
   },
 };

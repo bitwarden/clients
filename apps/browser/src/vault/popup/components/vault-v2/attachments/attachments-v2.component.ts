@@ -17,8 +17,9 @@ import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "app-attachments-v2",
   templateUrl: "./attachments-v2.component.html",
   imports: [
@@ -50,6 +51,6 @@ export class AttachmentsV2Component {
 
   /** Navigate the user back to the edit screen after uploading an attachment */
   async navigateBack() {
-    await this.popupRouterCacheService.back();
+    await this.popupRouterCacheService.back(true);
   }
 }

@@ -1,9 +1,12 @@
 import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { CardComponent } from "../card";
 import { IconButtonModule } from "../icon-button";
 import { ItemModule } from "../item";
 import { TypographyModule } from "../typography";
+import { I18nMockService } from "../utils";
 
 import { SectionComponent, SectionHeaderComponent } from "./";
 
@@ -19,9 +22,21 @@ export default {
         IconButtonModule,
         ItemModule,
       ],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: new I18nMockService({ loading: "Loading" }),
+        },
+      ],
     }),
     componentWrapperDecorator((story) => `<div class="tw-text-main">${story}</div>`),
   ],
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21666-19363&t=k6OTDDPZOTtypRqo-11",
+    },
+  },
 } as Meta;
 
 type Story = StoryObj<SectionComponent>;
@@ -63,7 +78,7 @@ export const HeaderVariants: Story = {
         <h2 bitTypography="h6">
           Title with icon button suffix
         </h2>
-        <button bitIconButton="bwi-refresh" size="small"></button>
+        <button type="button" label="Refresh" bitIconButton="bwi-refresh" size="small"></button>
       </bit-section-header>
     `,
   }),
@@ -82,7 +97,7 @@ export const HeaderEndSlotVariants: Story = {
         <h2 bitTypography="h6">
           Title with end slot icon button
         </h2>
-        <button bitIconButton="bwi-star" size="small" slot="end"></button>
+        <button type="button" label="Favorite" bitIconButton="bwi-star" size="small" slot="end"></button>
       </bit-section-header>
     `,
   }),
@@ -97,7 +112,7 @@ export const HeaderWithPadding: Story = {
             <h2 bitTypography="h6">
               Card as immediate sibling
             </h2>
-            <button bitIconButton="bwi-star" size="small" slot="end"></button>
+            <button type="button" label="Favorite" bitIconButton="bwi-star" size="small" slot="end"></button>
           </bit-section-header>
           <bit-card>
             <h3 bitTypography="h3">bit-section-header has padding</h3>
@@ -108,7 +123,7 @@ export const HeaderWithPadding: Story = {
             <h2 bitTypography="h6">
               Card nested in immediate sibling
             </h2>
-            <button bitIconButton="bwi-star" size="small" slot="end"></button>
+            <button type="button" label="Favorite" bitIconButton="bwi-star" size="small" slot="end"></button>
           </bit-section-header>
           <div>
             <bit-card>
@@ -121,7 +136,7 @@ export const HeaderWithPadding: Story = {
             <h2 bitTypography="h6">
               Item as immediate sibling
             </h2>
-            <button bitIconButton="bwi-star" size="small" slot="end"></button>
+            <button type="button" label="Favorite" bitIconButton="bwi-star" size="small" slot="end"></button>
           </bit-section-header>
           <bit-item>
             <bit-item-content bitTypography="body1">bit-section-header has padding</bit-item-content>
@@ -132,7 +147,7 @@ export const HeaderWithPadding: Story = {
             <h2 bitTypography="h6">
               Item nested in immediate sibling
             </h2>
-            <button bitIconButton="bwi-star" size="small" slot="end"></button>
+            <button type="button" label="Favorite" bitIconButton="bwi-star" size="small" slot="end"></button>
           </bit-section-header>
           <bit-item-group>
             <bit-item>
@@ -154,7 +169,7 @@ export const HeaderWithoutPadding: Story = {
             <h2 bitTypography="h6">
               No card or item used
             </h2>
-            <button bitIconButton="bwi-star" size="small" slot="end"></button>
+            <button bitIconButton="bwi-star" size="small" slot="end" label="Favorite"></button>
           </bit-section-header>
           <div>
             <h3 bitTypography="h3">just a div, so bit-section-header has no padding</h3>
@@ -165,7 +180,7 @@ export const HeaderWithoutPadding: Story = {
             <h2 bitTypography="h6">
               Card nested in non-immediate sibling
             </h2>
-            <button bitIconButton="bwi-star" size="small" slot="end"></button>
+            <button bitIconButton="bwi-star" size="small" slot="end" label="Favorite"></button>
           </bit-section-header>
           <div class="tw-text-main">
             a div here

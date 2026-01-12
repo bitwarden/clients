@@ -1,16 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, OnInit, Inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DialogService } from "@bitwarden/components";
+import { DialogConfig, DialogRef, DIALOG_DATA, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+import { SharedModule } from "../../../../shared";
+
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EmergencyAccessConfirmDialogResult {
   Confirmed = "confirmed",
 }
@@ -21,10 +22,14 @@ type EmergencyAccessConfirmDialogData = {
   userId: string;
   /** traces a unique emergency request  */
   emergencyAccessId: string;
+  /** user public key */
+  publicKey: Uint8Array;
 };
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "emergency-access-confirm",
   templateUrl: "emergency-access-confirm.component.html",
+  imports: [SharedModule],
 })
 export class EmergencyAccessConfirmComponent implements OnInit {
   loading = true;
@@ -36,7 +41,6 @@ export class EmergencyAccessConfirmComponent implements OnInit {
   constructor(
     @Inject(DIALOG_DATA) protected params: EmergencyAccessConfirmDialogData,
     private formBuilder: FormBuilder,
-    private apiService: ApiService,
     private keyService: KeyService,
     protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,
     private logService: LogService,
@@ -45,13 +49,12 @@ export class EmergencyAccessConfirmComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      const publicKeyResponse = await this.apiService.getUserPublicKey(this.params.userId);
-      if (publicKeyResponse != null) {
-        const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-        const fingerprint = await this.keyService.getFingerprint(this.params.userId, publicKey);
-        if (fingerprint != null) {
-          this.fingerprint = fingerprint.join("-");
-        }
+      const fingerprint = await this.keyService.getFingerprint(
+        this.params.userId,
+        this.params.publicKey,
+      );
+      if (fingerprint != null) {
+        this.fingerprint = fingerprint.join("-");
       }
     } catch (e) {
       this.logService.error(e);

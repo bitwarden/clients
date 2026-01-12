@@ -20,8 +20,10 @@ describe("CardDetailsSectionComponent", () => {
   let registerChildFormSpy: jest.SpyInstance;
   let patchCipherSpy: jest.SpyInstance;
 
+  const getInitialCipherView = jest.fn((): any => null);
+
   beforeEach(async () => {
-    cipherFormProvider = mock<CipherFormContainer>();
+    cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView });
     registerChildFormSpy = jest.spyOn(cipherFormProvider, "registerChildForm");
     patchCipherSpy = jest.spyOn(cipherFormProvider, "patchCipher");
 
@@ -63,6 +65,9 @@ describe("CardDetailsSectionComponent", () => {
     cardView.cardholderName = "Ron Burgundy";
     cardView.number = "4242 4242 4242 4242";
     cardView.brand = "Visa";
+    cardView.expMonth = "";
+    cardView.code = "";
+    cardView.expYear = "";
 
     expect(patchCipherSpy).toHaveBeenCalled();
     const patchFn = patchCipherSpy.mock.lastCall[0];
@@ -77,6 +82,11 @@ describe("CardDetailsSectionComponent", () => {
     });
 
     const cardView = new CardView();
+    cardView.cardholderName = "";
+    cardView.number = "";
+    cardView.expMonth = "";
+    cardView.code = "";
+    cardView.brand = "";
     cardView.expYear = "2022";
 
     expect(patchCipherSpy).toHaveBeenCalled();
@@ -94,7 +104,7 @@ describe("CardDetailsSectionComponent", () => {
     expect(component.cardDetailsForm.disabled).toBe(true);
   });
 
-  it("initializes `cardDetailsForm` with current values", () => {
+  it("initializes `cardDetailsForm` from `getInitialCipherValue`", () => {
     const cardholderName = "Ron Burgundy";
     const number = "4242 4242 4242 4242";
     const code = "619";
@@ -105,9 +115,7 @@ describe("CardDetailsSectionComponent", () => {
     cardView.code = code;
     cardView.brand = "Visa";
 
-    component.originalCipherView = {
-      card: cardView,
-    } as CipherView;
+    getInitialCipherView.mockReturnValueOnce({ card: cardView });
 
     component.ngOnInit();
 
@@ -116,8 +124,6 @@ describe("CardDetailsSectionComponent", () => {
       number,
       code,
       brand: cardView.brand,
-      expMonth: null,
-      expYear: null,
     });
   });
 

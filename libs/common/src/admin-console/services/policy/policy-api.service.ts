@@ -1,6 +1,8 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { ApiService } from "../../../abstractions/api.service";
+import { AccountService } from "../../../auth/abstractions/account.service";
+import { getUserId } from "../../../auth/services/account.service";
 import { HttpStatusCode } from "../../../enums";
 import { ErrorResponse } from "../../../models/response/error.response";
 import { ListResponse } from "../../../models/response/list.response";
@@ -18,6 +20,7 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
   constructor(
     private policyService: InternalPolicyService,
     private apiService: ApiService,
+    private accountService: AccountService,
   ) {}
 
   async getPolicy(organizationId: string, type: PolicyType): Promise<PolicyResponse> {
@@ -93,8 +96,14 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
         return null;
       }
 
-      return await firstValueFrom(
-        this.policyService.masterPasswordPolicyOptions$([masterPasswordPolicy]),
+      return firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.policyService.masterPasswordPolicyOptions$(userId, [masterPasswordPolicy]),
+          ),
+          map((policy) => policy ?? null),
+        ),
       );
     } catch (error) {
       // If policy not found, return null
@@ -107,15 +116,32 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
   }
 
   async putPolicy(organizationId: string, type: PolicyType, request: PolicyRequest): Promise<any> {
-    const r = await this.apiService.send(
+    const response = await this.apiService.send(
       "PUT",
       "/organizations/" + organizationId + "/policies/" + type,
       request,
       true,
       true,
     );
-    const response = new PolicyResponse(r);
-    const data = new PolicyData(response);
-    await this.policyService.upsert(data);
+    await this.handleResponse(response);
+  }
+
+  async putPolicyVNext(organizationId: string, type: PolicyType, request: any): Promise<any> {
+    const response = await this.apiService.send(
+      "PUT",
+      `/organizations/${organizationId}/policies/${type}/vnext`,
+      request,
+      true,
+      true,
+    );
+
+    await this.handleResponse(response);
+  }
+
+  private async handleResponse(response: any): Promise<void> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const policyResponse = new PolicyResponse(response);
+    const data = new PolicyData(policyResponse);
+    await this.policyService.upsert(data, userId);
   }
 }

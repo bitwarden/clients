@@ -16,21 +16,28 @@ import { PopupRouterCacheService } from "../view-cache/popup-router-cache.servic
 
 import { PopupPageComponent } from "./popup-page.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "popup-header",
   templateUrl: "popup-header.component.html",
-  standalone: true,
   imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule, AsyncActionsModule],
 })
 export class PopupHeaderComponent {
   private popupRouterCacheService = inject(PopupRouterCacheService);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   protected pageContentScrolled: Signal<boolean> = inject(PopupPageComponent).isScrolled;
 
   /** Background color */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   background: "default" | "alt" = "default";
 
   /** Display the back button, which uses Location.back() to go back one page in history */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get showBackButton() {
     return this._showBackButton;
@@ -42,6 +49,8 @@ export class PopupHeaderComponent {
   private _showBackButton = false;
 
   /** Title string that will be inserted as an h1 */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) pageTitle: string;
 
   /**
@@ -49,6 +58,8 @@ export class PopupHeaderComponent {
    *
    * If unset, will call `location.back()`
    **/
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   backAction: FunctionReturningAwaitable = async () => {
     return this.popupRouterCacheService.back();

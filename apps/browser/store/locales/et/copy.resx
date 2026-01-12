@@ -144,7 +144,7 @@ Kasuta Bitwardenit oma töötajate turvamiseks ja tundliku informatsiooni jagami
 Veel Põhjusi Miks Valida Bitwarden:
 
 Maailmatasemel Krüpteering
-Paroolid on kaitstud tipptehnoloogilise täieliku krüpteerimisega (AES-256 bit, salted hashtag ja PBKDF2 SHA-256), nii et sinu andmed püsivad privaatsete ja turvalistena.
+Paroolid on kaitstud tipptehnoloogilise täieliku krüpteerimisega (AES-256 bit, salted hashing ja PBKDF2 SHA-256), nii et sinu andmed püsivad privaatsete ja turvalistena.
 
 Põhjalikud turvatestid kolmandate firmade poolt
 Bitwarden korraldab regulaarselt põhjalike turvateste tuntud kolmandate firmade poolt. Need igaaastased kontrolltestid sisaldavad kogu koodibaasi ülevaatust ja test-küberrünnakuid Bitwardeni IP-de, serverite ja veebirakenduste vastu.

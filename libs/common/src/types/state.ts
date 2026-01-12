@@ -1,5 +1,2 @@
-import { Opaque } from "type-fest";
-
-export type StorageKey = Opaque<string, "StorageKey">;
-
-export type DerivedStateDependencies = Record<string, unknown>;
+// Compatibility re-export for @bitwarden/common/types/state
+export { StorageKey, DerivedStateDependencies } from "@bitwarden/state";

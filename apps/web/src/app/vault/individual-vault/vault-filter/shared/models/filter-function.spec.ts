@@ -221,7 +221,7 @@ function createCipher(options: Partial<CipherView> = {}) {
 
   cipher.favorite = options.favorite ?? false;
   cipher.deletedDate = options.deletedDate;
-  cipher.type = options.type;
+  cipher.type = options.type ?? CipherType.Login;
   cipher.folderId = options.folderId;
   cipher.collectionIds = options.collectionIds;
   cipher.organizationId = options.organizationId;

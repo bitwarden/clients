@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { Classifier } from "@bitwarden/common/tools/state/classifier";
+import { Classifier } from "./state/classifier";
 
 export class PublicClassifier<Data> implements Classifier<Data, Data, Record<string, never>> {
   constructor(private keys: (keyof Jsonify<Data>)[]) {}

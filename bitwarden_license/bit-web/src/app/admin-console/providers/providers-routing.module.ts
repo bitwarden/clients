@@ -2,24 +2,17 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
-import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
-import { AnonLayoutWrapperComponent } from "@bitwarden/auth/angular";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AnonLayoutWrapperComponent } from "@bitwarden/components";
 import { FrontendLayoutComponent } from "@bitwarden/web-vault/app/layouts/frontend-layout.component";
 import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layout.component";
 
-import {
-  ManageClientsComponent,
-  ProviderSubscriptionComponent,
-  hasConsolidatedBilling,
-  ProviderBillingHistoryComponent,
-  vNextManageClientsComponent,
-} from "../../billing/providers";
+import { ProviderBillingHistoryComponent } from "../../billing/providers/billing-history/provider-billing-history.component";
+import { ProviderPaymentDetailsComponent } from "../../billing/providers/payment-details/provider-payment-details.component";
+import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
+import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
 
-import { ClientsComponent } from "./clients/clients.component";
-import { CreateOrganizationComponent } from "./clients/create-organization.component";
-import { vNextClientsComponent } from "./clients/vnext-clients.component";
+import { ManageClientsComponent } from "./clients/manage-clients.component";
 import { providerPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { EventsComponent } from "./manage/events.component";
@@ -51,6 +44,11 @@ const routes: Routes = [
       {
         path: "setup-provider",
         component: SetupProviderComponent,
+        data: { titleId: "setupProvider" },
+      },
+      {
+        path: "setup-business-unit",
+        component: SetupBusinessUnitComponent,
         data: { titleId: "setupProvider" },
       },
     ],
@@ -85,26 +83,7 @@ const routes: Routes = [
         canActivate: [providerPermissionsGuard()],
         children: [
           { path: "", pathMatch: "full", redirectTo: "clients" },
-          { path: "clients/create", component: CreateOrganizationComponent },
-          ...featureFlaggedRoute({
-            defaultComponent: ClientsComponent,
-            flaggedComponent: vNextClientsComponent,
-            featureFlag: FeatureFlag.PM12443RemovePagingLogic,
-            routeOptions: {
-              path: "clients",
-              data: { titleId: "clients" },
-            },
-          }),
-          ...featureFlaggedRoute({
-            defaultComponent: ManageClientsComponent,
-            flaggedComponent: vNextManageClientsComponent,
-            featureFlag: FeatureFlag.PM12443RemovePagingLogic,
-            routeOptions: {
-              path: "manage-client-organizations",
-              data: { titleId: "clients" },
-              canActivate: [hasConsolidatedBilling],
-            },
-          }),
+          { path: "clients", component: ManageClientsComponent, data: { titleId: "clients" } },
           {
             path: "manage",
             children: [
@@ -137,7 +116,7 @@ const routes: Routes = [
           },
           {
             path: "billing",
-            canActivate: [hasConsolidatedBilling],
+            canActivate: [providerPermissionsGuard()],
             children: [
               {
                 path: "",
@@ -147,15 +126,20 @@ const routes: Routes = [
               {
                 path: "subscription",
                 component: ProviderSubscriptionComponent,
-                canActivate: [providerPermissionsGuard()],
                 data: {
                   titleId: "subscription",
                 },
               },
               {
+                path: "payment-details",
+                component: ProviderPaymentDetailsComponent,
+                data: {
+                  titleId: "paymentDetails",
+                },
+              },
+              {
                 path: "history",
                 component: ProviderBillingHistoryComponent,
-                canActivate: [providerPermissionsGuard()],
                 data: {
                   titleId: "billingHistory",
                 },

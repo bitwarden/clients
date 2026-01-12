@@ -1,27 +1,24 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   combineLatest,
+  distinctUntilChanged,
   firstValueFrom,
   map,
   mergeWith,
   NEVER,
   Observable,
   of,
-  shareReplay,
+  ReplaySubject,
+  share,
   Subject,
   switchMap,
   tap,
+  timer,
 } from "rxjs";
 import { SemVer } from "semver";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import {
-  DefaultFeatureFlagValue,
-  FeatureFlag,
-  FeatureFlagValueType,
-} from "../../../enums/feature-flag.enum";
+import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "../../abstractions/config/config.service";
@@ -54,11 +51,15 @@ export const GLOBAL_SERVER_CONFIGURATIONS = KeyDefinition.record<ServerConfig, A
   },
 );
 
+const environmentComparer = (previous: Environment, current: Environment) => {
+  return previous.getApiUrl() === current.getApiUrl();
+};
+
 // FIXME: currently we are limited to api requests for active users. Update to accept a UserId and APIUrl once ApiService supports it.
 export class DefaultConfigService implements ConfigService {
-  private failedFetchFallbackSubject = new Subject<ServerConfig>();
+  private failedFetchFallbackSubject = new Subject<ServerConfig | null>();
 
-  serverConfig$: Observable<ServerConfig>;
+  serverConfig$: Observable<ServerConfig | null>;
 
   serverSettings$: Observable<ServerSettings>;
 
@@ -71,32 +72,61 @@ export class DefaultConfigService implements ConfigService {
     private stateProvider: StateProvider,
     private authService: AuthService,
   ) {
-    const userId$ = this.stateProvider.activeUserId$;
-    const authStatus$ = userId$.pipe(
-      switchMap((userId) => (userId == null ? of(null) : this.authService.authStatusFor$(userId))),
+    const globalConfig$ = this.environmentService.globalEnvironment$.pipe(
+      distinctUntilChanged(environmentComparer),
+      switchMap((environment) =>
+        this.globalConfigFor$(environment.getApiUrl()).pipe(
+          map((config) => {
+            return [config, null as UserId | null, environment, config] as const;
+          }),
+        ),
+      ),
     );
 
-    this.serverConfig$ = combineLatest([
-      userId$,
-      this.environmentService.environment$,
-      authStatus$,
-    ]).pipe(
-      switchMap(([userId, environment, authStatus]) => {
-        if (userId == null || authStatus !== AuthenticationStatus.Unlocked) {
-          return this.globalConfigFor$(environment.getApiUrl()).pipe(
-            map((config) => [config, null, environment] as const),
-          );
+    this.serverConfig$ = this.stateProvider.activeUserId$.pipe(
+      distinctUntilChanged(),
+      switchMap((userId) => {
+        if (userId == null) {
+          // Global
+          return globalConfig$;
         }
 
-        return this.userConfigFor$(userId).pipe(
-          map((config) => [config, userId, environment] as const),
+        return this.authService.authStatusFor$(userId).pipe(
+          map((authStatus) => authStatus === AuthenticationStatus.Unlocked),
+          distinctUntilChanged(),
+          switchMap((isUnlocked) => {
+            if (!isUnlocked) {
+              return globalConfig$;
+            }
+
+            return combineLatest([
+              this.environmentService
+                .getEnvironment$(userId)
+                .pipe(distinctUntilChanged(environmentComparer)),
+              this.userConfigFor$(userId),
+            ]).pipe(
+              switchMap(([environment, config]) => {
+                if (config == null) {
+                  // If the user doesn't have any config yet, use the global config for that url as the fallback
+                  return this.globalConfigFor$(environment.getApiUrl()).pipe(
+                    map(
+                      (globalConfig) =>
+                        [null as ServerConfig | null, userId, environment, globalConfig] as const,
+                    ),
+                  );
+                }
+
+                return of([config, userId, environment, config] as const);
+              }),
+            );
+          }),
         );
       }),
       tap(async (rec) => {
-        const [existingConfig, userId, environment] = rec;
+        const [existingConfig, userId, environment, fallbackConfig] = rec;
         // Grab new config if older retrieval interval
         if (!existingConfig || this.olderThanRetrievalInterval(existingConfig.utcDate)) {
-          await this.renewConfig(existingConfig, userId, environment);
+          await this.renewConfig(existingConfig, userId, environment, fallbackConfig);
         }
       }),
       switchMap(([existingConfig]) => {
@@ -110,7 +140,7 @@ export class DefaultConfigService implements ConfigService {
       }),
       // If fetch fails, we'll emit on this subject to fallback to the existing config
       mergeWith(this.failedFetchFallbackSubject),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+      share({ connector: () => new ReplaySubject(1), resetOnRefCountZero: () => timer(1000) }),
     );
 
     this.cloudRegion$ = this.serverConfig$.pipe(
@@ -123,26 +153,13 @@ export class DefaultConfigService implements ConfigService {
   }
 
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
-    return this.serverConfig$.pipe(
-      map((serverConfig) => this.getFeatureFlagValue(serverConfig, key)),
-    );
-  }
-
-  private getFeatureFlagValue<Flag extends FeatureFlag>(
-    serverConfig: ServerConfig | null,
-    flag: Flag,
-  ) {
-    if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
-      return DefaultFeatureFlagValue[flag];
-    }
-
-    return serverConfig.featureStates[flag] as FeatureFlagValueType<Flag>;
+    return this.serverConfig$.pipe(map((serverConfig) => getFeatureFlagValue(serverConfig, key)));
   }
 
   userCachedFeatureFlag$<Flag extends FeatureFlag>(key: Flag, userId: UserId) {
     return this.stateProvider
       .getUser(userId, USER_SERVER_CONFIG)
-      .state$.pipe(map((config) => this.getFeatureFlagValue(config, key)));
+      .state$.pipe(map((config) => getFeatureFlagValue(config, key)));
   }
 
   async getFeatureFlag<Flag extends FeatureFlag>(key: Flag) {
@@ -172,19 +189,18 @@ export class DefaultConfigService implements ConfigService {
 
   // Updates the on-disk configuration with a newly retrieved configuration
   private async renewConfig(
-    existingConfig: ServerConfig,
-    userId: UserId,
+    existingConfig: ServerConfig | null,
+    userId: UserId | null,
     environment: Environment,
+    fallbackConfig: ServerConfig | null,
   ): Promise<void> {
     try {
       // Feature flags often have a big impact on user experience, lets ensure we return some value
       // somewhat quickly even though it may not be accurate, we won't cancel the HTTP request
       // though so that hopefully it can have finished and hydrated a more accurate value.
       const handle = setTimeout(() => {
-        this.logService.info(
-          "Self-host environment did not respond in time, emitting previous config.",
-        );
-        this.failedFetchFallbackSubject.next(existingConfig);
+        this.logService.info("Environment did not respond in time, emitting previous config.");
+        this.failedFetchFallbackSubject.next(fallbackConfig);
       }, SLOW_EMISSION_GUARD);
       const response = await this.configApiService.get(userId);
       clearTimeout(handle);
@@ -212,17 +228,17 @@ export class DefaultConfigService implements ConfigService {
       // mutate error to be handled by catchError
       this.logService.error(`Unable to fetch ServerConfig from ${environment.getApiUrl()}`, e);
       // Emit the existing config
-      this.failedFetchFallbackSubject.next(existingConfig);
+      this.failedFetchFallbackSubject.next(fallbackConfig);
     }
   }
 
-  private globalConfigFor$(apiUrl: string): Observable<ServerConfig> {
+  private globalConfigFor$(apiUrl: string): Observable<ServerConfig | null> {
     return this.stateProvider
       .getGlobal(GLOBAL_SERVER_CONFIGURATIONS)
-      .state$.pipe(map((configs) => configs?.[apiUrl]));
+      .state$.pipe(map((configs) => configs?.[apiUrl] ?? null));
   }
 
-  private userConfigFor$(userId: UserId): Observable<ServerConfig> {
+  private userConfigFor$(userId: UserId): Observable<ServerConfig | null> {
     return this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$;
   }
 }

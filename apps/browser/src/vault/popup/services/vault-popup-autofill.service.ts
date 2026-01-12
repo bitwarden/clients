@@ -4,6 +4,7 @@ import { Injectable } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
+  debounceTime,
   firstValueFrom,
   map,
   Observable,
@@ -15,10 +16,14 @@ import {
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -26,13 +31,13 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { InlineMenuFieldQualificationService } from "../../../../../browser/src/autofill/services/inline-menu-field-qualification.service";
 import {
   AutofillService,
   PageDetail,
 } from "../../../autofill/services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../utils/vault-popout-window";
 
 @Injectable({
@@ -65,6 +70,76 @@ export class VaultPopupAutofillService {
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
+  currentTabIsOnBlocklist$: Observable<boolean> = combineLatest([
+    this.domainSettingsService.blockedInteractionsUris$,
+    this.currentAutofillTab$,
+  ]).pipe(
+    map(([blockedInteractionsUrls, currentTab]) => {
+      if (blockedInteractionsUrls && currentTab) {
+        return isUrlInList(currentTab?.url, blockedInteractionsUrls);
+      }
+
+      return false;
+    }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
+  showCurrentTabIsBlockedBanner$: Observable<boolean> = combineLatest([
+    this.domainSettingsService.blockedInteractionsUris$,
+    this.currentAutofillTab$,
+  ]).pipe(
+    map(([blockedInteractionsUrls, currentTab]) => {
+      if (blockedInteractionsUrls && currentTab?.url?.length) {
+        const tabHostname = Utils.getHostname(currentTab.url);
+
+        if (!tabHostname) {
+          return false;
+        }
+
+        const tabIsBlocked = isUrlInList(currentTab.url, blockedInteractionsUrls);
+
+        const showScriptInjectionIsBlockedBanner =
+          tabIsBlocked && !blockedInteractionsUrls[tabHostname]?.bannerIsDismissed;
+
+        return showScriptInjectionIsBlockedBanner;
+      }
+
+      return false;
+    }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
+  async dismissCurrentTabIsBlockedBanner() {
+    try {
+      const currentTab = await firstValueFrom(this.currentAutofillTab$);
+      const currentTabHostname = currentTab?.url.length && Utils.getHostname(currentTab.url);
+
+      if (!currentTabHostname) {
+        return;
+      }
+
+      const blockedURLs = await firstValueFrom(this.domainSettingsService.blockedInteractionsUris$);
+
+      let tabIsBlocked = false;
+      if (blockedURLs && currentTab?.url?.length) {
+        tabIsBlocked = isUrlInList(currentTab.url, blockedURLs);
+      }
+
+      if (tabIsBlocked) {
+        void this.domainSettingsService.setBlockedInteractionsUris({
+          ...blockedURLs,
+          [currentTabHostname as string]: { bannerIsDismissed: true },
+        });
+      }
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      throw new Error(
+        "There was a problem dismissing the blocked interaction URL notification banner",
+      );
+    }
+  }
+
   /**
    * Observable that indicates whether autofill is allowed in the current context.
    * Autofill is allowed when there is a current tab and the popup is not in a popout window.
@@ -76,8 +151,22 @@ export class VaultPopupAutofillService {
       if (!tab) {
         return of([]);
       }
-      return this.autofillService.collectPageDetailsFromTab$(tab);
+
+      return this.domainSettingsService.blockedInteractionsUris$.pipe(
+        switchMap((blockedURLs) => {
+          if (blockedURLs && tab?.url?.length) {
+            const tabIsBlocked = isUrlInList(tab.url, blockedURLs);
+
+            if (tabIsBlocked) {
+              return of([]);
+            }
+          }
+
+          return this.autofillService.collectPageDetailsFromTab$(tab);
+        }),
+      );
     }),
+    debounceTime(50),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -123,6 +212,7 @@ export class VaultPopupAutofillService {
 
   constructor(
     private autofillService: AutofillService,
+    private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
     private toastService: ToastService,
     private platformUtilService: PlatformUtilsService,
@@ -141,8 +231,10 @@ export class VaultPopupAutofillService {
     cipher: CipherView,
     tab: chrome.tabs.Tab,
     pageDetails: PageDetail[],
+    skipPasswordReprompt = false,
   ): Promise<boolean> {
     if (
+      !skipPasswordReprompt &&
       cipher.reprompt !== CipherRepromptType.None &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
@@ -179,6 +271,7 @@ export class VaultPopupAutofillService {
       });
       return false;
     }
+    await this.handleAutofillSuggestionUsed({ cipherId: cipher.id });
 
     return true;
   }
@@ -223,12 +316,22 @@ export class VaultPopupAutofillService {
    * Will copy any TOTP code to the clipboard if available after successful autofill.
    * @param cipher
    * @param closePopup If true, will close the popup window after successful autofill. Defaults to true.
+   * @param skipPasswordReprompt If true, skips the master password reprompt even if the cipher requires it. Defaults to false.
    */
-  async doAutofill(cipher: CipherView, closePopup = true): Promise<boolean> {
+  async doAutofill(
+    cipher: CipherView,
+    closePopup = true,
+    skipPasswordReprompt = false,
+  ): Promise<boolean> {
     const tab = await firstValueFrom(this.currentAutofillTab$);
     const pageDetails = await firstValueFrom(this._currentPageDetails$);
 
-    const didAutofill = await this._internalDoAutofill(cipher, tab, pageDetails);
+    const didAutofill = await this._internalDoAutofill(
+      cipher,
+      tab,
+      pageDetails,
+      skipPasswordReprompt,
+    );
 
     if (didAutofill && closePopup) {
       await this._closePopup(cipher, tab);
@@ -238,13 +341,32 @@ export class VaultPopupAutofillService {
   }
 
   /**
+   * When a user autofills with an autofill suggestion outside of the inline menu,
+   * update the cipher's last used date.
+   *
+   * @param message - The message containing the cipher ID that was used
+   */
+  async handleAutofillSuggestionUsed(message: { cipherId: string }) {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId) {
+      await this.cipherService.updateLastUsedDate(message.cipherId, activeUserId);
+    }
+  }
+
+  /**
    * Attempts to autofill the given cipher and, upon successful autofill, saves the URI to the cipher.
    * Will copy any TOTP code to the clipboard if available after successful autofill.
    * @param cipher The cipher to autofill and save. Only Login ciphers are supported.
    * @param closePopup If true, will close the popup window after successful autofill.
    * If false, will show a success toast instead. Defaults to true.
    */
-  async doAutofillAndSave(cipher: CipherView, closePopup = true): Promise<boolean> {
+  async doAutofillAndSave(
+    cipher: CipherView,
+    closePopup = true,
+    skipPasswordReprompt = false,
+  ): Promise<boolean> {
     // We can only save URIs for login ciphers
     if (cipher.type !== CipherType.Login) {
       return false;
@@ -253,7 +375,12 @@ export class VaultPopupAutofillService {
     const pageDetails = await firstValueFrom(this._currentPageDetails$);
     const tab = await firstValueFrom(this.currentAutofillTab$);
 
-    const didAutofill = await this._internalDoAutofill(cipher, tab, pageDetails);
+    const didAutofill = await this._internalDoAutofill(
+      cipher,
+      tab,
+      pageDetails,
+      skipPasswordReprompt,
+    );
 
     if (!didAutofill) {
       return false;

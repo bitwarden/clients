@@ -2,15 +2,17 @@
   <bit-dialog [disablePadding]="!loading" dialogSize="large">
     <span bitDialogTitle>
       {{ title }}
-      <span class="tw-text-sm tw-normal-case tw-text-muted" *ngIf="!loading && params.name">{{
-        params.name
-      }}</span>
+      <span
+        class="tw-text-sm tw-normal-case tw-text-muted"
+        *ngIf="!loading && editParams$ && (editParams$ | async)?.name"
+        >{{ (editParams$ | async)?.name }}</span
+      >
       <span bitBadge variant="secondary" *ngIf="isRevoked">{{ "revoked" | i18n }}</span>
     </span>
     <div bitDialogContent>
       <ng-container *ngIf="loading">
         <i
-          class="bwi bwi-spinner bwi-spin text-muted"
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -23,14 +25,19 @@
         <bit-tab [label]="'role' | i18n">
           <ng-container *ngIf="!editMode">
             <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
-            <bit-form-field>
+            <bit-form-field *ngIf="{ seats: remainingSeats$ | async } as remaining">
               <bit-label>{{ "email" | i18n }}</bit-label>
               <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
-              <bit-hint>{{
-                "inviteMultipleEmailDesc"
-                  | i18n
-                    : (organization.productTierType === ProductTierType.TeamsStarter ? "10" : "20")
+
+              <bit-hint *ngIf="remaining.seats > 1">{{
+                "inviteMultipleEmailDesc" | i18n: remaining.seats
               }}</bit-hint>
+
+              <bit-hint *ngIf="remaining.seats === 1">{{
+                "inviteSingleEmailDesc" | i18n
+              }}</bit-hint>
+
+              <bit-hint *ngIf="remaining.seats === 0">{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
             </bit-form-field>
           </ng-container>
           <bit-radio-group formControlName="type">
@@ -127,17 +134,11 @@
                       type="checkbox"
                       bitCheckbox
                       formControlName="manageUsers"
-                      (change)="handleDependentPermissions()"
                     />
                     <bit-label>{{ "manageUsers" | i18n }}</bit-label>
                   </bit-form-control>
                   <bit-form-control>
-                    <input
-                      type="checkbox"
-                      bitCheckbox
-                      formControlName="manageResetPassword"
-                      (change)="handleDependentPermissions()"
-                    />
+                    <input type="checkbox" bitCheckbox formControlName="manageResetPassword" />
                     <bit-label>{{ "manageAccountRecovery" | i18n }}</bit-label>
                   </bit-form-control>
                 </div>
@@ -170,10 +171,16 @@
               </bit-label>
             </bit-form-control>
           </ng-container>
-          <bit-form-field>
+          <bit-form-field *ngIf="isExternalIdVisible">
             <bit-label>{{ "externalId" | i18n }}</bit-label>
             <input bitInput type="text" formControlName="externalId" />
             <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
+          </bit-form-field>
+
+          <bit-form-field *ngIf="isSsoExternalIdVisible">
+            <bit-label>{{ "ssoExternalId" | i18n }}</bit-label>
+            <input bitInput type="text" formControlName="ssoExternalId" />
+            <bit-hint>{{ "ssoExternalIdDesc" | i18n }}</bit-hint>
           </bit-form-field>
         </bit-tab>
         <bit-tab *ngIf="organization.useGroups" [label]="'groups' | i18n">
@@ -238,7 +245,7 @@
       >
         {{ "cancel" | i18n }}
       </button>
-      <div class="tw-ml-auto">
+      <div class="tw-flex tw-gap-2 tw-ml-auto">
         <button
           *ngIf="editMode && isRevoked"
           type="button"
@@ -248,7 +255,7 @@
           [bitAction]="restore"
           [disabled]="loading"
         >
-          {{ "restoreAccess" | i18n }}
+          {{ "restore" | i18n }}
         </button>
         <button
           *ngIf="editMode && !isRevoked"
@@ -259,32 +266,30 @@
           [bitAction]="revoke"
           [disabled]="loading"
         >
-          {{ "revokeAccess" | i18n }}
+          {{ "revoke" | i18n }}
         </button>
         <button
-          *ngIf="
-            editMode && (!(accountDeprovisioningEnabled$ | async) || !params.managedByOrganization)
-          "
+          *ngIf="this.editMode && !(editParams$ | async)?.managedByOrganization"
           type="button"
-          bitIconButton="bwi-close"
           buttonType="danger"
+          bitButton
           bitFormButton
-          [appA11yTitle]="'remove' | i18n"
           [bitAction]="remove"
           [disabled]="loading"
-        ></button>
+        >
+          {{ "remove" | i18n }}
+        </button>
         <button
-          *ngIf="
-            editMode && (accountDeprovisioningEnabled$ | async) && params.managedByOrganization
-          "
+          *ngIf="this.editMode && (editParams$ | async)?.managedByOrganization"
           type="button"
-          bitIconButton="bwi-trash"
           buttonType="danger"
+          bitButton
           bitFormButton
-          [appA11yTitle]="'delete' | i18n"
           [bitAction]="delete"
           [disabled]="loading"
-        ></button>
+        >
+          {{ "delete" | i18n }}
+        </button>
       </div>
     </ng-container>
   </bit-dialog>

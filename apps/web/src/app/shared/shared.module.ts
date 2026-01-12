@@ -3,7 +3,6 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { InfiniteScrollModule } from "ngx-infinite-scroll";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -23,6 +22,7 @@ import {
   LinkModule,
   MenuModule,
   MultiSelectModule,
+  NoItemsModule,
   ProgressModule,
   RadioButtonModule,
   SectionComponent,
@@ -32,9 +32,6 @@ import {
   ToggleGroupModule,
   TypographyModule,
 } from "@bitwarden/components";
-
-// Register the locales for the application
-import "./locales";
 
 /**
  * This NgModule should contain the most basic shared directives, pipes, and components. They
@@ -49,7 +46,6 @@ import "./locales";
     DragDropModule,
     FormsModule,
     ReactiveFormsModule,
-    InfiniteScrollModule,
     RouterModule,
     JslibModule,
 
@@ -71,6 +67,7 @@ import "./locales";
     LinkModule,
     MenuModule,
     MultiSelectModule,
+    NoItemsModule,
     ProgressModule,
     RadioButtonModule,
     SectionComponent,
@@ -86,7 +83,6 @@ import "./locales";
     DragDropModule,
     FormsModule,
     ReactiveFormsModule,
-    InfiniteScrollModule,
     RouterModule,
     JslibModule,
 
@@ -107,6 +103,7 @@ import "./locales";
     LinkModule,
     MenuModule,
     MultiSelectModule,
+    NoItemsModule,
     ProgressModule,
     RadioButtonModule,
     SectionComponent,

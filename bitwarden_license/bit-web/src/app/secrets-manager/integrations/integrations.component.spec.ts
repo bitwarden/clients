@@ -1,54 +1,64 @@
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { SharedModule } from "@bitwarden/components/src/shared";
-import {
-  IntegrationCardComponent,
-  IntegrationGridComponent,
-} from "@bitwarden/web-vault/app/shared";
+import {} from "@bitwarden/web-vault/app/shared";
 
-import { SYSTEM_THEME_OBSERVABLE } from "../../../../../../libs/angular/src/services/injection-tokens";
-import { I18nService } from "../../../../../../libs/common/src/platform/abstractions/i18n.service";
-import { ThemeType } from "../../../../../../libs/common/src/platform/enums";
-import { ThemeStateService } from "../../../../../../libs/common/src/platform/theming/theme-state.service";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { IntegrationCardComponent } from "../../dirt/organization-integrations/integration-card/integration-card.component";
+import { IntegrationGridComponent } from "../../dirt/organization-integrations/integration-grid/integration-grid.component";
 
 import { IntegrationsComponent } from "./integrations.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-header",
   template: "<div></div>",
+  standalone: false,
 })
 class MockHeaderComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-new-menu",
   template: "<div></div>",
+  standalone: false,
 })
 class MockNewMenuComponent {}
 
 describe("IntegrationsComponent", () => {
   let fixture: ComponentFixture<IntegrationsComponent>;
+  const orgIntegrationSvc = mock<OrganizationIntegrationService>();
+
+  const activatedRouteMock = {
+    snapshot: { paramMap: { get: jest.fn() } },
+  };
+  const mockI18nService = mock<I18nService>();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [IntegrationsComponent, MockHeaderComponent, MockNewMenuComponent],
-      imports: [IntegrationGridComponent, IntegrationCardComponent, SharedModule],
+      imports: [JslibModule, IntegrationGridComponent, IntegrationCardComponent],
       providers: [
-        {
-          provide: I18nService,
-          useValue: mock<I18nService>(),
-        },
-        {
-          provide: ThemeStateService,
-          useValue: mock<ThemeStateService>(),
-        },
-        {
-          provide: SYSTEM_THEME_OBSERVABLE,
-          useValue: of(ThemeType.Light),
-        },
+        { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: ThemeStateService, useValue: mock<ThemeStateService>() },
+        { provide: SYSTEM_THEME_OBSERVABLE, useValue: of(ThemeType.Light) },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
+        { provide: I18nPipe, useValue: mock<I18nPipe>() },
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: OrganizationIntegrationService, useValue: orgIntegrationSvc },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(IntegrationsComponent);
@@ -65,7 +75,13 @@ describe("IntegrationsComponent", () => {
       (integrationList.componentInstance as IntegrationGridComponent).integrations.map(
         (i) => i.name,
       ),
-    ).toEqual(["GitHub Actions", "GitLab CI/CD", "Ansible", "Kubernetes Operator"]);
+    ).toEqual([
+      "GitHub Actions",
+      "GitLab CI/CD",
+      "Ansible",
+      "Kubernetes Operator",
+      "Terraform Provider",
+    ]);
 
     expect(
       (sdkList.componentInstance as IntegrationGridComponent).integrations.map((i) => i.name),

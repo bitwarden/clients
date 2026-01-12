@@ -1,20 +1,21 @@
 import { Directive, Input, OnDestroy, TemplateRef, ViewContainerRef } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 /**
  * Only shows the element if the user can delete the cipher.
  */
 @Directive({
   selector: "[appCanDeleteCipher]",
-  standalone: true,
 })
 export class CanDeleteCipherDirective implements OnDestroy {
   private destroy$ = new Subject<void>();
 
-  @Input("appCanDeleteCipher") set cipher(cipher: CipherView) {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input("appCanDeleteCipher") set cipher(cipher: CipherViewLike) {
     this.viewContainer.clear();
 
     this.cipherAuthorizationService

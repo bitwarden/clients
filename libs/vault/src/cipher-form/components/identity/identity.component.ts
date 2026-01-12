@@ -14,7 +14,6 @@ import {
   CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -22,8 +21,9 @@ import {
 
 import { CipherFormContainer } from "../../cipher-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-identity-section",
   templateUrl: "./identity.component.html",
   imports: [
@@ -31,7 +31,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
     ButtonModule,
     JslibModule,
     ReactiveFormsModule,
-    SectionComponent,
     SectionHeaderComponent,
     CardComponent,
     FormFieldModule,
@@ -41,7 +40,11 @@ import { CipherFormContainer } from "../../cipher-form-container";
   ],
 })
 export class IdentitySectionComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() originalCipherView: CipherView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled: boolean;
   identityTitleOptions = [
     { name: "-- " + this.i18nService.t("select") + " --", value: null },
@@ -72,6 +75,10 @@ export class IdentitySectionComponent implements OnInit {
     postalCode: [""],
     country: [""],
   });
+
+  get initialValues() {
+    return this.cipherFormContainer.config.initialValues;
+  }
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
@@ -113,18 +120,65 @@ export class IdentitySectionComponent implements OnInit {
       this.identityForm.disable();
     }
 
-    if (this.originalCipherView && this.originalCipherView.id) {
-      this.populateFormData();
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
+      this.initFromExistingCipher(prefillCipher.identity);
+      this.populateFormData(prefillCipher);
     } else {
+      this.initNewCipher();
       this.identityForm.patchValue({
         username: this.cipherFormContainer.config.initialValues?.username || "",
       });
     }
   }
 
-  populateFormData() {
-    const { identity } = this.originalCipherView;
-    this.identityForm.setValue({
+  private initFromExistingCipher(existingIdentity: IdentityView) {
+    this.identityForm.patchValue({
+      firstName: this.initialValues?.firstName ?? existingIdentity.firstName,
+      middleName: this.initialValues?.middleName ?? existingIdentity.middleName,
+      lastName: this.initialValues?.lastName ?? existingIdentity.lastName,
+      company: this.initialValues?.company ?? existingIdentity.company,
+      ssn: this.initialValues?.ssn ?? existingIdentity.ssn,
+      passportNumber: this.initialValues?.passportNumber ?? existingIdentity.passportNumber,
+      licenseNumber: this.initialValues?.licenseNumber ?? existingIdentity.licenseNumber,
+      email: this.initialValues?.email ?? existingIdentity.email,
+      phone: this.initialValues?.phone ?? existingIdentity.phone,
+      address1: this.initialValues?.address1 ?? existingIdentity.address1,
+      address2: this.initialValues?.address2 ?? existingIdentity.address2,
+      address3: this.initialValues?.address3 ?? existingIdentity.address3,
+      city: this.initialValues?.city ?? existingIdentity.city,
+      state: this.initialValues?.state ?? existingIdentity.state,
+      postalCode: this.initialValues?.postalCode ?? existingIdentity.postalCode,
+      country: this.initialValues?.country ?? existingIdentity.country,
+    });
+  }
+
+  private initNewCipher() {
+    this.identityForm.patchValue({
+      firstName: this.initialValues?.firstName || "",
+      middleName: this.initialValues?.middleName || "",
+      lastName: this.initialValues?.lastName || "",
+      company: this.initialValues?.company || "",
+      ssn: this.initialValues?.ssn || "",
+      passportNumber: this.initialValues?.passportNumber || "",
+      licenseNumber: this.initialValues?.licenseNumber || "",
+      email: this.initialValues?.email || "",
+      phone: this.initialValues?.phone || "",
+      address1: this.initialValues?.address1 || "",
+      address2: this.initialValues?.address2 || "",
+      address3: this.initialValues?.address3 || "",
+      city: this.initialValues?.city || "",
+      state: this.initialValues?.state || "",
+      postalCode: this.initialValues?.postalCode || "",
+      country: this.initialValues?.country || "",
+    });
+  }
+
+  populateFormData(cipherView: CipherView) {
+    const { identity } = cipherView;
+
+    this.identityForm.patchValue({
       title: identity.title,
       firstName: identity.firstName,
       middleName: identity.middleName,

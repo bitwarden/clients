@@ -13,11 +13,9 @@
   },
   "license": "GPL-3.0",
   "scripts": {
+    "test": "jest",
     "clean": "rimraf dist",
     "build": "npm run clean && tsc",
     "build:watch": "npm run clean && tsc -watch"
-  },
-  "dependencies": {
-    "@bitwarden/common": "file:../common"
   }
 }

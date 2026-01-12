@@ -118,64 +118,64 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>مدیریت رمز عبور Bitwarden</value>
+    <value>مدیر کلمه عبور Bitwarden</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>در خانه، محل کار، یا در حال حرکت، Bitwarden به سادگی تمامی رمزهای عبور، passkeyها، و اطلاعات حساس شما را امن نگاه می‌دارد.</value>
+    <value>در خانه، محل کار، یا در حال حرکت، Bitwarden به سادگی تمامی کلمات عبور، کلیدها، و اطلاعات حساس شما را امن نگاه می‌دارد.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>شناخته‌شده به‌عنوان بهترین مدیر کلمه عبور توسط PCMag، WIRED، The Verge، CNET، G2 و دیگر منابع!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+امنیت زندگی دیجیتال شما
+زندگی دیجیتال خود را ایمن کنید و با تولید و ذخیره کلمات عبور قوی و منحصر به فرد برای هر حساب کاربری، از نشت اطلاعات جلوگیری نمایید. همه چیز را در یک گاوصندوق کلمه عبور با رمزگذاری سرتاسری ذخیره کنید که فقط شما به آن دسترسی دارید.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+دسترسی به داده‌های شما، در هر زمان، در هر مکان، روی هر دستگاه
+کلمات عبور را به‌صورت نامحدود روی دستگاه‌های مختلف مدیریت، ذخیره، ایمن‌سازی و به اشتراک بگذارید بدون هیچ محدودیتی.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+همه باید ابزارهای ایمنی آنلاین را در اختیار داشته باشند
+از Bitwarden به‌صورت رایگان استفاده کنید، بدون تبلیغات یا فروش داده‌ها. Bitwarden باور دارد که همه باید بتوانند در فضای آنلاین ایمن بمانند. طرح‌های پریمیوم، ویژگی‌های پیشرفته‌تری ارائه می‌دهند.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+توانمندسازی تیم‌ها با Bitwarden
+طرح‌های ویژه تیم‌ها و سازمان‌ها شامل ویژگی‌های حرفه‌ای برای کسب‌وکار هستند، مانند: ادغام SSO، میزبانی شخصی، ادغام با دایرکتوری و فراهم‌سازی SCIM، سیاست‌های جهانی، دسترسی API، گزارش رویدادها و موارد دیگر.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+از Bitwarden برای ایمن‌سازی محیط کاری و اشتراک‌گذاری اطلاعات حساس با همکاران استفاده کنید.
 
+دلایل بیشتر برای انتخاب Bitwarden:
 
-More reasons to choose Bitwarden:
+رمزگذاری سطح جهانی
+ کلمات عبور با رمزگذاری پیشرفته سرتاسری (AES-256 بیت، هش نمکی، و PBKDF2 SHA-256) محافظت می‌شوند تا داده‌های شما امن و خصوصی باقی بمانند.
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+ممیزی‌های امنیتی توسط اشخاص ثالث
+ Bitwarden به‌طور منظم توسط شرکت‌های معتبر امنیتی مورد ارزیابی و تست نفوذ قرار می‌گیرد. این بررسی‌ها شامل بررسی کد منبع و تست‌های امنیتی روی IPها، سرورها و اپلیکیشن‌های وب Bitwarden است.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
-
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+احراز هویت دومرحله‌ای پیشرفته (2FA)
+ ورود امن با استفاده از احراز هویت‌کننده‌های شخص ثالث، کدهای ایمیلی، یا گواهی‌نامه‌های FIDO2 WebAuthn مانند کلید امنیتی سخت‌افزاری یا کلید عبور.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+ ارسال مستقیم داده‌ها با رمزگذاری سرتاسری، با امکان محدودسازی دسترسی و مدت زمان مشاهده.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+مولد داخلی
+ تولید کلمات عبور بلند، پیچیده و منحصربه‌فرد و همچنین نام‌های کاربری برای هر وب‌سایتی که بازدید می‌کنید. امکان ادغام با ارائه‌دهندگان ایمیل مستعار برای حفظ بیشتر حریم خصوصی.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+ترجمه‌های جهانی
+ Bitwarden به بیش از ۶۰ زبان در دسترس است که توسط جامعه جهانی از طریق Crowdin ترجمه شده‌اند.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+اپلیکیشن‌های چند سکویی
+ ایمن‌سازی و اشتراک‌گذاری داده‌ها از طریق هر مرورگر، دستگاه موبایل یا سیستم‌عامل دسکتاپ و موارد دیگر.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden فقط کلمات عبور را ایمن نمی‌کند
+راهکارهای مدیریت اعتبارات با رمزگذاری سرتاسری از Bitwarden به سازمان‌ها کمک می‌کند تا همه چیز را ایمن کنند، از جمله اسرار توسعه‌دهنده و تجربه‌های بدون کلمات عبور.
+برای اطلاعات بیشتر درباره Bitwarden Secrets Manager و Bitwarden Passwordless.dev به وب‌سایت Bitwarden.com مراجعه کنید!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>در خانه، محل کار، یا در حال حرکت، Bitwarden به سادگی تمامی رمزهای عبور، passkeyها، و اطلاعات حساس شما را امن نگاه می‌دارد.</value>
+    <value>در خانه، محل کار، یا در حال حرکت، Bitwarden به سادگی تمامی کلمات عبور، کلیدها، و اطلاعات حساس شما را امن نگاه می‌دارد.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>همگام‌سازی و دسترسی به گاوصندوق خود از دستگاه های مختلف</value>
+    <value>همگام‌سازی و دسترسی به گاوصندوق خود از دستگاه‌های مختلف</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>مدیریت تمام اطلاعات ورود و کلمه های عبورتان از یک گاوصندوق امن</value>
+    <value>مدیریت تمام اطلاعات ورود و کلمات عبورتان از یک گاوصندوق امن</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
     <value>پرکردن خودکار معتبر ورودی شما به‌صورت سریع برای هر وب‌سایتی که از آن بازدید می‌کنید</value>
@@ -184,7 +184,7 @@ End-to-end encrypted credential management solutions from Bitwarden empower orga
     <value>گاوصندوق شما نیز به راحتی از منوی راست کلیک قابل دسترسی است</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>به صورت خودکار کلمه‌های عبور قوی، تصادفی و امن ایجاد کنید</value>
+    <value>به‌صورت خودکار کلمات عبور قوی، تصادفی و امن ایجاد کنید</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
     <value>اطلاعات شما با استفاده از رمزگذاری AES-256 بیتی ایمن مدیریت می‌شود</value>

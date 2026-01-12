@@ -1,9 +1,14 @@
-<bit-callout type="danger" title="{{ 'vaultExportDisabled' | i18n }}" *ngIf="disabledByPolicy">
+<bit-callout
+  type="danger"
+  title="{{ 'vaultExportDisabled' | i18n }}"
+  *ngIf="disablePersonalVaultExportPolicy$ | async"
+>
   {{ "personalVaultExportPolicyInEffect" | i18n }}
 </bit-callout>
 <tools-export-scope-callout
   [organizationId]="organizationId"
-  *ngIf="!disabledByPolicy"
+  [exportFormat]="format"
+  [orgExportDescription]="orgExportDescription"
 ></tools-export-scope-callout>
 
 <form [formGroup]="exportForm" [bitSubmit]="submit" id="export_form_exportForm">
@@ -11,9 +16,14 @@
     <bit-form-field *ngIf="organizations.length > 0">
       <bit-label>{{ "exportFrom" | i18n }}</bit-label>
       <bit-select formControlName="vaultSelector">
-        <bit-option [label]="'myVault' | i18n" value="myVault" icon="bwi-user" />
         <bit-option
-          *ngFor="let o of organizations$ | async"
+          [label]="'myVault' | i18n"
+          value="myVault"
+          icon="bwi-user"
+          *ngIf="!(organizationDataOwnershipPolicyAppliesToUser$ | async)"
+        />
+        <bit-option
+          *ngFor="let o of organizations"
           [value]="o.id"
           [label]="o.name"
           icon="bwi-business"
@@ -25,7 +35,7 @@
   <bit-form-field>
     <bit-label>{{ "fileFormat" | i18n }}</bit-label>
     <bit-select formControlName="format">
-      <bit-option *ngFor="let f of formatOptions" [value]="f.value" [label]="f.name" />
+      <bit-option *ngFor="let f of formatOptions$ | async" [value]="f.format" [label]="f.name" />
     </bit-select>
   </bit-form-field>
 
@@ -80,6 +90,7 @@
             appStopClick
             bitSuffix
             (click)="generatePassword()"
+            [label]="'generatePassword' | i18n"
           ></button>
           <button
             type="button"
@@ -89,6 +100,7 @@
             bitSuffix
             [appCopyClick]="filePassword"
             [valueLabel]="'password' | i18n"
+            [label]="'password' | i18n"
             showToast
           ></button>
           <bit-hint>{{ "exportPasswordDescription" | i18n }}</bit-hint>

@@ -4,23 +4,20 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
-import { InfiniteScrollModule } from "ngx-infinite-scroll";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { safeProvider } from "@bitwarden/ui-common";
+import { POLICY_EDIT_REGISTER } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { CoreModule } from "@bitwarden/web-vault/app/core";
 import { OssRoutingModule } from "@bitwarden/web-vault/app/oss-routing.module";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 import { WildcardRoutingModule } from "@bitwarden/web-vault/app/wildcard-routing.module";
 
 import { OrganizationsModule } from "./admin-console/organizations/organizations.module";
-import { ActivateAutofillPolicyComponent } from "./admin-console/policies/activate-autofill.component";
-import { AutomaticAppLoginPolicyComponent } from "./admin-console/policies/automatic-app-login.component";
-import { DisablePersonalVaultExportPolicyComponent } from "./admin-console/policies/disable-personal-vault-export.component";
-import { MaximumVaultTimeoutPolicyComponent } from "./admin-console/policies/maximum-vault-timeout.component";
+import { bitPolicyEditRegister } from "./admin-console/policies";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { FreeFamiliesSponsorshipPolicyComponent } from "./billing/policies/free-families-sponsorship.component";
-import { AccessIntelligenceModule } from "./tools/access-intelligence/access-intelligence.module";
+import { AccessIntelligenceModule } from "./dirt/access-intelligence/access-intelligence.module";
 
 /**
  * This is the AppModule for the commercial version of Bitwarden.
@@ -37,7 +34,6 @@ import { AccessIntelligenceModule } from "./tools/access-intelligence/access-int
     FormsModule,
     ReactiveFormsModule,
     CoreModule,
-    InfiniteScrollModule,
     DragDropModule,
     AppRoutingModule,
     OssRoutingModule,
@@ -46,14 +42,13 @@ import { AccessIntelligenceModule } from "./tools/access-intelligence/access-int
     RouterModule,
     WildcardRoutingModule, // Needs to be last to catch all non-existing routes
   ],
-  declarations: [
-    AppComponent,
-    DisablePersonalVaultExportPolicyComponent,
-    MaximumVaultTimeoutPolicyComponent,
-    ActivateAutofillPolicyComponent,
-    AutomaticAppLoginPolicyComponent,
-    FreeFamiliesSponsorshipPolicyComponent,
-  ],
+  declarations: [AppComponent],
   bootstrap: [AppComponent],
+  providers: [
+    safeProvider({
+      provide: POLICY_EDIT_REGISTER,
+      useValue: bitPolicyEditRegister,
+    }),
+  ],
 })
 export class AppModule {}

@@ -3,11 +3,10 @@
 import { firstValueFrom, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
@@ -17,7 +16,6 @@ import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class UserApiLoginStrategyData implements LoginStrategyData {
   tokenRequest: UserApiTokenRequest;
-  captchaBypassToken: string;
 
   static fromJSON(obj: Jsonify<UserApiLoginStrategyData>): UserApiLoginStrategyData {
     return Object.assign(new UserApiLoginStrategyData(), obj, {
@@ -31,7 +29,6 @@ export class UserApiLoginStrategy extends LoginStrategy {
 
   constructor(
     data: UserApiLoginStrategyData,
-    private environmentService: EnvironmentService,
     private keyConnectorService: KeyConnectorService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
@@ -66,7 +63,9 @@ export class UserApiLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
+    if (response.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    }
 
     if (response.apiUseKeyConnector) {
       const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
@@ -88,6 +87,12 @@ export class UserApiLoginStrategy extends LoginStrategy {
       response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
       userId,
     );
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
   }
 
   // Overridden to save client ID and secret to token service

@@ -7,15 +7,13 @@ import {
 } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ClientType } from "@bitwarden/common/enums";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { KeyService } from "@bitwarden/key-management";
 
 /**
@@ -33,12 +31,11 @@ export function lockGuard(): CanActivateFn {
     const authService = inject(AuthService);
     const keyService = inject(KeyService);
     const deviceTrustService = inject(DeviceTrustServiceAbstraction);
-    const platformUtilService = inject(PlatformUtilsService);
-    const messagingService = inject(MessagingService);
     const router = inject(Router);
     const userVerificationService = inject(UserVerificationService);
     const vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
     const accountService = inject(AccountService);
+    const keyConnectorService = inject(KeyConnectorService);
 
     const activeUser = await firstValueFrom(accountService.activeAccount$);
 
@@ -53,19 +50,15 @@ export function lockGuard(): CanActivateFn {
       return router.createUrlTree(["/"]);
     }
 
+    if (
+      (await firstValueFrom(keyConnectorService.requiresDomainConfirmation$(activeUser.id))) != null
+    ) {
+      return router.createUrlTree(["confirm-key-connector-domain"]);
+    }
+
     // if user can't lock, they can't access the lock screen
     const canLock = await vaultTimeoutSettingsService.canLock(activeUser.id);
     if (!canLock) {
-      return false;
-    }
-
-    // If legacy user on web, redirect to migration page
-    if (await keyService.isLegacyUser()) {
-      if (platformUtilService.getClientType() === ClientType.Web) {
-        return router.createUrlTree(["migrate-legacy-encryption"]);
-      }
-      // Log out legacy users on other clients
-      messagingService.send("logout");
       return false;
     }
 
@@ -84,7 +77,7 @@ export function lockGuard(): CanActivateFn {
     }
 
     // If authN user with TDE directly navigates to lock, reject that navigation
-    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$);
+    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$(activeUser.id));
     if (tdeEnabled && !everHadUserKey) {
       return false;
     }

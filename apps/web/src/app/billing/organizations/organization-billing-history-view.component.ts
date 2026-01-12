@@ -10,8 +10,11 @@ import {
   BillingTransactionResponse,
 } from "@bitwarden/common/billing/models/response/billing.response";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "organization-billing-history-view.component.html",
+  standalone: false,
 })
 export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
   loading = false;

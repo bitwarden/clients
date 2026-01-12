@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { EVENTS } from "@bitwarden/common/autofill/constants";
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { AutofillOverlayPort } from "../../../enums/autofill-overlay.enum";
 import { createPortSpyMock } from "../../../spec/autofill-mocks";
@@ -66,17 +66,38 @@ describe("AutofillInlineMenuIframeService", () => {
       );
     });
 
-    // TODO CG - This test is brittle and failing due to how we are calling the private method. This needs to be reworked
-    it.skip("creates an aria alert element if the ariaAlert param is passed", () => {
-      const ariaAlert = "aria alert";
+    it("creates an aria alert element if the ariaAlert param is passed to AutofillInlineMenuIframeService", () => {
       jest.spyOn(autofillInlineMenuIframeService as any, "createAriaAlertElement");
 
       autofillInlineMenuIframeService.initMenuIframe();
 
-      expect(autofillInlineMenuIframeService["createAriaAlertElement"]).toHaveBeenCalledWith(
-        ariaAlert,
+      expect(autofillInlineMenuIframeService["createAriaAlertElement"]).toHaveBeenCalled();
+      expect(autofillInlineMenuIframeService["ariaAlertElement"]).toBeDefined();
+      expect(autofillInlineMenuIframeService["ariaAlertElement"].getAttribute("role")).toBe(
+        "alert",
       );
-      expect(autofillInlineMenuIframeService["ariaAlertElement"]).toMatchSnapshot();
+      expect(autofillInlineMenuIframeService["ariaAlertElement"].getAttribute("aria-live")).toBe(
+        "polite",
+      );
+      expect(autofillInlineMenuIframeService["ariaAlertElement"].getAttribute("aria-atomic")).toBe(
+        "true",
+      );
+    });
+
+    it("does not create an aria alert element if the ariaAlert param is not passed to AutofillInlineMenuIframeService", () => {
+      const shadowWithoutAlert = document.createElement("div").attachShadow({ mode: "open" });
+      const serviceWithoutAlert = new AutofillInlineMenuIframeService(
+        shadowWithoutAlert,
+        AutofillOverlayPort.Button,
+        { height: "0px" },
+        "title",
+      );
+      jest.spyOn(serviceWithoutAlert as any, "createAriaAlertElement");
+
+      serviceWithoutAlert.initMenuIframe();
+
+      expect(serviceWithoutAlert["createAriaAlertElement"]).not.toHaveBeenCalled();
+      expect(serviceWithoutAlert["ariaAlertElement"]).toBeUndefined();
     });
 
     describe("on load of the iframe source", () => {
@@ -191,7 +212,7 @@ describe("AutofillInlineMenuIframeService", () => {
 
         expect(
           autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
-        ).toHaveBeenCalledWith(message, "*");
+        ).toHaveBeenCalledWith(message, autofillInlineMenuIframeService["extensionOrigin"]);
       });
 
       it("handles port messages that are registered with the message handlers and does not pass the message on to the iframe", () => {
@@ -200,7 +221,7 @@ describe("AutofillInlineMenuIframeService", () => {
         sendPortMessage(portSpy, { command: "updateAutofillInlineMenuPosition" });
 
         expect(
-          autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
+          autofillInlineMenuIframeService["iframe"].contentWindow?.postMessage,
         ).not.toHaveBeenCalled();
       });
 
@@ -216,8 +237,8 @@ describe("AutofillInlineMenuIframeService", () => {
 
           expect(autofillInlineMenuIframeService["portKey"]).toBe(portKey);
           expect(
-            autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
-          ).toHaveBeenCalledWith(message, "*");
+            autofillInlineMenuIframeService["iframe"].contentWindow?.postMessage,
+          ).toHaveBeenCalledWith(message, autofillInlineMenuIframeService["extensionOrigin"]);
         });
       });
 
@@ -234,35 +255,35 @@ describe("AutofillInlineMenuIframeService", () => {
         it("passes the message on to the iframe element", () => {
           const message = {
             command: "initAutofillInlineMenuList",
-            theme: ThemeType.Light,
+            theme: ThemeTypes.Light,
           };
 
           sendPortMessage(portSpy, message);
 
           expect(updateElementStylesSpy).not.toHaveBeenCalled();
           expect(
-            autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
-          ).toHaveBeenCalledWith(message, "*");
+            autofillInlineMenuIframeService["iframe"].contentWindow?.postMessage,
+          ).toHaveBeenCalledWith(message, autofillInlineMenuIframeService["extensionOrigin"]);
         });
 
         it("sets a light theme based on the user's system preferences", () => {
           window.matchMedia = jest.fn(() => mock<MediaQueryList>({ matches: false }));
           const message = {
             command: "initAutofillInlineMenuList",
-            theme: ThemeType.System,
+            theme: ThemeTypes.System,
           };
 
           sendPortMessage(portSpy, message);
 
           expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
           expect(
-            autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
+            autofillInlineMenuIframeService["iframe"].contentWindow?.postMessage,
           ).toHaveBeenCalledWith(
             {
               command: "initAutofillInlineMenuList",
-              theme: ThemeType.Light,
+              theme: ThemeTypes.Light,
             },
-            "*",
+            autofillInlineMenuIframeService["extensionOrigin"],
           );
         });
 
@@ -270,27 +291,27 @@ describe("AutofillInlineMenuIframeService", () => {
           window.matchMedia = jest.fn(() => mock<MediaQueryList>({ matches: true }));
           const message = {
             command: "initAutofillInlineMenuList",
-            theme: ThemeType.System,
+            theme: ThemeTypes.System,
           };
 
           sendPortMessage(portSpy, message);
 
           expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
           expect(
-            autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
+            autofillInlineMenuIframeService["iframe"].contentWindow?.postMessage,
           ).toHaveBeenCalledWith(
             {
               command: "initAutofillInlineMenuList",
-              theme: ThemeType.Dark,
+              theme: ThemeTypes.Dark,
             },
-            "*",
+            autofillInlineMenuIframeService["extensionOrigin"],
           );
         });
 
         it("updates the border to match the `dark` theme", () => {
           const message = {
             command: "initAutofillInlineMenuList",
-            theme: ThemeType.Dark,
+            theme: ThemeTypes.Dark,
           };
 
           sendPortMessage(portSpy, message);
@@ -299,38 +320,6 @@ describe("AutofillInlineMenuIframeService", () => {
             autofillInlineMenuIframeService["iframe"],
             {
               borderColor: "#4c525f",
-            },
-          );
-        });
-
-        it("updates the border to match the `nord` theme", () => {
-          const message = {
-            command: "initAutofillInlineMenuList",
-            theme: ThemeType.Nord,
-          };
-
-          sendPortMessage(portSpy, message);
-
-          expect(updateElementStylesSpy).toHaveBeenCalledWith(
-            autofillInlineMenuIframeService["iframe"],
-            {
-              borderColor: "#2E3440",
-            },
-          );
-        });
-
-        it("updates the border to match the `solarizedDark` theme", () => {
-          const message = {
-            command: "initAutofillInlineMenuList",
-            theme: ThemeType.SolarizedDark,
-          };
-
-          sendPortMessage(portSpy, message);
-
-          expect(updateElementStylesSpy).toHaveBeenCalledWith(
-            autofillInlineMenuIframeService["iframe"],
-            {
-              borderColor: "#073642",
             },
           );
         });
@@ -396,6 +385,219 @@ describe("AutofillInlineMenuIframeService", () => {
             autofillInlineMenuIframeService["handleFadeInInlineMenuIframe"],
           ).toHaveBeenCalled();
         });
+
+        it("closes the inline menu when iframe is outside the viewport (bottom)", () => {
+          const viewportHeight = 800;
+          jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
+          jest
+            .spyOn(autofillInlineMenuIframeService["iframe"], "getBoundingClientRect")
+            .mockReturnValue({
+              top: 0,
+              left: 0,
+              right: 100,
+              bottom: viewportHeight + 1,
+              height: 98,
+              width: 262,
+            } as DOMRect);
+          Object.defineProperty(globalThis.window, "innerHeight", {
+            value: viewportHeight,
+            writable: true,
+            configurable: true,
+          });
+          Object.defineProperty(globalThis.window, "innerWidth", {
+            value: 1200,
+            writable: true,
+            configurable: true,
+          });
+
+          sendPortMessage(portSpy, {
+            command: "updateAutofillInlineMenuPosition",
+            styles: {},
+          });
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
+            forceCloseInlineMenu: true,
+          });
+        });
+
+        it("closes the inline menu when iframe is outside the viewport (right)", () => {
+          const viewportWidth = 1200;
+          jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
+          jest
+            .spyOn(autofillInlineMenuIframeService["iframe"], "getBoundingClientRect")
+            .mockReturnValue({
+              top: 0,
+              left: 0,
+              right: viewportWidth + 1,
+              bottom: 100,
+              height: 98,
+              width: 262,
+            } as DOMRect);
+          Object.defineProperty(globalThis.window, "innerHeight", {
+            value: 800,
+            writable: true,
+            configurable: true,
+          });
+          Object.defineProperty(globalThis.window, "innerWidth", {
+            value: viewportWidth,
+            writable: true,
+            configurable: true,
+          });
+
+          sendPortMessage(portSpy, {
+            command: "updateAutofillInlineMenuPosition",
+            styles: {},
+          });
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
+            forceCloseInlineMenu: true,
+          });
+        });
+
+        it("closes the inline menu when iframe is outside the viewport (left)", () => {
+          jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
+          jest
+            .spyOn(autofillInlineMenuIframeService["iframe"], "getBoundingClientRect")
+            .mockReturnValue({
+              top: 0,
+              left: -1,
+              right: 0,
+              bottom: 100,
+              height: 98,
+              width: 262,
+            } as DOMRect);
+          Object.defineProperty(globalThis.window, "innerHeight", {
+            value: 800,
+            writable: true,
+            configurable: true,
+          });
+          Object.defineProperty(globalThis.window, "innerWidth", {
+            value: 1200,
+            writable: true,
+            configurable: true,
+          });
+
+          sendPortMessage(portSpy, {
+            command: "updateAutofillInlineMenuPosition",
+            styles: {},
+          });
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
+            forceCloseInlineMenu: true,
+          });
+        });
+
+        it("closes the inline menu when iframe is outside the viewport (top)", () => {
+          jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
+          jest
+            .spyOn(autofillInlineMenuIframeService["iframe"], "getBoundingClientRect")
+            .mockReturnValue({
+              top: -1,
+              left: 0,
+              right: 100,
+              bottom: 0,
+              height: 98,
+              width: 262,
+            } as DOMRect);
+          Object.defineProperty(globalThis.window, "innerHeight", {
+            value: 800,
+            writable: true,
+            configurable: true,
+          });
+          Object.defineProperty(globalThis.window, "innerWidth", {
+            value: 1200,
+            writable: true,
+            configurable: true,
+          });
+
+          sendPortMessage(portSpy, {
+            command: "updateAutofillInlineMenuPosition",
+            styles: {},
+          });
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
+            forceCloseInlineMenu: true,
+          });
+        });
+
+        it("allows iframe (do not close) when it has no dimensions", () => {
+          jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
+          jest
+            .spyOn(autofillInlineMenuIframeService["iframe"], "getBoundingClientRect")
+            .mockReturnValue({
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 0,
+              width: 0,
+            } as DOMRect);
+
+          Object.defineProperty(globalThis.window, "innerHeight", {
+            value: 800,
+            writable: true,
+            configurable: true,
+          });
+
+          Object.defineProperty(globalThis.window, "innerWidth", {
+            value: 1200,
+            writable: true,
+            configurable: true,
+          });
+
+          sendPortMessage(portSpy, {
+            command: "updateAutofillInlineMenuPosition",
+            styles: {},
+          });
+
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("closeAutofillInlineMenu", {
+            forceCloseInlineMenu: true,
+          });
+        });
+
+        it("uses visualViewport when available", () => {
+          jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
+          jest
+            .spyOn(autofillInlineMenuIframeService["iframe"], "getBoundingClientRect")
+            .mockReturnValue({
+              top: 0,
+              left: 0,
+              right: 100,
+              bottom: 700,
+              height: 98,
+              width: 262,
+            } as DOMRect);
+
+          Object.defineProperty(globalThis.window, "visualViewport", {
+            value: {
+              height: 600,
+              width: 1200,
+            } as VisualViewport,
+            writable: true,
+            configurable: true,
+          });
+
+          Object.defineProperty(globalThis.window, "innerHeight", {
+            value: 800,
+            writable: true,
+            configurable: true,
+          });
+
+          Object.defineProperty(globalThis.window, "innerWidth", {
+            value: 1200,
+            writable: true,
+            configurable: true,
+          });
+
+          sendPortMessage(portSpy, {
+            command: "updateAutofillInlineMenuPosition",
+            styles: {},
+          });
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
+            forceCloseInlineMenu: true,
+          });
+        });
       });
 
       it("updates the visibility of the iframe", () => {
@@ -413,13 +615,13 @@ describe("AutofillInlineMenuIframeService", () => {
         });
 
         expect(
-          autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
+          autofillInlineMenuIframeService["iframe"].contentWindow?.postMessage,
         ).toHaveBeenCalledWith(
           {
             command: "updateAutofillInlineMenuColorScheme",
             colorScheme: "normal",
           },
-          "*",
+          autofillInlineMenuIframeService["extensionOrigin"],
         );
       });
 

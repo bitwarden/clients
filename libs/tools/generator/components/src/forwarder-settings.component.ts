@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   Component,
   EventEmitter,
@@ -10,31 +8,24 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
-import {
-  BehaviorSubject,
-  concatMap,
-  map,
-  ReplaySubject,
-  skip,
-  Subject,
-  switchAll,
-  takeUntil,
-  withLatestFrom,
-} from "rxjs";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { map, ReplaySubject, skip, Subject, switchAll, takeUntil, withLatestFrom } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { IntegrationId } from "@bitwarden/common/tools/integration";
-import { UserId } from "@bitwarden/common/types/guid";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { VendorId } from "@bitwarden/common/tools/extension";
 import {
-  CredentialGeneratorConfiguration,
+  FormFieldModule,
+  AriaDisableDirective,
+  TooltipDirective,
+  BitIconButtonComponent,
+} from "@bitwarden/components";
+import {
   CredentialGeneratorService,
-  getForwarderConfiguration,
-  NoPolicy,
-  toCredentialGeneratorConfiguration,
+  ForwarderOptions,
+  GeneratorMetadata,
 } from "@bitwarden/generator-core";
-
-import { completeOnAccountSwitch } from "./util";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 const Controls = Object.freeze({
   domain: "domain",
@@ -43,37 +34,54 @@ const Controls = Object.freeze({
 });
 
 /** Options group for forwarder integrations */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-forwarder-settings",
   templateUrl: "forwarder-settings.component.html",
+  imports: [
+    ReactiveFormsModule,
+    FormFieldModule,
+    AriaDisableDirective,
+    TooltipDirective,
+    BitIconButtonComponent,
+    JslibModule,
+    I18nPipe,
+  ],
 })
 export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
-   *  @param accountService queries user availability
    *  @param generatorService settings and policy logic
    *  @param formBuilder reactive form controls
    */
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
-    private accountService: AccountService,
   ) {}
 
   /** Binds the component to a specific user's settings.
-   *  When this input is not provided, the form binds to the active
-   *  user
+   *  @remarks this is initialized to null but since it's a required input it'll
+   *     never have that value in practice.
    */
-  @Input()
-  userId: UserId | null;
-
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
-  forwarder: IntegrationId;
+  account: Account = null!;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ required: true })
+  forwarder: VendorId = null!;
 
   /** Emits settings updates and completes if the settings become unavailable.
    * @remarks this does not emit the initial settings. If you would like
    *   to receive live settings updates including the initial update,
    *   use `CredentialGeneratorService.settings$(...)` instead.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onUpdated = new EventEmitter<unknown>();
 
@@ -84,36 +92,29 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     [Controls.baseUrl]: [""],
   });
 
-  private forwarderId$ = new ReplaySubject<IntegrationId>(1);
+  private vendor = new ReplaySubject<VendorId>(1);
 
   async ngOnInit() {
-    const singleUserId$ = this.singleUserId$();
-
-    const forwarder$ = new ReplaySubject<CredentialGeneratorConfiguration<any, NoPolicy>>(1);
-    this.forwarderId$
+    const forwarder$ = new ReplaySubject<GeneratorMetadata<ForwarderOptions>>(1);
+    this.vendor
       .pipe(
-        map((id) => getForwarderConfiguration(id)),
-        // type erasure necessary because the configuration properties are
-        // determined dynamically at runtime
-        // FIXME: this can be eliminated by unifying the forwarder settings types;
-        // see `ForwarderConfiguration<...>` for details.
-        map((forwarder) => toCredentialGeneratorConfiguration<any>(forwarder)),
+        map((vendor) => this.generatorService.forwarder(vendor)),
         takeUntil(this.destroyed$),
       )
       .subscribe((forwarder) => {
-        this.displayDomain = forwarder.request.includes("domain");
-        this.displayToken = forwarder.request.includes("token");
-        this.displayBaseUrl = forwarder.request.includes("baseUrl");
+        this.displayDomain = forwarder.capabilities.fields.includes("domain");
+        this.displayToken = forwarder.capabilities.fields.includes("token");
+        this.displayBaseUrl = forwarder.capabilities.fields.includes("baseUrl");
 
         forwarder$.next(forwarder);
       });
 
-    const settings$$ = forwarder$.pipe(
-      concatMap((forwarder) => this.generatorService.settings(forwarder, { singleUserId$ })),
+    const settings$ = forwarder$.pipe(
+      map((forwarder) => this.generatorService.settings(forwarder, { account$: this.account$ })),
     );
 
     // bind settings to the reactive form
-    settings$$.pipe(switchAll(), takeUntil(this.destroyed$)).subscribe((settings) => {
+    settings$.pipe(switchAll(), takeUntil(this.destroyed$)).subscribe((settings) => {
       // skips reactive event emissions to break a subscription cycle
       this.settings.patchValue(settings as any, { emitEvent: false });
     });
@@ -122,16 +123,16 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     forwarder$.pipe(takeUntil(this.destroyed$)).subscribe((forwarder) => {
       for (const name in Controls) {
         const control = this.settings.get(name);
-        if (forwarder.request.includes(name as any)) {
-          control.enable({ emitEvent: false });
+        if (forwarder.capabilities.fields.includes(name)) {
+          control?.enable({ emitEvent: false });
         } else {
-          control.disable({ emitEvent: false });
+          control?.disable({ emitEvent: false });
         }
       }
     });
 
     // the first emission is the current value; subsequent emissions are updates
-    settings$$
+    settings$
       .pipe(
         map((settings$) => settings$.pipe(skip(1))),
         switchAll(),
@@ -141,9 +142,9 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
 
     // now that outputs are set up, connect inputs
     this.saveSettings
-      .pipe(withLatestFrom(this.settings.valueChanges, settings$$), takeUntil(this.destroyed$))
+      .pipe(withLatestFrom(this.settings.valueChanges, settings$), takeUntil(this.destroyed$))
       .subscribe(([, value, settings]) => {
-        settings.next(value);
+        settings.next(value as ForwarderOptions);
       });
   }
 
@@ -152,29 +153,20 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     this.saveSettings.next(site);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  async ngOnChanges(changes: SimpleChanges) {
     this.refresh$.complete();
     if ("forwarder" in changes) {
-      this.forwarderId$.next(this.forwarder);
+      this.vendor.next(this.forwarder);
+    }
+
+    if ("account" in changes) {
+      this.account$.next(this.account);
     }
   }
 
-  protected displayDomain: boolean;
-  protected displayToken: boolean;
-  protected displayBaseUrl: boolean;
-
-  private singleUserId$() {
-    // FIXME: this branch should probably scan for the user and make sure
-    // the account is unlocked
-    if (this.userId) {
-      return new BehaviorSubject(this.userId as UserId).asObservable();
-    }
-
-    return this.accountService.activeAccount$.pipe(
-      completeOnAccountSwitch(),
-      takeUntil(this.destroyed$),
-    );
-  }
+  protected displayDomain: boolean = false;
+  protected displayToken: boolean = false;
+  protected displayBaseUrl: boolean = false;
 
   private readonly refresh$ = new Subject<void>();
 

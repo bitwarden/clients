@@ -7,6 +7,7 @@
       (click)="toggle()"
       [attr.aria-expanded]="open"
       [attr.aria-controls]="contentId"
+      [label]="'toggleVisibility' | i18n"
     ></button>
   </header>
   <div *ngIf="open" [attr.id]="contentId" class="tw-mt-4">

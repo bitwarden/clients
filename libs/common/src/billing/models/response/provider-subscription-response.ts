@@ -1,9 +1,11 @@
-import { ProviderType } from "@bitwarden/common/admin-console/enums";
-import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
-import { SubscriptionSuspensionResponse } from "@bitwarden/common/billing/models/response/subscription-suspension.response";
-import { TaxInfoResponse } from "@bitwarden/common/billing/models/response/tax-info.response";
+import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
 
+import { ProviderType } from "../../../admin-console/enums";
 import { BaseResponse } from "../../../models/response/base.response";
+import { PlanType, ProductTierType } from "../../enums";
+
+import { SubscriptionSuspensionResponse } from "./subscription-suspension.response";
+import { TaxInfoResponse } from "./tax-info.response";
 
 export class ProviderSubscriptionResponse extends BaseResponse {
   status: string;
@@ -16,6 +18,7 @@ export class ProviderSubscriptionResponse extends BaseResponse {
   cancelAt?: string;
   suspension?: SubscriptionSuspensionResponse;
   providerType: ProviderType;
+  paymentSource?: PaymentSourceResponse;
 
   constructor(response: any) {
     super(response);
@@ -38,6 +41,10 @@ export class ProviderSubscriptionResponse extends BaseResponse {
       this.suspension = new SubscriptionSuspensionResponse(suspension);
     }
     this.providerType = this.getResponseProperty("providerType");
+    const paymentSource = this.getResponseProperty("paymentSource");
+    if (paymentSource != null) {
+      this.paymentSource = new PaymentSourceResponse(paymentSource);
+    }
   }
 }
 

@@ -13,6 +13,7 @@ import { CalloutModule } from "../../callout";
 import { CheckboxModule } from "../../checkbox";
 import { ColorPasswordModule } from "../../color-password";
 import { DialogModule } from "../../dialog";
+import { DrawerModule } from "../../drawer";
 import { FormControlModule } from "../../form-control";
 import { FormFieldModule } from "../../form-field";
 import { IconModule } from "../../icon";
@@ -48,6 +49,7 @@ import { TypographyModule } from "../../typography";
     ColorPasswordModule,
     CommonModule,
     DialogModule,
+    DrawerModule,
     FormControlModule,
     FormFieldModule,
     FormsModule,
@@ -85,6 +87,7 @@ import { TypographyModule } from "../../typography";
     ColorPasswordModule,
     CommonModule,
     DialogModule,
+    DrawerModule,
     FormControlModule,
     FormFieldModule,
     FormsModule,

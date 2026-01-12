@@ -1,12 +1,16 @@
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { UserKey } from "@bitwarden/common/types/key";
+import { emptyGuid, UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { KeyService } from "@bitwarden/key-management";
 
-import { KeyService } from "../../../../../../key-management/src/abstractions/key.service";
-import { makeStaticByteArray, mockEnc } from "../../../../../spec";
-import { EncryptService } from "../../../../platform/abstractions/encrypt.service";
+import { makeStaticByteArray, mockContainerService, mockEnc } from "../../../../../spec";
+import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
+import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../../platform/services/container.service";
+import { UserKey } from "../../../../types/key";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";
 
@@ -27,17 +31,20 @@ describe("Send", () => {
         text: "encText",
         hidden: true,
       },
-      file: null,
+      file: null!,
       key: "encKey",
-      maxAccessCount: null,
+      maxAccessCount: null!,
       accessCount: 10,
       revisionDate: "2022-01-31T12:00:00.000Z",
       expirationDate: "2022-01-31T12:00:00.000Z",
       deletionDate: "2022-01-31T12:00:00.000Z",
       password: "password",
+      emails: null!,
       disabled: false,
       hideEmail: true,
     };
+
+    mockContainerService();
   });
 
   it("Convert from empty", () => {
@@ -84,6 +91,7 @@ describe("Send", () => {
       expirationDate: new Date("2022-01-31T12:00:00.000Z"),
       deletionDate: new Date("2022-01-31T12:00:00.000Z"),
       password: "password",
+      emails: null!,
       disabled: false,
       hideEmail: true,
     });
@@ -93,6 +101,7 @@ describe("Send", () => {
     const text = mock<SendText>();
     text.decrypt.mockResolvedValue("textView" as any);
     const userKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
+    const userId = emptyGuid as UserId;
 
     const send = new Send();
     send.id = "id";
@@ -112,18 +121,23 @@ describe("Send", () => {
 
     const encryptService = mock<EncryptService>();
     const keyService = mock<KeyService>();
-    encryptService.decryptToBytes
+    encryptService.decryptBytes
       .calledWith(send.key, userKey)
       .mockResolvedValue(makeStaticByteArray(32));
     keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
-    keyService.getUserKey.mockResolvedValue(userKey);
+    keyService.userKey$.calledWith(userId).mockReturnValue(of(userKey));
 
     (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
-    const view = await send.decrypt();
+    const view = await send.decrypt(userId);
 
     expect(text.decrypt).toHaveBeenNthCalledWith(1, "cryptoKey");
-    expect(send.name.decrypt).toHaveBeenNthCalledWith(1, null, "cryptoKey");
+    expect(send.name.decrypt).toHaveBeenNthCalledWith(
+      1,
+      null,
+      "cryptoKey",
+      "Property: name; ObjectContext: No Domain Context",
+    );
 
     expect(view).toMatchObject({
       id: "id",

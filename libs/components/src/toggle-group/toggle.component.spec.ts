@@ -1,75 +1,118 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ChangeDetectionStrategy, Component, DebugElement, signal } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+
+import { BadgeModule } from "../badge";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 import { ToggleGroupModule } from "./toggle-group.module";
 
-describe("Button", () => {
-  let mockGroupComponent: MockedButtonGroupComponent;
-  let fixture: ComponentFixture<TestApp>;
-  let testAppComponent: TestApp;
-  let radioButton: HTMLInputElement;
+describe("Toggle", () => {
+  let fixture: ComponentFixture<TestComponent>;
+  let toggleGroup: ToggleGroupComponent;
+  let toggleButtons: DebugElement[];
 
-  beforeEach(waitForAsync(() => {
-    mockGroupComponent = new MockedButtonGroupComponent();
-
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [ToggleGroupModule],
-      declarations: [TestApp],
-      providers: [{ provide: ToggleGroupComponent, useValue: mockGroupComponent }],
+      imports: [TestComponent],
     });
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.compileComponents();
-    fixture = TestBed.createComponent(TestApp);
-    testAppComponent = fixture.debugElement.componentInstance;
-    radioButton = fixture.debugElement.query(By.css("input[type=radio]")).nativeElement;
-  }));
+    await TestBed.compileComponents();
+    fixture = TestBed.createComponent(TestComponent);
+    fixture.detectChanges();
+    toggleGroup = fixture.debugElement.query(By.directive(ToggleGroupComponent)).componentInstance;
+    toggleButtons = fixture.debugElement.queryAll(By.css("input[type=radio]"));
+  });
 
   it("should emit value when clicking on radio button", () => {
-    testAppComponent.value = "value";
+    const spyFn = jest.spyOn(toggleGroup, "onInputInteraction");
+
+    toggleButtons[1].triggerEventHandler("change");
     fixture.detectChanges();
 
-    radioButton.click();
-    fixture.detectChanges();
-
-    expect(mockGroupComponent.onInputInteraction).toHaveBeenCalledWith("value");
+    expect(spyFn).toHaveBeenCalledWith(1);
   });
 
-  it("should check radio button when selected matches value", () => {
-    testAppComponent.value = "value";
+  it("should select toggle button only when selected matches value", () => {
     fixture.detectChanges();
 
-    mockGroupComponent.selected = "value";
+    expect(toggleButtons[0].nativeElement.checked).toBe(true);
+    expect(toggleButtons[1].nativeElement.checked).toBe(false);
+
+    toggleButtons[1].triggerEventHandler("change");
     fixture.detectChanges();
 
-    expect(radioButton.checked).toBe(true);
-  });
-
-  it("should not check radio button when selected does not match value", () => {
-    testAppComponent.value = "value";
-    fixture.detectChanges();
-
-    mockGroupComponent.selected = "nonMatchingValue";
-    fixture.detectChanges();
-
-    expect(radioButton.checked).toBe(false);
+    expect(toggleButtons[0].nativeElement.checked).toBe(false);
+    expect(toggleButtons[1].nativeElement.checked).toBe(true);
   });
 });
 
-class MockedButtonGroupComponent implements Partial<ToggleGroupComponent> {
-  onInputInteraction = jest.fn();
-  selected = null;
+describe("Toggle with badge content", () => {
+  let fixtureWithBadge: ComponentFixture<TestComponentWithBadgeComponent>;
+  let badgeContainers: DebugElement[];
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      imports: [TestComponentWithBadgeComponent],
+    });
+
+    await TestBed.compileComponents();
+    fixtureWithBadge = TestBed.createComponent(TestComponentWithBadgeComponent);
+    fixtureWithBadge.detectChanges();
+    badgeContainers = fixtureWithBadge.debugElement.queryAll(By.css(".tw-shrink-0"));
+  });
+
+  it("should hide badge container when no badge content is projected", () => {
+    // First toggle has no badge
+    expect(badgeContainers[0].nativeElement.hidden).toBe(true);
+
+    // Second toggle has a badge
+    expect(badgeContainers[1].nativeElement.hidden).toBe(false);
+
+    // Third toggle has no badge
+    expect(badgeContainers[2].nativeElement.hidden).toBe(true);
+  });
+
+  it("should show badge container when badge content is projected", () => {
+    const badgeElement = fixtureWithBadge.debugElement.query(By.css("[bitBadge]"));
+    expect(badgeElement).toBeTruthy();
+    expect(badgeElement.nativeElement.textContent.trim()).toBe("2");
+  });
+
+  it("should render badge content correctly", () => {
+    const badges = fixtureWithBadge.debugElement.queryAll(By.css("[bitBadge]"));
+    expect(badges.length).toBe(1);
+    expect(badges[0].nativeElement.textContent.trim()).toBe("2");
+  });
+});
+
+@Component({
+  selector: "test-component",
+  template: `
+    <bit-toggle-group [(selected)]="selected">
+      <bit-toggle [value]="0">Zero</bit-toggle>
+      <bit-toggle [value]="1">One</bit-toggle>
+    </bit-toggle-group>
+  `,
+  imports: [ToggleGroupModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestComponent {
+  readonly selected = signal(0);
 }
 
 @Component({
-  selector: "test-app",
-  template: ` <bit-toggle [value]="value">Element</bit-toggle>`,
+  selector: "test-component-with-badge",
+  template: `
+    <bit-toggle-group [(selected)]="selected">
+      <bit-toggle [value]="0">Zero</bit-toggle>
+      <bit-toggle [value]="1">One <span bitBadge variant="info">2</span></bit-toggle>
+      <bit-toggle [value]="2">Two</bit-toggle>
+    </bit-toggle-group>
+  `,
+  imports: [ToggleGroupModule, BadgeModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class TestApp {
-  value?: string;
+class TestComponentWithBadgeComponent {
+  readonly selected = signal(0);
 }

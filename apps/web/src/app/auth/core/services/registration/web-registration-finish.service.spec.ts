@@ -9,15 +9,14 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
-
-import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
-import { OrganizationInvite } from "../../../organization-invite/organization-invite";
 
 import { WebRegistrationFinishService } from "./web-registration-finish.service";
 
@@ -26,7 +25,7 @@ describe("WebRegistrationFinishService", () => {
 
   let keyService: MockProxy<KeyService>;
   let accountApiService: MockProxy<AccountApiService>;
-  let acceptOrgInviteService: MockProxy<AcceptOrganizationInviteService>;
+  let organizationInviteService: MockProxy<OrganizationInviteService>;
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let logService: MockProxy<LogService>;
   let policyService: MockProxy<PolicyService>;
@@ -34,7 +33,7 @@ describe("WebRegistrationFinishService", () => {
   beforeEach(() => {
     keyService = mock<KeyService>();
     accountApiService = mock<AccountApiService>();
-    acceptOrgInviteService = mock<AcceptOrganizationInviteService>();
+    organizationInviteService = mock<OrganizationInviteService>();
     policyApiService = mock<PolicyApiServiceAbstraction>();
     logService = mock<LogService>();
     policyService = mock<PolicyService>();
@@ -42,7 +41,7 @@ describe("WebRegistrationFinishService", () => {
     service = new WebRegistrationFinishService(
       keyService,
       accountApiService,
-      acceptOrgInviteService,
+      organizationInviteService,
       policyApiService,
       logService,
       policyService,
@@ -65,21 +64,21 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("returns null when the org invite is null", async () => {
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
       const result = await service.getOrgNameFromOrgInvite();
 
       expect(result).toBeNull();
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
 
     it("returns the organization name from the organization invite when it exists", async () => {
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
       const result = await service.getOrgNameFromOrgInvite();
 
       expect(result).toEqual(orgInvite.organizationName);
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
   });
 
@@ -95,22 +94,22 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("returns null when the org invite is null", async () => {
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
 
     it("returns null when the policies are null", async () => {
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
       policyApiService.getPoliciesByToken.mockResolvedValue(null);
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
         orgInvite.organizationId,
         orgInvite.token,
@@ -120,13 +119,13 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("logs an error and returns null when policies cannot be fetched", async () => {
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
       policyApiService.getPoliciesByToken.mockRejectedValue(new Error("error"));
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
         orgInvite.organizationId,
         orgInvite.token,
@@ -140,14 +139,14 @@ describe("WebRegistrationFinishService", () => {
       const masterPasswordPolicies = [new Policy()];
       const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
 
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
       policyApiService.getPoliciesByToken.mockResolvedValue(masterPasswordPolicies);
       policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toEqual(masterPasswordPolicyOptions);
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
         orgInvite.organizationId,
         orgInvite.token,
@@ -165,7 +164,6 @@ describe("WebRegistrationFinishService", () => {
     let userKey: UserKey;
     let userKeyEncString: EncString;
     let userKeyPair: [string, EncString];
-    let capchaBypassToken: string;
 
     let orgInvite: OrganizationInvite;
     let orgSponsoredFreeFamilyPlanToken: string;
@@ -179,19 +177,18 @@ describe("WebRegistrationFinishService", () => {
       emailVerificationToken = "emailVerificationToken";
       masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
       passwordInputResult = {
-        masterKey: masterKey,
-        masterKeyHash: "masterKeyHash",
-        localMasterKeyHash: "localMasterKeyHash",
+        newMasterKey: masterKey,
+        newServerMasterKeyHash: "newServerMasterKeyHash",
+        newLocalMasterKeyHash: "newLocalMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
-        hint: "hint",
-        password: "password",
+        newPasswordHint: "newPasswordHint",
+        newPassword: "newPassword",
       };
 
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted");
 
       userKeyPair = ["publicKey", new EncString("privateKey")];
-      capchaBypassToken = "capchaBypassToken";
 
       orgInvite = new OrganizationInvite();
       orgInvite.organizationUserId = "organizationUserId";
@@ -212,19 +209,13 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("registers the user and returns a captcha bypass token when given valid email verification input", async () => {
+    it("registers the user when given valid email verification input", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      accountApiService.registerFinish.mockResolvedValue();
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      const result = await service.finishRegistration(
-        email,
-        passwordInputResult,
-        emailVerificationToken,
-      );
-
-      expect(result).toEqual(capchaBypassToken);
+      await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
@@ -232,8 +223,8 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: emailVerificationToken,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],
@@ -254,15 +245,13 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("it registers the user and returns a captcha bypass token when given an org invite", async () => {
+    it("it registers the user when given an org invite", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      accountApiService.registerFinish.mockResolvedValue();
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
-      const result = await service.finishRegistration(email, passwordInputResult);
-
-      expect(result).toEqual(capchaBypassToken);
+      await service.finishRegistration(email, passwordInputResult);
 
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
@@ -270,8 +259,8 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],
@@ -292,20 +281,18 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("registers the user and returns a captcha bypass token when given an org sponsored free family plan token", async () => {
+    it("registers the user when given an org sponsored free family plan token", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      accountApiService.registerFinish.mockResolvedValue();
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      const result = await service.finishRegistration(
+      await service.finishRegistration(
         email,
         passwordInputResult,
         undefined,
         orgSponsoredFreeFamilyPlanToken,
       );
-
-      expect(result).toEqual(capchaBypassToken);
 
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
@@ -313,8 +300,8 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],
@@ -335,13 +322,13 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("registers the user and returns a captcha bypass token when given an emergency access invite token", async () => {
+    it("registers the user when given an emergency access invite token", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      accountApiService.registerFinish.mockResolvedValue();
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      const result = await service.finishRegistration(
+      await service.finishRegistration(
         email,
         passwordInputResult,
         undefined,
@@ -350,16 +337,14 @@ describe("WebRegistrationFinishService", () => {
         emergencyAccessId,
       );
 
-      expect(result).toEqual(capchaBypassToken);
-
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
       expect(accountApiService.registerFinish).toHaveBeenCalledWith(
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],
@@ -380,13 +365,13 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("registers the user and returns a captcha bypass token when given a provider invite token", async () => {
+    it("registers the user when given a provider invite token", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      accountApiService.registerFinish.mockResolvedValue();
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      const result = await service.finishRegistration(
+      await service.finishRegistration(
         email,
         passwordInputResult,
         undefined,
@@ -397,16 +382,14 @@ describe("WebRegistrationFinishService", () => {
         providerUserId,
       );
 
-      expect(result).toEqual(capchaBypassToken);
-
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
       expect(accountApiService.registerFinish).toHaveBeenCalledWith(
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.masterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],

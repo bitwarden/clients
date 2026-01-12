@@ -2,15 +2,25 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
-  CollectionService,
   CollectionData,
   CollectionDetailsResponse,
+  CollectionService,
 } from "@bitwarden/admin-console/common";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "../../../../auth/src/common/types";
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
@@ -23,13 +33,14 @@ import { PolicyResponse } from "../../admin-console/models/response/policy.respo
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
-import { KeyConnectorService } from "../../auth/abstractions/key-connector.service";
-import { InternalMasterPasswordServiceAbstraction } from "../../auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -45,15 +56,24 @@ import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 import { LogService } from "../abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
-import { sequentialize } from "../misc/sequentialize";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
+import { SyncResponse } from "./sync.response";
+import { SyncOptions } from "./sync.service";
 
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
+
+  /** The promises associated with any in-flight api calls. */
+  private inFlightApiCalls: {
+    refreshToken: Promise<void> | null;
+    sync: Promise<SyncResponse> | null;
+  } = {
+    refreshToken: null,
+    sync: null,
+  };
 
   constructor(
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -69,7 +89,6 @@ export class DefaultSyncService extends CoreSyncService {
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
-    stateService: StateService,
     private providerService: ProviderService,
     folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
@@ -78,12 +97,15 @@ export class DefaultSyncService extends CoreSyncService {
     private avatarService: AvatarService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: UserId) => Promise<void>,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private tokenService: TokenService,
+    tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
+    private securityStateService: SecurityStateService,
+    private kdfConfigService: KdfConfigService,
+    private accountCryptographicStateService: AccountCryptographicStateService,
   ) {
     super(
-      stateService,
+      tokenService,
       folderService,
       folderApiService,
       messageSender,
@@ -99,35 +121,64 @@ export class DefaultSyncService extends CoreSyncService {
     );
   }
 
-  @sequentialize(() => "fullSync")
-  override async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
+  override async fullSync(
+    forceSync: boolean,
+    allowThrowOnErrorOrOptions?: boolean | SyncOptions,
+  ): Promise<boolean> {
+    const { allowThrowOnError = false, skipTokenRefresh = false } =
+      typeof allowThrowOnErrorOrOptions === "boolean"
+        ? { allowThrowOnError: allowThrowOnErrorOrOptions }
+        : (allowThrowOnErrorOrOptions ?? {});
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     this.syncStarted();
     const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
     if (authStatus === AuthenticationStatus.LoggedOut) {
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     const now = new Date();
     let needsSync = false;
+    let needsSyncSucceeded = true;
     try {
       needsSync = await this.needsSyncing(forceSync);
     } catch (e) {
+      needsSyncSucceeded = false;
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       }
     }
 
     if (!needsSync) {
-      await this.setLastSync(now, userId);
-      return this.syncCompleted(false);
+      if (needsSyncSucceeded) {
+        await this.setLastSync(now, userId);
+      }
+      return this.syncCompleted(false, userId);
     }
 
     try {
-      await this.apiService.refreshIdentityToken();
-      const response = await this.apiService.getSync();
+      if (!skipTokenRefresh) {
+        // Store the promise so multiple calls to refresh the token are not made
+        if (this.inFlightApiCalls.refreshToken === null) {
+          this.inFlightApiCalls.refreshToken = this.apiService.refreshIdentityToken();
+        }
 
+        await this.inFlightApiCalls.refreshToken;
+      }
+
+      // Store the promise so multiple calls to sync are not made
+      if (this.inFlightApiCalls.sync === null) {
+        this.inFlightApiCalls.sync = this.apiService.getSync();
+      } else {
+        this.logService.debug(
+          "Sync: Sync network call already in progress, returning existing promise",
+        );
+      }
+
+      const response = await this.inFlightApiCalls.sync;
+
+      await this.syncUserDecryption(response.profile.id, response.userDecryption);
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
       await this.syncCollections(response.collections, response.profile.id);
@@ -137,14 +188,17 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncPolicies(response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
-      return this.syncCompleted(true);
+      return this.syncCompleted(true, userId);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       } else {
-        return this.syncCompleted(false);
+        return this.syncCompleted(false, userId);
       }
+    } finally {
+      this.inFlightApiCalls.refreshToken = null;
+      this.inFlightApiCalls.sync = null;
     }
   }
 
@@ -180,17 +234,53 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, response.id);
-    await this.keyService.setPrivateKey(response.privateKey, response.id);
+    // Users with no master password will not have a key.
+    if (response?.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
+    }
+
+    // Cleanup: Only the first branch should be kept after the server always returns accountKeys https://bitwarden.atlassian.net/browse/PM-21768
+    if (response.accountKeys != null) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeys.toWrappedAccountCryptographicState(),
+        response.id,
+      );
+
+      // V1 and V2 users
+      await this.keyService.setPrivateKey(
+        response.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+        response.id,
+      );
+      // V2 users only
+      if (response.accountKeys.isV2Encryption()) {
+        await this.keyService.setUserSigningKey(
+          response.accountKeys.signatureKeyPair.wrappedSigningKey,
+          response.id,
+        );
+        await this.securityStateService.setAccountSecurityState(
+          response.accountKeys.securityState.securityState,
+          response.id,
+        );
+        await this.keyService.setSignedPublicKey(
+          response.accountKeys.publicKeyEncryptionKeyPair.signedPublicKey,
+          response.id,
+        );
+      }
+    } else {
+      await this.keyService.setPrivateKey(response.privateKey, response.id);
+    }
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
       response.organizations,
       response.providerOrganizations,
       response.id,
     );
+
     await this.avatarService.setSyncAvatarColor(response.id, response.avatarColor);
     await this.tokenService.setSecurityStamp(response.securityStamp, response.id);
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
+    await this.accountService.setAccountCreationDate(response.id, new Date(response.creationDate));
+    await this.accountService.setAccountVerifyNewDeviceLogin(response.id, response.verifyDevices);
 
     await this.billingAccountProfileStateService.setHasPremium(
       response.premiumPersonally,
@@ -210,13 +300,8 @@ export class DefaultSyncService extends CoreSyncService {
 
     await this.syncProfileOrganizations(response, response.id);
 
-    if (await this.keyConnectorService.userNeedsMigration(response.id)) {
-      await this.keyConnectorService.setConvertAccountRequired(true, response.id);
+    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
       this.messageSender.send("convertAccountToKeyConnector");
-    } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.keyConnectorService.removeConvertAccountRequired(response.id);
     }
   }
 
@@ -347,5 +432,23 @@ export class DefaultSyncService extends CoreSyncService {
       });
     }
     return await this.policyService.replace(policies, userId);
+  }
+
+  private async syncUserDecryption(
+    userId: UserId,
+    userDecryption: UserDecryptionResponse | undefined,
+  ) {
+    if (userDecryption == null) {
+      return;
+    }
+    if (userDecryption.masterPasswordUnlock != null) {
+      const masterPasswordUnlockData =
+        userDecryption.masterPasswordUnlock.toMasterPasswordUnlockData();
+      await this.masterPasswordService.setMasterPasswordUnlockData(
+        masterPasswordUnlockData,
+        userId,
+      );
+      await this.kdfConfigService.setKdfConfig(userId, masterPasswordUnlockData.kdf);
+    }
   }
 }

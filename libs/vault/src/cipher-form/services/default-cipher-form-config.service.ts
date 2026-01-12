@@ -3,11 +3,15 @@
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -31,32 +35,39 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
   private cipherService: CipherService = inject(CipherService);
   private folderService: FolderService = inject(FolderService);
   private collectionService: CollectionService = inject(CollectionService);
+  private accountService = inject(AccountService);
 
   async buildConfig(
     mode: CipherFormMode,
     cipherId?: CipherId,
     cipherType?: CipherType,
   ): Promise<CipherFormConfig> {
-    const [organizations, collections, allowPersonalOwnership, folders, cipher] =
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const [organizations, collections, organizationDataOwnershipDisabled, folders, cipher] =
       await firstValueFrom(
         combineLatest([
-          this.organizations$,
-          this.collectionService.encryptedCollections$.pipe(
+          this.organizations$(activeUserId),
+          this.collectionService.encryptedCollections$(activeUserId).pipe(
+            map((collections) => collections ?? []),
             switchMap((c) =>
-              this.collectionService.decryptedCollections$.pipe(
+              this.collectionService.decryptedCollections$(activeUserId).pipe(
                 filter((d) => d.length === c.length), // Ensure all collections have been decrypted
               ),
             ),
           ),
-          this.allowPersonalOwnership$,
-          this.folderService.folders$.pipe(
+          this.organizationDataOwnershipDisabled$,
+          this.folderService.folders$(activeUserId).pipe(
             switchMap((f) =>
-              this.folderService.folderViews$.pipe(
-                filter((d) => d.length - 1 === f.length), // -1 for "No Folder" in folderViews$
-              ),
+              this.folderService
+                .folderViews$(activeUserId)
+                // Ensure the folders have decrypted. f.length === 0 indicates we don't have any
+                // folders to wait for, and d.length > 0 indicates that `folderViews` has emitted the
+                // array, which includes the "No Folder" default folder.
+                .pipe(filter((d) => d.length > 0 || f.length === 0)),
             ),
           ),
-          this.getCipher(cipherId),
+          this.getCipher(activeUserId, cipherId),
         ]),
       );
 
@@ -64,7 +75,7 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       mode,
       cipherType: cipher?.type ?? cipherType ?? CipherType.Login,
       admin: false,
-      allowPersonalOwnership,
+      organizationDataOwnershipDisabled,
       originalCipher: cipher,
       collections,
       organizations,
@@ -72,22 +83,30 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
     };
   }
 
-  private organizations$ = this.organizationService.organizations$.pipe(
-    map((orgs) =>
-      orgs.filter(
-        (o) => o.isMember && o.enabled && o.status === OrganizationUserStatusType.Confirmed,
-      ),
+  organizations$(userId: UserId) {
+    return this.organizationService
+      .organizations$(userId)
+      .pipe(
+        map((orgs) =>
+          orgs.filter(
+            (o) => o.isMember && o.enabled && o.status === OrganizationUserStatusType.Confirmed,
+          ),
+        ),
+      );
+  }
+
+  private organizationDataOwnershipDisabled$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
     ),
+    map((p) => !p),
   );
 
-  private allowPersonalOwnership$ = this.policyService
-    .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
-    .pipe(map((p) => !p));
-
-  private getCipher(id?: CipherId): Promise<Cipher | null> {
+  private getCipher(userId: UserId, id?: CipherId): Promise<Cipher | null> {
     if (id == null) {
       return Promise.resolve(null);
     }
-    return this.cipherService.get(id);
+    return this.cipherService.get(id, userId);
   }
 }

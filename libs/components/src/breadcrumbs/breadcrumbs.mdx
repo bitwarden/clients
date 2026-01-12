@@ -1,14 +1,15 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./breadcrumbs.stories";
 
 <Meta of={stories} />
 
-# Breadcrumbs
+```ts
+import { BreadcrumbsModule } from "@bitwarden/components";
+```
 
-Breadcrumbs are used to help users understand where they are in a products navigation. Typically
-Bitwarden uses this component to indicate the user's current location in a set of data organized in
-containers (Collections, Folders, or Projects).
+<Title />
+<Description />
 
 <Primary />
 <Controls />
@@ -23,7 +24,7 @@ See [Header with Breadcrumbs](?path=/story/web-header--with-breadcrumbs).
 When a user is 1 level deep into a tree, the top level is displayed as a single link above the page
 title.
 
-<Story of={stories.TopLevel} />
+<Canvas of={stories.TopLevel} />
 
 ### Second Level
 
@@ -31,7 +32,7 @@ When a user is 2 or more levels deep into a tree, the top level is displayed fol
 
 <i class="bwi bwi-angle-right"></i> icon, and the following pages.
 
-<Story of={stories.SecondLevel} />
+<Canvas of={stories.SecondLevel} />
 
 ### Overflow
 
@@ -42,7 +43,7 @@ When a user is several levels deep into a tree, the top level or 2 are displayed
 When the user selects the <i class="bwi bwi-ellipsis-h"></i> icon button, a menu opens displaying
 the pages between the top level and the previous page.
 
-<Story of={stories.Overflow} />
+<Canvas of={stories.Overflow} />
 
 ### Small screens
 

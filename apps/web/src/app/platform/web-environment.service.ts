@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Router } from "@angular/router";
-import { firstValueFrom, ReplaySubject } from "rxjs";
+import { firstValueFrom, Observable, ReplaySubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
@@ -16,6 +16,7 @@ import {
   SelfHostedEnvironment,
 } from "@bitwarden/common/platform/services/default-environment.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/user-core";
 
 export type WebRegionConfig = RegionConfig & {
   key: Region | string; // strings are used for custom environments
@@ -27,6 +28,8 @@ export type WebRegionConfig = RegionConfig & {
  * Web specific environment service. Ensures that the urls are set from the window location.
  */
 export class WebEnvironmentService extends DefaultEnvironmentService {
+  private _environmentSubject: ReplaySubject<Environment>;
+
   constructor(
     private win: Window,
     stateProvider: StateProvider,
@@ -60,7 +63,9 @@ export class WebEnvironmentService extends DefaultEnvironmentService {
     // Override the environment observable with a replay subject
     const subject = new ReplaySubject<Environment>(1);
     subject.next(environment);
+    this._environmentSubject = subject;
     this.environment$ = subject.asObservable();
+    this.globalEnvironment$ = subject.asObservable();
   }
 
   // Web setting env means navigating to a new location
@@ -99,6 +104,12 @@ export class WebEnvironmentService extends DefaultEnvironmentService {
 
     // This return shouldn't matter as we are about to leave the current window
     return chosenRegionConfig.urls;
+  }
+
+  getEnvironment$(userId: UserId): Observable<Environment> {
+    // Web does not support account switching, and even if it did, you'd be required to be the environment of where the application
+    // is running.
+    return this._environmentSubject.asObservable();
   }
 }
 

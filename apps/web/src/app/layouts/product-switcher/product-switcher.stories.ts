@@ -1,16 +1,25 @@
 import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { UserId } from "@bitwarden/common/types/guid";
 import { IconButtonModule, LinkModule, MenuModule } from "@bitwarden/components";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { I18nMockService } from "@bitwarden/components/src/utils/i18n-mock.service";
 
 import { ProductSwitcherContentComponent } from "./product-switcher-content.component";
@@ -19,27 +28,40 @@ import { ProductSwitcherService } from "./shared/product-switcher.service";
 
 @Directive({
   selector: "[mockOrgs]",
+  standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 class MockOrganizationService implements Partial<OrganizationService> {
   private static _orgs = new BehaviorSubject<Organization[]>([]);
-  organizations$ = MockOrganizationService._orgs; // eslint-disable-line rxjs/no-exposed-subjects
 
+  organizations$(): Observable<Organization[]> {
+    return MockOrganizationService._orgs.asObservable();
+  }
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set mockOrgs(orgs: Organization[]) {
-    this.organizations$.next(orgs);
+    MockOrganizationService._orgs.next(orgs);
   }
 }
 
 @Directive({
   selector: "[mockProviders]",
+  standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 class MockProviderService implements Partial<ProviderService> {
   private static _providers = new BehaviorSubject<Provider[]>([]);
 
-  async getAll() {
-    return await firstValueFrom(MockProviderService._providers);
+  providers$() {
+    return MockProviderService._providers.asObservable();
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   set mockProviders(providers: Provider[]) {
     MockProviderService._providers.next(providers);
@@ -52,15 +74,51 @@ class MockSyncService implements Partial<SyncService> {
   }
 }
 
+class MockAccountService implements Partial<AccountService> {
+  // We can't use mockAccountInfoWith() here because we can't take a dependency on @bitwarden/common/spec.
+  // This is because that package relies on jest dependencies that aren't available here.
+  activeAccount$?: Observable<Account> = of({
+    id: "test-user-id" as UserId,
+    name: "Test User 1",
+    email: "test@email.com",
+    emailVerified: true,
+    creationDate: new Date("2024-01-01T00:00:00.000Z"),
+  });
+}
+
+class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
+  isSelfHost() {
+    return false;
+  }
+}
+
+class MockBillingAccountProfileStateService implements Partial<BillingAccountProfileStateService> {
+  hasPremiumFromAnySource$(userId: UserId): Observable<boolean> {
+    return of(false);
+  }
+}
+
+class MockConfigService implements Partial<ConfigService> {
+  getFeatureFlag$<Flag extends FeatureFlag>(key: Flag): Observable<FeatureFlagValueType<Flag>> {
+    return of(false);
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-layout",
   template: `<ng-content></ng-content>`,
+  standalone: false,
 })
 class StoryLayoutComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-content",
   template: ``,
+  standalone: false,
 })
 class StoryContentComponent {}
 
@@ -78,11 +136,20 @@ export default {
       ],
       imports: [JslibModule, MenuModule, IconButtonModule, LinkModule, RouterModule],
       providers: [
+        { provide: AccountService, useClass: MockAccountService },
+        MockAccountService,
         { provide: OrganizationService, useClass: MockOrganizationService },
         MockOrganizationService,
         { provide: ProviderService, useClass: MockProviderService },
         MockProviderService,
         { provide: SyncService, useClass: MockSyncService },
+        { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
+        {
+          provide: BillingAccountProfileStateService,
+          useClass: MockBillingAccountProfileStateService,
+        },
+        { provide: ConfigService, useClass: MockConfigService },
+        MockPlatformUtilsService,
         ProductSwitcherService,
         {
           provide: I18nService,
@@ -92,7 +159,14 @@ export default {
               switchProducts: "Switch Products",
               secureYourInfrastructure: "Secure your infrastructure",
               protectYourFamilyOrBusiness: "Protect your family or business",
+              loading: "Loading",
             });
+          },
+        },
+        {
+          provide: PolicyService,
+          useValue: {
+            policyAppliesToUser$: () => of(false),
           },
         },
       ],
@@ -134,12 +208,14 @@ export default {
   ],
 } as Meta<ProductSwitcherComponent>;
 
-type Story = StoryObj<ProductSwitcherComponent & MockProviderService & MockOrganizationService>;
+type Story = StoryObj<
+  ProductSwitcherComponent & MockProviderService & MockOrganizationService & MockAccountService
+>;
 
 const Template: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
     <router-outlet [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></router-outlet>
     <div class="tw-flex tw-gap-[200px]">
       <div>
@@ -151,7 +227,7 @@ const Template: Story = {
         <product-switcher-content #content></product-switcher-content>
         <div class="tw-h-40">
           <div class="cdk-overlay-pane bit-menu-panel">
-            <ng-container *ngTemplateOutlet="content?.menu?.templateRef"></ng-container>
+            <ng-container *ngTemplateOutlet="content?.menu?.templateRef()"></ng-container>
           </div>
         </div>
       </div>
@@ -176,7 +252,6 @@ export const WithSM: Story = {
         canManageUsers: false,
         canAccessSecretsManager: true,
         enabled: true,
-        canAccessExport: (_) => false,
       },
     ] as Organization[],
     mockProviders: [],
@@ -192,7 +267,6 @@ export const WithSMAndAC: Story = {
         canManageUsers: true,
         canAccessSecretsManager: true,
         enabled: true,
-        canAccessExport: (_) => false,
       },
     ] as Organization[],
     mockProviders: [],
@@ -208,7 +282,6 @@ export const WithAllOptions: Story = {
         canManageUsers: true,
         canAccessSecretsManager: true,
         enabled: true,
-        canAccessExport: (_) => false,
       },
     ] as Organization[],
     mockProviders: [{ id: "provider-a" }] as Provider[],

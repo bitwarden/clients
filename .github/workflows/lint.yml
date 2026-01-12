@@ -1,10 +1,18 @@
 name: Lint
 
 on:
-  push:
+  pull_request:
+    types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
       - 'cf-pages'
+    paths-ignore:
+      - '.github/workflows/**'
+  push:
+    branches:
+      - 'main'
+      - 'rc'
+      - 'hotfix-rc-*'
     paths-ignore:
       - '.github/workflows/**'
   workflow_dispatch:
@@ -14,13 +22,18 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: Lint filenames (no capital characters)
         run: |
@@ -34,9 +47,12 @@ jobs:
             ! -path "*/.DS_Store" \
             ! -path "*/*locales/*" \
             ! -path "./.github/*" \
+            ! -path "*/README.md" \
             ! -path "*/Cargo.toml" \
             ! -path "*/Cargo.lock" \
             ! -path "./apps/desktop/macos/*" \
+            ! -path "*/CLAUDE.md" \
+            ! -path "*/SKILL.md" \
             > tmp.txt
           diff <(sort .github/whitelist-capital-letters.txt) <(sort tmp.txt)
 
@@ -45,44 +61,91 @@ jobs:
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Lint unowned dependencies
+        run: npm run lint:dep-ownership
+
+      - name: Lint sdk-internal versions
+        run: npm run lint:sdk-internal-versions
+
       - name: Run linter
-        run: |
-          npm ci
-          npm run lint
+        run: npm run lint
 
   rust:
     name: Run Rust lint on ${{ matrix.os }}
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
 
     strategy:
       matrix:
         os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
+          - ubuntu-24.04
+          - macos-14
+          - windows-2022
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # stable
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Install Rust nightly
+        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # stable
+        with:
+          toolchain: nightly
+          components: rustfmt
 
       - name: Check Rust version
         run: rustup --version
 
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+
       - name: Run cargo fmt
         working-directory: ./apps/desktop/desktop_native
-        run: cargo fmt --check
+        run: cargo +nightly fmt --check
 
       - name: Run Clippy
         working-directory: ./apps/desktop/desktop_native
         run: cargo clippy --all-features --tests
         env:
           RUSTFLAGS: "-D warnings"
+
+      - name: Install cargo-sort
+        run: cargo install cargo-sort --locked --git https://github.com/DevinR528/cargo-sort.git --rev f5047967021cbb1f822faddc355b3b07674305a1
+
+      - name: Cargo sort
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo sort --workspace --check
+
+      - name: Install cargo-udeps
+        run: cargo install cargo-udeps --version 0.1.57 --locked
+
+      - name: Cargo udeps
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo +nightly udeps --workspace --all-features --all-targets
+
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@073d46cba2cde38f6698c798566c1b3e24feeb44 # v2.62.67
+        with:
+          tool: cargo-deny@0.18.6
+
+      - name: Run cargo deny
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo deny --log-level error --all-features check all

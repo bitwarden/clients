@@ -8,7 +8,7 @@
     [activeFilter]="activeFilter"
     [collapsedFilterNodes]="collapsedFilterNodes"
     [organizations]="organizations"
-    [activePersonalOwnershipPolicy]="activePersonalOwnershipPolicy"
+    [activeOrganizationDataOwnership]="activeOrganizationDataOwnershipPolicy"
     [activeSingleOrganizationPolicy]="activeSingleOrganizationPolicy"
     (onNodeCollapseStateChange)="toggleFilterNodeCollapseState($event)"
     (onFilterChange)="applyFilter($event)"
@@ -17,6 +17,7 @@
     class="filter"
     [hideFavorites]="hideFavorites"
     [hideTrash]="hideTrash"
+    [hideArchive]="!showArchiveVaultFilter"
     [activeFilter]="activeFilter"
     (onFilterChange)="applyFilter($event)"
   ></app-status-filter>

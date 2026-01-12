@@ -1,0 +1,14 @@
+@switch (viewState) {
+  @case ("auth") {
+    <app-send-auth [id]="id" [key]="key" (accessGranted)="onAccessGranted($event)"></app-send-auth>
+  }
+  @case ("view") {
+    <app-send-view
+      [id]="id"
+      [key]="key"
+      [sendResponse]="sendAccessResponse"
+      [accessRequest]="sendAccessRequest"
+      (authRequired)="onAuthRequired()"
+    ></app-send-view>
+  }
+}

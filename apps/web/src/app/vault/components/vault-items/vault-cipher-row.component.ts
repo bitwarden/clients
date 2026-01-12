@@ -1,15 +1,25 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+  input,
+} from "@angular/core";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { MenuTriggerForDirective } from "@bitwarden/components";
 
 import {
   convertToPermission,
@@ -18,100 +28,235 @@ import {
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tr[appVaultCipherRow]",
   templateUrl: "vault-cipher-row.component.html",
+  standalone: false,
 })
-export class VaultCipherRowComponent implements OnInit {
+export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit {
   protected RowHeightClass = RowHeightClass;
 
-  /**
-   * Flag to determine if the extension refresh feature flag is enabled.
-   */
-  protected extensionRefreshEnabled = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild(MenuTriggerForDirective, { static: false }) menuTrigger: MenuTriggerForDirective;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled: boolean;
-  @Input() cipher: CipherView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() cipher: C;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showOwner: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showCollections: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showGroups: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showPremiumFeatures: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() useEvents: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cloneable: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizations: Organization[];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collections: CollectionView[];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() viewingOrgVault: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canEditCipher: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() canAssignCollections: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canManageCollection: boolean;
+  /**
+   * uses new permission delete logic from PM-15493
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() canDeleteCipher: boolean;
+  /**
+   * uses new permission restore logic from PM-15493
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() canRestoreCipher: boolean;
+  /**
+   * user has archive permissions
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() userCanArchive: boolean;
+  /** Archive feature is enabled */
+  readonly archiveEnabled = input.required<boolean>();
+  /**
+   * Enforce Org Data Ownership Policy Status
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() enforceOrgDataOwnershipPolicy: boolean;
 
-  @Output() onEvent = new EventEmitter<VaultItemEvent>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() checked: boolean;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() checkedToggled = new EventEmitter<void>();
 
   protected CipherType = CipherType;
   private permissionList = getPermissionList();
   private permissionPriority = [
-    "canManage",
-    "canEdit",
-    "canEditExceptPass",
-    "canView",
-    "canViewExceptPass",
+    "manageCollection",
+    "editItems",
+    "editItemsHidePass",
+    "viewItems",
+    "viewItemsHidePass",
   ];
   protected organization?: Organization;
 
-  constructor(
-    private configService: ConfigService,
-    private i18nService: I18nService,
-  ) {}
+  constructor(private i18nService: I18nService) {}
 
   /**
    * Lifecycle hook for component initialization.
-   * Checks if the extension refresh feature flag is enabled to provide to template.
    */
   async ngOnInit(): Promise<void> {
-    this.extensionRefreshEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
-    );
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
     }
   }
 
-  protected get showTotpCopyButton() {
+  // Archive button will not show in Admin Console
+  protected get showArchiveButton() {
+    if (!this.archiveEnabled() || this.viewingOrgVault) {
+      return false;
+    }
+
     return (
-      (this.cipher.login?.hasTotp ?? false) &&
-      (this.cipher.organizationUseTotp || this.showPremiumFeatures)
+      !CipherViewLikeUtils.isArchived(this.cipher) && !CipherViewLikeUtils.isDeleted(this.cipher)
     );
+  }
+
+  // If item is archived always show unarchive button, even if user is not premium
+  protected get showUnArchiveButton() {
+    if (!this.archiveEnabled()) {
+      return false;
+    }
+
+    return CipherViewLikeUtils.isArchived(this.cipher);
+  }
+
+  protected get clickAction() {
+    if (this.decryptionFailure) {
+      return "showFailedToDecrypt";
+    }
+
+    return "view";
+  }
+
+  protected get showTotpCopyButton() {
+    const login = CipherViewLikeUtils.getLogin(this.cipher);
+
+    const hasTotp = login?.totp ?? false;
+
+    return hasTotp && (this.cipher.organizationUseTotp || this.showPremiumFeatures);
   }
 
   protected get showFixOldAttachments() {
     return this.cipher.hasOldAttachments && this.cipher.organizationId == null;
   }
 
+  protected get hasAttachments() {
+    return CipherViewLikeUtils.hasAttachments(this.cipher);
+  }
+
+  // Do not show attachments button if:
+  // item is archived AND user is not premium user
   protected get showAttachments() {
-    return this.canEditCipher || this.cipher.attachments?.length > 0;
+    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+      return false;
+    }
+    return this.canEditCipher || this.hasAttachments;
   }
 
+  protected get canLaunch() {
+    return CipherViewLikeUtils.canLaunch(this.cipher);
+  }
+
+  protected get launchUri() {
+    return CipherViewLikeUtils.getLaunchUri(this.cipher);
+  }
+
+  protected get subtitle() {
+    return CipherViewLikeUtils.subtitle(this.cipher);
+  }
+
+  protected get isDeleted() {
+    return CipherViewLikeUtils.isDeleted(this.cipher);
+  }
+
+  protected get decryptionFailure() {
+    return CipherViewLikeUtils.decryptionFailure(this.cipher);
+  }
+
+  // Do Not show Assign to Collections option if item is archived
   protected get showAssignToCollections() {
-    return this.organizations?.length && this.canEditCipher && !this.cipher.isDeleted;
+    if (CipherViewLikeUtils.isArchived(this.cipher)) {
+      return false;
+    }
+    return (
+      this.organizations?.length &&
+      this.canAssignCollections &&
+      !CipherViewLikeUtils.isDeleted(this.cipher)
+    );
   }
 
+  // Do NOT show clone option if:
+  // item is archived AND user is not premium user
+  // item is archived AND enforce org data ownership policy is on
   protected get showClone() {
-    return this.cloneable && !this.cipher.isDeleted;
+    if (
+      CipherViewLikeUtils.isArchived(this.cipher) &&
+      (!this.userCanArchive || this.enforceOrgDataOwnershipPolicy)
+    ) {
+      return false;
+    }
+    return this.cloneable && !CipherViewLikeUtils.isDeleted(this.cipher);
   }
 
   protected get showEventLogs() {
     return this.useEvents && this.cipher.organizationId;
   }
 
-  protected get isNotDeletedLoginCipher() {
-    return this.cipher.type === this.CipherType.Login && !this.cipher.isDeleted;
+  protected get isLoginCipher() {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Login &&
+      !CipherViewLikeUtils.isDeleted(this.cipher) &&
+      !CipherViewLikeUtils.isArchived(this.cipher)
+    );
   }
 
   protected get permissionText() {
     if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
-      return this.i18nService.t("canManage");
+      return this.i18nService.t("manageCollection");
     }
 
     const filteredCollections = this.collections.filter((collection) => {
@@ -143,33 +288,66 @@ export class VaultCipherRowComponent implements OnInit {
     return this.i18nService.t("noAccess");
   }
 
-  protected get showCopyPassword(): boolean {
-    return this.isNotDeletedLoginCipher && this.cipher.viewPassword;
-  }
-
-  protected get showCopyTotp(): boolean {
-    return this.isNotDeletedLoginCipher && this.showTotpCopyButton;
-  }
-
-  protected get showLaunchUri(): boolean {
-    return this.isNotDeletedLoginCipher && this.cipher.login.canLaunch;
-  }
-
-  protected get disableMenu() {
-    return !(
-      this.isNotDeletedLoginCipher ||
-      this.showCopyPassword ||
-      this.showCopyTotp ||
-      this.showLaunchUri ||
-      this.showAttachments ||
-      this.showClone ||
-      this.canEditCipher ||
-      this.cipher.isDeleted
+  protected get hasVisibleLoginOptions() {
+    return (
+      this.isLoginCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "username") ||
+        (this.cipher.viewPassword &&
+          CipherViewLikeUtils.hasCopyableValue(this.cipher, "password")) ||
+        this.showTotpCopyButton ||
+        this.canLaunch)
     );
   }
 
-  protected copy(field: "username" | "password" | "totp") {
-    this.onEvent.emit({ type: "copyField", item: this.cipher, field });
+  protected get isCardCipher(): boolean {
+    return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Card && !this.isDeleted;
+  }
+
+  protected get hasVisibleCardOptions(): boolean {
+    return (
+      this.isCardCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "cardNumber") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "securityCode"))
+    );
+  }
+
+  protected get isIdentityCipher() {
+    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+      return false;
+    }
+    return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Identity && !this.isDeleted;
+  }
+
+  protected get hasVisibleIdentityOptions(): boolean {
+    return (
+      this.isIdentityCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "address") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "email") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "username") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "phone"))
+    );
+  }
+
+  protected get isSecureNoteCipher() {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.SecureNote &&
+      !(this.isDeleted && this.canRestoreCipher)
+    );
+  }
+
+  protected get hasVisibleSecureNoteOptions(): boolean {
+    return (
+      this.isSecureNoteCipher && CipherViewLikeUtils.hasCopyableValue(this.cipher, "secureNote")
+    );
+  }
+
+  protected get showMenuDivider() {
+    return (
+      this.hasVisibleLoginOptions ||
+      this.hasVisibleCardOptions ||
+      this.hasVisibleIdentityOptions ||
+      this.hasVisibleSecureNoteOptions
+    );
   }
 
   protected clone() {
@@ -178,6 +356,14 @@ export class VaultCipherRowComponent implements OnInit {
 
   protected events() {
     this.onEvent.emit({ type: "viewEvents", item: this.cipher });
+  }
+
+  protected archive() {
+    this.onEvent.emit({ type: "archive", items: [this.cipher] });
+  }
+
+  protected unarchive() {
+    this.onEvent.emit({ type: "unarchive", items: [this.cipher] });
   }
 
   protected restore() {
@@ -201,6 +387,35 @@ export class VaultCipherRowComponent implements OnInit {
       return true; // Always show checkbox in individual vault or for non-org items
     }
 
-    return this.organization.canEditAllCiphers || this.cipher.edit;
+    return this.organization.canEditAllCiphers || (this.cipher.edit && this.cipher.viewPassword);
+  }
+
+  protected get showFavorite() {
+    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+      return false;
+    }
+    return true;
+  }
+
+  protected toggleFavorite() {
+    this.onEvent.emit({
+      type: "toggleFavorite",
+      item: this.cipher,
+    });
+  }
+
+  protected editCipher() {
+    this.onEvent.emit({ type: "editCipher", item: this.cipher });
+  }
+
+  @HostListener("contextmenu", ["$event"])
+  protected onRightClick(event: MouseEvent) {
+    if (event.shiftKey && event.ctrlKey) {
+      return;
+    }
+
+    if (!this.disabled && this.menuTrigger) {
+      this.menuTrigger.toggleMenuOnRightClick(event);
+    }
   }
 }

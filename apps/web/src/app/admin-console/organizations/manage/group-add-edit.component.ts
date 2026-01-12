@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
@@ -13,6 +12,7 @@ import {
   of,
   shareReplay,
   Subject,
+  switchMap,
   takeUntil,
 } from "rxjs";
 
@@ -22,15 +22,26 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { InternalGroupApiService as GroupService } from "../core";
 import {
@@ -47,6 +58,8 @@ import { AddEditGroupDetail } from "./../core/views/add-edit-group-detail";
 /**
  * Indices for the available tabs in the dialog
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum GroupAddEditTabType {
   Info = 0,
   Members = 1,
@@ -71,6 +84,8 @@ export interface GroupAddEditDialogParams {
   initialTab?: GroupAddEditTabType;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum GroupAddEditDialogResultType {
   Saved = "saved",
   Canceled = "canceled",
@@ -92,14 +107,22 @@ export const openGroupAddEditDialog = (
   );
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-group-add-edit",
   templateUrl: "group-add-edit.component.html",
+  standalone: false,
 })
 export class GroupAddEditComponent implements OnInit, OnDestroy {
-  private organization$ = this.organizationService
-    .get$(this.organizationId)
-    .pipe(shareReplay({ refCount: true }));
+  private organization$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.organizationService
+        .organizations$(account?.id)
+        .pipe(getOrganizationById(this.organizationId))
+        .pipe(shareReplay({ refCount: true })),
+    ),
+  );
 
   protected PermissionMode = PermissionMode;
   protected ResultType = GroupAddEditDialogResultType;
@@ -126,13 +149,21 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     return this.params.organizationId;
   }
 
+  protected get isExternalIdVisible(): boolean {
+    return !!this.groupForm.get("externalId")?.value;
+  }
+
   protected get editMode(): boolean {
     return this.groupId != null;
   }
 
   private destroy$ = new Subject<void>();
 
-  private orgCollections$ = from(this.collectionAdminService.getAll(this.organizationId)).pipe(
+  private orgCollections$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.collectionAdminService.collectionAdminViews$(this.organizationId, userId),
+    ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -222,6 +253,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private collectionAdminService: CollectionAdminService,
     private toastService: ToastService,
+    private configService: ConfigService,
   ) {
     this.tabIndex = params.initialTab ?? GroupAddEditTabType.Info;
   }

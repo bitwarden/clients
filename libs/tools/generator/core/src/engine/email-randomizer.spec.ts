@@ -2,6 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 
+import { Algorithm, Type } from "../metadata";
+
 import { Randomizer } from "./abstractions";
 import { EmailRandomizer } from "./email-randomizer";
 
@@ -41,7 +43,8 @@ describe("EmailRandomizer", () => {
       async (email) => {
         const emailRandomizer = new EmailRandomizer(randomizer);
 
-        const result = await emailRandomizer.randomAsciiSubaddress(email);
+        // this tests what happens when the type system is subverted
+        const result = await emailRandomizer.randomAsciiSubaddress(email!);
 
         expect(result).toEqual("");
       },
@@ -100,7 +103,8 @@ describe("EmailRandomizer", () => {
     it.each([[null], [undefined], [""]])("returns null if the domain is %p", async (domain) => {
       const emailRandomizer = new EmailRandomizer(randomizer);
 
-      const result = await emailRandomizer.randomAsciiCatchall(domain);
+      // this tests what happens when the type system is subverted
+      const result = await emailRandomizer.randomAsciiCatchall(domain!);
 
       expect(result).toBeNull();
     });
@@ -150,7 +154,8 @@ describe("EmailRandomizer", () => {
     it.each([[null], [undefined], [""]])("returns null if the domain is %p", async (domain) => {
       const emailRandomizer = new EmailRandomizer(randomizer);
 
-      const result = await emailRandomizer.randomWordsCatchall(domain);
+      // this tests what happens when the type system is subverted
+      const result = await emailRandomizer.randomWordsCatchall(domain!);
 
       expect(result).toBeNull();
     });
@@ -214,32 +219,32 @@ describe("EmailRandomizer", () => {
       const email = new EmailRandomizer(randomizer);
 
       const result = await email.generate(
-        {},
+        { algorithm: Algorithm.catchall },
         {
           catchallDomain: "example.com",
         },
       );
 
-      expect(result.category).toEqual("catchall");
+      expect(result.category).toEqual(Type.email);
     });
 
     it("processes subaddress generation options", async () => {
       const email = new EmailRandomizer(randomizer);
 
       const result = await email.generate(
-        {},
+        { algorithm: Algorithm.plusAddress },
         {
           subaddressEmail: "foo@example.com",
         },
       );
 
-      expect(result.category).toEqual("subaddress");
+      expect(result.category).toEqual(Type.email);
     });
 
     it("throws when it cannot recognize the options type", async () => {
       const email = new EmailRandomizer(randomizer);
 
-      const result = email.generate({}, {});
+      const result = email.generate({ algorithm: Algorithm.password }, {});
 
       await expect(result).rejects.toBeInstanceOf(Error);
     });

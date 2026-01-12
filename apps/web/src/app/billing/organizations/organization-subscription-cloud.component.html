@@ -1,79 +1,34 @@
 <app-header></app-header>
 
 <ng-container *ngIf="loading">
-  <i class="bwi bwi-spinner bwi-spin text-muted" title="{{ 'loading' | i18n }}"></i>
+  <i class="bwi bwi-spinner bwi-spin tw-text-muted" title="{{ 'loading' | i18n }}"></i>
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 
 <bit-container *ngIf="showSubscription; else hideSubscription">
   <ng-container *ngIf="sub && !loading">
-    <ng-container *ngIf="!(showUpdatedSubscriptionStatusSection$ | async)">
-      <bit-callout
-        type="warning"
-        title="{{ 'canceled' | i18n }}"
-        *ngIf="subscription && subscription.cancelled"
-      >
-        {{ "subscriptionCanceled" | i18n }}</bit-callout
-      >
-      <bit-callout
-        type="warning"
-        title="{{ 'pendingCancellation' | i18n }}"
-        *ngIf="subscriptionMarkedForCancel"
-      >
-        <p>{{ "subscriptionPendingCanceled" | i18n }}</p>
-        <button
-          *ngIf="userOrg.canEditSubscription"
-          bitButton
-          buttonType="secondary"
-          [bitAction]="reinstate"
-          type="button"
-        >
-          {{ "reinstateSubscription" | i18n }}
-        </button>
-      </bit-callout>
-
-      <dl class="tw-grid tw-grid-flow-col tw-grid-rows-2">
-        <dt>{{ "billingPlan" | i18n }}</dt>
-        <dd>{{ sub.plan.name }}</dd>
-        <ng-container *ngIf="subscription">
-          <dt>{{ "status" | i18n }}</dt>
-          <dd>
-            <span class="tw-capitalize">{{
-              isSponsoredSubscription ? "sponsored" : subscription.status || "-"
-            }}</span>
-            <span bitBadge variant="warning" *ngIf="subscriptionMarkedForCancel">{{
-              "pendingCancellation" | i18n
-            }}</span>
-          </dd>
-          <dt [ngClass]="{ 'tw-text-danger': isExpired }">
-            {{ "subscriptionExpiration" | i18n }}
-          </dt>
-          <dd [ngClass]="{ 'tw-text-danger': isExpired }">
-            {{ nextInvoice ? (sub.subscription.periodEndDate | date: "mediumDate") : "-" }}
-          </dd>
-        </ng-container>
-      </dl>
-    </ng-container>
     <app-subscription-status
-      *ngIf="showUpdatedSubscriptionStatusSection$ | async"
       [organizationSubscriptionResponse]="sub"
       (reinstatementRequested)="reinstate()"
+      *ngIf="!userOrg.isFreeOrg"
     ></app-subscription-status>
     <ng-container *ngIf="userOrg.canEditSubscription">
       <div class="tw-flex-col">
-        <strong class="tw-block tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300"
-          >{{ "details" | i18n
-          }}<span
-            class="tw-ml-3"
+        <strong
+          class="tw-flex tw-items-center tw-gap-3 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
+        >
+          {{ "details" | i18n }}
+          <span
             *ngIf="customerDiscount?.percentOff > 0 && !isSecretsManagerTrial()"
             bitBadge
             variant="success"
+            class="tw-inline-flex tw-items-center"
             >{{ "providerDiscount" | i18n: customerDiscount?.percentOff }}</span
-          ></strong
-        >
+          >
+        </strong>
         <bit-table>
           <ng-template body>
-            <ng-container *ngIf="subscription">
+            <ng-container *ngIf="subscription && !userOrg.isFreeOrg">
               <tr bitRow *ngFor="let i of subscriptionLineItems">
                 <td
                   bitCell
@@ -87,7 +42,7 @@
                 <td bitCell class="tw-text-right">
                   <ng-container
                     *ngIf="
-                      sub?.customerDiscount?.appliesTo?.includes(i.productId);
+                      isSecretsManagerTrial() && i.productName === 'passwordManager';
                       else calculateElse
                     "
                   >
@@ -96,15 +51,16 @@
                   <ng-template #calculateElse>
                     <div class="tw-flex tw-flex-col">
                       <span>
-                        {{ i.quantity * i.amount | currency: "$" }} /{{ i.interval | i18n }}
+                        {{ i.quantity * i.amount | currency: "$" }} /
+                        {{ i.interval | i18n }}
                       </span>
                       <span
-                        *ngIf="customerDiscount?.percentOff && !isSecretsManagerTrial()"
+                        *ngIf="
+                          customerDiscount?.percentOff && discountAppliesToProduct(i.productId)
+                        "
                         class="tw-line-through !tw-text-muted"
-                        >{{
-                          calculateTotalAppliedDiscount(i.quantity * i.amount) | currency: "$"
-                        }}
-                        / {{ "year" | i18n }}</span
+                        >{{ i.quantity * i.originalAmount | currency: "$" }} /
+                        {{ "year" | i18n }}</span
                       >
                     </div>
                   </ng-template>
@@ -270,7 +226,7 @@
       <h2 bitTypography="h2">{{ "manageSubscription" | i18n }}</h2>
       <p bitTypography="body1" *ngIf="userOrg.isProviderUser; else isOrganizationOwner">
         {{ "manageSubscriptionFromThe" | i18n }}
-        <a [routerLink]="['/providers', userOrg.providerId, 'manage-client-organizations']">{{
+        <a [routerLink]="['/providers', userOrg.providerId, 'billing', 'subscription']">{{
           "providerPortal" | i18n
         }}</a
         >.
@@ -285,8 +241,10 @@
     </ng-container>
     <ng-template #organizationIsNotManagedByConsolidatedBillingMSP>
       <div class="tw-flex tw-flex-col tw-items-center tw-text-info">
-        <bit-icon [icon]="subscriptionHiddenIcon"></bit-icon>
-        <p class="tw-font-bold">{{ "billingManagedByProvider" | i18n: userOrg.providerName }}</p>
+        <div class="tw-size-56 tw-content-center">
+          <bit-icon [icon]="gearIcon" aria-hidden="true"></bit-icon>
+        </div>
+        <p class="tw-font-medium">{{ "billingManagedByProvider" | i18n: userOrg.providerName }}</p>
         <p>{{ "billingContactProviderForAssistance" | i18n }}</p>
       </div>
     </ng-template>
@@ -294,6 +252,10 @@
 </ng-template>
 
 <ng-template #setupSelfHost>
+  <ng-container *ngIf="userOrg.hasReseller && resellerSeatsRemainingMessage">
+    <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
+    <p bitTypography="body1">{{ resellerSeatsRemainingMessage }}</p>
+  </ng-container>
   <ng-container *ngIf="showSelfHost">
     <h2 bitTypography="h2" class="tw-mt-7">
       {{ "selfHostingTitleProper" | i18n }}

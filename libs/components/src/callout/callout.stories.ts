@@ -1,7 +1,9 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LinkModule, IconModule } from "@bitwarden/components";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { CalloutComponent } from "./callout.component";
@@ -11,6 +13,7 @@ export default {
   component: CalloutComponent,
   decorators: [
     moduleMetadata({
+      imports: [LinkModule, IconModule],
       providers: [
         {
           provide: I18nService,
@@ -24,50 +27,98 @@ export default {
       ],
     }),
   ],
-  args: {
-    type: "warning",
-  },
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881%3A17484",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-28300&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
 
 type Story = StoryObj<CalloutComponent>;
 
-export const Success: Story = {
+export const Info: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-callout [type]="type" [title]="title">Content</bit-callout>
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>The content of the callout</bit-callout>
     `,
   }),
   args: {
-    type: "success",
-    title: "Success",
+    title: "Callout title",
   },
 };
 
-export const Info: Story = {
-  ...Success,
+export const Success: Story = {
+  ...Info,
   args: {
-    type: "info",
-    title: "Info",
+    ...Info.args,
+    type: "success",
   },
 };
 
 export const Warning: Story = {
-  ...Success,
+  ...Info,
   args: {
     type: "warning",
   },
 };
 
 export const Danger: Story = {
-  ...Success,
+  ...Info,
   args: {
     type: "danger",
+  },
+};
+
+export const Default: Story = {
+  ...Info,
+  args: {
+    ...Info.args,
+    type: "default",
+  },
+};
+
+export const CustomIcon: Story = {
+  ...Info,
+  args: {
+    ...Info.args,
+    icon: "bwi-star",
+  },
+};
+
+export const NoTitle: Story = {
+  ...Info,
+  args: {
+    icon: "",
+  },
+};
+
+export const NoTitleWithIcon: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>The content of the callout</bit-callout>
+    `,
+  }),
+  args: {
+    type: "default",
+    icon: "bwi-globe",
+  },
+};
+
+export const WithTextButton: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
+      <p class="tw-mb-2">The content of the callout</p>
+        <a bitLink> Visit the help center<i aria-hidden="true" class="bwi bwi-fw bwi-sm bwi-angle-right"></i> </a>
+      </bit-callout>
+    `,
+  }),
+  args: {
+    type: "default",
+    icon: "",
   },
 };

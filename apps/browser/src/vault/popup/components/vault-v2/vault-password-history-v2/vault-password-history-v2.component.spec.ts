@@ -1,13 +1,15 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Subject } from "rxjs";
+import { Subject } from "rxjs";
 
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -19,6 +21,7 @@ import { PasswordHistoryV2Component } from "./vault-password-history-v2.componen
 describe("PasswordHistoryV2Component", () => {
   let fixture: ComponentFixture<PasswordHistoryV2Component>;
   const params$ = new Subject();
+  const mockUserId = "acct-1" as UserId;
 
   const mockCipherView = {
     id: "111-222-333",
@@ -45,9 +48,7 @@ describe("PasswordHistoryV2Component", () => {
         { provide: CipherService, useValue: mock<CipherService>({ get: getCipher }) },
         {
           provide: AccountService,
-          useValue: mock<AccountService>({
-            activeAccount$: new BehaviorSubject({ id: "acct-1" } as Account),
-          }),
+          useValue: mockAccountServiceWith(mockUserId),
         },
         { provide: PopupRouterCacheService, useValue: { back } },
         { provide: ActivatedRoute, useValue: { queryParams: params$ } },
@@ -64,7 +65,7 @@ describe("PasswordHistoryV2Component", () => {
 
     tick(100);
 
-    expect(getCipher).toHaveBeenCalledWith(mockCipherView.id);
+    expect(getCipher).toHaveBeenCalledWith(mockCipherView.id, mockUserId);
   }));
 
   it("navigates back when a cipherId is not in the params", () => {

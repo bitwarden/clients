@@ -144,7 +144,7 @@ Utilize o Bitwarden para proteger a sua equipa de trabalho e partilhar informaç
 Mais motivos para escolher o Bitwarden:
 
 Encriptação de classe mundial
-As palavras-passe são protegidas com encriptação avançada ponto a ponto (AES-256 bits, salted hashtag e PBKDF2 SHA-256) para que os seus dados permaneçam seguros e privados.
+As palavras-passe são protegidas com encriptação avançada ponto a ponto (AES-256 bits, salted hashing e PBKDF2 SHA-256) para que os seus dados permaneçam seguros e privados.
 
 Auditorias de terceiros
 O Bitwarden realiza regularmente auditorias abrangentes de segurança de terceiros com empresas de segurança notáveis. Estas auditorias anuais incluem avaliações de código-fonte e testes de penetração em IPs, servidores e aplicações Web do Bitwarden.
@@ -175,7 +175,7 @@ As soluções de gestão de credenciais encriptadas ponto a ponto do Bitwarden p
     <value>Sincronize e aceda ao seu cofre através de vários dispositivos</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Gira todas as suas credenciais e palavras-passe a partir de um cofre seguro</value>
+    <value>Faça a gestão de todas as suas credenciais e palavras-passe a partir de um cofre seguro</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
     <value>Preencha rapidamente e de forma automática as suas credenciais de início de sessão em qualquer site que visite</value>

@@ -1,27 +1,31 @@
-import { BiometricsService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
+import { BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
 
 export class WebBiometricsService extends BiometricsService {
-  async supportsBiometric(): Promise<boolean> {
+  async authenticateWithBiometrics(): Promise<boolean> {
     return false;
   }
 
-  async isBiometricUnlockAvailable(): Promise<boolean> {
+  async getBiometricsStatus(): Promise<BiometricsStatus> {
+    return BiometricsStatus.PlatformUnsupported;
+  }
+
+  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
+    return null;
+  }
+
+  async getBiometricsStatusForUser(userId: UserId): Promise<BiometricsStatus> {
+    return BiometricsStatus.PlatformUnsupported;
+  }
+
+  async getShouldAutopromptNow(): Promise<boolean> {
     return false;
   }
 
-  async authenticateBiometric(): Promise<boolean> {
-    throw new Error("Method not implemented.");
-  }
+  async setShouldAutopromptNow(value: boolean): Promise<void> {}
 
-  async biometricsNeedsSetup(): Promise<boolean> {
-    throw new Error("Method not implemented.");
-  }
-
-  async biometricsSupportsAutoSetup(): Promise<boolean> {
-    throw new Error("Method not implemented.");
-  }
-
-  async biometricsSetup(): Promise<void> {
-    throw new Error("Method not implemented.");
+  async canEnableBiometricUnlock(): Promise<boolean> {
+    return false;
   }
 }

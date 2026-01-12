@@ -1,5 +1,5 @@
 import { TestBed } from "@angular/core/testing";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionAdminService, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -7,7 +7,9 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
@@ -25,6 +27,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
     isMember: true,
     enabled: true,
     status: OrganizationUserStatusType.Confirmed,
+    userId: "UserId",
   };
   const testOrg2 = {
     id: "333-999-888",
@@ -33,8 +36,9 @@ describe("AdminConsoleCipherFormConfigService", () => {
     isMember: true,
     enabled: true,
     status: OrganizationUserStatusType.Confirmed,
+    userId: "UserId",
   };
-  const policyAppliesToActiveUser$ = new BehaviorSubject<boolean>(true);
+  const policyAppliesToUser$ = new BehaviorSubject<boolean>(true);
   const collection = {
     id: "12345-5555",
     organizationId: "234534-34334",
@@ -50,8 +54,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
     readOnly: false,
   } as CollectionAdminView;
 
-  const organization$ = new BehaviorSubject<Organization>(testOrg as Organization);
-  const organizations$ = new BehaviorSubject<Organization[]>([testOrg, testOrg2] as Organization[]);
+  const orgs$ = new BehaviorSubject<Organization[]>([testOrg, testOrg2] as Organization[]);
   const getCipherAdmin = jest.fn().mockResolvedValue(null);
   const getCipher = jest.fn().mockResolvedValue(null);
 
@@ -65,14 +68,14 @@ describe("AdminConsoleCipherFormConfigService", () => {
     TestBed.configureTestingModule({
       providers: [
         AdminConsoleCipherFormConfigService,
-        { provide: OrganizationService, useValue: { get$: () => organization$, organizations$ } },
+        { provide: OrganizationService, useValue: { organizations$: () => orgs$ } },
         {
           provide: CollectionAdminService,
-          useValue: { getAll: () => Promise.resolve([collection, collection2]) },
+          useValue: { collectionAdminViews$: () => of([collection, collection2]) },
         },
         {
           provide: PolicyService,
-          useValue: { policyAppliesToActiveUser$: () => policyAppliesToActiveUser$ },
+          useValue: { policyAppliesToUser$: () => policyAppliesToUser$ },
         },
         {
           provide: RoutedVaultFilterService,
@@ -80,6 +83,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
         },
         { provide: ApiService, useValue: { getCipherAdmin } },
         { provide: CipherService, useValue: { get: getCipher } },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
       ],
     });
     adminConsoleConfigService = TestBed.inject(AdminConsoleCipherFormConfigService);
@@ -124,34 +128,34 @@ describe("AdminConsoleCipherFormConfigService", () => {
       expect(result.admin).toBe(true);
     });
 
-    it("sets `allowPersonalOwnership`", async () => {
-      policyAppliesToActiveUser$.next(true);
+    it("sets `organizationDataOwnershipDisabled`", async () => {
+      policyAppliesToUser$.next(true);
 
       let result = await adminConsoleConfigService.buildConfig("clone", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(false);
+      expect(result.organizationDataOwnershipDisabled).toBe(false);
 
-      policyAppliesToActiveUser$.next(false);
+      policyAppliesToUser$.next(false);
 
       result = await adminConsoleConfigService.buildConfig("clone", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(true);
+      expect(result.organizationDataOwnershipDisabled).toBe(true);
     });
 
     it("disables personal ownership when not cloning", async () => {
-      policyAppliesToActiveUser$.next(false);
+      policyAppliesToUser$.next(false);
 
       let result = await adminConsoleConfigService.buildConfig("add", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(false);
+      expect(result.organizationDataOwnershipDisabled).toBe(false);
 
       result = await adminConsoleConfigService.buildConfig("edit", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(false);
+      expect(result.organizationDataOwnershipDisabled).toBe(false);
 
       result = await adminConsoleConfigService.buildConfig("clone", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(true);
+      expect(result.organizationDataOwnershipDisabled).toBe(true);
     });
 
     it("returns all ciphers when cloning a cipher", async () => {
@@ -196,7 +200,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
       await adminConsoleConfigService.buildConfig("edit", cipherId);
 
       expect(getCipherAdmin).not.toHaveBeenCalled();
-      expect(getCipher).toHaveBeenCalledWith(cipherId);
+      expect(getCipher).toHaveBeenCalledWith(cipherId, "UserId");
     });
   });
 });

@@ -26,9 +26,9 @@ export class WebCipherFormGenerationService implements CipherFormGenerationServi
     return result.generatedValue;
   }
 
-  async generateUsername(): Promise<string> {
+  async generateUsername(uri: string): Promise<string> {
     const dialogRef = WebVaultGeneratorDialogComponent.open(this.dialogService, {
-      data: { type: "username" },
+      data: { type: "username", uri: uri },
     });
 
     const result = await firstValueFrom(dialogRef.closed);

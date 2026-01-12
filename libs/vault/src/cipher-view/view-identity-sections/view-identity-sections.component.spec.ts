@@ -6,9 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
-import { SectionHeaderComponent } from "@bitwarden/components";
-
-import { BitInputDirective } from "../../../../components/src/input/input.directive";
+import { BitInputDirective, SectionHeaderComponent } from "@bitwarden/components";
 
 import { ViewIdentitySectionsComponent } from "./view-identity-sections.component";
 
@@ -45,7 +43,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       personalDetailSection = fixture.debugElement.query(By.directive(SectionHeaderComponent));
@@ -63,7 +60,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       const fields = fixture.debugElement.queryAll(By.directive(BitInputDirective));
@@ -88,7 +84,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       identificationDetailSection = fixture.debugElement.query(
@@ -108,7 +103,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       const fields = fixture.debugElement.queryAll(By.directive(BitInputDirective));
@@ -131,7 +125,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       contactDetailSection = fixture.debugElement.query(By.directive(SectionHeaderComponent));
@@ -153,7 +146,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       const fields = fixture.debugElement.queryAll(By.directive(BitInputDirective));
@@ -176,7 +168,6 @@ describe("ViewIdentitySectionsComponent", () => {
         },
       } as CipherView;
 
-      component.ngOnInit();
       fixture.detectChanges();
 
       let textarea = fixture.debugElement.query(By.css("textarea"));

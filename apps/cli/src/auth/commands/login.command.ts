@@ -11,16 +11,16 @@ import {
   LoginStrategyServiceAbstraction,
   PasswordLoginCredentials,
   SsoLoginCredentials,
+  SsoUrlService,
   UserApiLoginCredentials,
+  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -28,19 +28,27 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
+import { TwoFactorService, TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { ClientType } from "@bitwarden/common/enums";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
+import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
 
@@ -55,7 +63,8 @@ export class LoginCommand {
   constructor(
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected authService: AuthService,
-    protected apiService: ApiService,
+    protected twoFactorApiService: TwoFactorApiService,
+    protected masterPasswordApiService: MasterPasswordApiService,
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -71,6 +80,11 @@ export class LoginCommand {
     protected orgService: OrganizationService,
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
+    protected ssoUrlService: SsoUrlService,
+    protected i18nService: I18nService,
+    protected masterPasswordService: MasterPasswordServiceAbstraction,
+    protected userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    protected encryptedMigrator: EncryptedMigrator,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -99,20 +113,16 @@ export class LoginCommand {
         return Response.badRequest("client_secret is required.");
       }
     } else if (options.sso != null && this.canInteract) {
-      const passwordOptions: any = {
-        type: "password",
-        length: 64,
-        uppercase: true,
-        lowercase: true,
-        numbers: true,
-        special: false,
-      };
-      const state = await this.passwordGenerationService.generatePassword(passwordOptions);
-      ssoCodeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
-      const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
-      const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+      // If the optional Org SSO Identifier isn't provided, the option value is `true`.
+      const orgSsoIdentifier = options.sso === true ? null : options.sso;
+      const ssoPromptData = await this.makeSsoPromptData();
+      ssoCodeVerifier = ssoPromptData.ssoCodeVerifier;
       try {
-        const ssoParams = await this.openSsoPrompt(codeChallenge, state);
+        const ssoParams = await this.openSsoPrompt(
+          ssoPromptData.codeChallenge,
+          ssoPromptData.state,
+          orgSsoIdentifier,
+        );
         ssoCode = ssoParams.ssoCode;
         orgIdentifier = ssoParams.orgIdentifier;
       } catch {
@@ -165,6 +175,8 @@ export class LoginCommand {
       if (options.method != null) {
         twoFactorMethod = parseInt(options.method, null);
       }
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return Response.error("Invalid two-step login method.");
     }
@@ -212,25 +224,46 @@ export class LoginCommand {
         );
       } else {
         response = await this.loginStrategyService.logIn(
-          new PasswordLoginCredentials(email, password, null, twoFactor),
+          new PasswordLoginCredentials(email, password, twoFactor),
         );
       }
-      if (response.requiresEncryptionKeyMigration) {
-        return Response.error(
-          "Encryption key migration required. Please login through the web vault to update your encryption key.",
-        );
-      }
-      if (response.captchaSiteKey) {
-        const credentials = new PasswordLoginCredentials(email, password);
-        const handledResponse = await this.handleCaptchaRequired(twoFactor, credentials);
 
-        // Error Response
-        if (handledResponse instanceof Response) {
-          return handledResponse;
-        } else {
-          response = handledResponse;
+      // Begin Acting on initial AuthResult
+
+      if (response.requiresEncryptionKeyMigration) {
+        return Response.error(this.i18nService.t("legacyEncryptionUnsupported"));
+      }
+
+      // Opting for not checking feature flag since the server will not respond with
+      // SsoOrganizationIdentifier if the feature flag is not enabled.
+      if (response.requiresSso && this.canInteract) {
+        const ssoPromptData = await this.makeSsoPromptData();
+        ssoCodeVerifier = ssoPromptData.ssoCodeVerifier;
+        try {
+          const ssoParams = await this.openSsoPrompt(
+            ssoPromptData.codeChallenge,
+            ssoPromptData.state,
+            response.ssoOrganizationIdentifier,
+          );
+          ssoCode = ssoParams.ssoCode;
+          orgIdentifier = ssoParams.orgIdentifier;
+          if (ssoCode != null && ssoCodeVerifier != null) {
+            response = await this.loginStrategyService.logIn(
+              new SsoLoginCredentials(
+                ssoCode,
+                ssoCodeVerifier,
+                this.ssoRedirectUri,
+                orgIdentifier,
+                undefined, // email to look up 2FA token not required as CLI can't remember 2FA token
+                twoFactor,
+              ),
+            );
+          }
+        } catch {
+          return Response.badRequest("Something went wrong. Try again.");
         }
       }
+
       if (response.requiresTwoFactor) {
         const twoFactorProviders = await this.twoFactorService.getSupportedProviders(null);
         if (twoFactorProviders.length === 0) {
@@ -240,6 +273,8 @@ export class LoginCommand {
         if (twoFactorMethod != null) {
           try {
             selectedProvider = twoFactorProviders.filter((p) => p.type === twoFactorMethod)[0];
+            // FIXME: Remove when updating file. Eslint update
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (e) {
             return Response.error("Invalid two-step login method.");
           }
@@ -271,15 +306,15 @@ export class LoginCommand {
           }
         }
 
-        if (
-          twoFactorToken == null &&
-          Object.keys(response.twoFactorProviders).length > 1 &&
-          selectedProvider.type === TwoFactorProviderType.Email
-        ) {
+        if (twoFactorToken == null && selectedProvider.type === TwoFactorProviderType.Email) {
           const emailReq = new TwoFactorEmailRequest();
           emailReq.email = await this.loginStrategyService.getEmail();
+          // if the user was logging in with SSO, we need to include the SSO session token
+          if (response.ssoEmail2FaSessionToken != null) {
+            emailReq.ssoEmail2FaSessionToken = response.ssoEmail2FaSessionToken;
+          }
           emailReq.masterPasswordHash = await this.loginStrategyService.getMasterPasswordHash();
-          await this.apiService.postTwoFactorEmail(emailReq);
+          await this.twoFactorApiService.postTwoFactorEmail(emailReq);
         }
 
         if (twoFactorToken == null) {
@@ -300,51 +335,90 @@ export class LoginCommand {
 
         response = await this.loginStrategyService.logInTwoFactor(
           new TokenTwoFactorRequest(selectedProvider.type, twoFactorToken),
-          null,
         );
       }
 
-      if (response.captchaSiteKey) {
-        const twoFactorRequest = new TokenTwoFactorRequest(selectedProvider.type, twoFactorToken);
-        const handledResponse = await this.handleCaptchaRequired(twoFactorRequest);
-
-        // Error Response
-        if (handledResponse instanceof Response) {
-          return handledResponse;
-        } else {
-          response = handledResponse;
+      // Opting for not checking feature flag since the server will not respond with
+      // requiresDeviceVerification if the feature flag is not enabled.
+      if (response.requiresDeviceVerification) {
+        let newDeviceToken: string = null;
+        if (this.canInteract) {
+          const answer: inquirer.Answers = await inquirer.createPromptModule({
+            output: process.stderr,
+          })({
+            type: "input",
+            name: "token",
+            message: "New device verification required. Enter OTP sent to login email:",
+          });
+          newDeviceToken = answer.token;
         }
+        if (newDeviceToken == null || newDeviceToken === "") {
+          return Response.badRequest("Code is required.");
+        }
+        response = await this.loginStrategyService.logInNewDeviceVerification(newDeviceToken);
       }
 
+      // We check response two factor again here since MFA could fail based on the logic on ln 226
       if (response.requiresTwoFactor) {
         return Response.error("Login failed.");
       }
 
-      if (response.resetMasterPassword) {
-        return Response.error(
-          "In order to log in with SSO from the CLI, you must first log in" +
-            " through the web vault to set your master password.",
-        );
+      // If we are in the SSO flow and we got a successful login response (we are past rejection scenarios
+      // and should always have a userId here), validate that SSO user in MP encryption org has MP set
+      // This must be done here b/c we have 2 places we try to login with SSO above and neither has a
+      // common handleSsoAuthnResult method to consoldiate this logic into (1. the normal SSO flow and
+      // 2. the requiresSso automatic authentication flow)
+      if (ssoCode != null && ssoCodeVerifier != null && response.userId) {
+        await this.validateSsoUserInMpEncryptionOrgHasMp(response.userId);
       }
 
-      // Run full sync before handling success response or password reset flows (to get Master Password Policies)
-      await this.syncService.fullSync(true);
-
-      // Handle updating passwords if NOT using an API Key for authentication
-      if (
-        response.forcePasswordReset != ForceSetPasswordReason.None &&
-        clientId == null &&
-        clientSecret == null
-      ) {
-        if (response.forcePasswordReset === ForceSetPasswordReason.AdminForcePasswordReset) {
-          return await this.updateTempPassword();
-        } else if (response.forcePasswordReset === ForceSetPasswordReason.WeakMasterPassword) {
-          return await this.updateWeakPassword(password);
+      // Check if Key Connector domain confirmation is required
+      const domainConfirmation = await firstValueFrom(
+        this.keyConnectorService.requiresDomainConfirmation$(response.userId),
+      );
+      if (domainConfirmation != null) {
+        const command = new ConfirmKeyConnectorDomainCommand(
+          response.userId,
+          domainConfirmation.keyConnectorUrl,
+          this.keyConnectorService,
+          this.logoutCallback,
+          this.i18nService,
+        );
+        const confirmResponse = await command.run();
+        if (!confirmResponse.success) {
+          return confirmResponse;
         }
       }
 
+      // Run full sync before handling success response or password reset flows (to get Master Password Policies)
+      await this.syncService.fullSync(true, { skipTokenRefresh: true });
+
+      // Handle updating passwords if NOT using an API Key for authentication
+      if (clientId == null && clientSecret == null) {
+        const forceSetPasswordReason = await firstValueFrom(
+          this.masterPasswordService.forceSetPasswordReason$(response.userId),
+        );
+
+        if (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
+          return await this.updateTempPassword(response.userId);
+        } else if (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
+          return await this.updateWeakPassword(response.userId, password);
+        }
+      }
+
+      await this.encryptedMigrator.runMigrations(response.userId, password);
+
       return await this.handleSuccessResponse(response);
     } catch (e) {
+      if (
+        e instanceof ErrorResponse &&
+        e.message === "Username or password is incorrect. Try again."
+      ) {
+        const env = await firstValueFrom(this.environmentService.environment$);
+        const host = Utils.getHost(env.getWebVaultUrl());
+        return Response.error(this.i18nService.t("invalidMasterPasswordConfirmEmailAndHost", host));
+      }
+
       return Response.error(e);
     }
   }
@@ -401,7 +475,7 @@ export class LoginCommand {
     return Response.success(res);
   }
 
-  private async updateWeakPassword(currentPassword: string) {
+  private async updateWeakPassword(userId: UserId, currentPassword: string) {
     // If no interaction available, alert user to use web vault
     if (!this.canInteract) {
       await this.logoutCallback();
@@ -418,16 +492,18 @@ export class LoginCommand {
 
     try {
       const { newPasswordHash, newUserKey, hint } = await this.collectNewMasterPasswordDetails(
+        userId,
         "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now.",
       );
 
       const request = new PasswordRequest();
-      request.masterPasswordHash = await this.keyService.hashMasterKey(currentPassword, null);
+      const masterKey = await this.keyService.getOrDeriveMasterKey(currentPassword, userId);
+      request.masterPasswordHash = await this.keyService.hashMasterKey(currentPassword, masterKey);
       request.masterPasswordHint = hint;
       request.newMasterPasswordHash = newPasswordHash;
       request.key = newUserKey[1].encryptedString;
 
-      await this.apiService.postPassword(request);
+      await this.masterPasswordApiService.postPassword(request);
 
       return await this.handleUpdatePasswordSuccessResponse();
     } catch (e) {
@@ -439,7 +515,7 @@ export class LoginCommand {
     }
   }
 
-  private async updateTempPassword() {
+  private async updateTempPassword(userId: UserId) {
     // If no interaction available, alert user to use web vault
     if (!this.canInteract) {
       await this.logoutCallback();
@@ -456,6 +532,7 @@ export class LoginCommand {
 
     try {
       const { newPasswordHash, newUserKey, hint } = await this.collectNewMasterPasswordDetails(
+        userId,
         "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now.",
       );
 
@@ -464,7 +541,7 @@ export class LoginCommand {
       request.newMasterPasswordHash = newPasswordHash;
       request.masterPasswordHint = hint;
 
-      await this.apiService.putUpdateTempPassword(request);
+      await this.masterPasswordApiService.putUpdateTempPassword(request);
 
       return await this.handleUpdatePasswordSuccessResponse();
     } catch (e) {
@@ -480,10 +557,12 @@ export class LoginCommand {
    * Collect new master password and hint from the CLI. The collected password
    * is validated against any applicable master password policies, a new master
    * key is generated, and we use it to re-encrypt the user key
+   * @param userId - User ID of the account
    * @param prompt - Message that is displayed during the initial prompt
    * @param error
    */
   private async collectNewMasterPasswordDetails(
+    userId: UserId,
     prompt: string,
     error?: string,
   ): Promise<{
@@ -509,11 +588,12 @@ export class LoginCommand {
 
     // Master Password Validation
     if (masterPassword == null || masterPassword === "") {
-      return this.collectNewMasterPasswordDetails(prompt, "Master password is required.\n");
+      return this.collectNewMasterPasswordDetails(userId, prompt, "Master password is required.\n");
     }
 
     if (masterPassword.length < Utils.minimumPasswordLength) {
       return this.collectNewMasterPasswordDetails(
+        userId,
         prompt,
         `Master password must be at least ${Utils.minimumPasswordLength} characters long.\n`,
       );
@@ -526,7 +606,7 @@ export class LoginCommand {
     );
 
     const enforcedPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(),
+      this.policyService.masterPasswordPolicyOptions$(userId),
     );
 
     // Verify master password meets policy requirements
@@ -539,6 +619,7 @@ export class LoginCommand {
       )
     ) {
       return this.collectNewMasterPasswordDetails(
+        userId,
         prompt,
         "Your new master password does not meet the policy requirements.\n",
       );
@@ -556,6 +637,7 @@ export class LoginCommand {
     // Re-type Validation
     if (masterPassword !== masterPasswordRetype) {
       return this.collectNewMasterPasswordDetails(
+        userId,
         prompt,
         "Master password confirmation does not match.\n",
       );
@@ -568,7 +650,7 @@ export class LoginCommand {
       message: "Master Password Hint (optional):",
     });
     const masterPasswordHint = hint.input;
-    const kdfConfig = await this.kdfConfigService.getKdfConfig();
+    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
     // Create new key and hash new password
     const newMasterKey = await this.keyService.makeMasterKey(
@@ -579,7 +661,7 @@ export class LoginCommand {
     const newPasswordHash = await this.keyService.hashMasterKey(masterPassword, newMasterKey);
 
     // Grab user key
-    const userKey = await this.keyService.getUserKey();
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (!userKey) {
       throw new Error("User key not found.");
     }
@@ -588,48 +670,6 @@ export class LoginCommand {
     const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
 
     return { newPasswordHash, newUserKey: newUserKey, hint: masterPasswordHint };
-  }
-
-  private async handleCaptchaRequired(
-    twoFactorRequest: TokenTwoFactorRequest,
-    credentials: PasswordLoginCredentials = null,
-  ): Promise<AuthResult | Response> {
-    const badCaptcha = Response.badRequest(
-      "Your authentication request has been flagged and will require user interaction to proceed.\n" +
-        "Please use your API key to validate this request and ensure BW_CLIENTSECRET is correct, if set.\n" +
-        "(https://bitwarden.com/help/cli-auth-challenges)",
-    );
-
-    try {
-      const captchaClientSecret = await this.apiClientSecret(true);
-      if (Utils.isNullOrWhitespace(captchaClientSecret)) {
-        return badCaptcha;
-      }
-
-      let authResultResponse: AuthResult = null;
-      if (credentials != null) {
-        credentials.captchaToken = captchaClientSecret;
-        credentials.twoFactor = twoFactorRequest;
-        authResultResponse = await this.loginStrategyService.logIn(credentials);
-      } else {
-        authResultResponse = await this.loginStrategyService.logInTwoFactor(
-          twoFactorRequest,
-          captchaClientSecret,
-        );
-      }
-
-      return authResultResponse;
-    } catch (e) {
-      if (
-        e instanceof ErrorResponse ||
-        (e.constructor.name === ErrorResponse.name &&
-          (e as ErrorResponse).message.includes("Captcha is invalid"))
-      ) {
-        return badCaptcha;
-      } else {
-        return Response.error(e);
-      }
-    }
   }
 
   private async apiClientId(): Promise<string> {
@@ -689,9 +729,31 @@ export class LoginCommand {
     };
   }
 
+  /// Generate SSO prompt data: code verifier, code challenge, and state
+  private async makeSsoPromptData(): Promise<{
+    ssoCodeVerifier: string;
+    codeChallenge: string;
+    state: string;
+  }> {
+    const passwordOptions: any = {
+      type: "password",
+      length: 64,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      special: false,
+    };
+    const state = await this.passwordGenerationService.generatePassword(passwordOptions);
+    const ssoCodeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
+    const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
+    const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+    return { ssoCodeVerifier, codeChallenge, state };
+  }
+
   private async openSsoPrompt(
     codeChallenge: string,
     state: string,
+    orgSsoIdentifier: string,
   ): Promise<{ ssoCode: string; orgIdentifier: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
@@ -734,17 +796,16 @@ export class LoginCommand {
         try {
           this.ssoRedirectUri = "http://localhost:" + port;
           callbackServer.listen(port, () => {
-            this.platformUtilsService.launchUri(
-              webUrl +
-                "/#/sso?clientId=" +
-                "cli" +
-                "&redirectUri=" +
-                encodeURIComponent(this.ssoRedirectUri) +
-                "&state=" +
-                state +
-                "&codeChallenge=" +
-                codeChallenge,
+            const webAppSsoUrl = this.ssoUrlService.buildSsoUrl(
+              webUrl,
+              ClientType.Cli,
+              this.ssoRedirectUri,
+              state,
+              codeChallenge,
+              null,
+              orgSsoIdentifier,
             );
+            this.platformUtilsService.launchUri(webAppSsoUrl);
           });
           foundPort = true;
           break;
@@ -778,5 +839,36 @@ export class LoginCommand {
     const stateSplit = state.split("_identifier=");
     const checkStateSplit = checkState.split("_identifier=");
     return stateSplit[0] === checkStateSplit[0];
+  }
+
+  /**
+   * Validate that a user logging in with SSO that is in an org using MP encryption
+   * has a MP set. If not, they cannot set a MP in the CLI and must use another client.
+   * @param userId
+   * @returns void
+   */
+  private async validateSsoUserInMpEncryptionOrgHasMp(userId: UserId): Promise<void> {
+    const userDecryptionOptions = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+    );
+
+    // device trust isn't supported in the CLI as we don't have persistent device key storage.
+    const notUsingTrustedDeviceEncryption = !userDecryptionOptions.trustedDeviceOption;
+    const notUsingKeyConnector = !userDecryptionOptions.keyConnectorOption;
+
+    if (
+      notUsingTrustedDeviceEncryption &&
+      notUsingKeyConnector &&
+      !userDecryptionOptions.hasMasterPassword
+    ) {
+      // If user is in an org that is using MP encryption and they JIT provisioned but
+      // have not yet set a MP and come to the CLI to login, they won't be able to unlock
+      // or set a MP in the CLI as it isn't supported.
+      await this.logoutCallback();
+      throw Response.error(
+        "In order to log in with SSO from the CLI, you must first log in" +
+          " through the web vault, the desktop, or the extension to set your master password.",
+      );
+    }
   }
 }

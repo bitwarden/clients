@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./callout.stories";
 
@@ -8,11 +8,11 @@ import { CalloutModule } from "@bitwarden/components";
 
 <Meta of={stories} />
 
-# Callouts
+<Title />
+<Description />
 
-Callouts are used to communicate important information to the user. Callouts should be used
-sparingly, as they command a large amount of visual attention. Avoid using more than 1 callout in
-the same location.
+<Primary />
+<Controls />
 
 ## Styles
 
@@ -28,7 +28,7 @@ Use the success callout to communicate a positive messaging to the user.
 The success callout may also be used for the information related to a premium membership. In this
 case, replace the icon with <i class="bwi bwi-star" title="bwi-star" aria-label="bwi-star"></i>
 
-<Story of={stories.Success} />
+<Canvas of={stories.Success} />
 
 ### Info
 
@@ -39,7 +39,13 @@ information.
 **Example:** in the Domain Claiming modal, an info callout is used to tell the user the domain will
 automatically be checked.
 
-<Story of={stories.Info} />
+<Canvas of={stories.Info} />
+
+### Default
+
+Use for similar cases as the info callout but when content does not need to be as prominent.
+
+<Canvas of={stories.Default} />
 
 ### Warning
 
@@ -49,7 +55,7 @@ irreversible results.
 **Example:** the warning callout is used before the change master password and encryption key form
 to alert the user that they will be logged out.
 
-<Story of={stories.Warning} />
+<Canvas of={stories.Warning} />
 
 ### Danger
 
@@ -59,7 +65,7 @@ not reversible.
 The danger callout can also be used to alert the user of an error or errors, such as a server side
 errors after form submit or failed communication request.
 
-<Story of={stories.Danger} />
+<Canvas of={stories.Danger} />
 
 ## Accessibility
 
@@ -67,4 +73,8 @@ Use the `role=”alert”` only if the callout is appearing on a page after the 
 the content is static, do not use the alert role. This will cause a screen reader to announce the
 callout content on page load.
 
-Ensure the title's color contrast remains WCAG compliant with the callout's background.
+Ensure color contrast remains WCAG compliant with the callout's background. This is especially
+important when adding `bit-link` or `bit-button` to the content area since the callout background is
+colored. Currently only the `info` and `default` callouts are WCAG compliant for the `primary`
+styling of these elements. The `secondary` `bit-link` styling may be used with the remaining
+variants.

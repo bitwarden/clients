@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { TaxInfoResponse } from "@bitwarden/common/billing/models/response/tax-info.response";
+import { TaxInfoResponse } from "../response/tax-info.response";
 
 export class TaxInformation {
   country: string;

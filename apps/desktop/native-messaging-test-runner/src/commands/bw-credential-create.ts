@@ -7,6 +7,7 @@ import { hideBin } from "yargs/helpers";
 
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
 
+// eslint-disable-next-line no-restricted-imports
 import { CredentialCreatePayload } from "../../../src/models/native-messaging/encrypted-message-payloads/credential-create-payload";
 import { LogUtils } from "../log-utils";
 import NativeMessageService from "../native-message.service";

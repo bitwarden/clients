@@ -52,7 +52,7 @@
               [color]="c.avatarColor"
               size="small"
             ></bit-avatar>
-            <span>
+            <span class="tw-inline-flex tw-gap-2">
               <a bitLink href="#" appStopClick (click)="edit(c)">{{ c.email }}</a>
               <span
                 bitBadge
@@ -89,7 +89,7 @@
             <button
               [bitMenuTriggerFor]="trustedContactOptions"
               type="button"
-              appA11yTitle="{{ 'options' | i18n }}"
+              label="{{ 'options' | i18n }}"
               bitIconButton="bwi-ellipsis-v"
               buttonType="main"
             ></button>
@@ -146,7 +146,7 @@
       <p bitTypography="body1" class="tw-mt-2" *ngIf="loaded">{{ "noTrustedContacts" | i18n }}</p>
       <ng-container *ngIf="!loaded">
         <i
-          class="bwi bwi-spinner bwi-spin text-muted"
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -175,7 +175,7 @@
               [color]="c.avatarColor"
               size="small"
             ></bit-avatar>
-            <span>
+            <span class="tw-inline-flex tw-gap-2">
               <span>{{ c.email }}</span>
               <span bitBadge *ngIf="c.status === emergencyAccessStatusType.Invited">{{
                 "invited" | i18n
@@ -212,7 +212,7 @@
             <button
               [bitMenuTriggerFor]="grantedContactOptions"
               type="button"
-              appA11yTitle="{{ 'options' | i18n }}"
+              label="{{ 'options' | i18n }}"
               bitIconButton="bwi-ellipsis-v"
               buttonType="main"
             ></button>
@@ -263,7 +263,7 @@
       <p bitTypography="body1" *ngIf="loaded">{{ "noGrantedAccess" | i18n }}</p>
       <ng-container *ngIf="!loaded">
         <i
-          class="bwi bwi-spinner bwi-spin text-muted"
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -272,7 +272,3 @@
     </ng-container>
   </bit-section>
 </bit-container>
-
-<ng-template #addEdit></ng-template>
-<ng-template #takeoverTemplate></ng-template>
-<ng-template #confirmTemplate></ng-template>

@@ -2,15 +2,37 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, NavigationStart, ParamMap, Router } from "@angular/router";
-import { combineLatest, concatMap, filter, map, Observable, ReplaySubject, startWith } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  map,
+  Observable,
+  of,
+  ReplaySubject,
+  startWith,
+  switchMap,
+} from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import {
   canAccessOrgAdmin,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import {
+  OrganizationUserType,
+  PolicyType,
+  ProviderType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 
 export type ProductSwitcherItem = {
@@ -81,145 +103,208 @@ export class ProductSwitcherService {
       startWith(null), // Start with a null event to trigger the initial combineLatest
       filter((e) => e instanceof NavigationEnd || e instanceof NavigationStart || e === null),
     ),
-  ]).pipe(map(() => null));
+  ]).pipe(map((): any => null));
 
   constructor(
     private organizationService: OrganizationService,
     private providerService: ProviderService,
     private route: ActivatedRoute,
     private router: Router,
-    private i18n: I18nPipe,
     private syncService: SyncService,
+    private accountService: AccountService,
+    private platformUtilsService: PlatformUtilsService,
+    private policyService: PolicyService,
+    private i18nService: I18nService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private configService: ConfigService,
   ) {
     this.pollUntilSynced();
   }
+
+  organizations$ = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    switchMap((id) => this.organizationService.organizations$(id)),
+  );
+
+  providers$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((id) => this.providerService.providers$(id)),
+  );
+
+  userHasSingleOrgPolicy$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+  );
+
+  shouldShowPremiumUpgradeButton$: Observable<boolean> = combineLatest([
+    this.configService.getFeatureFlag$(FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton),
+    this.accountService.activeAccount$,
+  ]).pipe(
+    switchMap(([featureFlag, account]) => {
+      if (!featureFlag || !account) {
+        return of(false);
+      }
+      return this.billingAccountProfileStateService
+        .hasPremiumFromAnySource$(account.id)
+        .pipe(map((hasPremium) => !hasPremium));
+    }),
+  );
 
   products$: Observable<{
     bento: ProductSwitcherItem[];
     other: ProductSwitcherItem[];
   }> = combineLatest([
-    this.organizationService.organizations$,
+    this.organizations$,
+    this.providers$,
+    this.userHasSingleOrgPolicy$,
     this.route.paramMap,
     this.triggerProductUpdate$,
+    this.configService.getFeatureFlag$(FeatureFlag.SM1719_RemoveSecretsManagerAds),
   ]).pipe(
-    map(([orgs, ...rest]): [Organization[], ParamMap, void] => {
-      return [
+    map(
+      ([orgs, providers, userHasSingleOrgPolicy, paramMap, , removeSecretsManagerAdsFlag]: [
+        Organization[],
+        Provider[],
+        boolean,
+        ParamMap,
+        void,
+        boolean,
+      ]) => {
         // Sort orgs by name to match the order within the sidebar
-        orgs.sort((a, b) => a.name.localeCompare(b.name)),
-        ...rest,
-      ];
-    }),
-    concatMap(async ([orgs, paramMap]) => {
-      let routeOrg = orgs.find((o) => o.id === paramMap.get("organizationId"));
+        orgs.sort((a, b) => a.name.localeCompare(b.name));
 
-      let organizationIdViaPath: string | null = null;
+        let routeOrg = orgs.find((o) => o.id === paramMap.get("organizationId"));
 
-      if (["/sm/", "/organizations/"].some((path) => this.router.url.includes(path))) {
-        // Grab the organization ID from the URL
-        organizationIdViaPath = this.router.url.split("/")[2] ?? null;
-      }
+        let organizationIdViaPath: string | null = null;
 
-      // When the user is already viewing an organization within an application use it as the active route org
-      if (organizationIdViaPath && !routeOrg) {
-        routeOrg = orgs.find((o) => o.id === organizationIdViaPath);
-      }
+        if (["/sm/", "/organizations/"].some((path) => this.router.url.includes(path))) {
+          // Grab the organization ID from the URL
+          organizationIdViaPath = this.router.url.split("/")[2] ?? null;
+        }
 
-      // If the active route org doesn't have access to SM, find the first org that does.
-      const smOrg =
-        routeOrg?.canAccessSecretsManager && routeOrg?.enabled == true
-          ? routeOrg
-          : orgs.find((o) => o.canAccessSecretsManager && o.enabled == true);
+        // When the user is already viewing an organization within an application use it as the active route org
+        if (organizationIdViaPath && !routeOrg) {
+          routeOrg = orgs.find((o) => o.id === organizationIdViaPath);
+        }
 
-      // If the active route org doesn't have access to AC, find the first org that does.
-      const acOrg =
-        routeOrg != null && canAccessOrgAdmin(routeOrg)
-          ? routeOrg
-          : orgs.find((o) => canAccessOrgAdmin(o));
+        // If the active route org doesn't have access to SM, find the first org that does.
+        const smOrg =
+          routeOrg?.canAccessSecretsManager && routeOrg?.enabled == true
+            ? routeOrg
+            : orgs.find((o) => o.canAccessSecretsManager && o.enabled == true);
 
-      // TODO: This should be migrated to an Observable provided by the provider service and moved to the combineLatest above. See AC-2092.
-      const providers = await this.providerService.getAll();
+        // If the active route org doesn't have access to AC, find the first org that does.
+        const acOrg =
+          routeOrg != null && canAccessOrgAdmin(routeOrg)
+            ? routeOrg
+            : orgs.find((o) => canAccessOrgAdmin(o));
 
-      const products = {
-        pm: {
-          name: "Password Manager",
-          icon: "bwi-lock",
-          appRoute: "/vault",
-          marketingRoute: {
-            route: "https://bitwarden.com/products/personal/",
-            external: true,
+        const providerPortalName =
+          providers[0]?.providerType === ProviderType.BusinessUnit
+            ? "Business Unit Portal"
+            : "Provider Portal";
+
+        const orgsMarketingRoute = this.platformUtilsService.isSelfHost()
+          ? {
+              route: "https://bitwarden.com/products/business/",
+              external: true,
+            }
+          : {
+              route: "/create-organization",
+              external: false,
+            };
+
+        // Check if SM ads should be disabled for any organization
+        // SM ads are only disabled if the feature flag is enabled AND
+        // the user is a regular User (not Admin or Owner) in an organization that has useDisableSMAdsForUsers enabled
+        const shouldDisableSMAds =
+          removeSecretsManagerAdsFlag &&
+          orgs.some(
+            (org) => org.useDisableSMAdsForUsers === true && org.type === OrganizationUserType.User,
+          );
+
+        const products = {
+          pm: {
+            name: "Password Manager",
+            icon: "bwi-lock",
+            appRoute: "/vault",
+            marketingRoute: {
+              route: "https://bitwarden.com/products/personal/",
+              external: true,
+            },
+            isActive:
+              !this.router.url.includes("/sm/") &&
+              !this.router.url.includes("/organizations/") &&
+              !this.router.url.includes("/providers/"),
           },
-          isActive:
-            !this.router.url.includes("/sm/") &&
-            !this.router.url.includes("/organizations/") &&
-            !this.router.url.includes("/providers/"),
-        },
-        sm: {
-          name: "Secrets Manager",
-          icon: "bwi-cli",
-          appRoute: ["/sm", smOrg?.id],
-          marketingRoute: {
-            route: "/sm-landing",
-            external: false,
+          sm: {
+            name: "Secrets Manager",
+            icon: "bwi-cli",
+            appRoute: ["/sm", smOrg?.id],
+            marketingRoute: {
+              route: "/sm-landing",
+              external: false,
+            },
+            isActive: this.router.url.includes("/sm/"),
+            otherProductOverrides: {
+              supportingText: this.i18nService.t("secureYourInfrastructure"),
+            },
           },
-          isActive: this.router.url.includes("/sm/"),
-          otherProductOverrides: {
-            supportingText: this.i18n.transform("secureYourInfrastructure"),
+          ac: {
+            name: "Admin Console",
+            icon: "bwi-business",
+            appRoute: ["/organizations", acOrg?.id],
+            marketingRoute: {
+              route: "https://bitwarden.com/products/business/",
+              external: true,
+            },
+            isActive: this.router.url.includes("/organizations/"),
           },
-        },
-        ac: {
-          name: "Admin Console",
-          icon: "bwi-business",
-          appRoute: ["/organizations", acOrg?.id],
-          marketingRoute: {
-            route: "https://bitwarden.com/products/business/",
-            external: true,
+          provider: {
+            name: providerPortalName,
+            icon: "bwi-provider",
+            appRoute: ["/providers", providers[0]?.id],
+            isActive: this.router.url.includes("/providers/"),
           },
-          isActive: this.router.url.includes("/organizations/"),
-        },
-        provider: {
-          name: "Provider Portal",
-          icon: "bwi-provider",
-          appRoute: ["/providers", providers[0]?.id],
-          isActive: this.router.url.includes("/providers/"),
-        },
-        orgs: {
-          name: "Organizations",
-          icon: "bwi-business",
-          marketingRoute: {
-            route: "https://bitwarden.com/products/business/",
-            external: true,
+          orgs: {
+            name: "Organizations",
+            icon: "bwi-business",
+            marketingRoute: orgsMarketingRoute,
+            otherProductOverrides: {
+              name: "Share your passwords",
+              supportingText: this.i18nService.t("protectYourFamilyOrBusiness"),
+            },
           },
-          otherProductOverrides: {
-            name: "Share your passwords",
-            supportingText: this.i18n.transform("protectYourFamilyOrBusiness"),
-          },
-        },
-      } satisfies Record<string, ProductSwitcherItem>;
+        } satisfies Record<string, ProductSwitcherItem>;
 
-      const bento: ProductSwitcherItem[] = [products.pm];
-      const other: ProductSwitcherItem[] = [];
+        const bento: ProductSwitcherItem[] = [products.pm];
+        const other: ProductSwitcherItem[] = [];
 
-      if (smOrg) {
-        bento.push(products.sm);
-      } else {
-        other.push(products.sm);
-      }
+        if (smOrg) {
+          bento.push(products.sm);
+        } else if (!shouldDisableSMAds) {
+          // Only show SM in "other" section if ads are not disabled
+          other.push(products.sm);
+        }
 
-      if (acOrg) {
-        bento.push(products.ac);
-      } else {
-        other.push(products.orgs);
-      }
+        if (acOrg) {
+          bento.push(products.ac);
+        } else {
+          if (!userHasSingleOrgPolicy) {
+            other.push(products.orgs);
+          }
+        }
 
-      if (providers.length > 0) {
-        bento.push(products.provider);
-      }
+        if (providers.length > 0) {
+          bento.push(products.provider);
+        }
 
-      return {
-        bento,
-        other,
-      };
-    }),
+        return {
+          bento,
+          other,
+        };
+      },
+    ),
   );
 
   /** Poll the `syncService` until a sync is completed */

@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
   name: "ellipsis",
+  standalone: false,
 })
 /**
  * @deprecated Use the tailwind class 'tw-truncate' instead

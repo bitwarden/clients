@@ -1,52 +1,133 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
-import { KitchenSinkForm } from "./kitchen-sink-form.component";
-import { KitchenSinkTable } from "./kitchen-sink-table.component";
-import { KitchenSinkToggleList } from "./kitchen-sink-toggle-list.component";
+import { KitchenSinkFormComponent } from "./kitchen-sink-form.component";
+import { KitchenSinkTableComponent } from "./kitchen-sink-table.component";
+import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   imports: [KitchenSinkSharedModule],
   template: `
-    <bit-dialog title="Dialog Title" dialogSize="large">
-      <span bitDialogContent> Dialog body text goes here. </span>
+    <bit-dialog title="Dialog Title" dialogSize="small">
+      <ng-container bitDialogContent>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <bit-form-field>
+          <bit-label>What did foo say to bar?</bit-label>
+          <input bitInput value="Baz" />
+        </bit-form-field>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+      </ng-container>
       <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" (click)="dialogRef.close()">OK</button>
-        <button bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">OK</button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
       </ng-container>
     </bit-dialog>
   `,
 })
-class KitchenSinkDialog {
+class KitchenSinkDialogComponent {
   constructor(public dialogRef: DialogRef) {}
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "bit-tab-main",
   imports: [
     KitchenSinkSharedModule,
-    KitchenSinkTable,
-    KitchenSinkToggleList,
-    KitchenSinkForm,
-    KitchenSinkDialog,
+    KitchenSinkTableComponent,
+    KitchenSinkToggleListComponent,
+    KitchenSinkFormComponent,
   ],
   template: `
-    <bit-banner bannerType="info" class="-tw-m-6 tw-flex tw-flex-col tw-pb-6">
-      Kitchen Sink test zone
-    </bit-banner>
+    <bit-banner bannerType="info"> Kitchen Sink test zone </bit-banner>
 
     <p class="tw-mt-4">
       <bit-breadcrumbs>
-        <bit-breadcrumb *ngFor="let item of navItems" [icon]="item.icon" [route]="[item.route]">
-          {{ item.name }}
-        </bit-breadcrumb>
+        @for (item of navItems; track item) {
+          <bit-breadcrumb [icon]="item.icon" [route]="[item.route]">
+            {{ item.name }}
+          </bit-breadcrumb>
+        }
       </bit-breadcrumbs>
     </p>
+
+    <div class="tw-my-6">
+      <h1 bitTypography="h1">Bitwarden Kitchen Sink<bit-avatar text="Bit Warden"></bit-avatar></h1>
+      <a bitLink linkType="primary" href="#">This is a link</a>
+      <p bitTypography="body1" class="tw-inline">
+        &nbsp;and this is a link button popover trigger:&nbsp;
+      </p>
+      <button
+        bitLink
+        linkType="primary"
+        [bitPopoverTriggerFor]="myPopover"
+        #triggerRef="popoverTrigger"
+        type="button"
+        slot="end"
+        aria-label="Popover trigger link"
+      >
+        <i class="bwi bwi-question-circle"></i>
+      </button>
+    </div>
 
     <bit-callout type="info" title="About the Kitchen Sink">
       <p bitTypography="body1">
@@ -55,18 +136,7 @@ class KitchenSinkDialog {
         isolated stories. The stories for the Kitchen Sink exist to be tested by the Chromatic UI
         tests.
       </p>
-
-      <p bitTypography="body1">
-        NOTE: These stories will treat "Light & Dark" mode as "Light" mode. This is done to avoid a
-        bug with the way that we render the same component twice in the same iframe and how that
-        interacts with the <code>router-outlet</code>.
-      </p>
     </bit-callout>
-
-    <div class="tw-mb-6 tw-mt-6">
-      <h1 bitTypography="h1">Bitwarden <bit-avatar text="Bit Warden"></bit-avatar></h1>
-      <a bitLink linkType="primary" href="#">Learn more</a>
-    </div>
 
     <bit-tab-group label="Main content tabs" class="tw-text-main">
       <bit-tab label="Evaluation">
@@ -74,7 +144,8 @@ class KitchenSinkDialog {
           <h2 bitTypography="h2" class="tw-mb-6">About</h2>
           <bit-kitchen-sink-table></bit-kitchen-sink-table>
 
-          <button bitButton (click)="openDefaultDialog()">Open Dialog</button>
+          <button type="button" bitButton (click)="openDialog()">Open Dialog</button>
+          <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
         </bit-section>
         <bit-section>
           <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
@@ -88,6 +159,7 @@ class KitchenSinkDialog {
 
       <bit-tab label="Empty tab" data-testid="empty-tab">
         <bit-section>
+          <h2 bitTypography="h2" class="tw-mb-6">Tab Number 2</h2>
           <bit-no-items class="tw-text-main">
             <ng-container slot="title">This tab is empty</ng-container>
             <ng-container slot="description">
@@ -99,17 +171,31 @@ class KitchenSinkDialog {
         </bit-section>
       </bit-tab>
     </bit-tab-group>
+
+    <bit-popover title="Educational Popover" #myPopover>
+      <div>You can learn more things at:</div>
+      <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
+        <li>Help center</li>
+        <li>Support</li>
+      </ul>
+    </bit-popover>
   `,
 })
 export class KitchenSinkMainComponent {
   constructor(public dialogService: DialogService) {}
 
-  openDefaultDialog() {
-    this.dialogService.open(KitchenSinkDialog);
+  protected readonly drawerOpen = signal(false);
+
+  openDialog() {
+    this.dialogService.open(KitchenSinkDialogComponent);
+  }
+
+  openDrawer() {
+    this.dialogService.openDrawer(KitchenSinkDialogComponent);
   }
 
   navItems = [
-    { icon: "bwi-collection", name: "Password Managers", route: "/" },
-    { icon: "bwi-collection", name: "Favorites", route: "/" },
+    { icon: "bwi-collection-shared", name: "Password Managers", route: "/" },
+    { icon: "bwi-collection-shared", name: "Favorites", route: "/" },
   ];
 }

@@ -1,313 +1,385 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { ThemeTypes } from "@bitwarden/common/platform/enums";
-import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { render } from "lit";
+
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-import { FilelessImportPort, FilelessImportType } from "../../tools/enums/fileless-import.enums";
-import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
-import { buildSvgDomElement } from "../utils";
-import { circleCheckIcon } from "../utils/svg-icons";
+import { NotificationCipherData } from "../content/components/cipher/types";
+import { CollectionView, I18n, OrgView } from "../content/components/common-types";
+import { AtRiskNotification } from "../content/components/notification/at-risk-password/container";
+import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
+import { NotificationContainer } from "../content/components/notification/container";
+import { selectedCipher as selectedCipherSignal } from "../content/components/signals/selected-cipher";
+import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
+import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
 
 import {
   NotificationBarWindowMessageHandlers,
   NotificationBarWindowMessage,
   NotificationBarIframeInitData,
+  NotificationType,
+  NotificationTypes,
 } from "./abstractions/notification-bar";
 
-require("./bar.scss");
-
-const logService = new ConsoleLogService(false);
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
 let windowMessageOrigin: string;
+
+const urlParams = new URLSearchParams(globalThis.location.search);
+const trustedParentOrigin = urlParams.get("parentOrigin");
+
+if (trustedParentOrigin) {
+  windowMessageOrigin = trustedParentOrigin;
+}
+
 const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers = {
   initNotificationBar: ({ message }) => initNotificationBar(message),
-  saveCipherAttemptCompleted: ({ message }) => handleSaveCipherAttemptCompletedMessage(message),
+  saveCipherAttemptCompleted: ({ message }) => handleSaveCipherConfirmation(message),
 };
 
 globalThis.addEventListener("load", load);
+
 function load() {
   setupWindowMessageListener();
   postMessageToParent({ command: "initNotificationBar" });
 }
 
-function initNotificationBar(message: NotificationBarWindowMessage) {
+function getI18n() {
+  return {
+    appName: chrome.i18n.getMessage("appName"),
+    atRiskPassword: chrome.i18n.getMessage("atRiskPassword"),
+    changePassword: chrome.i18n.getMessage("changePassword"),
+    close: chrome.i18n.getMessage("close"),
+    collection: chrome.i18n.getMessage("collection"),
+    folder: chrome.i18n.getMessage("folder"),
+    loginSaveConfirmation: chrome.i18n.getMessage("loginSaveConfirmation"),
+    loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
+    loginUpdatedConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
+    loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
+    loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
+    loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
+    myVault: chrome.i18n.getMessage("myVault"),
+    never: chrome.i18n.getMessage("never"),
+    newItem: chrome.i18n.getMessage("newItem"),
+    nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
+    notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
+    notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
+    notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
+    notificationEdit: chrome.i18n.getMessage("edit"),
+    notificationEditTooltip: chrome.i18n.getMessage("notificationEditTooltip"),
+    notificationLoginSaveConfirmation: chrome.i18n.getMessage("notificationLoginSaveConfirmation"),
+    notificationLoginUpdatedConfirmation: chrome.i18n.getMessage(
+      "notificationLoginUpdatedConfirmation",
+    ),
+    notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
+    notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
+    notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
+    notificationViewAria: chrome.i18n.getMessage("notificationViewAria"),
+    saveAction: chrome.i18n.getMessage("notificationAddSave"),
+    saveAsNewLoginAction: chrome.i18n.getMessage("saveAsNewLoginAction"),
+    saveFailure: chrome.i18n.getMessage("saveFailure"),
+    saveFailureDetails: chrome.i18n.getMessage("saveFailureDetails"),
+    saveLogin: chrome.i18n.getMessage("saveLogin"),
+    typeLogin: chrome.i18n.getMessage("typeLogin"),
+    unlockToSave: chrome.i18n.getMessage("unlockToSave"),
+    updateLogin: chrome.i18n.getMessage("updateLogin"),
+    updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
+    vault: chrome.i18n.getMessage("vault"),
+    view: chrome.i18n.getMessage("view"),
+  };
+}
+
+/**
+ * Returns the localized header message for the notification bar based on the notification type.
+ *
+ * @returns The localized header message string, or undefined if the type is not recognized.
+ */
+export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType) {
+  return type
+    ? {
+        [NotificationTypes.Add]: i18n.saveLogin,
+        [NotificationTypes.Change]: i18n.updateLogin,
+        [NotificationTypes.Unlock]: i18n.unlockToSave,
+        [NotificationTypes.AtRiskPassword]: i18n.atRiskPassword,
+      }[type]
+    : undefined;
+}
+
+/**
+ * Returns the localized header message for the confirmation message bar based on the notification type.
+ *
+ * @returns The localized header message string, or undefined if the type is not recognized.
+ */
+export function getConfirmationHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
+  if (error) {
+    return i18n.saveFailure;
+  }
+
+  return type
+    ? {
+        [NotificationTypes.Add]: i18n.loginSaveSuccess,
+        [NotificationTypes.Change]: i18n.loginUpdateSuccess,
+        [NotificationTypes.Unlock]: "",
+        [NotificationTypes.AtRiskPassword]: "",
+      }[type]
+    : undefined;
+}
+
+/**
+ * Appends the header message to the document title.
+ * If the header message is already present, it avoids duplication.
+ */
+export function appendHeaderMessageToTitle(headerMessage?: string) {
+  if (!headerMessage) {
+    return;
+  }
+  const baseTitle = document.title.split(" - ")[0];
+  document.title = `${baseTitle} - ${headerMessage}`;
+}
+
+/**
+ * Determines the effective notification type to use based on initialization data.
+ *
+ * If the vault is locked, the notification type will be set to `Unlock`.
+ * Otherwise, the type provided in the init data is returned.
+ *
+ * @returns The resolved `NotificationType` to be used for rendering logic.
+ */
+function resolveNotificationType(initData: NotificationBarIframeInitData): NotificationType {
+  if (initData.isVaultLocked) {
+    return NotificationTypes.Unlock;
+  }
+
+  return initData.type as NotificationType;
+}
+
+/**
+ * Returns the appropriate test ID based on the resolved notification type.
+ *
+ * @param type - The resolved NotificationType.
+ * @param isConfirmation - Optional flag for confirmation vs. notification container.
+ */
+export function getNotificationTestId(
+  notificationType: NotificationType,
+  isConfirmation = false,
+): string {
+  if (isConfirmation) {
+    return "confirmation-notification-bar";
+  }
+
+  return {
+    [NotificationTypes.Unlock]: "unlock-notification-bar",
+    [NotificationTypes.Add]: "save-notification-bar",
+    [NotificationTypes.Change]: "update-notification-bar",
+    [NotificationTypes.AtRiskPassword]: "at-risk-notification-bar",
+  }[notificationType];
+}
+
+async function initNotificationBar(message: NotificationBarWindowMessage) {
   const { initData } = message;
   if (!initData) {
     return;
   }
 
   notificationBarIframeInitData = initData;
-  const { isVaultLocked } = notificationBarIframeInitData;
-  setNotificationBarTheme();
+  const {
+    isVaultLocked,
+    removeIndividualVault: personalVaultDisallowed,
+    theme,
+  } = notificationBarIframeInitData;
+  const i18n = getI18n();
+  const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
-  (document.getElementById("logo") as HTMLImageElement).src = isVaultLocked
-    ? chrome.runtime.getURL("images/icon38_locked.png")
-    : chrome.runtime.getURL("images/icon38.png");
+  const notificationType = resolveNotificationType(notificationBarIframeInitData);
+  const headerMessage = getNotificationHeaderMessage(i18n, notificationType);
+  const notificationTestId = getNotificationTestId(notificationType);
+  appendHeaderMessageToTitle(headerMessage);
 
-  const i18n = {
-    appName: chrome.i18n.getMessage("appName"),
-    close: chrome.i18n.getMessage("close"),
-    never: chrome.i18n.getMessage("never"),
-    folder: chrome.i18n.getMessage("folder"),
-    notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
-    notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
-    notificationEdit: chrome.i18n.getMessage("edit"),
-    notificationChangeSave: chrome.i18n.getMessage("notificationChangeSave"),
-    notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
-    notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
-    notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
-    filelessImport: chrome.i18n.getMessage("filelessImport"),
-    lpFilelessImport: chrome.i18n.getMessage("lpFilelessImport"),
-    cancelFilelessImport: chrome.i18n.getMessage("no"),
-    lpCancelFilelessImport: chrome.i18n.getMessage("lpCancelFilelessImport"),
-    startFilelessImport: chrome.i18n.getMessage("startFilelessImport"),
-  };
+  if (isVaultLocked) {
+    const notificationConfig = {
+      ...notificationBarIframeInitData,
+      headerMessage,
+      type: notificationType,
+      notificationTestId,
+      theme: resolvedTheme,
+      personalVaultIsAllowed: !personalVaultDisallowed,
+      handleCloseNotification,
+      handleEditOrUpdateAction,
+      i18n,
+    };
 
-  setupLogoLink(i18n);
+    const handleSaveAction = () => {
+      // cipher ID is null while vault is locked.
+      sendSaveCipherMessage(null, true);
 
-  // i18n for "Add" template
-  const addTemplate = document.getElementById("template-add") as HTMLTemplateElement;
+      render(
+        NotificationContainer({
+          ...notificationConfig,
+          handleSaveAction: () => {},
+          isLoading: true,
+        }),
+        document.body,
+      );
+    };
 
-  const neverButton = addTemplate.content.getElementById("never-save");
-  neverButton.textContent = i18n.never;
+    const UnlockNotification = NotificationContainer({ ...notificationConfig, handleSaveAction });
 
-  const selectFolder = addTemplate.content.getElementById("select-folder");
-  selectFolder.hidden = isVaultLocked || removeIndividualVault();
-  selectFolder.setAttribute("aria-label", i18n.folder);
-
-  const addButton = addTemplate.content.getElementById("add-save");
-  addButton.textContent = i18n.notificationAddSave;
-
-  const addEditButton = addTemplate.content.getElementById("add-edit");
-  // If Remove Individual Vault policy applies, "Add" opens the edit tab, so we hide the Edit button
-  addEditButton.hidden = removeIndividualVault();
-  addEditButton.textContent = i18n.notificationEdit;
-
-  addTemplate.content.getElementById("add-text").textContent = i18n.notificationAddDesc;
-
-  // i18n for "Change" (update password) template
-  const changeTemplate = document.getElementById("template-change") as HTMLTemplateElement;
-
-  const changeButton = changeTemplate.content.getElementById("change-save");
-  changeButton.textContent = i18n.notificationChangeSave;
-
-  const changeEditButton = changeTemplate.content.getElementById("change-edit");
-  changeEditButton.textContent = i18n.notificationEdit;
-
-  changeTemplate.content.getElementById("change-text").textContent = i18n.notificationChangeDesc;
-
-  // i18n for "Unlock" (unlock extension) template
-  const unlockTemplate = document.getElementById("template-unlock") as HTMLTemplateElement;
-
-  const unlockButton = unlockTemplate.content.getElementById("unlock-vault");
-  unlockButton.textContent = i18n.notificationUnlock;
-
-  unlockTemplate.content.getElementById("unlock-text").textContent = i18n.notificationUnlockDesc;
-
-  // i18n for "Fileless Import" (fileless-import) template
-  const isLpImport = initData.importType === FilelessImportType.LP;
-  const importTemplate = document.getElementById("template-fileless-import") as HTMLTemplateElement;
-
-  const startImportButton = importTemplate.content.getElementById("start-fileless-import");
-  startImportButton.textContent = i18n.startFilelessImport;
-
-  const cancelImportButton = importTemplate.content.getElementById("cancel-fileless-import");
-  cancelImportButton.textContent = isLpImport
-    ? i18n.lpCancelFilelessImport
-    : i18n.cancelFilelessImport;
-
-  importTemplate.content.getElementById("fileless-import-text").textContent = isLpImport
-    ? i18n.lpFilelessImport
-    : i18n.filelessImport;
-
-  // i18n for body content
-  const closeButton = document.getElementById("close-button");
-  closeButton.title = i18n.close;
-
-  const notificationType = initData.type;
-  if (initData.type === "add") {
-    handleTypeAdd();
-  } else if (notificationType === "change") {
-    handleTypeChange();
-  } else if (notificationType === "unlock") {
-    handleTypeUnlock();
-  } else if (notificationType === "fileless-import") {
-    handleTypeFilelessImport();
+    return render(UnlockNotification, document.body);
   }
 
-  closeButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    sendPlatformMessage({
-      command: "bgCloseNotificationBar",
-    });
+  // Handle AtRiskPasswordNotification render
+  if (notificationBarIframeInitData.type === NotificationTypes.AtRiskPassword) {
+    return render(
+      AtRiskNotification({
+        ...notificationBarIframeInitData,
+        type: notificationBarIframeInitData.type as NotificationType,
+        theme: resolvedTheme,
+        i18n,
+        notificationTestId,
+        params: initData.params,
+        handleCloseNotification,
+      }),
+      document.body,
+    );
+  }
+
+  // Default scenario: add or update password
+  const orgId = selectedVaultSignal.get();
+
+  await Promise.all([
+    new Promise<OrgView[]>((resolve) => sendPlatformMessage({ command: "bgGetOrgData" }, resolve)),
+    new Promise<FolderView[]>((resolve) =>
+      sendPlatformMessage({ command: "bgGetFolderData" }, resolve),
+    ),
+    new Promise<NotificationCipherData[]>((resolve) =>
+      sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, resolve),
+    ),
+    new Promise<CollectionView[]>((resolve) =>
+      sendPlatformMessage({ command: "bgGetCollectionData", orgId }, resolve),
+    ),
+  ]).then(([organizations, folders, ciphers, collections]) => {
+    notificationBarIframeInitData = {
+      ...notificationBarIframeInitData,
+      organizations,
+      folders,
+      ciphers,
+      collections,
+    };
+
+    // @TODO use context to avoid prop drilling
+    return render(
+      NotificationContainer({
+        ...notificationBarIframeInitData,
+        headerMessage,
+        type: notificationType,
+        theme: resolvedTheme,
+        notificationTestId,
+        personalVaultIsAllowed: !personalVaultDisallowed,
+        handleCloseNotification,
+        handleSaveAction,
+        handleEditOrUpdateAction,
+        i18n,
+      }),
+      document.body,
+    );
   });
 
-  globalThis.addEventListener("resize", adjustHeight);
-  adjustHeight();
+  function handleEditOrUpdateAction(e: Event) {
+    e.preventDefault();
+    sendSaveCipherMessage(selectedCipherSignal.get(), notificationType === NotificationTypes.Add);
+  }
 }
 
-function handleTypeAdd() {
-  setContent(document.getElementById("template-add") as HTMLTemplateElement);
-
-  const addButton = document.getElementById("add-save");
-  addButton.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    // If Remove Individual Vault policy applies, "Add" opens the edit tab
-    sendSaveCipherMessage(removeIndividualVault(), getSelectedFolder());
+function handleCloseNotification(e: Event) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgCloseNotificationBar",
+    fadeOutNotification: true,
   });
+}
 
-  if (removeIndividualVault()) {
-    // Everything past this point is only required if user has an individual vault
+function handleSaveAction(e: Event) {
+  const selectedCipher = selectedCipherSignal.get();
+  const selectedVault = selectedVaultSignal.get();
+  const selectedFolder = selectedFolderSignal.get();
+
+  if (selectedVault.length > 1) {
+    openAddEditVaultItemPopout(e, {
+      organizationId: selectedVault,
+      ...(selectedFolder?.length > 1 ? { folder: selectedFolder } : {}),
+    });
+    handleCloseNotification(e);
     return;
   }
 
-  const editButton = document.getElementById("add-edit");
-  editButton.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    sendSaveCipherMessage(true, getSelectedFolder());
-  });
-
-  const neverButton = document.getElementById("never-save");
-  neverButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    sendPlatformMessage({
-      command: "bgNeverSave",
-    });
-  });
-
-  loadFolderSelector();
+  e.preventDefault();
+  sendSaveCipherMessage(selectedCipher, removeIndividualVault(), selectedFolder);
+  if (removeIndividualVault()) {
+    return;
+  }
 }
 
-function handleTypeChange() {
-  setContent(document.getElementById("template-change") as HTMLTemplateElement);
-  const changeButton = document.getElementById("change-save");
-  changeButton.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    sendSaveCipherMessage(false);
-  });
-
-  const editButton = document.getElementById("change-edit");
-  editButton.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    sendSaveCipherMessage(true);
-  });
-}
-
-function sendSaveCipherMessage(edit: boolean, folder?: string) {
+function sendSaveCipherMessage(cipherId: CipherView["id"] | null, edit: boolean, folder?: string) {
   sendPlatformMessage({
     command: "bgSaveCipher",
+    cipherId,
     folder,
     edit,
   });
 }
 
-function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowMessage) {
-  const addSaveButtonContainers = document.querySelectorAll(".add-change-cipher-buttons");
-  const notificationBarOuterWrapper = document.getElementById("notification-bar-outer-wrapper");
-  if (message?.error) {
-    addSaveButtonContainers.forEach((element) => {
-      element.textContent = chrome.i18n.getMessage("saveCipherAttemptFailed");
-      element.classList.add("error-message");
-      notificationBarOuterWrapper.classList.add("error-event");
-    });
-
-    adjustHeight();
-    logService.error(`Error encountered when saving credentials: ${message.error}`);
-    return;
-  }
-  const messageName =
-    notificationBarIframeInitData.type === "add" ? "passwordSaved" : "passwordUpdated";
-
-  addSaveButtonContainers.forEach((element) => {
-    element.textContent = chrome.i18n.getMessage(messageName);
-    element.prepend(buildSvgDomElement(circleCheckIcon));
-    element.classList.add("success-message");
-    notificationBarOuterWrapper.classList.add("success-event");
+function openAddEditVaultItemPopout(
+  e: Event,
+  options: {
+    cipherId?: string;
+    organizationId?: string;
+    folder?: string;
+  },
+) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgOpenAddEditVaultItemPopout",
+    ...options,
   });
-  adjustHeight();
-  globalThis.setTimeout(
-    () => sendPlatformMessage({ command: "bgCloseNotificationBar", fadeOutNotification: true }),
-    3000,
+}
+
+function openViewVaultItemPopout(cipherId: string) {
+  sendPlatformMessage({
+    command: "bgOpenViewVaultItemPopout",
+    cipherId,
+  });
+}
+
+function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
+  const { theme, type } = notificationBarIframeInitData;
+  const { error, data } = message;
+  const { cipherId, task, itemName } = data || {};
+  const i18n = getI18n();
+  const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
+  const resolvedType = resolveNotificationType(notificationBarIframeInitData);
+  const headerMessage = getConfirmationHeaderMessage(i18n, resolvedType, error);
+  const notificationTestId = getNotificationTestId(resolvedType, true);
+  appendHeaderMessageToTitle(headerMessage);
+
+  globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 5000);
+
+  return render(
+    NotificationConfirmationContainer({
+      ...notificationBarIframeInitData,
+      error,
+      handleCloseNotification,
+      handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRiskPasswords" }),
+      handleOpenVault: (e: Event) =>
+        cipherId ? openViewVaultItemPopout(cipherId) : openAddEditVaultItemPopout(e, {}),
+      headerMessage,
+      i18n,
+      itemName: itemName ?? i18n.typeLogin,
+      notificationTestId,
+      task,
+      theme: resolvedTheme,
+      type: type as NotificationType,
+    }),
+    document.body,
   );
-}
-
-function handleTypeUnlock() {
-  setContent(document.getElementById("template-unlock") as HTMLTemplateElement);
-
-  const unlockButton = document.getElementById("unlock-vault");
-  unlockButton.addEventListener("click", (e) => {
-    sendPlatformMessage({
-      command: "bgReopenUnlockPopout",
-    });
-  });
-}
-
-/**
- * Sets up a port to communicate with the fileless importer content script.
- * This connection to the background script is used to trigger the action of
- * downloading the CSV file from the LP importer or importing the data into
- * the Bitwarden vault.
- */
-function handleTypeFilelessImport() {
-  const importType = notificationBarIframeInitData.importType;
-  const port = chrome.runtime.connect({ name: FilelessImportPort.NotificationBar });
-  setContent(document.getElementById("template-fileless-import") as HTMLTemplateElement);
-
-  const startFilelessImportButton = document.getElementById("start-fileless-import");
-  const startFilelessImport = () => {
-    port.postMessage({ command: "startFilelessImport", importType });
-    document.getElementById("fileless-import-buttons").textContent =
-      chrome.i18n.getMessage("importing");
-    startFilelessImportButton.removeEventListener("click", startFilelessImport);
-  };
-  startFilelessImportButton.addEventListener("click", startFilelessImport);
-
-  const cancelFilelessImportButton = document.getElementById("cancel-fileless-import");
-  cancelFilelessImportButton.addEventListener("click", () => {
-    port.postMessage({ command: "cancelFilelessImport", importType });
-  });
-
-  const handlePortMessage = (msg: any) => {
-    if (msg.command !== "filelessImportCompleted" && msg.command !== "filelessImportFailed") {
-      return;
-    }
-
-    port.disconnect();
-
-    const filelessImportButtons = document.getElementById("fileless-import-buttons");
-    const notificationBarOuterWrapper = document.getElementById("notification-bar-outer-wrapper");
-
-    if (msg.command === "filelessImportCompleted") {
-      filelessImportButtons.textContent = chrome.i18n.getMessage("dataSuccessfullyImported");
-      filelessImportButtons.prepend(buildSvgDomElement(circleCheckIcon));
-      filelessImportButtons.classList.add("success-message");
-      notificationBarOuterWrapper.classList.add("success-event");
-      adjustHeight();
-      return;
-    }
-
-    filelessImportButtons.textContent = chrome.i18n.getMessage("dataImportFailed");
-    filelessImportButtons.classList.add("error-message");
-    notificationBarOuterWrapper.classList.add("error-event");
-    adjustHeight();
-    logService.error(`Error Encountered During Import: ${msg.importErrorMessage}`);
-  };
-  port.onMessage.addListener(handlePortMessage);
-}
-
-function setContent(template: HTMLTemplateElement) {
-  const content = document.getElementById("content");
-  while (content.firstChild) {
-    content.removeChild(content.firstChild);
-  }
-
-  const newElement = template.content.cloneNode(true) as HTMLElement;
-  content.appendChild(newElement);
 }
 
 function sendPlatformMessage(
@@ -321,41 +393,8 @@ function sendPlatformMessage(
   });
 }
 
-function loadFolderSelector() {
-  const populateFolderData = (folderData: FolderView[]) => {
-    const select = document.getElementById("select-folder");
-    if (!folderData?.length) {
-      select.appendChild(new Option(chrome.i18n.getMessage("noFoldersFound"), null, true));
-      select.setAttribute("disabled", "true");
-      return;
-    }
-
-    select.appendChild(new Option(chrome.i18n.getMessage("selectFolder"), null, true));
-    folderData.forEach((folder: FolderView) => {
-      // Select "No Folder" (id=null) folder by default
-      select.appendChild(new Option(folder.name, folder.id || "", false));
-    });
-  };
-
-  sendPlatformMessage({ command: "bgGetFolderData" }, populateFolderData);
-}
-
-function getSelectedFolder(): string {
-  return (document.getElementById("select-folder") as HTMLSelectElement).value;
-}
-
 function removeIndividualVault(): boolean {
-  return notificationBarIframeInitData.removeIndividualVault;
-}
-
-function adjustHeight() {
-  const data: AdjustNotificationBarMessageData = {
-    height: document.querySelector("body").scrollHeight,
-  };
-  sendPlatformMessage({
-    command: "bgAdjustNotificationBar",
-    data,
-  });
+  return Boolean(notificationBarIframeInitData?.removeIndividualVault);
 }
 
 function setupWindowMessageListener() {
@@ -363,15 +402,27 @@ function setupWindowMessageListener() {
 }
 
 function handleWindowMessage(event: MessageEvent) {
-  if (!windowMessageOrigin) {
-    windowMessageOrigin = event.origin;
-  }
-
-  if (event.origin !== windowMessageOrigin) {
+  if (event?.source !== globalThis.parent) {
     return;
   }
 
   const message = event.data as NotificationBarWindowMessage;
+  if (!message?.command) {
+    return;
+  }
+
+  if (!windowMessageOrigin || event.origin !== windowMessageOrigin) {
+    return;
+  }
+
+  if (
+    message.command === "initNotificationBar" &&
+    message.parentOrigin &&
+    message.parentOrigin !== event.origin
+  ) {
+    return;
+  }
+
   const handler = notificationBarWindowMessageHandlers[message.command];
   if (!handler) {
     return;
@@ -380,33 +431,27 @@ function handleWindowMessage(event: MessageEvent) {
   handler({ message });
 }
 
-function setupLogoLink(i18n: Record<string, string>) {
-  const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
-  logoLink.title = i18n.appName;
-  const setWebVaultUrlLink = (webVaultURL: string) => {
-    const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
-    if (newVaultURL && newVaultURL !== logoLink.href) {
-      logoLink.href = newVaultURL;
-    }
-  };
-  sendPlatformMessage({ command: "getWebVaultUrlForNotification" }, setWebVaultUrlLink);
-}
-
-function setNotificationBarTheme() {
-  let theme = notificationBarIframeInitData.theme;
+function getTheme(globalThis: any, theme: NotificationBarIframeInitData["theme"]) {
   if (theme === ThemeTypes.System) {
-    theme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
+    return globalThis.matchMedia("(prefers-color-scheme: dark)").matches
       ? ThemeTypes.Dark
       : ThemeTypes.Light;
   }
 
-  document.documentElement.classList.add(`theme_${theme}`);
+  return theme;
+}
 
-  if (notificationBarIframeInitData.applyRedesign) {
-    document.body.classList.add("notification-bar-redesign");
-  }
+function getResolvedTheme(theme: Theme) {
+  const themeType = getTheme(globalThis, theme);
+
+  // There are other possible passed theme values, but for now, resolve to dark or light
+  const resolvedTheme: Theme = themeType === ThemeTypes.Dark ? ThemeTypes.Dark : ThemeTypes.Light;
+  return resolvedTheme;
 }
 
 function postMessageToParent(message: NotificationBarWindowMessage) {
-  globalThis.parent.postMessage(message, windowMessageOrigin || "*");
+  if (!windowMessageOrigin) {
+    return;
+  }
+  globalThis.parent.postMessage(message, windowMessageOrigin);
 }

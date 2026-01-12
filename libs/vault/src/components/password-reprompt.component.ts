@@ -1,20 +1,20 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
   FormFieldModule,
   IconButtonModule,
+  ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -22,8 +22,9 @@ import { KeyService } from "@bitwarden/key-management";
  * Used to verify the user's Master Password for the "Master Password Re-prompt" feature only.
  * See UserVerificationComponent for any other situation where you need to verify the user's identity.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-password-reprompt",
   imports: [
     JslibModule,
@@ -47,11 +48,18 @@ export class PasswordRepromptComponent {
     protected i18nService: I18nService,
     protected formBuilder: FormBuilder,
     protected dialogRef: DialogRef,
+    private toastService: ToastService,
     protected accountService: AccountService,
   ) {}
 
   submit = async () => {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    // Exit early when a master password is not provided.
+    // The form field required error will be shown to users in these cases.
+    if (!this.formGroup.value.masterPassword) {
+      return;
+    }
+
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (userId == null) {
       throw new Error("An active user is expected while doing password reprompt.");
@@ -68,11 +76,11 @@ export class PasswordRepromptComponent {
         userId,
       ))
     ) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("invalidMasterPassword"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("invalidMasterPassword"),
+      });
       return;
     }
 

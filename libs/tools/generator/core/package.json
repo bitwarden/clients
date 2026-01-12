@@ -15,9 +15,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "npm run clean && tsc",
-    "build:watch": "npm run clean && tsc -watch"
-  },
-  "dependencies": {
-    "@bitwarden/common": "file:../../../common"
+    "build:watch": "npm run clean && tsc -watch",
+    "test": "jest"
   }
 }

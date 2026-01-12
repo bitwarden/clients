@@ -1,6 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-import { mockEnc } from "../../../../../spec";
+import { mockContainerService, mockEnc } from "../../../../../spec";
 import { SendType } from "../../enums/send-type";
 import { SendAccessResponse } from "../response/send-access.response";
 
@@ -23,6 +23,8 @@ describe("SendAccess", () => {
       expirationDate: new Date("2022-01-31T12:00:00.000Z"),
       creatorIdentifier: "creatorIdentifier",
     } as SendAccessResponse;
+
+    mockContainerService();
   });
 
   it("Convert from empty", () => {

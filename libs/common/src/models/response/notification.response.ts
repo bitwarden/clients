@@ -1,4 +1,7 @@
-import { NotificationType } from "../../enums";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { NotificationViewResponse as EndUserNotificationResponse } from "@bitwarden/common/vault/notifications/models";
+
+import { NotificationType, PushNotificationLogOutReasonType } from "../../enums";
 
 import { BaseResponse } from "./base.response";
 
@@ -12,7 +15,16 @@ export class NotificationResponse extends BaseResponse {
     this.contextId = this.getResponseProperty("ContextId");
     this.type = this.getResponseProperty("Type");
 
-    const payload = this.getResponseProperty("Payload");
+    let payload = this.getResponseProperty("Payload");
+
+    if (typeof payload === "string") {
+      try {
+        payload = JSON.parse(payload);
+      } catch {
+        // guess it was a string
+      }
+    }
+
     switch (this.type) {
       case NotificationType.SyncCipherCreate:
       case NotificationType.SyncCipherDelete:
@@ -30,8 +42,10 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.SyncOrganizations:
       case NotificationType.SyncOrgKeys:
       case NotificationType.SyncSettings:
-      case NotificationType.LogOut:
         this.payload = new UserNotification(payload);
+        break;
+      case NotificationType.LogOut:
+        this.payload = new LogOutNotification(payload);
         break;
       case NotificationType.SyncSendCreate:
       case NotificationType.SyncSendUpdate:
@@ -44,6 +58,22 @@ export class NotificationResponse extends BaseResponse {
         break;
       case NotificationType.SyncOrganizationStatusChanged:
         this.payload = new OrganizationStatusPushNotification(payload);
+        break;
+      case NotificationType.SyncOrganizationCollectionSettingChanged:
+        this.payload = new OrganizationCollectionSettingChangedPushNotification(payload);
+        break;
+      case NotificationType.Notification:
+      case NotificationType.NotificationStatus:
+        this.payload = new EndUserNotificationResponse(payload);
+        break;
+      case NotificationType.OrganizationBankAccountVerified:
+        this.payload = new OrganizationBankAccountVerifiedPushNotification(payload);
+        break;
+      case NotificationType.ProviderBankAccountVerified:
+        this.payload = new ProviderBankAccountVerifiedPushNotification(payload);
+        break;
+      case NotificationType.SyncPolicy:
+        this.payload = new SyncPolicyNotification(payload);
         break;
       default:
         break;
@@ -124,5 +154,59 @@ export class OrganizationStatusPushNotification extends BaseResponse {
     super(response);
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.enabled = this.getResponseProperty("Enabled");
+  }
+}
+
+export class OrganizationCollectionSettingChangedPushNotification extends BaseResponse {
+  organizationId: string;
+  limitCollectionCreation: boolean;
+  limitCollectionDeletion: boolean;
+
+  constructor(response: any) {
+    super(response);
+
+    this.organizationId = this.getResponseProperty("OrganizationId");
+    this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
+    this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
+  }
+}
+
+export class OrganizationBankAccountVerifiedPushNotification extends BaseResponse {
+  organizationId: string;
+
+  constructor(response: any) {
+    super(response);
+    this.organizationId = this.getResponseProperty("OrganizationId");
+  }
+}
+
+export class ProviderBankAccountVerifiedPushNotification extends BaseResponse {
+  providerId: string;
+  adminId: string;
+
+  constructor(response: any) {
+    super(response);
+    this.providerId = this.getResponseProperty("ProviderId");
+    this.adminId = this.getResponseProperty("AdminId");
+  }
+}
+
+export class SyncPolicyNotification extends BaseResponse {
+  policy: Policy;
+
+  constructor(response: any) {
+    super(response);
+    this.policy = this.getResponseProperty("Policy");
+  }
+}
+
+export class LogOutNotification extends BaseResponse {
+  userId: string;
+  reason?: PushNotificationLogOutReasonType;
+
+  constructor(response: any) {
+    super(response);
+    this.userId = this.getResponseProperty("UserId");
+    this.reason = this.getResponseProperty("Reason");
   }
 }

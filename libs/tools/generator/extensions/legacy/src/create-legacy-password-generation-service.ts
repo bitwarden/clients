@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { engine, services, strategies } from "@bitwarden/generator-core";
 import { LocalGeneratorHistoryService } from "@bitwarden/generator-history";
@@ -25,7 +25,7 @@ export function legacyPasswordGenerationServiceFactory(
   stateProvider: StateProvider,
 ): PasswordGenerationServiceAbstraction {
   const randomizer = new KeyServiceRandomizer(keyService);
-  const passwordRandomizer = new PasswordRandomizer(randomizer);
+  const passwordRandomizer = new PasswordRandomizer(randomizer, Date.now);
 
   const passwords = new DefaultGeneratorService(
     new PasswordGeneratorStrategy(passwordRandomizer, stateProvider),

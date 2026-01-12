@@ -3,11 +3,21 @@
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil, map, BehaviorSubject, concatMap } from "rxjs";
+import {
+  Subject,
+  firstValueFrom,
+  takeUntil,
+  map,
+  BehaviorSubject,
+  concatMap,
+  switchMap,
+  tap,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,9 +34,12 @@ import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 // Value = hours
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum DatePreset {
   OneHour = 1,
   OneDay = 24,
@@ -45,11 +58,21 @@ interface DatePresetSelectOption {
 
 @Directive()
 export class AddEditComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() sendId: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() type: SendType;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSavedSend = new EventEmitter<SendView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDeletedSend = new EventEmitter<SendView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCancelled = new EventEmitter<SendView>();
 
   deletionDatePresets: DatePresetSelectOption[] = [
@@ -123,6 +146,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected accountService: AccountService,
     protected toastService: ToastService,
+    protected premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
@@ -137,18 +161,15 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  get isSafari() {
-    return this.platformUtilsService.isSafari();
-  }
-
-  get isDateTimeLocalSupported(): boolean {
-    return !(this.platformUtilsService.isFirefox() || this.platformUtilsService.isSafari());
-  }
-
   async ngOnInit() {
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.DisableSend)
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((policyAppliesToActiveUser) => {
         this.disableSend = policyAppliesToActiveUser;
         if (this.disableSend) {
@@ -156,9 +177,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.policyService
-      .getAll$(PolicyType.SendOptions)
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
         map((policies) => policies?.some((p) => p.data.disableHideEmail)),
         takeUntil(this.destroy$),
       )
@@ -173,10 +195,15 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.formGroup.controls.type.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((val) => {
-      this.type = val;
-      this.typeChanged();
-    });
+    this.formGroup.controls.type.valueChanges
+      .pipe(
+        tap((val) => {
+          this.type = val;
+        }),
+        switchMap(() => this.typeChanged()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     this.formGroup.controls.selectedDeletionDatePreset.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -197,8 +224,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
     const env = await firstValueFrom(this.environmentService.environment$);
     this.sendLinkBaseUrl = env.getSendUrl();
 
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((hasPremiumFromAnySource) => {
         this.canAccessPremium = hasPremiumFromAnySource;
       });
@@ -246,12 +278,19 @@ export class AddEditComponent implements OnInit, OnDestroy {
       });
 
       if (this.editMode) {
-        this.sendService
-          .get$(this.sendId)
+        this.accountService.activeAccount$
           .pipe(
-            //Promise.reject will complete the BehaviourSubject, if desktop starts relying only on BehaviourSubject, this should be changed.
-            concatMap((s) =>
-              s instanceof Send ? s.decrypt() : Promise.reject(new Error("Failed to load send.")),
+            getUserId,
+            switchMap((userId) =>
+              this.sendService
+                .get$(this.sendId)
+                .pipe(
+                  concatMap((s) =>
+                    s instanceof Send
+                      ? s.decrypt(userId)
+                      : Promise.reject(new Error("Failed to load send.")),
+                  ),
+                ),
             ),
             takeUntil(this.destroy$),
           )
@@ -395,11 +434,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  typeChanged() {
+  async typeChanged() {
     if (this.type === SendType.File && !this.alertShown) {
       if (!this.canAccessPremium) {
         this.alertShown = true;
-        this.messagingService.send("premiumRequired");
+        await this.premiumUpgradePromptService.promptForPremium();
       } else if (!this.emailVerified) {
         this.alertShown = true;
         this.messagingService.send("emailVerificationRequired");

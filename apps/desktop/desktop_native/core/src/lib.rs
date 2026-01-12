@@ -1,16 +1,18 @@
 pub mod autofill;
-#[cfg(feature = "sys")]
+pub mod autostart;
 pub mod biometric;
-#[cfg(feature = "sys")]
+pub mod biometric_v2;
 pub mod clipboard;
-pub mod crypto;
+pub(crate) mod crypto;
 pub mod error;
 pub mod ipc;
-#[cfg(feature = "sys")]
 pub mod password;
-#[cfg(feature = "sys")]
 pub mod powermonitor;
-#[cfg(feature = "sys")]
 pub mod process_isolation;
-#[cfg(feature = "sys")]
+pub(crate) mod secure_memory;
 pub mod ssh_agent;
+
+use zeroizing_alloc::ZeroAlloc;
+
+#[global_allocator]
+static ALLOC: ZeroAlloc<std::alloc::System> = ZeroAlloc(std::alloc::System);

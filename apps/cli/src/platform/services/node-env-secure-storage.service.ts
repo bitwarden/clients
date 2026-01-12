@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { throwError } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -61,7 +61,7 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
     if (sessionKey == null) {
       throw new Error("No session key available.");
     }
-    const encValue = await this.encryptService.encryptToBytes(
+    const encValue = await this.encryptService.encryptFileData(
       Utils.fromB64ToArray(plainValue),
       sessionKey,
     );
@@ -80,13 +80,15 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
       }
 
       const encBuf = EncArrayBuffer.fromB64(encValue);
-      const decValue = await this.encryptService.decryptToBytes(encBuf, sessionKey);
+      const decValue = await this.encryptService.decryptFileData(encBuf, sessionKey);
       if (decValue == null) {
         this.logService.info("Failed to decrypt.");
         return null;
       }
 
       return Utils.fromBufferToB64(decValue);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logService.info("Decrypt error.");
       return null;
@@ -104,6 +106,8 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
           }
         }
       }
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logService.info("Session key is invalid.");
     }

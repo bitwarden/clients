@@ -11,3 +11,9 @@ export class WindowState {
   y?: number;
   zoomFactor?: number;
 }
+
+export class ModalModeState {
+  isModalModeActive: boolean;
+  showTrafficButtons?: boolean;
+  modalPosition?: { x: number; y: number }; // Modal position is often passed from the native UI
+}

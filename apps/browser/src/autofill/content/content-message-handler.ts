@@ -1,9 +1,27 @@
-import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import {
   ContentMessageWindowData,
   ContentMessageWindowEventHandlers,
 } from "./abstractions/content-message-handler";
+
+/**
+ * Handlers for window messages from the content script.
+ * NOTE: These handlers should be above the event listener to ensure they are defined before being used.
+ */
+const windowMessageHandlers: ContentMessageWindowEventHandlers = {
+  authResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handleAuthResultMessage(data, referrer),
+  webAuthnResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handleWebAuthnResultMessage(data, referrer),
+  [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
+  duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handleDuoResultMessage(data, referrer),
+  [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
+  [VaultMessages.OpenBrowserExtensionToUrl]: ({ data }) =>
+    handleOpenBrowserExtensionToUrlMessage(data),
+};
 
 /**
  * IMPORTANT: Safari seems to have a bug where it doesn't properly handle
@@ -19,23 +37,10 @@ setupExtensionDisconnectAction(() => {
 });
 
 /**
- * Handlers for window messages from the content script.
- */
-const windowMessageHandlers: ContentMessageWindowEventHandlers = {
-  authResult: ({ data, referrer }: { data: any; referrer: string }) =>
-    handleAuthResultMessage(data, referrer),
-  webAuthnResult: ({ data, referrer }: { data: any; referrer: string }) =>
-    handleWebAuthnResultMessage(data, referrer),
-  checkIfBWExtensionInstalled: () => handleExtensionInstallCheck(),
-  duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
-    handleDuoResultMessage(data, referrer),
-};
-
-/**
  * Handles the post to the web vault showing the extension has been installed
  */
 function handleExtensionInstallCheck() {
-  window.postMessage({ command: VaultOnboardingMessages.HasBwInstalled });
+  window.postMessage({ command: VaultMessages.HasBwInstalled });
 }
 
 /**
@@ -71,18 +76,40 @@ function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: s
   sendExtensionRuntimeMessage({ command, data: data.data, remember, referrer });
 }
 
+/** @deprecated use {@link handleOpenBrowserExtensionToUrlMessage} */
+function handleOpenAtRiskPasswordsMessage() {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords });
+}
+
+function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUrls }) {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenBrowserExtensionToUrl, url });
+}
+
 /**
- * Handles the window message event.
+ * Handles window message events, validating source and extracting referrer for security.
  *
  * @param event - The window message event
  */
 function handleWindowMessageEvent(event: MessageEvent) {
-  const { source, data } = event;
+  const { source, data, origin } = event;
   if (source !== window || !data?.command) {
     return;
   }
 
-  const referrer = source.location.hostname;
+  // Extract hostname from event.origin for secure referrer validation in background script
+  let referrer: string;
+  // Sandboxed iframe or opaque origin support
+  if (origin === "null") {
+    referrer = "null";
+  } else {
+    try {
+      const originUrl = new URL(origin);
+      referrer = originUrl.hostname;
+    } catch {
+      return;
+    }
+  }
+
   const handler = windowMessageHandlers[data.command];
   if (handler) {
     handler({ data, referrer });

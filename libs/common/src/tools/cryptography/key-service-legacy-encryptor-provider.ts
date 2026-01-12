@@ -12,10 +12,12 @@ import {
   takeWhile,
 } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { OrganizationId, UserId } from "../../types/guid";
 import {
   OrganizationBound,
   SingleOrganizationDependency,

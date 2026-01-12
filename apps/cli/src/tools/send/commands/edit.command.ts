@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -19,6 +21,7 @@ export class SendEditCommand {
     private getCommand: SendGetCommand,
     private sendApiService: SendApiService,
     private accountProfileService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   async run(requestJson: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -39,6 +42,8 @@ export class SendEditCommand {
       try {
         const reqJson = Buffer.from(requestJson, "base64").toString();
         req = SendResponse.fromJson(reqJson);
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return Response.badRequest("Error parsing the encoded request data.");
       }
@@ -46,11 +51,21 @@ export class SendEditCommand {
 
     const normalizedOptions = new Options(cmdOptions);
     req.id = normalizedOptions.itemId || req.id;
-
-    if (req.id != null) {
-      req.id = req.id.toLowerCase();
+    if (normalizedOptions.emails) {
+      req.emails = normalizedOptions.emails;
+      req.password = undefined;
+    } else if (normalizedOptions.password) {
+      req.emails = undefined;
+      req.password = normalizedOptions.password;
+    } else if (req.password && (typeof req.password !== "string" || req.password === "")) {
+      req.password = undefined;
     }
 
+    if (!req.id) {
+      return Response.error("`itemid` was not provided.");
+    }
+
+    req.id = req.id.toLowerCase();
     const send = await this.sendService.getFromState(req.id);
 
     if (send == null) {
@@ -61,19 +76,17 @@ export class SendEditCommand {
       return Response.badRequest("Cannot change a Send's type");
     }
 
+    const account = await firstValueFrom(this.accountService.activeAccount$);
     const canAccessPremium = await firstValueFrom(
-      this.accountProfileService.hasPremiumFromAnySource$,
+      this.accountProfileService.hasPremiumFromAnySource$(account.id),
     );
     if (send.type === SendType.File && !canAccessPremium) {
       return Response.error("Premium status is required to use this feature.");
     }
 
-    let sendView = await send.decrypt();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let sendView = await send.decrypt(activeUserId);
     sendView = SendResponse.toView(req, sendView);
-
-    if (typeof req.password !== "string" || req.password === "") {
-      req.password = null;
-    }
 
     try {
       const [encSend, encFileData] = await this.sendService.encrypt(sendView, null, req.password);
@@ -92,8 +105,12 @@ export class SendEditCommand {
 
 class Options {
   itemId: string;
+  password: string;
+  emails: string[];
 
   constructor(passedOptions: Record<string, any>) {
     this.itemId = passedOptions?.itemId || passedOptions?.itemid;
+    this.password = passedOptions.password;
+    this.emails = passedOptions.email;
   }
 }

@@ -1,4 +1,4 @@
-[![Github Workflow build on master](https://github.com/bitwarden/clients/actions/workflows/build-cli.yml/badge.svg?branch=master)](https://github.com/bitwarden/clients/actions/workflows/build-cli.yml?query=branch:master)
+[![Github Workflow build on main](https://github.com/bitwarden/clients/actions/workflows/build-cli.yml/badge.svg?branch=main)](https://github.com/bitwarden/clients/actions/workflows/build-cli.yml?query=branch:main)
 [![Join the chat at https://gitter.im/bitwarden/Lobby](https://badges.gitter.im/bitwarden/Lobby.svg)](https://gitter.im/bitwarden/Lobby)
 
 # Bitwarden Command-line Interface

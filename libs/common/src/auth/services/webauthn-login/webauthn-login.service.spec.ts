@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LoginStrategyServiceAbstraction, WebAuthnLoginCredentials } from "@bitwarden/auth/common";
 
 import { LogService } from "../../../platform/abstractions/log.service";
@@ -36,7 +38,7 @@ describe("WebAuthnLoginService", () => {
 
     // We must do this to make the mocked classes available for all the
     // assertCredential(...) tests.
-    global.PublicKeyCredential = MockPublicKeyCredential;
+    global.PublicKeyCredential = MockPublicKeyCredential as any;
     global.AuthenticatorAssertionResponse = MockAuthenticatorAssertionResponse;
 
     // Save the original navigator
@@ -313,6 +315,10 @@ class MockPublicKeyCredential implements PublicKeyCredential {
 
   static isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean> {
     return Promise.resolve(false);
+  }
+
+  toJSON() {
+    throw new Error("Method not implemented.");
   }
 }
 

@@ -1,6 +1,10 @@
 import { ClientType } from "@bitwarden/common/enums";
 
-export type SsoClientType = ClientType.Web | ClientType.Browser | ClientType.Desktop;
+export type SsoClientType =
+  | ClientType.Web
+  | ClientType.Browser
+  | ClientType.Desktop
+  | ClientType.Cli;
 
 /**
  * Abstract class for SSO component services.

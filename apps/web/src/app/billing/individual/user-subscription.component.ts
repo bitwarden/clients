@@ -5,7 +5,9 @@ import { Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -15,14 +17,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { Discount, DiscountTypes, Maybe } from "@bitwarden/pricing";
 
 import {
-  AdjustStorageDialogV2Component,
-  AdjustStorageDialogV2ResultType,
-} from "../shared/adjust-storage-dialog/adjust-storage-dialog-v2.component";
-import {
-  AdjustStorageDialogResult,
-  openAdjustStorageDialog,
+  AdjustStorageDialogComponent,
+  AdjustStorageDialogResultType,
 } from "../shared/adjust-storage-dialog/adjust-storage-dialog.component";
 import {
   OffboardingSurveyDialogResultType,
@@ -31,8 +30,11 @@ import {
 import { UpdateLicenseDialogComponent } from "../shared/update-license-dialog.component";
 import { UpdateLicenseDialogResult } from "../shared/update-license-types";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "user-subscription.component.html",
+  standalone: false,
 })
 export class UserSubscriptionComponent implements OnInit {
   loading = false;
@@ -44,8 +46,8 @@ export class UserSubscriptionComponent implements OnInit {
   cancelPromise: Promise<any>;
   reinstatePromise: Promise<any>;
 
-  protected deprecateStripeSourcesAPI$ = this.configService.getFeatureFlag$(
-    FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
+  protected enableDiscountDisplay$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM23341_Milestone_2,
   );
 
   constructor(
@@ -59,6 +61,7 @@ export class UserSubscriptionComponent implements OnInit {
     private environmentService: EnvironmentService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
+    private accountService: AccountService,
     private configService: ConfigService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
@@ -75,7 +78,10 @@ export class UserSubscriptionComponent implements OnInit {
       return;
     }
 
-    if (await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$)) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$);
+    if (
+      await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$(userId.id))
+    ) {
       this.loading = true;
       this.sub = await this.apiService.getUserSubscription();
     } else {
@@ -153,7 +159,9 @@ export class UserSubscriptionComponent implements OnInit {
     if (this.loading) {
       return;
     }
-    const dialogRef = UpdateLicenseDialogComponent.open(this.dialogService);
+    const dialogRef = UpdateLicenseDialogComponent.open(this.dialogService, {
+      data: { fromUserSubscriptionPage: true },
+    });
     const result = await lastValueFrom(dialogRef.closed);
     if (result === UpdateLicenseDialogResult.Updated) {
       await this.load();
@@ -161,33 +169,18 @@ export class UserSubscriptionComponent implements OnInit {
   };
 
   adjustStorage = async (add: boolean) => {
-    const deprecateStripeSourcesAPI = await firstValueFrom(this.deprecateStripeSourcesAPI$);
+    const dialogRef = AdjustStorageDialogComponent.open(this.dialogService, {
+      data: {
+        price: 4,
+        cadence: "year",
+        type: add ? "Add" : "Remove",
+      },
+    });
 
-    if (deprecateStripeSourcesAPI) {
-      const dialogRef = AdjustStorageDialogV2Component.open(this.dialogService, {
-        data: {
-          price: 4,
-          cadence: "year",
-          type: add ? "Add" : "Remove",
-        },
-      });
+    const result = await lastValueFrom(dialogRef.closed);
 
-      const result = await lastValueFrom(dialogRef.closed);
-
-      if (result === AdjustStorageDialogV2ResultType.Submitted) {
-        await this.load();
-      }
-    } else {
-      const dialogRef = openAdjustStorageDialog(this.dialogService, {
-        data: {
-          storageGbPrice: 4,
-          add: add,
-        },
-      });
-      const result = await lastValueFrom(dialogRef.closed);
-      if (result === AdjustStorageDialogResult.Adjusted) {
-        await this.load();
-      }
+    if (result === AdjustStorageDialogResultType.Submitted) {
+      await this.load();
     }
   };
 
@@ -203,6 +196,28 @@ export class UserSubscriptionComponent implements OnInit {
 
   get nextInvoice() {
     return this.sub != null ? this.sub.upcomingInvoice : null;
+  }
+
+  get subscriptionAmount(): number {
+    if (!this.subscription?.items || this.subscription.items.length === 0) {
+      return 0;
+    }
+
+    return this.subscription.items.reduce(
+      (sum, item) => sum + (item.amount || 0) * (item.quantity || 0),
+      0,
+    );
+  }
+
+  get discountedSubscriptionAmount(): number {
+    // Use the upcoming invoice amount from the server as it already includes discounts,
+    // taxes, prorations, and all other adjustments. Fall back to subscription amount
+    // if upcoming invoice is not available.
+    if (this.nextInvoice?.amount != null) {
+      return this.nextInvoice.amount;
+    }
+
+    return this.subscriptionAmount;
   }
 
   get storagePercentage() {
@@ -234,5 +249,36 @@ export class UserSubscriptionComponent implements OnInit {
 
       return this.subscription.status;
     }
+  }
+
+  getDiscount(discount: BillingCustomerDiscount | null): Maybe<Discount> {
+    if (!discount) {
+      return null;
+    }
+    return discount.amountOff
+      ? { type: DiscountTypes.AmountOff, active: discount.active, value: discount.amountOff }
+      : { type: DiscountTypes.PercentOff, active: discount.active, value: discount.percentOff };
+  }
+
+  get isSubscriptionActive(): boolean {
+    if (!this.sub) {
+      return false;
+    }
+
+    if (this.selfHosted) {
+      return true;
+    }
+
+    const expiration = this.sub.expiration;
+    if (!expiration || expiration.trim() === "") {
+      return true;
+    }
+
+    const expirationDate = new Date(expiration);
+    if (isNaN(expirationDate.getTime())) {
+      return true;
+    }
+
+    return expirationDate > new Date();
   }
 }

@@ -1,4 +1,6 @@
 // Increment by 100 for each new set of events
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EventType {
   User_LoggedIn = 1000,
   User_ChangedPassword = 1001,
@@ -69,6 +71,16 @@ export enum EventType {
   Organization_DisabledKeyConnector = 1607,
   Organization_SponsorshipsSynced = 1608,
   Organization_CollectionManagementUpdated = 1609,
+  Organization_CollectionManagement_LimitCollectionCreationEnabled = 1610,
+  Organization_CollectionManagement_LimitCollectionCreationDisabled = 1611,
+  Organization_CollectionManagement_LimitCollectionDeletionEnabled = 1612,
+  Organization_CollectionManagement_LimitCollectionDeletionDisabled = 1613,
+  Organization_CollectionManagement_LimitItemDeletionEnabled = 1614,
+  Organization_CollectionManagement_LimitItemDeletionDisabled = 1615,
+  Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsEnabled = 1616,
+  Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsDisabled = 1617,
+  Organization_ItemOrganization_Accepted = 1618,
+  Organization_ItemOrganization_Declined = 1619,
 
   Policy_Updated = 1700,
 
@@ -88,4 +100,21 @@ export enum EventType {
   OrganizationDomain_NotVerified = 2003,
 
   Secret_Retrieved = 2100,
+  Secret_Created = 2101,
+  Secret_Edited = 2102,
+  Secret_Deleted = 2103,
+  Secret_Permanently_Deleted = 2104,
+  Secret_Restored = 2105,
+
+  Project_Retrieved = 2200,
+  Project_Created = 2201,
+  Project_Edited = 2202,
+  Project_Deleted = 2203,
+
+  ServiceAccount_UserAdded = 2300,
+  ServiceAccount_UserRemoved = 2301,
+  ServiceAccount_GroupAdded = 2302,
+  ServiceAccount_GroupRemoved = 2303,
+  ServiceAccount_Created = 2304,
+  ServiceAccount_Deleted = 2305,
 }

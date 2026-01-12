@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
 import {
   FocusedFieldData,
   NewCardCipherData,
@@ -24,7 +25,7 @@ import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/aut
 import {
   AutofillOverlayElement,
   InlineMenuAccountCreationFieldType,
-  InlineMenuFillType,
+  InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
@@ -48,7 +49,6 @@ import {
 import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-  InlineMenuFormFieldData,
   SubFrameDataFromWindowMessage,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -83,8 +83,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     unsetMostRecentlyFocusedField: () => this.unsetMostRecentlyFocusedField(),
     checkIsMostRecentlyFocusedFieldWithinViewport: () =>
       this.checkIsMostRecentlyFocusedFieldWithinViewport(),
-    bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
+    bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     redirectAutofillInlineMenuFocusOut: ({ message }) =>
       this.redirectInlineMenuFocusOut(message?.data?.direction),
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
@@ -95,6 +95,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     destroyAutofillInlineMenuListeners: () => this.destroy(),
     getInlineMenuFormFieldData: ({ message }) =>
       this.handleGetInlineMenuFormFieldDataMessage(message),
+    generatedPasswordModifyLogin: () => this.sendGeneratedPasswordModifyLogin(),
   };
   private readonly loginFieldQualifiers: Record<string, CallableFunction> = {
     [AutofillFieldQualifier.username]: this.inlineMenuFieldQualificationService.isUsernameField,
@@ -224,6 +225,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
   }
 
+  refreshMenuLayerPosition = () => this.inlineMenuContentService?.refreshTopLayerPosition();
+
+  getOwnedInlineMenuTagNames = () => this.inlineMenuContentService?.getOwnedTagNames() || [];
+
+  getUnownedTopLayerItems = (includeCandidates?: boolean) =>
+    this.inlineMenuContentService?.getUnownedTopLayerItems(includeCandidates);
+
   /**
    * Clears all cached user filled fields.
    */
@@ -234,6 +242,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       }
     });
   }
+
+  /**
+   * On password generation, send form field data i.e. modified login data
+   */
+  sendGeneratedPasswordModifyLogin = async () => {
+    await this.sendExtensionMessage("generatedPasswordFilled", this.getFormFieldData());
+  };
 
   /**
    * Formats any found user filled fields for a login cipher and sends a message
@@ -424,6 +439,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     await this.setupSubmitListenerOnFormlessField(formFieldElement);
+    return;
   }
 
   /**
@@ -439,15 +455,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.formElements.add(formElement);
       formElement.addEventListener(EVENTS.SUBMIT, this.handleFormFieldSubmitEvent);
 
-      const closesSubmitButton = await this.findSubmitButton(formElement);
+      const closestSubmitButton = await this.findSubmitButton(formElement);
 
       // If we cannot find a submit button within the form, check for a submit button outside the form.
-      if (!closesSubmitButton) {
+      if (!closestSubmitButton) {
         await this.setupSubmitListenerOnFormlessField(formFieldElement);
         return;
       }
 
-      this.setupSubmitButtonEventListeners(closesSubmitButton);
+      this.setupSubmitButtonEventListeners(closestSubmitButton);
+      return;
     }
   }
 
@@ -459,9 +476,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async setupSubmitListenerOnFormlessField(formFieldElement: FillableFormFieldElement) {
     if (formFieldElement && !this.fieldsWithSubmitElements.has(formFieldElement)) {
-      const closesSubmitButton = await this.findClosestFormlessSubmitButton(formFieldElement);
-      this.setupSubmitButtonEventListeners(closesSubmitButton);
+      const closestSubmitButton = await this.findClosestFormlessSubmitButton(formFieldElement);
+
+      this.setupSubmitButtonEventListeners(closestSubmitButton);
     }
+    return;
   }
 
   /**
@@ -633,7 +652,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Returns the form field data used for add login and change password notifications.
    */
-  private getFormFieldData = (): InlineMenuFormFieldData => {
+  private getFormFieldData = (): ModifyLoginCipherFormData => {
     return {
       uri: globalThis.document.URL,
       username: this.userFilledFields["username"]?.value || "",
@@ -785,11 +804,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (!autofillFieldData.fieldQualifier) {
       switch (autofillFieldData.inlineMenuFillType) {
         case CipherType.Login:
-        case InlineMenuFillType.CurrentPasswordUpdate:
+        case InlineMenuFillTypes.CurrentPasswordUpdate:
           this.qualifyUserFilledField(autofillFieldData, this.loginFieldQualifiers);
           break;
-        case InlineMenuFillType.AccountCreationUsername:
-        case InlineMenuFillType.PasswordGeneration:
+        case InlineMenuFillTypes.AccountCreationUsername:
+        case InlineMenuFillTypes.PasswordGeneration:
           this.qualifyUserFilledField(autofillFieldData, this.accountCreationFieldQualifiers);
           break;
         case CipherType.Card:
@@ -836,7 +855,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    const clonedNode = formFieldElement.cloneNode() as FillableFormFieldElement;
+    const clonedNode = formFieldElement.cloneNode(true) as FillableFormFieldElement;
     const identityLoginFields: AutofillFieldQualifierType[] = [
       AutofillFieldQualifier.identityUsername,
       AutofillFieldQualifier.identityEmail,
@@ -955,10 +974,21 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       inlineMenuFillType: autofillFieldData?.inlineMenuFillType,
       showPasskeys: !!autofillFieldData?.showPasskeys,
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
+      focusedFieldForm: autofillFieldData?.form,
+      focusedFieldOpid: autofillFieldData?.opid,
     };
+
+    const allFields = this.formFieldElements;
+    const allFieldsRect = [];
+
+    for (const key of allFields.keys()) {
+      const rect = await this.getMostRecentlyFocusedFieldRects(key);
+      allFieldsRect.push({ ...allFields.get(key), rect }); // Add the combined result to the array
+    }
 
     await this.sendExtensionMessage("updateFocusedFieldData", {
       focusedFieldData: this.focusedFieldData,
+      allFieldsRect,
     });
   }
 
@@ -1080,6 +1110,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private async setQualifiedLoginFillType(autofillFieldData: AutofillField) {
+    // Check if this is a current password field in a password change form
+    if (this.inlineMenuFieldQualificationService.isUpdateCurrentPasswordField(autofillFieldData)) {
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.CurrentPasswordUpdate;
+      return;
+    }
+
     autofillFieldData.inlineMenuFillType = CipherType.Login;
     autofillFieldData.showPasskeys = autofillFieldData.autoCompleteType.includes("webauthn");
 
@@ -1093,18 +1129,18 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private setQualifiedAccountCreationFillType(autofillFieldData: AutofillField) {
     if (this.inlineMenuFieldQualificationService.isNewPasswordField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
       this.qualifyAccountCreationFieldType(autofillFieldData);
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isUpdateCurrentPasswordField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.CurrentPasswordUpdate;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.CurrentPasswordUpdate;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.AccountCreationUsername;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.AccountCreationUsername;
       this.qualifyAccountCreationFieldType(autofillFieldData);
     }
   }
@@ -1115,6 +1151,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private qualifyAccountCreationFieldType(autofillFieldData: AutofillField) {
+    if (this.inlineMenuFieldQualificationService.isTotpField(autofillFieldData)) {
+      autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Totp;
+      return;
+    }
+
     if (!this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
       autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Password;
       return;
@@ -1408,6 +1449,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         url.origin + pathWithoutTrailingSlashAndSearch,
         url.origin + pathWithoutTrailingSlashSearchAndHash,
       ]);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       return null;
     }
@@ -1449,11 +1492,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     frameId?: number,
   ): SubFrameOffsetData {
     const iframeRect = iframeElement.getBoundingClientRect();
+    const iframeRectHasSize = iframeRect.width > 0 && iframeRect.height > 0;
     const iframeStyles = globalThis.getComputedStyle(iframeElement);
     const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left")) || 0;
     const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top")) || 0;
     const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width")) || 0;
     const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width")) || 0;
+
+    if (!iframeRect || !iframeRectHasSize || !iframeElement.isConnected) {
+      return null;
+    }
 
     return {
       url: subFrameUrl,
@@ -1488,6 +1536,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
           subFrameData.url,
           subFrameData.frameId,
         );
+
+        if (!subFrameOffsets) {
+          return;
+        }
 
         subFrameData.top += subFrameOffsets.top;
         subFrameData.left += subFrameOffsets.left;
@@ -1599,17 +1651,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return false;
     };
     const scrollHandler = this.useEventHandlersMemo(
-      throttle(async (event) => {
+      throttle(async (event: Event) => {
+        const scrollY = globalThis.scrollY;
+        const scrollX = globalThis.scrollX;
         if (
-          currentScrollY !== globalThis.scrollY ||
-          currentScrollX !== globalThis.scrollX ||
-          eventTargetContainsFocusedField(event.target)
+          currentScrollY !== scrollY ||
+          currentScrollX !== scrollX ||
+          (event.target instanceof Element && eventTargetContainsFocusedField(event.target))
         ) {
           repositionHandler(event);
         }
 
-        currentScrollY = globalThis.scrollY;
-        currentScrollX = globalThis.scrollX;
+        currentScrollY = scrollY;
+        currentScrollX = scrollX;
       }, 50),
       AUTOFILL_OVERLAY_HANDLE_SCROLL,
     );
@@ -1620,10 +1674,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     });
     globalThis.addEventListener(EVENTS.RESIZE, repositionHandler);
   }
-
-  private shouldRepositionSubFrameInlineMenuOnScroll = async () => {
-    return await this.sendExtensionMessage("shouldRepositionSubFrameInlineMenuOnScroll");
-  };
 
   /**
    * Removes the listeners that facilitate repositioning

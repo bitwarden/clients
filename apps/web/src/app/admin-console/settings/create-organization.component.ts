@@ -1,43 +1,71 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { Subject, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { OrganizationPlansComponent } from "../../billing";
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "create-organization.component.html",
-  standalone: true,
   imports: [SharedModule, OrganizationPlansComponent, HeaderModule],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class CreateOrganizationComponent implements OnInit {
-  @ViewChild(OrganizationPlansComponent, { static: true })
-  orgPlansComponent: OrganizationPlansComponent;
+export class CreateOrganizationComponent implements OnInit, OnDestroy {
+  protected secretsManager = false;
+  protected plan: PlanType = PlanType.Free;
+  protected productTier: ProductTierType = ProductTierType.Free;
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private configService: ConfigService,
+  ) {}
 
-  ngOnInit() {
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
-      if (qParams.plan === "families") {
-        this.orgPlansComponent.plan = PlanType.FamiliesAnnually;
-        this.orgPlansComponent.productTier = ProductTierType.Families;
-      } else if (qParams.plan === "teams") {
-        this.orgPlansComponent.plan = PlanType.TeamsAnnually;
-        this.orgPlansComponent.productTier = ProductTierType.Teams;
-      } else if (qParams.plan === "teamsStarter") {
-        this.orgPlansComponent.plan = PlanType.TeamsStarter;
-        this.orgPlansComponent.productTier = ProductTierType.TeamsStarter;
-      } else if (qParams.plan === "enterprise") {
-        this.orgPlansComponent.plan = PlanType.EnterpriseAnnually;
-        this.orgPlansComponent.productTier = ProductTierType.Enterprise;
+  private destroy$ = new Subject<void>();
+
+  async ngOnInit(): Promise<void> {
+    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM26462_Milestone_3,
+    );
+    const familyPlan = milestone3FeatureEnabled
+      ? PlanType.FamiliesAnnually
+      : PlanType.FamiliesAnnually2025;
+
+    this.route.queryParams.pipe(first(), takeUntil(this.destroy$)).subscribe((qParams) => {
+      if (qParams.plan === "families" || qParams.productTier == ProductTierType.Families) {
+        this.plan = familyPlan;
+        this.productTier = ProductTierType.Families;
+      } else if (qParams.plan === "teams" || qParams.productTier == ProductTierType.Teams) {
+        this.plan = PlanType.TeamsAnnually;
+        this.productTier = ProductTierType.Teams;
+      } else if (
+        qParams.plan === "teamsStarter" ||
+        qParams.productTier == ProductTierType.TeamsStarter
+      ) {
+        this.plan = PlanType.TeamsStarter;
+        this.productTier = ProductTierType.TeamsStarter;
+      } else if (
+        qParams.plan === "enterprise" ||
+        qParams.productTier == ProductTierType.Enterprise
+      ) {
+        this.plan = PlanType.EnterpriseAnnually;
+        this.productTier = ProductTierType.Enterprise;
       }
+
+      this.secretsManager = qParams.product == ProductType.SecretsManager;
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

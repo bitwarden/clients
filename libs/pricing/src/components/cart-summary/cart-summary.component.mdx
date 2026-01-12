@@ -1,0 +1,514 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs/blocks";
+import * as CartSummaryStories from "./cart-summary.component.stories";
+
+<Meta of={CartSummaryStories} />
+
+# Cart Summary
+
+A reusable UI component for displaying order summary information with consistent styling and
+behavior across Bitwarden applications.
+
+<Canvas of={CartSummaryStories.Default} />
+
+## Table of Contents
+
+- [Usage](#usage)
+- [API](#api)
+  - [Inputs](#inputs)
+  - [Events](#events)
+- [Data Structure](#data-structure)
+- [Flexibility](#flexibility)
+- [Design](#design)
+- [Examples](#examples)
+  - [Yearly Cadence](#yearly-cadence)
+  - [With Additional Storage](#with-additional-storage)
+  - [With Secrets Manager](#with-secrets-manager)
+  - [With Secrets Manager and Additional Service Accounts](#with-secrets-manager-and-additional-service-accounts)
+  - [All Products](#all-products)
+  - [With Percent Discount](#with-percent-discount)
+  - [With Amount Discount](#with-amount-discount)
+  - [Custom Header Template](#custom-header-template)
+  - [Premium Plan](#premium-plan)
+  - [Families Plan](#families-plan)
+- [Features](#features)
+- [Do's and Don'ts](#dos-and-donts)
+- [Accessibility](#accessibility)
+
+## Usage
+
+The cart summary component is designed to be used in checkout and subscription interfaces to display
+order details, prices, totals, and discounts.
+
+```ts
+import { CartSummaryComponent, Cart } from "@bitwarden/pricing";
+```
+
+```html
+<billing-cart-summary [cart]="cart"> </billing-cart-summary>
+```
+
+## API
+
+### Inputs
+
+| Input    | Type                     | Description                                                                     |
+| -------- | ------------------------ | ------------------------------------------------------------------------------- |
+| `cart`   | `Cart`                   | **Required.** The cart data containing all products, discount, tax, and cadence |
+| `header` | `TemplateRef<{ total }>` | **Optional.** Custom header template to replace the default header              |
+
+### Events
+
+The cart summary component does not emit any events, but it does have internal behavior for
+collapsing and expanding the view.
+
+## Data Structure
+
+The component uses the following Cart and CartItem data structures:
+
+```typescript
+export type CartItem = {
+  name: string; // Display name for i18n lookup
+  quantity: number; // Number of items
+  cost: number; // Cost per item
+  discount?: Discount; // Optional item-level discount
+};
+
+export type Cart = {
+  passwordManager: {
+    seats: CartItem; // Required PM seats
+    additionalStorage?: CartItem; // Optional additional storage
+  };
+  secretsManager?: {
+    // Optional SM section
+    seats: CartItem; // SM seats
+    additionalServiceAccounts?: CartItem; // Optional service accounts
+  };
+  cadence: "annually" | "monthly"; // Billing period for entire cart
+  discount?: Discount; // Optional cart-level discount
+  estimatedTax: number; // Tax amount
+};
+
+import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
+
+export type Discount = {
+  type: DiscountType; // DiscountTypes.AmountOff | DiscountTypes.PercentOff
+  active: boolean; // Whether discount is currently applied
+  value: number; // Dollar amount or percentage (20 for 20%)
+};
+```
+
+## Flexibility
+
+The cart summary component provides flexibility through its structured Cart input:
+
+```html
+<!-- Basic usage with only Password Manager -->
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: 'members',
+        cost: 50.00
+      }
+    },
+    cadence: 'monthly',
+    estimatedTax: 9.60
+  }"
+>
+</billing-cart-summary>
+
+<!-- With Additional Storage -->
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: 'members',
+        cost: 50.00
+      },
+      additionalStorage: {
+        quantity: 2,
+        name: 'additionalStorageGB',
+        cost: 10.00
+      }
+    },
+    cadence: 'monthly',
+    estimatedTax: 12.00
+  }"
+>
+</billing-cart-summary>
+
+<!-- With Discount -->
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: 'members',
+        cost: 50.00
+      }
+    },
+    cadence: 'monthly',
+    discount: {
+      type: 'percent-off',
+      active: true,
+      value: 20
+    },
+    estimatedTax: 8.00
+  }"
+>
+</billing-cart-summary>
+```
+
+## Design
+
+The component follows the Bitwarden design system with:
+
+- **Collapsible Interface**: Toggles between compact and detailed views
+- **Clean Styling**: Uses Tailwind utility classes for consistent appearance
+- **Modern Angular**: Uses `@if` control flow and `@let` with signal inputs
+- **Signal inputs**: Type-safe inputs using Angular's signal-based input API
+- **Typography**: Consistent text styling using the typography module
+- **Layout**: Flexbox layout with clear section boundaries
+- **Interactivity**: Collapsible summary with intuitive toggle behavior
+- **Accessibility**: Semantic structure with proper button and icon usage using IconButtonModule
+
+## Examples
+
+### Yearly Cadence
+
+Show cart with yearly subscription:
+
+<Canvas of={CartSummaryStories.PasswordManagerYearlyCadence} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: 'members',
+        cost: 500.00
+      }
+    },
+    cadence: 'annually',
+    estimatedTax: 120.00
+  }"
+>
+</billing-cart-summary>
+```
+
+### With Additional Storage
+
+Show cart with password manager and additional storage:
+
+<Canvas of={CartSummaryStories.WithAdditionalStorage} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: 'members',
+        cost: 50.00
+      },
+      additionalStorage: {
+        quantity: 2,
+        name: 'additionalStorageGB',
+        cost: 10.00
+      }
+    },
+    cadence: 'monthly',
+    estimatedTax: 12.00
+  }"
+>
+</billing-cart-summary>
+```
+
+### With Secrets Manager
+
+Show cart with password manager and secrets manager seats only:
+
+<Canvas of={CartSummaryStories.SecretsManagerSeatsOnly} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: 'members',
+        cost: 50.00
+      }
+    },
+    secretsManager: {
+      seats: {
+        quantity: 3,
+        name: 'members',
+        cost: 30.00
+      }
+    },
+    cadence: 'monthly',
+    estimatedTax: 16.00
+  }"
+>
+</billing-cart-summary>
+```
+
+### With Secrets Manager and Additional Service Accounts
+
+Show cart with password manager, secrets manager seats, and additional service accounts:
+
+<Canvas of={CartSummaryStories.SecretsManagerSeatsAndServiceAccounts} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: 'members',
+        cost: 50.00
+      }
+    },
+    secretsManager: {
+      seats: {
+        quantity: 3,
+        name: 'members',
+        cost: 30.00
+      },
+      additionalServiceAccounts: {
+        quantity: 2,
+        name: 'additionalServiceAccounts',
+        cost: 6.00
+      }
+    },
+    cadence: 'monthly',
+    estimatedTax: 16.00
+  }"
+>
+</billing-cart-summary>
+```
+
+### All Products
+
+Show a cart with all available products:
+
+<Canvas of={CartSummaryStories.AllProducts} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: 'members',
+        cost: 50.00
+      },
+      additionalStorage: {
+        quantity: 2,
+        name: 'additionalStorageGB',
+        cost: 10.00
+      }
+    },
+    secretsManager: {
+      seats: {
+        quantity: 3,
+        name: 'members',
+        cost: 30.00
+      },
+      additionalServiceAccounts: {
+        quantity: 2,
+        name: 'additionalServiceAccounts',
+        cost: 6.00
+      }
+    },
+    cadence: 'monthly',
+    estimatedTax: 19.20
+  }"
+>
+</billing-cart-summary>
+```
+
+### With Percent Discount
+
+Show cart with percentage-based discount:
+
+<Canvas of={CartSummaryStories.WithPercentDiscount} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: 'members',
+        cost: 50.00
+      },
+      additionalStorage: {
+        quantity: 2,
+        name: 'additionalStorageGB',
+        cost: 10.00
+      }
+    },
+    cadence: 'monthly',
+    discount: {
+      type: 'percent-off',
+      active: true,
+      value: 20
+    },
+    estimatedTax: 10.40
+  }"
+>
+</billing-cart-summary>
+```
+
+### With Amount Discount
+
+Show cart with fixed amount discount:
+
+<Canvas of={CartSummaryStories.WithAmountDiscount} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        name: 'members',
+        cost: 50.00
+      }
+    },
+    secretsManager: {
+      seats: {
+        quantity: 3,
+        name: 'members',
+        cost: 30.00
+      }
+    },
+    cadence: 'annually',
+    discount: {
+      type: 'amount-off',
+      active: true,
+      value: 50.00
+    },
+    estimatedTax: 95.00
+  }"
+>
+</billing-cart-summary>
+```
+
+### Custom Header Template
+
+Show cart with custom header template:
+
+<Canvas of={CartSummaryStories.CustomHeaderTemplate} />
+
+```html
+<billing-cart-summary [cart]="cartData" [header]="customHeader">
+  <ng-template #customHeader let-total="total">
+    <div class="tw-flex tw-flex-col tw-gap-1">
+      <h3 bitTypography="h3" class="!tw-m-0 tw-text-primary">
+        Your Total: {{ total | currency: 'USD' : 'symbol' }}
+      </h3>
+      <p bitTypography="body2" class="!tw-m-0 tw-text-muted">Custom header with enhanced styling</p>
+    </div>
+  </ng-template>
+</billing-cart-summary>
+```
+
+### Premium Plan
+
+Show cart with premium plan:
+
+<Canvas of={CartSummaryStories.PremiumPlan} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 1,
+        name: 'premiumMembership',
+        cost: 10.00
+      }
+    },
+    cadence: 'annually',
+    estimatedTax: 2.71
+  }"
+>
+</billing-cart-summary>
+```
+
+### Families Plan
+
+Show cart with families plan:
+
+<Canvas of={CartSummaryStories.FamiliesPlan} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 1,
+        name: 'familiesMembership',
+        cost: 40.00
+      }
+    },
+    cadence: 'annually',
+    estimatedTax: 4.67
+  }"
+>
+</billing-cart-summary>
+```
+
+## Features
+
+- **Collapsible Interface**: Users can toggle between a summary view showing only the total and a
+  detailed view showing all line items
+- **Line Item Grouping**: Organizes items by product category (Password Manager, Secrets Manager)
+- **Dynamic Calculations**: Automatically calculates subtotals, discounts, taxes, and totals using
+  Angular signals and computed values
+- **Discount Support**: Displays both percentage-based and fixed-amount discounts with green success
+  styling
+- **Custom Header Templates**: Optional header input allows for custom header designs while
+  maintaining cart functionality
+- **Flexible Structure**: Accommodates different combinations of products, add-ons, and discounts
+- **Consistent Formatting**: Maintains uniform display of prices, quantities, and cadence
+- **Modern Angular Patterns**: Uses `@let` to efficiently store and reuse signal values, OnPush
+  change detection, and Angular 17+ control flow
+
+## Do's and Don'ts
+
+### ✅ Do
+
+- Use consistent naming and formatting for cart items
+- Include clear quantity and unit pricing information
+- Ensure tax estimates are accurate and clearly labeled
+- Set `active: true` on discounts that should be displayed
+- Use localized strings for CartItem names (for i18n lookup)
+- Provide complete Cart object with all required fields
+- Use "annually" or "monthly" for cadence (not "year" or "month")
+
+### ❌ Don't
+
+- Omit required Cart fields (passwordManager.seats, cadence, estimatedTax)
+- Use old "month"/"year" cadence values (use "monthly"/"annually")
+- Modify the component's internal calculations or totals
+- Use inconsistent formatting for monetary values
+- Override the default styles without considering accessibility
+- Mix different cadences - the cart uses a single cadence for all items
+
+## Accessibility
+
+The component includes:
+
+- Semantic HTML structure with proper headings
+- Button element for the collapsible toggle
+- Keyboard navigation support
+- Clear visual indication of expanded state
+- Descriptive labels and text
+- Sufficient color contrast for text elements

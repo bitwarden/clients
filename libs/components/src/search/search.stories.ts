@@ -1,10 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { InputModule } from "../input/input.module";
 import { SharedModule } from "../shared";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -29,15 +28,19 @@ export default {
       ],
     }),
   ],
+  args: {
+    placeholder: "search",
+    disabled: false,
+  },
 } as Meta;
 
 type Story = StoryObj<SearchComponent>;
 
 export const Default: Story = {
-  render: (args: SearchComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
-      <bit-search [(ngModel)]="searchText" [placeholder]="placeholder" [disabled]="disabled"></bit-search>
+      <bit-search [(ngModel)]="searchText"${formatArgsForCodeSnippet<SearchComponent>(args)}></bit-search>
     `,
   }),
   args: {},

@@ -1,25 +1,23 @@
 import { firstValueFrom } from "rxjs";
 
-import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { UserId } from "@bitwarden/common/types/guid";
-
-import { makeEncString, trackEmissions } from "../../../common/spec";
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
+  makeEncString,
+  trackEmissions,
+  FakeStateProvider,
+  FakeGlobalState,
   FakeAccountService,
   mockAccountServiceWith,
-} from "../../../common/spec/fake-account-service";
-import { FakeGlobalState, FakeSingleUserState } from "../../../common/spec/fake-state";
-import { FakeStateProvider } from "../../../common/spec/fake-state-provider";
+} from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { BiometricStateService, DefaultBiometricStateService } from "./biometric-state.service";
 import {
   BIOMETRIC_UNLOCK_ENABLED,
-  DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT,
   ENCRYPTED_CLIENT_KEY_HALF,
   FINGERPRINT_VALIDATED,
   PROMPT_AUTOMATICALLY,
   PROMPT_CANCELLED,
-  REQUIRE_PASSWORD_ON_START,
 } from "./biometric.state";
 
 describe("BiometricStateService", () => {
@@ -41,33 +39,17 @@ describe("BiometricStateService", () => {
     jest.resetAllMocks();
   });
 
-  describe("requirePasswordOnStart$", () => {
-    it("emits when the require password on start state changes", async () => {
-      const state = stateProvider.activeUser.getFake(REQUIRE_PASSWORD_ON_START);
-      state.nextState(true);
-
-      expect(await firstValueFrom(sut.requirePasswordOnStart$)).toBe(true);
-    });
-
-    it("emits false when the require password on start state is undefined", async () => {
-      const state = stateProvider.activeUser.getFake(REQUIRE_PASSWORD_ON_START);
-      state.nextState(undefined);
-
-      expect(await firstValueFrom(sut.requirePasswordOnStart$)).toBe(false);
-    });
-  });
-
   describe("encryptedClientKeyHalf$", () => {
     it("emits when the encryptedClientKeyHalf state changes", async () => {
       const state = stateProvider.activeUser.getFake(ENCRYPTED_CLIENT_KEY_HALF);
-      state.nextState(encryptedClientKeyHalf);
+      state.nextState(encryptedClientKeyHalf as unknown as EncryptedString);
 
       expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toEqual(encClientKeyHalf);
     });
 
     it("emits false when the encryptedClientKeyHalf state is undefined", async () => {
       const state = stateProvider.activeUser.getFake(ENCRYPTED_CLIENT_KEY_HALF);
-      state.nextState(undefined);
+      state.nextState(undefined as unknown as EncryptedString);
 
       expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toBe(null);
     });
@@ -76,7 +58,7 @@ describe("BiometricStateService", () => {
   describe("fingerprintValidated$", () => {
     it("emits when the fingerprint validated state changes", async () => {
       const state = stateProvider.global.getFake(FINGERPRINT_VALIDATED);
-      state.stateSubject.next(undefined);
+      state.stateSubject.next(undefined as unknown as boolean);
 
       expect(await firstValueFrom(sut.fingerprintValidated$)).toBe(false);
 
@@ -91,61 +73,6 @@ describe("BiometricStateService", () => {
       await sut.setEncryptedClientKeyHalf(encClientKeyHalf);
 
       expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toEqual(encClientKeyHalf);
-    });
-  });
-
-  describe("setRequirePasswordOnStart", () => {
-    it("updates the requirePasswordOnStart$", async () => {
-      await sut.setRequirePasswordOnStart(true);
-
-      expect(await firstValueFrom(sut.requirePasswordOnStart$)).toBe(true);
-    });
-
-    it("removes the encryptedClientKeyHalf when the set value is false", async () => {
-      await sut.setEncryptedClientKeyHalf(encClientKeyHalf, userId);
-      await sut.setRequirePasswordOnStart(false);
-
-      const keyHalfState = stateProvider.getUser(
-        userId,
-        ENCRYPTED_CLIENT_KEY_HALF,
-      ) as FakeSingleUserState<EncryptedString>;
-      expect(await firstValueFrom(keyHalfState.state$)).toBe(null);
-      expect(keyHalfState.nextMock).toHaveBeenCalledWith(null);
-    });
-
-    it("does not remove the encryptedClientKeyHalf when the value is true", async () => {
-      await sut.setEncryptedClientKeyHalf(encClientKeyHalf);
-      await sut.setRequirePasswordOnStart(true);
-
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toEqual(encClientKeyHalf);
-    });
-  });
-
-  describe("getRequirePasswordOnStart", () => {
-    it("returns the requirePasswordOnStart state value", async () => {
-      stateProvider.singleUser.mockFor(userId, REQUIRE_PASSWORD_ON_START, true);
-
-      expect(await sut.getRequirePasswordOnStart(userId)).toBe(true);
-    });
-  });
-
-  describe("require password on start callout", () => {
-    it("is false when not set", async () => {
-      expect(await firstValueFrom(sut.dismissedRequirePasswordOnStartCallout$)).toBe(false);
-    });
-
-    it("is true when set", async () => {
-      await sut.setDismissedRequirePasswordOnStartCallout();
-
-      expect(await firstValueFrom(sut.dismissedRequirePasswordOnStartCallout$)).toBe(true);
-    });
-
-    it("updates disk state when called", async () => {
-      await sut.setDismissedRequirePasswordOnStartCallout();
-
-      expect(
-        stateProvider.activeUser.getFake(DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT).nextMock,
-      ).toHaveBeenCalledWith([userId, true]);
     });
   });
 
@@ -172,7 +99,7 @@ describe("BiometricStateService", () => {
     });
 
     it("throws when called with no active user", async () => {
-      await accountService.switchAccount(null);
+      await accountService.switchAccount(null as unknown as UserId);
       await expect(sut.setUserPromptCancelled()).rejects.toThrow(
         "Cannot update biometric prompt cancelled state without an active user",
       );
@@ -261,7 +188,7 @@ describe("BiometricStateService", () => {
 
     it("emits false when biometricUnlockEnabled state is undefined", async () => {
       const state = stateProvider.activeUser.getFake(BIOMETRIC_UNLOCK_ENABLED);
-      state.nextState(undefined);
+      state.nextState(undefined as unknown as boolean);
 
       expect(await firstValueFrom(sut.biometricUnlockEnabled$)).toBe(false);
     });
@@ -291,7 +218,9 @@ describe("BiometricStateService", () => {
     });
 
     it("returns false when the state is not set", async () => {
-      stateProvider.singleUser.getFake(userId, BIOMETRIC_UNLOCK_ENABLED).nextState(undefined);
+      stateProvider.singleUser
+        .getFake(userId, BIOMETRIC_UNLOCK_ENABLED)
+        .nextState(undefined as unknown as boolean);
 
       expect(await sut.getBiometricUnlockEnabled(userId)).toBe(false);
     });

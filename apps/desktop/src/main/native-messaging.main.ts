@@ -14,7 +14,7 @@ import { isDev } from "../utils";
 import { WindowMain } from "./window.main";
 
 export class NativeMessagingMain {
-  private ipcServer: ipc.IpcServer | null;
+  private ipcServer: ipc.NativeIpcServer | null;
   private connected: number[] = [];
 
   constructor(
@@ -78,7 +78,7 @@ export class NativeMessagingMain {
       this.ipcServer.stop();
     }
 
-    this.ipcServer = await ipc.IpcServer.listen("bitwarden", (error, msg) => {
+    this.ipcServer = await ipc.NativeIpcServer.listen("bw", (error, msg) => {
       switch (msg.kind) {
         case ipc.IpcMessageType.Connected: {
           this.connected.push(msg.clientId);
@@ -172,7 +172,7 @@ export class NativeMessagingMain {
             const p = path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json");
 
             let manifest: any = chromeJson;
-            if (key === "Firefox") {
+            if (key === "Firefox" || key === "Zen") {
               manifest = firefoxJson;
             }
 
@@ -313,6 +313,8 @@ export class NativeMessagingMain {
       "Microsoft Edge Dev": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Dev/`,
       "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
+      Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
+      Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
     };
     /* eslint-enable no-useless-escape */
   }
@@ -405,6 +407,8 @@ export class NativeMessagingMain {
             this.logService.info(`Error reading preferences: ${e}`);
           }
         }
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         // Browser is not installed, we can just skip it
       }

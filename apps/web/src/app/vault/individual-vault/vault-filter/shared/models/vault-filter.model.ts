@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, isCipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -72,13 +72,17 @@ export class VaultFilter {
     return this.selectedCipherTypeNode?.node.type === "trash" ? true : null;
   }
 
+  get isArchived(): boolean {
+    return this.selectedCipherTypeNode?.node.type === "archive";
+  }
+
   get organizationId(): string {
     return this.selectedOrganizationNode?.node.id;
   }
 
   get cipherType(): CipherType {
-    return this.selectedCipherTypeNode?.node.type in CipherType
-      ? (this.selectedCipherTypeNode?.node.type as CipherType)
+    return isCipherType(this.selectedCipherTypeNode?.node.type)
+      ? this.selectedCipherTypeNode?.node.type
       : null;
   }
 
@@ -120,6 +124,9 @@ export class VaultFilter {
       }
       if (this.isDeleted && cipherPassesFilter) {
         cipherPassesFilter = cipher.isDeleted;
+      }
+      if (this.isArchived && cipherPassesFilter) {
+        cipherPassesFilter = cipher.isArchived;
       }
       if (this.cipherType && cipherPassesFilter) {
         cipherPassesFilter = cipher.type === this.cipherType;

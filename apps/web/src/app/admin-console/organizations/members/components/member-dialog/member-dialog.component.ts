@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
@@ -22,7 +21,10 @@ import {
   OrganizationUserApiService,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -30,11 +32,17 @@ import {
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import {
   GroupApiService,
@@ -50,28 +58,44 @@ import {
   convertToSelectionView,
   PermissionMode,
 } from "../../../shared/components/access-selector";
+import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
+import { inputEmailLimitValidator } from "./validators/input-email-limit.validator";
 import { orgSeatLimitReachedValidator } from "./validators/org-seat-limit-reached.validator";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum MemberDialogTab {
   Role = 0,
   Groups = 1,
   Collections = 2,
 }
 
-export interface MemberDialogParams {
-  name: string;
-  organizationId: string;
-  organizationUserId: string;
-  allOrganizationUserEmails: string[];
-  usesKeyConnector: boolean;
+interface CommonMemberDialogParams {
   isOnSecretsManagerStandalone: boolean;
-  initialTab?: MemberDialogTab;
-  numConfirmedMembers: number;
-  managedByOrganization?: boolean;
+  organizationId: string;
 }
 
+export interface AddMemberDialogParams extends CommonMemberDialogParams {
+  kind: "Add";
+  occupiedSeatCount: number;
+  allOrganizationUserEmails: string[];
+}
+
+export interface EditMemberDialogParams extends CommonMemberDialogParams {
+  kind: "Edit";
+  name: string;
+  organizationUserId: string;
+  usesKeyConnector: boolean;
+  managedByOrganization?: boolean;
+  initialTab: MemberDialogTab;
+}
+
+export type MemberDialogParams = EditMemberDialogParams | AddMemberDialogParams;
+
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum MemberDialogResult {
   Saved = "saved",
   Canceled = "canceled",
@@ -80,8 +104,11 @@ export enum MemberDialogResult {
   Restored = "restored",
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "member-dialog.component.html",
+  standalone: false,
 })
 export class MemberDialogComponent implements OnDestroy {
   loading = true;
@@ -94,6 +121,8 @@ export class MemberDialogComponent implements OnDestroy {
   PermissionMode = PermissionMode;
   showNoMasterPasswordWarning = false;
   isOnSecretsManagerStandalone: boolean;
+  remainingSeats$: Observable<number>;
+  editParams$: Observable<EditMemberDialogParams>;
 
   protected organization$: Observable<Organization>;
   protected collectionAccessItems: AccessItemView[] = [];
@@ -103,6 +132,7 @@ export class MemberDialogComponent implements OnDestroy {
     emails: [""],
     type: OrganizationUserType.User,
     externalId: this.formBuilder.control({ value: "", disabled: true }),
+    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
@@ -129,14 +159,24 @@ export class MemberDialogComponent implements OnDestroy {
     manageResetPassword: false,
   });
 
-  protected accountDeprovisioningEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.AccountDeprovisioning,
-  );
+  get isExternalIdVisible(): boolean {
+    return !!this.formGroup.get("externalId")?.value;
+  }
 
-  private destroy$ = new Subject<void>();
+  get isSsoExternalIdVisible(): boolean {
+    return !!this.formGroup.get("ssoExternalId")?.value;
+  }
 
   get customUserTypeSelected(): boolean {
     return this.formGroup.value.type === OrganizationUserType.Custom;
+  }
+
+  private destroy$ = new Subject<void>();
+
+  isEditDialogParams(
+    params: EditMemberDialogParams | AddMemberDialogParams,
+  ): params is EditMemberDialogParams {
+    return params.kind === "Edit";
   }
 
   constructor(
@@ -154,14 +194,35 @@ export class MemberDialogComponent implements OnDestroy {
     organizationService: OrganizationService,
     private toastService: ToastService,
     private configService: ConfigService,
+    private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
   ) {
-    this.organization$ = organizationService
-      .get$(this.params.organizationId)
-      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+    this.organization$ = accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        organizationService
+          .organizations$(account?.id)
+          .pipe(getOrganizationById(this.params.organizationId))
+          .pipe(shareReplay({ refCount: true, bufferSize: 1 })),
+      ),
+    );
 
-    this.editMode = this.params.organizationUserId != null;
-    this.tabIndex = this.params.initialTab ?? MemberDialogTab.Role;
-    this.title = this.i18nService.t(this.editMode ? "editMember" : "inviteMember");
+    let userDetails$;
+    if (this.isEditDialogParams(this.params)) {
+      this.editMode = true;
+      this.title = this.i18nService.t("editMember");
+      userDetails$ = this.userService.get(
+        this.params.organizationId,
+        this.params.organizationUserId,
+      );
+      this.tabIndex = this.params.initialTab;
+      this.editParams$ = of(this.params);
+    } else {
+      this.editMode = false;
+      this.title = this.i18nService.t("inviteMember");
+      this.editParams$ = of(null);
+      userDetails$ = of(null);
+      this.tabIndex = MemberDialogTab.Role;
+    }
+
     this.isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
 
     if (this.isOnSecretsManagerStandalone) {
@@ -177,10 +238,6 @@ export class MemberDialogComponent implements OnDestroy {
           : of([] as GroupDetailsView[]),
       ),
     );
-
-    const userDetails$ = this.params.organizationUserId
-      ? this.userService.get(this.params.organizationId, this.params.organizationUserId)
-      : of(null);
 
     this.allowAdminAccessToAllCollectionItems$ = this.organization$.pipe(
       map((organization) => {
@@ -222,9 +279,16 @@ export class MemberDialogComponent implements OnDestroy {
       ),
     );
 
+    const collections = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
+      ),
+    );
+
     combineLatest({
       organization: this.organization$,
-      collections: this.collectionAdminService.getAll(this.params.organizationId),
+      collections,
       userDetails: userDetails$,
       groups: groups$,
     })
@@ -260,16 +324,34 @@ export class MemberDialogComponent implements OnDestroy {
 
         this.loading = false;
       });
+
+    this.remainingSeats$ = this.organization$.pipe(
+      map((organization) => {
+        if (!this.isEditDialogParams(this.params)) {
+          return organization.seats - this.params.occupiedSeatCount;
+        }
+
+        return organization.seats;
+      }),
+    );
   }
 
   private setFormValidators(organization: Organization) {
+    if (this.isEditDialogParams(this.params)) {
+      return;
+    }
+
     const emailsControlValidators = [
       Validators.required,
       commaSeparatedEmails,
+      inputEmailLimitValidator(organization, (maxEmailsCount: number) =>
+        this.i18nService.t("tooManyEmails", maxEmailsCount),
+      ),
       orgSeatLimitReachedValidator(
         organization,
         this.params.allOrganizationUserEmails,
         this.i18nService.t("subscriptionUpgrade", organization.seats),
+        this.params.occupiedSeatCount,
       ),
     ];
 
@@ -339,6 +421,7 @@ export class MemberDialogComponent implements OnDestroy {
     this.formGroup.patchValue({
       type: userDetails.type,
       externalId: userDetails.externalId,
+      ssoExternalId: userDetails.ssoExternalId,
       access: accessSelections,
       accessSecretsManager: userDetails.accessSecretsManager,
       groups: groupAccessSelections,
@@ -379,22 +462,6 @@ export class MemberDialogComponent implements OnDestroy {
     return Object.assign(p, partialPermissions);
   }
 
-  handleDependentPermissions() {
-    // Manage Password Reset (Account Recovery) must have Manage Users enabled
-    if (
-      this.permissionsGroup.value.manageResetPassword &&
-      !this.permissionsGroup.value.manageUsers
-    ) {
-      this.permissionsGroup.value.manageUsers = true;
-      (document.getElementById("manageUsers") as HTMLInputElement).checked = true;
-      this.toastService.showToast({
-        variant: "info",
-        title: null,
-        message: this.i18nService.t("accountRecoveryManageUsers"),
-      });
-    }
-  }
-
   submit = async () => {
     this.formGroup.markAllAsTouched();
 
@@ -420,14 +487,25 @@ export class MemberDialogComponent implements OnDestroy {
       return;
     }
 
+    const userView = await this.getUserView();
+
+    if (this.isEditDialogParams(this.params)) {
+      await this.handleEditUser(userView, this.params);
+    } else {
+      await this.handleInviteUsers(userView, organization);
+    }
+  };
+
+  private async getUserView(): Promise<OrganizationUserAdminView> {
     const userView = new OrganizationUserAdminView();
-    userView.id = this.params.organizationUserId;
     userView.organizationId = this.params.organizationId;
     userView.type = this.formGroup.value.type;
+
     userView.permissions = this.setRequestPermissions(
       userView.permissions ?? new PermissionsApi(),
       userView.type !== OrganizationUserType.Custom,
     );
+
     userView.collections = this.formGroup.value.access
       .filter((v) => v.type === AccessItemType.Collection)
       .map(convertToSelectionView);
@@ -438,44 +516,40 @@ export class MemberDialogComponent implements OnDestroy {
 
     userView.accessSecretsManager = this.formGroup.value.accessSecretsManager;
 
-    if (this.editMode) {
-      await this.userService.save(userView);
-    } else {
-      userView.id = this.params.organizationUserId;
-      const maxEmailsCount =
-        organization.productTierType === ProductTierType.TeamsStarter ? 10 : 20;
-      const emails = [...new Set(this.formGroup.value.emails.trim().split(/\s*,\s*/))];
-      if (emails.length > maxEmailsCount) {
-        this.formGroup.controls.emails.setErrors({
-          tooManyEmails: { message: this.i18nService.t("tooManyEmails", maxEmailsCount) },
-        });
-        return;
-      }
-      if (
-        organization.hasReseller &&
-        this.params.numConfirmedMembers + emails.length > organization.seats
-      ) {
-        this.formGroup.controls.emails.setErrors({
-          tooManyEmails: { message: this.i18nService.t("seatLimitReachedContactYourProvider") },
-        });
-        return;
-      }
-      await this.userService.invite(emails, userView);
-    }
+    return userView;
+  }
+
+  private async handleEditUser(
+    userView: OrganizationUserAdminView,
+    params: EditMemberDialogParams,
+  ) {
+    userView.id = params.organizationUserId;
+    await this.userService.save(userView);
 
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t(
-        this.editMode ? "editedUserId" : "invitedUsers",
-        this.params.name,
-      ),
+      message: this.i18nService.t("editedUserId", params.name),
+    });
+
+    this.close(MemberDialogResult.Saved);
+  }
+
+  private async handleInviteUsers(userView: OrganizationUserAdminView, organization: Organization) {
+    const emails = [...new Set(this.formGroup.value.emails.trim().split(/\s*,\s*/))];
+
+    await this.userService.invite(emails, userView);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("invitedUsers"),
     });
     this.close(MemberDialogResult.Saved);
-  };
+  }
 
   remove = async () => {
-    if (!this.editMode) {
+    if (!this.isEditDialogParams(this.params)) {
       return;
     }
 
@@ -494,7 +568,7 @@ export class MemberDialogComponent implements OnDestroy {
     }
 
     if (this.showNoMasterPasswordWarning) {
-      confirmed = await this.noMasterPasswordConfirmationDialog();
+      confirmed = await this.noMasterPasswordConfirmationDialog(this.params.name);
 
       if (!confirmed) {
         return false;
@@ -515,7 +589,7 @@ export class MemberDialogComponent implements OnDestroy {
   };
 
   revoke = async () => {
-    if (!this.editMode) {
+    if (!this.isEditDialogParams(this.params)) {
       return;
     }
 
@@ -531,7 +605,7 @@ export class MemberDialogComponent implements OnDestroy {
     }
 
     if (this.showNoMasterPasswordWarning) {
-      confirmed = await this.noMasterPasswordConfirmationDialog();
+      confirmed = await this.noMasterPasswordConfirmationDialog(this.params.name);
 
       if (!confirmed) {
         return false;
@@ -553,7 +627,7 @@ export class MemberDialogComponent implements OnDestroy {
   };
 
   restore = async () => {
-    if (!this.editMode) {
+    if (!this.isEditDialogParams(this.params)) {
       return;
     }
 
@@ -572,8 +646,27 @@ export class MemberDialogComponent implements OnDestroy {
   };
 
   delete = async () => {
-    if (!this.editMode) {
+    if (!this.isEditDialogParams(this.params)) {
       return;
+    }
+
+    const showWarningDialog = combineLatest([
+      this.organization$,
+      this.deleteManagedMemberWarningService.warningAcknowledged(this.params.organizationId),
+    ]).pipe(
+      map(
+        ([organization, acknowledged]) =>
+          organization.canManageUsers &&
+          organization.productTierType === ProductTierType.Enterprise &&
+          !acknowledged,
+      ),
+    );
+
+    if (await firstValueFrom(showWarningDialog)) {
+      const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
+      if (!acknowledged) {
+        return;
+      }
     }
 
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -604,6 +697,9 @@ export class MemberDialogComponent implements OnDestroy {
       title: null,
       message: this.i18nService.t("organizationUserDeleted", this.params.name),
     });
+
+    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.params.organizationId);
+
     this.close(MemberDialogResult.Deleted);
   };
 
@@ -620,14 +716,14 @@ export class MemberDialogComponent implements OnDestroy {
     this.dialogRef.close(result);
   }
 
-  private noMasterPasswordConfirmationDialog() {
+  private noMasterPasswordConfirmationDialog(username: string) {
     return this.dialogService.openSimpleDialog({
       title: {
         key: "removeOrgUserNoMasterPasswordTitle",
       },
       content: {
         key: "removeOrgUserNoMasterPasswordDesc",
-        placeholders: [this.params.name],
+        placeholders: [username],
       },
       type: "warning",
     });

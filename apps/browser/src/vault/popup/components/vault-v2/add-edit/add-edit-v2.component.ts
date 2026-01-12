@@ -1,23 +1,39 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { firstValueFrom, map, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
-import { AsyncActionsModule, ButtonModule, SearchModule } from "@bitwarden/components";
 import {
+  AsyncActionsModule,
+  ButtonModule,
+  SearchModule,
+  IconButtonModule,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
+import {
+  ArchiveCipherUtilitiesService,
+  CipherFormComponent,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormGenerationService,
@@ -29,7 +45,8 @@ import {
 } from "@bitwarden/vault";
 
 import { BrowserFido2UserInterfaceSession } from "../../../../../autofill/fido2/services/browser-fido2-user-interface.service";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import { BrowserApi } from "../../../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
@@ -37,6 +54,7 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 import { BrowserCipherFormGenerationService } from "../../../services/browser-cipher-form-generation.service";
+import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
 import {
   fido2PopoutSessionData$,
@@ -51,7 +69,7 @@ import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-a
 class QueryParams {
   constructor(params: Params) {
     this.cipherId = params.cipherId;
-    this.type = params.type != undefined ? parseInt(params.type, null) : undefined;
+    this.type = toCipherType(params.type);
     this.clone = params.clone === "true";
     this.folderId = params.folderId;
     this.organizationId = params.organizationId;
@@ -59,6 +77,7 @@ class QueryParams {
     this.uri = params.uri;
     this.username = params.username;
     this.name = params.name;
+    this.prefillNameAndURIFromTab = params.prefillNameAndURIFromTab;
   }
 
   /**
@@ -105,18 +124,26 @@ class QueryParams {
    * Optional name to pre-fill for the cipher.
    */
   name?: string;
+
+  /**
+   * Optional flag to pre-fill the name and URI from the current tab.
+   * NOTE: This will override the `uri` and `name` query parameters if set to true.
+   */
+  prefillNameAndURIFromTab?: true;
 }
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
-  standalone: true,
   providers: [
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
     { provide: TotpCaptureService, useClass: BrowserTotpCaptureService },
     { provide: CipherFormGenerationService, useClass: BrowserCipherFormGenerationService },
+    { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
   ],
   imports: [
     CommonModule,
@@ -131,11 +158,14 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     CipherFormModule,
     AsyncActionsModule,
     PopOutComponent,
+    IconButtonModule,
   ],
 })
-export class AddEditV2Component implements OnInit {
+export class AddEditV2Component implements OnInit, OnDestroy {
+  readonly cipherFormComponent = viewChild(CipherFormComponent);
   headerText: string;
   config: CipherFormConfig;
+  canDeleteCipher$: Observable<boolean>;
 
   get loading() {
     return this.config == null;
@@ -143,6 +173,18 @@ export class AddEditV2Component implements OnInit {
 
   get originalCipherId(): CipherId | null {
     return this.config?.originalCipher?.id as CipherId;
+  }
+
+  get cipher(): CipherView {
+    return new CipherView(this.config?.originalCipher);
+  }
+
+  get canCipherBeArchived(): boolean {
+    return this.cipher?.canBeArchived;
+  }
+
+  get isCipherArchived(): boolean {
+    return this.cipher?.isArchived;
   }
 
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
@@ -156,6 +198,16 @@ export class AddEditV2Component implements OnInit {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
 
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
+
+  /**
+   * Flag to indicate if the user can archive items.
+   * @protected
+   */
+  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) => this.archiveService.userCanArchive$(account.id)),
+  );
+
   constructor(
     private route: ActivatedRoute,
     private i18nService: I18nService,
@@ -165,15 +217,68 @@ export class AddEditV2Component implements OnInit {
     private router: Router,
     private cipherService: CipherService,
     private eventCollectionService: EventCollectionService,
+    private logService: LogService,
+    private toastService: ToastService,
+    private dialogService: DialogService,
+    protected cipherAuthorizationService: CipherAuthorizationService,
+    private accountService: AccountService,
+    private archiveService: CipherArchiveService,
+    private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
   ) {
     this.subscribeToParams();
   }
+
+  private messageListener: (message: any) => void;
 
   async ngOnInit() {
     this.fido2PopoutSessionData = await firstValueFrom(this.fido2PopoutSessionData$);
 
     if (BrowserPopupUtils.inPopout(window)) {
       this.popupCloseWarningService.enable();
+    }
+
+    // Listen for messages to reload cipher data when the pop up is already open
+    this.messageListener = async (message: any) => {
+      if (message?.command === "reloadAddEditCipherData") {
+        try {
+          await this.reloadCipherData();
+        } catch (error) {
+          this.logService.error("Failed to reload cipher data", error);
+        }
+      }
+    };
+    BrowserApi.addListener(chrome.runtime.onMessage, this.messageListener);
+  }
+
+  ngOnDestroy() {
+    if (this.messageListener) {
+      BrowserApi.removeListener(chrome.runtime.onMessage, this.messageListener);
+    }
+  }
+
+  /**
+   * Reloads the cipher data when the popup is already open and new form data is submitted.
+   * This completely replaces the initialValues to clear any stale data from the previous submission.
+   */
+  private async reloadCipherData() {
+    if (!this.config) {
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const latestCipherInfo = await firstValueFrom(
+      this.cipherService.addEditCipherInfo$(activeUserId),
+    );
+
+    if (latestCipherInfo != null) {
+      this.config = {
+        ...this.config,
+        initialValues: mapAddEditCipherInfoToInitialValues(latestCipherInfo),
+      };
+
+      // Be sure to clear the "cached" cipher info, so it doesn't get used again
+      await this.cipherService.setAddEditCipherInfo(null, activeUserId);
     }
   }
 
@@ -194,7 +299,7 @@ export class AddEditV2Component implements OnInit {
   /**
    * Handle back button
    */
-  async handleBackButton() {
+  handleBackButton = async () => {
     if (this.inFido2PopoutWindow) {
       this.popupCloseWarningService.disable();
       BrowserFido2UserInterfaceSession.abortPopout(this.fido2PopoutSessionData.sessionId);
@@ -207,7 +312,7 @@ export class AddEditV2Component implements OnInit {
     }
 
     await this.popupRouterCacheService.back();
-  }
+  };
 
   async onCipherSaved(cipher: CipherView) {
     if (BrowserPopupUtils.inPopout(window)) {
@@ -239,7 +344,14 @@ export class AddEditV2Component implements OnInit {
         replaceUrl: true,
         queryParams: { cipherId: cipher.id },
       });
+      // Clear popup history so after closing/reopening, Back won’t return to the add-edit form
+      await this.popupRouterCacheService.setHistory([]);
     }
+    await BrowserApi.sendMessage("addEditCipherSubmitted");
+  }
+
+  get isEditMode(): boolean {
+    return ["edit", "partial-edit"].includes(this.config?.mode);
   }
 
   subscribeToParams(): void {
@@ -263,12 +375,17 @@ export class AddEditV2Component implements OnInit {
           if (config.mode === "edit" && !config.originalCipher.edit) {
             config.mode = "partial-edit";
           }
+          config.initialValues = await this.setInitialValuesFromParams(params);
 
-          config.initialValues = this.setInitialValuesFromParams(params);
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getUserId),
+          );
 
           // The browser notification bar and overlay use addEditCipherInfo$ to pass modified cipher details to the form
           // Attempt to fetch them here and overwrite the initialValues if present
-          const cachedCipherInfo = await firstValueFrom(this.cipherService.addEditCipherInfo$);
+          const cachedCipherInfo = await firstValueFrom(
+            this.cipherService.addEditCipherInfo$(activeUserId),
+          );
 
           if (cachedCipherInfo != null) {
             // Cached cipher info has priority over queryParams
@@ -277,10 +394,14 @@ export class AddEditV2Component implements OnInit {
               ...mapAddEditCipherInfoToInitialValues(cachedCipherInfo),
             };
             // Be sure to clear the "cached" cipher info, so it doesn't get used again
-            await this.cipherService.setAddEditCipherInfo(null);
+            await this.cipherService.setAddEditCipherInfo(null, activeUserId);
           }
 
           if (["edit", "partial-edit"].includes(config.mode) && config.originalCipher?.id) {
+            this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(
+              config.originalCipher,
+            );
+
             await this.eventCollectionService.collect(
               EventType.Cipher_ClientViewed,
               config.originalCipher.id,
@@ -298,7 +419,7 @@ export class AddEditV2Component implements OnInit {
       });
   }
 
-  setInitialValuesFromParams(params: QueryParams) {
+  async setInitialValuesFromParams(params: QueryParams) {
     const initialValues = {} as OptionalInitialValues;
     if (params.folderId) {
       initialValues.folderId = params.folderId;
@@ -318,24 +439,99 @@ export class AddEditV2Component implements OnInit {
     if (params.name) {
       initialValues.name = params.name;
     }
+
+    if (params.prefillNameAndURIFromTab) {
+      const tab = await BrowserApi.getTabFromCurrentWindow();
+
+      initialValues.loginUri = tab.url;
+      initialValues.name = Utils.getHostname(tab.url);
+    }
+
     return initialValues;
   }
 
   setHeader(mode: CipherFormMode, type: CipherType) {
-    const partOne = mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
+    const isEditMode = mode === "edit" || mode === "partial-edit";
+    const translation = {
+      [CipherType.Login]: isEditMode ? "editItemHeaderLogin" : "newItemHeaderLogin",
+      [CipherType.Card]: isEditMode ? "editItemHeaderCard" : "newItemHeaderCard",
+      [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
+      [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
+      [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
+    };
+    return this.i18nService.t(translation[type]);
+  }
 
-    switch (type) {
-      case CipherType.Login:
-        return this.i18nService.t(partOne, this.i18nService.t("typeLogin").toLocaleLowerCase());
-      case CipherType.Card:
-        return this.i18nService.t(partOne, this.i18nService.t("typeCard").toLocaleLowerCase());
-      case CipherType.Identity:
-        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity").toLocaleLowerCase());
-      case CipherType.SecureNote:
-        return this.i18nService.t(partOne, this.i18nService.t("note").toLocaleLowerCase());
-      case CipherType.SshKey:
-        return this.i18nService.t(partOne, this.i18nService.t("typeSshKey").toLocaleLowerCase());
+  /**
+   * Update the cipher in the form after archiving/unarchiving.
+   * @param revisionDate The new revision date.
+   * @param archivedDate The new archived date (null if unarchived).
+   **/
+  updateCipherFromArchive = (revisionDate: Date, archivedDate: Date | null) => {
+    this.cipherFormComponent().patchCipher((current) => {
+      current.revisionDate = revisionDate;
+      current.archivedDate = archivedDate;
+      return current;
+    });
+  };
+
+  archive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
+
+    if (!cipherResponse) {
+      return;
     }
+    this.updateCipherFromArchive(
+      new Date(cipherResponse.revisionDate),
+      new Date(cipherResponse.archivedDate),
+    );
+  };
+
+  unarchive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
+
+    if (!cipherResponse) {
+      return;
+    }
+    this.updateCipherFromArchive(new Date(cipherResponse.revisionDate), null);
+  };
+
+  delete = async () => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "deleteItem" },
+      content: {
+        key: "deleteItemConfirmation",
+      },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.deleteCipher(activeUserId);
+    } catch (e) {
+      this.logService.error(e);
+      return false;
+    }
+
+    await this.router.navigate(["/tabs/vault"]);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("deletedItem"),
+    });
+
+    return true;
+  };
+
+  protected deleteCipher(userId: UserId) {
+    return this.config.originalCipher.deletedDate
+      ? this.cipherService.deleteWithServer(this.config.originalCipher.id, userId)
+      : this.cipherService.softDeleteWithServer(this.config.originalCipher.id, userId);
   }
 }
 
@@ -374,6 +570,32 @@ const mapAddEditCipherInfoToInitialValues = (
     initialValues.name = cipher.name;
   }
 
+  if (cipher.type === CipherType.Card) {
+    const card = cipher.card;
+
+    if (card != null) {
+      if (card.cardholderName != null) {
+        initialValues.cardholderName = card.cardholderName;
+      }
+
+      if (card.number != null) {
+        initialValues.number = card.number;
+      }
+
+      if (card.expMonth != null) {
+        initialValues.expMonth = card.expMonth;
+      }
+
+      if (card.expYear != null) {
+        initialValues.expYear = card.expYear;
+      }
+
+      if (card.code != null) {
+        initialValues.code = card.code;
+      }
+    }
+  }
+
   if (cipher.type === CipherType.Login) {
     const login = cipher.login;
 
@@ -394,6 +616,80 @@ const mapAddEditCipherInfoToInitialValues = (
 
   if (cipher.type === CipherType.Identity && cipher.identity?.username != null) {
     initialValues.username = cipher.identity.username;
+  }
+
+  if (cipher.type == CipherType.Identity) {
+    const identity = cipher.identity;
+
+    if (identity != null) {
+      if (identity.title != null) {
+        initialValues.title = identity.title;
+      }
+
+      if (identity.firstName != null) {
+        initialValues.firstName = identity.firstName;
+      }
+
+      if (identity.middleName != null) {
+        initialValues.middleName = identity.middleName;
+      }
+
+      if (identity.lastName != null) {
+        initialValues.lastName = identity.lastName;
+      }
+
+      if (identity.company != null) {
+        initialValues.company = identity.company;
+      }
+
+      if (identity.ssn != null) {
+        initialValues.ssn = identity.ssn;
+      }
+
+      if (identity.passportNumber != null) {
+        initialValues.passportNumber = identity.passportNumber;
+      }
+
+      if (identity.licenseNumber != null) {
+        initialValues.licenseNumber = identity.licenseNumber;
+      }
+
+      if (identity.email != null) {
+        initialValues.email = identity.email;
+      }
+
+      if (identity.phone != null) {
+        initialValues.phone = identity.phone;
+      }
+
+      if (identity.address1 != null) {
+        initialValues.address1 = identity.address1;
+      }
+
+      if (identity.address2 != null) {
+        initialValues.address2 = identity.address2;
+      }
+
+      if (identity.address3 != null) {
+        initialValues.address3 = identity.address3;
+      }
+
+      if (identity.city != null) {
+        initialValues.city = identity.city;
+      }
+
+      if (identity.state != null) {
+        initialValues.state = identity.state;
+      }
+
+      if (identity.postalCode != null) {
+        initialValues.postalCode = identity.postalCode;
+      }
+
+      if (identity.country != null) {
+        initialValues.country = identity.country;
+      }
+    }
   }
 
   return initialValues;

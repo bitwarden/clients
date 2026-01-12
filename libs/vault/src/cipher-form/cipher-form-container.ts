@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { Observable } from "rxjs";
+
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherFormConfig } from "@bitwarden/vault";
 
@@ -14,7 +16,6 @@ import { SshKeySectionComponent } from "./components/sshkey-section/sshkey-secti
 
 /**
  * The complete form for a cipher. Includes all the sub-forms from their respective section components.
- * TODO: Add additional form sections as they are implemented.
  */
 export type CipherForm = {
   itemDetails?: ItemDetailsSectionComponent["itemDetailsForm"];
@@ -53,8 +54,32 @@ export abstract class CipherFormContainer {
   ): void;
 
   /**
+   * The website that the component publishes to edit email and username workflows.
+   * Returns `null` when the cipher isn't bound to a website.
+   */
+  abstract get website(): string | null;
+
+  /**
    * Method to update the cipherView with the new values. This method should be called by the child form components
    * @param updateFn - A function that takes the current cipherView and returns the updated cipherView
    */
   abstract patchCipher(updateFn: (current: CipherView) => CipherView): void;
+
+  /**
+   * Returns initial values for the CipherView, either from the config or the cached cipher
+   */
+  abstract getInitialCipherView(): CipherView | null;
+
+  /** Returns true when the `CipherFormContainer` was initialized with a cached cipher available. */
+  abstract initializedWithCachedCipher(): boolean;
+
+  abstract disableFormFields(): void;
+
+  abstract enableFormFields(): void;
+
+  /**
+   * An observable that emits when the form status changes between enabled/disabled.
+   * This can be used for child forms to react to changes in the form status.
+   */
+  formStatusChange$: Observable<"enabled" | "disabled">;
 }

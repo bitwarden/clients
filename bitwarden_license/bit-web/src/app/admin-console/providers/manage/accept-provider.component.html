@@ -1,6 +1,10 @@
 <div class="tw-mt-5 tw-flex tw-justify-center" *ngIf="loading">
   <div>
-    <img class="tw-mb-4 logo logo-themed" alt="Bitwarden" />
+    <bit-icon
+      class="tw-w-72 tw-block tw-mb-4"
+      [icon]="logo"
+      [ariaLabel]="'appLogoLabel' | i18n"
+    ></bit-icon>
     <p class="tw-text-center">
       <i
         class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
@@ -14,7 +18,7 @@
 <div *ngIf="!loading && !authed">
   <p bitTypography="body1" class="tw-text-center">
     {{ providerName }}
-    <span bitTypography="body1" class="tw-font-bold">{{ email }}</span>
+    <span bitTypography="body1" class="tw-font-medium">{{ email }}</span>
   </p>
   <p bitTypography="body1">{{ "joinProviderDesc" | i18n }}</p>
   <hr />

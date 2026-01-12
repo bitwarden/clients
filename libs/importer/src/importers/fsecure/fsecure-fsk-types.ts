@@ -6,10 +6,18 @@ export interface Data {
   [key: string]: FskEntry;
 }
 
-export enum FskEntryTypesEnum {
-  Login = 1,
-  CreditCard = 2,
-}
+/**
+ * Represents the different types of FSK entries.
+ */
+export const FskEntryType = Object.freeze({
+  Login: 1,
+  CreditCard: 2,
+});
+
+/**
+ * Type representing valid FSK entry type values.
+ */
+export type FskEntryType = (typeof FskEntryType)[keyof typeof FskEntryType];
 
 export interface FskEntry {
   color: string;
@@ -24,7 +32,7 @@ export interface FskEntry {
   rev: string | number;
   service: string;
   style: string;
-  type: FskEntryTypesEnum;
+  type: FskEntryType;
   url: string;
   username: string;
   createdDate: number; // UNIX timestamp

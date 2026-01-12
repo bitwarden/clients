@@ -1,30 +1,48 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, NgZone } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { Subject, Subscription, debounceTime, filter } from "rxjs";
+import {
+  Subject,
+  Subscription,
+  combineLatest,
+  debounce,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  map,
+  switchMap,
+  timer,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import { SearchModule } from "@bitwarden/components";
 
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
+import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 
-const SearchTextDebounceInterval = 200;
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [CommonModule, SearchModule, JslibModule, FormsModule],
-  standalone: true,
   selector: "app-vault-v2-search",
   templateUrl: "vault-v2-search.component.html",
 })
 export class VaultV2SearchComponent {
-  searchText: string;
+  searchText: string = "";
 
   private searchText$ = new Subject<string>();
 
-  constructor(private vaultPopupItemsService: VaultPopupItemsService) {
+  protected loading$ = this.vaultPopupLoadingService.loading$;
+  constructor(
+    private vaultPopupItemsService: VaultPopupItemsService,
+    private vaultPopupLoadingService: VaultPopupLoadingService,
+    private configService: ConfigService,
+    private ngZone: NgZone,
+  ) {
     this.subscribeToLatestSearchText();
     this.subscribeToApplyFilter();
   }
@@ -34,7 +52,7 @@ export class VaultV2SearchComponent {
   }
 
   subscribeToLatestSearchText(): Subscription {
-    return this.vaultPopupItemsService.latestSearchText$
+    return this.vaultPopupItemsService.searchText$
       .pipe(
         takeUntilDestroyed(),
         filter((data) => !!data),
@@ -44,11 +62,40 @@ export class VaultV2SearchComponent {
       });
   }
 
-  subscribeToApplyFilter(): Subscription {
-    return this.searchText$
-      .pipe(debounceTime(SearchTextDebounceInterval), takeUntilDestroyed())
-      .subscribe((data) => {
-        this.vaultPopupItemsService.applyFilter(data);
+  subscribeToApplyFilter(): void {
+    this.configService
+      .getFeatureFlag$(FeatureFlag.VaultLoadingSkeletons)
+      .pipe(
+        switchMap((enabled) => {
+          if (!enabled) {
+            return this.searchText$.pipe(
+              debounceTime(SearchTextDebounceInterval),
+              distinctUntilChanged(),
+            );
+          }
+
+          return combineLatest([this.searchText$, this.loading$]).pipe(
+            debounce(([_, isLoading]) => {
+              // If loading apply immediately to avoid stale searches.
+              // After loading completes, debounce to avoid excessive searches.
+              const delayTime = isLoading ? 0 : SearchTextDebounceInterval;
+              return timer(delayTime);
+            }),
+            distinctUntilChanged(
+              ([prevText, prevLoading], [newText, newLoading]) =>
+                prevText === newText && prevLoading === newLoading,
+            ),
+            map(([text, _]) => text),
+          );
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((text) => {
+        this.ngZone.runOutsideAngular(() => {
+          this.ngZone.run(() => {
+            this.vaultPopupItemsService.applyFilter(text);
+          });
+        });
       });
   }
 }

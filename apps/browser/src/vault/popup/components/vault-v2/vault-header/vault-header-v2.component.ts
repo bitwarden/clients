@@ -6,18 +6,22 @@ import { combineLatest, map, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DisclosureTriggerForDirective, IconButtonModule } from "@bitwarden/components";
+import {
+  DisclosureComponent,
+  DisclosureTriggerForDirective,
+  IconButtonModule,
+} from "@bitwarden/components";
 
-import { DisclosureComponent } from "../../../../../../../../libs/components/src/disclosure/disclosure.component";
 import { runInsideAngular } from "../../../../../platform/browser/run-inside-angular.operator";
 import { VaultPopupListFiltersService } from "../../../../../vault/popup/services/vault-popup-list-filters.service";
 import { VaultListFiltersComponent } from "../vault-list-filters/vault-list-filters.component";
 import { VaultV2SearchComponent } from "../vault-search/vault-v2-search.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-header-v2",
   templateUrl: "vault-header-v2.component.html",
-  standalone: true,
   imports: [
     VaultV2SearchComponent,
     VaultListFiltersComponent,
@@ -29,6 +33,8 @@ import { VaultV2SearchComponent } from "../vault-search/vault-v2-search.componen
   ],
 })
 export class VaultHeaderV2Component {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(DisclosureComponent) disclosure: DisclosureComponent;
 
   /** Emits the visibility status of the disclosure component. */

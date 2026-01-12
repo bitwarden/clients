@@ -3,7 +3,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, Observable, Subject } from "rxjs";
+import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 import { first, map, takeUntil } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -12,9 +12,12 @@ import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationSponsorshipRedeemRequest } from "@bitwarden/common/admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { PreValidateSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/pre-validate-sponsorship.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -26,21 +29,26 @@ import {
   openDeleteOrganizationDialog,
 } from "../settings/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "families-for-enterprise-setup.component.html",
-  standalone: true,
   imports: [SharedModule, OrganizationPlansComponent],
 })
 export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(OrganizationPlansComponent, { static: false })
   set organizationPlansComponent(value: OrganizationPlansComponent) {
     if (!value) {
       return;
     }
 
-    value.plan = PlanType.FamiliesAnnually;
+    value.plan = this._familyPlan;
     value.productTier = ProductTierType.Families;
     value.acceptingSponsorship = true;
+    value.planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
+
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     value.onSuccess.subscribe(this.onOrganizationCreateSuccess.bind(this));
   }
@@ -48,28 +56,29 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   loading = true;
   badToken = false;
 
-  token: string;
-  existingFamilyOrganizations: Organization[];
-  existingFamilyOrganizations$: Observable<Organization[]>;
+  token!: string;
+  existingFamilyOrganizations$!: Observable<Organization[]>;
 
   showNewOrganization = false;
-  _organizationPlansComponent: OrganizationPlansComponent;
-  preValidateSponsorshipResponse: PreValidateSponsorshipResponse;
+  preValidateSponsorshipResponse!: PreValidateSponsorshipResponse;
   _selectedFamilyOrganizationId = "";
 
   private _destroy = new Subject<void>();
+  private _familyPlan: PlanType;
   formGroup = this.formBuilder.group({
     selectedFamilyOrganizationId: ["", Validators.required],
   });
+
   constructor(
     private router: Router,
-    private platformUtilsService: PlatformUtilsService,
+    private configService: ConfigService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private apiService: ApiService,
     private syncService: SyncService,
     private validationService: ValidationService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
@@ -113,17 +122,28 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
         this.badToken = !this.preValidateSponsorshipResponse.isTokenValid;
       }
 
+      const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM26462_Milestone_3,
+      );
+      this._familyPlan = milestone3FeatureEnabled
+        ? PlanType.FamiliesAnnually
+        : PlanType.FamiliesAnnually2025;
+
       this.loading = false;
     });
 
-    this.existingFamilyOrganizations$ = this.organizationService.organizations$.pipe(
-      map((orgs) =>
-        orgs.filter(
-          (o) =>
-            o.productTierType === ProductTierType.Families && o.type === OrganizationUserType.Owner,
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.existingFamilyOrganizations$ = this.organizationService
+      .organizations$(userId)
+      .pipe(
+        map((orgs) =>
+          orgs.filter(
+            (o) =>
+              o.productTierType === ProductTierType.Families &&
+              o.type === OrganizationUserType.Owner,
+          ),
         ),
-      ),
-    );
+      );
 
     this.existingFamilyOrganizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
       if (orgs.length === 0) {
@@ -170,6 +190,8 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/"]);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       if (this.showNewOrganization) {
         const dialog = openDeleteOrganizationDialog(this.dialogService, {

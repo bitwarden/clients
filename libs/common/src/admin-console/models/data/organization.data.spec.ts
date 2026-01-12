@@ -1,6 +1,6 @@
 import { ProductTierType } from "../../../billing/enums/product-tier-type.enum";
 import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
-import { ORGANIZATIONS } from "../../services/organization/organization.service";
+import { ORGANIZATIONS } from "../../services/organization/organization.state";
 
 import { OrganizationData } from "./organization.data";
 
@@ -30,6 +30,7 @@ describe("ORGANIZATIONS state", () => {
         useSecretsManager: false,
         usePasswordManager: false,
         useActivateAutofillPolicy: false,
+        useAutomaticUserConfirmation: false,
         selfHost: false,
         usersGetPremium: false,
         seats: 0,
@@ -53,10 +54,18 @@ describe("ORGANIZATIONS state", () => {
         accessSecretsManager: false,
         limitCollectionCreation: false,
         limitCollectionDeletion: false,
+        limitItemDeletion: false,
         allowAdminAccessToAllCollectionItems: false,
         familySponsorshipLastSyncDate: new Date(),
         userIsManagedByOrganization: false,
-        useRiskInsights: false,
+        useAccessIntelligence: false,
+        useOrganizationDomains: false,
+        useAdminSponsoredFamilies: false,
+        isAdminInitiated: false,
+        ssoEnabled: false,
+        ssoMemberDecryptionType: undefined,
+        useDisableSMAdsForUsers: false,
+        usePhishingBlocker: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

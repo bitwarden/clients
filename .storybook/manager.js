@@ -1,5 +1,5 @@
-import { addons } from "@storybook/manager-api";
-import { create } from "@storybook/theming/create";
+import { addons } from "storybook/manager-api";
+import { create } from "storybook/theming";
 
 const lightTheme = create({
   base: "light",
@@ -50,10 +50,14 @@ const darkTheme = create({
 });
 
 export const getPreferredColorScheme = () => {
-  if (!globalThis || !globalThis.matchMedia) return "light";
+  if (!globalThis || !globalThis.matchMedia) {
+    return "light";
+  }
 
   const isDarkThemePreferred = globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
-  if (isDarkThemePreferred) return "dark";
+  if (isDarkThemePreferred) {
+    return "dark";
+  }
 
   return "light";
 };

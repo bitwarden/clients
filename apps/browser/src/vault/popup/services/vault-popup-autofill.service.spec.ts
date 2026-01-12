@@ -4,6 +4,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -20,14 +21,14 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { InlineMenuFieldQualificationService } from "../../../../../browser/src/autofill/services/inline-menu-field-qualification.service";
 import {
   AutoFillOptions,
   AutofillService,
   PageDetail,
 } from "../../../autofill/services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 
@@ -42,6 +43,7 @@ describe("VaultPopupAutofillService", () => {
 
   // Create mocks for VaultPopupAutofillService
   const mockAutofillService = mock<AutofillService>();
+  const mockDomainSettingsService = mock<DomainSettingsService>();
   const mockI18nService = mock<I18nService>();
   const mockToastService = mock<ToastService>();
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
@@ -65,10 +67,12 @@ describe("VaultPopupAutofillService", () => {
       .mockReturnValue(true);
 
     mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(new BehaviorSubject([]));
+    mockDomainSettingsService.blockedInteractionsUris$ = new BehaviorSubject({});
 
     testBed = TestBed.configureTestingModule({
       providers: [
         { provide: AutofillService, useValue: mockAutofillService },
+        { provide: DomainSettingsService, useValue: mockDomainSettingsService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ToastService, useValue: mockToastService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
@@ -121,6 +125,10 @@ describe("VaultPopupAutofillService", () => {
     });
 
     it("should only fetch the current tab once when subscribed to multiple times", async () => {
+      (BrowserApi.getTabFromCurrentWindow as jest.Mock).mockClear();
+
+      service.refreshCurrentTab();
+
       const firstTracked = subscribeTo(service.currentAutofillTab$);
       const secondTracked = subscribeTo(service.currentAutofillTab$);
 
@@ -191,10 +199,12 @@ describe("VaultPopupAutofillService", () => {
 
       // Refresh the current tab so the mockedPageDetails$ are used
       service.refreshCurrentTab();
+      (service as any)._currentPageDetails$ = of(mockPageDetails);
     });
 
     describe("doAutofill()", () => {
       it("should return true if autofill is successful", async () => {
+        mockCipher.id = "test-cipher-id";
         mockAutofillService.doAutoFill.mockResolvedValue(null);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(true);
@@ -242,6 +252,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should copy TOTP code to clipboard if available", async () => {
+        mockCipher.id = "test-cipher-id-with-totp";
         const totpCode = "123456";
         mockAutofillService.doAutoFill.mockResolvedValue(totpCode);
         await service.doAutofill(mockCipher);
@@ -249,6 +260,18 @@ describe("VaultPopupAutofillService", () => {
           totpCode,
           expect.anything(),
         );
+      });
+
+      it("skips password prompt when skipPasswordReprompt is true", async () => {
+        mockCipher.id = "cipher-with-reprompt";
+        mockCipher.reprompt = CipherRepromptType.Password;
+        mockAutofillService.doAutoFill.mockResolvedValue(null);
+
+        const result = await service.doAutofill(mockCipher, true, true);
+
+        expect(result).toBe(true);
+        expect(mockPasswordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+        expect(mockAutofillService.doAutoFill).toHaveBeenCalled();
       });
 
       describe("closePopup", () => {
@@ -349,7 +372,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should add a URI to the cipher and save with the server", async () => {
-        const mockEncryptedCipher = {} as Cipher;
+        const mockEncryptedCipher = { cipher: {} as Cipher, encryptedFor: mockUserId };
         mockCipherService.encrypt.mockResolvedValue(mockEncryptedCipher);
         const result = await service.doAutofillAndSave(mockCipher);
         expect(result).toBe(true);
@@ -394,6 +417,27 @@ describe("VaultPopupAutofillService", () => {
           title: null,
           message: mockI18nService.t("autoFillSuccessAndSavedUri"),
         });
+      });
+    });
+    describe("handleAutofillSuggestionUsed", () => {
+      const cipherId = "cipher-123";
+
+      beforeEach(() => {
+        mockCipherService.updateLastUsedDate.mockResolvedValue(undefined);
+      });
+
+      it("updates last used date when there is an active user", async () => {
+        await service.handleAutofillSuggestionUsed({ cipherId });
+
+        expect(mockCipherService.updateLastUsedDate).toHaveBeenCalledTimes(1);
+        expect(mockCipherService.updateLastUsedDate).toHaveBeenCalledWith(cipherId, mockUserId);
+      });
+
+      it("does nothing when there is no active user", async () => {
+        accountService.activeAccount$ = of(null);
+        await service.handleAutofillSuggestionUsed({ cipherId });
+
+        expect(mockCipherService.updateLastUsedDate).not.toHaveBeenCalled();
       });
     });
   });

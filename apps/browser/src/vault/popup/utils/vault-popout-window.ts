@@ -3,7 +3,7 @@
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 const VaultPopoutType = {
   viewVaultItem: "vault_viewVaultItem",
@@ -115,10 +115,26 @@ async function openAddEditVaultItemPopout(
     addEditCipherUrl += formatQueryString("uri", url);
   }
 
-  await BrowserPopupUtils.openPopout(addEditCipherUrl, {
-    singleActionKey,
-    senderWindowId: windowId,
-  });
+  const extensionUrl = chrome.runtime.getURL("popup/index.html");
+  const existingPopupTabs = await BrowserApi.tabsQuery({ url: `${extensionUrl}*` });
+  const existingPopup = existingPopupTabs.find((tab) =>
+    tab.url?.includes(`singleActionPopout=${singleActionKey}`),
+  );
+  // Check if the an existing popup is already open
+  try {
+    await chrome.runtime.sendMessage({
+      command: "reloadAddEditCipherData",
+      data: { cipherId, cipherType },
+    });
+    await BrowserApi.updateWindowProperties(existingPopup.windowId, {
+      focused: true,
+    });
+  } catch {
+    await BrowserPopupUtils.openPopout(addEditCipherUrl, {
+      singleActionKey,
+      senderWindowId: windowId,
+    });
+  }
 }
 
 /**

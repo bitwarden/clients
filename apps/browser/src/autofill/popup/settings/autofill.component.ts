@@ -1,12 +1,34 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import { Component, DestroyRef, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import {
+  concatMap,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  pairwise,
+  shareReplay,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
   BrowserClientVendors,
@@ -23,7 +45,6 @@ import {
   DisablePasswordManagerUri,
   InlineMenuVisibilitySetting,
 } from "@bitwarden/common/autofill/types";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -33,6 +54,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CardComponent,
   CheckboxModule,
@@ -46,16 +69,18 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
+import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "autofill.component.html",
-  standalone: true,
   imports: [
     CardComponent,
     CheckboxModule,
@@ -67,7 +92,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     JslibModule,
     LinkModule,
     PopOutComponent,
-    PopupFooterComponent,
     PopupHeaderComponent,
     PopupPageComponent,
     RouterModule,
@@ -75,6 +99,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SectionHeaderComponent,
     SelectModule,
     TypographyModule,
+    ReactiveFormsModule,
+    SpotlightComponent,
   ],
 })
 export class AutofillComponent implements OnInit {
@@ -86,7 +112,6 @@ export class AutofillComponent implements OnInit {
   protected defaultBrowserAutofillDisabled: boolean = false;
   protected inlineMenuVisibility: InlineMenuVisibilitySetting =
     AutofillOverlayVisibility.OnFieldFocus;
-  protected inlineMenuPositioningImprovementsEnabled: boolean = false;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
   protected disablePasswordManagerURI: DisablePasswordManagerUri =
     DisablePasswordManagerUris.Unknown;
@@ -94,7 +119,33 @@ export class AutofillComponent implements OnInit {
   protected browserClientIsUnknown: boolean;
   protected autofillOnPageLoadFromPolicy$ =
     this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$;
+  protected showSpotlightNudge$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    filter((account): account is Account => account !== null),
+    switchMap((account) =>
+      this.nudgesService.showNudgeSpotlight$(NudgeType.AutofillNudge, account.id),
+    ),
+  );
+  protected restrictedCardType$: Observable<boolean> =
+    this.restrictedItemTypesService.restricted$.pipe(
+      map((restrictedTypes) => restrictedTypes.some((type) => type.cipherType === CipherType.Card)),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
+  protected autofillOnPageLoadForm = new FormGroup({
+    autofillOnPageLoad: new FormControl(),
+    defaultAutofill: new FormControl(),
+  });
+
+  protected additionalOptionsForm = new FormGroup({
+    enableContextMenuItem: new FormControl(),
+    enableAutoTotpCopy: new FormControl(),
+    clearClipboard: new FormControl(),
+    defaultUriMatch: new FormControl(),
+  });
+
+  protected isDefaultUriMatchDisabledByPolicy = false;
+
+  advancedOptionWarningMap: Partial<Record<UriMatchStrategySetting, string>>;
   enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
   enableInlineMenuOnIconSelect: boolean = false;
@@ -104,13 +155,15 @@ export class AutofillComponent implements OnInit {
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
   enableContextMenuItem: boolean = false;
   enableAutoTotpCopy: boolean = false;
-  clearClipboard: ClearClipboardDelaySetting;
+  /** Non-null asserted. */
+  clearClipboard!: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
-  uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
+  uriMatchOptions: { name: string; value: UriMatchStrategySetting; disabled?: boolean }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
-  autofillKeyboardHelperText: string;
+  /** Non-null asserted. */
+  autofillKeyboardHelperText!: string;
   accountSwitcherEnabled: boolean = false;
 
   constructor(
@@ -122,10 +175,17 @@ export class AutofillComponent implements OnInit {
     private messagingService: MessagingService,
     private vaultSettingsService: VaultSettingsService,
     private configService: ConfigService,
+    private formBuilder: FormBuilder,
+    private destroyRef: DestroyRef,
+    private nudgesService: NudgesService,
+    private accountService: AccountService,
+    private autofillBrowserSettingsService: AutofillBrowserSettingsService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
+    private policyService: PolicyService,
   ) {
     this.autofillOnPageLoadOptions = [
-      { name: i18nService.t("autoFillOnPageLoadYes"), value: true },
-      { name: i18nService.t("autoFillOnPageLoadNo"), value: false },
+      { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
+      { name: this.i18nService.t("autoFillOnPageLoadNo"), value: false },
     ];
     this.clearClipboardOptions = [
       { name: i18nService.t("never"), value: ClearClipboardDelay.Never },
@@ -139,13 +199,18 @@ export class AutofillComponent implements OnInit {
     this.uriMatchOptions = [
       { name: i18nService.t("baseDomainOptionRecommended"), value: UriMatchStrategy.Domain },
       { name: i18nService.t("host"), value: UriMatchStrategy.Host },
-      { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
-      { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
       { name: i18nService.t("exact"), value: UriMatchStrategy.Exact },
       { name: i18nService.t("never"), value: UriMatchStrategy.Never },
+      { name: this.i18nService.t("uriAdvancedOption"), value: null, disabled: true },
+      { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
+      { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
     ];
+    this.advancedOptionWarningMap = {
+      [UriMatchStrategy.StartsWith]: "startsWithAdvancedOptionWarning",
+      [UriMatchStrategy.RegularExpression]: "regExAdvancedOptionWarning",
+    };
 
-    this.browserClientVendor = this.getBrowserClientVendor();
+    this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
     this.disablePasswordManagerURI = DisablePasswordManagerUris[this.browserClientVendor];
     this.browserShortcutsURI = BrowserShortcutsUris[this.browserClientVendor];
     this.browserClientIsUnknown = this.browserClientVendor === BrowserClientVendors.Unknown;
@@ -153,23 +218,23 @@ export class AutofillComponent implements OnInit {
 
   async ngOnInit() {
     this.canOverrideBrowserAutofillSetting = !this.browserClientIsUnknown;
-    this.defaultBrowserAutofillDisabled = await this.browserAutofillSettingCurrentlyOverridden();
+
+    this.defaultBrowserAutofillDisabled =
+      await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
+        this.browserClientVendor,
+      );
 
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
     );
 
-    this.inlineMenuPositioningImprovementsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
+    this.showInlineMenuIdentities = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuIdentities$,
     );
 
-    this.showInlineMenuIdentities =
-      this.inlineMenuPositioningImprovementsEnabled &&
-      (await firstValueFrom(this.autofillSettingsService.showInlineMenuIdentities$));
-
-    this.showInlineMenuCards =
-      this.inlineMenuPositioningImprovementsEnabled &&
-      (await firstValueFrom(this.autofillSettingsService.showInlineMenuCards$));
+    this.showInlineMenuCards = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuCards$,
+    );
 
     this.enableInlineMenuOnIconSelect =
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick;
@@ -178,26 +243,110 @@ export class AutofillComponent implements OnInit {
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnFieldFocus ||
       this.enableInlineMenuOnIconSelect;
 
+    this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        value
+          ? this.autofillOnPageLoadForm.controls.autofillOnPageLoad.disable({ emitEvent: false })
+          : this.autofillOnPageLoadForm.controls.autofillOnPageLoad.enable({ emitEvent: false });
+      });
+
     this.enableAutofillOnPageLoad = await firstValueFrom(
       this.autofillSettingsService.autofillOnPageLoad$,
+    );
+
+    this.autofillOnPageLoadForm.controls.autofillOnPageLoad.patchValue(
+      this.enableAutofillOnPageLoad,
+      { emitEvent: false },
     );
 
     this.autofillOnPageLoadDefault = await firstValueFrom(
       this.autofillSettingsService.autofillOnPageLoadDefault$,
     );
 
+    if (this.enableAutofillOnPageLoad === false) {
+      this.autofillOnPageLoadForm.controls.defaultAutofill.disable();
+    }
+
+    this.autofillOnPageLoadForm.controls.defaultAutofill.patchValue(
+      this.autofillOnPageLoadDefault,
+      { emitEvent: false },
+    );
+
+    this.autofillOnPageLoadForm.controls.autofillOnPageLoad.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setAutofillOnPageLoad(value);
+        this.enableDefaultAutofillControl(value);
+      });
+
+    this.autofillOnPageLoadForm.controls.defaultAutofill.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setAutofillOnPageLoadDefault(value);
+      });
+
+    /** Additional options form */
+
     this.enableContextMenuItem = await firstValueFrom(
       this.autofillSettingsService.enableContextMenu$,
     );
 
+    this.additionalOptionsForm.controls.enableContextMenuItem.patchValue(
+      this.enableContextMenuItem,
+      { emitEvent: false },
+    );
+
     this.enableAutoTotpCopy = await firstValueFrom(this.autofillSettingsService.autoCopyTotp$);
+
+    this.additionalOptionsForm.controls.enableAutoTotpCopy.patchValue(this.enableAutoTotpCopy, {
+      emitEvent: false,
+    });
 
     this.clearClipboard = await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$);
 
+    this.additionalOptionsForm.controls.clearClipboard.patchValue(this.clearClipboard, {
+      emitEvent: false,
+    });
+
     const defaultUriMatch = await firstValueFrom(
-      this.domainSettingsService.defaultUriMatchStrategy$,
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
     );
     this.defaultUriMatch = defaultUriMatch == null ? UriMatchStrategy.Domain : defaultUriMatch;
+
+    this.additionalOptionsForm.controls.defaultUriMatch.patchValue(this.defaultUriMatch, {
+      emitEvent: false,
+    });
+
+    this.applyUriMatchPolicy();
+
+    this.additionalOptionsForm.controls.enableContextMenuItem.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setEnableContextMenu(value);
+        this.messagingService.send("bgUpdateContextMenu");
+      });
+
+    this.additionalOptionsForm.controls.enableAutoTotpCopy.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setAutoCopyTotp(value);
+      });
+
+    this.additionalOptionsForm.controls.clearClipboard.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setClearClipboardDelay(value);
+      });
+
+    this.additionalOptionsForm.controls.defaultUriMatch.valueChanges
+      .pipe(
+        startWith(this.defaultUriMatch),
+        pairwise(),
+        concatMap(([previous, current]) => this.handleAdvancedMatch(previous, current)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
 
     const command = await this.platformUtilsService.getAutofillKeyboardShortcut();
     await this.setAutofillKeyboardHelperText(command);
@@ -206,6 +355,40 @@ export class AutofillComponent implements OnInit {
 
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
+    );
+  }
+
+  get spotlightButtonIcon() {
+    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
+      return "bwi-external-link";
+    }
+    return null;
+  }
+
+  get browserClientVendorExtended() {
+    if (this.browserClientVendor !== BrowserClientVendors.Unknown) {
+      return this.browserClientVendor;
+    }
+    if (this.platformUtilsService.isFirefox()) {
+      return "Firefox";
+    }
+    if (this.platformUtilsService.isSafari()) {
+      return "Safari";
+    }
+    return BrowserClientVendors.Unknown;
+  }
+
+  get spotlightButtonText() {
+    if (this.browserClientVendorExtended === BrowserClientVendors.Unknown) {
+      return this.i18nService.t("turnOffAutofill");
+    }
+    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendorExtended);
+  }
+
+  async dismissSpotlight() {
+    await this.nudgesService.dismissNudge(
+      NudgeType.AutofillNudge,
+      await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
     );
   }
 
@@ -227,17 +410,16 @@ export class AutofillComponent implements OnInit {
       await this.requestPrivacyPermission();
     }
   }
-
-  async updateAutofillOnPageLoad() {
-    await this.autofillSettingsService.setAutofillOnPageLoad(this.enableAutofillOnPageLoad);
+  async getAutofillOnPageLoadFromPolicy() {
+    await firstValueFrom(this.autofillOnPageLoadFromPolicy$);
   }
 
-  async updateAutofillOnPageLoadDefault() {
-    await this.autofillSettingsService.setAutofillOnPageLoadDefault(this.autofillOnPageLoadDefault);
-  }
-
-  async saveDefaultUriMatch() {
-    await this.domainSettingsService.setDefaultUriMatchStrategy(this.defaultUriMatch);
+  enableDefaultAutofillControl(enable: boolean = true) {
+    if (enable) {
+      this.autofillOnPageLoadForm.controls.defaultAutofill.enable();
+    } else {
+      this.autofillOnPageLoadForm.controls.defaultAutofill.disable();
+    }
   }
 
   private async setAutofillKeyboardHelperText(command: string) {
@@ -246,26 +428,6 @@ export class AutofillComponent implements OnInit {
     } else {
       this.autofillKeyboardHelperText = this.i18nService.t("autofillLoginShortcutNotSet");
     }
-  }
-
-  private getBrowserClientVendor(): BrowserClientVendor {
-    if (this.platformUtilsService.isChrome()) {
-      return BrowserClientVendors.Chrome;
-    }
-
-    if (this.platformUtilsService.isOpera()) {
-      return BrowserClientVendors.Opera;
-    }
-
-    if (this.platformUtilsService.isEdge()) {
-      return BrowserClientVendors.Edge;
-    }
-
-    if (this.platformUtilsService.isVivaldi()) {
-      return BrowserClientVendors.Vivaldi;
-    }
-
-    return BrowserClientVendors.Unknown;
   }
 
   protected async openURI(event: Event, uri: BrowserShortcutsUri | DisablePasswordManagerUri) {
@@ -324,7 +486,7 @@ export class AutofillComponent implements OnInit {
     if (
       this.inlineMenuVisibility === AutofillOverlayVisibility.Off ||
       !this.canOverrideBrowserAutofillSetting ||
-      (await this.browserAutofillSettingCurrentlyOverridden())
+      this.defaultBrowserAutofillDisabled
     ) {
       return;
     }
@@ -361,7 +523,10 @@ export class AutofillComponent implements OnInit {
       return;
     }
 
-    BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
+    await BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
+    this.autofillBrowserSettingsService.setDefaultBrowserAutofillDisabled(
+      this.defaultBrowserAutofillDisabled,
+    );
   }
 
   private handleOverrideDialogAccept = async () => {
@@ -369,33 +534,45 @@ export class AutofillComponent implements OnInit {
     await this.updateDefaultBrowserAutofillDisabled();
   };
 
-  async browserAutofillSettingCurrentlyOverridden() {
-    if (!this.canOverrideBrowserAutofillSetting) {
-      return false;
-    }
+  private applyUriMatchPolicy() {
+    this.domainSettingsService.defaultUriMatchStrategyPolicy$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (value !== null) {
+          this.isDefaultUriMatchDisabledByPolicy = true;
+          this.additionalOptionsForm.controls.defaultUriMatch.disable({ emitEvent: false });
+        } else {
+          this.isDefaultUriMatchDisabledByPolicy = false;
+          this.additionalOptionsForm.controls.defaultUriMatch.enable({ emitEvent: false });
+        }
+      });
+  }
 
-    if (!(await this.privacyPermissionGranted())) {
-      return false;
+  private async handleAdvancedMatch(
+    previous: UriMatchStrategySetting | null,
+    current: UriMatchStrategySetting | null,
+  ): Promise<void> {
+    const valueChange = previous !== current;
+    const isAdvanced =
+      current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
+    if (!valueChange || !isAdvanced) {
+      return await this.domainSettingsService.setDefaultUriMatchStrategy(current);
     }
-
-    return await BrowserApi.browserAutofillSettingsOverridden();
+    AdvancedUriOptionDialogComponent.open(this.dialogService, {
+      contentKey: this.advancedOptionWarningMap[current],
+      onContinue: async () => {
+        this.additionalOptionsForm.controls.defaultUriMatch.setValue(current);
+        await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      },
+      onCancel: async () => {
+        this.additionalOptionsForm.controls.defaultUriMatch.setValue(previous);
+        await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
+      },
+    });
   }
 
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);
-  }
-
-  async updateContextMenuItem() {
-    await this.autofillSettingsService.setEnableContextMenu(this.enableContextMenuItem);
-    this.messagingService.send("bgUpdateContextMenu");
-  }
-
-  async updateAutoTotpCopy() {
-    await this.autofillSettingsService.setAutoCopyTotp(this.enableAutoTotpCopy);
-  }
-
-  async saveClearClipboard() {
-    await this.autofillSettingsService.setClearClipboardDelay(this.clearClipboard);
   }
 
   async updateShowCardsCurrentTab() {
@@ -412,5 +589,34 @@ export class AutofillComponent implements OnInit {
 
   async updateShowInlineMenuIdentities() {
     await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
+  }
+
+  getMatchHints() {
+    const hints = ["uriMatchDefaultStrategyHint"];
+    const strategy = this.additionalOptionsForm.get("defaultUriMatch")
+      ?.value as UriMatchStrategySetting;
+    if (
+      strategy === UriMatchStrategy.StartsWith ||
+      strategy === UriMatchStrategy.RegularExpression
+    ) {
+      hints.push(this.advancedOptionWarningMap[strategy]);
+    }
+    return hints;
+  }
+
+  /** Navigates the user from the Autofill Nudge to the proper destination based on their browser. */
+  async disableBrowserAutofillSettingsFromNudge(event: Event) {
+    // When we can programmatically disable the autofill setting, do that first
+    // otherwise open the appropriate URI for the browser
+    if (this.canOverrideBrowserAutofillSetting) {
+      this.defaultBrowserAutofillDisabled = true;
+      await this.updateDefaultBrowserAutofillDisabled();
+      await this.nudgesService.dismissNudge(
+        NudgeType.AutofillNudge,
+        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      );
+    } else {
+      await this.openURI(event, this.disablePasswordManagerURI);
+    }
   }
 }

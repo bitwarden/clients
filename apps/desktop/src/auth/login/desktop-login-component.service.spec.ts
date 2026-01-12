@@ -3,8 +3,10 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
+import { SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { ClientType } from "@bitwarden/common/enums";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import {
   Environment,
   EnvironmentService,
@@ -41,8 +43,7 @@ describe("DesktopLoginComponentService", () => {
   let ssoLoginService: MockProxy<SsoLoginServiceAbstraction>;
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
-
-  let superLaunchSsoBrowserWindowSpy: jest.SpyInstance;
+  let ssoUrlService: MockProxy<SsoUrlService>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -60,6 +61,8 @@ describe("DesktopLoginComponentService", () => {
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
     i18nService = mock<I18nService>();
     toastService = mock<ToastService>();
+    platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+    ssoUrlService = mock<SsoUrlService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -74,6 +77,7 @@ describe("DesktopLoginComponentService", () => {
               ssoLoginService,
               i18nService,
               toastService,
+              ssoUrlService,
             ),
         },
         { provide: DefaultLoginComponentService, useExisting: DesktopLoginComponentService },
@@ -84,15 +88,11 @@ describe("DesktopLoginComponentService", () => {
         { provide: SsoLoginServiceAbstraction, useValue: ssoLoginService },
         { provide: I18nService, useValue: i18nService },
         { provide: ToastService, useValue: toastService },
+        { provide: SsoUrlService, useValue: ssoUrlService },
       ],
     });
 
     service = TestBed.inject(DesktopLoginComponentService);
-
-    superLaunchSsoBrowserWindowSpy = jest.spyOn(
-      DefaultLoginComponentService.prototype,
-      "launchSsoBrowserWindow",
-    );
   });
 
   afterEach(() => {
@@ -106,55 +106,93 @@ describe("DesktopLoginComponentService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("launchSsoBrowserWindow", () => {
-    // Array of all permutations of isAppImage, isSnapStore, and isDev
+  describe("redirectToSso", () => {
+    // Array of all permutations of isAppImage and isDev
     const permutations = [
-      [true, false, false], // Case 1: isAppImage true
-      [false, true, false], // Case 2: isSnapStore true
-      [false, false, true], // Case 3: isDev true
-      [true, true, false], // Case 4: isAppImage and isSnapStore true
-      [true, false, true], // Case 5: isAppImage and isDev true
-      [false, true, true], // Case 6: isSnapStore and isDev true
-      [true, true, true], // Case 7: all true
-      [false, false, false], // Case 8: all false
+      [true, false], // Case 1: isAppImage true
+      [false, true], // Case 2: isDev true
+      [true, true], // Case 3: all true
+      [false, false], // Case 4: all false
     ];
 
-    permutations.forEach(([isAppImage, isSnapStore, isDev]) => {
-      it(`executes correct logic for isAppImage=${isAppImage}, isSnapStore=${isSnapStore}, isDev=${isDev}`, async () => {
+    permutations.forEach(([isAppImage, isDev]) => {
+      it(`executes correct logic for isAppImage=${isAppImage}, isDev=${isDev}`, async () => {
         (global as any).ipc.platform.isAppImage = isAppImage;
-        (global as any).ipc.platform.isSnapStore = isSnapStore;
         (global as any).ipc.platform.isDev = isDev;
 
-        const email = "user@example.com";
-        const clientId = "desktop";
-        const codeChallenge = "testCodeChallenge";
-        const codeVerifier = "testCodeVerifier";
+        const email = "test@bitwarden.com";
         const state = "testState";
-        const codeVerifierHash = new Uint8Array(64);
+        const codeVerifier = "testCodeVerifier";
+        const codeChallenge = "testCodeChallenge";
 
         passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
         passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
-        cryptoFunctionService.hash.mockResolvedValueOnce(codeVerifierHash);
         jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
 
-        await service.launchSsoBrowserWindow(email, clientId);
+        await service.redirectToSsoLogin(email);
 
-        if (isAppImage || isSnapStore || isDev) {
-          expect(superLaunchSsoBrowserWindowSpy).not.toHaveBeenCalled();
-
-          // Assert that the standard logic is executed
-          expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
-          expect(passwordGenerationService.generatePassword).toHaveBeenCalledTimes(2);
-          expect(cryptoFunctionService.hash).toHaveBeenCalledWith(codeVerifier, "sha256");
-          expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
-          expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+        if (isAppImage || isDev) {
           expect(ipc.platform.localhostCallbackService.openSsoPrompt).toHaveBeenCalledWith(
             codeChallenge,
             state,
+            email,
+            undefined,
           );
         } else {
-          // If all values are false, expect the super method to be called
-          expect(superLaunchSsoBrowserWindowSpy).toHaveBeenCalledWith(email, clientId);
+          expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
+          expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+          expect(platformUtilsService.launchUri).toHaveBeenCalled();
+        }
+      });
+    });
+  });
+
+  describe("redirectToSsoLoginWithOrganizationSsoIdentifier", () => {
+    // Array of all permutations of isAppImage and isDev
+    const permutations = [
+      [true, false], // Case 1: isAppImage true
+      [false, true], // Case 2: isDev true
+      [true, true], // Case 3: all true
+      [false, false], // Case 4: all false
+    ];
+
+    permutations.forEach(([isAppImage, isDev]) => {
+      it("calls redirectToSso with orgSsoIdentifier", async () => {
+        (global as any).ipc.platform.isAppImage = isAppImage;
+        (global as any).ipc.platform.isDev = isDev;
+
+        const email = "test@bitwarden.com";
+        const state = "testState";
+        const codeVerifier = "testCodeVerifier";
+        const codeChallenge = "testCodeChallenge";
+        const orgSsoIdentifier = "orgSsoId";
+
+        passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
+        passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
+        jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+
+        await service.redirectToSsoLoginWithOrganizationSsoIdentifier(email, orgSsoIdentifier);
+
+        if (isAppImage || isDev) {
+          expect(ipc.platform.localhostCallbackService.openSsoPrompt).toHaveBeenCalledWith(
+            codeChallenge,
+            state,
+            email,
+            orgSsoIdentifier,
+          );
+        } else {
+          expect(ssoUrlService.buildSsoUrl).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.any(String),
+            expect.any(String),
+            expect.any(String),
+            expect.any(String),
+            email,
+            orgSsoIdentifier,
+          );
+          expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
+          expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+          expect(platformUtilsService.launchUri).toHaveBeenCalled();
         }
       });
     });

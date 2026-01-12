@@ -1,8 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
+import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   BackgroundPortMessageHandlers,
@@ -14,13 +13,17 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private readonly setElementStyles = setElementStyles;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private port: chrome.runtime.Port | null = null;
-  private portKey: string;
+  private portKey?: string;
+  private readonly extensionOrigin: string;
   private iframeMutationObserver: MutationObserver;
-  private iframe: HTMLIFrameElement;
-  private ariaAlertElement: HTMLDivElement;
-  private ariaAlertTimeout: number | NodeJS.Timeout;
-  private delayedCloseTimeout: number | NodeJS.Timeout;
-  private fadeInTimeout: number | NodeJS.Timeout;
+  /**
+   *  Initialized in initMenuIframe which makes it safe to assert non null by lifecycle.
+   */
+  private iframe!: HTMLIFrameElement;
+  private ariaAlertElement?: HTMLDivElement;
+  private ariaAlertTimeout: number | NodeJS.Timeout | null = null;
+  private delayedCloseTimeout: number | NodeJS.Timeout | null = null;
+  private fadeInTimeout: number | NodeJS.Timeout | null = null;
   private readonly fadeInOpacityTransition = "opacity 125ms ease-out 0s";
   private readonly fadeOutOpacityTransition = "opacity 65ms ease-out 0s";
   private iframeStyles: Partial<CSSStyleDeclaration> = {
@@ -48,7 +51,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   };
   private foreignMutationsCount = 0;
   private mutationObserverIterations = 0;
-  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
+  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout | null = null;
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
     initAutofillInlineMenuButton: ({ message }) => this.initAutofillInlineMenu(message),
     initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenu(message),
@@ -69,6 +72,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     private iframeTitle: string,
     private ariaAlert?: string,
   ) {
+    this.extensionOrigin = BrowserApi.getRuntimeURL("")?.slice(0, -1);
     this.iframeMutationObserver = new MutationObserver(this.handleMutations);
   }
 
@@ -81,7 +85,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * that is declared.
    */
   initMenuIframe() {
-    this.defaultIframeAttributes.src = chrome.runtime.getURL("overlay/menu.html");
+    this.defaultIframeAttributes.src = BrowserApi.getRuntimeURL("overlay/menu.html");
     this.defaultIframeAttributes.title = this.iframeTitle;
 
     this.iframe = globalThis.document.createElement("iframe");
@@ -131,7 +135,9 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     this.port.onDisconnect.addListener(this.handlePortDisconnect);
     this.port.onMessage.addListener(this.handlePortMessage);
 
-    this.announceAriaAlert(this.ariaAlert, 2000);
+    if (this.ariaAlert) {
+      this.announceAriaAlert(this.ariaAlert, 2000);
+    }
   };
 
   /**
@@ -152,7 +158,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
     this.ariaAlertTimeout = globalThis.setTimeout(async () => {
       const isFieldFocused = await this.sendExtensionMessage("checkIsFieldCurrentlyFocused");
-      if (isFieldFocused || triggeredByUser) {
+      if ((isFieldFocused || triggeredByUser) && this.ariaAlertElement) {
         this.shadow.appendChild(this.ariaAlertElement);
       }
       this.ariaAlertTimeout = null;
@@ -239,7 +245,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    */
   private initAutofillInlineMenuList(message: AutofillInlineMenuIframeExtensionMessage) {
     const { theme } = message;
-    let borderColor: string;
+    let borderColor: string | undefined;
     let verifiedTheme = theme;
     if (verifiedTheme === ThemeTypes.System) {
       verifiedTheme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
@@ -250,12 +256,6 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     if (verifiedTheme === ThemeTypes.Dark) {
       borderColor = "#4c525f";
     }
-    if (theme === ThemeTypes.Nord) {
-      borderColor = "#2E3440";
-    }
-    if (theme === ThemeTypes.SolarizedDark) {
-      borderColor = "#073642";
-    }
     if (borderColor) {
       this.updateElementStyles(this.iframe, { borderColor });
     }
@@ -265,7 +265,10 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   }
 
   private postMessageToIFrame(message: any) {
-    this.iframe.contentWindow?.postMessage({ portKey: this.portKey, ...message }, "*");
+    this.iframe.contentWindow?.postMessage(
+      { portKey: this.portKey, ...message },
+      this.extensionOrigin,
+    );
   }
 
   /**
@@ -274,19 +277,66 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    *
    * @param position - The position styles to apply to the iframe
    */
-  private updateIframePosition(position: Partial<CSSStyleDeclaration>) {
-    if (!globalThis.document.hasFocus()) {
+  private updateIframePosition(position?: Partial<CSSStyleDeclaration>) {
+    if (!position || !globalThis.document.hasFocus()) {
       return;
     }
 
     const styles = this.fadeInTimeout ? Object.assign(position, { opacity: "0" }) : position;
     this.updateElementStyles(this.iframe, styles);
 
+    const elementHeightCompletelyInViewport = this.isElementCompletelyWithinViewport(
+      this.iframe.getBoundingClientRect(),
+    );
+
+    if (!elementHeightCompletelyInViewport) {
+      this.forceCloseInlineMenu();
+      return;
+    }
+
     if (this.fadeInTimeout) {
       this.handleFadeInInlineMenuIframe();
     }
 
-    this.announceAriaAlert(this.ariaAlert, 2000);
+    if (this.ariaAlert) {
+      this.announceAriaAlert(this.ariaAlert, 2000);
+    }
+  }
+
+  /**
+   * Check if element is completely within the browser viewport.
+   */
+  private isElementCompletelyWithinViewport(elementPosition: DOMRect) {
+    // An element that lacks size should be considered within the viewport
+    if (!elementPosition.height || !elementPosition.width) {
+      return true;
+    }
+
+    const [viewportHeight, viewportWidth] = this.getViewportSize();
+
+    const rightSideIsWithinViewport = (elementPosition.right || 0) <= viewportWidth;
+    const leftSideIsWithinViewport = (elementPosition.left || 0) >= 0;
+    const topSideIsWithinViewport = (elementPosition.top || 0) >= 0;
+    const bottomSideIsWithinViewport = (elementPosition.bottom || 0) <= viewportHeight;
+
+    return (
+      rightSideIsWithinViewport &&
+      leftSideIsWithinViewport &&
+      topSideIsWithinViewport &&
+      bottomSideIsWithinViewport
+    );
+  }
+
+  /** Use Visual Viewport API if available (better for mobile/zoom) */
+  private getViewportSize(): [
+    VisualViewport["height"] | Window["innerHeight"],
+    VisualViewport["width"] | Window["innerWidth"],
+  ] {
+    if ("visualViewport" in globalThis.window && globalThis.window.visualViewport) {
+      return [globalThis.window.visualViewport.height, globalThis.window.visualViewport.width];
+    }
+
+    return [globalThis.window.innerHeight, globalThis.window.innerWidth];
   }
 
   /**
@@ -314,8 +364,8 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * @param customElement - The element to update the styles for
    * @param styles - The styles to apply to the element
    */
-  private updateElementStyles(customElement: HTMLElement, styles: Partial<CSSStyleDeclaration>) {
-    if (!customElement) {
+  private updateElementStyles(customElement: HTMLElement, styles?: Partial<CSSStyleDeclaration>) {
+    if (!customElement || !styles) {
       return;
     }
 

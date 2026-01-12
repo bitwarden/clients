@@ -1,37 +1,70 @@
 import { Component } from "@angular/core";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { delay, of } from "rxjs";
+import { action } from "storybook/actions";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
+import { I18nMockService } from "../utils";
 
+import { AsyncActionsModule } from "./async-actions.module";
 import { BitActionDirective } from "./bit-action.directive";
 
-const template = `
-  <button bitButton buttonType="primary" [bitAction]="action" class="tw-mr-2">
-    Perform action
+const template = /*html*/ `
+  <button type="button" bitButton buttonType="primary" [bitAction]="action" class="tw-me-2">
+    Perform action {{ statusEmoji }}
   </button>
-  <button bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action"></button>`;
+  <button type="button" label="Delete" bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action"></button>`;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template,
   selector: "app-promise-example",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class PromiseExampleComponent {
+  statusEmoji = "🟡";
   action = async () => {
     await new Promise<void>((resolve, reject) => {
-      setTimeout(resolve, 2000);
+      setTimeout(() => {
+        resolve();
+        this.statusEmoji = "🟢";
+      }, 5000);
     });
   };
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template,
+  selector: "app-action-resolves-quickly",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
+})
+class ActionResolvesQuicklyComponent {
+  statusEmoji = "🟡";
+
+  action = async () => {
+    await new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+        this.statusEmoji = "🟢";
+      }, 50);
+    });
+  };
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template,
   selector: "app-observable-example",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class ObservableExampleComponent {
   action = () => {
@@ -39,9 +72,12 @@ class ObservableExampleComponent {
   };
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template,
   selector: "app-rejected-promise-example",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class RejectedPromiseExampleComponent {
   action = async () => {
@@ -55,12 +91,15 @@ export default {
   title: "Component Library/Async Actions/Standalone",
   decorators: [
     moduleMetadata({
-      declarations: [
+      imports: [
+        ButtonModule,
+        IconButtonModule,
+        BitActionDirective,
         PromiseExampleComponent,
         ObservableExampleComponent,
         RejectedPromiseExampleComponent,
+        ActionResolvesQuicklyComponent,
       ],
-      imports: [ButtonModule, IconButtonModule, BitActionDirective],
       providers: [
         {
           provide: ValidationService,
@@ -73,6 +112,14 @@ export default {
           useValue: {
             error: action("LogService.error"),
           } as Partial<LogService>,
+        },
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
         },
       ],
     }),
@@ -98,5 +145,12 @@ export const UsingObservable: ObservableStory = {
 export const RejectedPromise: ObservableStory = {
   render: (args) => ({
     template: `<app-rejected-promise-example></app-rejected-promise-example>`,
+  }),
+};
+
+export const ActionResolvesQuickly: PromiseStory = {
+  render: (args) => ({
+    props: args,
+    template: `<app-action-resolves-quickly></app-action-resolves-quickly>`,
   }),
 };

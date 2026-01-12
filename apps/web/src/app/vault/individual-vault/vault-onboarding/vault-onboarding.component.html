@@ -15,19 +15,14 @@
 
     <app-onboarding-task
       [title]="'importData' | i18n"
-      icon="bwi-save"
+      icon="bwi-import"
       [route]="['/tools/import']"
       [completed]="onboardingTasks.importData"
     >
       <p class="tw-pl-1">
         {{ "onboardingImportDataDetailsPartOne" | i18n }}
         <button type="button" bitLink (click)="emitToAddCipher()">
-          {{
-            (extensionRefreshEnabled
-              ? "onboardingImportDataDetailsLoginLink"
-              : "onboardingImportDataDetailsLink"
-            ) | i18n
-          }}
+          {{ "onboardingImportDataDetailsLoginLink" | i18n }}
         </button>
         <span>
           {{ "onboardingImportDataDetailsPartTwoNoOrgs" | i18n }}

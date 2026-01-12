@@ -10,4 +10,4 @@ export const IntegrationIds = [
 ] as const;
 
 /** Identifies a vendor integrated into bitwarden */
-export type IntegrationId = Opaque<(typeof IntegrationIds)[number], "IntegrationId">;
+export type IntegrationId = Opaque<string, "IntegrationId">;

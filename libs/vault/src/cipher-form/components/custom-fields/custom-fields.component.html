@@ -1,4 +1,8 @@
-<bit-section *ngIf="hasCustomFields">
+<section
+  class="tw-mb-5 bit-compact:tw-mb-4"
+  *ngIf="hasCustomFields"
+  [ngClass]="{ 'tw-mb-0': disableSectionMargin }"
+>
   <bit-section-header>
     <h2 bitTypography="h6">{{ "customFields" | i18n }}</h2>
   </bit-section-header>
@@ -18,6 +22,7 @@
         }"
         [attr.data-testid]="field.value.name + '-entry'"
         cdkDrag
+        [cdkDragDisabled]="!canEdit(field.value.type)"
         #customFieldRow
       >
         <!-- Text Field -->
@@ -46,7 +51,7 @@
             bitSuffix
             bitPasswordInputToggle
             data-testid="visibility-for-custom-hidden-field"
-            [disabled]="!canViewPasswords(i)"
+            *ngIf="canViewPasswords(i)"
             (toggledChange)="logHiddenEvent($event)"
           ></button>
         </bit-form-field>
@@ -85,22 +90,24 @@
         <button
           type="button"
           (click)="openAddEditCustomFieldDialog({ index: i, label: field.value.name })"
-          [appA11yTitle]="'editFieldLabel' | i18n: field.value.name"
+          [label]="'editFieldLabel' | i18n: field.value.name"
           bitIconButton="bwi-pencil-square"
-          class="tw-self-end"
+          class="tw-self-center tw-mt-2"
           data-testid="edit-custom-field-button"
-          *ngIf="!isPartialEdit"
+          [disabled]="parentFormDisabled"
+          *ngIf="canEdit(field.value.type)"
         ></button>
 
         <button
           type="button"
-          bitIconButton="bwi-hamburger"
-          class="tw-self-end"
+          bitIconButton="bwi-drag-and-drop"
+          class="tw-self-center tw-mt-2"
           cdkDragHandle
-          [appA11yTitle]="'reorderToggleButton' | i18n: field.value.name"
+          [label]="'reorderToggleButton' | i18n: field.value.name"
           (keydown)="handleKeyDown($event, field.value.name, i)"
           data-testid="reorder-toggle-button"
-          *ngIf="!isPartialEdit"
+          [disabled]="parentFormDisabled"
+          *ngIf="canEdit(field.value.type) && fields.controls.length > 1"
         ></button>
       </div>
 
@@ -109,11 +116,12 @@
         bitLink
         linkType="primary"
         (click)="openAddEditCustomFieldDialog()"
-        *ngIf="!isPartialEdit"
+        data-testid="add-field-button"
+        *ngIf="!isPartialEdit && !parentFormDisabled"
       >
-        <i class="bwi bwi-plus tw-font-bold" aria-hidden="true"></i>
+        <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
         {{ "addField" | i18n }}
       </button>
     </bit-card>
   </form>
-</bit-section>
+</section>

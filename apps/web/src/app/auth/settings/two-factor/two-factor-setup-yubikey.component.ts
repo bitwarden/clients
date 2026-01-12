@@ -1,19 +1,41 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig } from "@angular/cdk/dialog";
+import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
-import { FormArray, FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import {
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from "@angular/forms";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { UpdateTwoFactorYubikeyOtpRequest } from "@bitwarden/common/auth/models/request/update-two-factor-yubikey-otp.request";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  CalloutModule,
+  CheckboxModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  FormFieldModule,
+  IconButtonModule,
+  InputModule,
+  LinkModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-base.component";
 
@@ -22,38 +44,55 @@ interface Key {
   existingKey: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup-yubikey",
   templateUrl: "two-factor-setup-yubikey.component.html",
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    JslibModule,
+    DialogModule,
+    FormFieldModule,
+    ButtonModule,
+    IconButtonModule,
+    CalloutModule,
+    CheckboxModule,
+    LinkModule,
+    TypographyModule,
+    InputModule,
+    AsyncActionsModule,
+    I18nPipe,
+  ],
 })
 export class TwoFactorSetupYubiKeyComponent
   extends TwoFactorSetupMethodBaseComponent
   implements OnInit
 {
   type = TwoFactorProviderType.Yubikey;
-  keys: Key[];
+  keys: Key[] = [];
   anyKeyHasNfc = false;
 
-  formPromise: Promise<TwoFactorYubiKeyResponse>;
-  disablePromise: Promise<unknown>;
-
   override componentName = "app-two-factor-yubikey";
-  formGroup: FormGroup<{
-    formKeys: FormArray<FormControl<Key>>;
-    anyKeyHasNfc: FormControl<boolean>;
-  }>;
+  formGroup:
+    | FormGroup<{
+        formKeys: FormArray<FormControl<Key | null>>;
+        anyKeyHasNfc: FormControl<boolean | null>;
+      }>
+    | undefined;
 
   get keysFormControl() {
-    return this.formGroup.controls.formKeys.controls;
+    return this.formGroup?.controls.formKeys.controls;
   }
 
   get anyKeyHasNfcFormControl() {
-    return this.formGroup.controls.anyKeyHasNfc;
+    return this.formGroup?.controls.anyKeyHasNfc;
   }
 
   constructor(
     @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorYubiKeyResponse>,
-    apiService: ApiService,
+    twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
@@ -63,7 +102,7 @@ export class TwoFactorSetupYubiKeyComponent
     protected toastService: ToastService,
   ) {
     super(
-      apiService,
+      twoFactorService,
       i18nService,
       platformUtilsService,
       logService,
@@ -83,6 +122,9 @@ export class TwoFactorSetupYubiKeyComponent
   }
 
   refreshFormArrayData() {
+    if (!this.formGroup) {
+      return;
+    }
     const formKeys = <FormArray>this.formGroup.get("formKeys");
     formKeys.clear();
     this.keys.forEach((val) => {
@@ -100,6 +142,9 @@ export class TwoFactorSetupYubiKeyComponent
   }
 
   submit = async () => {
+    if (!this.formGroup) {
+      return;
+    }
     this.formGroup.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
@@ -118,16 +163,19 @@ export class TwoFactorSetupYubiKeyComponent
   };
 
   protected async enable() {
+    if (!this.formGroup) {
+      return;
+    }
     const keys = this.formGroup.controls.formKeys.value;
     const request = await this.buildRequestModel(UpdateTwoFactorYubikeyOtpRequest);
-    request.key1 = keys != null && keys.length > 0 ? keys[0].key : null;
-    request.key2 = keys != null && keys.length > 1 ? keys[1].key : null;
-    request.key3 = keys != null && keys.length > 2 ? keys[2].key : null;
-    request.key4 = keys != null && keys.length > 3 ? keys[3].key : null;
-    request.key5 = keys != null && keys.length > 4 ? keys[4].key : null;
-    request.nfc = this.formGroup.value.anyKeyHasNfc;
+    request.key1 = keys != null && keys.length > 0 ? (keys[0]?.key ?? "") : "";
+    request.key2 = keys != null && keys.length > 1 ? (keys[1]?.key ?? "") : "";
+    request.key3 = keys != null && keys.length > 2 ? (keys[2]?.key ?? "") : "";
+    request.key4 = keys != null && keys.length > 3 ? (keys[3]?.key ?? "") : "";
+    request.key5 = keys != null && keys.length > 4 ? (keys[4]?.key ?? "") : "";
+    request.nfc = this.formGroup.value.anyKeyHasNfc ?? false;
 
-    this.processResponse(await this.apiService.putTwoFactorYubiKey(request));
+    this.processResponse(await this.twoFactorService.putTwoFactorYubiKey(request));
     this.refreshFormArrayData();
     this.toastService.showToast({
       title: this.i18nService.t("success"),
@@ -138,12 +186,16 @@ export class TwoFactorSetupYubiKeyComponent
   }
 
   remove(pos: number) {
-    this.keys[pos].key = null;
-    this.keys[pos].existingKey = null;
+    this.keys[pos].key = "";
+    this.keys[pos].existingKey = "";
+
+    if (!this.keysFormControl || !this.keysFormControl[pos]) {
+      return;
+    }
 
     this.keysFormControl[pos].setValue({
-      existingKey: null,
-      key: null,
+      existingKey: "",
+      key: "",
     });
   }
 
@@ -174,6 +226,9 @@ export class TwoFactorSetupYubiKeyComponent
     dialogService: DialogService,
     config: DialogConfig<AuthResponse<TwoFactorYubiKeyResponse>>,
   ) {
-    return dialogService.open<boolean>(TwoFactorSetupYubiKeyComponent, config);
+    return dialogService.open<boolean, AuthResponse<TwoFactorYubiKeyResponse>>(
+      TwoFactorSetupYubiKeyComponent,
+      config as DialogConfig<AuthResponse<TwoFactorYubiKeyResponse>, DialogRef<boolean>>,
+    );
   }
 }

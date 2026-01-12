@@ -1,37 +1,64 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
-import { combineLatest } from "rxjs";
+import { combineLatest, distinctUntilChanged, map, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
+import { VaultLoadingSkeletonComponent } from "@bitwarden/browser/vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/vault/popup/services/browser-premium-upgrade-prompt.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { ButtonModule, CalloutModule, Icons, NoItemsModule } from "@bitwarden/components";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
+import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
-  NoSendsIcon,
+  ButtonModule,
+  CalloutModule,
+  NoItemsModule,
+  TypographyModule,
+} from "@bitwarden/components";
+import {
   NewSendDropdownComponent,
-  SendListItemsContainerComponent,
   SendItemsService,
-  SendSearchComponent,
   SendListFiltersComponent,
   SendListFiltersService,
+  SendListItemsContainerComponent,
+  SendSearchComponent,
 } from "@bitwarden/send-ui";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { VaultFadeInOutSkeletonComponent } from "../../../vault/popup/components/vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
 
-export enum SendState {
-  Empty,
-  NoResults,
-}
+/** A state of the Send list UI. */
+export const SendState = Object.freeze({
+  /** No sends exist for the current filter (file or text). */
+  Empty: "Empty",
+  /** Sends exist, but none match the current filter/search. */
+  NoResults: "NoResults",
+} as const);
 
+/** A state of the Send list UI. */
+export type SendState = (typeof SendState)[keyof typeof SendState];
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "send-v2.component.html",
-  standalone: true,
+  providers: [
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: BrowserPremiumUpgradePromptService,
+    },
+  ],
   imports: [
     CalloutModule,
     PopupPageComponent,
@@ -42,30 +69,67 @@ export enum SendState {
     JslibModule,
     CommonModule,
     ButtonModule,
-    RouterLink,
     NewSendDropdownComponent,
     SendListItemsContainerComponent,
     SendListFiltersComponent,
     SendSearchComponent,
+    TypographyModule,
+    VaultFadeInOutSkeletonComponent,
+    VaultLoadingSkeletonComponent,
   ],
 })
-export class SendV2Component implements OnInit, OnDestroy {
+export class SendV2Component implements OnDestroy {
   sendType = SendType;
   sendState = SendState;
 
   protected listState: SendState | null = null;
   protected sends$ = this.sendItemsService.filteredAndSortedSends$;
-  protected sendsLoading$ = this.sendItemsService.loading$;
+  private skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.VaultLoadingSkeletons,
+  );
+  protected sendsLoading$ = this.sendItemsService.loading$.pipe(
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /** Spinner Loading State */
+  protected showSpinnerLoaders$ = combineLatest([
+    this.sendsLoading$,
+    this.skeletonFeatureFlag$,
+  ]).pipe(map(([loading, skeletonsEnabled]) => loading && !skeletonsEnabled));
+
+  /** Skeleton Loading State */
+  protected showSkeletonsLoaders$ = combineLatest([
+    this.sendsLoading$,
+    this.searchService.isSendSearching$,
+    this.skeletonFeatureFlag$,
+  ]).pipe(
+    map(
+      ([loading, cipherSearching, skeletonsEnabled]) =>
+        (loading || cipherSearching) && skeletonsEnabled,
+    ),
+    distinctUntilChanged(),
+    skeletonLoadingDelay(),
+  );
+
   protected title: string = "allSends";
   protected noItemIcon = NoSendsIcon;
-  protected noResultsIcon = Icons.NoResults;
+  protected noResultsIcon = NoResults;
 
   protected sendsDisabled = false;
+
+  private readonly sendTypeTitles: Record<SendType, string> = {
+    [SendType.File]: "fileSends",
+    [SendType.Text]: "textSends",
+  };
 
   constructor(
     protected sendItemsService: SendItemsService,
     protected sendListFiltersService: SendListFiltersService,
     private policyService: PolicyService,
+    private accountService: AccountService,
+    private configService: ConfigService,
+    private searchService: SearchService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,
@@ -75,7 +139,7 @@ export class SendV2Component implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe(([emptyList, noFilteredResults, currentFilter]) => {
         if (currentFilter?.sendType !== null) {
-          this.title = `${this.sendType[currentFilter.sendType].toLowerCase()}Sends`;
+          this.title = this.sendTypeTitles[currentFilter.sendType] ?? "allSends";
         } else {
           this.title = "allSends";
         }
@@ -93,15 +157,18 @@ export class SendV2Component implements OnInit, OnDestroy {
         this.listState = null;
       });
 
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.DisableSend)
-      .pipe(takeUntilDestroyed())
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        ),
+        takeUntilDestroyed(),
+      )
       .subscribe((sendsDisabled) => {
         this.sendsDisabled = sendsDisabled;
       });
   }
-
-  ngOnInit(): void {}
 
   ngOnDestroy(): void {}
 }

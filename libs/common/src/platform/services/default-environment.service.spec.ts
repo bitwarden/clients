@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
-import { FakeStateProvider, awaitAsync } from "../../../spec";
+import { FakeStateProvider, awaitAsync, mockAccountInfoWith } from "../../../spec";
 import { FakeAccountService } from "../../../spec/fake-account-service";
 import { UserId } from "../../types/guid";
 import { CloudRegion, Region } from "../abstractions/environment.service";
@@ -28,16 +28,14 @@ describe("EnvironmentService", () => {
 
   beforeEach(async () => {
     accountService = new FakeAccountService({
-      [testUser]: {
+      [testUser]: mockAccountInfoWith({
         name: "name",
         email: "email",
-        emailVerified: false,
-      },
-      [alternateTestUser]: {
+      }),
+      [alternateTestUser]: mockAccountInfoWith({
         name: "name",
         email: "email",
-        emailVerified: false,
-      },
+      }),
     });
     stateProvider = new FakeStateProvider(accountService);
 
@@ -47,9 +45,10 @@ describe("EnvironmentService", () => {
   const switchUser = async (userId: UserId) => {
     accountService.activeAccountSubject.next({
       id: userId,
-      email: "test@example.com",
-      name: `Test Name ${userId}`,
-      emailVerified: false,
+      ...mockAccountInfoWith({
+        email: "test@example.com",
+        name: `Test Name ${userId}`,
+      }),
     });
     await awaitAsync();
   };
@@ -304,85 +303,21 @@ describe("EnvironmentService", () => {
     });
   });
 
-  describe("getEnvironment", () => {
+  describe("getEnvironment$", () => {
     it.each([
       { region: Region.US, expectedHost: "bitwarden.com" },
       { region: Region.EU, expectedHost: "bitwarden.eu" },
-    ])("gets it from user data if there is an active user", async ({ region, expectedHost }) => {
-      setGlobalData(Region.US, new EnvironmentUrls());
-      setUserData(region, new EnvironmentUrls());
+    ])("gets it from the passed in userId: %s", async ({ region, expectedHost }) => {
+      setUserData(Region.US, new EnvironmentUrls());
+      setUserData(region, new EnvironmentUrls(), alternateTestUser);
 
       await switchUser(testUser);
 
-      const env = await firstValueFrom(sut.getEnvironment$());
-      expect(env.getHostname()).toBe(expectedHost);
+      const env = await firstValueFrom(sut.getEnvironment$(alternateTestUser));
+      expect(env?.getHostname()).toBe(expectedHost);
     });
 
-    it.each([
-      { region: Region.US, expectedHost: "bitwarden.com" },
-      { region: Region.EU, expectedHost: "bitwarden.eu" },
-    ])("gets it from global data if there is no active user", async ({ region, expectedHost }) => {
-      setGlobalData(region, new EnvironmentUrls());
-      setUserData(Region.US, new EnvironmentUrls());
-
-      const env = await firstValueFrom(sut.getEnvironment$());
-      expect(env.getHostname()).toBe(expectedHost);
-    });
-
-    it.each([
-      { region: Region.US, expectedHost: "bitwarden.com" },
-      { region: Region.EU, expectedHost: "bitwarden.eu" },
-    ])(
-      "gets it from global state if there is no active user even if a user id is passed in.",
-      async ({ region, expectedHost }) => {
-        setGlobalData(region, new EnvironmentUrls());
-        setUserData(Region.US, new EnvironmentUrls());
-
-        const env = await firstValueFrom(sut.getEnvironment$(testUser));
-        expect(env.getHostname()).toBe(expectedHost);
-      },
-    );
-
-    it.each([
-      { region: Region.US, expectedHost: "bitwarden.com" },
-      { region: Region.EU, expectedHost: "bitwarden.eu" },
-    ])(
-      "gets it from the passed in userId if there is any active user: %s",
-      async ({ region, expectedHost }) => {
-        setGlobalData(Region.US, new EnvironmentUrls());
-        setUserData(Region.US, new EnvironmentUrls());
-        setUserData(region, new EnvironmentUrls(), alternateTestUser);
-
-        await switchUser(testUser);
-
-        const env = await firstValueFrom(sut.getEnvironment$(alternateTestUser));
-        expect(env.getHostname()).toBe(expectedHost);
-      },
-    );
-
-    it("gets it from base url saved in self host config", async () => {
-      const globalSelfHostUrls = new EnvironmentUrls();
-      globalSelfHostUrls.base = "https://base.example.com";
-      setGlobalData(Region.SelfHosted, globalSelfHostUrls);
-      setUserData(Region.EU, new EnvironmentUrls());
-
-      const env = await firstValueFrom(sut.getEnvironment$());
-      expect(env.getHostname()).toBe("base.example.com");
-    });
-
-    it("gets it from webVault url saved in self host config", async () => {
-      const globalSelfHostUrls = new EnvironmentUrls();
-      globalSelfHostUrls.webVault = "https://vault.example.com";
-      globalSelfHostUrls.base = "https://base.example.com";
-      setGlobalData(Region.SelfHosted, globalSelfHostUrls);
-      setUserData(Region.EU, new EnvironmentUrls());
-
-      const env = await firstValueFrom(sut.getEnvironment$());
-      expect(env.getHostname()).toBe("vault.example.com");
-    });
-
-    it("gets it from saved self host config from passed in user when there is an active user", async () => {
-      setGlobalData(Region.US, new EnvironmentUrls());
+    it("gets env from saved self host config from passed in user when there is a different active user", async () => {
       setUserData(Region.EU, new EnvironmentUrls());
 
       const selfHostUserUrls = new EnvironmentUrls();
@@ -392,7 +327,31 @@ describe("EnvironmentService", () => {
       await switchUser(testUser);
 
       const env = await firstValueFrom(sut.getEnvironment$(alternateTestUser));
-      expect(env.getHostname()).toBe("base.example.com");
+      expect(env?.getHostname()).toBe("base.example.com");
+    });
+  });
+
+  describe("getEnvironment (deprecated)", () => {
+    it("gets self hosted env from active user when no user passed in", async () => {
+      const selfHostUserUrls = new EnvironmentUrls();
+      selfHostUserUrls.base = "https://base.example.com";
+      setUserData(Region.SelfHosted, selfHostUserUrls);
+
+      await switchUser(testUser);
+
+      const env = await sut.getEnvironment();
+      expect(env?.getHostname()).toBe("base.example.com");
+    });
+
+    it("gets self hosted env from passed in user", async () => {
+      const selfHostUserUrls = new EnvironmentUrls();
+      selfHostUserUrls.base = "https://base.example.com";
+      setUserData(Region.SelfHosted, selfHostUserUrls);
+
+      await switchUser(testUser);
+
+      const env = await sut.getEnvironment(testUser);
+      expect(env?.getHostname()).toBe("base.example.com");
     });
   });
 

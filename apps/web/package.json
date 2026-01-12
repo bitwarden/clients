@@ -1,9 +1,9 @@
 {
   "name": "@bitwarden/web-vault",
-  "version": "2024.12.1",
+  "version": "2025.12.2",
   "scripts": {
-    "build:oss": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
-    "build:bit": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-web/webpack.config.js",
+    "build:oss": "webpack",
+    "build:bit": "webpack -c ../../bitwarden_license/bit-web/webpack.config.js",
     "build:oss:watch": "webpack serve",
     "build:bit:watch": "webpack serve -c ../../bitwarden_license/bit-web/webpack.config.js",
     "build:bit:dev": "cross-env ENV=development npm run build:bit",
@@ -18,6 +18,7 @@
     "build:bit:selfhost:watch": "cross-env ENV=selfhosted npm run build:bit:watch",
     "build:oss:selfhost:prod": "cross-env ENV=selfhosted NODE_ENV=production npm run build:oss",
     "build:bit:selfhost:prod": "cross-env ENV=selfhosted NODE_ENV=production npm run build:bit",
+    "build:bit:selfhost:dev": "cross-env ENV=selfhosted NODE_ENV=production npm run build:bit",
     "build:bit:ee": "cross-env NODE_ENV=production ENV=ee npm run build:bit",
     "clean:l10n": "git push origin --delete l10n_master",
     "dist:bit:cloud": "npm run build:bit:cloud",

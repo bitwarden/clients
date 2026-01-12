@@ -2,20 +2,24 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import {
+  BiometricsService,
+  BiometricsStatus,
+  KdfConfigService,
+  KeyService,
+} from "@bitwarden/key-management";
 
-import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
-import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { LogService } from "../../../platform/abstractions/log.service";
-import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { HashPurpose } from "../../../platform/enums";
-import { KeySuffixOptions } from "../../../platform/enums/key-suffix-options.enum";
 import { UserId } from "../../../types/guid";
-import { UserKey } from "../../../types/key";
 import { AccountService } from "../../abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "../../abstractions/master-password.service.abstraction";
 import { UserVerificationApiServiceAbstraction } from "../../abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "../../abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "../../enums/verification-type";
@@ -33,6 +37,7 @@ import {
   VerificationWithSecret,
   verificationHasSecret,
 } from "../../types/verification";
+import { getUserId } from "../account.service";
 
 /**
  * Used for general-purpose user verification throughout the app.
@@ -47,10 +52,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     private userVerificationApiService: UserVerificationApiServiceAbstraction,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private pinService: PinServiceAbstraction,
-    private logService: LogService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction,
-    private platformUtilsService: PlatformUtilsService,
     private kdfConfigService: KdfConfigService,
+    private biometricsService: BiometricsService,
   ) {}
 
   async getAvailableVerificationOptions(
@@ -58,17 +61,13 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   ): Promise<UserVerificationOptions> {
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (verificationType === "client") {
-      const [
-        userHasMasterPassword,
-        isPinDecryptionAvailable,
-        biometricsLockSet,
-        biometricsUserKeyStored,
-      ] = await Promise.all([
-        this.hasMasterPasswordAndMasterKeyHash(userId),
-        this.pinService.isPinDecryptionAvailable(userId),
-        this.vaultTimeoutSettingsService.isBiometricLockSet(userId),
-        this.keyService.hasUserKeyStored(KeySuffixOptions.Biometric, userId),
-      ]);
+      const [userHasMasterPassword, isPinDecryptionAvailable, biometricsStatus] = await Promise.all(
+        [
+          this.hasMasterPasswordAndMasterKeyHash(userId),
+          this.pinService.isPinDecryptionAvailable(userId),
+          this.biometricsService.getBiometricsStatus(),
+        ],
+      );
 
       // note: we do not need to check this.platformUtilsService.supportsBiometric() because
       // we can just use the logic below which works for both desktop & the browser extension.
@@ -77,9 +76,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
         client: {
           masterPassword: userHasMasterPassword,
           pin: isPinDecryptionAvailable,
-          biometrics:
-            biometricsLockSet &&
-            (biometricsUserKeyStored || !this.platformUtilsService.supportsSecureStorage()),
+          biometrics: biometricsStatus === BiometricsStatus.Available,
         },
         server: {
           masterPassword: false,
@@ -105,7 +102,6 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   async buildRequest<T extends SecretVerificationRequest>(
     verification: ServerSideVerification,
     requestClass?: new () => T,
-    alreadyHashed?: boolean,
   ) {
     this.validateSecretInput(verification);
 
@@ -115,20 +111,17 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     if (verification.type === VerificationType.OTP) {
       request.otp = verification.secret;
     } else {
-      const [userId, email] = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),
-      );
-      let masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-      if (!masterKey && !alreadyHashed) {
-        masterKey = await this.keyService.makeMasterKey(
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const kdf = await this.kdfConfigService.getKdfConfig(userId as UserId);
+      const salt = await firstValueFrom(this.masterPasswordService.saltForUser$(userId as UserId));
+
+      const authenticationData =
+        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
           verification.secret,
-          email,
-          await this.kdfConfigService.getKdfConfig(),
+          kdf,
+          salt,
         );
-      }
-      request.masterPasswordHash = alreadyHashed
-        ? verification.secret
-        : await this.keyService.hashMasterKey(verification.secret, masterKey);
+      request.authenticateWith(authenticationData);
     }
 
     return request;
@@ -169,6 +162,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     const request = new VerifyOTPRequest(verification.secret);
     try {
       await this.userVerificationApiService.postAccountVerifyOTP(request);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw new Error(this.i18nService.t("invalidVerificationCode"));
     }
@@ -190,7 +185,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       throw new Error("Email is required. Cannot verify user by master password.");
     }
 
-    const kdfConfig = await this.kdfConfigService.getKdfConfig();
+    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     if (!kdfConfig) {
       throw new Error("KDF config is required. Cannot verify user by master password.");
     }
@@ -227,6 +222,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       request.masterPasswordHash = serverKeyHash;
       try {
         policyOptions = await this.userVerificationApiService.postAccountVerifyPassword(request);
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         throw new Error(this.i18nService.t("invalidMasterPassword"));
       }
@@ -239,7 +236,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     );
     await this.masterPasswordService.setMasterKeyHash(localKeyHash, userId);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
-    return { policyOptions, masterKey };
+    return { policyOptions, masterKey, email };
   }
 
   private async verifyUserByPIN(verification: PinVerification, userId: UserId): Promise<boolean> {
@@ -253,17 +250,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   }
 
   private async verifyUserByBiometrics(): Promise<boolean> {
-    let userKey: UserKey;
-    // Biometrics crashes and doesn't return a value if the user cancels the prompt
-    try {
-      userKey = await this.keyService.getUserKeyFromStorage(KeySuffixOptions.Biometric);
-    } catch (e) {
-      this.logService.error(`Biometrics User Verification failed: ${e.message}`);
-      // So, any failures should be treated as a failed verification
-      return false;
-    }
-
-    return userKey != null;
+    return this.biometricsService.authenticateWithBiometrics();
   }
 
   async requestOTP() {
@@ -271,16 +258,19 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   }
 
   async hasMasterPassword(userId?: string): Promise<boolean> {
-    if (userId) {
-      const decryptionOptions = await firstValueFrom(
-        this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-      );
+    const resolvedUserId = userId ?? (await firstValueFrom(this.accountService.activeAccount$))?.id;
 
-      if (decryptionOptions?.hasMasterPassword != undefined) {
-        return decryptionOptions.hasMasterPassword;
-      }
+    if (!resolvedUserId) {
+      return false;
     }
-    return await firstValueFrom(this.userDecryptionOptionsService.hasMasterPassword$);
+
+    // Ideally, this method would accept a UserId over string. To avoid scope creep in PM-26413, we are
+    // doing the cast here. Future work should be done to make this type-safe, and should be considered
+    // as part of PM-27009.
+
+    return await firstValueFrom(
+      this.userDecryptionOptionsService.hasMasterPasswordById$(resolvedUserId as UserId),
+    );
   }
 
   async hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean> {

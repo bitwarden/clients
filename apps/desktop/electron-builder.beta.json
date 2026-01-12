@@ -1,0 +1,138 @@
+{
+  "extraMetadata": {
+    "name": "bitwarden-beta"
+  },
+  "productName": "Bitwarden Beta",
+  "appId": "com.bitwarden.desktop.beta",
+  "buildDependenciesFromSource": true,
+  "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
+  "directories": {
+    "buildResources": "resources",
+    "output": "dist",
+    "app": "build"
+  },
+  "afterSign": "scripts/after-sign.js",
+  "afterPack": "scripts/after-pack.js",
+  "beforePack": "scripts/before-pack.js",
+  "files": [
+    "!node_modules/@bitwarden/desktop-napi/scripts",
+    "!node_modules/@bitwarden/desktop-napi/src",
+    "!node_modules/@bitwarden/desktop-napi/Cargo.toml",
+    "!node_modules/@bitwarden/desktop-napi/build.rs",
+    "!node_modules/@bitwarden/desktop-napi/package.json"
+  ],
+  "electronVersion": "37.7.0",
+  "generateUpdatesFilesForAllChannels": true,
+  "publish": {
+    "provider": "generic",
+    "url": "https://artifacts.bitwarden.com/desktop"
+  },
+  "win": {
+    "electronUpdaterCompatibility": ">=0.0.1",
+    "target": ["portable", "nsis-web", "appx"],
+    "signtoolOptions": {
+      "sign": "./sign.js"
+    },
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/desktop_proxy.win32-${arch}.exe",
+        "to": "desktop_proxy.exe"
+      },
+      {
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
+        "to": "bitwarden_chromium_import_helper.exe"
+      }
+    ]
+  },
+  "nsisWeb": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": false,
+    "artifactName": "Bitwarden-Beta-Installer-${version}.${ext}",
+    "uninstallDisplayName": "${productName}",
+    "deleteAppDataOnUninstall": true,
+    "include": "installer.nsh"
+  },
+  "portable": {
+    "artifactName": "Bitwarden-Beta-Portable-${version}.${ext}"
+  },
+  "appx": {
+    "artifactName": "Bitwarden-Beta-${version}-${arch}.${ext}",
+    "backgroundColor": "#175DDC",
+    "customManifestPath": "./custom-appx-manifest.xml",
+    "applicationId": "BitwardenBeta",
+    "identityName": "8bitSolutionsLLC.BitwardenBeta",
+    "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
+    "publisherDisplayName": "Bitwarden Inc",
+    "languages": [
+      "en-US",
+      "af",
+      "ar",
+      "az-latn",
+      "be",
+      "bg",
+      "bn",
+      "bs",
+      "ca",
+      "cs",
+      "cy",
+      "da",
+      "de",
+      "el",
+      "en-gb",
+      "en-in",
+      "es",
+      "et",
+      "eu",
+      "fa",
+      "fi",
+      "fil",
+      "fr",
+      "gl",
+      "he",
+      "hi",
+      "hr",
+      "hu",
+      "id",
+      "it",
+      "ja",
+      "ka",
+      "km",
+      "kn",
+      "ko",
+      "lt",
+      "lv",
+      "ml",
+      "mr",
+      "nb",
+      "ne",
+      "nl",
+      "nn",
+      "or",
+      "pl",
+      "pt-br",
+      "pt-pt",
+      "ro",
+      "ru",
+      "si",
+      "sk",
+      "sl",
+      "sr-cyrl",
+      "sv",
+      "ta",
+      "te",
+      "th",
+      "tr",
+      "uk",
+      "vi",
+      "zh-cn",
+      "zh-tw"
+    ]
+  },
+  "protocols": [
+    {
+      "name": "Bitwarden",
+      "schemes": ["bitwarden"]
+    }
+  ]
+}

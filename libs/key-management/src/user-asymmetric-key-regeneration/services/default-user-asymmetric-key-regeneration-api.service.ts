@@ -1,12 +1,10 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 
 import { UserAsymmetricKeysRegenerationApiService } from "../abstractions/user-asymmetric-key-regeneration-api.service";
 import { KeyRegenerationRequest } from "../models/requests/key-regeneration.request";
 
-export class DefaultUserAsymmetricKeysRegenerationApiService
-  implements UserAsymmetricKeysRegenerationApiService
-{
+export class DefaultUserAsymmetricKeysRegenerationApiService implements UserAsymmetricKeysRegenerationApiService {
   constructor(private apiService: ApiService) {}
 
   async regenerateUserAsymmetricKeys(

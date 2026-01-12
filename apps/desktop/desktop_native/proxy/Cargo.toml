@@ -1,19 +1,20 @@
 [package]
-edition = "2021"
-exclude = ["index.node"]
-license = "GPL-3.0"
 name = "desktop_proxy"
-version = "0.0.0"
-publish = false
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
 
 [dependencies]
-anyhow = "=1.0.94"
-desktop_core = { path = "../core", default-features = false }
-futures = "=0.3.31"
-log = "=0.4.22"
-simplelog = "=0.12.2"
-tokio = { version = "=1.41.1", features = ["io-std", "io-util", "macros", "rt"] }
-tokio-util = { version = "=0.7.12", features = ["codec"] }
+desktop_core = { path = "../core" }
+futures = { workspace = true }
+tokio = { workspace = true, features = ["io-std", "io-util", "macros", "rt"] }
+tokio-util = { workspace = true, features = ["codec"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-embed_plist = "=1.2.2"
+embed_plist = { workspace = true }
+
+[lints]
+workspace = true

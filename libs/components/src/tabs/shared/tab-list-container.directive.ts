@@ -8,6 +8,5 @@ import { Directive } from "@angular/core";
   host: {
     class: "tw-inline-flex tw-flex-wrap tw-leading-5",
   },
-  standalone: true,
 })
 export class TabListContainerDirective {}

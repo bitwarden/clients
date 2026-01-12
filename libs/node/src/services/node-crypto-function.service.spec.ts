@@ -1,8 +1,16 @@
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DecryptParameters } from "@bitwarden/common/platform/models/domain/decrypt-parameters";
+import { EcbDecryptParameters } from "@bitwarden/common/platform/models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
 import { NodeCryptoFunctionService } from "./node-crypto-function.service";
+
+class TestSdkLoadService extends SdkLoadService {
+  protected override load(): Promise<void> {
+    // Simulate successful WASM load
+    return Promise.resolve();
+  }
+}
 
 const RsaPublicKey =
   "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAl0Vawl/toXzkEvB82FEtqHP" +
@@ -37,6 +45,10 @@ const Sha512Mac =
   "5ea7817a0b7c5d4d9b00364ccd214669131fc17fe4aca";
 
 describe("NodeCrypto Function Service", () => {
+  beforeAll(async () => {
+    await new TestSdkLoadService().loadAndInit();
+  });
+
   describe("pbkdf2", () => {
     const regular256Key = "pj9prw/OHPleXI6bRdmlaD+saJS4awrMiQsQiDjeu2I=";
     const utf8256Key = "yqvoFXgMRmHR3QPYr5pyR4uVuoHkltv9aHUP63p8n7I=";
@@ -193,8 +205,8 @@ describe("NodeCrypto Function Service", () => {
       const iv = Utils.fromBufferToB64(makeStaticByteArray(16));
       const symKey = new SymmetricCryptoKey(makeStaticByteArray(32));
       const data = "ByUF8vhyX4ddU9gcooznwA==";
-      const params = nodeCryptoFunctionService.aesDecryptFastParameters(data, iv, null, symKey);
-      const decValue = await nodeCryptoFunctionService.aesDecryptFast(params, "cbc");
+      const parameters = nodeCryptoFunctionService.aesDecryptFastParameters(data, iv, null, symKey);
+      const decValue = await nodeCryptoFunctionService.aesDecryptFast({ mode: "cbc", parameters });
       expect(decValue).toBe("EncryptMe!");
     });
   });
@@ -202,10 +214,11 @@ describe("NodeCrypto Function Service", () => {
   describe("aesDecryptFast ECB mode", () => {
     it("should successfully decrypt data", async () => {
       const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const params = new DecryptParameters<Uint8Array>();
-      params.encKey = makeStaticByteArray(32);
-      params.data = Utils.fromB64ToArray("z5q2XSxYCdQFdI+qK2yLlw==");
-      const decValue = await nodeCryptoFunctionService.aesDecryptFast(params, "ecb");
+      const parameters: EcbDecryptParameters<Uint8Array> = {
+        encKey: makeStaticByteArray(32),
+        data: Utils.fromB64ToArray("z5q2XSxYCdQFdI+qK2yLlw=="),
+      };
+      const decValue = await nodeCryptoFunctionService.aesDecryptFast({ mode: "ecb", parameters });
       expect(decValue).toBe("EncryptMe!");
     });
   });
@@ -218,6 +231,15 @@ describe("NodeCrypto Function Service", () => {
       const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
       const decValue = await nodeCryptoFunctionService.aesDecrypt(data, iv, key, "cbc");
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
+    });
+
+    it("throws if IV is not provided", async () => {
+      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
+      const key = makeStaticByteArray(32);
+      const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
+      await expect(
+        async () => await nodeCryptoFunctionService.aesDecrypt(data, null, key, "cbc"),
+      ).rejects.toThrow("Invalid initialization vector");
     });
   });
 
@@ -269,7 +291,6 @@ describe("NodeCrypto Function Service", () => {
   });
 
   describe("rsaGenerateKeyPair", () => {
-    testRsaGenerateKeyPair(1024);
     testRsaGenerateKeyPair(2048);
 
     // Generating 4096 bit keys is really slow with Forge lib.
@@ -454,7 +475,7 @@ function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string, fast = f
     const cryptoFunctionService = new NodeCryptoFunctionService();
     const value = Utils.fromUtf8ToArray("SignMe!!");
     const key = Utils.fromUtf8ToArray("secretkey");
-    let computedMac: ArrayBuffer = null;
+    let computedMac: ArrayBuffer;
     if (fast) {
       computedMac = await cryptoFunctionService.hmacFast(value, key, algorithm);
     } else {
@@ -504,7 +525,7 @@ function testCompare(fast = false) {
   });
 }
 
-function testRsaGenerateKeyPair(length: 1024 | 2048 | 4096) {
+function testRsaGenerateKeyPair(length: 2048) {
   it(
     "should successfully generate a " + length + " bit key pair",
     async () => {

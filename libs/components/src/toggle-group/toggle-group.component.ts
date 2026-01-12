@@ -1,10 +1,10 @@
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  HostBinding,
-  Input,
-  Output,
+  computed,
+  input,
+  model,
 } from "@angular/core";
 
 let nextId = 0;
@@ -12,25 +12,33 @@ let nextId = 0;
 @Component({
   selector: "bit-toggle-group",
   templateUrl: "./toggle-group.component.html",
-  preserveWhitespaces: false,
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    role: "radiogroup",
+    "[class]": "classlist()",
+  },
 })
 export class ToggleGroupComponent<TValue = unknown> {
-  private id = nextId++;
-  name = `bit-toggle-group-${this.id}`;
+  private readonly id = nextId++;
 
-  @Input({ transform: booleanAttribute }) fullWidth?: boolean;
-  @Input() selected?: TValue;
-  @Output() selectedChange = new EventEmitter<TValue>();
+  readonly name = `bit-toggle-group-${this.id}`;
 
-  @HostBinding("attr.role") role = "radiogroup";
-  @HostBinding("class")
-  get classList() {
-    return ["tw-flex"].concat(this.fullWidth ? ["tw-w-full", "[&>*]:tw-flex-1"] : []);
-  }
+  /**
+   * Whether the toggle group should take up the full width of its container.
+   * When true, each toggle button will be equally sized to fill the available space.
+   */
+  readonly fullWidth = input<boolean, unknown>(undefined, { transform: booleanAttribute });
+
+  /**
+   * The selected value in the toggle group.
+   */
+  readonly selected = model<TValue>();
+
+  protected readonly classlist = computed(() =>
+    ["tw-flex"].concat(this.fullWidth() ? ["tw-w-full", "[&>*]:tw-flex-1"] : []),
+  );
 
   onInputInteraction(value: TValue) {
-    this.selected = value;
-    this.selectedChange.emit(value);
+    this.selected.set(value);
   }
 }

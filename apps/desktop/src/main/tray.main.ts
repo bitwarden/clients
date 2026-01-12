@@ -6,8 +6,11 @@ import { app, BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage, Tray
 import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { BiometricsService } from "@bitwarden/key-management";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+import { isDev } from "../utils";
 
 import { WindowMain } from "./window.main";
 
@@ -23,6 +26,8 @@ export class TrayMain {
     private windowMain: WindowMain,
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
+    private messagingService: MessagingService,
+    private biometricService: BiometricsService,
   ) {
     if (process.platform === "win32") {
       this.icon = path.join(__dirname, "/images/icon.ico");
@@ -45,6 +50,16 @@ export class TrayMain {
       {
         label: this.i18nService.t("showHide"),
         click: () => this.toggleWindow(),
+      },
+      {
+        visible: isDev(),
+        label: "Fake Popup Select",
+        click: () => this.fakePopup(),
+      },
+      {
+        visible: isDev(),
+        label: "Fake Popup Create",
+        click: () => this.fakePopupCreate(),
       },
       { type: "separator" },
       {
@@ -70,6 +85,10 @@ export class TrayMain {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.hideToTray();
       }
+    });
+
+    win.on("restore", async () => {
+      await this.biometricService.setShouldAutopromptNow(true);
     });
 
     win.on("close", async (e: Event) => {
@@ -183,7 +202,7 @@ export class TrayMain {
         this.hideDock();
       }
     } else {
-      this.windowMain.win.show();
+      this.windowMain.show();
       if (this.isDarwin()) {
         this.showDock();
       }
@@ -195,5 +214,17 @@ export class TrayMain {
     if (this.windowMain.win != null) {
       this.windowMain.win.close();
     }
+  }
+
+  /**
+   * This method is used to test modal behavior during development and could be removed in the future.
+   * @returns
+   */
+  private async fakePopup() {
+    await this.messagingService.send("loadurl", { url: "/passkeys", modal: true });
+  }
+
+  private async fakePopupCreate() {
+    await this.messagingService.send("loadurl", { url: "/create-passkey", modal: true });
   }
 }

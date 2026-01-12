@@ -30,10 +30,12 @@ fn internal_ipc_codec<T: AsyncRead + AsyncWrite>(inner: T) -> Framed<T, LengthDe
 }
 
 /// Resolve the path to the IPC socket.
+// FIXME: Remove unwraps! They panic and terminate the whole application.
+#[allow(clippy::unwrap_used)]
 pub fn path(name: &str) -> std::path::PathBuf {
     #[cfg(target_os = "windows")]
     {
-        // Use a unique IPC pipe //./pipe/xxxxxxxxxxxxxxxxx.app.bitwarden per user.
+        // Use a unique IPC pipe //./pipe/xxxxxxxxxxxxxxxxx.s.bw per user (s for socket).
         // Hashing prevents problems with reserved characters and file length limitations.
         use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
         use sha2::Digest;
@@ -41,46 +43,46 @@ pub fn path(name: &str) -> std::path::PathBuf {
         let hash = sha2::Sha256::digest(home.as_os_str().as_encoded_bytes());
         let hash_b64 = URL_SAFE_NO_PAD.encode(hash.as_slice());
 
-        format!(r"\\.\pipe\{hash_b64}.app.{name}").into()
+        format!(r"\\.\pipe\{hash_b64}.s.{name}").into()
     }
 
-    #[cfg(all(target_os = "macos", not(debug_assertions)))]
+    #[cfg(target_os = "macos")]
     {
+        // When running in an unsandboxed environment, path is: /Users/<user>/
+        // While running sandboxed, it's different:
+        // /Users/<user>/Library/Containers/com.bitwarden.desktop/Data
         let mut home = dirs::home_dir().unwrap();
 
-        // When running in an unsandboxed environment, path is: /Users/<user>/
-        // While running sandboxed, it's different: /Users/<user>/Library/Containers/com.bitwarden.desktop/Data
-        //
-        // We want to use App Groups in /Users/<user>/Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop,
-        // so we need to remove all the components after the user.
-        // Note that we subtract 3 because the root directory is counted as a component (/, Users, <user>).
-        let num_components = home.components().count();
-        for _ in 0..num_components - 3 {
-            home.pop();
+        // Check if the app is sandboxed by looking for the Containers directory
+        let containers_position = home
+            .components()
+            .position(|c| c.as_os_str() == "Containers");
+
+        // If the app is sanboxed, we need to use the App Group directory
+        if let Some(position) = containers_position {
+            // We want to use App Groups in /Users/<user>/Library/Group
+            // Containers/LTZ2PFU5D6.com.bitwarden.desktop, so we need to remove all the
+            // components after the user. We can use the previous position to do this.
+            while home.components().count() > position - 1 {
+                home.pop();
+            }
+
+            let tmp = home.join("Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop");
+
+            // The tmp directory might not exist, so create it
+            let _ = std::fs::create_dir_all(&tmp);
+            return tmp.join(format!("s.{name}"));
         }
-
-        let tmp = home.join("Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop/tmp");
-
-        // The tmp directory might not exist, so create it
-        let _ = std::fs::create_dir_all(&tmp);
-        tmp.join(format!("app.{name}"))
     }
 
-    #[cfg(all(target_os = "macos", debug_assertions))]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
-        // When running in debug mode, we use the tmp dir because the app is not sandboxed
-        let dir = std::env::temp_dir();
-        dir.join(format!("app.{name}"))
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        // On Linux, we use the user's cache directory.
+        // On Linux and unsandboxed Mac, we use the user's cache directory.
         let home = dirs::cache_dir().unwrap();
         let path_dir = home.join("com.bitwarden.desktop");
 
-        // The chache directory might not exist, so create it
+        // The cache directory might not exist, so create it
         let _ = std::fs::create_dir_all(&path_dir);
-        path_dir.join(format!("app.{name}"))
+        path_dir.join(format!("s.{name}"))
     }
 }

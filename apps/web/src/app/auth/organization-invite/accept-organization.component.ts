@@ -4,72 +4,78 @@ import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { RegisterRouteService } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 import { BaseAcceptComponent } from "../../common/base.accept.component";
 
 import { AcceptOrganizationInviteService } from "./accept-organization.service";
-import { OrganizationInvite } from "./organization-invite";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "accept-organization.component.html",
+  standalone: false,
 })
 export class AcceptOrganizationComponent extends BaseAcceptComponent {
   orgName$ = this.acceptOrganizationInviteService.orgName$;
   protected requiredParameters: string[] = ["organizationId", "organizationUserId", "token"];
 
   constructor(
-    router: Router,
-    platformUtilsService: PlatformUtilsService,
-    i18nService: I18nService,
-    route: ActivatedRoute,
-    authService: AuthService,
-    registerRouteService: RegisterRouteService,
+    protected router: Router,
+    protected platformUtilsService: PlatformUtilsService,
+    protected i18nService: I18nService,
+    protected route: ActivatedRoute,
+    protected authService: AuthService,
     private acceptOrganizationInviteService: AcceptOrganizationInviteService,
+    private organizationInviteService: OrganizationInviteService,
+    private accountService: AccountService,
+    private toastService: ToastService,
   ) {
-    super(router, platformUtilsService, i18nService, route, authService, registerRouteService);
+    super(router, platformUtilsService, i18nService, route, authService);
   }
 
   async authedHandler(qParams: Params): Promise<void> {
-    const invite = OrganizationInvite.fromParams(qParams);
-    const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(invite);
+    const invite = this.fromParams(qParams);
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(
+      invite,
+      activeUserId,
+    );
 
     if (!success) {
       return;
     }
 
-    this.platformUtilService.showToast(
-      "success",
-      this.i18nService.t("inviteAccepted"),
-      invite.initOrganization
+    this.toastService.showToast({
+      message: invite.initOrganization
         ? this.i18nService.t("inviteInitAcceptedDesc")
-        : this.i18nService.t("inviteAcceptedDesc"),
-      { timeout: 10000 },
-    );
+        : this.i18nService.t("invitationAcceptedDesc"),
+      variant: "success",
+      timeout: 10000,
+    });
 
     await this.router.navigate(["/vault"]);
   }
 
   async unauthedHandler(qParams: Params): Promise<void> {
-    const invite = OrganizationInvite.fromParams(qParams);
-    await this.acceptOrganizationInviteService.setOrganizationInvitation(invite);
-    await this.accelerateInviteAcceptIfPossible(invite);
+    const invite = this.fromParams(qParams);
+
+    await this.organizationInviteService.setOrganizationInvitation(invite);
+    await this.navigateInviteAcceptance(invite);
   }
 
   /**
    * In certain scenarios, we want to accelerate the user through the accept org invite process
    * For example, if the user has a BW account already, we want them to be taken to login instead of creation.
    */
-  private async accelerateInviteAcceptIfPossible(invite: OrganizationInvite): Promise<void> {
-    // if orgUserHasExistingUser is null, we can't determine the user's status
-    // so we don't want to accelerate the process
-    if (invite.orgUserHasExistingUser == null) {
-      return;
-    }
-
+  private async navigateInviteAcceptance(invite: OrganizationInvite): Promise<void> {
     // if user exists, send user to login
     if (invite.orgUserHasExistingUser) {
       await this.router.navigate(["/login"], {
@@ -92,26 +98,30 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     // if SSO is disabled OR if sso is enabled but the SSO login required policy is not enabled
     // then send user to create account
 
-    // TODO: update logic when email verification flag is removed
-    let queryParams: Params;
-    let registerRoute = await firstValueFrom(this.registerRoute$);
-    if (registerRoute === "/register") {
-      queryParams = {
-        fromOrgInvite: "true",
+    // We don't need users to complete email verification if they are coming directly from an emailed invite.
+    // Therefore, we skip /signup and navigate directly to /finish-signup.
+    await this.router.navigate(["/finish-signup"], {
+      queryParams: {
         email: invite.email,
-      };
-    } else if (registerRoute === "/signup") {
-      // We have to override the base component route as we don't need users to complete email verification
-      // if they are coming directly from an emailed org invite.
-      registerRoute = "/finish-signup";
-      queryParams = {
-        email: invite.email,
-      };
-    }
-
-    await this.router.navigate([registerRoute], {
-      queryParams: queryParams,
+      },
     });
     return;
+  }
+
+  private fromParams(params: Params): OrganizationInvite | null {
+    if (params == null) {
+      return null;
+    }
+
+    return Object.assign(new OrganizationInvite(), {
+      email: params.email,
+      initOrganization: params.initOrganization?.toLocaleLowerCase() === "true",
+      orgSsoIdentifier: params.orgSsoIdentifier,
+      orgUserHasExistingUser: params.orgUserHasExistingUser?.toLocaleLowerCase() === "true",
+      organizationId: params.organizationId,
+      organizationName: params.organizationName,
+      organizationUserId: params.organizationUserId,
+      token: params.token,
+    });
   }
 }

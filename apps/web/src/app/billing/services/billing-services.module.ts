@@ -1,4 +1,8 @@
 import { NgModule } from "@angular/core";
 
-@NgModule({})
+import { BillingNotificationService } from "./billing-notification.service";
+
+@NgModule({
+  providers: [BillingNotificationService],
+})
 export class BillingServicesModule {}

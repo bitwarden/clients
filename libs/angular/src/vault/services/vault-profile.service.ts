@@ -7,11 +7,7 @@ import { ProfileResponse } from "@bitwarden/common/models/response/profile.respo
   providedIn: "root",
 })
 /**
- * Class to provide profile level details without having to call the API each time.
- * NOTE: This is a temporary service and can be replaced once the `UnauthenticatedExtensionUIRefresh` flag goes live.
- * The `UnauthenticatedExtensionUIRefresh` introduces a sync that takes place upon logging in. These details can then
- * be added to account object and retrieved from there.
- * TODO: PM-16202
+ * Class to provide profile level details to vault entities without having to call the API each time.
  */
 export class VaultProfileService {
   private apiService = inject(ApiService);
@@ -20,9 +16,6 @@ export class VaultProfileService {
 
   /** Profile creation stored as a string. */
   private profileCreatedDate: string | null = null;
-
-  /** True when 2FA is enabled on the profile. */
-  private profile2FAEnabled: boolean | null = null;
 
   /**
    * Returns the creation date of the profile.
@@ -39,25 +32,11 @@ export class VaultProfileService {
     return new Date(profile.creationDate);
   }
 
-  /**
-   * Returns whether there is a 2FA provider on the profile.
-   */
-  async getProfileTwoFactorEnabled(userId: string): Promise<boolean> {
-    if (this.profile2FAEnabled !== null && userId === this.userId) {
-      return Promise.resolve(this.profile2FAEnabled);
-    }
-
-    const profile = await this.fetchAndCacheProfile();
-
-    return profile.twoFactorEnabled;
-  }
-
   private async fetchAndCacheProfile(): Promise<ProfileResponse> {
     const profile = await this.apiService.getProfile();
 
     this.userId = profile.id;
     this.profileCreatedDate = profile.creationDate;
-    this.profile2FAEnabled = profile.twoFactorEnabled;
 
     return profile;
   }

@@ -22,10 +22,14 @@ import { KeyService } from "@bitwarden/key-management";
  */
 @Directive({
   selector: "app-user-verification",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 export class UserVerificationComponent implements ControlValueAccessor, OnInit, OnDestroy {
   private _invalidSecret = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get invalidSecret() {
     return this._invalidSecret;
@@ -43,6 +47,8 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
     }
     this.secret.updateValueAndValidity({ emitEvent: false });
   }
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() invalidSecretChange = new EventEmitter<boolean>();
 
   hasMasterPassword = true;

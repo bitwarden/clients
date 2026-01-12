@@ -1,3 +1,5 @@
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum PlanType {
   Free = 0,
   FamiliesAnnually2019 = 1,
@@ -6,7 +8,7 @@ export enum PlanType {
   EnterpriseMonthly2019 = 4,
   EnterpriseAnnually2019 = 5,
   Custom = 6,
-  FamiliesAnnually = 7,
+  FamiliesAnnually2025 = 7,
   TeamsMonthly2020 = 8,
   TeamsAnnually2020 = 9,
   EnterpriseMonthly2020 = 10,
@@ -21,4 +23,5 @@ export enum PlanType {
   EnterpriseMonthly = 19,
   EnterpriseAnnually = 20,
   TeamsStarter = 21,
+  FamiliesAnnually = 22,
 }

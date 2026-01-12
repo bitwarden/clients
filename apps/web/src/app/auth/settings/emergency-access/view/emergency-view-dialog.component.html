@@ -3,7 +3,7 @@
     {{ title }}
   </span>
   <div bitDialogContent #dialogContent>
-    <app-cipher-view [cipher]="cipher"></app-cipher-view>
+    <app-cipher-view [emergencyAccessId]="emergencyAccessId" [cipher]="cipher"></app-cipher-view>
   </div>
   <ng-container bitDialogFooter>
     <button bitButton type="button" buttonType="secondary" (click)="cancel()">

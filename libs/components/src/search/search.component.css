@@ -1,19 +1,17 @@
 /**
  * Tailwind doesn't have a good way to style search-cancel-button.
+ * Hide the default reset button that only appears in some browsers.
  */
 bit-search input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
   appearance: none;
-  height: 21px;
-  width: 21px;
-  margin: 0;
-  cursor: pointer;
-  background-repeat: no-repeat;
-  mask-image: url("./close-button.svg");
-  -webkit-mask-image: url("./close-button.svg");
-  background-color: rgba(var(--color-text-muted));
 }
 
-bit-search input[type="search"]::-webkit-search-cancel-button:hover {
-  background-color: rgba(var(--color-text-main));
+/**
+ * Style our custom reset button that works in all common browsers.
+ * Tailwind CSS does not natively support mask-image or -webkit-mask-image utilities (but can be extended if needed).
+ */
+.bw-reset-btn {
+  mask-image: url("./close-button.svg");
+  -webkit-mask-image: url("./close-button.svg");
 }

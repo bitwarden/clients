@@ -1,10 +1,14 @@
-<bit-callout type="info" *ngIf="importBlockedByPolicy">
-  {{ "personalOwnershipPolicyInEffectImports" | i18n }}
+<bit-callout
+  [title]="'restrictCardTypeImport' | i18n"
+  type="info"
+  *ngIf="isCardTypeRestricted$ | async"
+>
+  {{ "restrictCardTypeImportDesc" | i18n }}
 </bit-callout>
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="import_form_importForm">
   <bit-section>
     <bit-section-header>
-      <h2 class="tw-font-bold" bitTypography="h6">{{ "destination" | i18n }}</h2>
+      <h2 class="tw-font-medium" bitTypography="h6">{{ "destination" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
       <bit-form-field [hidden]="isFromAC">
@@ -42,14 +46,12 @@
               *ngFor="let c of collections$ | async"
               [value]="c"
               [label]="c.name"
-              icon="bwi-collection"
+              [icon]="c.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared'"
             />
           </ng-container>
         </bit-select>
         <bit-hint>{{
-          "importTargetHint"
-            | i18n
-              : (organizationId ? ("collection" | i18n | lowercase) : ("folder" | i18n | lowercase))
+          organizationId ? ("importTargetHintCollection" | i18n) : ("importTargetHintFolder" | i18n)
         }}</bit-hint>
       </bit-form-field>
     </bit-card>
@@ -57,15 +59,15 @@
 
   <bit-section>
     <bit-section-header>
-      <h2 class="tw-font-bold" bitTypography="h6">{{ "data" | i18n }}</h2>
+      <h2 class="tw-font-medium" bitTypography="h6">{{ "data" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
-      <bit-form-field class="tw-w-1/2">
+      <bit-form-field class="@2xl:tw-w-1/2">
         <bit-label>{{ "fileFormat" | i18n }}</bit-label>
         <bit-select formControlName="format">
           <bit-option value="" label="-- {{ 'select' | i18n }} --" />
           <bit-option
-            class="tw-font-bold tw-text-muted tw-text-xs"
+            class="tw-font-medium tw-text-muted tw-text-xs"
             value="-"
             label="{{ 'commonImportFormats' | i18n }}"
             disabled
@@ -94,6 +96,8 @@
           <p bitTypography="body1">
             {{ "seeDetailedInstructions" | i18n }}
             <a
+              bitLink
+              linkType="primary"
               target="_blank"
               rel="noreferrer"
               href="https://bitwarden.com/help/import-from-lastpass/"
@@ -162,20 +166,47 @@
       "Export" to save the JSON file.
     </ng-container>
     -->
-        <ng-container
-          *ngIf="format === 'chromecsv' || format === 'operacsv' || format === 'vivaldicsv'"
-        >
+        <ng-container *ngIf="showChromiumInstructions$ | async">
           <span *ngIf="format !== 'chromecsv'">
             The process is exactly the same as importing from Google Chrome.
           </span>
-          See detailed instructions on our help site at
-          <a target="_blank" rel="noreferrer" href="https://bitwarden.com/help/import-from-chrome/">
-            https://bitwarden.com/help/import-from-chrome/</a
+          <p>
+            See detailed instructions on our help site at
+            <a
+              bitLink
+              linkType="primary"
+              target="_blank"
+              rel="noreferrer"
+              href="https://bitwarden.com/help/import-from-chrome/"
+            >
+              https://bitwarden.com/help/import-from-chrome/</a
+            >
+          </p>
+          <bit-radio-group
+            [hidden]="!(browserImporterAvailable$ | async)"
+            formControlName="chromiumLoader"
           >
+            <bit-radio-button
+              class="tw-block"
+              id="import_bit-radio-button_chrome-browser"
+              value="chromium"
+            >
+              <bit-label>{{ "importDirectlyFromBrowser" | i18n }}</bit-label>
+            </bit-radio-button>
+            <bit-radio-button
+              class="tw-block"
+              id="import_bit-radio-button_chrome-file"
+              value="file"
+            >
+              <bit-label>{{ "importFromCSV" | i18n }}</bit-label>
+            </bit-radio-button>
+          </bit-radio-group>
         </ng-container>
         <ng-container *ngIf="format === 'firefoxcsv'">
           See detailed instructions on our help site at
           <a
+            bitLink
+            linkType="primary"
             target="_blank"
             rel="noreferrer"
             href="https://bitwarden.com/help/import-from-firefox/"
@@ -185,7 +216,13 @@
         </ng-container>
         <ng-container *ngIf="format === 'safaricsv'">
           See detailed instructions on our help site at
-          <a target="_blank" rel="noreferrer" href="https://bitwarden.com/help/import-from-safari/">
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://bitwarden.com/help/import-from-safari/"
+          >
             https://bitwarden.com/help/import-from-safari/</a
           >.
         </ng-container>
@@ -199,6 +236,8 @@
         >
           See detailed instructions on our help site at
           <a
+            bitLink
+            linkType="primary"
             target="_blank"
             rel="noreferrer"
             href="https://bitwarden.com/help/import-from-1password/"
@@ -289,7 +328,12 @@
         </ng-container>
         <ng-container *ngIf="format === 'gnomejson'">
           Make sure you have python-keyring and python-gnomekeyring installed. Save the
-          <a target="_blank" rel="noreferrer" href="https://bit.ly/2GpOMTg"
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://github.com/spookylukey/gnome-keyring-import-export"
             >GNOME Keyring Import/Export</a
           >
           python script to your desktop as <code>pw_helper.py</code>. Open terminal and run
@@ -395,16 +439,35 @@
           Open the FullClient, go to the Main Menu and select Export. Start the export passwords
           wizard and follow the instructions to export a CSV file.
         </ng-container>
+        <ng-container *ngIf="format === 'nordpasscsv'">
+          Log in to NordPass and open Settings &rarr; Scroll down to the Import and Export section
+          and select Export items &rarr; Enter your Master Password and select Continue. &rarr; Save
+          the CSV file on your device.
+        </ng-container>
+        <ng-container *ngIf="format === 'passworddepot17xml'">
+          On the desktop application, go to Tools &rarr; Export &rarr; Enter your master password
+          &rarr; Select XML Format (*.xml) as Export format &rarr; Click on next &rarr; Choose which
+          entries should be included in the export &rarr; Click on next to export into the location
+          previously chosen.
+        </ng-container>
       </bit-callout>
-      <import-lastpass
-        *ngIf="showLastPassOptions"
-        [formGroup]="formGroup"
-        (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
-      ></import-lastpass>
-      <div [hidden]="showLastPassOptions">
+      @if (showLastPassOptions) {
+        <import-lastpass
+          [formGroup]="formGroup"
+          (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
+        ></import-lastpass>
+      } @else if (showChromiumOptions$ | async) {
+        <import-chrome
+          [formGroup]="formGroup"
+          [onImportFromBrowser]="this.onImportFromBrowser"
+          [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
+          [format]="this.format"
+          (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
+        ></import-chrome>
+      } @else {
         <bit-form-field>
           <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
-          <div class="file-selector tw-pt-2 tw-pb-1">
+          <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
             <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
               {{ "chooseFile" | i18n }}
             </button>
@@ -429,7 +492,7 @@
             formControlName="fileContents"
           ></textarea>
         </bit-form-field>
-      </div>
+      }
     </bit-card>
   </bit-section>
 </form>

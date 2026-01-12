@@ -15,9 +15,14 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { SecretsManagerLogo } from "@bitwarden/assets/svg";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { SecretsManagerLogo } from "@bitwarden/web-vault/app/layouts/secrets-manager-logo";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
 import { OrganizationCounts } from "../models/view/counts.view";
 import { ProjectService } from "../projects/project.service";
@@ -26,9 +31,12 @@ import { ServiceAccountService } from "../service-accounts/service-account.servi
 import { SecretsManagerPortingApiService } from "../settings/services/sm-porting-api.service";
 import { CountService } from "../shared/counts/count.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-navigation",
   templateUrl: "./navigation.component.html",
+  standalone: false,
 })
 export class NavigationComponent implements OnInit, OnDestroy {
   protected readonly logo = SecretsManagerLogo;
@@ -41,6 +49,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   constructor(
     protected route: ActivatedRoute,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private countService: CountService,
     private projectService: ProjectService,
     private secretService: SecretService,
@@ -50,7 +59,15 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const org$ = this.route.params.pipe(
-      concatMap((params) => this.organizationService.get(params.organizationId)),
+      concatMap((params) =>
+        getUserId(this.accountService.activeAccount$).pipe(
+          switchMap((userId) =>
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          ),
+        ),
+      ),
       distinctUntilChanged(),
       takeUntil(this.destroy$),
     );

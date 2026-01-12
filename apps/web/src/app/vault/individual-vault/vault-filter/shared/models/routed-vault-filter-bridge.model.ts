@@ -1,4 +1,5 @@
 import { Unassigned } from "@bitwarden/admin-console/common";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
@@ -65,7 +66,7 @@ export class RoutedVaultFilterBridge implements VaultFilter {
     let type: RoutedVaultFilterItemType | undefined;
 
     if (value?.node.id === "AllItems" && this.routedFilter.organizationIdParamType === "path") {
-      type = "all";
+      type = All;
     } else if (
       value?.node.id === "AllItems" &&
       this.routedFilter.organizationIdParamType === "query"
@@ -98,7 +99,7 @@ export class RoutedVaultFilterBridge implements VaultFilter {
     return this.legacyFilter.selectedCollectionNode;
   }
   set selectedCollectionNode(value: TreeNode<CollectionFilter>) {
-    let collectionId: string | undefined;
+    let collectionId: CollectionId | All | Unassigned | undefined;
 
     if (value != null && value.node.id === null) {
       collectionId = Unassigned;
@@ -128,6 +129,9 @@ export class RoutedVaultFilterBridge implements VaultFilter {
   }
   get isDeleted(): boolean {
     return this.legacyFilter.isDeleted;
+  }
+  get isArchived(): boolean {
+    return this.legacyFilter.isArchived;
   }
   get organizationId(): string {
     return this.legacyFilter.organizationId;

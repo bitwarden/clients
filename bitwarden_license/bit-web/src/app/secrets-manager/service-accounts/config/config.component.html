@@ -11,12 +11,19 @@
           type="button"
           bitIconButton="bwi-clone"
           [bitAction]="copyIdentityUrl"
+          [label]="'copyCustomField' | i18n: identityUrl"
         ></button>
       </bit-form-field>
       <bit-form-field class="tw-w-2/5 tw-min-w-80">
         <bit-label>{{ "apiUrl" | i18n }}</bit-label>
         <input bitInput type="text" [(ngModel)]="apiUrl" [disabled]="true" />
-        <button bitSuffix type="button" bitIconButton="bwi-clone" [bitAction]="copyApiUrl"></button>
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton="bwi-clone"
+          [bitAction]="copyApiUrl"
+          [label]="'copyCustomField' | i18n: apiUrl"
+        ></button>
       </bit-form-field>
     </div>
     <bit-form-field class="tw-w-2/5 tw-min-w-80">
@@ -27,6 +34,7 @@
         type="button"
         bitIconButton="bwi-clone"
         [bitAction]="copyOrganizationId"
+        [label]="'copyCustomField' | i18n: organizationId"
       ></button>
     </bit-form-field>
   </div>

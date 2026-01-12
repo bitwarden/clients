@@ -5,12 +5,20 @@
     "target": "es6",
     "module": "CommonJS",
     "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "sourceMap": false,
     "declaration": false,
     "paths": {
       "@src/*": ["src/*"],
-      "@bitwarden/node/*": ["../../../libs/node/src/*"],
-      "@bitwarden/common/*": ["../../../libs/common/src/*"]
+      "@bitwarden/user-core": ["../../../libs/user-core/src/index.ts"],
+      "@bitwarden/storage-core": ["../../../libs/storage-core/src/index.ts"],
+      "@bitwarden/logging": ["../../../libs/logging/src/index.ts"],
+      "@bitwarden/admin-console/*": ["../../../libs/admin-console/src/*"],
+      "@bitwarden/auth/*": ["../../../libs/auth/src/*"],
+      "@bitwarden/common/*": ["../../../libs/common/src/*"],
+      "@bitwarden/key-management": ["../../../libs/key-management/src/"],
+      "@bitwarden/node/*": ["../../../libs/node/src/*"]
     },
     "plugins": [
       {

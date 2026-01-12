@@ -1,0 +1,32 @@
+<bit-simple-dialog>
+  <i
+    bitDialogIcon
+    class="bwi tw-text-3xl bwi-exclamation-triangle tw-text-warning"
+    aria-hidden="true"
+  ></i>
+  <span bitDialogTitle>{{ "decryptionError" | i18n }}</span>
+  <div bitDialogContent>
+    <p>
+      {{ "couldNotDecryptVaultItemsBelow" | i18n }}
+      <a bitLink href="#" (click)="openContactSupport($event)">{{
+        "contactCSToAvoidDataLossPart1" | i18n
+      }}</a>
+      {{ "contactCSToAvoidDataLossPart2" | i18n }}
+    </p>
+    <ul class="tw-list-none tw-pl-0">
+      <li
+        *ngFor="let id of params.cipherIds"
+        class="tw-text-code tw-font-mono tw-py-0.5"
+        (click)="selectText(listItem)"
+        #listItem
+      >
+        {{ id }}
+      </li>
+    </ul>
+  </div>
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" (click)="dialogRef.close(false)">
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

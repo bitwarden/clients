@@ -1,0 +1,9 @@
+<ng-template>
+  <div
+    role="tabpanel"
+    [ngClass]="{ 'tw-px-4 tw-py-5': !disablePadding }"
+    [attr.tabIndex]="noFocusableChildren ? 0 : undefined"
+  >
+    <ng-content></ng-content>
+  </div>
+</ng-template>

@@ -1,5 +1,5 @@
-import { PaymentMethodType } from "@bitwarden/common/billing/enums";
-import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { BaseResponse } from "../../../models/response/base.response";
+import { PaymentMethodType } from "../../enums";
 
 export class PaymentSourceResponse extends BaseResponse {
   type: PaymentMethodType;

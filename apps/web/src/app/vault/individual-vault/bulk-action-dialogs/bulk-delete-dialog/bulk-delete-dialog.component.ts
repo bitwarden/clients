@@ -1,16 +1,26 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
-import { DialogService } from "@bitwarden/components";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import {
+  CenterPositionStrategy,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 export interface BulkDeleteDialogParams {
   cipherIds?: string[];
@@ -21,10 +31,12 @@ export interface BulkDeleteDialogParams {
   unassignedCiphers?: string[];
 }
 
-export enum BulkDeleteDialogResult {
-  Deleted = "deleted",
-  Canceled = "canceled",
-}
+export const BulkDeleteDialogResult = {
+  Deleted: "deleted",
+  Canceled: "canceled",
+} as const;
+
+type BulkDeleteDialogResult = UnionOfValues<typeof BulkDeleteDialogResult>;
 
 /**
  * Strongly typed helper to open a BulkDeleteDialog
@@ -37,12 +49,18 @@ export const openBulkDeleteDialog = (
 ) => {
   return dialogService.open<BulkDeleteDialogResult, BulkDeleteDialogParams>(
     BulkDeleteDialogComponent,
-    config,
+    {
+      positionStrategy: new CenterPositionStrategy(),
+      ...config,
+    },
   );
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
+  standalone: false,
 })
 export class BulkDeleteDialogComponent {
   cipherIds: string[];
@@ -56,10 +74,11 @@ export class BulkDeleteDialogComponent {
     @Inject(DIALOG_DATA) params: BulkDeleteDialogParams,
     private dialogRef: DialogRef<BulkDeleteDialogResult>,
     private cipherService: CipherService,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private apiService: ApiService,
     private collectionService: CollectionService,
+    private toastService: ToastService,
+    private accountService: AccountService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
     this.permanent = params.permanent;
@@ -95,29 +114,35 @@ export class BulkDeleteDialogComponent {
     await Promise.all(deletePromises);
 
     if (this.cipherIds.length || this.unassignedCiphers.length) {
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.permanent ? "permanentlyDeletedItems" : "deletedItems"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(this.permanent ? "permanentlyDeletedItems" : "deletedItems"),
+      });
     }
     if (this.collections.length) {
-      await this.collectionService.delete(this.collections.map((c) => c.id));
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("deletedCollections"),
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.collectionService.delete(
+        this.collections.map((c) => c.id as CollectionId),
+        userId,
       );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("deletedCollections"),
+      });
     }
     this.close(BulkDeleteDialogResult.Deleted);
   };
 
   private async deleteCiphers(): Promise<any> {
     const asAdmin = this.organization?.canEditAllCiphers;
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.permanent) {
-      await this.cipherService.deleteManyWithServer(this.cipherIds, asAdmin);
+      await this.cipherService.deleteManyWithServer(this.cipherIds, activeUserId, asAdmin);
     } else {
-      await this.cipherService.softDeleteManyWithServer(this.cipherIds, asAdmin);
+      await this.cipherService.softDeleteManyWithServer(this.cipherIds, activeUserId, asAdmin);
     }
   }
 
@@ -134,11 +159,11 @@ export class BulkDeleteDialogComponent {
     // From org vault
     if (this.organization) {
       if (this.collections.some((c) => !c.canDelete(this.organization))) {
-        this.platformUtilsService.showToast(
-          "error",
-          this.i18nService.t("errorOccurred"),
-          this.i18nService.t("missingPermissions"),
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("missingPermissions"),
+        });
         return;
       }
       return await this.apiService.deleteManyCollections(
@@ -151,11 +176,11 @@ export class BulkDeleteDialogComponent {
       for (const organization of this.organizations) {
         const orgCollections = this.collections.filter((o) => o.organizationId === organization.id);
         if (orgCollections.some((c) => !c.canDelete(organization))) {
-          this.platformUtilsService.showToast(
-            "error",
-            this.i18nService.t("errorOccurred"),
-            this.i18nService.t("missingPermissions"),
-          );
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: this.i18nService.t("missingPermissions"),
+          });
           return;
         }
         const orgCollectionIds = orgCollections.map((c) => c.id);

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FormControl } from "@angular/forms";
 
 import { trimValidator as validate } from "./trim.validator";
@@ -58,6 +56,6 @@ describe("trimValidator", () => {
   });
 });
 
-function createControl(input: string) {
+function createControl(input: string | null) {
   return new FormControl(input);
 }

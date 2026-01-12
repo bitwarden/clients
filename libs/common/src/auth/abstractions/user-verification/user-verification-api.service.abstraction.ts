@@ -1,13 +1,11 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
 import { VerifyOTPRequest } from "../../models/request/verify-otp.request";
 import { MasterPasswordPolicyResponse } from "../../models/response/master-password-policy.response";
 
 export abstract class UserVerificationApiServiceAbstraction {
-  postAccountVerifyOTP: (request: VerifyOTPRequest) => Promise<void>;
-  postAccountRequestOTP: () => Promise<void>;
-  postAccountVerifyPassword: (
+  abstract postAccountVerifyOTP(request: VerifyOTPRequest): Promise<void>;
+  abstract postAccountRequestOTP(): Promise<void>;
+  abstract postAccountVerifyPassword(
     request: SecretVerificationRequest,
-  ) => Promise<MasterPasswordPolicyResponse>;
+  ): Promise<MasterPasswordPolicyResponse>;
 }

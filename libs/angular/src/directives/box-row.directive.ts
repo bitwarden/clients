@@ -4,6 +4,7 @@ import { Directive, ElementRef, HostListener, OnInit } from "@angular/core";
 
 @Directive({
   selector: "[appBoxRow]",
+  standalone: false,
 })
 export class BoxRowDirective implements OnInit {
   el: HTMLElement = null;

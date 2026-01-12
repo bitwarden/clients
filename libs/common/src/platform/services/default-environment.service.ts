@@ -133,6 +133,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
   );
 
   environment$: Observable<Environment>;
+  globalEnvironment$: Observable<Environment>;
   cloudWebVaultUrl$: Observable<string>;
 
   constructor(
@@ -147,6 +148,10 @@ export class DefaultEnvironmentService implements EnvironmentService {
       // Use == here to not trigger on undefined -> null transition
       distinctUntilChanged((oldUserId: UserId, newUserId: UserId) => oldUserId == newUserId),
     );
+
+    this.globalEnvironment$ = this.stateProvider
+      .getGlobal(GLOBAL_ENVIRONMENT_KEY)
+      .state$.pipe(map((state) => this.buildEnvironment(state?.region, state?.urls)));
 
     this.environment$ = account$.pipe(
       switchMap((userId) => {
@@ -263,7 +268,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
     return new SelfHostedEnvironment(urls);
   }
 
-  async setCloudRegion(userId: UserId, region: CloudRegion) {
+  async setCloudRegion(userId: UserId | null, region: CloudRegion) {
     if (userId == null) {
       await this.globalCloudRegionState.update(() => region);
     } else {
@@ -271,19 +276,8 @@ export class DefaultEnvironmentService implements EnvironmentService {
     }
   }
 
-  getEnvironment$(userId?: UserId): Observable<Environment | undefined> {
-    if (userId == null) {
-      return this.environment$;
-    }
-
-    return this.activeAccountId$.pipe(
-      switchMap((activeUserId) => {
-        // Previous rules dictated that we only get from user scoped state if there is an active user.
-        if (activeUserId == null) {
-          return this.globalState.state$;
-        }
-        return this.stateProvider.getUser(userId ?? activeUserId, USER_ENVIRONMENT_KEY).state$;
-      }),
+  getEnvironment$(userId: UserId): Observable<Environment> {
+    return this.stateProvider.getUser(userId, USER_ENVIRONMENT_KEY).state$.pipe(
       map((state) => {
         return this.buildEnvironment(state?.region, state?.urls);
       }),
@@ -294,7 +288,10 @@ export class DefaultEnvironmentService implements EnvironmentService {
    * @deprecated Use getEnvironment$ instead.
    */
   async getEnvironment(userId?: UserId): Promise<Environment | undefined> {
-    return firstValueFrom(this.getEnvironment$(userId));
+    // Add backwards compatibility support for null userId
+    const definedUserId = userId ?? (await firstValueFrom(this.activeAccountId$));
+
+    return firstValueFrom(this.getEnvironment$(definedUserId));
   }
 
   async seedUserEnvironment(userId: UserId) {

@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./icon-button.stories";
 
@@ -8,16 +8,8 @@ import * as stories from "./icon-button.stories";
 import { IconButtonModule } from "@bitwarden/components";
 ```
 
-# Icon Button
-
-Icon buttons are used when no text accompanies the button. It consists of an icon that may be
-updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label`.
-
-The most common use of the icon button is in the banner, toast, and modal components as a close
-button. It can also be found in tables as the 3 dot option menu, or on navigation list items when
-there are options that need to be collapsed into a menu.
-
-Similar to the main button components, spacing between multiple icon buttons should be .5rem.
+<Title />
+<Description />
 
 <Primary />
 <Controls />
@@ -31,58 +23,44 @@ Icon buttons can be found in other components such as: the
 
 ## Styles
 
-There are 4 common styles for button main, muted, contrast, and danger. The other styles follow the
-button component styles.
-
 ### Main
 
 Used for general icon buttons appearing on the theme’s main `background`
 
-<Story of={stories.Main} />
+<Canvas of={stories.Main} />
 
 ### Muted
 
 Used for low emphasis icon buttons appearing on the theme’s main `background`
 
-<Story of={stories.Muted} />
+<Canvas of={stories.Muted} />
 
 ### Contrast
 
 Used on a theme’s colored or contrasting backgrounds such as in the navigation or on toasts and
 banners.
 
-<Story of={stories.Contrast} />
+<Canvas of={stories.Contrast} />
 
 ### Danger
 
 Danger is used for “trash” actions throughout the experience, most commonly in the bottom right of
 the dialog component.
 
-<Story of={stories.Danger} />
+<Canvas of={stories.Danger} />
 
 ### Primary
 
 Used in place of the main button component if no text is used. This allows the button to display
 square.
 
-<Story of={stories.Primary} />
+<Canvas of={stories.Primary} />
 
-### Secondary
+### Nav Contrast
 
-Used in place of the main button component if no text is used. This allows the button to display
-square.
+Used on the side nav background that is dark in both light theme and dark theme.
 
-<Story of={stories.Secondary} />
-
-### Light
-
-Used on a background that is dark in both light theme and dark theme. Example: end user navigation
-styles.
-
-<Story of={stories.Light} />
-
-**Note:** Main and contrast styles appear on backgrounds where using `primary-700` as a focus
-indicator does not meet WCAG graphic contrast guidelines.
+<Canvas of={stories.NavContrast} />
 
 ## Sizes
 
@@ -93,20 +71,15 @@ with less padding around the icon, such as in the navigation component.
 
 ### Small
 
-<Story of={stories.Small} />
+<Canvas of={stories.Small} />
 
 ### Default
 
-<Story of={stories.Default} />
+<Canvas of={stories.Default} />
 
 ## Accessibility
 
 Follow guidelines outlined in the [Button docs](?path=/docs/component-library-button--doc)
 
-Always use the `appA11yTitle` directive set to a string that describes the action of the
-icon-button. This will auto assign the same string to the `title` and `aria-label` attributes.
-
-`aria-label` allows assistive technology to announce the action the button takes to the users.
-
-`title` attribute provides a user with the browser tool tip if they do not understand what the icon
-is indicating.
+label input will be used to set the `aria-label` attributes on the button. This is for accessibility
+purposes, as it provides a text alternative for the icon button.

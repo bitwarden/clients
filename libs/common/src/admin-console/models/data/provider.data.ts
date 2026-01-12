@@ -1,4 +1,9 @@
-import { ProviderStatusType, ProviderUserStatusType, ProviderUserType } from "../../enums";
+import {
+  ProviderStatusType,
+  ProviderType,
+  ProviderUserStatusType,
+  ProviderUserType,
+} from "../../enums";
 import { ProfileProviderResponse } from "../response/profile-provider.response";
 
 export class ProviderData {
@@ -10,6 +15,7 @@ export class ProviderData {
   userId: string;
   useEvents: boolean;
   providerStatus: ProviderStatusType;
+  providerType: ProviderType;
 
   constructor(response: ProfileProviderResponse) {
     this.id = response.id;
@@ -20,5 +26,6 @@ export class ProviderData {
     this.userId = response.userId;
     this.useEvents = response.useEvents;
     this.providerStatus = response.providerStatus;
+    this.providerType = response.providerType;
   }
 }

@@ -2,8 +2,9 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { StateProvider } from "@bitwarden/common/platform/state";
 
 import { GeneratorStrategy } from "../abstractions";
-import { Policies, DefaultPasswordGenerationOptions } from "../data";
+import { DefaultPasswordGenerationOptions } from "../data";
 import { PasswordRandomizer } from "../engine";
+import { PasswordGeneratorOptionsEvaluator, passwordLeastPrivilege } from "../policies";
 import { mapPolicyToEvaluator } from "../rx";
 import { PasswordGenerationOptions, PasswordGeneratorPolicy } from "../types";
 import { observe$PerUserId, optionsToRandomAsciiRequest, sharedStateByUserId } from "../util";
@@ -11,9 +12,10 @@ import { observe$PerUserId, optionsToRandomAsciiRequest, sharedStateByUserId } f
 import { PASSWORD_SETTINGS } from "./storage";
 
 /** Generates passwords composed of random characters */
-export class PasswordGeneratorStrategy
-  implements GeneratorStrategy<PasswordGenerationOptions, PasswordGeneratorPolicy>
-{
+export class PasswordGeneratorStrategy implements GeneratorStrategy<
+  PasswordGenerationOptions,
+  PasswordGeneratorPolicy
+> {
   /** instantiates the password generator strategy.
    *  @param legacy generates the password
    */
@@ -27,7 +29,20 @@ export class PasswordGeneratorStrategy
   defaults$ = observe$PerUserId(() => DefaultPasswordGenerationOptions);
   readonly policy = PolicyType.PasswordGenerator;
   toEvaluator() {
-    return mapPolicyToEvaluator(Policies.Password);
+    return mapPolicyToEvaluator({
+      type: PolicyType.PasswordGenerator,
+      disabledValue: {
+        minLength: 0,
+        useUppercase: false,
+        useLowercase: false,
+        useNumbers: false,
+        numberCount: 0,
+        useSpecial: false,
+        specialCount: 0,
+      },
+      combine: passwordLeastPrivilege,
+      createEvaluator: (policy) => new PasswordGeneratorOptionsEvaluator(policy),
+    });
   }
 
   // algorithm

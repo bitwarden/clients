@@ -1,5 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
@@ -143,11 +142,14 @@ export function setElementStyles(
   }
 
   for (const styleProperty in styles) {
-    element.style.setProperty(
-      styleProperty.replace(/([a-z])([A-Z])/g, "$1-$2"), // Convert camelCase to kebab-case
-      styles[styleProperty],
-      priority ? "important" : undefined,
-    );
+    const styleValue = styles[styleProperty];
+    if (styleValue !== undefined) {
+      element.style.setProperty(
+        styleProperty.replace(/([a-z])([A-Z])/g, "$1-$2"), // Convert camelCase to kebab-case
+        styleValue,
+        priority ? "important" : undefined,
+      );
+    }
   }
 }
 
@@ -174,12 +176,13 @@ export function setupExtensionDisconnectAction(callback: (port: chrome.runtime.P
  * @param windowContext - The global window context
  */
 export function setupAutofillInitDisconnectAction(windowContext: Window) {
-  if (!windowContext.bitwardenAutofillInit) {
+  const bitwardenAutofillInit = windowContext.bitwardenAutofillInit;
+  if (!bitwardenAutofillInit) {
     return;
   }
 
   const onDisconnectCallback = () => {
-    windowContext.bitwardenAutofillInit.destroy();
+    bitwardenAutofillInit.destroy();
     delete windowContext.bitwardenAutofillInit;
   };
   setupExtensionDisconnectAction(onDisconnectCallback);
@@ -356,7 +359,7 @@ export function getAttributeBoolean(
  */
 export function getPropertyOrAttribute(element: HTMLElement, attributeName: string): string | null {
   if (attributeName in element) {
-    return (element as FormElementWithAttribute)[attributeName];
+    return (element as FormElementWithAttribute)[attributeName] ?? null;
   }
 
   return element.getAttribute(attributeName);
@@ -368,9 +371,12 @@ export function getPropertyOrAttribute(element: HTMLElement, attributeName: stri
  * @param callback - The callback function to throttle.
  * @param limit - The time in milliseconds to throttle the callback.
  */
-export function throttle(callback: (_args: any) => any, limit: number) {
+export function throttle<FunctionType extends (...args: unknown[]) => unknown>(
+  callback: FunctionType,
+  limit: number,
+): (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) => void {
   let waitingDelay = false;
-  return function (...args: unknown[]) {
+  return function (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) {
     if (!waitingDelay) {
       callback.apply(this, args);
       waitingDelay = true;
@@ -386,9 +392,14 @@ export function throttle(callback: (_args: any) => any, limit: number) {
  * @param delay - The time in milliseconds to debounce the callback.
  * @param immediate - Determines whether the callback should run immediately.
  */
-export function debounce(callback: (_args: any) => any, delay: number, immediate?: boolean) {
-  let timeout: NodeJS.Timeout;
-  return function (...args: unknown[]) {
+export function debounce<FunctionType extends (...args: unknown[]) => unknown>(
+  callback: FunctionType,
+  delay: number,
+  immediate?: boolean,
+): (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) => void {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  return function (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) {
     const callImmediately = !!immediate && !timeout;
 
     if (timeout) {
@@ -429,16 +440,17 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
 
   const keywordsSet = new Set<string>();
   for (let i = 0; i < keywords.length; i++) {
-    if (typeof keywords[i] === "string") {
+    const keyword = keywords[i];
+    if (typeof keyword === "string") {
       // Iterate over all keywords metadata and split them by non-letter characters.
       // This ensures we check against individual words and not the entire string.
-      keywords[i]
+      keyword
         .toLowerCase()
         .replace(/[-\s]/g, "")
         .split(/[^\p{L}]+/gu)
-        .forEach((keyword) => {
-          if (keyword) {
-            keywordsSet.add(keyword);
+        .forEach((splitKeyword) => {
+          if (splitKeyword) {
+            keywordsSet.add(splitKeyword);
           }
         });
     }
@@ -498,11 +510,24 @@ export function isInvalidResponseStatusCode(statusCode: number) {
  * Determines if the current context is within a sandboxed iframe.
  */
 export function currentlyInSandboxedIframe(): boolean {
-  return (
-    String(self.origin).toLowerCase() === "null" ||
-    globalThis.frameElement?.hasAttribute("sandbox") ||
-    globalThis.location.hostname === ""
-  );
+  if (String(self.origin).toLowerCase() === "null" || globalThis.location.hostname === "") {
+    return true;
+  }
+
+  const sandbox = globalThis.frameElement?.getAttribute?.("sandbox");
+
+  // No frameElement or sandbox attribute means not sandboxed
+  if (sandbox === null || sandbox === undefined) {
+    return false;
+  }
+
+  // An empty string means fully sandboxed
+  if (sandbox === "") {
+    return true;
+  }
+
+  const tokens = new Set(sandbox.toLowerCase().split(" "));
+  return !["allow-scripts", "allow-same-origin"].every((token) => tokens.has(token));
 }
 
 /**
@@ -544,3 +569,31 @@ export const specialCharacterToKeyMap: Record<string, string> = {
   "?": "questionCharacterDescriptor",
   "/": "forwardSlashCharacterDescriptor",
 };
+
+/**
+ * Determines if the current rect values are not all 0.
+ */
+export function rectHasSize(rect: FieldRect): boolean {
+  if (rect.right > 0 && rect.left > 0 && rect.top > 0 && rect.bottom > 0) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Checks if all the values corresponding to the specified keys in an object are null.
+ * If no keys are specified, checks all keys in the object.
+ *
+ * @param obj - The object to check.
+ * @param keys - An optional array of keys to check in the object. Defaults to all keys.
+ * @returns Returns true if all values for the specified keys (or all keys if none are provided) are null; otherwise, false.
+ */
+export function areKeyValuesNull<T extends Record<string, any>>(
+  obj: T,
+  keys?: Array<keyof T>,
+): boolean {
+  const keysToCheck = keys && keys.length > 0 ? keys : (Object.keys(obj) as Array<keyof T>);
+
+  return keysToCheck.every((key) => obj[key] == null);
+}
