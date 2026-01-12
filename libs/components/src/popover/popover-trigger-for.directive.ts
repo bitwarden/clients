@@ -103,6 +103,10 @@ export class PopoverTriggerForDirective implements OnDestroy {
 
   @HostListener("click")
   togglePopover() {
+    if (this.isDestroyed) {
+      return;
+    }
+
     if (this.popoverOpen()) {
       this.closePopover();
     } else {
