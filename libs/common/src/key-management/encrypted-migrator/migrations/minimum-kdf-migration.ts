@@ -51,17 +51,17 @@ export class MinimumKdfMigration implements EncryptedMigration {
     }
 
     // Only PBKDF2 users below the minimum iteration count need migration
-    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
-    if (
-      kdfConfig.kdfType !== KdfType.PBKDF2_SHA256 ||
-      kdfConfig.iterations >= PBKDF2KdfConfig.ITERATIONS.min
-    ) {
-      return "noMigrationNeeded";
-    }
+    // const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
+    // if (
+    //   kdfConfig.kdfType !== KdfType.PBKDF2_SHA256 ||
+    //   kdfConfig.iterations >= PBKDF2KdfConfig.ITERATIONS.min
+    // ) {
+    //   return "noMigrationNeeded";
+    // }
 
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.ForceUpdateKDFSettings))) {
-      return "noMigrationNeeded";
-    }
+    // if (!(await this.configService.getFeatureFlag(FeatureFlag.ForceUpdateKDFSettings))) {
+    //   return "noMigrationNeeded";
+    // }
 
     return "needsMigrationWithMasterPassword";
   }

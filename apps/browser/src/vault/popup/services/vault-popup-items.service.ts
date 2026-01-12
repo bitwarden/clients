@@ -111,9 +111,20 @@ export class VaultPopupItemsService {
       filter((userId): userId is UserId => userId != null),
       switchMap((userId) =>
         merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
+          tap((ciphers) => {
+            console.log(
+              `[vault popup items service] fetched ${ciphers} ciphers for user ${userId}`,
+            );
+          }),
           runInsideAngular(this.ngZone),
+          tap(() => {
+            console.log("[vault popup items service] ran in angular");
+          }),
           tap(() => this._ciphersLoading$.next()),
           waitUntilSync(this.syncService),
+          tap(() => {
+            console.log("[vault popup items service] user sync completed");
+          }),
           switchMap(() =>
             combineLatest([
               this.cipherService
@@ -123,6 +134,9 @@ export class VaultPopupItemsService {
               this.restrictedItemTypesService.restricted$,
             ]),
           ),
+          tap(() => {
+            console.log("[vault popup items service] processing decrypted ciphers");
+          }),
           map(([ciphers, failedToDecryptCiphers, restrictions]) => {
             const allCiphers = [...(failedToDecryptCiphers || []), ...ciphers];
 
@@ -185,6 +199,9 @@ export class VaultPopupItemsService {
     this.vaultPopupListFiltersService.filterFunction$,
     getUserId(this.accountService.activeAccount$),
   ]).pipe(
+    tap(() => {
+      console.log("[vault popup items service] filtering ciphers started");
+    }),
     map(
       ([ciphers, searchText, filterFunction, userId]): [PopupCipherViewLike[], string, UserId] => [
         filterFunction(ciphers),
@@ -192,12 +209,18 @@ export class VaultPopupItemsService {
         userId,
       ],
     ),
+    tap(() => {
+      console.log("[vault popup items service] ciphers filtered, starting search");
+    }),
     switchMap(
       ([ciphers, searchText, userId]) =>
         this.searchService.searchCiphers(userId, searchText, undefined, ciphers) as Promise<
           PopupCipherViewLike[]
         >,
     ),
+    tap(() => {
+      console.log("[vault popup items service] ciphers searched");
+    }),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -218,7 +241,13 @@ export class VaultPopupItemsService {
       }
       return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
     }),
+    tap(() => {
+      console.log("[vault popup items service] autofill ciphers emitted");
+    }),
     map((ciphers) => ciphers.sort(this.sortCiphersForAutofill.bind(this))),
+    tap(() => {
+      console.log("[vault popup items service] autofill ciphers sorted");
+    }),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -227,11 +256,23 @@ export class VaultPopupItemsService {
    * Ciphers are sorted by name.
    */
   favoriteCiphers$: Observable<PopupCipherViewLike[]> = this.autoFillCiphers$.pipe(
+    tap(() => {
+      console.log("[vault popup items service] favorite ciphers emitted");
+    }),
     withLatestFrom(this._filteredCipherList$),
+    tap(() => {
+      console.log("[vault popup items service] fav ciphers 1");
+    }),
     map(([autoFillCiphers, ciphers]) =>
       ciphers.filter((cipher) => cipher.favorite && !autoFillCiphers.includes(cipher)),
     ),
+    tap(() => {
+      console.log("[vault popup items service] fav ciphers 2");
+    }),
     shareReplay({ refCount: false, bufferSize: 1 }),
+    tap(() => {
+      console.log("[vault popup items service] favorite ciphers emitted complete");
+    })
   );
 
   /**
@@ -239,17 +280,26 @@ export class VaultPopupItemsService {
    * Ciphers are sorted by name.
    */
   remainingCiphers$: Observable<PopupCipherViewLike[]> = this.favoriteCiphers$.pipe(
+    tap(() => {
+      console.log("[vault popup items service] remaining ciphers 1");
+    }),
     concatMap(
       (
         favoriteCiphers, // concatMap->of is used to make withLatestFrom lazy to avoid race conditions with autoFillCiphers$
       ) =>
         of(favoriteCiphers).pipe(withLatestFrom(this._filteredCipherList$, this.autoFillCiphers$)),
     ),
+    tap(() => {
+      console.log("[vault popup items service] remaining ciphers 2");
+    }),
     map(([favoriteCiphers, ciphers, autoFillCiphers]) =>
       ciphers.filter(
         (cipher) => !autoFillCiphers.includes(cipher) && !favoriteCiphers.includes(cipher),
       ),
     ),
+    tap(() => {
+      console.log("[vault popup items service] remaining ciphers 3");
+    }),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -257,8 +307,16 @@ export class VaultPopupItemsService {
    * Observable that indicates whether the service is currently loading ciphers.
    */
   loading$: Observable<boolean> = merge(
-    this._ciphersLoading$.pipe(map(() => true)),
-    this.remainingCiphers$.pipe(map(() => false)),
+    this._ciphersLoading$.pipe(
+      tap(() => {
+        console.log("[vault popup items service] ciphers loading emitted")
+      }),
+      map(() => true)),
+    this.remainingCiphers$.pipe(
+      tap(() => {
+        console.log("[vault popup items service] remaining ciphers emitted");
+      }),
+      map(() => false)),
   ).pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
 
   /** Observable that indicates whether there is search text present.

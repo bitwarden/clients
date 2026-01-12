@@ -12,6 +12,7 @@ import {
   shareReplay,
   switchMap,
   take,
+tap,
 } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -116,10 +117,12 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
     this.deleted = deleted ?? false;
     this.archived = archived;
     await this.applyFilter(filter);
+    console.log("set loaded", { filter, deleted, archived });
     this.loaded = true;
   }
 
   async reload(filter: (cipher: C) => boolean = null, deleted = false, archived = false) {
+    console.log("reload", { filter, deleted, archived });
     this.loaded = false;
     await this.load(filter, deleted, archived);
   }
@@ -182,7 +185,11 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
             this.restrictedItemTypesService.restricted$,
           ]),
         ),
+        tap(() => {
+          console.log("VaultItemsComponent: Loading ciphers...");
+        }),
         switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
+          console.log("VaultItemsComponent: Applying search and filters...");
           let allCiphers = (indexedCiphers ?? []) as C[];
           const _failedCiphers = failedCiphers ?? [];
 
@@ -191,6 +198,7 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
           const restrictedTypeFilter = (cipher: CipherViewLike) =>
             !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
 
+          console.log("VaultItemsComponent: Searching ciphers with text:", searchText);
           return this.searchService.searchCiphers(
             userId,
             searchText,
@@ -198,9 +206,13 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
             allCiphers,
           );
         }),
+        tap((ciphers) => {
+          console.log("VaultItemsComponent: Found ciphers:", ciphers);
+        }),
         takeUntilDestroyed(),
       )
       .subscribe((ciphers) => {
+        console.log("loaded", ciphers);
         this.ciphers = ciphers;
         this.loaded = true;
       });

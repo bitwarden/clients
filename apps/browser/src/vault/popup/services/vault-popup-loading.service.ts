@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, map, shareReplay, startWith } from "rxjs";
+import { combineLatest, map, shareReplay, startWith,tap } from "rxjs";
 
 import { VaultPopupCopyButtonsService } from "./vault-popup-copy-buttons.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
@@ -15,12 +15,24 @@ export class VaultPopupLoadingService {
 
   /** Loading state of the vault */
   loading$ = combineLatest([
-    this.vaultPopupItemsService.loading$,
-    this.vaultPopupListFiltersService.allFilters$,
+    this.vaultPopupItemsService.loading$
+      .pipe(tap(loading => {
+        console.log("[vault popup loading service] vault popup items loading state:", loading);
+      })),
+    this.vaultPopupListFiltersService.allFilters$
+      .pipe(tap(loading => {
+        console.log("[vault popup loading service] vault poupuplist items loading state:", loading);
+      })),
     // Added as a dependency to avoid flashing the copyActions on slower devices
-    this.vaultCopyButtonsService.showQuickCopyActions$,
+    this.vaultCopyButtonsService.showQuickCopyActions$
+      .pipe(tap(loading => {
+        console.log("[vault popup loading service] vault copy buttons loading state:", loading);
+      })),
   ]).pipe(
     map(([itemsLoading, filters]) => itemsLoading || !filters),
+    tap(loading => {
+      console.log("[vault popup loading service] combined vault loading state:", loading);
+    }),
     shareReplay({ bufferSize: 1, refCount: true }),
     startWith(true),
   );

@@ -67,33 +67,33 @@ export class DefaultEncryptedMigrationsSchedulerService implements EncryptedMigr
     );
 
     // For all accounts, if the auth status changes to unlocked or a sync happens, prompt for migration
-    this.accountService.accounts$
-      .pipe(
-        switchMap((accounts) => {
-          const userIds = Object.keys(accounts) as UserId[];
+    // this.accountService.accounts$
+    //   .pipe(
+    //     switchMap((accounts) => {
+    //       const userIds = Object.keys(accounts) as UserId[];
 
-          if (userIds.length === 0) {
-            return of([]);
-          }
+    //       if (userIds.length === 0) {
+    //         return of([]);
+    //       }
 
-          return combineLatest(
-            userIds.map((userId) =>
-              combineLatest([
-                this.authService.authStatusFor$(userId),
-                this.syncService.lastSync$(userId).pipe(filter((lastSync) => lastSync != null)),
-                this.url$,
-              ]).pipe(
-                filter(
-                  ([authStatus, _date, url]) =>
-                    authStatus === AuthenticationStatus.Unlocked && VAULT_ROUTES.includes(url),
-                ),
-                concatMap(() => this.runMigrationsIfNeeded(userId)),
-              ),
-            ),
-          );
-        }),
-      )
-      .subscribe();
+    //       return combineLatest(
+    //         userIds.map((userId) =>
+    //           combineLatest([
+    //             this.authService.authStatusFor$(userId),
+    //             this.syncService.lastSync$(userId).pipe(filter((lastSync) => lastSync != null)),
+    //             this.url$,
+    //           ]).pipe(
+    //             filter(
+    //               ([authStatus, _date, url]) =>
+    //                 authStatus === AuthenticationStatus.Unlocked && VAULT_ROUTES.includes(url),
+    //             ),
+    //             concatMap(() => this.runMigrationsIfNeeded(userId)),
+    //           ),
+    //         ),
+    //       );
+    //     }),
+    //   )
+    //   .subscribe();
   }
 
   async runMigrationsIfNeeded(userId: UserId): Promise<void> {
