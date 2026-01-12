@@ -101,7 +101,7 @@
     }
   },
   "new": {
-    "message": "New",
+    "message": "Yeni",
     "description": "for adding new items"
   },
   "newUri": {
@@ -2416,7 +2416,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLink": {
-    "message": "Copy Send link",
+    "message": "\"Send\" keçidini kopyala",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -4040,14 +4040,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "Heç bir axtarış nəticəsi qayıtmadı"
   },
   "sendsBodyNoItems": {
     "message": "İstənilən platformada faylları və veriləri hər kəslə güvənli şəkildə paylaşın. Məlumatlarınız, ifşa olunmamaq üçün ucdan-uca şifrələnmiş qalacaq.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
   },
   "generatorNudgeTitle": {
     "message": "Cəld parol yaradın"
@@ -4268,7 +4268,7 @@
     "message": "Yazma qısayolu"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
+    "message": "Aşağıdakı dəyişdiricilərdən birini və ya ikisini daxil edin: Ctrl, Alt, Win və bir hərf."
   },
   "invalidShortcut": {
     "message": "Yararsız qısayol"
@@ -4307,7 +4307,7 @@
     "message": "Arxivdən çıxart"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arxivləndi"
   },
   "itemsInArchive": {
     "message": "Arxivdəki elementlər"
@@ -4331,19 +4331,19 @@
     "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Arxivdən çıxart və saxla"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "\"Premium\"u yenidən başlat"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Premium abunəliyiniz bitdi"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Element bərpa edildi"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / Poçt kodu"

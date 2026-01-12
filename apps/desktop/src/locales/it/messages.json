@@ -4268,7 +4268,7 @@
     "message": "Premi i tasti da impostare per la scorciatoia"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
+    "message": "Includi uno o due tasti modificatori a scelta tra Ctrl, Alt e Win."
   },
   "invalidShortcut": {
     "message": "Scorciatoia non valida"
