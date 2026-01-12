@@ -436,8 +436,8 @@
   "sync": {
     "message": "Synchronizace"
   },
-  "syncVaultNow": {
-    "message": "Synchronizovat trezor nyní"
+  "syncNow": {
+    "message": "Synchronizovat nyní"
   },
   "lastSync": {
     "message": "Poslední synchronizace:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Webová aplikace Bitwardenu"
-  },
-  "importItems": {
-    "message": "Importovat položky"
   },
   "select": {
     "message": "Vybrat"
@@ -576,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Položka byla přesunuta do archivu"
   },
+  "itemWasUnarchived": {
+    "message": "Položka byla odebrána z archivu"
+  },
   "itemUnarchived": {
     "message": "Položka byla odebrána z archivu"
   },
@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
   },
+  "upgradeToUseArchive": {
+    "message": "Pro použití funkce Archiv je potřebné prémiové členství."
+  },
+  "itemRestored": {
+    "message": "Položka byla obnovena"
+  },
   "edit": {
     "message": "Upravit"
   },
@@ -592,6 +598,9 @@
     "message": "Zobrazit"
   },
   "viewAll": {
+    "message": "Zobrazit vše"
+  },
+  "showAll": {
     "message": "Zobrazit vše"
   },
   "viewLess": {
@@ -1319,8 +1328,21 @@
   "exportFrom": {
     "message": "Exportovat z"
   },
-  "exportVault": {
-    "message": "Exportovat trezor"
+  "exportVerb": {
+    "message": "Exportovat",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importovat",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formát souboru"
@@ -1400,6 +1422,27 @@
   "learnMore": {
     "message": "Dozvědět se více"
   },
+  "migrationsFailed": {
+    "message": "Došlo k chybě při aktualizaci nastavení šifrování."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Aktualizovat nastavení šifrování"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Pro pokračování potvrďte svou identitu"
+  },
+  "enterYourMasterPassword": {
+    "message": "Zadejte své hlavní heslo"
+  },
+  "updateSettings": {
+    "message": "Aktualizovat nastavení"
+  },
+  "later": {
+    "message": "Později"
+  },
   "authenticatorKeyTotp": {
     "message": "Autentizační klíč (TOTP)"
   },
@@ -1430,6 +1473,15 @@
   "attachmentSaved": {
     "message": "Příloha byla uložena"
   },
+  "fixEncryption": {
+    "message": "Opravit šifrování"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Tento soubor používá zastaralou šifrovací metodu."
+  },
+  "attachmentUpdated": {
+    "message": "Příloha byla aktualizována"
+  },
   "file": {
     "message": "Soubor"
   },
@@ -1438,6 +1490,9 @@
   },
   "selectFile": {
     "message": "Zvolte soubor"
+  },
+  "itemsTransferred": {
+    "message": "Převedené položky"
   },
   "maxFileSize": {
     "message": "Maximální velikost souboru je 500 MB."
@@ -1468,6 +1523,15 @@
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiště pro přílohy."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ šifrovaného úložiště pro přílohy.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpEmergency": {
     "message": "Nouzový přístup"
@@ -1866,6 +1930,9 @@
   },
   "expirationYear": {
     "message": "Rok expirace"
+  },
+  "monthly": {
+    "message": "měsíčně"
   },
   "expiration": {
     "message": "Expirace"
@@ -3201,9 +3268,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nenalezen žádný jedinečný identifikátor."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Hlavní heslo již není vyžadováno pro členy následující organizace. Potvrďte níže uvedenou doménu u správce Vaší organizace."
-  },
   "organizationName": {
     "message": "Název organizace"
   },
@@ -4167,10 +4231,6 @@
   "ignore": {
     "message": "Ignorovat"
   },
-  "importData": {
-    "message": "Importovat data",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Chyba importu"
   },
@@ -4754,8 +4814,50 @@
   "adminConsole": {
     "message": "Konzole správce"
   },
+  "admin": {
+    "message": "Administrátor"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatické potvrzení uživatele"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automaticky potvrdit čekající uživatele, když je toto zařízení odemčeno"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Ušetřete čas s automatickým potvrzením uživatele"
+  },
+  "autoConfirmWarning": {
+    "message": "To by mohlo ovlivnit bezpečnost dat Vaší organizace. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Více o rizicích"
+  },
+  "autoConfirmSetup": {
+    "message": "Automaticky potvrdit nové uživatele"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Noví uživatelé budou automaticky potvrzeni, když bude toto zařízení odemčeno."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Jaká jsou možná bezpečnostní rizika?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Zapnuto automatické potvrzení"
+  },
+  "availableNow": {
+    "message": "Nyní k dispozici"
+  },
   "accountSecurity": {
     "message": "Zabezpečení účtu"
+  },
+  "phishingBlocker": {
+    "message": "Blokování phishingu"
+  },
+  "enablePhishingDetection": {
+    "message": "Detekce phishingu"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Zobrazí varování před přístupem k podezřelým phishingovým stránkám."
   },
   "notifications": {
     "message": "Oznámení"
@@ -4901,6 +5003,9 @@
   },
   "premium": {
     "message": "Premium"
+  },
+  "unlockFeaturesWithPremium": {
+    "message": "Odemkněte hlášení, nouzový přístup a další bezpečnostní funkce s předplatným Premium."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Volné organizace nemohou používat přílohy"
@@ -5598,6 +5703,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
+  "vulnerablePassword": {
+    "message": "Zranitelné heslo."
+  },
+  "changeNow": {
+    "message": "Změnit nyní"
+  },
   "missingWebsite": {
     "message": "Chybějící webová stránka"
   },
@@ -5806,17 +5917,17 @@
   "andMoreFeatures": {
     "message": "A ještě více!"
   },
-  "planDescPremium": {
-    "message": "Dokončit online zabezpečení"
+  "advancedOnlineSecurity": {
+    "message": "Pokročilé zabezpečení online"
   },
   "upgradeToPremium": {
     "message": "Aktualizovat na Premium"
   },
-  "upgradeCompleteSecurity": {
-    "message": "Aktualizujte pro úplné zabezpečení"
+  "unlockAdvancedSecurity": {
+    "message": "Odemknout pokročilé bezpečnostní funkce"
   },
-  "premiumGivesMoreTools": {
-    "message": "Verze Premium Vám poskytne více nástrojů k zabezpečení, efektivní práci a udržení kontroly."
+  "unlockAdvancedSecurityDesc": {
+    "message": "Prémiové předplatné Vám dává více nástrojů k bezpečí a kontrole"
   },
   "explorePremium": {
     "message": "Objevit Premium"
@@ -5837,7 +5948,144 @@
   "cardNumberLabel": {
     "message": "Číslo karty"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Vaše organizace již k přihlášení do Bitwardenu nepoužívá hlavní hesla. Chcete-li pokračovat, ověřte organizaci a doménu."
+  },
+  "continueWithLogIn": {
+    "message": "Pokračovat s přihlášením"
+  },
+  "doNotContinue": {
+    "message": "Nepokračovat"
+  },
+  "domain": {
+    "message": "Doména"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Tato doména uloží šifrovací klíče Vašeho účtu, takže se ujistěte, že jí věříte. Pokud si nejste jisti, kontaktujte Vašeho správce."
+  },
+  "verifyYourOrganization": {
+    "message": "Ověřte svou organizaci pro přihlášení"
+  },
+  "organizationVerified": {
+    "message": "Organizace byla ověřena"
+  },
+  "domainVerified": {
+    "message": "Doména byla ověřena"
+  },
+  "leaveOrganizationContent": {
+    "message": "Pokud neověříte svou organizaci, Váš přístup k organizaci bude zrušen."
+  },
+  "leaveNow": {
+    "message": "Opustit hned"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Ověřte svou doménu pro přihlášení"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Chcete-li pokračovat v přihlášení, ověřte tuto doménu."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Chcete-li pokračovat v přihlášení, ověřte organizaci a doménu."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Akce vypršení časového limitu"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Tato nastavení je spravováno Vaší organizací."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Vaše organizace nastavila maximální časový limit relace na $HOURS$ hodin a $MINUTES$ minut.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Vaše organizace nastavila výchozí časový limit relace na Okamžitě."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Vaše organizace nastavila výchozí časový limit relace na Při uzamknutí systému."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Vaše organizace nastavila výchozí časový limit relace na Při restartu prohlížeče."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximální časový limit nesmí překročit $HOURS$ hodin a $MINUTES$ minut",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Při restartu prohlížeče"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Nastavte metodu odemknutí, abyste změnili akci při vypršení časového limitu"
+  },
+  "upgrade": {
+    "message": "Aktualizovat"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Opravdu chcete odejít?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Odmítnutím zůstanou Vaše osobní položky ve Vašem účtu, ale ztratíte přístup ke sdíleným položkám a funkcím organizace."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Obraťte se na svého správce, abyste znovu získali přístup."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Opustit $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Jak mohu spravovat svůj trezor?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Přenést položky do $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ vyžaduje, aby byly všechny položky vlastněny organizací z důvodu bezpečnosti a shody. Klepnutím na tlačítko pro převod vlastnictví Vašich položek.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Přijmout převod"
+  },
+  "declineAndLeave": {
+    "message": "Odmítnout a opustit"
+  },
+  "whyAmISeeingThis": {
+    "message": "Proč se mi toto zobrazuje?"
+  },
+  "resizeSideNavigation": {
+    "message": "Změnit velikost boční navigace"
   }
 }

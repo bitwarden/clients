@@ -30,6 +30,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { SendWithIdRequest } from "@bitwarden/common/tools/send/models/request/send-with-id.request";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -286,9 +287,10 @@ describe("KeyRotationService", () => {
 
   const mockUser = {
     id: "mockUserId" as UserId,
-    email: "mockEmail",
-    emailVerified: true,
-    name: "mockName",
+    ...mockAccountInfoWith({
+      email: "mockEmail",
+      name: "mockName",
+    }),
   };
 
   const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("test-public-key")];
@@ -1096,6 +1098,9 @@ describe("KeyRotationService", () => {
       mockKeyService.userSigningKey$.mockReturnValue(
         new BehaviorSubject(TEST_VECTOR_SIGNING_KEY_V2 as WrappedSigningKey),
       );
+      mockKeyService.userSignedPublicKey$.mockReturnValue(
+        new BehaviorSubject(TEST_VECTOR_SIGNED_PUBLIC_KEY_V2 as SignedPublicKey),
+      );
       mockSecurityStateService.accountSecurityState$.mockReturnValue(
         new BehaviorSubject(TEST_VECTOR_SECURITY_STATE_V2 as SignedSecurityState),
       );
@@ -1140,6 +1145,7 @@ describe("KeyRotationService", () => {
           publicKeyEncryptionKeyPair: {
             wrappedPrivateKey: TEST_VECTOR_PRIVATE_KEY_V2,
             publicKey: Utils.fromB64ToArray(TEST_VECTOR_PUBLIC_KEY_V2) as UnsignedPublicKey,
+            signedPublicKey: TEST_VECTOR_SIGNED_PUBLIC_KEY_V2 as SignedPublicKey,
           },
           signingKey: TEST_VECTOR_SIGNING_KEY_V2 as WrappedSigningKey,
           securityState: TEST_VECTOR_SECURITY_STATE_V2 as SignedSecurityState,

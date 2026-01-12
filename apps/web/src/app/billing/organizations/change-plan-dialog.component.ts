@@ -387,6 +387,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.focusedIndex = this.selectableProducts.length - 1;
     if (!this.isSubscriptionCanceled) {
       await this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    } else {
+      await this.selectPlan(this.reSubscribablePlan);
     }
   }
 
@@ -547,10 +549,28 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return this.selectedPlan.isAnnual ? "year" : "month";
   }
 
+  get reSubscribablePlan() {
+    if (!this.currentPlan) {
+      throw new Error(
+        "Current plan must be set to find the re-subscribable plan for a cancelled subscription.",
+      );
+    }
+    if (!this.currentPlan.disabled) {
+      return this.currentPlan;
+    }
+    return (
+      this.passwordManagerPlans.find(
+        (plan) =>
+          plan.productTier === this.currentPlan.productTier &&
+          plan.isAnnual === this.currentPlan.isAnnual &&
+          !plan.disabled,
+      ) ?? this.currentPlan
+    );
+  }
+
   get selectableProducts() {
     if (this.isSubscriptionCanceled) {
-      // Return only the current plan if the subscription is canceled
-      return [this.currentPlan];
+      return [this.reSubscribablePlan];
     }
 
     if (this.acceptingSponsorship) {
@@ -620,7 +640,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get storageGb() {
-    return this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0;
+    return Math.max(
+      0,
+      (this.sub?.maxStorageGb ?? 0) - this.selectedPlan.PasswordManager.baseStorageGb,
+    );
   }
 
   passwordManagerSeatTotal(plan: PlanResponse): number {
@@ -644,12 +667,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return 0;
     }
 
-    return (
-      plan.PasswordManager.additionalStoragePricePerGb *
-      // TODO: Eslint upgrade. Please resolve this  since the null check does nothing
-      // eslint-disable-next-line no-constant-binary-expression
-      Math.abs(this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0 || 0)
-    );
+    return plan.PasswordManager.additionalStoragePricePerGb * this.storageGb;
   }
 
   additionalStoragePriceMonthly(selectedPlan: PlanResponse) {

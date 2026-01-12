@@ -2,8 +2,8 @@
 <section
   class="tw-flex tw-w-full tw-flex-col tw-self-center tw-overflow-hidden tw-border tw-border-solid tw-border-secondary-100 tw-bg-background tw-text-main"
   [ngClass]="[
-    width,
-    isDrawer ? 'tw-h-screen tw-border-t-0' : 'tw-rounded-t-xl md:tw-rounded-xl tw-shadow-lg',
+    width(),
+    isDrawer ? 'tw-h-full tw-border-t-0' : 'tw-rounded-t-xl md:tw-rounded-xl tw-shadow-lg',
   ]"
   cdkTrapFocus
   cdkTrapFocusAutoCapture
@@ -34,16 +34,21 @@
       }
       <ng-content select="[bitDialogTitle]"></ng-content>
     </h2>
-    @if (!this.dialogRef?.disableClose) {
-      <button
-        type="button"
-        bitIconButton="bwi-close"
-        buttonType="main"
-        size="default"
-        bitDialogClose
-        [label]="'close' | i18n"
-      ></button>
-    }
+
+    <div class="tw-flex tw-items-center tw-justify-center">
+      <ng-content select="[bitDialogHeaderEnd]"></ng-content>
+
+      @if (!this.dialogRef?.disableClose) {
+        <button
+          type="button"
+          bitIconButton="bwi-close"
+          buttonType="main"
+          size="default"
+          bitDialogClose
+          [label]="'close' | i18n"
+        ></button>
+      }
+    </div>
   </header>
 
   <div
@@ -75,13 +80,19 @@
   @let isScrollable = isScrollable$ | async;
   @let showFooterBorder =
     (!bodyHasScrolledFrom().top && isScrollable) || bodyHasScrolledFrom().bottom;
+  <div
+    class="tw-border-0 tw-border-t tw-border-solid"
+    [ngClass]="{
+      'tw-border-transparent': !showFooterBorder,
+      'tw-border-secondary-100': showFooterBorder,
+    }"
+    data-chromatic="ignore"
+  ></div>
   <footer
-    class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-bg-background tw-py-5 tw-ps-6 tw-pe-4"
+    class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-bg-background tw-py-5 tw-ps-6 tw-pe-4"
     [ngClass]="{
       'tw-px-6 tw-py-4': isDrawer,
       'tw-p-4 has-[[biticonbutton]]:tw-pe-2': !isDrawer,
-      'tw-border-transparent': !showFooterBorder,
-      'tw-border-secondary-100': showFooterBorder,
     }"
   >
     <ng-content select="[bitDialogFooter]"></ng-content>

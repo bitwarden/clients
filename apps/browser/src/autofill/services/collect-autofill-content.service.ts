@@ -60,6 +60,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     "button",
     "image",
     "file",
+    "search",
+    "url",
+    "date",
+    "time",
+    "datetime", // Note: datetime is deprecated in HTML5; keeping here for backwards compatibility
+    "datetime-local",
+    "week",
+    "color",
+    "range",
   ]);
 
   constructor(
@@ -1400,7 +1409,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
       root: null,
       rootMargin: "0px",
-      threshold: 1.0,
+      threshold: 0.9999, // Safari doesn't seem to function properly with a threshold of 1,
     });
   }
 
