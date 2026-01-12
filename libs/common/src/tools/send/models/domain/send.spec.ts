@@ -11,8 +11,8 @@ import { EncryptService } from "../../../../key-management/crypto/abstractions/e
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../../platform/services/container.service";
 import { UserKey } from "../../../../types/key";
-import { AuthType } from "../../enums/auth-type";
-import { SendType } from "../../enums/send-type";
+import { AuthType } from "../../types/auth-type";
+import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
 
 import { Send } from "./send";
