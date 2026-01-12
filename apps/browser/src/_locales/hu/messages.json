@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Az elem az archivumba került."
   },
+  "itemWasUnarchived": {
+    "message": "Az elem visszavételre került az archivumból."
+  },
   "itemUnarchived": {
     "message": "Az elemek visszavéelre kerültek az archivumból."
   },
@@ -4828,6 +4831,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "További információ a kockázatokról"
+  },
+  "autoConfirmSetup": {
+    "message": "Új felhasználók automatikus megerősítése"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Az új felhasználók automatikusan megerősítésre kerülnek, amíg ez az eszköz fel van oldva."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Melyek a lehetséges biztonsági kockázatok?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Az automatikus megerősítés bekapcsolásra került."
+  },
+  "availableNow": {
+    "message": "Elérhető most"
   },
   "accountSecurity": {
     "message": "Fiókbiztonság"

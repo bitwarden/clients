@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Položka bola archivovaná"
   },
+  "itemWasUnarchived": {
+    "message": "Položka bola odobraná z archívu"
+  },
   "itemUnarchived": {
     "message": "Položka bola odobraná z archívu"
   },
@@ -4828,6 +4831,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "Dozvedieť sa viac o rizikách"
+  },
+  "autoConfirmSetup": {
+    "message": "Automaticky potvrdzovať nových používateľov"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Noví používatelia budú automaticky potvrdení, keď je toto zariadenie odomknuté."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Aké sú potenciálne bezpečnostné riziká?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Zapnuté automatické potvrdzovanie"
+  },
+  "availableNow": {
+    "message": "Teraz dostupné"
   },
   "accountSecurity": {
     "message": "Zabezpečenie účtu"

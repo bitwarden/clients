@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Eintrag wurde archiviert"
   },
+  "itemWasUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
+  },
   "itemUnarchived": {
     "message": "Eintrag wird nicht mehr archiviert"
   },
@@ -4828,6 +4831,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "Erfahre mehr über die Risiken"
+  },
+  "autoConfirmSetup": {
+    "message": "Neue Benutzer automatisch bestätigen"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Neue Benutzer werden automatisch bestätigt, während dieses Gerät entsperrt ist."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Was sind die möglichen Sicherheitsrisiken?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Automatische Bestätigung aktiviert"
+  },
+  "availableNow": {
+    "message": "Jetzt verfügbar"
   },
   "accountSecurity": {
     "message": "Kontosicherheit"

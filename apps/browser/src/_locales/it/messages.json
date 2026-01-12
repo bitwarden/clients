@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Elemento archiviato"
   },
+  "itemWasUnarchived": {
+    "message": "Elemento rimosso dall'archivio"
+  },
   "itemUnarchived": {
     "message": "Elemento rimosso dall'archivio"
   },
@@ -4828,6 +4831,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "Scopri quali sono i rischi"
+  },
+  "autoConfirmSetup": {
+    "message": "Conferma automaticamente i nuovi utenti"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "I nuovi utenti saranno automaticamente confermati mentre questo dispositivo è sbloccato."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Quali sono i rischi potenziali per la sicurezza?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Conferma automatica attivata"
+  },
+  "availableNow": {
+    "message": "Disponibile ora"
   },
   "accountSecurity": {
     "message": "Sicurezza dell'account"

@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "项目已发送到归档"
   },
+  "itemWasUnarchived": {
+    "message": "项目已取消归档"
+  },
   "itemUnarchived": {
     "message": "项目已取消归档"
   },
@@ -3225,7 +3228,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为 $ACTION$。",
+    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为「$ACTION$」。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4828,6 +4831,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "了解此风险"
+  },
+  "autoConfirmSetup": {
+    "message": "自动确认新用户"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "当此设备已解锁时，新用户将被自动确认。"
+  },
+  "autoConfirmSetupHint": {
+    "message": "有哪些潜在的安全风险？"
+  },
+  "autoConfirmEnabled": {
+    "message": "启用了自动确认"
+  },
+  "availableNow": {
+    "message": "目前可用"
   },
   "accountSecurity": {
     "message": "账户安全"
