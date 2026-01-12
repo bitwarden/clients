@@ -60,7 +60,7 @@ export class ClearClipboardDelayToStringMigrator extends Migrator<74, 75> {
     // Convert old integer/null values to new string values
     switch (oldValue) {
       case null:
-        newValue = NEW_CLEAR_CLIPBOARD_DELAY_VALUES.FIVE_MINUTES; // possibly confusing for users who explicitly set "never"
+        newValue = NEW_CLEAR_CLIPBOARD_DELAY_VALUES.NEVER;
         break;
       case 10:
         newValue = NEW_CLEAR_CLIPBOARD_DELAY_VALUES.TEN_SECONDS;

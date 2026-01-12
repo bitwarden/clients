@@ -91,7 +91,7 @@ describe("ClearClipboardDelayToStringMigrator", () => {
       );
     });
 
-    it("should migrate null to fiveMinutes", async () => {
+    it("should migrate null to never", async () => {
       helper.getAccounts.mockResolvedValue([{ userId: "user-1", account: {} }]);
 
       helper.getFromUser.mockResolvedValue(null);
@@ -106,7 +106,7 @@ describe("ClearClipboardDelayToStringMigrator", () => {
             name: "autofillSettingsLocal",
           }),
         }),
-        "fiveMinutes",
+        "never",
       );
     });
 
