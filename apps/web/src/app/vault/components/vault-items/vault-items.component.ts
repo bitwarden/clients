@@ -272,7 +272,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get bulkArchiveAllowed() {
-    if (this.selection.selected.length === 0 || !this.userCanArchive) {
+    const hasCollectionsSelected = this.selection.selected.some((item) => item.collection);
+    if (this.selection.selected.length === 0 || !this.userCanArchive || hasCollectionsSelected) {
       return false;
     }
 
