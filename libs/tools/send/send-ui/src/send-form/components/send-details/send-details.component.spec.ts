@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -82,6 +83,7 @@ describe("SendDetailsComponent", () => {
         { provide: BillingAccountProfileStateService, useValue: mockBillingStateService },
         { provide: CredentialGeneratorService, useValue: mockGeneratorService },
         { provide: SendApiService, useValue: mockSendApiService },
+        { provide: PolicyService, useValue: mock<PolicyService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
       ],
