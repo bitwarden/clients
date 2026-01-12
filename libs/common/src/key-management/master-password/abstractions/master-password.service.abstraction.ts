@@ -191,6 +191,7 @@ export abstract class InternalMasterPasswordServiceAbstraction extends MasterPas
    * Derives a master key from the provided password and master password unlock data,
    * then sets it to state for the specified user. This is a temporary backwards compatibility function
    * to support existing code that relies on direct master key access.
+   * Note: This will be removed in https://bitwarden.atlassian.net/browse/PM-30676
    * 
    * @param password The master password.
    * @param masterPasswordUnlockData The master password unlock data containing the KDF settings and salt.
