@@ -16,6 +16,9 @@ export type LandingContentMaxWidthType =
   selector: "bit-landing-content",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-content.component.html",
+  host: {
+    class: "tw-grow tw-flex tw-flex-col",
+  },
 })
 export class LandingContentComponent {
   /**
