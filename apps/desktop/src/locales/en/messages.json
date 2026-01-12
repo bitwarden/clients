@@ -152,26 +152,6 @@
     "message": "New File Send",
     "description": "Header for new file send"
   },
-  "editItemHeaderLogin": {
-    "message": "Edit Login",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Edit Card",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Edit Identity",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Edit Note",
-    "description": "Header for edit note item type"
-  },
-  "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
-    "description": "Header for edit SSH key item type"
-  },
   "editItemHeaderTextSend": {
     "message": "Edit Text Send",
     "description": "Header for edit text send"
@@ -179,26 +159,6 @@
   "editItemHeaderFileSend": {
     "message": "Edit File Send",
     "description": "Header for edit file send"
-  },
-  "viewItemHeaderLogin": {
-    "message": "View Login",
-    "description": "Header for view login item type"
-  },
-  "viewItemHeaderCard": {
-    "message": "View Card",
-    "description": "Header for view card item type"
-  },
-  "viewItemHeaderIdentity": {
-    "message": "View Identity",
-    "description": "Header for view identity item type"
-  },
-  "viewItemHeaderNote": {
-    "message": "View Note",
-    "description": "Header for view note item type"
-  },
-  "viewItemHeaderSshKey": {
-    "message": "View SSH key",
-    "description": "Header for view SSH key item type"
   },
   "deleteSendPermanentConfirmation": {
     "message": "Are you sure you want to permanently delete this Send?",

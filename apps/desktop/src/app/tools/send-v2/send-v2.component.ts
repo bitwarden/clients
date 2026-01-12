@@ -4,10 +4,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  computed,
   effect,
   inject,
-  signal,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
@@ -39,17 +37,6 @@ import {
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
 
-const Action = Object.freeze({
-  /** No action is currently active. */
-  None: "",
-  /** The user is adding a new Send. */
-  Add: "add",
-  /** The user is editing an existing Send. */
-  Edit: "edit",
-} as const);
-
-type Action = (typeof Action)[keyof typeof Action];
-
 @Component({
   selector: "app-send-v2",
   imports: [
@@ -70,10 +57,6 @@ type Action = (typeof Action)[keyof typeof Action];
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendV2Component {
-  protected readonly sendId = signal<SendId | null>(null);
-  protected readonly action = signal<Action>(Action.None);
-  private readonly selectedSendTypeOverride = signal<SendType | undefined>(undefined);
-
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
   private policyService = inject(PolicyService);
@@ -143,21 +126,7 @@ export class SendV2Component {
       formConfig,
     });
 
-    const result = await lastValueFrom(dialogRef.closed);
-
-    if (result) {
-      this.closeEditPanel();
-    }
-  }
-
-  protected closeEditPanel(): void {
-    this.action.set(Action.None);
-    this.sendId.set(null);
-    this.selectedSendTypeOverride.set(undefined);
-  }
-
-  protected async savedSend(send: SendView): Promise<void> {
-    await this.selectSend(send.id as SendId);
+    await lastValueFrom(dialogRef.closed);
   }
 
   protected async selectSend(sendId: SendId): Promise<void> {
@@ -167,24 +136,8 @@ export class SendV2Component {
       formConfig,
     });
 
-    const result = await lastValueFrom(dialogRef.closed);
-
-    if (result) {
-      this.closeEditPanel();
-    }
+    await lastValueFrom(dialogRef.closed);
   }
-
-  protected readonly selectedSendType = computed(() => {
-    const action = this.action();
-    const typeOverride = this.selectedSendTypeOverride();
-
-    if (action === Action.Add && typeOverride !== undefined) {
-      return typeOverride;
-    }
-
-    const sendId = this.sendId();
-    return this.filteredSends().find((s) => s.id === sendId)?.type;
-  });
 
   protected async onEditSend(send: SendView): Promise<void> {
     await this.selectSend(send.id as SendId);
@@ -199,38 +152,6 @@ export class SendV2Component {
       title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
     });
-  }
-
-  protected async onRemovePassword(send: SendView): Promise<void> {
-    if (this.disableSend()) {
-      return;
-    }
-
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await this.sendApiService.removePassword(send.id);
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("removedPassword"),
-      });
-
-      if (this.sendId() === send.id) {
-        this.sendId.set(null);
-        await this.selectSend(send.id as SendId);
-      }
-    } catch (e) {
-      this.logService.error(e);
-    }
   }
 
   protected async onDeleteSend(send: SendView): Promise<void> {
@@ -251,7 +172,5 @@ export class SendV2Component {
       title: null,
       message: this.i18nService.t("deletedSend"),
     });
-
-    this.closeEditPanel();
   }
 }
