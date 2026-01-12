@@ -13,8 +13,8 @@
       bitButton
       buttonType="secondary"
       type="button"
-      [disabled]="callsToActionDisabled()"
-      (click)="callToActionClicked.emit('download-license')"
+      [disabled]="downloadLicenseDisabled()"
+      (click)="callToActionClicked.emit(actions.DownloadLicense)"
     >
       {{ "downloadLicense" | i18n }}
     </button>
@@ -22,8 +22,8 @@
       bitButton
       buttonType="danger"
       type="button"
-      [disabled]="callsToActionDisabled()"
-      (click)="callToActionClicked.emit('cancel-subscription')"
+      [disabled]="cancelSubscriptionDisabled()"
+      (click)="callToActionClicked.emit(actions.CancelSubscription)"
     >
       {{ "cancelSubscription" | i18n }}
     </button>

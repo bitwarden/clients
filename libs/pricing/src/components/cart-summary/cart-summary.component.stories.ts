@@ -71,7 +71,7 @@ export default {
       passwordManager: {
         seats: {
           quantity: 5,
-          name: "members",
+          translationKey: "members",
           cost: 50.0,
         },
       },
@@ -98,12 +98,12 @@ export const WithAdditionalStorage: Story = {
       passwordManager: {
         seats: {
           quantity: 5,
-          name: "members",
+          translationKey: "members",
           cost: 50.0,
         },
         additionalStorage: {
           quantity: 2,
-          name: "additionalStorageGB",
+          translationKey: "additionalStorageGB",
           cost: 10.0,
         },
       },
@@ -120,7 +120,7 @@ export const PasswordManagerYearlyCadence: Story = {
       passwordManager: {
         seats: {
           quantity: 5,
-          name: "members",
+          translationKey: "members",
           cost: 500.0,
         },
       },
@@ -137,14 +137,14 @@ export const SecretsManagerSeatsOnly: Story = {
       passwordManager: {
         seats: {
           quantity: 5,
-          name: "members",
+          translationKey: "members",
           cost: 50.0,
         },
       },
       secretsManager: {
         seats: {
           quantity: 3,
-          name: "members",
+          translationKey: "members",
           cost: 30.0,
         },
       },
@@ -161,19 +161,19 @@ export const SecretsManagerSeatsAndServiceAccounts: Story = {
       passwordManager: {
         seats: {
           quantity: 5,
-          name: "members",
+          translationKey: "members",
           cost: 50.0,
         },
       },
       secretsManager: {
         seats: {
           quantity: 3,
-          name: "members",
+          translationKey: "members",
           cost: 30.0,
         },
         additionalServiceAccounts: {
           quantity: 2,
-          name: "additionalServiceAccountsV2",
+          translationKey: "additionalServiceAccountsV2",
           cost: 6.0,
         },
       },
@@ -190,24 +190,24 @@ export const AllProducts: Story = {
       passwordManager: {
         seats: {
           quantity: 5,
-          name: "members",
+          translationKey: "members",
           cost: 50.0,
         },
         additionalStorage: {
           quantity: 2,
-          name: "additionalStorageGB",
+          translationKey: "additionalStorageGB",
           cost: 10.0,
         },
       },
       secretsManager: {
         seats: {
           quantity: 3,
-          name: "members",
+          translationKey: "members",
           cost: 30.0,
         },
         additionalServiceAccounts: {
           quantity: 2,
-          name: "additionalServiceAccountsV2",
+          translationKey: "additionalServiceAccountsV2",
           cost: 6.0,
         },
       },
@@ -223,7 +223,7 @@ export const FamiliesPlan: Story = {
       passwordManager: {
         seats: {
           quantity: 1,
-          name: "familiesMembership",
+          translationKey: "familiesMembership",
           cost: 40.0,
         },
       },
@@ -239,7 +239,7 @@ export const PremiumPlan: Story = {
       passwordManager: {
         seats: {
           quantity: 1,
-          name: "premiumMembership",
+          translationKey: "premiumMembership",
           cost: 10.0,
         },
       },
@@ -255,7 +255,7 @@ export const CustomHeaderTemplate: Story = {
       passwordManager: {
         seats: {
           quantity: 1,
-          name: "premiumMembership",
+          translationKey: "premiumMembership",
           cost: 10.0,
         },
       },
@@ -296,19 +296,18 @@ export const WithPercentDiscount: Story = {
       passwordManager: {
         seats: {
           quantity: 5,
-          name: "members",
+          translationKey: "members",
           cost: 50.0,
         },
         additionalStorage: {
           quantity: 2,
-          name: "additionalStorageGB",
+          translationKey: "additionalStorageGB",
           cost: 10.0,
         },
       },
       cadence: "monthly",
       discount: {
         type: DiscountTypes.PercentOff,
-        active: true,
         value: 20,
       },
       estimatedTax: 10.4,
@@ -322,21 +321,20 @@ export const WithAmountDiscount: Story = {
       passwordManager: {
         seats: {
           quantity: 5,
-          name: "members",
+          translationKey: "members",
           cost: 50.0,
         },
       },
       secretsManager: {
         seats: {
           quantity: 3,
-          name: "members",
+          translationKey: "members",
           cost: 30.0,
         },
       },
       cadence: "annually",
       discount: {
         type: DiscountTypes.AmountOff,
-        active: true,
         value: 50.0,
       },
       estimatedTax: 95.0,

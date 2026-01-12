@@ -330,6 +330,7 @@ export class ApiService implements ApiServiceAbstraction {
     return new PaymentResponse(r);
   }
 
+  // TODO: Remove with deletion of pm-29594-update-individual-subscription-page
   postReinstatePremium(): Promise<any> {
     return this.send("POST", "/accounts/reinstate-premium", null, true, false);
   }

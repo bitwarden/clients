@@ -116,7 +116,7 @@ export class CartSummaryComponent {
    */
   readonly discountAmount = computed<number>(() => {
     const { discount } = this.cart();
-    if (!discount || !discount.active) {
+    if (!discount) {
       return 0;
     }
 
@@ -136,7 +136,7 @@ export class CartSummaryComponent {
    */
   readonly discountLabel = computed<string>(() => {
     const { discount } = this.cart();
-    if (!discount || !discount.active) {
+    if (!discount) {
       return "";
     }
     return getLabel(this.i18nService, discount);

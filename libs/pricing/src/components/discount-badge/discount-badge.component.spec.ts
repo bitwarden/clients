@@ -35,30 +35,18 @@ describe("DiscountBadgeComponent", () => {
       expect(component.display()).toBe(false);
     });
 
-    it("should return false when discount is inactive", () => {
+    it("should return true when discount has percent-off", () => {
       fixture.componentRef.setInput("discount", {
         type: DiscountTypes.PercentOff,
-        active: false,
-        value: 20,
-      });
-      fixture.detectChanges();
-      expect(component.display()).toBe(false);
-    });
-
-    it("should return true when discount is active with percent-off", () => {
-      fixture.componentRef.setInput("discount", {
-        type: DiscountTypes.PercentOff,
-        active: true,
         value: 20,
       });
       fixture.detectChanges();
       expect(component.display()).toBe(true);
     });
 
-    it("should return true when discount is active with amount-off", () => {
+    it("should return true when discount has amount-off", () => {
       fixture.componentRef.setInput("discount", {
         type: DiscountTypes.AmountOff,
-        active: true,
         value: 10.99,
       });
       fixture.detectChanges();
@@ -68,7 +56,6 @@ describe("DiscountBadgeComponent", () => {
     it("should return false when value is 0 (percent-off)", () => {
       fixture.componentRef.setInput("discount", {
         type: DiscountTypes.PercentOff,
-        active: true,
         value: 0,
       });
       fixture.detectChanges();
@@ -78,7 +65,6 @@ describe("DiscountBadgeComponent", () => {
     it("should return false when value is 0 (amount-off)", () => {
       fixture.componentRef.setInput("discount", {
         type: DiscountTypes.AmountOff,
-        active: true,
         value: 0,
       });
       fixture.detectChanges();
@@ -96,7 +82,6 @@ describe("DiscountBadgeComponent", () => {
     it("should return percentage text when type is percent-off", () => {
       fixture.componentRef.setInput("discount", {
         type: DiscountTypes.PercentOff,
-        active: true,
         value: 20,
       });
       fixture.detectChanges();
@@ -108,7 +93,6 @@ describe("DiscountBadgeComponent", () => {
     it("should convert decimal value to percentage for percent-off", () => {
       fixture.componentRef.setInput("discount", {
         type: DiscountTypes.PercentOff,
-        active: true,
         value: 0.15,
       });
       fixture.detectChanges();
@@ -119,7 +103,6 @@ describe("DiscountBadgeComponent", () => {
     it("should return amount text when type is amount-off", () => {
       fixture.componentRef.setInput("discount", {
         type: DiscountTypes.AmountOff,
-        active: true,
         value: 10.99,
       });
       fixture.detectChanges();

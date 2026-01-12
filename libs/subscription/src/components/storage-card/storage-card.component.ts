@@ -12,7 +12,12 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Storage } from "../../types/storage";
 
-export type StorageCardAction = "add-storage" | "remove-storage";
+export const StorageCardActions = {
+  AddStorage: "add-storage",
+  RemoveStorage: "remove-storage",
+} as const;
+
+export type StorageCardAction = (typeof StorageCardActions)[keyof typeof StorageCardActions];
 
 @Component({
   selector: "billing-storage-card",
@@ -25,7 +30,8 @@ export class StorageCardComponent {
 
   readonly storage = input.required<Storage>();
 
-  readonly callsToActionDisabled = input<boolean>(false);
+  readonly addStorageDisabled = input<boolean>(false);
+  readonly removeStorageDisabled = input<boolean>(false);
 
   readonly callToActionClicked = output<StorageCardAction>();
 
@@ -64,5 +70,5 @@ export class StorageCardComponent {
     return this.isFull() ? "danger" : "primary";
   });
 
-  readonly canRemoveStorage = computed<boolean>(() => !this.isFull());
+  protected readonly actions = StorageCardActions;
 }

@@ -23,7 +23,7 @@ export class DiscountBadgeComponent {
     if (!discount) {
       return false;
     }
-    return discount.active && discount.value > 0;
+    return discount.value > 0;
   });
 
   readonly label = computed<Maybe<string>>(() => {

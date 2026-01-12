@@ -143,6 +143,33 @@ export const ActionsDisabled: Story = {
       used: 2.5,
       readableUsed: "2.5 GB",
     } satisfies Storage,
-    callsToActionDisabled: true,
+    addStorageDisabled: true,
+    removeStorageDisabled: true,
+  },
+};
+
+export const AddStorageDisabled: Story = {
+  name: "Add Storage Disabled",
+  args: {
+    storage: {
+      available: 5,
+      used: 2.5,
+      readableUsed: "2.5 GB",
+    } satisfies Storage,
+    addStorageDisabled: true,
+    removeStorageDisabled: false,
+  },
+};
+
+export const RemoveStorageDisabled: Story = {
+  name: "Remove Storage Disabled",
+  args: {
+    storage: {
+      available: 5,
+      used: 2.5,
+      readableUsed: "2.5 GB",
+    } satisfies Storage,
+    addStorageDisabled: false,
+    removeStorageDisabled: true,
   },
 };

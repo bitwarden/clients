@@ -16,12 +16,16 @@ import { CartSummaryComponent, Maybe } from "@bitwarden/pricing";
 import { BitwardenSubscription, SubscriptionStatuses } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-export type PlanCardAction =
-  | "contact-support"
-  | "manage-invoices"
-  | "reinstate-subscription"
-  | "update-payment"
-  | "upgrade-plan";
+export const SubscriptionCardActions = {
+  ContactSupport: "contact-support",
+  ManageInvoices: "manage-invoices",
+  ReinstateSubscription: "reinstate-subscription",
+  UpdatePayment: "update-payment",
+  UpgradePlan: "upgrade-plan",
+} as const;
+
+export type SubscriptionCardAction =
+  (typeof SubscriptionCardActions)[keyof typeof SubscriptionCardActions];
 
 type Badge = { text: string; variant: BadgeVariant };
 
@@ -33,7 +37,7 @@ type Callout = Maybe<{
   callsToAction?: {
     text: string;
     buttonType: ButtonType;
-    action: PlanCardAction;
+    action: SubscriptionCardAction;
   }[];
 }>;
 
@@ -64,7 +68,7 @@ export class SubscriptionCardComponent {
 
   readonly showUpgradeButton = input<boolean>(false);
 
-  readonly callToActionClicked = output<PlanCardAction>();
+  readonly callToActionClicked = output<SubscriptionCardAction>();
 
   readonly badge = computed<Badge>(() => {
     const subscription = this.subscription();
@@ -136,12 +140,12 @@ export class SubscriptionCardComponent {
             {
               text: this.i18nService.t("updatePayment"),
               buttonType: "unstyled",
-              action: "update-payment",
+              action: SubscriptionCardActions.UpdatePayment,
             },
             {
               text: this.i18nService.t("contactSupportShort"),
               buttonType: "unstyled",
-              action: "contact-support",
+              action: SubscriptionCardActions.ContactSupport,
             },
           ],
         };
@@ -155,7 +159,7 @@ export class SubscriptionCardComponent {
             {
               text: this.i18nService.t("contactSupportShort"),
               buttonType: "unstyled",
-              action: "contact-support",
+              action: SubscriptionCardActions.ContactSupport,
             },
           ],
         };
@@ -172,7 +176,7 @@ export class SubscriptionCardComponent {
               {
                 text: this.i18nService.t("reinstateSubscription"),
                 buttonType: "unstyled",
-                action: "reinstate-subscription",
+                action: SubscriptionCardActions.ReinstateSubscription,
               },
             ],
           };
@@ -189,7 +193,7 @@ export class SubscriptionCardComponent {
             {
               text: this.i18nService.t("upgradeNow"),
               buttonType: "unstyled",
-              action: "upgrade-plan",
+              action: SubscriptionCardActions.UpgradePlan,
             },
           ],
         };
@@ -208,7 +212,7 @@ export class SubscriptionCardComponent {
             {
               text: this.i18nService.t("manageInvoices"),
               buttonType: "unstyled",
-              action: "manage-invoices",
+              action: SubscriptionCardActions.ManageInvoices,
             },
           ],
         };
@@ -225,7 +229,7 @@ export class SubscriptionCardComponent {
             {
               text: this.i18nService.t("manageInvoices"),
               buttonType: "unstyled",
-              action: "manage-invoices",
+              action: SubscriptionCardActions.ManageInvoices,
             },
           ],
         };

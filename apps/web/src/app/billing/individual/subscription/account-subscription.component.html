@@ -1,0 +1,50 @@
+@if (subscriptionLoading()) {
+  <ng-container>
+    <i
+      class="bwi bwi-spinner bwi-spin tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </ng-container>
+} @else {
+  @if (subscription.value(); as subscription) {
+    <!-- Page Header -->
+    <div
+      class="tw-flex tw-flex-col tw-gap-3 tw-items-center tw-text-center tw-pb-8 tw-pt-12 tw-px-14"
+    >
+      <h1 bitTypography="h1" class="tw-m-0">{{ "youHavePremium" | i18n }}</h1>
+      <p bitTypography="body1" class="tw-m-0 tw-text-muted">
+        {{ "viewAndManagePremiumSubscription" | i18n }}
+      </p>
+    </div>
+
+    <!-- Content Container -->
+    <div class="tw-flex tw-flex-col tw-gap-10 tw-mx-auto tw-max-w-[800px] tw-pb-8">
+      <!-- Premium Membership Card -->
+      <billing-subscription-card
+        [title]="'premiumMembership' | i18n"
+        [subscription]="subscription"
+        [showUpgradeButton]="premiumToOrganizationUpgradeEnabled()"
+        (callToActionClicked)="onSubscriptionCardAction($event)"
+      />
+
+      <!-- Storage Card -->
+      @if (subscription.storage; as storage) {
+        <billing-storage-card
+          [storage]="storage"
+          [addStorageDisabled]="!canAddStorage()"
+          [removeStorageDisabled]="!canRemoveStorage()"
+          (callToActionClicked)="onStorageCardAction($event)"
+        />
+      }
+
+      <!-- Additional Options Card -->
+      <billing-additional-options-card
+        [downloadLicenseDisabled]="subscriptionTerminal()"
+        [cancelSubscriptionDisabled]="!canCancelSubscription()"
+        (callToActionClicked)="onAdditionalOptionsCardAction($event)"
+      />
+    </div>
+  }
+}

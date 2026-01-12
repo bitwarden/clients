@@ -9,7 +9,6 @@ export type DiscountType = (typeof DiscountTypes)[keyof typeof DiscountTypes];
 
 export type Discount = {
   type: DiscountType;
-  active: boolean;
   value: number;
 };
 
