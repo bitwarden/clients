@@ -7,7 +7,7 @@ import * as chalk from "chalk";
 import { program, Command, Option, OptionValues } from "commander";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
 import { BaseProgram } from "../../base-program";
 import { Response } from "../../models/response";
