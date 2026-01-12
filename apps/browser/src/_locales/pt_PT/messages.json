@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "O item foi movido para o arquivo"
   },
+  "itemWasUnarchived": {
+    "message": "O item foi desarquivado"
+  },
   "itemUnarchived": {
     "message": "O item foi desarquivado"
   },
@@ -4818,16 +4821,31 @@
     "message": "Confirmação automática do utilizador"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "Confirmar automaticamente os utilizadores pendentes enquanto este dispositivo estiver desbloqueado"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "Poupe tempo com a confirmação automática de utilizadores"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "Isto pode afetar a segurança dos dados da sua organização. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "Saiba mais sobre os riscos"
+  },
+  "autoConfirmSetup": {
+    "message": "Confirmar automaticamente novos utilizadores"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Os novos utilizadores serão automaticamente confirmados enquanto este dispositivo estiver desbloqueado."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Quais são os riscos potenciais de segurança?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Confirmação automática ativada"
+  },
+  "availableNow": {
+    "message": "Já disponível"
   },
   "accountSecurity": {
     "message": "Segurança da conta"
