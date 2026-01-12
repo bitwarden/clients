@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Item naar archief verzonden"
   },
+  "itemWasUnarchived": {
+    "message": "Item uit het archief gehaald"
+  },
   "itemUnarchived": {
     "message": "Item uit het archief gehaald"
   },
@@ -4828,6 +4831,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "Meer informatie over de risico's"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatisch nieuwe gebruikers bevestigen"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Nieuwe gebruikers worden automatisch bevestigd wanneer dit apparaat is ontgrendeld."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Wat zijn de mogelijke veiligheidsrisico's?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Automatische bevestigen ingeschakeld"
+  },
+  "availableNow": {
+    "message": "Nu beschikbaar"
   },
   "accountSecurity": {
     "message": "Accountbeveiliging"

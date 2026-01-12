@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Елементът беше преместен в архива"
   },
+  "itemWasUnarchived": {
+    "message": "Елементът беше изваден от архива"
+  },
   "itemUnarchived": {
     "message": "Елементът беше изваден от архива"
   },
@@ -4828,6 +4831,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "Научете повече за рисковете"
+  },
+  "autoConfirmSetup": {
+    "message": "Автоматично потвърждаване на новите потребители"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Новите потребители ще бъдат потвърждавани автоматично, докато това устройство е отключено."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Какви са възможните рискове за сигурността?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Автоматичното потвърждаване е включено"
+  },
+  "availableNow": {
+    "message": "Налично сега"
   },
   "accountSecurity": {
     "message": "Защита на регистрацията"
