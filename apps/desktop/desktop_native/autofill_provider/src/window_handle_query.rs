@@ -8,14 +8,10 @@ use crate::{BitwardenError, Callback, TimedCallback};
 /// Request to get the window handle of the desktop client.
 pub(super) struct WindowHandleQueryRequest {
     #[serde(rename = "windowHandle")]
-    /// base64-encoded byte string representing native window handle.
-    /// # Operating System Differences
+    /// Marker field for parsing; data is never read.
     ///
-    /// ## macOS
-    /// Unused.
-    ///
-    /// ## Windows
-    /// On Windows, this is an HWND.
+    /// TODO: this is used to disambiguate parsing the type in desktop_napi.
+    /// This will be cleaned up in PM-23485.
     window_handle: String,
 }
 
