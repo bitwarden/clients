@@ -481,7 +481,7 @@ describe("MasterPasswordService", () => {
         masterKey.inner().encryptionKey,
         password,
         "sha256",
-        HashPurpose.LocalAuthorization
+        HashPurpose.LocalAuthorization,
       );
 
       const hashState = await firstValueFrom(sut.masterKeyHash$(userId));
