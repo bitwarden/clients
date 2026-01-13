@@ -4,7 +4,7 @@
   [disabled]="disabled"
   [style.color]="textColor"
   [style.background-color]="color"
-  appA11yTitle="{{ organizationName }}"
+  appA11yTitle="{{ 'ownerBadgeA11yDescription' | i18n: name }}"
   routerLink
   [queryParams]="{ organizationId: organizationIdLink }"
   queryParamsHandling="merge"
