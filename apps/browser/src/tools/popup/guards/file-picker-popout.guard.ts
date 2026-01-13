@@ -4,6 +4,7 @@ import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import BrowserPopupUtils from "@bitwarden/browser/platform/browser/browser-popup-utils";
 import { BrowserPlatformUtilsService } from "@bitwarden/browser/platform/services/platform-utils/browser-platform-utils.service";
 import { DeviceType } from "@bitwarden/common/enums";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
 /**
  * Composite guard that handles file picker popout requirements for all browsers.
@@ -15,10 +16,19 @@ import { DeviceType } from "@bitwarden/common/enums";
  * - All Chromium browsers (Chrome, Edge, Opera, Vivaldi) on Linux/Mac: Requires sidebar OR popout
  * - Chromium on Windows: No special requirement
  *
+ * Send-specific behavior:
+ * - Text Sends: No popout required (no file picker needed)
+ * - File Sends: Popout required on affected browsers
+ *
  * @returns CanActivateFn that opens popout and blocks navigation when file picker access is needed
  */
 export function filePickerPopoutGuard(): CanActivateFn {
   return async (_route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+    // Check if this is a text Send route (no file picker needed)
+    if (isTextOnlySendRoute(state.url)) {
+      return true; // Allow navigation without popout
+    }
+
     // Check if browser is one that needs popout for file pickers
     const deviceType = BrowserPlatformUtilsService.getDevice(window);
 
@@ -68,4 +78,32 @@ export function filePickerPopoutGuard(): CanActivateFn {
 
     return true; // Allow navigation
   };
+}
+
+/**
+ * Determines if the route is for a text Send that doesn't require file picker display.
+ *
+ * @param url The route URL with query parameters
+ * @returns true if this is a Send route with explicitly text type (SendType.Text = 0)
+ */
+function isTextOnlySendRoute(url: string): boolean {
+  // Only apply to Send routes
+  if (!url.includes("/add-send") && !url.includes("/edit-send")) {
+    return false;
+  }
+
+  // Parse query parameters to check Send type
+  const queryStartIndex = url.indexOf("?");
+  if (queryStartIndex === -1) {
+    // No query params - default to requiring popout for safety
+    return false;
+  }
+
+  const queryString = url.substring(queryStartIndex + 1);
+  const params = new URLSearchParams(queryString);
+  const typeParam = params.get("type");
+
+  // Only skip popout for explicitly text-based Sends (SendType.Text = 0)
+  // If type is missing, null, or not text, default to requiring popout
+  return typeParam === String(SendType.Text);
 }

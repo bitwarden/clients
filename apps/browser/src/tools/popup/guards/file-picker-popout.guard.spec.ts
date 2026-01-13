@@ -262,7 +262,7 @@ describe("filePickerPopoutGuard", () => {
     });
   });
 
-  describe("file picker routes", () => {
+  describe("File picker routes", () => {
     beforeEach(() => {
       getDeviceSpy.mockReturnValue(DeviceType.FirefoxExtension);
       inPopoutSpy.mockReturnValue(false);
@@ -288,7 +288,7 @@ describe("filePickerPopoutGuard", () => {
     });
   });
 
-  describe("url handling", () => {
+  describe("Url handling", () => {
     beforeEach(() => {
       getDeviceSpy.mockReturnValue(DeviceType.FirefoxExtension);
       inPopoutSpy.mockReturnValue(false);
@@ -325,6 +325,510 @@ describe("filePickerPopoutGuard", () => {
 
       expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
       expect(openPopoutSpy).not.toHaveBeenCalledWith(expect.stringContaining("autoClosePopout"));
+    });
+  });
+
+  describe("Send type differentiation", () => {
+    describe("Text Sends (type=0)", () => {
+      it.each([
+        { deviceType: DeviceType.FirefoxExtension, name: "Firefox" },
+        { deviceType: DeviceType.SafariExtension, name: "Safari" },
+        { deviceType: DeviceType.ChromeExtension, name: "Chrome" },
+        { deviceType: DeviceType.EdgeExtension, name: "Edge" },
+      ])(
+        "should allow navigation without popout for new text Sends on $name",
+        async ({ deviceType }) => {
+          getDeviceSpy.mockReturnValue(deviceType);
+          inPopoutSpy.mockReturnValue(false);
+          inSidebarSpy.mockReturnValue(false);
+
+          const textSendState: RouterStateSnapshot = {
+            url: "/add-send?type=0&isNew=true",
+          } as RouterStateSnapshot;
+
+          const guard = filePickerPopoutGuard();
+          const result = await TestBed.runInInjectionContext(() => guard(mockRoute, textSendState));
+
+          expect(openPopoutSpy).not.toHaveBeenCalled();
+          expect(closePopupSpy).not.toHaveBeenCalled();
+          expect(result).toBe(true);
+        },
+      );
+
+      it.each([
+        { deviceType: DeviceType.FirefoxExtension, name: "Firefox" },
+        { deviceType: DeviceType.SafariExtension, name: "Safari" },
+        { deviceType: DeviceType.ChromeExtension, name: "Chrome" },
+        { deviceType: DeviceType.EdgeExtension, name: "Edge" },
+      ])("should allow navigation for editing text Sends on $name", async ({ deviceType }) => {
+        getDeviceSpy.mockReturnValue(deviceType);
+        inPopoutSpy.mockReturnValue(false);
+        inSidebarSpy.mockReturnValue(false);
+
+        const editTextSendState: RouterStateSnapshot = {
+          url: "/edit-send?sendId=abc123&type=0",
+        } as RouterStateSnapshot;
+
+        const guard = filePickerPopoutGuard();
+        const result = await TestBed.runInInjectionContext(() =>
+          guard(mockRoute, editTextSendState),
+        );
+
+        expect(openPopoutSpy).not.toHaveBeenCalled();
+        expect(closePopupSpy).not.toHaveBeenCalled();
+        expect(result).toBe(true);
+      });
+    });
+
+    describe("File Sends (type=1)", () => {
+      it.each([
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.SafariExtension,
+          name: "Safari",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+          expectPopout: false,
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+          expectPopout: false,
+        },
+      ])(
+        "should require popout for a new file Send on $name $os",
+        async ({ deviceType, userAgent, expectPopout }) => {
+          getDeviceSpy.mockReturnValue(deviceType);
+          inPopoutSpy.mockReturnValue(false);
+          inSidebarSpy.mockReturnValue(false);
+
+          if (userAgent) {
+            Object.defineProperty(window, "navigator", {
+              value: { userAgent, appVersion: userAgent },
+              configurable: true,
+              writable: true,
+            });
+          }
+
+          const fileSendState: RouterStateSnapshot = {
+            url: "/add-send?type=1&isNew=true",
+          } as RouterStateSnapshot;
+
+          const guard = filePickerPopoutGuard();
+          const result = await TestBed.runInInjectionContext(() => guard(mockRoute, fileSendState));
+
+          if (expectPopout === false) {
+            expect(openPopoutSpy).not.toHaveBeenCalled();
+            expect(closePopupSpy).not.toHaveBeenCalled();
+            expect(result).toBe(true);
+          } else {
+            expect(openPopoutSpy).toHaveBeenCalledWith(
+              "popup/index.html#/add-send?type=1&isNew=true",
+            );
+            expect(closePopupSpy).toHaveBeenCalledWith(window);
+            expect(result).toBe(false);
+          }
+        },
+      );
+
+      it.each([
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.SafariExtension,
+          name: "Safari",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+          expectPopout: false,
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+          expectPopout: true,
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+          expectPopout: false,
+        },
+      ])(
+        "should require popout for editing a file Send on $name $os",
+        async ({ deviceType, userAgent, expectPopout }) => {
+          getDeviceSpy.mockReturnValue(deviceType);
+          inPopoutSpy.mockReturnValue(false);
+          inSidebarSpy.mockReturnValue(false);
+
+          if (userAgent) {
+            Object.defineProperty(window, "navigator", {
+              value: { userAgent, appVersion: userAgent },
+              configurable: true,
+              writable: true,
+            });
+          }
+
+          const editFileSendState: RouterStateSnapshot = {
+            url: "/edit-send?sendId=abc123&type=1",
+          } as RouterStateSnapshot;
+
+          const guard = filePickerPopoutGuard();
+          const result = await TestBed.runInInjectionContext(() =>
+            guard(mockRoute, editFileSendState),
+          );
+
+          if (expectPopout === false) {
+            expect(openPopoutSpy).not.toHaveBeenCalled();
+            expect(closePopupSpy).not.toHaveBeenCalled();
+            expect(result).toBe(true);
+          } else {
+            expect(openPopoutSpy).toHaveBeenCalledWith(
+              "popup/index.html#/edit-send?sendId=abc123&type=1",
+            );
+            expect(closePopupSpy).toHaveBeenCalledWith(window);
+            expect(result).toBe(false);
+          }
+        },
+      );
+    });
+
+    describe("Send routes without type parameter", () => {
+      it.each([
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        },
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+        },
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        },
+        {
+          deviceType: DeviceType.SafariExtension,
+          name: "Safari",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        },
+      ])(
+        "should default to requiring popout on $name $os",
+        async ({ deviceType, userAgent, os }) => {
+          getDeviceSpy.mockReturnValue(deviceType);
+          inPopoutSpy.mockReturnValue(false);
+          inSidebarSpy.mockReturnValue(false);
+
+          if (userAgent) {
+            Object.defineProperty(window, "navigator", {
+              value: { userAgent, appVersion: userAgent },
+              configurable: true,
+              writable: true,
+            });
+          }
+
+          const noTypeState: RouterStateSnapshot = {
+            url: "/add-send",
+          } as RouterStateSnapshot;
+
+          const guard = filePickerPopoutGuard();
+          const result = await TestBed.runInInjectionContext(() => guard(mockRoute, noTypeState));
+
+          // Windows Chrome/Edge don't need popout
+          const isChromiumOnWindows =
+            (deviceType === DeviceType.ChromeExtension ||
+              deviceType === DeviceType.EdgeExtension) &&
+            os === "Windows";
+
+          if (isChromiumOnWindows) {
+            expect(openPopoutSpy).not.toHaveBeenCalled();
+            expect(closePopupSpy).not.toHaveBeenCalled();
+            expect(result).toBe(true);
+          } else {
+            expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send");
+            expect(closePopupSpy).toHaveBeenCalledWith(window);
+            expect(result).toBe(false);
+          }
+        },
+      );
+
+      it.each([
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        },
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+        },
+        {
+          deviceType: DeviceType.FirefoxExtension,
+          name: "Firefox",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        },
+        {
+          deviceType: DeviceType.SafariExtension,
+          name: "Safari",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+        },
+        {
+          deviceType: DeviceType.ChromeExtension,
+          name: "Chrome",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Mac",
+          userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Linux",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64)",
+        },
+        {
+          deviceType: DeviceType.EdgeExtension,
+          name: "Edge",
+          os: "Windows",
+          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        },
+      ])(
+        "should default to requiring popout when type is invalid on $name $os",
+        async ({ deviceType, userAgent, os }) => {
+          getDeviceSpy.mockReturnValue(deviceType);
+          inPopoutSpy.mockReturnValue(false);
+          inSidebarSpy.mockReturnValue(false);
+
+          if (userAgent) {
+            Object.defineProperty(window, "navigator", {
+              value: { userAgent, appVersion: userAgent },
+              configurable: true,
+              writable: true,
+            });
+          }
+
+          const invalidTypeState: RouterStateSnapshot = {
+            url: "/add-send?type=invalid",
+          } as RouterStateSnapshot;
+
+          const guard = filePickerPopoutGuard();
+          const result = await TestBed.runInInjectionContext(() =>
+            guard(mockRoute, invalidTypeState),
+          );
+
+          // Windows Chrome/Edge don't need popout
+          const isChromiumOnWindows =
+            (deviceType === DeviceType.ChromeExtension ||
+              deviceType === DeviceType.EdgeExtension) &&
+            os === "Windows";
+
+          if (isChromiumOnWindows) {
+            expect(openPopoutSpy).not.toHaveBeenCalled();
+            expect(closePopupSpy).not.toHaveBeenCalled();
+            expect(result).toBe(true);
+          } else {
+            expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=invalid");
+            expect(closePopupSpy).toHaveBeenCalledWith(window);
+            expect(result).toBe(false);
+          }
+        },
+      );
+    });
+
+    describe("non-Send routes", () => {
+      it.each([
+        { deviceType: DeviceType.FirefoxExtension, name: "Firefox", route: "/import" },
+        { deviceType: DeviceType.FirefoxExtension, name: "Firefox", route: "/attachments" },
+        { deviceType: DeviceType.SafariExtension, name: "Safari", route: "/import" },
+        { deviceType: DeviceType.SafariExtension, name: "Safari", route: "/attachments" },
+      ])(
+        "should always require popout for $route on $name regardless of query params",
+        async ({ deviceType, route }) => {
+          getDeviceSpy.mockReturnValue(deviceType);
+          inPopoutSpy.mockReturnValue(false);
+          inSidebarSpy.mockReturnValue(false);
+
+          const routeState: RouterStateSnapshot = {
+            url: `${route}?type=0`,
+          } as RouterStateSnapshot;
+
+          const guard = filePickerPopoutGuard();
+          const result = await TestBed.runInInjectionContext(() => guard(mockRoute, routeState));
+
+          expect(openPopoutSpy).toHaveBeenCalledWith(`popup/index.html#${route}?type=0`);
+          expect(closePopupSpy).toHaveBeenCalledWith(window);
+          expect(result).toBe(false);
+        },
+      );
     });
   });
 });
