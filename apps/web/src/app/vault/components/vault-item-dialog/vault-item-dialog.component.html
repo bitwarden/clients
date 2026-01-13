@@ -106,15 +106,17 @@
             ></button>
           }
         }
-        <button
-          bitIconButton="bwi-trash"
-          type="button"
-          buttonType="danger"
-          [label]="'delete' | i18n"
-          [bitAction]="delete"
-          [disabled]="!canDelete"
-          data-testid="delete-cipher-btn"
-        ></button>
+        @if (cipher) {
+          <button
+            bitIconButton="bwi-trash"
+            type="button"
+            buttonType="danger"
+            [label]="'delete' | i18n"
+            [bitAction]="delete"
+            [disabled]="!canDelete"
+            data-testid="delete-cipher-btn"
+          ></button>
+        }
       </div>
     }
   </ng-container>
