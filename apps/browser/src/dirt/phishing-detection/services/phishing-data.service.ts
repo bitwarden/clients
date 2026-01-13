@@ -34,13 +34,11 @@ export type PhishingDataMeta = {
   applicationVersion: string;
 };
 
-// TODO: Compress and encode blob
 /**
  * The phishing data blob is a string representation of the phishing web addresses
  */
-export type PhishingDataWebAddressesBlob = string;
-export type PhishingDataWebAddressesArray = string[];
-export type PhishingData = { meta: PhishingDataMeta; blob: PhishingDataWebAddressesBlob };
+export type PhishingDataBlob = string;
+export type PhishingData = { meta: PhishingDataMeta; blob: PhishingDataBlob };
 
 export const PHISHING_DOMAINS_META_KEY = new KeyDefinition<PhishingDataMeta>(
   PHISHING_DETECTION_DISK,
