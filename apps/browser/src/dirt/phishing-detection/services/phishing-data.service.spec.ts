@@ -42,7 +42,6 @@ export const setupPhishingMocks = (mockedResult: string | ArrayBuffer = "mocked-
 
   global.Blob = class {
     constructor(public parts: any[]) {}
-    // Mock the .stream() and its pipeThrough chain
     stream() {
       return { pipeThrough: () => ({}) };
     }
@@ -277,8 +276,6 @@ describe("PhishingDataService", () => {
       });
 
       it("compresses using fallback on older browsers", async () => {
-        // Remove CompressionStream to force catch path
-
         const input = "abc";
         const expected = btoa(encodeURIComponent(input));
         const out = await service["_compressString"](input);
@@ -317,11 +314,9 @@ describe("PhishingDataService", () => {
 
   describe("_loadBlobToMemory", () => {
     it("loads blob into memory set", async () => {
-      // Ensure blob state contains some base64 which decompress returns lines for
       const prevBlob = "ignored-base64";
       fakeGlobalStateProvider.getFake(PHISHING_DOMAINS_BLOB_KEY).stateSubject.next(prevBlob);
 
-      // Mock decompress to return newline-separated addresses
       jest.spyOn(service as any, "_decompressString").mockResolvedValue("phish.com\nbadguy.net");
 
       await service["_loadBlobToMemory"]();
