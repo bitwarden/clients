@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -36,7 +37,6 @@ import {
   MASTER_PASSWORD_UNLOCK_KEY,
   MasterPasswordService,
 } from "./master-password.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 
 describe("MasterPasswordService", () => {
   let sut: MasterPasswordService;

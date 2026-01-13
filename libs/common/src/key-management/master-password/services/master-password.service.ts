@@ -5,9 +5,10 @@ import { firstValueFrom, map, Observable } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig, KeyService } from "@bitwarden/key-management";
+import { KdfConfig } from "@bitwarden/key-management";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
@@ -34,7 +35,6 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "../types/master-password.types";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 
 /** Memory since master key shouldn't be available on lock */
 export const MASTER_KEY = new UserKeyDefinition<MasterKey>(MASTER_PASSWORD_MEMORY, "masterKey", {
