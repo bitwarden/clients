@@ -1,9 +1,12 @@
 import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { AccountPaymentDetailsComponent } from "@bitwarden/web-vault/app/billing/individual/payment-details/account-payment-details.component";
 import { SelfHostedPremiumComponent } from "@bitwarden/web-vault/app/billing/individual/premium/self-hosted-premium.component";
+import { AccountSubscriptionComponent } from "@bitwarden/web-vault/app/billing/individual/subscription/account-subscription.component";
 
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
 import { CloudHostedPremiumComponent } from "./premium/cloud-hosted-premium.component";
@@ -17,11 +20,15 @@ const routes: Routes = [
     data: { titleId: "subscription" },
     children: [
       { path: "", pathMatch: "full", redirectTo: "premium" },
-      {
-        path: "user-subscription",
-        component: UserSubscriptionComponent,
-        data: { titleId: "premiumMembership" },
-      },
+      ...featureFlaggedRoute({
+        defaultComponent: UserSubscriptionComponent,
+        flaggedComponent: AccountSubscriptionComponent,
+        featureFlag: FeatureFlag.PM29594_UpdateIndividualSubscriptionPage,
+        routeOptions: {
+          path: "user-subscription",
+          data: { titleId: "premiumMembership" },
+        },
+      }),
       /**
        * Two-Route Matching Strategy for /premium:
        *

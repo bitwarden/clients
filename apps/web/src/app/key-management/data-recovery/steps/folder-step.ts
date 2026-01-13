@@ -25,6 +25,8 @@ export class FolderStep implements RecoveryStep {
     }
 
     this.undecryptableFolderIds = [];
+    this.decryptableFolderIds = [];
+
     for (const folder of workingData.folders) {
       if (!folder.name?.encryptedString) {
         logger.record(`Folder ID ${folder.id} has no name`);
