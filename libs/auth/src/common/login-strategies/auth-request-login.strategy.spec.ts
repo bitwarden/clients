@@ -26,7 +26,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { makeEncString, FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
