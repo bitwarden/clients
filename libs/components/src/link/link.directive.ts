@@ -3,28 +3,31 @@ import { input, HostBinding, Directive, inject, ElementRef, booleanAttribute } f
 import { AriaDisableDirective } from "../a11y";
 import { ariaDisableElement } from "../utils";
 
-export type LinkType =
-  | "primary"
-  | "secondary"
-  | "contrast"
-  | "light"
-  | "default"
-  | "subtle"
-  | "success"
-  | "warning"
-  | "danger"
-  | "contrast";
+export const LinkTypes = [
+  "primary",
+  "secondary",
+  "contrast",
+  "light",
+  "default",
+  "subtle",
+  "success",
+  "warning",
+  "danger",
+  "contrast",
+] as const;
+
+export type LinkType = (typeof LinkTypes)[number];
 
 const linkStyles: Record<LinkType, string[]> = {
   primary: ["!tw-text-fg-brand", "hover:!tw-text-fg-brand-strong"],
-  secondary: ["!tw-text-fg-heading", "hover:!tw-text-fg-heading"],
-  light: ["!tw-text-alt2", "hover:!tw-text-alt2", "focus-visible:before:tw-ring-text-alt2"],
   default: ["tw-text-fg-brand", "hover:tw-text-fg-brand-strong"],
+  secondary: ["!tw-text-fg-heading", "hover:!tw-text-fg-heading"],
+  light: ["!tw-text-fg-white", "hover:!tw-text-fg-white"],
   subtle: ["!tw-text-fg-heading", "hover:!tw-text-fg-heading"],
-  success: ["!tw-text-success-600", "hover:!tw-text-success-700"],
-  warning: ["!tw-text-warning-600", "hover:!tw-text-warning-700"],
-  danger: ["!tw-text-danger-600", "hover:!tw-text-danger-700"],
-  contrast: ["!tw-text-contrast", "hover:!tw-text-contrast"],
+  success: ["!tw-text-fg-success", "hover:!tw-text-fg-success-strong"],
+  warning: ["!tw-text-fg-warning", "hover:!tw-text-fg-warning-strong"],
+  danger: ["!tw-text-fg-danger", "hover:!tw-text-fg-danger-strong"],
+  contrast: ["!tw-text-fg-contrast", "hover:!tw-text-fg-contrast"],
 };
 
 const commonStyles = [
@@ -44,8 +47,8 @@ const commonStyles = [
   "hover:tw-decoration-1",
   "disabled:tw-no-underline",
   "disabled:tw-cursor-not-allowed",
-  "disabled:!tw-text-secondary-300",
-  "disabled:hover:!tw-text-secondary-300",
+  "disabled:!tw-text-fg-disabled",
+  "disabled:hover:!tw-text-fg-disabled",
   "disabled:hover:tw-no-underline",
   "focus-visible:tw-outline-none",
   "focus-visible:tw-underline",
