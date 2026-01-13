@@ -89,9 +89,9 @@ impl Display for BitwardenError {
 
 impl Error for BitwardenError {}
 
-// TODO: These have to be named differently than the actual Uniffi traits otherwise
-// the generated code will lead to ambiguous trait implementations
-// These are only used internally, so it doesn't matter that much
+// These methods are named differently than the actual Uniffi traits (without
+// the `on_` prefix) to avoid ambiguous trait implementations in the generated
+// code.
 trait Callback: Send + Sync {
     fn complete(&self, credential: serde_json::Value) -> Result<(), serde_json::Error>;
     fn error(&self, error: BitwardenError);
