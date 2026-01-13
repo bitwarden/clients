@@ -1,4 +1,4 @@
-import { Unassigned } from "@bitwarden/admin-console/common";
+import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
