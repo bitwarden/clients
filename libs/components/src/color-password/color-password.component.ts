@@ -23,8 +23,7 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
 @Component({
   selector: "bit-color-password",
   template: `@for (character of passwordCharArray(); track $index; let i = $index) {
-    <!-- eslint-disable-next-line tailwindcss/no-custom-classname -->
-    <span [class]="getCharacterClass(character)" class="tw-font-mono password-character">
+    <span [class]="getCharacterClass(character)" class="tw-font-mono" data-password-character>
       <span>{{ character }}</span>
       @if (showCount()) {
         <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
@@ -100,7 +99,9 @@ export class ColorPasswordComponent {
       return;
     }
 
-    const spanElements = this.elementRef.nativeElement.querySelectorAll("span.password-character");
+    const spanElements = this.elementRef.nativeElement.querySelectorAll(
+      "span[data-password-character]",
+    );
     let copiedText = "";
 
     spanElements.forEach((span: HTMLElement, index: number) => {
