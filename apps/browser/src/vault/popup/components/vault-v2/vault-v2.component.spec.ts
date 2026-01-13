@@ -38,6 +38,8 @@ import {
   DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 
+import { BrowserApi } from "../../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
 import { VaultPopupCopyButtonsService } from "../../services/vault-popup-copy-buttons.service";
