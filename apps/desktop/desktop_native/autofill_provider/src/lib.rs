@@ -124,7 +124,7 @@ pub enum ConnectionStatus {
 /// Before calling any other methods, check the connection status using
 /// [`AutofillProviderClient::get_connection_status()`].
 ///
-/// # Example
+/// # Examples
 ///
 /// ```no_run
 /// use std::{sync::Arc, time::Duration};
@@ -495,7 +495,8 @@ impl<T: Send + 'static> TimedCallback<T> {
     /// Block the current thread until either a response is received, or the
     /// specified timeout has passed.
     ///
-    /// # Usage
+    /// # Examples
+    ///
     /// ```no_run
     /// use std::{sync::Arc, time::Duration};
     ///
