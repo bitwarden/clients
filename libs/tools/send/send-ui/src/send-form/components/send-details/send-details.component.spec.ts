@@ -10,8 +10,8 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 
