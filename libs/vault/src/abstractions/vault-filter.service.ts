@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { CollectionAdminView, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminView,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { UserId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
