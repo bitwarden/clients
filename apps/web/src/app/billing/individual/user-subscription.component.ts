@@ -30,6 +30,7 @@ import {
 import { UpdateLicenseDialogComponent } from "../shared/update-license-dialog.component";
 import { UpdateLicenseDialogResult } from "../shared/update-license-types";
 
+// TODO: Remove with deletion of pm-29594-update-individual-subscription-page
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -256,8 +257,8 @@ export class UserSubscriptionComponent implements OnInit {
       return null;
     }
     return discount.amountOff
-      ? { type: DiscountTypes.AmountOff, active: discount.active, value: discount.amountOff }
-      : { type: DiscountTypes.PercentOff, active: discount.active, value: discount.percentOff };
+      ? { type: DiscountTypes.AmountOff, value: discount.amountOff }
+      : { type: DiscountTypes.PercentOff, value: discount.percentOff };
   }
 
   get isSubscriptionActive(): boolean {
