@@ -22,9 +22,7 @@ import { UserKey } from "../../types/key";
 import { AccountService } from "../abstractions/account.service";
 import { PasswordResetEnrollmentServiceAbstraction } from "../abstractions/password-reset-enrollment.service.abstraction";
 
-export class PasswordResetEnrollmentServiceImplementation
-  implements PasswordResetEnrollmentServiceAbstraction
-{
+export class PasswordResetEnrollmentServiceImplementation implements PasswordResetEnrollmentServiceAbstraction {
   constructor(
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected accountService: AccountService,

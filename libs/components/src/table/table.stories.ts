@@ -1,13 +1,14 @@
 import { RouterTestingModule } from "@angular/router/testing";
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { countries } from "../form/countries";
 import { LayoutComponent } from "../layout";
 import { mockLayoutI18n } from "../layout/mocks";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
-import { I18nMockService } from "../utils";
+import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
 import { TableDataSource } from "./table-data-source";
 import { TableModule } from "./table.module";
@@ -24,6 +25,14 @@ export default {
           useFactory: () => {
             return new I18nMockService(mockLayoutI18n);
           },
+        },
+      ],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),
