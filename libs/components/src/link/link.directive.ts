@@ -3,21 +3,28 @@ import { input, HostBinding, Directive, inject, ElementRef, booleanAttribute } f
 import { AriaDisableDirective } from "../a11y";
 import { ariaDisableElement } from "../utils";
 
-export type LinkType = "primary" | "secondary" | "contrast" | "light";
+export type LinkType =
+  | "primary"
+  | "secondary"
+  | "contrast"
+  | "light"
+  | "default"
+  | "subtle"
+  | "success"
+  | "warning"
+  | "danger"
+  | "contrast";
 
 const linkStyles: Record<LinkType, string[]> = {
-  primary: [
-    "!tw-text-primary-600",
-    "hover:!tw-text-primary-700",
-    "focus-visible:before:tw-ring-primary-600",
-  ],
-  secondary: ["!tw-text-main", "hover:!tw-text-main", "focus-visible:before:tw-ring-primary-600"],
-  contrast: [
-    "!tw-text-contrast",
-    "hover:!tw-text-contrast",
-    "focus-visible:before:tw-ring-text-contrast",
-  ],
+  primary: ["!tw-text-fg-brand", "hover:!tw-text-fg-brand-strong"],
+  secondary: ["!tw-text-fg-heading", "hover:!tw-text-fg-heading"],
   light: ["!tw-text-alt2", "hover:!tw-text-alt2", "focus-visible:before:tw-ring-text-alt2"],
+  default: ["tw-text-fg-brand", "hover:tw-text-fg-brand-strong"],
+  subtle: ["!tw-text-fg-heading", "hover:!tw-text-fg-heading"],
+  success: ["!tw-text-success-600", "hover:!tw-text-success-700"],
+  warning: ["!tw-text-warning-600", "hover:!tw-text-warning-700"],
+  danger: ["!tw-text-danger-600", "hover:!tw-text-danger-700"],
+  contrast: ["!tw-text-contrast", "hover:!tw-text-contrast"],
 };
 
 const commonStyles = [
@@ -32,6 +39,7 @@ const commonStyles = [
   "tw-rounded",
   "tw-transition",
   "tw-no-underline",
+  "tw-cursor-pointer",
   "hover:tw-underline",
   "hover:tw-decoration-1",
   "disabled:tw-no-underline",
@@ -42,6 +50,7 @@ const commonStyles = [
   "focus-visible:tw-outline-none",
   "focus-visible:tw-underline",
   "focus-visible:tw-decoration-1",
+  "focus-visible:before:tw-ring-border-focus",
 
   // Workaround for html button tag not being able to be set to `display: inline`
   // and at the same time not being able to use `tw-ring-offset` because of box-shadow issue.
