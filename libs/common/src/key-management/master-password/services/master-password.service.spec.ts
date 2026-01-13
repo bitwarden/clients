@@ -466,8 +466,10 @@ describe("MasterPasswordService", () => {
     it("computes and sets master key hash in state", async () => {
       const masterKey = makeSymmetricCryptoKey(32, 7) as MasterKey;
       const expectedHashBytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+      const expectedHashB64 = "AQIDBAUGBwg=";
       keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
       cryptoFunctionService.pbkdf2.mockResolvedValue(expectedHashBytes);
+      jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(expectedHashB64);
 
       const masterPasswordUnlockData = new MasterPasswordUnlockData(
         salt,
@@ -485,7 +487,7 @@ describe("MasterPasswordService", () => {
       );
 
       const hashState = await firstValueFrom(sut.masterKeyHash$(userId));
-      expect(hashState).toEqual(Utils.fromBufferToB64(expectedHashBytes));
+      expect(hashState).toEqual(expectedHashB64);
     });
 
     it("throws if password is null", async () => {
