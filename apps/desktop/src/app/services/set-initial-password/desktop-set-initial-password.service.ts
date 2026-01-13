@@ -1,7 +1,6 @@
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
-  SetInitialPasswordCredentials,
   SetInitialPasswordCredentialsOld,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
@@ -60,16 +59,6 @@ export class DesktopSetInitialPasswordService
     userId: UserId,
   ) {
     await super.setInitialPasswordOld(credentials, userType, userId);
-
-    this.messagingService.send("redrawMenu");
-  }
-
-  override async setInitialPassword(
-    credentials: SetInitialPasswordCredentials,
-    userType: SetInitialPasswordUserType,
-    userId: UserId,
-  ) {
-    await super.setInitialPassword(credentials, userType, userId);
 
     this.messagingService.send("redrawMenu");
   }

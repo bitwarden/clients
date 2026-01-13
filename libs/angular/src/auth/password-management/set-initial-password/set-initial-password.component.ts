@@ -39,7 +39,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
-  SetInitialPasswordCredentials,
   SetInitialPasswordCredentialsOld,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
@@ -196,14 +195,7 @@ export class SetInitialPasswordComponent implements OnInit {
     switch (this.userType) {
       case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER:
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
-        // Remove wrapping "if" check and early return in PM-28143
-        if (passwordInputResult.newApisFlagEnabled) {
-          await this.setInitialPassword(passwordInputResult);
-          return;
-        }
-
         await this.setInitialPasswordOld(passwordInputResult); // remove in PM-28143
-
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
         await this.setInitialPasswordTdeOffboarding(passwordInputResult);
@@ -249,48 +241,6 @@ export class SetInitialPasswordComponent implements OnInit {
       };
 
       await this.setInitialPasswordService.setInitialPasswordOld(
-        credentials,
-        this.userType,
-        this.userId,
-      );
-
-      this.showSuccessToastByUserType();
-
-      this.submitting = false;
-      await this.router.navigate(["vault"]);
-    } catch (e) {
-      this.logService.error("Error setting initial password", e);
-      this.validationService.showError(e);
-      this.submitting = false;
-    }
-  }
-
-  private async setInitialPassword(passwordInputResult: PasswordInputResult) {
-    const ctx = "Could not set initial password.";
-
-    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
-    assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
-    assertTruthy(passwordInputResult.salt, "salt", ctx);
-    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
-
-    assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
-    assertTruthy(this.orgId, "orgId", ctx);
-    assertTruthy(this.userType, "userType", ctx);
-    assertTruthy(this.userId, "userId", ctx);
-    assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
-
-    try {
-      const credentials: SetInitialPasswordCredentials = {
-        newPassword: passwordInputResult.newPassword,
-        newPasswordHint: passwordInputResult.newPasswordHint,
-        kdfConfig: passwordInputResult.kdfConfig,
-        salt: passwordInputResult.salt,
-        orgSsoIdentifier: this.orgSsoIdentifier,
-        orgId: this.orgId,
-        resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
-      };
-
-      await this.setInitialPasswordService.setInitialPassword(
         credentials,
         this.userType,
         this.userId,
