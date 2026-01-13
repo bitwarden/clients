@@ -14,6 +14,7 @@ import {
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
   UriMatchDefaultPolicy,
+  vNextOrganizationDataOwnershipPolicy,
 } from "./policy-edit-definitions";
 
 /**
@@ -29,6 +30,7 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new SingleOrgPolicy(),
   new RequireSsoPolicy(),
   new OrganizationDataOwnershipPolicy(),
+  new vNextOrganizationDataOwnershipPolicy(),
   new DisableSendPolicy(),
   new SendOptionsPolicy(),
   new RestrictedItemTypesPolicy(),

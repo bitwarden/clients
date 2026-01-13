@@ -5909,6 +5909,37 @@
       }
     }
   },
+  "centralizeDataOwnership":{
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc":{
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits":{
+    "message": "Benefits"
+  },
+  "centralizeDataOwnershipBenefit1":{
+    "message": "Gain full visibility into item health, regardless if it’s shared or not."
+  },
+  "centralizeDataOwnershipBenefit2":{
+    "message": "Easily transfer items when members leave, ensuring no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3":{
+    "message": "Give each user a private “My items” space for their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "This policy may require users to transfer items to the organization"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Members will be prompted to transfer their individual vault items to the organization or leave. If they leave, their access will be revoked but it can be restored at any time."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
+  },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
   },

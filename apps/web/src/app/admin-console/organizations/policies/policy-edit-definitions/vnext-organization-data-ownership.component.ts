@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
-import { lastValueFrom, map, Observable } from "rxjs";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  Signal,
+  TemplateRef,
+  viewChild,
+} from "@angular/core";
+import { lastValueFrom, Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -15,34 +22,32 @@ import { EncString } from "@bitwarden/sdk-internal";
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-interface OrganizationDataOwnershipPolicyRequest {
+interface VNextOrganizationDataOwnershipPolicyRequest {
   policy: PolicyRequest;
   metadata: {
     defaultUserCollectionName: string;
   };
 }
 
-export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
-  name = "organizationDataOwnership";
-  description = "organizationDataOwnershipDesc";
+export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
+  name = "centralizeDataOwnership";
+  description = "centralizeDataOwnershipDesc";
   type = PolicyType.OrganizationDataOwnership;
-  component = OrganizationDataOwnershipPolicyComponent;
+  component = vNextOrganizationDataOwnershipPolicyComponent;
   showDescription = false;
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService
-      .getFeatureFlag$(FeatureFlag.MigrateMyVaultToMyItems)
-      .pipe(map((enabled) => !enabled));
+    return configService.getFeatureFlag$(FeatureFlag.MigrateMyVaultToMyItems);
   }
 }
 
 @Component({
-  selector: "organization-data-ownership-policy-edit",
-  templateUrl: "organization-data-ownership.component.html",
+  selector: "vnext-organization-data-ownership-policy-edit",
+  templateUrl: "vnext-organization-data-ownership.component.html",
   imports: [SharedModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OrganizationDataOwnershipPolicyComponent
+export class vNextOrganizationDataOwnershipPolicyComponent
   extends BasePolicyEditComponent
   implements OnInit
 {
@@ -53,14 +58,15 @@ export class OrganizationDataOwnershipPolicyComponent
   ) {
     super();
   }
+  private readonly policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
+  private readonly warningContent = viewChild.required<TemplateRef<unknown>>("dialog");
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("dialog", { static: true }) warningContent!: TemplateRef<unknown>;
+  protected step: number = 0;
+  protected steps = [this.policyForm, this.warningContent];
 
   override async confirm(): Promise<boolean> {
-    if (this.policyResponse?.enabled && !this.enabled.value) {
-      const dialogRef = this.dialogService.open(this.warningContent, {
+    if (!this.policyResponse?.enabled && this.enabled.value) {
+      const dialogRef = this.dialogService.open(this.warningContent(), {
         positionStrategy: new CenterPositionStrategy(),
       });
       const result = await lastValueFrom(dialogRef.closed);
@@ -69,14 +75,14 @@ export class OrganizationDataOwnershipPolicyComponent
     return true;
   }
 
-  async buildVNextRequest(orgKey: OrgKey): Promise<OrganizationDataOwnershipPolicyRequest> {
+  async buildVNextRequest(orgKey: OrgKey): Promise<VNextOrganizationDataOwnershipPolicyRequest> {
     if (!this.policy) {
       throw new Error("Policy was not found");
     }
 
     const defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
 
-    const request: OrganizationDataOwnershipPolicyRequest = {
+    const request: VNextOrganizationDataOwnershipPolicyRequest = {
       policy: {
         enabled: this.enabled.value ?? false,
         data: this.buildRequestData(),

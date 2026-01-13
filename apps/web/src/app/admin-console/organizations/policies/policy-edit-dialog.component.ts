@@ -29,6 +29,7 @@ import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
 import { OrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions/organization-data-ownership.component";
+import { vNextOrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions/vnext-organization-data-ownership.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -129,7 +130,10 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     try {
-      if (this.policyComponent instanceof OrganizationDataOwnershipPolicyComponent) {
+      if (
+        this.policyComponent instanceof OrganizationDataOwnershipPolicyComponent ||
+        this.policyComponent instanceof vNextOrganizationDataOwnershipPolicyComponent
+      ) {
         await this.handleVNextSubmission(this.policyComponent);
       } else {
         await this.handleStandardSubmission();
@@ -158,7 +162,9 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   }
 
   private async handleVNextSubmission(
-    policyComponent: OrganizationDataOwnershipPolicyComponent,
+    policyComponent:
+      | OrganizationDataOwnershipPolicyComponent
+      | vNextOrganizationDataOwnershipPolicyComponent,
   ): Promise<void> {
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
