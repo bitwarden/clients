@@ -39,7 +39,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
-  SetInitialPasswordCredentialsOld,
+  SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordUserType,
@@ -195,7 +195,7 @@ export class SetInitialPasswordComponent implements OnInit {
     switch (this.userType) {
       case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER:
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
-        await this.setInitialPasswordOld(passwordInputResult); // remove in PM-28143
+        await this.setInitialPassword(passwordInputResult);
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
         await this.setInitialPasswordTdeOffboarding(passwordInputResult);
@@ -211,7 +211,7 @@ export class SetInitialPasswordComponent implements OnInit {
   /**
    * @deprecated To be removed in PM-28143
    */
-  private async setInitialPasswordOld(passwordInputResult: PasswordInputResult) {
+  private async setInitialPassword(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
     assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
     assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
@@ -227,7 +227,7 @@ export class SetInitialPasswordComponent implements OnInit {
     assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
 
     try {
-      const credentials: SetInitialPasswordCredentialsOld = {
+      const credentials: SetInitialPasswordCredentials = {
         newMasterKey: passwordInputResult.newMasterKey,
         newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
         newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
@@ -240,7 +240,7 @@ export class SetInitialPasswordComponent implements OnInit {
         salt: passwordInputResult.salt,
       };
 
-      await this.setInitialPasswordService.setInitialPasswordOld(
+      await this.setInitialPasswordService.setInitialPassword(
         credentials,
         this.userType,
         this.userId,

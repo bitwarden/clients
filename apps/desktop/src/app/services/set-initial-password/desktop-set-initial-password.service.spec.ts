@@ -3,7 +3,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
-  SetInitialPasswordCredentialsOld,
+  SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
@@ -83,9 +83,9 @@ describe("DesktopSetInitialPasswordService", () => {
   /**
    * @deprecated To be removed in PM-28143
    */
-  describe("setInitialPasswordOld(...)", () => {
+  describe("setInitialPassword(...)", () => {
     // Mock function parameters
-    let credentials: SetInitialPasswordCredentialsOld;
+    let credentials: SetInitialPasswordCredentials;
     let userType: SetInitialPasswordUserType;
     let userId: UserId;
 
@@ -157,7 +157,7 @@ describe("DesktopSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        await sut.setInitialPasswordOld(credentials, userType, userId);
+        await sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
         expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -169,11 +169,11 @@ describe("DesktopSetInitialPasswordService", () => {
     describe("given the initial password was NOT successfully set (due to some error in setInitialPassword())", () => {
       it("should NOT send a 'redrawMenu' message", async () => {
         // Arrange
-        credentials.newMasterKey = null; // will trigger an error in setInitialPasswordOld()
+        credentials.newMasterKey = null; // will trigger an error in setInitialPassword()
         setupMocks();
 
         // Act
-        const promise = sut.setInitialPasswordOld(credentials, userType, userId);
+        const promise = sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
         await expect(promise).rejects.toThrow();

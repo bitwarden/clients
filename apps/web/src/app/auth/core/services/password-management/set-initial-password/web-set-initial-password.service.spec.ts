@@ -3,7 +3,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
-  SetInitialPasswordCredentialsOld,
+  SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
@@ -87,9 +87,9 @@ describe("WebSetInitialPasswordService", () => {
   /**
    * @deprecated To be removed in PM-28143
    */
-  describe("setInitialPasswordOld(...)", () => {
+  describe("setInitialPassword(...)", () => {
     // Mock function parameters
-    let credentials: SetInitialPasswordCredentialsOld;
+    let credentials: SetInitialPasswordCredentials;
     let userType: SetInitialPasswordUserType;
     let userId: UserId;
 
@@ -161,7 +161,7 @@ describe("WebSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        await sut.setInitialPasswordOld(credentials, userType, userId);
+        await sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
         expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -173,7 +173,7 @@ describe("WebSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        await sut.setInitialPasswordOld(credentials, userType, userId);
+        await sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
         expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -188,7 +188,7 @@ describe("WebSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        const promise = sut.setInitialPasswordOld(credentials, userType, userId);
+        const promise = sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
         await expect(promise).rejects.toThrow();
@@ -202,7 +202,7 @@ describe("WebSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        const promise = sut.setInitialPasswordOld(credentials, userType, userId);
+        const promise = sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
         await expect(promise).rejects.toThrow();

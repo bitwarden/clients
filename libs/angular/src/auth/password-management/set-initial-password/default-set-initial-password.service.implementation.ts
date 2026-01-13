@@ -29,7 +29,7 @@ import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-manageme
 
 import {
   SetInitialPasswordService,
-  SetInitialPasswordCredentialsOld,
+  SetInitialPasswordCredentials,
   SetInitialPasswordUserType,
   SetInitialPasswordTdeOffboardingCredentials,
 } from "./set-initial-password.service.abstraction";
@@ -52,8 +52,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   /**
    * @deprecated To be removed in PM-28143
    */
-  async setInitialPasswordOld(
-    credentials: SetInitialPasswordCredentialsOld,
+  async setInitialPassword(
+    credentials: SetInitialPasswordCredentials,
     userType: SetInitialPasswordUserType,
     userId: UserId,
   ): Promise<void> {
@@ -154,7 +154,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionPropertiesOld(
+    await this.updateAccountDecryptionProperties(
       newMasterKey,
       kdfConfig,
       masterKeyEncryptedUserKey,
@@ -225,10 +225,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     return masterKeyEncryptedUserKey;
   }
 
-  /**
-   * @deprecated To be removed in PM-28143
-   */
-  private async updateAccountDecryptionPropertiesOld(
+  private async updateAccountDecryptionProperties(
     masterKey: MasterKey,
     kdfConfig: KdfConfig,
     masterKeyEncryptedUserKey: [UserKey, EncString],
