@@ -159,7 +159,7 @@ export interface Fido2AuthenticatorGetAssertionParams {
   /** Signals whether an error should be thrown if an assertion cannot be obtained without showing Bitwarden UI.
    *
    * Note that OS user verification prompts are allowed in silent requests.
-  */
+   */
   isSilent?: boolean;
 }
 

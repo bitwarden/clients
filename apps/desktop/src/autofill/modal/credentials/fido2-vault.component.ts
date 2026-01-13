@@ -18,7 +18,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BadgeModule,
   ButtonModule,
@@ -38,7 +41,6 @@ import {
   DesktopFido2UserInterfaceService,
   DesktopFido2UserInterfaceSession,
 } from "../../services/desktop-fido2-user-interface.service";
-import { CipherViewLike, CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 @Component({
   standalone: true,
@@ -153,7 +155,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   }
 
   getSubtitle(cipher: CipherViewLike): string | undefined {
-    return CipherViewLikeUtils.subtitle(cipher)
+    return CipherViewLikeUtils.subtitle(cipher);
   }
 
   private async validateCipherAccess(cipher: CipherViewLike): Promise<boolean> {

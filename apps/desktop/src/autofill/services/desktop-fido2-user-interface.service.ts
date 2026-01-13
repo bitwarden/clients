@@ -18,7 +18,7 @@ import {
   Fido2UserInterfaceSession,
   NewCredentialParams,
   PickCredentialParams,
-UserInteractionRequired,
+  UserInteractionRequired,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -32,10 +32,10 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { NativeAutofillUserVerificationCommand } from "../../platform/main/autofill/user-verification.command";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 /**
  * This type is used to pass the window position from the native UI
@@ -155,21 +155,28 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
           if (!activeUserId) {
             return;
           }
-          const cipherView = await firstValueFrom(this.cipherService.cipherListViews$(activeUserId).pipe(map((ciphers) => {
-            return ciphers.find((cipher) => cipher.id == selectedCipherId && !cipher.deletedDate);
-          })));
+          const cipherView = await firstValueFrom(
+            this.cipherService.cipherListViews$(activeUserId).pipe(
+              map((ciphers) => {
+                return ciphers.find(
+                  (cipher) => cipher.id == selectedCipherId && !cipher.deletedDate,
+                );
+              }),
+            ),
+          );
 
-          const username = CipherViewLikeUtils.getLogin(cipherView).username ?? cipherView.name
+          const username = CipherViewLikeUtils.getLogin(cipherView).username ?? cipherView.name;
           try {
             // TODO: internationalization
-            const isConfirmed = await this.promptForUserVerification(username, "Verify it's you to log in with Bitwarden.");
+            const isConfirmed = await this.promptForUserVerification(
+              username,
+              "Verify it's you to log in with Bitwarden.",
+            );
             return { cipherId: cipherIds[0], userVerified: isConfirmed };
+          } catch (e) {
+            this.logService.debug("Failed to prompt for user verification without showing UI", e);
           }
-          catch (e) {
-            this.logService.debug("Failed to prompt for user verification without showing UI", e)
-          }
-        }
-        else if (assumeUserPresence) {
+        } else if (assumeUserPresence) {
           this.logService.warning(
             "shortcut - Assuming user presence and returning cipherId",
             cipherIds[0],
@@ -180,9 +187,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
       if (isSilent) {
         this.logService.info("Could not fulfill request silently, aborting request");
-        throw new UserInteractionRequired()
-      }
-      else {
+        throw new UserInteractionRequired();
+      } else {
         this.logService.debug("Could not shortcut, showing UI");
       }
 
@@ -231,8 +237,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       // If we hit a timeout or if the request is cancelled, return undefined instead of throwing
       if (e.name === "AbortError") {
         this.logService.warning("Request was cancelled before the user selected a cipher");
-      }
-      else {
+      } else {
         this.logService.warning("Timeout: User did not select a cipher within the allowed time", {
           timeoutMs,
         });
@@ -264,12 +269,11 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       this.abortController.signal.throwIfAborted();
       const confirmPromise = lastValueFrom(this.confirmCredentialSubject);
       return await Promise.race([confirmPromise, cancelPromise]);
-    } catch (e) {
+    } catch {
       // If the request is cancelled, return undefined instead of throwing
       this.logService.warning("Request was cancelled before the user confirmed the cipher");
       return undefined;
-    }
-    finally {
+    } finally {
       this.unsusbscribeCancellation(abortFn);
     }
   }
@@ -405,23 +409,28 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   /** Called by the UI to prompt the user for verification. May be fulfilled by the OS. */
   async promptForUserVerification(username: string, displayHint: string): Promise<boolean> {
-    this.logService.info("DesktopFido2UserInterfaceSession] Prompting for user verification")
+    this.logService.info("DesktopFido2UserInterfaceSession] Prompting for user verification");
     // If the UI was showing before (to unlock the vault), then use our
     // window for the handle; otherwise, use the WebAuthn client's
     // handle.
-    // 
+    //
     // For Windows, if the selected window handle is not in the foreground, then the Windows
     // Hello dialog will also be in the background.
     const windowDetails = await ipc.platform.getNativeWindowDetails();
     this.logService.debug("Window details:", windowDetails);
     let windowHandle;
     if (windowDetails.isVisible && windowDetails.isFocused) {
-      windowHandle = windowDetails.handle
-      this.logService.debug("Window is visible, setting Electron window as parent of Windows Hello UV dialog", windowHandle.buffer)
-    }
-    else {
+      windowHandle = windowDetails.handle;
+      this.logService.debug(
+        "Window is visible, setting Electron window as parent of Windows Hello UV dialog",
+        windowHandle.buffer,
+      );
+    } else {
       windowHandle = this.windowObject.handle;
-      this.logService.debug("Window is not visible: setting client window as parent of Windows Hello UV dialog", windowHandle.buffer)
+      this.logService.debug(
+        "Window is not visible: setting client window as parent of Windows Hello UV dialog",
+        windowHandle.buffer,
+      );
     }
 
     this.logService.debug("Prompting for user verification");
@@ -498,18 +507,18 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   /** Returns a promise that will be rejected if the session's abort signal is fired. */
   subscribeToCancellation() {
-      let cancelReject: (reason?: any) => void;
-      const cancelPromise: Promise<never> = new Promise((_, reject) => {
-        cancelReject = reject
-      });
-      const abortFn = (ev: Event) => {
-        if (ev.target instanceof AbortSignal) {
-          cancelReject(ev.target.reason)
-        }
-      };
-      this.abortController.signal.addEventListener("abort", abortFn, { once: true });
+    let cancelReject: (reason?: any) => void;
+    const cancelPromise: Promise<never> = new Promise((_, reject) => {
+      cancelReject = reject;
+    });
+    const abortFn = (ev: Event) => {
+      if (ev.target instanceof AbortSignal) {
+        cancelReject(ev.target.reason);
+      }
+    };
+    this.abortController.signal.addEventListener("abort", abortFn, { once: true });
 
-      return { promise: cancelPromise, listener: abortFn };
+    return { promise: cancelPromise, listener: abortFn };
   }
 
   /** Cleans up event listeners for cancellation */

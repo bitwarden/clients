@@ -15,5 +15,4 @@ export type NativeAutofillUserVerificationParams = {
   username: string;
 };
 
-
-export type NativeAutofillUserVerificationResult = CommandOutput<{}>;
+export type NativeAutofillUserVerificationResult = CommandOutput<void>;

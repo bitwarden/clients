@@ -5,7 +5,6 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
 
 import { WindowDetails } from "../main/window.main";
-
 import {
   EncryptedMessageResponse,
   LegacyMessageWrapper,
@@ -147,9 +146,9 @@ export default {
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
   getNativeWindowDetails: async (): Promise<WindowDetails> => {
-    const windowDetails = await ipcRenderer.invoke("get-native-window-details")
-    const handle = Buffer.from(windowDetails.handle, "base64")
-    return { ...windowDetails, handle }
+    const windowDetails = await ipcRenderer.invoke("get-native-window-details");
+    const handle = Buffer.from(windowDetails.handle, "base64");
+    return { ...windowDetails, handle };
   },
 
   openContextMenu: (

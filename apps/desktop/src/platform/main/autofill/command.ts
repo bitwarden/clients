@@ -21,4 +21,7 @@ export type IpcCommandInvoker<C extends CommandDefinition> = (
 ) => Promise<CommandOutput<C["output"]>>;
 
 /** A list of all available commands */
-export type Command = NativeAutofillSyncCommand | NativeAutofillStatusCommand | NativeAutofillUserVerificationCommand;
+export type Command =
+  | NativeAutofillSyncCommand
+  | NativeAutofillStatusCommand
+  | NativeAutofillUserVerificationCommand;

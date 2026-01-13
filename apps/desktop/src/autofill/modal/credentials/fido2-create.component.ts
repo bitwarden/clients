@@ -138,7 +138,10 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       }
 
       const username = await this.session.getUserName();
-      const isConfirmed = await this.session.promptForUserVerification(username, "Verify it's you to create a new credential")
+      const isConfirmed = await this.session.promptForUserVerification(
+        username,
+        "Verify it's you to create a new credential",
+      );
       this.session.notifyConfirmCreateCredential(isConfirmed);
     } catch {
       await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
@@ -213,8 +216,11 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return this.passwordRepromptService.showPasswordPrompt();
     }
 
-    const username = cipher.login.username ?? cipher.name
-    return this.session.promptForUserVerification(username, "Verify it's you to overwrite a credential")
+    const username = cipher.login.username ?? cipher.name;
+    return this.session.promptForUserVerification(
+      username,
+      "Verify it's you to overwrite a credential",
+    );
   }
 
   private async showErrorDialog(config: SimpleDialogOptions): Promise<void> {

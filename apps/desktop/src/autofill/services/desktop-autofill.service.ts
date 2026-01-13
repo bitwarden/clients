@@ -228,7 +228,9 @@ export class DesktopAutofillService implements OnDestroy {
         this.inFlightRequests[request.context] = controller;
       }
 
-      const clientHandle = request.clientWindowHandle ? new Uint8Array(request.clientWindowHandle) : null;
+      const clientHandle = request.clientWindowHandle
+        ? new Uint8Array(request.clientWindowHandle)
+        : null;
       try {
         const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
@@ -270,7 +272,9 @@ export class DesktopAutofillService implements OnDestroy {
           this.inFlightRequests[request.context] = controller;
         }
 
-        const clientHandle = request.clientWindowHandle ? new Uint8Array(request.clientWindowHandle) : null;
+        const clientHandle = request.clientWindowHandle
+          ? new Uint8Array(request.clientWindowHandle)
+          : null;
 
         try {
           // For some reason the credentialId is passed as an empty array in the request, so we need to
@@ -342,7 +346,9 @@ export class DesktopAutofillService implements OnDestroy {
         this.inFlightRequests[request.context] = controller;
       }
 
-      const clientHandle = request.clientWindowHandle ? new Uint8Array(request.clientWindowHandle) : null;
+      const clientHandle = request.clientWindowHandle
+        ? new Uint8Array(request.clientWindowHandle)
+        : null;
       try {
         const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
@@ -375,13 +381,12 @@ export class DesktopAutofillService implements OnDestroy {
         // perform ad-hoc sync
         await this.adHocSync();
       } else if (status.key === "cancel-operation" && status.value) {
-        const requestId = status.value
-        const controller = this.inFlightRequests[requestId]
+        const requestId = status.value;
+        const controller = this.inFlightRequests[requestId];
         if (controller) {
           this.logService.debug(`Cancelling request ${requestId}`);
-          controller.abort("Operation cancelled")
-        }
-        else {
+          controller.abort("Operation cancelled");
+        } else {
           this.logService.debug(`Unknown request: ${requestId}`);
         }
       }
@@ -400,8 +405,8 @@ export class DesktopAutofillService implements OnDestroy {
       const handle = Utils.fromBufferToB64(windowDetails.handle);
       const response = { ...windowDetails, handle };
       this.logService.debug("listenGetWindowHandle: sending", response);
-      callback(null, response)
-    })
+      callback(null, response);
+    });
 
     ipc.autofill.listenerReady();
   }
@@ -461,10 +466,9 @@ export class DesktopAutofillService implements OnDestroy {
       | autofill.PasskeyAssertionRequest
       | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
     options?: {
-      assumeUserPresence?: boolean,
-      isSilent?: boolean,
-    }
-
+      assumeUserPresence?: boolean;
+      isSilent?: boolean;
+    },
   ): Fido2AuthenticatorGetAssertionParams {
     const { assumeUserPresence, isSilent } = options ?? {};
     let allowedCredentials;
