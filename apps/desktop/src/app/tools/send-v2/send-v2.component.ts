@@ -17,6 +17,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -66,6 +67,7 @@ export class SendV2Component {
   private sendApiService = inject(SendApiService);
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
+  private logService = inject(LogService);
   private cdr = inject(ChangeDetectorRef);
 
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
@@ -150,6 +152,33 @@ export class SendV2Component {
       title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
     });
+  }
+
+  protected async onRemovePassword(send: SendView): Promise<void> {
+    if (this.disableSend()) {
+      return;
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "removePassword" },
+      content: { key: "removePasswordConfirmation" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await this.sendApiService.removePassword(send.id);
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("removedPassword"),
+      });
+    } catch (e) {
+      this.logService.error(e);
+    }
   }
 
   protected async onDeleteSend(send: SendView): Promise<void> {
