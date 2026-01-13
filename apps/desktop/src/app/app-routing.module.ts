@@ -363,6 +363,7 @@ const routes: Routes = [
       {
         path: "new-sends",
         component: SendV2Component,
+        data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
       },
     ],
   },

@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Element arxivə göndərildi"
   },
+  "itemWasUnarchived": {
+    "message": "Element arxivdən çıxarıldı"
+  },
   "itemUnarchived": {
     "message": "Element arxivdən çıxarıldı"
   },
@@ -584,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "Arxivi istifadə etmək üçün premium üzvlük tələb olunur."
+  },
+  "itemRestored": {
+    "message": "Element bərpa edildi"
   },
   "edit": {
     "message": "Düzəliş et"
@@ -1251,7 +1257,7 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində çıxış sonlandırılacaq."
+    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində sonlandırılacaq."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
     "message": "Hesabın geri qaytarılması prosesini tamamlamaq üçün ana parolunuzu dəyişdirin."
@@ -1322,11 +1328,21 @@
   "exportFrom": {
     "message": "Buradan xaricə köçür"
   },
-  "export": {
-    "message": "Xaricə köçür"
+  "exportVerb": {
+    "message": "Xaricə köçür",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Daxilə köçür"
+  "exportNoun": {
+    "message": "Xaricə köçürmə",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Daxilə köçürmə",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Daxilə köçür",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Fayl formatı"
@@ -2488,7 +2504,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+    "message": "Bu səhifə Bitwarden təcrübəsinə müdaxilə edir. Bitwarden daxili menyusu, təhlükəsizlik tədbiri olaraq müvəqqəti sıradan çıxarılıb."
   },
   "setMasterPassword": {
     "message": "Ana parolu ayarla"
@@ -4114,7 +4130,7 @@
     "message": "Avto-doldurula bilmir"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "İlkin uyuşma 'Tam Uyuşur' olaraq ayarlanıb. Hazırkı veb sayt, bu element üçün saxlanılmış giriş məlumatları ilə tam uyuşmur."
   },
   "okay": {
     "message": "Oldu"
@@ -4798,17 +4814,50 @@
   "adminConsole": {
     "message": "Admin Konsolu"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Avtomatik istifadəçi təsdiqi"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Bu cihazın kilidi açıq olduqda gözləyən istifadəçiləri avtomatik təsdiqlə"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Avtomatik istifadəçi təsdiqi ilə vaxta qənaət edin"
+  },
+  "autoConfirmWarning": {
+    "message": "Bu, təşkilatınızın veri təhlükəsizliyinə təsir edə bilər. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Risklər barədə öyrən"
+  },
+  "autoConfirmSetup": {
+    "message": "Yeni istifadəçiləri avtomatik təsdiqlə"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Bu cihazın kilidi açıq olduqda yeni istifadəçilər avtomatik təsdiqlənəcək."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Potensial təhlükəsizlik riskləri nələrdir?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Avtomatik təsdiq işə salındı"
+  },
+  "availableNow": {
+    "message": "İndi mmövcuddur"
+  },
   "accountSecurity": {
     "message": "Hesab güvənliyi"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Fişinq əngəlləyici"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Fişinq aşkarlama"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Şübhəli fişinq saytlarına erişməzdən əvvəl xəbərdarlıq nümayiş etdir"
   },
   "notifications": {
     "message": "Bildirişlər"
@@ -5654,6 +5703,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
   },
+  "vulnerablePassword": {
+    "message": "Zəifliyi olan parol."
+  },
+  "changeNow": {
+    "message": "İndi dəyişdir"
+  },
   "missingWebsite": {
     "message": "Əskik veb sayt"
   },
@@ -6029,5 +6084,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Bunu niyə görürəm?"
+  },
+  "resizeSideNavigation": {
+    "message": "Yan naviqasiyanı yeni. ölçüləndir"
   }
 }

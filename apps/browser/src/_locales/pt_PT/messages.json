@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "O item foi movido para o arquivo"
   },
+  "itemWasUnarchived": {
+    "message": "O item foi desarquivado"
+  },
   "itemUnarchived": {
     "message": "O item foi desarquivado"
   },
@@ -584,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "É necessária uma subscrição Premium para utilizar o Arquivo."
+  },
+  "itemRestored": {
+    "message": "O item foi restaurado"
   },
   "edit": {
     "message": "Editar"
@@ -1322,11 +1328,21 @@
   "exportFrom": {
     "message": "Exportar de"
   },
-  "export": {
-    "message": "Exportar"
+  "exportVerb": {
+    "message": "Exportar",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Importar"
+  "exportNoun": {
+    "message": "Exportação",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importar",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importação",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formato do ficheiro"
@@ -4798,6 +4814,39 @@
   "adminConsole": {
     "message": "Consola de administração"
   },
+  "admin": {
+    "message": "Administrador"
+  },
+  "automaticUserConfirmation": {
+    "message": "Confirmação automática do utilizador"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Confirmar automaticamente os utilizadores pendentes enquanto este dispositivo estiver desbloqueado"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Poupe tempo com a confirmação automática de utilizadores"
+  },
+  "autoConfirmWarning": {
+    "message": "Isto pode afetar a segurança dos dados da sua organização. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Saiba mais sobre os riscos"
+  },
+  "autoConfirmSetup": {
+    "message": "Confirmar automaticamente novos utilizadores"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Os novos utilizadores serão automaticamente confirmados enquanto este dispositivo estiver desbloqueado."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Quais são os riscos potenciais de segurança?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Confirmação automática ativada"
+  },
+  "availableNow": {
+    "message": "Já disponível"
+  },
   "accountSecurity": {
     "message": "Segurança da conta"
   },
@@ -5654,6 +5703,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
   },
+  "vulnerablePassword": {
+    "message": "Palavra-passe vulnerável."
+  },
+  "changeNow": {
+    "message": "Alterar agora"
+  },
   "missingWebsite": {
     "message": "Site em falta"
   },
@@ -6029,5 +6084,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Porque é que estou a ver isto?"
+  },
+  "resizeSideNavigation": {
+    "message": "Redimensionar navegação lateral"
   }
 }

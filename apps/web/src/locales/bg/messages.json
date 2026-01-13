@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Няма членове за показване."
   },
+  "noMembersToExport": {
+    "message": "Няма членове за изнасяне."
+  },
   "noEventsInList": {
     "message": "Няма събития за показване."
   },
@@ -1969,8 +1972,13 @@
   "encExportAccountWarningDesc": {
     "message": "Ключовете за шифриране са уникални за всеки потребител, затова не може да внесете шифрирани данни от един потребител в регистрацията на друг."
   },
-  "export": {
-    "message": "Изнасяне"
+  "exportNoun": {
+    "message": "Изнасяне",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Изнасяне",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Изнасяне от"
@@ -2297,8 +2305,13 @@
   "tools": {
     "message": "Инструменти"
   },
-  "import": {
-    "message": "Внасяне"
+  "importNoun": {
+    "message": "Внасяне",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Внасяне",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "Внасяне на данни"
@@ -2527,6 +2540,9 @@
   "enabled": {
     "message": "Включено"
   },
+  "optionEnabled": {
+    "message": "Включено"
+  },
   "restoreAccess": {
     "message": "Възстановяване на достъпа"
   },
@@ -2623,6 +2639,9 @@
   },
   "key": {
     "message": "Ключ"
+  },
+  "unnamedKey": {
+    "message": "Ключ без име"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Код за потвърждаване"
@@ -3133,6 +3152,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Ако искате отново да получите достъп до архива си, трябва да подновите платения си абонамент. Ако редактирате данните за архивиран елемент преди подновяването, той ще бъде върнат в трезора."
   },
+  "itemRestored": {
+    "message": "Записът бе възстановен"
+  },
   "restartPremium": {
     "message": "Подновяване на платения абонамент"
   },
@@ -3282,6 +3304,9 @@
   },
   "launchCloudSubscription": {
     "message": "Launch Cloud Subscription"
+  },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Стартиране на облачния абонамент"
   },
   "storage": {
     "message": "Съхранение на данни"
@@ -4197,6 +4222,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Прието прехвърляне на собствеността към организацията."
+  },
+  "userDeclinedTransfer": {
+    "message": "Премахнато, поради отказ от прехвърляне на собствеността към организацията."
   },
   "invitedUserId": {
     "message": "Потребител № $ID$ е поканен.",
@@ -5585,6 +5616,37 @@
     "message": "Създадено изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Изпращането е създадено успешно!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Копирайте и споделете връзка към това Изпращане. То ще може да бъде видяно само от хората, които сте посочили, в рамките на следващите $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ часа",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Ново текстово Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Ново файлово Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Редактирано изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5623,6 +5685,9 @@
   },
   "revoked": {
     "message": "Отнет достъп"
+  },
+  "accepted": {
+    "message": "Прието"
   },
   "sendLink": {
     "message": "Изпращане на връзката",
@@ -6281,6 +6346,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Включен във възстановяването на профили"
+  },
+  "enrolled": {
+    "message": "Enrolled"
+  },
+  "notEnrolled": {
+    "message": "Not enrolled"
   },
   "withdrawAccountRecovery": {
     "message": "Оттегляне от възстановяването на профили"
@@ -11587,6 +11658,9 @@
   "unArchive": {
     "message": "Изваждане от архива"
   },
+  "archived": {
+    "message": "Архивирано"
+  },
   "unArchiveAndSave": {
     "message": "Разархивиране и запазване"
   },
@@ -11604,6 +11678,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Елементите бяха преместени в архива"
+  },
+  "itemWasUnarchived": {
+    "message": "Елементът беше изваден от архива"
   },
   "itemUnarchived": {
     "message": "Елементът беше изваден от архива"
@@ -12279,6 +12356,9 @@
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
   },
+  "resizeSideNavigation": {
+    "message": "Преоразмеряване на страничната навигация"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Изтриване на невъзстановимите елементи от трезора"
   },
@@ -12412,5 +12492,127 @@
   },
   "whyAmISeeingThis": {
     "message": "Защо виждам това?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Вие имате платен абонамент за Битуорден"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Прегледайте и управлявайте своя платен абонамент"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Ще трябва да обновите лицензния си файл"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Качване на лицензен файл"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Качете своя лицензен файл"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Качете своя лицензен файл за платения абонамент"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Името на Вашия лицензен файл ще бъде подобно на: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Имате ли вече абонамент?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Отворете страницата за абонаменти в облачния си акаунт за Битуорден и свалете лицензния си файл. След това се върнете на този екран и го качете по-долу."
+  },
+  "viewAllPlans": {
+    "message": "Преглед на всички планове"
+  },
+  "planDescPremium": {
+    "message": "Пълна сигурност в Интернет"
+  },
+  "updatePayment": {
+    "message": "Актуализиране на плащанията"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Плащането не беше успешно. Моля, актуализирайте разплащателния си метод или се свържете с екипа по поддръжката за съдействие."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Абонаментът Ви е изтекъл. Моля, свържете се с екипа по поддръжката за съдействие."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Абонаментът Ви по план ще бъде преустановен на $DATE$. Можете да го подновите по всяко време преди това.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Споделяйте още повече със Семейния план, или преминете към подсилената защита на паролите с Екипния план или този за големи организации."
+  },
+  "youHaveAGracePeriod": {
+    "message": "След като просрочите периода на абонамента си, разполагате с още $DAYS$ дни,. Моля, заплатете старите фактури до $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Управление на фактурите"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Следващото Ви таксуване ще бъде"
+  },
+  "dueOn": {
+    "message": "с крайна дата"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Абонаментът Ви ще бъде спрян на"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Абонаментът Ви беше спрян на"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Абонаментът Ви ще бъде прекратен на"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Абонаментът Ви беше прекратен на"
+  },
+  "storageFull": {
+    "message": "Mястото за съхранение е пълно"
+  },
+  "storageUsedDescription": {
+    "message": "Използвали сте $USED$ от $AVAILABLE$ GB от наличното си място за съхранение на шифровани данни.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Използвали сте всичките си $GB$ GB от наличното си място за съхранение на шифровани данни. Ако искате да продължите да добавяте файлове, добавете повече място за съхранение."
   }
 }
