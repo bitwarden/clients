@@ -344,29 +344,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
   }
 
-  // Copied from KeyService to avoid circular dependency. This will be dropped together with `setLegacyMatserKeyFromUnlockData`.
-  private async hashMasterKey(
-    password: string,
-    key: MasterKey,
-    hashPurpose: HashPurpose,
-  ): Promise<string> {
-    if (password == null) {
-      throw new Error("password is required.");
-    }
-    if (key == null) {
-      throw new Error("key is required.");
-    }
-
-    const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
-    const hash = await this.cryptoFunctionService.pbkdf2(
-      key.inner().encryptionKey,
-      password,
-      "sha256",
-      iterations,
-    );
-    return Utils.fromBufferToB64(hash);
-  }
-
   async setLegacyMasterKeyFromUnlockData(
     password: string,
     masterPasswordUnlockData: MasterPasswordUnlockData,
@@ -390,4 +367,28 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     await this.setMasterKey(masterKey, userId);
     await this.setMasterKeyHash(localKeyHash, userId);
   }
+  
+  // Copied from KeyService to avoid circular dependency. This will be dropped together with `setLegacyMatserKeyFromUnlockData`.
+  private async hashMasterKey(
+    password: string,
+    key: MasterKey,
+    hashPurpose: HashPurpose,
+  ): Promise<string> {
+    if (password == null) {
+      throw new Error("password is required.");
+    }
+    if (key == null) {
+      throw new Error("key is required.");
+    }
+
+    const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
+    const hash = await this.cryptoFunctionService.pbkdf2(
+      key.inner().encryptionKey,
+      password,
+      "sha256",
+      iterations,
+    );
+    return Utils.fromBufferToB64(hash);
+  }
+
 }
