@@ -72,11 +72,11 @@ module.exports = {
         code: rgba("--color-text-code"),
       },
       background: {
-        DEFAULT: rgba("--color-background"),
-        alt: rgba("--color-background-alt"),
-        alt2: rgba("--color-background-alt2"),
-        alt3: rgba("--color-background-alt3"),
-        alt4: rgba("--color-background-alt4"),
+        DEFAULT: "var(--color-bg-primary)",
+        alt: "var(--color-bg-tertiary)",
+        alt2: "var(--color-bg-brand)",
+        alt3: "var(--color-bg-brand-strong)",
+        alt4: "var(--color-brand-950)",
       },
       bg: {
         white: "var(--color-bg-white)",
