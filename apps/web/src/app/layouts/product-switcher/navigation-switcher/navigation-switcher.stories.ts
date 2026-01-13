@@ -16,10 +16,15 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { LayoutComponent, NavigationModule } from "@bitwarden/components";
+import {
+  LayoutComponent,
+  NavigationModule,
+  StorybookGlobalStateProvider,
+} from "@bitwarden/components";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { I18nMockService } from "@bitwarden/components/src/utils/i18n-mock.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ProductSwitcherService } from "../shared/product-switcher.service";
@@ -183,6 +188,10 @@ export default {
             },
           ]),
         ),
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
       ],
     }),
   ],

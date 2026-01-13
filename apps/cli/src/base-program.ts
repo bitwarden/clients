@@ -177,9 +177,7 @@ export abstract class BaseProgram {
     } else {
       const command = new UnlockCommand(
         this.serviceContainer.accountService,
-        this.serviceContainer.masterPasswordService,
         this.serviceContainer.keyService,
-        this.serviceContainer.userVerificationService,
         this.serviceContainer.cryptoFunctionService,
         this.serviceContainer.logService,
         this.serviceContainer.keyConnectorService,
@@ -189,7 +187,6 @@ export abstract class BaseProgram {
         this.serviceContainer.i18nService,
         this.serviceContainer.encryptedMigrator,
         this.serviceContainer.masterPasswordUnlockService,
-        this.serviceContainer.configService,
       );
       const response = await command.run(null, null);
       if (!response.success) {
