@@ -364,18 +364,18 @@ export class InputPasswordComponent implements OnInit {
         return;
       }
 
-      const newApisFlagEnabled = await this.configService.getFeatureFlag(
+      const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
         FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
       );
 
-      if (newApisFlagEnabled) {
+      if (newApisWithInputPasswordFlagEnabled) {
         // 4. Build a PasswordInputResult object
         const passwordInputResult: PasswordInputResult = {
           newPassword,
           kdfConfig: this.kdfConfig,
           salt,
           newPasswordHint,
-          newApisFlagEnabled, // To be removed in PM-28143
+          newApisWithInputPasswordFlagEnabled, // To be removed in PM-28143
         };
 
         if (

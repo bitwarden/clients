@@ -16,7 +16,7 @@ export interface PasswordInputResult {
    *
    * To be removed in PM-28143
    */
-  newApisFlagEnabled?: boolean;
+  newApisWithInputPasswordFlagEnabled?: boolean;
 
   // The deprecated properties below will be removed in PM-28143: https://bitwarden.atlassian.net/browse/PM-28143
 

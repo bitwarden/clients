@@ -208,11 +208,14 @@ export class SetInitialPasswordComponent implements OnInit {
         // }
 
         // KM flag OFF, Auth flag ON
-        if (passwordInputResult.newApisFlagEnabled && !passwordInputResult.newMasterKey) {
+        if (
+          passwordInputResult.newApisWithInputPasswordFlagEnabled &&
+          !passwordInputResult.newMasterKey
+        ) {
           /**
-           * If the newApisFlag is enabled, it means the InputPasswordComponent will not emit a
-           * newMasterKey, newServerMasterKeyHash, and newLocalMasterKeyHash. So we must create
-           * them here and add them late to the PasswordInputResult before calling setInitialPassword().
+           * If the newApisWithInputPasswordFlagEnabled is enabled, it means the InputPasswordComponent
+           * will not emit a newMasterKey, newServerMasterKeyHash, and newLocalMasterKeyHash. So we must
+           * create them here and add them late to the PasswordInputResult before calling setInitialPassword().
            */
 
           const newMasterKey = await this.keyService.makeMasterKey(
