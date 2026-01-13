@@ -43,13 +43,7 @@ export class ColorPasswordComponent {
 
   @HostBinding("class")
   get classList() {
-    return [
-      "tw-inline-block", // creates a formatting boundary for clipboard issue
-      "tw-select-all", // constrains selection to this element
-      "tw-min-w-0",
-      "tw-whitespace-pre-wrap",
-      "tw-break-words",
-    ];
+    return ["tw-min-w-0", "tw-whitespace-pre-wrap", "tw-break-words"];
   }
 
   getCharacterClass(character: string) {
