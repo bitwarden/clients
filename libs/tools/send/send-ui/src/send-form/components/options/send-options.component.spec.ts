@@ -5,12 +5,7 @@ import { of } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { DialogService, ToastService } from "@bitwarden/components";
-import { CredentialGeneratorService } from "@bitwarden/generator-core";
 
 import { SendFormContainer } from "../../send-form-container";
 

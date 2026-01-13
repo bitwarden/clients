@@ -22,8 +22,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { pin } from "@bitwarden/common/tools/rx";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   SectionComponent,
