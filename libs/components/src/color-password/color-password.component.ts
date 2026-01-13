@@ -1,4 +1,12 @@
-import { Component, computed, HostBinding, HostListener, inject, input } from "@angular/core";
+import {
+  Component,
+  computed,
+  ElementRef,
+  HostBinding,
+  HostListener,
+  inject,
+  input,
+} from "@angular/core";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -15,7 +23,8 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
 @Component({
   selector: "bit-color-password",
   template: `@for (character of passwordCharArray(); track $index; let i = $index) {
-    <span [class]="getCharacterClass(character)" class="tw-font-mono">
+    <!-- eslint-disable-next-line tailwindcss/no-custom-classname -->
+    <span [class]="getCharacterClass(character)" class="tw-font-mono password-character">
       <span>{{ character }}</span>
       @if (showCount()) {
         <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
@@ -33,6 +42,7 @@ export class ColorPasswordComponent {
   });
 
   private platformUtilsService = inject(PlatformUtilsService);
+  private elementRef = inject(ElementRef);
 
   characterStyles: Record<CharacterType, string[]> = {
     emoji: [],
@@ -86,12 +96,21 @@ export class ColorPasswordComponent {
   onCopy(event: ClipboardEvent) {
     event.preventDefault();
     const selection = window.getSelection();
-    if (!selection) {
+    if (!selection || selection.rangeCount === 0) {
       return;
     }
 
-    const text = selection.toString();
-    const cleanedText = text.replace(/[\n\r]+/g, "").trim();
-    this.platformUtilsService.copyToClipboard(cleanedText);
+    const spanElements = this.elementRef.nativeElement.querySelectorAll("span.password-character");
+    let copiedText = "";
+
+    spanElements.forEach((span: HTMLElement, index: number) => {
+      if (selection.containsNode(span, true)) {
+        copiedText += this.passwordCharArray()[index];
+      }
+    });
+
+    if (copiedText) {
+      this.platformUtilsService.copyToClipboard(copiedText);
+    }
   }
 }
