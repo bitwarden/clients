@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { skip, filter, map, combineLatestWith, tap } from "rxjs";
+import { skip, filter, combineLatestWith, tap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -19,8 +19,10 @@ export class RouterFocusManagerService {
    *
    * By default, we focus the `main` after an internal route navigation.
    *
-   * Consumers can opt out of the passing the following to the `info` input:
-   * `<a [routerLink]="route()" [info]="{ focusMainAfterNav: false }"></a>`
+   * Consumers can opt out of the passing the following to the `state` input. Using `state`
+   * allows us to access the value between browser back/forward arrows.
+   * In template: `<a [routerLink]="route()" [state]="{ focusMainAfterNav: false }"></a>`
+   * In typescript: `this.router.navigate([], { state: { focusMainAfterNav: false }})`
    *
    * Or, consumers can use the autofocus directive on an applicable interactive element.
    * The autofocus directive will take precedence over this route focus pipeline.
@@ -44,15 +46,12 @@ export class RouterFocusManagerService {
     skip(1),
     combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.RouterFocusManagement)),
     filter(([_navEvent, flagEnabled]) => flagEnabled),
-    map(() => {
-      const currentNavData = this.router.getCurrentNavigation()?.extras;
+    filter(() => {
+      const currentNavExtras = this.router.currentNavigation()?.extras;
 
-      const info = currentNavData?.info as { focusMainAfterNav?: boolean } | undefined;
+      const focusMainAfterNav: boolean | undefined = currentNavExtras?.state?.focusMainAfterNav;
 
-      return info;
-    }),
-    filter((currentNavInfo) => {
-      return currentNavInfo === undefined ? true : currentNavInfo?.focusMainAfterNav !== false;
+      return focusMainAfterNav !== false;
     }),
     tap(() => {
       const mainEl = document.querySelector<HTMLElement>("main");

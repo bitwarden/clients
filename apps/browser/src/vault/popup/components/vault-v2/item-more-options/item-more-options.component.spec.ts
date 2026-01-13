@@ -13,7 +13,6 @@ import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -39,10 +38,6 @@ describe("ItemMoreOptionsComponent", () => {
   const dialogService = {
     openSimpleDialog: jest.fn().mockResolvedValue(true),
     open: jest.fn(),
-  };
-  const featureFlag$ = new BehaviorSubject<boolean>(false);
-  const configService = {
-    getFeatureFlag$: jest.fn().mockImplementation(() => featureFlag$.asObservable()),
   };
   const cipherService = {
     getFullCipherView: jest.fn(),
@@ -93,7 +88,6 @@ describe("ItemMoreOptionsComponent", () => {
     TestBed.configureTestingModule({
       imports: [ItemMoreOptionsComponent, NoopAnimationsModule],
       providers: [
-        { provide: ConfigService, useValue: configService },
         { provide: CipherService, useValue: cipherService },
         { provide: VaultPopupAutofillService, useValue: autofillSvc },
 
@@ -152,22 +146,6 @@ describe("ItemMoreOptionsComponent", () => {
       expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(baseCipher);
     });
 
-    it("calls the autofill service to autofill without showing the confirmation dialog when the feature flag is disabled", async () => {
-      autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
-
-      await component.doAutofill();
-
-      expect(cipherService.getFullCipherView).toHaveBeenCalled();
-      expect(autofillSvc.doAutofill).toHaveBeenCalledTimes(1);
-      expect(autofillSvc.doAutofill).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "cipher-1" }),
-        true,
-        true,
-      );
-      expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
-      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-    });
-
     it("does nothing if the user fails master password reprompt", async () => {
       baseCipher.reprompt = 2; // Master Password reprompt enabled
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
@@ -181,7 +159,6 @@ describe("ItemMoreOptionsComponent", () => {
     });
 
     it("does not show the exact match dialog when the default match strategy is Exact and autofill confirmation is not to be shown", async () => {
-      // autofill confirmation dialog is not shown when either the feature flag is disabled
       uriMatchStrategy$.next(UriMatchStrategy.Exact);
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
       await component.doAutofill();
@@ -191,8 +168,6 @@ describe("ItemMoreOptionsComponent", () => {
 
     describe("autofill confirmation dialog", () => {
       beforeEach(() => {
-        // autofill confirmation dialog is shown when feature flag is enabled
-        featureFlag$.next(true);
         uriMatchStrategy$.next(UriMatchStrategy.Domain);
         passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
       });
@@ -206,7 +181,7 @@ describe("ItemMoreOptionsComponent", () => {
         expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(baseCipher);
       });
 
-      it("opens the autofill confirmation dialog with filtered saved URLs when the feature flag is enabled", async () => {
+      it("opens the autofill confirmation dialog with filtered saved URLs", async () => {
         autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com/path" });
         const openSpy = mockConfirmDialogResult(AutofillConfirmationDialogResult.Canceled);
 
