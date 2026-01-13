@@ -36,6 +36,7 @@ import {
   MASTER_PASSWORD_UNLOCK_KEY,
   MasterPasswordService,
 } from "./master-password.service";
+import { HashPurpose } from "@bitwarden/common/platform/enums";
 
 describe("MasterPasswordService", () => {
   let sut: MasterPasswordService;
@@ -460,6 +461,31 @@ describe("MasterPasswordService", () => {
 
       const state = await firstValueFrom(stateProvider.getUser(userId, MASTER_KEY).state$);
       expect(state).toEqual(masterKey);
+    });
+
+    it("computes and sets master key hash in state", async () => {
+      const masterKey = makeSymmetricCryptoKey(32, 7) as MasterKey;
+      const expectedHashBytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+      keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
+      cryptoFunctionService.pbkdf2.mockResolvedValue(expectedHashBytes);
+
+      const masterPasswordUnlockData = new MasterPasswordUnlockData(
+        salt,
+        kdfPBKDF2,
+        makeEncString().toSdk() as MasterKeyWrappedUserKey,
+      );
+
+      await sut.setLegacyMasterKeyFromUnlockData(password, masterPasswordUnlockData, userId);
+
+      expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
+        masterKey.inner().encryptionKey,
+        password,
+        "sha256",
+        HashPurpose.LocalAuthorization
+      );
+
+      const hashState = await firstValueFrom(sut.masterKeyHash$(userId));
+      expect(hashState).toEqual(Utils.fromBufferToB64(expectedHashBytes));
     });
 
     it("throws if password is null", async () => {
