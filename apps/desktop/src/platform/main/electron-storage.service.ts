@@ -3,7 +3,7 @@
 import * as fs from "fs";
 
 import { ipcMain } from "electron";
-import ElectronStore from "electron-store";
+import ElectronStore, { Options as ElectronStoreOptions } from "electron-store";
 import { Subject } from "rxjs";
 
 import {
@@ -35,7 +35,7 @@ export class ElectronStorageService implements AbstractStorageService {
       NodeUtils.mkdirpSync(dir, "700");
     }
     const fileMode = isWindowsPortable() ? 0o666 : 0o600;
-    const storeConfig: ElectronStore.Options<Record<string, unknown>> = {
+    const storeConfig: ElectronStoreOptions<Record<string, unknown>> = {
       defaults: defaults,
       name: "data",
       configFileMode: fileMode,
