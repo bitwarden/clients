@@ -163,18 +163,6 @@ describe("StorageCardComponent", () => {
     });
   });
 
-  describe("canRemoveStorage", () => {
-    it("should return true when storage is not full", () => {
-      setupComponent({ ...baseStorage, used: 2.5, readableUsed: "2.5 GB" });
-      expect(component.canRemoveStorage()).toBe(true);
-    });
-
-    it("should return false when storage is full", () => {
-      setupComponent({ ...baseStorage, used: 5, readableUsed: "5 GB" });
-      expect(component.canRemoveStorage()).toBe(false);
-    });
-  });
-
   describe("button rendering", () => {
     it("should render both buttons", () => {
       setupComponent(baseStorage);
@@ -182,25 +170,46 @@ describe("StorageCardComponent", () => {
       expect(buttons.length).toBe(2);
     });
 
-    it("should enable remove button when storage is not full", () => {
-      setupComponent({ ...baseStorage, used: 2.5, readableUsed: "2.5 GB" });
+    it("should enable add button by default", () => {
+      setupComponent(baseStorage);
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      const addButton = buttons[0].nativeElement;
+      expect(addButton.disabled).toBe(false);
+    });
+
+    it("should disable add button when addStorageDisabled is true", () => {
+      setupComponent(baseStorage);
+      fixture.componentRef.setInput("addStorageDisabled", true);
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      const addButton = buttons[0];
+      expect(addButton.attributes["aria-disabled"]).toBe("true");
+    });
+
+    it("should enable remove button by default", () => {
+      setupComponent(baseStorage);
       const buttons = fixture.debugElement.queryAll(By.css("button"));
       const removeButton = buttons[1].nativeElement;
       expect(removeButton.disabled).toBe(false);
     });
 
-    it("should disable remove button when storage is full", () => {
-      setupComponent({ ...baseStorage, used: 5, readableUsed: "5 GB" });
+    it("should disable remove button when removeStorageDisabled is true", () => {
+      setupComponent(baseStorage);
+      fixture.componentRef.setInput("removeStorageDisabled", true);
+      fixture.detectChanges();
+
       const buttons = fixture.debugElement.queryAll(By.css("button"));
       const removeButton = buttons[1];
       expect(removeButton.attributes["aria-disabled"]).toBe("true");
     });
   });
 
-  describe("callsToActionDisabled", () => {
-    it("should disable both buttons when callsToActionDisabled is true", () => {
+  describe("independent button disabled states", () => {
+    it("should disable both buttons independently", () => {
       setupComponent(baseStorage);
-      fixture.componentRef.setInput("callsToActionDisabled", true);
+      fixture.componentRef.setInput("addStorageDisabled", true);
+      fixture.componentRef.setInput("removeStorageDisabled", true);
       fixture.detectChanges();
 
       const buttons = fixture.debugElement.queryAll(By.css("button"));
@@ -208,9 +217,10 @@ describe("StorageCardComponent", () => {
       expect(buttons[1].attributes["aria-disabled"]).toBe("true");
     });
 
-    it("should enable both buttons when callsToActionDisabled is false and storage is not full", () => {
-      setupComponent({ ...baseStorage, used: 2.5, readableUsed: "2.5 GB" });
-      fixture.componentRef.setInput("callsToActionDisabled", false);
+    it("should enable both buttons when both disabled inputs are false", () => {
+      setupComponent(baseStorage);
+      fixture.componentRef.setInput("addStorageDisabled", false);
+      fixture.componentRef.setInput("removeStorageDisabled", false);
       fixture.detectChanges();
 
       const buttons = fixture.debugElement.queryAll(By.css("button"));
@@ -218,14 +228,26 @@ describe("StorageCardComponent", () => {
       expect(buttons[1].nativeElement.disabled).toBe(false);
     });
 
-    it("should keep remove button disabled when callsToActionDisabled is false but storage is full", () => {
-      setupComponent({ ...baseStorage, used: 5, readableUsed: "5 GB" });
-      fixture.componentRef.setInput("callsToActionDisabled", false);
+    it("should allow add button enabled while remove button disabled", () => {
+      setupComponent(baseStorage);
+      fixture.componentRef.setInput("addStorageDisabled", false);
+      fixture.componentRef.setInput("removeStorageDisabled", true);
       fixture.detectChanges();
 
       const buttons = fixture.debugElement.queryAll(By.css("button"));
       expect(buttons[0].nativeElement.disabled).toBe(false);
       expect(buttons[1].attributes["aria-disabled"]).toBe("true");
+    });
+
+    it("should allow remove button enabled while add button disabled", () => {
+      setupComponent(baseStorage);
+      fixture.componentRef.setInput("addStorageDisabled", true);
+      fixture.componentRef.setInput("removeStorageDisabled", false);
+      fixture.detectChanges();
+
+      const buttons = fixture.debugElement.queryAll(By.css("button"));
+      expect(buttons[0].attributes["aria-disabled"]).toBe("true");
+      expect(buttons[1].nativeElement.disabled).toBe(false);
     });
   });
 
@@ -243,7 +265,7 @@ describe("StorageCardComponent", () => {
     });
 
     it("should emit remove-storage action when remove button is clicked", () => {
-      setupComponent({ ...baseStorage, used: 2.5, readableUsed: "2.5 GB" });
+      setupComponent(baseStorage);
 
       const emitSpy = jest.spyOn(component.callToActionClicked, "emit");
 
