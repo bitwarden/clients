@@ -6,17 +6,15 @@ import { Router } from "@angular/router";
 
 import {
   CollectionAdminService,
-  DefaultCollectionAdminService,
-  OrganizationUserApiService,
   CollectionService,
-  OrganizationUserService,
+  DefaultCollectionAdminService,
   DefaultOrganizationUserService,
+  OrganizationUserApiService,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
-import { DefaultInitializeJitPasswordUserService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-initialize-jit-password-user.service";
-import { InitializeJitPasswordUserService } from "@bitwarden/angular/auth/password-management/set-initial-password/initialize-jit-password-user.service.abstraction";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -29,17 +27,17 @@ import {
   OBSERVABLE_DISK_LOCAL_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
+  SafeInjectionToken,
   SECURE_STORAGE,
   SYSTEM_LANGUAGE,
-  SafeInjectionToken,
   WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
-  RegistrationFinishService as RegistrationFinishServiceAbstraction,
   LoginComponentService,
-  SsoComponentService,
   LoginDecryptionOptionsService,
+  RegistrationFinishService as RegistrationFinishServiceAbstraction,
+  SsoComponentService,
   TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
@@ -76,7 +74,6 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeout,
@@ -124,9 +121,9 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
+  BiometricsService,
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
-  BiometricsService,
 } from "@bitwarden/key-management";
 import {
   LockComponentService,
@@ -135,22 +132,21 @@ import {
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
-import { WebInitializeJitPasswordUserService } from "@bitwarden/web-vault/app/auth/core/services/password-management/set-initial-password/web-initialize-jit-password-user.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
 import {
-  POLICY_EDIT_REGISTER,
   ossPolicyEditRegister,
+  POLICY_EDIT_REGISTER,
 } from "../admin-console/organizations/policies";
 import {
+  LinkSsoService,
   WebChangePasswordService,
-  WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
-  WebTwoFactorAuthDuoComponentService,
-  LinkSsoService,
+  WebRegistrationFinishService,
   WebSetInitialPasswordService,
+  WebTwoFactorAuthDuoComponentService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { WebPremiumInterestStateService } from "../billing/services/premium-interest/web-premium-interest-state.service";
@@ -325,26 +321,8 @@ const safeProviders: SafeProvider[] = [
       OrganizationInviteService,
       RouterService,
       AccountCryptographicStateService,
-    ],
-  }),
-  safeProvider({
-    provide: DefaultInitializeJitPasswordUserService,
-    useClass: DefaultInitializeJitPasswordUserService,
-    deps: [
-      KdfConfigService,
-      KeyServiceAbstraction,
-      InternalMasterPasswordServiceAbstraction,
-      OrganizationApiServiceAbstraction,
-      InternalUserDecryptionOptionsServiceAbstraction,
-      AccountCryptographicStateService,
       RegisterSdkService,
-      SecurityStateService,
     ],
-  }),
-  safeProvider({
-    provide: InitializeJitPasswordUserService,
-    useClass: WebInitializeJitPasswordUserService,
-    deps: [DefaultInitializeJitPasswordUserService, OrganizationInviteService, RouterService],
   }),
   safeProvider({
     provide: AppIdService,

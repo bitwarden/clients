@@ -3,10 +3,6 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import {
-  InitializeJitPasswordCredentials,
-  InitializeJitPasswordUserService,
-} from "@bitwarden/angular/auth/password-management/set-initial-password/initialize-jit-password-user.service.abstraction";
 import { DeactivatedOrg } from "@bitwarden/assets/svg";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -45,6 +41,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
+  InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
@@ -88,7 +85,6 @@ export class SetInitialPasswordComponent implements OnInit {
     private policyService: PolicyService,
     private router: Router,
     private setInitialPasswordService: SetInitialPasswordService,
-    private initializeJitPasswordUserService: InitializeJitPasswordUserService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private syncService: SyncService,
     private toastService: ToastService,
@@ -260,7 +256,10 @@ export class SetInitialPasswordComponent implements OnInit {
         salt: passwordInputResult.salt,
       };
 
-      await this.initializeJitPasswordUserService.initializeUser(credentials, this.userId);
+      await this.setInitialPasswordService.initializePasswordJitPasswordUserV2Encryption(
+        credentials,
+        this.userId,
+      );
 
       this.showSuccessToastByUserType();
 

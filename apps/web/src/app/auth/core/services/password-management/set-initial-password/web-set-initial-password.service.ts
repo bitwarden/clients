@@ -14,6 +14,7 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { RouterService } from "@bitwarden/web-vault/app/core";
@@ -36,6 +37,7 @@ export class WebSetInitialPasswordService
     private organizationInviteService: OrganizationInviteService,
     private routerService: RouterService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
+    protected registerSdkService: RegisterSdkService,
   ) {
     super(
       apiService,
@@ -49,6 +51,7 @@ export class WebSetInitialPasswordService
       organizationUserApiService,
       userDecryptionOptionsService,
       accountCryptographicStateService,
+      registerSdkService,
     );
   }
 

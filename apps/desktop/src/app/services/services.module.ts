@@ -5,8 +5,6 @@ import { Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { DefaultInitializeJitPasswordUserService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-initialize-jit-password-user.service";
-import { InitializeJitPasswordUserService } from "@bitwarden/angular/auth/password-management/set-initial-password/initialize-jit-password-user.service.abstraction";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -69,7 +67,6 @@ import {
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
@@ -163,7 +160,6 @@ import { SearchBarService } from "../layout/search/search-bar.service";
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
-import { DesktopInitializeJitPasswordUserService } from "./set-initial-password/desktop-initialize-jit-password-user.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
 
 const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
@@ -427,26 +423,8 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       MessagingServiceAbstraction,
       AccountCryptographicStateService,
-    ],
-  }),
-  safeProvider({
-    provide: DefaultInitializeJitPasswordUserService,
-    useClass: DefaultInitializeJitPasswordUserService,
-    deps: [
-      KdfConfigService,
-      KeyServiceAbstraction,
-      InternalMasterPasswordServiceAbstraction,
-      OrganizationApiServiceAbstraction,
-      InternalUserDecryptionOptionsServiceAbstraction,
-      AccountCryptographicStateService,
       RegisterSdkService,
-      SecurityStateService,
     ],
-  }),
-  safeProvider({
-    provide: InitializeJitPasswordUserService,
-    useClass: DesktopInitializeJitPasswordUserService,
-    deps: [DefaultInitializeJitPasswordUserService, MessagingServiceAbstraction],
   }),
   safeProvider({
     provide: SsoUrlService,
