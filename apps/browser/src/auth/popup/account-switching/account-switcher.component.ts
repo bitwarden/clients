@@ -71,7 +71,9 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private lockService: LockService,
     private logoutService: LogoutService,
-  ) {}
+  ) {
+    this.enableAccountSwitching$ = this.accountSwitcherService.accountSwitchingEnabled$();
+  }
 
   get accountLimit() {
     return this.accountSwitcherService.ACCOUNT_LIMIT;
@@ -111,8 +113,6 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
   );
 
   async ngOnInit() {
-    this.enableAccountSwitching$ = this.accountSwitcherService.accountSwitchingEnabled$();
-
     const availableVaultTimeoutActions = await firstValueFrom(
       this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
     );
