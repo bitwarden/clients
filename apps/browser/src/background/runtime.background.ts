@@ -291,16 +291,20 @@ export default class RuntimeBackground {
         }
         break;
       case "openPopup":
-        await this.executeMessageActionOrOpenPopup(msg, await this.openPopup);
+        await this.executeMessageActionOrOpenPopup(msg, this.openPopup.bind(this));
         break;
       case VaultMessages.OpenAtRiskPasswords: {
-        await this.executeMessageActionOrOpenPopup(msg, this.main.openAtRisksPasswordsPage);
+        await this.executeMessageActionOrOpenPopup(
+          msg,
+          this.main.openAtRisksPasswordsPage.bind(this),
+        );
         this.announcePopupOpen();
         break;
       }
       case VaultMessages.OpenBrowserExtensionToUrl: {
-        await this.executeMessageActionOrOpenPopup(msg, () =>
-          this.main.openTheExtensionToPage(msg.url),
+        await this.executeMessageActionOrOpenPopup(
+          msg,
+          this.main.openTheExtensionToPage.bind(this, msg.url),
         );
         this.announcePopupOpen();
         break;
@@ -405,8 +409,7 @@ export default class RuntimeBackground {
   }
 
   /**
-   * Validates that a referrer hostname matches any of the available regions' web vault URLs.
-   * Checks against all known Bitwarden regions to ensure the message originates from a trusted vault instance.
+   * Validates that a referrer hostname matches any of the available regions' and current environment web vault URLs.
    *
    * @param referrer - hostname from message source (should not include protocol or path)
    * @returns true if referrer matches any known vault hostname, false otherwise
@@ -416,9 +419,13 @@ export default class RuntimeBackground {
       return false;
     }
 
+    const environment = await firstValueFrom(this.environmentService.environment$);
+
     const regions = this.environmentService.availableRegions();
-    const messageIsFromKnownVault = regions.some(
-      (r) => Utils.getHostname(r.urls.webVault ?? r.urls.base) === referrer,
+    const regionVaultUrls = regions.map((r) => r.urls.webVault ?? r.urls.base);
+    const environmentWebVaultUrl = environment.getWebVaultUrl();
+    const messageIsFromKnownVault = [...regionVaultUrls, environmentWebVaultUrl].some(
+      (webVaultUrl) => Utils.getHostname(webVaultUrl) === referrer,
     );
 
     return messageIsFromKnownVault;
