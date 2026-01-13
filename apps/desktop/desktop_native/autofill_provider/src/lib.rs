@@ -50,20 +50,20 @@ uniffi::setup_scaffolding!();
 #[cfg(target_os = "macos")]
 static INIT: Once = Once::new();
 
+/// User verification preference for WebAuthn requests.
 #[cfg_attr(target_os = "macos", derive(uniffi::Enum))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// User verification preference for WebAuthn requests.
 pub enum UserVerification {
     Preferred,
     Required,
     Discouraged,
 }
 
+/// Coordinates representing a point on the screen.
 #[cfg_attr(target_os = "macos", derive(uniffi::Record))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Coordinates representing a point on the screen.
 pub struct Position {
     pub x: i32,
     pub y: i32,
@@ -97,16 +97,15 @@ trait Callback: Send + Sync {
     fn error(&self, error: BitwardenError);
 }
 
-#[cfg_attr(target_os = "macos", derive(uniffi::Enum))]
-#[derive(Debug)]
 /// Store the connection status between the credential provider extension
 /// and the desktop application's IPC server.
+#[cfg_attr(target_os = "macos", derive(uniffi::Enum))]
+#[derive(Debug)]
 pub enum ConnectionStatus {
     Connected,
     Disconnected,
 }
 
-#[cfg_attr(target_os = "macos", derive(uniffi::Object))]
 /// A client to send and receive messages to the autofill service on the desktop
 /// client.
 ///
@@ -155,6 +154,7 @@ pub enum ConnectionStatus {
 ///     // use client here
 /// }
 /// ```
+#[cfg_attr(target_os = "macos", derive(uniffi::Object))]
 pub struct AutofillProviderClient {
     to_server_send: tokio::sync::mpsc::Sender<String>,
 
@@ -167,10 +167,10 @@ pub struct AutofillProviderClient {
     connection_status: Arc<std::sync::atomic::AtomicBool>,
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 /// Store native desktop status information to use for IPC communication
 /// between the application and the credential provider.
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NativeStatus {
     key: String,
     value: String,
@@ -288,11 +288,11 @@ impl AutofillProviderClient {
 
 #[cfg_attr(target_os = "macos", uniffi::export)]
 impl AutofillProviderClient {
-    #[cfg_attr(target_os = "macos", uniffi::constructor)]
     /// Asynchronously initiates a connection to the autofill service on the desktop client.
     ///
     /// See documentation at the top-level of [this struct][AutofillProviderClient] for usage
     /// information.
+    #[cfg_attr(target_os = "macos", uniffi::constructor)]
     pub fn connect() -> Self {
         tracing::trace!("Autofill provider attempting to connect to Electron IPC...");
         let path = desktop_core::ipc::path(IPC_PATH);
@@ -451,8 +451,8 @@ fn send_message_helper(
     Ok(())
 }
 
-#[derive(Debug)]
 /// Types of errors for callbacks.
+#[derive(Debug)]
 pub enum CallbackError {
     Timeout,
     Cancelled,
@@ -583,6 +583,7 @@ impl PreparePasskeyRegistrationCallback for TimedCallback<PasskeyRegistrationRes
 #[cfg(test)]
 mod tests {
     use std::{
+        path::PathBuf,
         sync::{atomic::AtomicU32, Arc},
         time::Duration,
     };
@@ -597,41 +598,53 @@ mod tests {
         SerializedMessage, TimedCallback, IPC_PATH,
     };
 
+    /// Generates a path for a server and client to connect with.
+    ///
+    /// [`AutofillProviderClient`] is currently hardcoded to use sockets from the filesystem.
+    /// In order for paths not to conflict between tests, we use a counter and add it to the path name.
+    fn get_server_path() -> PathBuf {
+        static SERVER_COUNTER: AtomicU32 = AtomicU32::new(0);
+        let counter = SERVER_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let name = format!("{}-{}", IPC_PATH, counter);
+        desktop_core::ipc::path(&name)
+    }
+
+    /// Sets up an in-memory server based on the passed handler and returns a client to the server.
     fn get_client<
         F: Fn(Result<Value, BitwardenError>) -> Result<Value, BitwardenError> + Send + 'static,
     >(
         handler: F,
     ) -> AutofillProviderClient {
-        static SERVER_COUNTER: AtomicU32 = AtomicU32::new(0);
         let (signal_tx, signal_rx) = std::sync::mpsc::channel();
-        // use a counter to allow tests to run in parallel without interfering with each other.
-        let counter = SERVER_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-        let name = format!("{}-{}", IPC_PATH, counter);
-        let path = desktop_core::ipc::path(&name);
+        let path = get_server_path();
         let server_path = path.clone();
+
+        // Start server thread
         std::thread::spawn(move || {
             let _span = tracing::span!(Level::DEBUG, "server").entered();
-            tracing::info!("[server] Starting server thread");
+            tracing::info!("Starting server thread");
             let (tx, mut rx) = mpsc::channel(8);
             let rt = tokio::runtime::Builder::new_current_thread()
                 .enable_io()
                 .build()
                 .unwrap();
             rt.block_on(async move {
-                tracing::debug!("[server] starting server at {server_path:?}");
+                tracing::debug!("Starting server at {server_path:?}");
                 let server = desktop_core::ipc::server::Server::start(&server_path, tx).unwrap();
-                tracing::debug!("[server] Server started");
+
+                // Signal to main thread that the server is ready to process messages.
+                tracing::debug!(" Server started");
                 signal_tx.send(()).unwrap();
-                tracing::debug!("[server] Waiting for messages");
+
+                // Handle incoming messages
+                tracing::debug!("Waiting for messages");
                 while let Some(data) = rx.recv().await {
+                    tracing::debug!("Received {data:?}");
                     match data.kind {
-                        MessageType::Connected => tracing::debug!("[server] Connected"),
-                        MessageType::Disconnected => tracing::debug!("[server] Disconnected"),
+                        MessageType::Connected => {}
+                        MessageType::Disconnected => {}
                         MessageType::Message => {
-                            tracing::debug!(
-                                "[server] received {}",
-                                data.message.as_ref().unwrap().to_string()
-                            );
+                            // Deserialize and handle messages using the given handler function.
                             let msg: SerializedMessage =
                                 serde_json::from_str(&data.message.unwrap()).unwrap();
 
@@ -652,38 +665,54 @@ mod tests {
                 }
             });
         });
-        tracing::debug!("[client] waiting for server...");
+
+        // Wait for server to startup and client to connect to server before returning client to test method.
+        let _span = tracing::span!(Level::DEBUG, "client");
+        tracing::debug!("Waiting for server...");
         signal_rx.recv_timeout(Duration::from_millis(1000)).unwrap();
-        tracing::debug!("[client] Starting client...");
+
+        // This starts a background task to connect to the server.
+        tracing::debug!("Starting client...");
         let client = AutofillProviderClient::connect_to_path(path.to_path_buf());
-        tracing::debug!("[client] Client connecting...");
-        for _ in 0..10 {
+
+        // The client connects to the server asynchronously in a background
+        // thread, so wait for client to report itself as Connected so that test
+        // methods don't have to do this everytime.
+        // Note, this has the potential to be flaky on a very busy server, but that's unavoidable with the current API.
+        tracing::debug!("Client connecting...");
+        for _ in 0..20 {
             if let ConnectionStatus::Connected = client.get_connection_status() {
                 break;
             }
             std::thread::sleep(Duration::from_millis(10));
         }
+
         assert!(matches!(
             client.get_connection_status(),
             ConnectionStatus::Connected
         ));
+
         client
     }
 
     #[test]
     fn test_disconnected_gives_error() {
-        let client = AutofillProviderClient::connect();
+        // There is no server running at this path, so this client should always be disconnected.
+        let client = AutofillProviderClient::connect_to_path(get_server_path());
+
+        // use an arbitrary request to test whether the client is disconnected.
         let callback = Arc::new(TimedCallback::new());
         client.get_lock_status(callback.clone());
         let response = callback
             .wait_for_response(Duration::from_millis(10), None)
             .unwrap();
+
         assert!(matches!(response, Err(BitwardenError::Disconnected)));
     }
 
     #[test]
     fn test_get_lock_status() {
-        // tracing_subscriber::fmt().init();
+        // The server should expect a lock status request and return a valid response.
         let handler = |value: Result<Value, BitwardenError>| {
             let value = value.unwrap();
             if let Ok(LockStatusRequest {}) = serde_json::from_value(value.clone()) {
@@ -694,6 +723,8 @@ mod tests {
                 )))
             }
         };
+
+        // send a lock status request
         let client = get_client(handler);
         let callback = Arc::new(TimedCallback::new());
         client.get_lock_status(callback.clone());
@@ -701,6 +732,7 @@ mod tests {
             .wait_for_response(Duration::from_millis(3000), None)
             .unwrap()
             .unwrap();
+
         assert!(response.is_unlocked);
     }
 }

@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{BitwardenError, Callback, TimedCallback};
 
-#[derive(Debug, Default, Serialize, Deserialize)]
 /// Request to get the window handle of the desktop client.
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub(super) struct WindowHandleQueryRequest {
     #[serde(rename = "windowHandle")]
     /// Marker field for parsing; data is never read.
@@ -15,9 +15,9 @@ pub(super) struct WindowHandleQueryRequest {
     window_handle: String,
 }
 
+/// Response to window handle request.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Response to window handle request.
 pub struct WindowHandleQueryResponse {
     /// Whether the desktop client is currently visible.
     pub is_visible: bool,

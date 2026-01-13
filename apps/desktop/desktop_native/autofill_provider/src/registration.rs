@@ -4,10 +4,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::{BitwardenError, Callback, Position, UserVerification};
 
+/// Request to create a credential.
 #[cfg_attr(target_os = "macos", derive(uniffi::Record))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Request to create a credential.
 pub struct PasskeyRegistrationRequest {
     /// Relying Party ID for the request.
     pub rp_id: String,
@@ -42,7 +42,6 @@ pub struct PasskeyRegistrationRequest {
     /// List of excluded credential IDs.
     pub excluded_credentials: Vec<Vec<u8>>,
 
-    #[cfg(not(target_os = "macos"))]
     /// Byte string representing the native OS window handle for the WebAuthn client.
     /// # Operating System Differences
     ///
@@ -51,9 +50,9 @@ pub struct PasskeyRegistrationRequest {
     ///
     /// ## Windows
     /// On Windows, this is a HWND.
+    #[cfg(not(target_os = "macos"))]
     pub client_window_handle: Vec<u8>,
 
-    #[cfg(not(target_os = "macos"))]
     /// Native context required for callbacks to the OS. Format differs by OS.
     /// # Operating System Differences
     ///
@@ -63,13 +62,14 @@ pub struct PasskeyRegistrationRequest {
     /// ## Windows
     /// On Windows, this is a base64-string representing the following data:
     /// `request transaction id (GUID, 16 bytes) || SHA-256(pluginOperationRequest)`
+    #[cfg(not(target_os = "macos"))]
     pub context: String,
 }
 
+/// Response for a passkey registration request.
 #[cfg_attr(target_os = "macos", derive(uniffi::Record))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Response for a passkey registration request.
 pub struct PasskeyRegistrationResponse {
     /// Relying Party ID.
     pub rp_id: String,

@@ -6,10 +6,10 @@ use serde::{Deserialize, Serialize};
 use crate::TimedCallback;
 use crate::{BitwardenError, Callback, Position, UserVerification};
 
+/// Request to assert a credential.
 #[cfg_attr(target_os = "macos", derive(uniffi::Record))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Request to assert a credential.
 pub struct PasskeyAssertionRequest {
     /// Relying Party ID for the request.
     pub rp_id: String,
@@ -71,17 +71,17 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     /// The allowed credential ID for the request.
     pub credential_id: Vec<u8>,
 
-    #[cfg(target_os = "macos")]
     /// The user name for the credential that was previously given to the OS.
+    #[cfg(target_os = "macos")]
     pub user_name: String,
 
-    #[cfg(target_os = "macos")]
     /// The user ID for the credential that was previously given to the OS.
+    #[cfg(target_os = "macos")]
     pub user_handle: Vec<u8>,
 
-    #[cfg(target_os = "macos")]
     /// The app-specific local identifier for the credential, in our case, the
     /// cipher ID.
+    #[cfg(target_os = "macos")]
     pub record_identifier: Option<String>,
 
     /// SHA-256 hash of the `clientDataJSON` for the assertion request.
@@ -102,7 +102,6 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     /// On Windows, this must be logical pixels, not physical pixels.
     pub window_xy: Position,
 
-    #[cfg(not(target_os = "macos"))]
     /// Byte string representing the native OS window handle for the WebAuthn client.
     /// # Operating System Differences
     ///
@@ -111,6 +110,7 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     ///
     /// ## Windows
     /// On Windows, this is a HWND.
+    #[cfg(not(target_os = "macos"))]
     pub client_window_handle: Vec<u8>,
 
     // #[cfg(not(target_os = "macos"))]
@@ -150,8 +150,8 @@ pub struct PasskeyAssertionResponse {
     pub credential_id: Vec<u8>,
 }
 
-#[cfg_attr(target_os = "macos", uniffi::export(with_foreign))]
 /// Callback to process a response to passkey assertion request.
+#[cfg_attr(target_os = "macos", uniffi::export(with_foreign))]
 pub trait PreparePasskeyAssertionCallback: Send + Sync {
     /// Function to call if a successful response is returned.
     fn on_complete(&self, credential: PasskeyAssertionResponse);
