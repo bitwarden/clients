@@ -27,6 +27,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -36,6 +37,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -73,6 +75,7 @@ export class SetInitialPasswordComponent implements OnInit {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private dialogService: DialogService,
     private i18nService: I18nService,
+    private keyService: KeyService,
     private logoutService: LogoutService,
     private logService: LogService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -194,6 +197,54 @@ export class SetInitialPasswordComponent implements OnInit {
 
     switch (this.userType) {
       case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER:
+        // const accountEncryptionV2 = await this.configService.getFeatureFlag(
+        //   FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration,
+        // );
+
+        // // KM flag ON
+        // if (accountEncryptionV2) {
+        //   await this.setInitialPasswordJitMPUserV2Encryption(passwordInputResult);
+        //   return;
+        // }
+
+        // KM flag OFF, Auth flag ON
+        if (passwordInputResult.newApisFlagEnabled && !passwordInputResult.newMasterKey) {
+          /**
+           * If the newApisFlag is enabled, it means the InputPasswordComponent will not emit a
+           * newMasterKey, newServerMasterKeyHash, and newLocalMasterKeyHash. So we must create
+           * them here and add them late to the PasswordInputResult before calling setInitialPassword().
+           */
+
+          const newMasterKey = await this.keyService.makeMasterKey(
+            passwordInputResult.newPassword,
+            this.email,
+            passwordInputResult.kdfConfig,
+          );
+
+          const newServerMasterKeyHash = await this.keyService.hashMasterKey(
+            passwordInputResult.newPassword,
+            newMasterKey,
+            HashPurpose.ServerAuthorization,
+          );
+
+          const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
+            passwordInputResult.newPassword,
+            newMasterKey,
+            HashPurpose.LocalAuthorization,
+          );
+
+          passwordInputResult.newMasterKey = newMasterKey;
+          passwordInputResult.newServerMasterKeyHash = newServerMasterKeyHash;
+          passwordInputResult.newLocalMasterKeyHash = newLocalMasterKeyHash;
+
+          await this.setInitialPassword(passwordInputResult);
+          return;
+        }
+
+        // Default - both flags OFF
+        await this.setInitialPassword(passwordInputResult);
+
+        break;
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
         await this.setInitialPassword(passwordInputResult);
         break;
