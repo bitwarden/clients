@@ -749,12 +749,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       authRequestResponse.key,
       this.authRequestKeyPair.privateKey,
     );
-    return new AuthRequestLoginCredentials(
-      this.email,
-      this.accessCode,
-      requestId,
-      userKey,
-    );
+    return new AuthRequestLoginCredentials(this.email, this.accessCode, requestId, userKey);
   }
 
   private async clearExistingAdminAuthRequestAndStartNewRequest(userId: UserId) {
