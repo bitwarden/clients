@@ -601,7 +601,8 @@ mod tests {
     /// Generates a path for a server and client to connect with.
     ///
     /// [`AutofillProviderClient`] is currently hardcoded to use sockets from the filesystem.
-    /// In order for paths not to conflict between tests, we use a counter and add it to the path name.
+    /// In order for paths not to conflict between tests, we use a counter and add it to the path
+    /// name.
     fn get_server_path() -> PathBuf {
         static SERVER_COUNTER: AtomicU32 = AtomicU32::new(0);
         let counter = SERVER_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -666,7 +667,8 @@ mod tests {
             });
         });
 
-        // Wait for server to startup and client to connect to server before returning client to test method.
+        // Wait for server to startup and client to connect to server before returning client to
+        // test method.
         let _span = tracing::span!(Level::DEBUG, "client");
         tracing::debug!("Waiting for server...");
         signal_rx.recv_timeout(Duration::from_millis(1000)).unwrap();
@@ -678,7 +680,8 @@ mod tests {
         // The client connects to the server asynchronously in a background
         // thread, so wait for client to report itself as Connected so that test
         // methods don't have to do this everytime.
-        // Note, this has the potential to be flaky on a very busy server, but that's unavoidable with the current API.
+        // Note, this has the potential to be flaky on a very busy server, but that's unavoidable
+        // with the current API.
         tracing::debug!("Client connecting...");
         for _ in 0..20 {
             if let ConnectionStatus::Connected = client.get_connection_status() {
