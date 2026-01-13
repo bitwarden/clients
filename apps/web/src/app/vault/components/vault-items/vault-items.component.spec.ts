@@ -2,7 +2,7 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { TestBed } from "@angular/core/testing";
 import { of, Subject } from "rxjs";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";

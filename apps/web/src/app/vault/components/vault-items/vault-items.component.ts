@@ -13,7 +13,11 @@ import {
   switchMap,
 } from "rxjs";
 
-import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminView,
+  Unassigned,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";

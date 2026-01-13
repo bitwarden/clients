@@ -4,8 +4,7 @@ import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { combineLatest, map, Observable } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { Unassigned } from "@bitwarden/admin-console/common";
+import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import {
