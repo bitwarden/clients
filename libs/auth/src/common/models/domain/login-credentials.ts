@@ -54,8 +54,6 @@ export class AuthRequestLoginCredentials {
     public accessCode: string,
     public authRequestId: string,
     public decryptedUserKey: UserKey | null,
-    public decryptedMasterKey: MasterKey | null,
-    public decryptedMasterKeyHash: string | null,
     public twoFactor?: TokenTwoFactorRequest,
   ) {}
 
@@ -66,8 +64,6 @@ export class AuthRequestLoginCredentials {
         json.accessCode,
         json.authRequestId,
         null,
-        null,
-        json.decryptedMasterKeyHash,
         json.twoFactor
           ? new TokenTwoFactorRequest(
               json.twoFactor.provider,
@@ -78,7 +74,6 @@ export class AuthRequestLoginCredentials {
       ),
       {
         decryptedUserKey: SymmetricCryptoKey.fromJSON(json.decryptedUserKey) as UserKey,
-        decryptedMasterKey: SymmetricCryptoKey.fromJSON(json.decryptedMasterKey) as MasterKey,
       },
     );
   }
