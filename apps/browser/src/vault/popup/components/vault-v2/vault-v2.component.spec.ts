@@ -10,6 +10,10 @@ import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import {
+  AutoConfirmExtensionSetupDialogComponent,
+  AutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import AutofillService from "@bitwarden/browser/autofill/services/autofill.service";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
@@ -28,7 +32,11 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
+} from "@bitwarden/vault";
 
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
@@ -130,6 +138,7 @@ class VaultListItemsContainerStubComponent {
 const mockDialogRef = {
   close: jest.fn(),
   afterClosed: jest.fn().mockReturnValue(of(undefined)),
+  closed: of(undefined),
 } as unknown as import("@bitwarden/components").DialogRef<any, any>;
 
 jest
@@ -139,6 +148,13 @@ jest
 jest
   .spyOn(DecryptionFailureDialogComponent, "open")
   .mockImplementation((_: DialogService, _params: any) => mockDialogRef as any);
+
+const autoConfirmDialogSpy = jest
+  .spyOn(AutoConfirmExtensionSetupDialogComponent, "open")
+  .mockImplementation((_: DialogService) => mockDialogRef as any);
+
+jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
+jest.spyOn(BrowserPopupUtils, "openCurrentPagePopout").mockResolvedValue();
 
 describe("VaultV2Component", () => {
   let component: VaultV2Component;
@@ -189,6 +205,11 @@ describe("VaultV2Component", () => {
     stop: jest.fn(),
   } as Partial<VaultPopupScrollPositionService>;
 
+  const vaultItemsTransferSvc = {
+    transferInProgress$: new BehaviorSubject<boolean>(false),
+    enforceOrganizationDataOwnership: jest.fn().mockResolvedValue(undefined),
+  } as Partial<VaultItemsTransferService>;
+
   function getObs<T = unknown>(cmp: any, key: string): Observable<T> {
     return cmp[key] as Observable<T>;
   }
@@ -207,6 +228,13 @@ describe("VaultV2Component", () => {
 
   const configSvc = {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
+  };
+
+  const autoConfirmSvc = {
+    configuration$: jest.fn().mockReturnValue(of({})),
+    canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
+    upsert: jest.fn().mockResolvedValue(undefined),
+    autoConfirmUser: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
@@ -262,6 +290,10 @@ describe("VaultV2Component", () => {
           provide: SearchService,
           useValue: { isCipherSearching$: of(false) },
         },
+        {
+          provide: AutomaticUserConfirmationService,
+          useValue: autoConfirmSvc,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -279,6 +311,9 @@ describe("VaultV2Component", () => {
           AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
         ],
+        providers: [
+          { provide: VaultItemsTransferService, useValue: DefaultVaultItemsTransferService },
+        ],
       },
       add: {
         imports: [
@@ -292,6 +327,7 @@ describe("VaultV2Component", () => {
           AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,
         ],
+        providers: [{ provide: VaultItemsTransferService, useValue: vaultItemsTransferSvc }],
       },
     });
 
@@ -340,6 +376,7 @@ describe("VaultV2Component", () => {
   it("loading$ is true when items loading or filters missing; false when both ready", () => {
     const itemsLoading$ = itemsSvc.loading$ as unknown as BehaviorSubject<boolean>;
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
+    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
 
     const values: boolean[] = [];
     getObs<boolean>(component, "loading$").subscribe((v) => values.push(!!v));
@@ -349,6 +386,8 @@ describe("VaultV2Component", () => {
     allFilters$.next({});
 
     itemsLoading$.next(false);
+
+    readySubject$.next(true);
 
     expect(values[values.length - 1]).toBe(false);
   });
@@ -552,4 +591,86 @@ describe("VaultV2Component", () => {
     const spotlights = queryAllSpotlights(fixture);
     expect(spotlights.length).toBe(0);
   }));
+
+  describe("AutoConfirmExtensionSetupDialog", () => {
+    beforeEach(() => {
+      autoConfirmDialogSpy.mockClear();
+    });
+
+    it("opens dialog when canManage is true and showBrowserNotification is undefined", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmDialogSpy).toHaveBeenCalledWith(expect.any(Object));
+    }));
+
+    it("does not open dialog when showBrowserNotification is false", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: false,
+        }),
+      );
+
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open dialog when showBrowserNotification is true", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: true,
+          showSetupDialog: true,
+          showBrowserNotification: true,
+        }),
+      );
+
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("does not open dialog when canManage is false even if showBrowserNotification is undefined", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(false));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+  });
 });

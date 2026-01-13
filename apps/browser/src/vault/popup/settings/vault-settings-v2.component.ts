@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, viewChild } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
@@ -40,6 +40,8 @@ import { BrowserPremiumUpgradePromptService } from "../services/browser-premium-
   ],
 })
 export class VaultSettingsV2Component implements OnInit, OnDestroy {
+  private readonly premiumBadgeComponent = viewChild(PremiumBadgeComponent);
+
   lastSync = "--";
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -110,6 +112,20 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
       this.lastSync = last.toLocaleDateString() + " " + last.toLocaleTimeString();
     } else {
       this.lastSync = this.i18nService.t("never");
+    }
+  }
+
+  /**
+   * When a user can archive or has previously archived items, route them to
+   * the archive page. Otherwise, prompt them to upgrade to premium.
+   */
+  async conditionallyRouteToArchive(event: Event) {
+    event.preventDefault();
+    const premiumBadge = this.premiumBadgeComponent();
+    if (this.userCanArchive() || this.userHasArchivedItems()) {
+      await this.router.navigate(["/archive"]);
+    } else if (premiumBadge) {
+      await premiumBadge.promptForPremium(event);
     }
   }
 }

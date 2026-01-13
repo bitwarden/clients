@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Nincsenek megjeleníthető tagok."
   },
+  "noMembersToExport": {
+    "message": "Nincsenek exportálható tagok."
+  },
   "noEventsInList": {
     "message": "Nincsenek megjeleníthető események."
   },
@@ -1969,17 +1972,16 @@
   "encExportAccountWarningDesc": {
     "message": "A fiók titkosítási kulcsai minden Bitwarden felhasználói fiókhoz egyediek, ezért nem importálhatunk titkosított exportálást egy másik fiókba."
   },
-  "export": {
-    "message": "Exportálás"
+  "exportNoun": {
+    "message": "Exportálás",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Exportálás",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Exportálás innen:"
-  },
-  "exportVault": {
-    "message": "Széf exportálása"
-  },
-  "exportSecrets": {
-    "message": "Titkos adatok exportálása"
   },
   "fileFormat": {
     "message": "Fájlformátum"
@@ -1992,9 +1994,6 @@
   },
   "confirmMasterPassword": {
     "message": "Mesterjelszó megerősítése"
-  },
-  "confirmFormat": {
-    "message": "Formátum megerősítése"
   },
   "filePassword": {
     "message": "Fájl jelszó"
@@ -2306,6 +2305,14 @@
   "tools": {
     "message": "Eszközök"
   },
+  "importNoun": {
+    "message": "Importálás",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importálás",
+    "description": "The verb form of the word Import"
+  },
   "importData": {
     "message": "Adatok importálása"
   },
@@ -2533,6 +2540,9 @@
   "enabled": {
     "message": "Engedélyezve"
   },
+  "optionEnabled": {
+    "message": "Engedélyezve"
+  },
   "restoreAccess": {
     "message": "Hozzáférés helyreállítás"
   },
@@ -2629,6 +2639,9 @@
   },
   "key": {
     "message": "Kulcs"
+  },
+  "unnamedKey": {
+    "message": "Névtelen kulcs"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Ellenőrző kód"
@@ -3139,6 +3152,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Az archívumhoz hozzáférés visszaszerzéséhez indítsuk újra a Prémium előfizetést. Ha az újraindítás előtt szerkesztjük egy archivált elem adatait, akkor az visszakerül a széfbe."
   },
+  "itemRestored": {
+    "message": "Az elem visszaállításra került."
+  },
   "restartPremium": {
     "message": "Prémium előfizetés újraindítása"
   },
@@ -3287,6 +3303,9 @@
     "message": "Előfizetés kezelése"
   },
   "launchCloudSubscription": {
+    "message": "Felhő előfizetés indítása"
+  },
+  "launchCloudSubscriptionSentenceCase": {
     "message": "Felhő előfizetés indítása"
   },
   "storage": {
@@ -4203,6 +4222,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "Az átruházás a szervezet tulajdonába elfogadásra került."
+  },
+  "userDeclinedTransfer": {
+    "message": "A szervezet tulajdonába átruházás visszavonásra került elutasítás miatt."
   },
   "invitedUserId": {
     "message": "$ID$ azonosítójú felhasználó meghívásra került.",
@@ -5169,8 +5194,20 @@
     "message": "Javítás",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Titkosítás javítása"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Ez a fájl elavult titkosítási módszert használ."
+  },
+  "attachmentUpdated": {
+    "message": "A melléklet frissítésre került."
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "A széfben régi mellékletek vannak, amelyeket javítani kell a fiók titkosító kulcsának fordítása előtt."
+  },
+  "itemsTransferred": {
+    "message": "Az elemek átvitelre kerültek."
   },
   "yourAccountsFingerprint": {
     "message": "Fiók ujjlenyomat kifejezés",
@@ -5579,6 +5616,37 @@
     "message": "A Send mentésre került.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "A Send sikeresen létrejött!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Másoljuk és osszuk meg ezt a Send hivatkozást. Megtekinthetik a megadott személyek a következő $TIME$ intervallumban.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ óra",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Új szöveges Send elem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Új fájl Send elem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "A Send szerkesztésre került.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5617,6 +5685,9 @@
   },
   "revoked": {
     "message": "A visszavonás megtörtént."
+  },
+  "accepted": {
+    "message": "Elfogadva"
   },
   "sendLink": {
     "message": "Send hivatkozás",
@@ -6276,6 +6347,12 @@
   "enrolledAccountRecovery": {
     "message": "Megtörtént a regisztráció fiók helyreállításra."
   },
+  "enrolled": {
+    "message": "Feliratkozott"
+  },
+  "notEnrolled": {
+    "message": "Nem feliratkozott"
+  },
   "withdrawAccountRecovery": {
     "message": "Kilépés a fiók helyreállításból"
   },
@@ -6452,6 +6529,32 @@
   },
   "bulkReinviteMessage": {
     "message": "Az ismételt meghívás sikeres volt."
+  },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ felhasználó ismételten meghívásra került.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ / $SELECTEDCOUNT$ felhasználó ismételten meghívásra került. $EXCLUDEDCOUNT$ nem kapott meghívást $LIMIT$ meghívási korlát miatt.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
   },
   "bulkRemovedMessage": {
     "message": "Az eltávolítás sikeres volt."
@@ -6773,8 +6876,8 @@
   "vaultTimeoutRangeError": {
     "message": "A széf időkifutás nincs az engedélyezett intervallunban."
   },
-  "disablePersonalVaultExport": {
-    "message": "A személyes széf exportálás eltávolítása"
+  "disableExport": {
+    "message": "Exportálás eltávolítása"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Ne engedjük meg a tagoknak, hogy adatokat exportáljanak a saját széfből."
@@ -7094,9 +7197,6 @@
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával."
-  },
   "keyConnectorDomain": {
     "message": "Key Connector tartomány"
   },
@@ -7154,8 +7254,8 @@
   "enabledSso": {
     "message": "Az SSO bekapcsolásra került."
   },
-  "disabledSso": {
-    "message": "Az SSO bekapcsolásra került."
+  "ssoTurnedOff": {
+    "message": "Az SSO kikapcsolásra került."
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ segítségével be kell jelentkezni egyszeri bejelentkezéssel.",
@@ -8718,9 +8818,6 @@
   "server": {
     "message": "Szerver"
   },
-  "exportData": {
-    "message": "Adatok exportálása"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Szervezeti titkos adatok exportálása"
   },
@@ -9447,6 +9544,9 @@
   },
   "ssoLoginIsRequired": {
     "message": "SSO bejelentkezés szükséges"
+  },
+  "emailRequiredForSsoLogin": {
+    "message": "Email cím szükséges az SSO esetén."
   },
   "selectedRegionFlag": {
     "message": "Kiválasztott régió zászló"
@@ -11558,6 +11658,12 @@
   "unArchive": {
     "message": "Visszavétel archívumból"
   },
+  "archived": {
+    "message": "Archiválva"
+  },
+  "unArchiveAndSave": {
+    "message": "Archiválás visszavonása és mentés"
+  },
   "itemsInArchive": {
     "message": "Archiválandó elemek"
   },
@@ -11572,6 +11678,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Az elemek az archivumba kerültek."
+  },
+  "itemWasUnarchived": {
+    "message": "Az elem visszavételre került az archivumból."
   },
   "itemUnarchived": {
     "message": "Az elemek visszavéelre kerültek az archivumból."
@@ -11961,8 +12070,8 @@
   "familiesMembership": {
     "message": "Családi tagság"
   },
-  "planDescPremium": {
-    "message": "Teljes körű online biztonság"
+  "advancedOnlineSecurity": {
+    "message": "Bővített online biztonság"
   },
   "planDescFamiliesV2": {
     "message": "Prémium biztonság a család számára"
@@ -12199,6 +12308,45 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "A szervezet már nem használ mesterjelszavakat a Bitwardenbe bejelentkezéshez. A folytatáshoz ellenőrizzük a szervezetet és a tartományt."
+  },
+  "continueWithLogIn": {
+    "message": "Folytatás bejelentkezéssel"
+  },
+  "doNotContinue": {
+    "message": "Nincs folytatás"
+  },
+  "domain": {
+    "message": "Tartomány"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Ez a tartomány tárolja a fiók titkosítási kulcsait, ezért győződjünk meg róla, hogy megbízunk-e benne. Ha nem vagyunk biztos benne, érdeklődjünk adminisztrátornál."
+  },
+  "verifyYourOrganization": {
+    "message": "Szervezet ellenőrzése a bejelentkezéshez"
+  },
+  "organizationVerified": {
+    "message": "A szervezet ellenőrzésre került."
+  },
+  "domainVerified": {
+    "message": "A tartomány ellenőrzésre került."
+  },
+  "leaveOrganizationContent": {
+    "message": "Ha nem ellenőrizzük a szervezetet, a szervezethez hozzáférés visszavonásra kerül."
+  },
+  "leaveNow": {
+    "message": "Elhagyás most"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Tartomány ellenőrzése a bejelentkezéshez"
+  },
+  "verifyYourDomainDescription": {
+    "message": "A bejelentkezés folytatásához ellenőrizzük ezt a tartományt."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "A bejelentkezés folytatásához ellenőrizzük a szervezetet és a tartományt."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Nincsenek veszélyben levő kritikus alkalmazások."
   },
@@ -12207,5 +12355,264 @@
   },
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
+  },
+  "resizeSideNavigation": {
+    "message": "Oldalnavigáció átméretezés"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Helyreállíthatatlan széf elemek törlése"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Néhány széf elemet nem sikerült helyreállítani. Törölni szeretnénk ezeket a helyreállíthatatlan elemeket a széfből?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Helyreállíthatatlan mappák törlése"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Néhány mappát nem sikerült helyreállítani. Törölni szeretnénk ezeket a helyreállíthatatlan nappákat a széfből?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Titkosító kulcs cseréje"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "A nyilvános kulcsú titkosítás kulcspárját nem sikerült helyreállítani. Szeretnénk lecserélni a titkosítási kulcsot egy új kulcspárra? Ehhez újra be kell üzemelni a meglévő vészhelyzeti hozzáférési és szervezeti tagságokat."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Adatok szinkronizálása"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Titkosítási kulcs integritás ellenőrzése"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Felhasználói információk ellenőrzése"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Széf elem integritás ellenőrzése"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Mappa integritás ellenőrzése"
+  },
+  "dataRecoveryTitle": {
+    "message": "Adat helyreállítás és diagnosztika"
+  },
+  "dataRecoveryDescription": {
+    "message": "Használjuk az adat helyreállítási eszközt a fiókkal kapcsolatos problémák diagnosztizálásához és javításához. A diagnosztika futtatása után lehetőség van a diagnosztikai naplók mentésére támogatáshoz, valamint az észlelt problémák kijavításához."
+  },
+  "runDiagnostics": {
+    "message": "Diagnosztika futtatása"
+  },
+  "repairIssues": {
+    "message": "Hibák javítása"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Diagnosztikai naplók mentése"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Ezt a beállítást a szervezet lezeli."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "A szervezet a munkamenet maximális munkamenet időkifutását $HOURS$ órára és $MINUTES$ percre állította be.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "A szervezet az alapértelmezett munkamenet időkifutást a Böngésző frissítésekor értékre állította."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "A maximális időtúllépés nem haladhatja meg a $HOURS$ óra és $MINUTES$ perc értéket.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Böngésző frissítésekor"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Biztosan szeretnénk kilépni?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Az elutasítással a személyes elemek a fiókban maradnak, de elveszítjük hozzáférést a megosztott elemekhez és a szervezeti funkciókhoz."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Lépjünk kapcsolatba az adminisztrátorral a hozzáférés visszaszerzéséért."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "$ORGANIZATION$ elhagyása",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Hogyan kezeljem a széfet?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Elemek átvitele $ORGANIZATION$ szervezethez",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében. Kattintás az elfogadásra az elemek tulajdonjogának átruházásához.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Átvitel elfogadása"
+  },
+  "declineAndLeave": {
+    "message": "Elutasítás és kilépés"
+  },
+  "whyAmISeeingThis": {
+    "message": "Miért látható ez?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Bitwarden Prémium verzió van használatban."
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Tekintsük meg és kezeljük a Prémium előfizetést."
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Frissíteni kell a licensz fájlt."
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Licensz fájl feltöltése"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Licensz fájl feltöltése"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Licensz fájl feltöltése"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "A licensz fájl neve hasonló lesz: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Már van előfizetés?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Nyissuk meg az előfizetési oldalt Bitwarden felhőfiókjában és töltsük le licensz fájlt. Ezután térjünk vissza erre a képernyőre és töltsük fel lentebb."
+  },
+  "viewAllPlans": {
+    "message": "Összes csomag megtekintése"
+  },
+  "planDescPremium": {
+    "message": "Teljes körű online biztonság"
+  },
+  "updatePayment": {
+    "message": "Fizetés frissítése"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Nem lehetett feldolgozni a fizetést. Frissítsük a fizetési módot vagy forduljunk segítségért az ügyfélszolgálathoz."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Az előfizetés lejárt. Forduljunk a támogató csapathoz segítségért."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Az előfizetés az időzítés szerint lejár: $DATE$. Ezt megelőzően bármikor visszaállíthatjuk.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Osszunk meg még többet a Családi csomaggal vagy kapjunk hatékony, megbízható jelszóbiztonságot a Teams vagy az Enterprise segítségével."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Az előfizetés lejárati dátumától számítva $DAYS$ nap türelmi időszak áll rendelkezésére az előfizetés fenntartásához. Rendezzük a lejárt számlákat a következő időpontig: $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Számlák kezelése"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Következő terhelés"
+  },
+  "dueOn": {
+    "message": "esedékes"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Az előfizetés felfüggesztésre kerül:"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Az előfizetés felfüggesztésre került:"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Az előfizetés törlésre kerül:"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Az előfizetés törlésre került:"
+  },
+  "storageFull": {
+    "message": "A tárhely megtelt."
+  },
+  "storageUsedDescription": {
+    "message": "$USED$ / $AVAILABLE$ GB lett felhasználva a titkosított fájl tárolóból.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "A titkosított tárhely összes $GB$ mérete felhasználásra került. A fájlok tárolásának folytatásához adjunk hozzá további tárhelyet."
   }
 }

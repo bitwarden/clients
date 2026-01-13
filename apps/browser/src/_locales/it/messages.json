@@ -436,8 +436,8 @@
   "sync": {
     "message": "Sincronizza"
   },
-  "syncVaultNow": {
-    "message": "Sincronizza cassaforte ora"
+  "syncNow": {
+    "message": "Sincronizza"
   },
   "lastSync": {
     "message": "Ultima sincronizzazione:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden web app"
-  },
-  "importItems": {
-    "message": "Importa elementi"
   },
   "select": {
     "message": "Seleziona"
@@ -576,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Elemento archiviato"
   },
+  "itemWasUnarchived": {
+    "message": "Elemento rimosso dall'archivio"
+  },
   "itemUnarchived": {
     "message": "Elemento rimosso dall'archivio"
   },
@@ -587,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "Per utilizzare Archivio è necessario un abbonamento premium."
+  },
+  "itemRestored": {
+    "message": "L'elemento è stato ripristinato"
   },
   "edit": {
     "message": "Modifica"
@@ -1325,8 +1328,21 @@
   "exportFrom": {
     "message": "Esporta da"
   },
-  "exportVault": {
-    "message": "Esporta cassaforte"
+  "exportVerb": {
+    "message": "Esporta",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Esporta",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importa",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importa",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formato file"
@@ -1457,6 +1473,15 @@
   "attachmentSaved": {
     "message": "Allegato salvato"
   },
+  "fixEncryption": {
+    "message": "Correggi la crittografia"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Questo file usa un metodo di crittografia obsoleto."
+  },
+  "attachmentUpdated": {
+    "message": "Allegato aggiornato"
+  },
   "file": {
     "message": "File"
   },
@@ -1465,6 +1490,9 @@
   },
   "selectFile": {
     "message": "Seleziona un file"
+  },
+  "itemsTransferred": {
+    "message": "Elementi trasferiti"
   },
   "maxFileSize": {
     "message": "La dimensione massima del file è 500 MB."
@@ -3240,9 +3268,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nessun identificatore univoco trovato."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "La password principale non è più richiesta per i membri dell'organizzazione. Per favore, conferma il dominio qui sotto con l'amministratore."
-  },
   "organizationName": {
     "message": "Nome organizzazione"
   },
@@ -4206,10 +4231,6 @@
   "ignore": {
     "message": "Ignora"
   },
-  "importData": {
-    "message": "Importa dati",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Errore di importazione"
   },
@@ -4793,8 +4814,50 @@
   "adminConsole": {
     "message": "Console di amministrazione"
   },
+  "admin": {
+    "message": "Amministratore"
+  },
+  "automaticUserConfirmation": {
+    "message": "Conferma automatica degli utenti"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Conferma automaticamente gli utenti in sospeso mentre il dispositivo è sbloccato"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Risparmia tempo con la conferma automatica degli utenti"
+  },
+  "autoConfirmWarning": {
+    "message": "Potrebbe influenzare la sicurezza dei dati della tua organizzazione. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Scopri quali sono i rischi"
+  },
+  "autoConfirmSetup": {
+    "message": "Conferma automaticamente i nuovi utenti"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "I nuovi utenti saranno automaticamente confermati mentre questo dispositivo è sbloccato."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Quali sono i rischi potenziali per la sicurezza?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Conferma automatica attivata"
+  },
+  "availableNow": {
+    "message": "Disponibile ora"
+  },
   "accountSecurity": {
     "message": "Sicurezza dell'account"
+  },
+  "phishingBlocker": {
+    "message": "Blocco phishing"
+  },
+  "enablePhishingDetection": {
+    "message": "Rilevazione phishing"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Mostra un avviso prima di accedere ai siti sospetti di phishing"
   },
   "notifications": {
     "message": "Notifiche"
@@ -5640,6 +5703,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
   },
+  "vulnerablePassword": {
+    "message": "Password vulnerabile."
+  },
+  "changeNow": {
+    "message": "Cambiala subito!"
+  },
   "missingWebsite": {
     "message": "Sito web mancante"
   },
@@ -5848,8 +5917,8 @@
   "andMoreFeatures": {
     "message": "E molto altro!"
   },
-  "planDescPremium": {
-    "message": "Sicurezza online completa"
+  "advancedOnlineSecurity": {
+    "message": "Sicurezza online avanzata"
   },
   "upgradeToPremium": {
     "message": "Aggiorna a Premium"
@@ -5879,7 +5948,144 @@
   "cardNumberLabel": {
     "message": "Numero di carta"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "La tua organizzazione non utilizza più le password principali per accedere a Bitwarden. Per continuare, verifica l'organizzazione e il dominio."
+  },
+  "continueWithLogIn": {
+    "message": "Accedi e continua"
+  },
+  "doNotContinue": {
+    "message": "Non continuare"
+  },
+  "domain": {
+    "message": "Dominio"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Questo dominio memorizzerà le chiavi di crittografia del tuo account, quindi assicurati di impostarlo come affidabile. Se non hai la certezza che lo sia, verifica con l'amministratore."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifica la tua organizzazione per accedere"
+  },
+  "organizationVerified": {
+    "message": "Organizzazione verificata"
+  },
+  "domainVerified": {
+    "message": "Dominio verificato"
+  },
+  "leaveOrganizationContent": {
+    "message": "Se non verifichi l'organizzazione, il tuo accesso sarà revocato."
+  },
+  "leaveNow": {
+    "message": "Abbandona"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifica il tuo dominio per accedere"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Per continuare con l'accesso, verifica questo dominio."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Per continuare con l'accesso, verifica l'organizzazione e il dominio."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Azione al timeout"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Questa impostazione è gestita dalla tua organizzazione."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "La tua organizzazione ha impostato $HOURS$ ora/e e $MINUTES$ minuto/i come durata massima della sessione.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "In base alle impostazioni della tua organizzazione, la sessione terminerà immediatamente."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "In base alle impostazioni della tua organizzazione, la sessione terminerà al blocco del dispositivo."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "In base alle impostazioni della tua organizzazione, la sessione terminerà ogni volta che la pagina sarà chiusa o ricaricata."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "La durata della sessione non può superare $HOURS$ ora/e e $MINUTES$ minuto/i",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Al riavvio del browser"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Imposta un metodo di sblocco per modificare l'azione al timeout"
+  },
+  "upgrade": {
+    "message": "Aggiorna"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Vuoi davvero abbandonare?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Se rifiuti, tutti gli elementi esistenti resteranno nel tuo account, ma perderai l'accesso agli oggetti condivisi e alle funzioni organizzative."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contatta il tuo amministratore per recuperare l'accesso."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Abbandona $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Come si gestisce la cassaforte?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Trasferisci gli elementi in $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ richiede che tutti gli elementi siano di proprietà dell'organizzazione per motivi di conformità e sicurezza. Clicca su 'Accetta' per trasferire la proprietà.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accetta il trasferimento"
+  },
+  "declineAndLeave": {
+    "message": "Rifiuta e abbandona"
+  },
+  "whyAmISeeingThis": {
+    "message": "Perché vedo questo avviso?"
+  },
+  "resizeSideNavigation": {
+    "message": "Ridimensiona la navigazione laterale"
   }
 }
