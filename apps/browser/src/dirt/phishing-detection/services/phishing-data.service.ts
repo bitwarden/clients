@@ -293,6 +293,8 @@ export class PhishingDataService {
     }
   }
 
+  // [FIXME] Move compression helpers to a shared utils library
+  // to separate from phishing data service.
   // ------------------------- Blob and Compression Handling -------------------------
   private async _compressString(input: string): Promise<string> {
     try {
@@ -320,6 +322,7 @@ export class PhishingDataService {
         ? (Uint8Array as any).fromBase64(base64)
         : this._base64ToUint8Fallback(base64);
       const stream = new Response(bytes).body.pipeThrough(new DecompressionStream("gzip"));
+
       return await new Response(stream).text();
     } catch (err) {
       this.logService.error("[PhishingDataService] Decompression failed", err);
@@ -329,6 +332,7 @@ export class PhishingDataService {
 
   // Try to load compressed newline blob into an in-memory Set for fast lookups
   private async _loadBlobToMemory(): Promise<void> {
+    this.logService.debug("[PhishingDataService] Loading data blob into memory...");
     try {
       const blobBase64 = await firstValueFrom(this._phishingBlobState.state$);
       if (!blobBase64) {
@@ -361,10 +365,6 @@ export class PhishingDataService {
 
   private _base64ToUint8Fallback(base64: string): Uint8Array {
     const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes;
+    return Uint8Array.from(binary, (c) => c.charCodeAt(0));
   }
 }
