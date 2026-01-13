@@ -1,3 +1,4 @@
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use serde::{de::Visitor, Deserializer};
 
 pub(crate) fn deserialize_b64<'de, D: Deserializer<'de>>(
@@ -18,7 +19,6 @@ impl Visitor<'_> for Base64Visitor {
     where
         E: serde::de::Error,
     {
-        use base64::{engine::general_purpose::STANDARD, Engine as _};
         STANDARD.decode(v).map_err(|err| E::custom(err))
     }
 }
