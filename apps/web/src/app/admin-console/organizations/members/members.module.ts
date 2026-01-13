@@ -19,10 +19,12 @@ import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
 import { UserDialogModule } from "./components/member-dialog";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
+import { UserStatusPipe } from "./pipes";
 import {
   OrganizationMembersService,
   MemberActionsService,
   MemberDialogManagerService,
+  MemberExportService,
 } from "./services";
 
 @NgModule({
@@ -45,12 +47,15 @@ import {
     BulkStatusComponent,
     MembersComponent,
     BulkDeleteDialogComponent,
+    UserStatusPipe,
   ],
   providers: [
     OrganizationMembersService,
     MemberActionsService,
     BillingConstraintService,
     MemberDialogManagerService,
+    MemberExportService,
+    UserStatusPipe,
   ],
 })
 export class MembersModule {}

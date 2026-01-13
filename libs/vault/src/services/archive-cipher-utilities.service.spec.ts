@@ -5,6 +5,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -24,6 +25,7 @@ describe("ArchiveCipherUtilitiesService", () => {
   const mockCipher = new CipherView();
   mockCipher.id = "cipher-id" as CipherId;
   const mockUserId = "user-id";
+  const mockCipherData = { id: mockCipher.id } as CipherData;
 
   beforeEach(() => {
     cipherArchiveService = mock<CipherArchiveService>();
@@ -37,8 +39,8 @@ describe("ArchiveCipherUtilitiesService", () => {
 
     dialogService.openSimpleDialog.mockResolvedValue(true);
     passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
-    cipherArchiveService.archiveWithServer.mockResolvedValue(undefined);
-    cipherArchiveService.unarchiveWithServer.mockResolvedValue(undefined);
+    cipherArchiveService.archiveWithServer.mockResolvedValue(mockCipherData);
+    cipherArchiveService.unarchiveWithServer.mockResolvedValue(mockCipherData);
     i18nService.t.mockImplementation((key) => key);
 
     service = new ArchiveCipherUtilitiesService(

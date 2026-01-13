@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Element arxivə göndərildi"
   },
+  "itemWasUnarchived": {
+    "message": "Element arxivdən çıxarıldı"
+  },
   "itemUnarchived": {
     "message": "Element arxivdən çıxarıldı"
   },
@@ -584,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "Arxivi istifadə etmək üçün premium üzvlük tələb olunur."
+  },
+  "itemRestored": {
+    "message": "Element bərpa edildi"
   },
   "edit": {
     "message": "Düzəliş et"
@@ -1251,7 +1257,7 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində çıxış sonlandırılacaq."
+    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində sonlandırılacaq."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
     "message": "Hesabın geri qaytarılması prosesini tamamlamaq üçün ana parolunuzu dəyişdirin."
@@ -4808,6 +4814,39 @@
   "adminConsole": {
     "message": "Admin Konsolu"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Avtomatik istifadəçi təsdiqi"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Bu cihazın kilidi açıq olduqda gözləyən istifadəçiləri avtomatik təsdiqlə"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Avtomatik istifadəçi təsdiqi ilə vaxta qənaət edin"
+  },
+  "autoConfirmWarning": {
+    "message": "Bu, təşkilatınızın veri təhlükəsizliyinə təsir edə bilər. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Risklər barədə öyrən"
+  },
+  "autoConfirmSetup": {
+    "message": "Yeni istifadəçiləri avtomatik təsdiqlə"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Bu cihazın kilidi açıq olduqda yeni istifadəçilər avtomatik təsdiqlənəcək."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Potensial təhlükəsizlik riskləri nələrdir?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Avtomatik təsdiq işə salındı"
+  },
+  "availableNow": {
+    "message": "İndi mmövcuddur"
+  },
   "accountSecurity": {
     "message": "Hesab güvənliyi"
   },
@@ -5664,6 +5703,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
   },
+  "vulnerablePassword": {
+    "message": "Zəifliyi olan parol."
+  },
+  "changeNow": {
+    "message": "İndi dəyişdir"
+  },
   "missingWebsite": {
     "message": "Əskik veb sayt"
   },
@@ -6039,5 +6084,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Bunu niyə görürəm?"
+  },
+  "resizeSideNavigation": {
+    "message": "Yan naviqasiyanı yeni. ölçüləndir"
   }
 }
