@@ -257,7 +257,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get showActionButtons() {
-    return this.cipher !== null && this.params.mode === "form" && this.formConfig.mode !== "clone";
+    return this.cipher !== null && this.formConfig.mode !== "clone";
   }
 
   /**
