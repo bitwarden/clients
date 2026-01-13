@@ -367,7 +367,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     await this.setMasterKey(masterKey, userId);
     await this.setMasterKeyHash(localKeyHash, userId);
   }
-  
+
   // Copied from KeyService to avoid circular dependency. This will be dropped together with `setLegacyMatserKeyFromUnlockData`.
   private async hashMasterKey(
     password: string,
@@ -390,5 +390,4 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     );
     return Utils.fromBufferToB64(hash);
   }
-
 }
