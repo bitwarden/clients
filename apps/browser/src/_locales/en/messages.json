@@ -436,8 +436,8 @@
   "sync": {
     "message": "Sync"
   },
-  "syncVaultNow": {
-    "message": "Sync vault now"
+  "syncNow": {
+    "message": "Sync now"
   },
   "lastSync": {
     "message": "Last sync:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden web app"
-  },
-  "importItems": {
-    "message": "Import items"
   },
   "select": {
     "message": "Select"
@@ -576,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "Item was unarchived"
   },
@@ -587,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "edit": {
     "message": "Edit"
@@ -1325,8 +1328,21 @@
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Export vault"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "File format"
@@ -4215,10 +4231,6 @@
   "ignore": {
     "message": "Ignore"
   },
-  "importData": {
-    "message": "Import data",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Import error"
   },
@@ -4802,8 +4814,50 @@
   "adminConsole": {
     "message": "Admin Console"
   },
+  "admin" :{
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout":{
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
   "accountSecurity": {
     "message": "Account security"
+  },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
     "message": "Notifications"
@@ -5649,6 +5703,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Missing website"
   },
@@ -6003,7 +6063,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"  
+        "example": "My Org Name"
       }
     }
   },
@@ -6012,7 +6072,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"  
+        "example": "My Org Name"
       }
     }
   },
@@ -6024,5 +6084,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

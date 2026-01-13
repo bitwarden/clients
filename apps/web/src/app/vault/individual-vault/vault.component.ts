@@ -26,7 +26,6 @@ import {
 } from "rxjs/operators";
 
 import {
-  AutomaticUserConfirmationService,
   CollectionData,
   CollectionDetailsResponse,
   CollectionService,
@@ -42,6 +41,7 @@ import {
   ItemTypes,
   Icon,
 } from "@bitwarden/assets/svg";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {
@@ -424,6 +424,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
           queryParamsHandling: "merge",
           replaceUrl: true,
+          state: {
+            focusMainAfterNav: false,
+          },
         }),
       );
 
@@ -656,6 +659,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.destroy$.next();
     this.destroy$.complete();
     this.vaultFilterService.clearOrganizationFilter();
+  }
+
+  async navigateToGetPremium() {
+    await this.router.navigate(["/settings/subscription/premium"]);
   }
 
   async onVaultItemsEvent(event: VaultItemEvent<C>) {

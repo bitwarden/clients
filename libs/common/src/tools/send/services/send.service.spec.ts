@@ -11,6 +11,7 @@ import {
   FakeStateProvider,
   awaitAsync,
   mockAccountServiceWith,
+  mockAccountInfoWith,
 } from "../../../../spec";
 import { KeyGenerationService } from "../../../key-management/crypto";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
@@ -23,13 +24,13 @@ import { ContainerService } from "../../../platform/services/container.service";
 import { SelfHostedEnvironment } from "../../../platform/services/default-environment.service";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { SendType } from "../enums/send-type";
 import { SendFileApi } from "../models/api/send-file.api";
 import { SendTextApi } from "../models/api/send-text.api";
 import { SendFileData } from "../models/data/send-file.data";
 import { SendTextData } from "../models/data/send-text.data";
 import { SendData } from "../models/data/send.data";
 import { SendView } from "../models/view/send.view";
+import { SendType } from "../types/send-type";
 
 import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
 import { SendStateProvider } from "./send-state.provider";
@@ -71,9 +72,10 @@ describe("SendService", () => {
 
     accountService.activeAccountSubject.next({
       id: mockUserId,
-      email: "email",
-      emailVerified: false,
-      name: "name",
+      ...mockAccountInfoWith({
+        email: "email",
+        name: "name",
+      }),
     });
 
     // Initial encrypted state
