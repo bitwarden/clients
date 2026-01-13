@@ -4267,8 +4267,8 @@
   "typeShortcut": {
     "message": "Введіть комбінацію клавіш"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Використайте один або два таких модифікацій: Ctrl, Alt, Win, Shift, і літеру."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "Недійсна комбінація клавіш"
