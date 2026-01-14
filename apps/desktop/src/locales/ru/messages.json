@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Новый",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Новый URI"
   },
@@ -1776,19 +1780,19 @@
     "message": "Экспорт из"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Экспорт",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Экспортировать",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Импорт",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Импортировать",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -2409,6 +2413,10 @@
   },
   "deleteSendConfirmation": {
     "message": "Вы действительно хотите удалить эту Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copySendLink": {
+    "message": "Скопировать ссылку на Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -4003,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
   },
+  "vulnerablePassword": {
+    "message": "Уязвимый пароль."
+  },
+  "changeNow": {
+    "message": "Изменить сейчас"
+  },
   "missingWebsite": {
     "message": "Отсутствует сайт"
   },
@@ -4031,9 +4045,15 @@
     "message": "Безопасная отправка конфиденциальной информации",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Поиск не дал результатов"
+  },
   "sendsBodyNoItems": {
     "message": "Безопасно обменивайтесь файлами и данными с кем угодно на любой платформе. Ваша информация надежно шифруется и доступ к ней ограничен.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Очистите фильтры или попробуйте другой поисковый запрос"
   },
   "generatorNudgeTitle": {
     "message": "Быстрое создание паролей"
@@ -4253,8 +4273,8 @@
   "typeShortcut": {
     "message": "Введите сочетание клавиш"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Включите один или два из следующих модификаторов: Ctrl, Alt, Win или Shift и букву."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Включите один или два из следующих модификаторов: Ctrl, Alt, Win и букву."
   },
   "invalidShortcut": {
     "message": "Недопустимое сочетание клавиш"
@@ -4292,6 +4312,9 @@
   "unArchive": {
     "message": "Разархивировать"
   },
+  "archived": {
+    "message": "Архивирован"
+  },
   "itemsInArchive": {
     "message": "Элементы в архиве"
   },
@@ -4312,6 +4335,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  },
+  "unArchiveAndSave": {
+    "message": "Разархивировать и сохранить"
+  },
+  "restartPremium": {
+    "message": "Переподключить Премиум"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ваша подписка Премиум закончилась"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
+  },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
   },
   "zipPostalCodeLabel": {
     "message": "Почтовый индекс"
