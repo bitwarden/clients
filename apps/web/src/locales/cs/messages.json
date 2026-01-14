@@ -11620,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
+  "vulnerablePassword": {
+    "message": "Zranitelné heslo."
+  },
+  "changeNow": {
+    "message": "Změnit nyní"
+  },
   "missingWebsite": {
     "message": "Chybějící webová stránka"
   },
@@ -12614,5 +12620,11 @@
   },
   "storageFullDescription": {
     "message": "Využili jste celých $GB$ GB Vašeho šifrovaného úložiště. Chcete-li pokračovat v ukládání souborů, přidejte další úložiště."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Když odeberete úložiště, obdržíte kredit, který bude automaticky převeden do Vašeho dalšího vyúčtování."
+  },
+  "youHavePremium": {
+    "message": "Máte Premium"
   }
 }
