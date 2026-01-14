@@ -27,7 +27,6 @@ import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -321,24 +320,22 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
-    await this.masterPasswordService.setMasterPasswordUnlockData(
-      MasterPasswordUnlockData.fromSdk(registerResult.master_password_unlock),
-      userId,
+    const masterPasswordUnlockData = MasterPasswordUnlockData.fromSdk(
+      registerResult.master_password_unlock,
     );
+    await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
 
     await this.keyService.setUserKey(
       SymmetricCryptoKey.fromString(registerResult.user_key) as UserKey,
       userId,
     );
 
-    const masterKey = SymmetricCryptoKey.fromString(registerResult.master_key) as MasterKey;
-
     await this.updateLegacyState(
       newPassword,
-      masterKey,
       fromSdkKdfConfig(registerResult.master_password_unlock.kdf),
       new EncString(registerResult.master_password_unlock.masterKeyWrappedUserKey),
       userId,
+      masterPasswordUnlockData,
     );
   }
 
@@ -390,10 +387,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   // Deprecated legacy support - to be removed in future
   private async updateLegacyState(
     newPassword: string,
-    masterKey: MasterKey,
     kdfConfig: KdfConfig,
     masterKeyWrappedUserKey: EncString,
     userId: UserId,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
   ) {
     // TODO Remove HasMasterPassword from UserDecryptionOptions https://bitwarden.atlassian.net/browse/PM-23475
     const userDecryptionOpts = await firstValueFrom(
@@ -408,17 +405,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     // TODO Remove KDF state https://bitwarden.atlassian.net/browse/PM-30661
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     // TODO Remove master key memory state https://bitwarden.atlassian.net/browse/PM-23477
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
-    // TODO Remove master key memory state https://bitwarden.atlassian.net/browse/PM-23477
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(masterKeyWrappedUserKey, userId);
 
-    // TODO Remove "LocalAuthorization" master key hash https://bitwarden.atlassian.net/browse/PM-23476
-    const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
-      newPassword,
-      masterKey,
-      HashPurpose.LocalAuthorization,
-    );
-    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
+    // TODO Removed with https://bitwarden.atlassian.net/browse/PM-30676
+    await this.masterPasswordService.ź(newPassword, masterPasswordUnlockData, userId);
   }
 
   /**

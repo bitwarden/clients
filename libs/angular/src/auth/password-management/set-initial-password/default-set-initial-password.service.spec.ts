@@ -37,7 +37,6 @@ import {
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Rc } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -905,7 +904,6 @@ describe("DefaultSetInitialPasswordService", () => {
         salt: "user@example.com" as unknown as MasterPasswordSalt,
       },
       user_key: makeSymmetricCryptoKey(64).keyB64,
-      master_key: makeSymmetricCryptoKey(32).keyB64,
     };
 
     beforeEach(() => {
@@ -940,8 +938,6 @@ describe("DefaultSetInitialPasswordService", () => {
       userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
         of(mockUserDecryptionOpts),
       );
-
-      keyService.hashMasterKey.mockResolvedValue("local-hash");
     });
 
     it("should successfully initialize JIT password user", async () => {
@@ -995,22 +991,16 @@ describe("DefaultSetInitialPasswordService", () => {
         fromSdkKdfConfig(sdkRegistrationResult.master_password_unlock.kdf),
       );
 
-      const expectedMasterKey = SymmetricCryptoKey.fromString(
-        sdkRegistrationResult.master_key,
-      ) as MasterKey;
-      expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(expectedMasterKey, userId);
-
       expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
         new EncString(sdkRegistrationResult.master_password_unlock.masterKeyWrappedUserKey),
         userId,
       );
 
-      expect(keyService.hashMasterKey).toHaveBeenCalledWith(
+      expect(masterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
         credentials.newPassword,
-        expectedMasterKey,
-        HashPurpose.LocalAuthorization,
+        MasterPasswordUnlockData.fromSdk(sdkRegistrationResult.master_password_unlock),
+        userId,
       );
-      expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith("local-hash", userId);
     });
 
     describe("input validation", () => {
