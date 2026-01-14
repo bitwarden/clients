@@ -4,14 +4,11 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  computed,
   effect,
   inject,
-  signal,
-  viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, switchMap } from "rxjs";
+import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -25,6 +22,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { SendId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, DialogService, ToastService } from "@bitwarden/components";
 import {
@@ -32,34 +30,24 @@ import {
   SendItemsService,
   SendListComponent,
   SendListState,
+  SendAddEditDialogComponent,
+  DefaultSendFormConfigService,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
-import { AddEditComponent } from "../send/add-edit.component";
-
-const Action = Object.freeze({
-  /** No action is currently active. */
-  None: "",
-  /** The user is adding a new Send. */
-  Add: "add",
-  /** The user is editing an existing Send. */
-  Edit: "edit",
-} as const);
-
-type Action = (typeof Action)[keyof typeof Action];
 
 @Component({
   selector: "app-send-v2",
   imports: [
     JslibModule,
     ButtonModule,
-    AddEditComponent,
     SendListComponent,
     NewSendDropdownV2Component,
     DesktopHeaderComponent,
   ],
   providers: [
+    DefaultSendFormConfigService,
     {
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,
@@ -69,22 +57,17 @@ type Action = (typeof Action)[keyof typeof Action];
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendV2Component {
-  protected readonly addEditComponent = viewChild(AddEditComponent);
-
-  protected readonly sendId = signal<string | null>(null);
-  protected readonly action = signal<Action>(Action.None);
-  private readonly selectedSendTypeOverride = signal<SendType | undefined>(undefined);
-
+  private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
   private policyService = inject(PolicyService);
   private accountService = inject(AccountService);
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
   private environmentService = inject(EnvironmentService);
-  private logService = inject(LogService);
   private sendApiService = inject(SendApiService);
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
+  private logService = inject(LogService);
   private cdr = inject(ChangeDetectorRef);
 
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
@@ -137,53 +120,27 @@ export class SendV2Component {
   }
 
   protected async addSend(type: SendType): Promise<void> {
-    this.action.set(Action.Add);
-    this.sendId.set(null);
-    this.selectedSendTypeOverride.set(type);
+    const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
 
-    const component = this.addEditComponent();
-    if (component) {
-      await component.resetAndLoad();
-    }
+    const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      formConfig,
+    });
+
+    await lastValueFrom(dialogRef.closed);
   }
 
-  protected closeEditPanel(): void {
-    this.action.set(Action.None);
-    this.sendId.set(null);
-    this.selectedSendTypeOverride.set(undefined);
+  protected async selectSend(sendId: SendId): Promise<void> {
+    const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId);
+
+    const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      formConfig,
+    });
+
+    await lastValueFrom(dialogRef.closed);
   }
-
-  protected async savedSend(send: SendView): Promise<void> {
-    await this.selectSend(send.id);
-  }
-
-  protected async selectSend(sendId: string): Promise<void> {
-    if (sendId === this.sendId() && this.action() === Action.Edit) {
-      return;
-    }
-    this.action.set(Action.Edit);
-    this.sendId.set(sendId);
-    const component = this.addEditComponent();
-    if (component) {
-      component.sendId = sendId;
-      await component.refresh();
-    }
-  }
-
-  protected readonly selectedSendType = computed(() => {
-    const action = this.action();
-    const typeOverride = this.selectedSendTypeOverride();
-
-    if (action === Action.Add && typeOverride !== undefined) {
-      return typeOverride;
-    }
-
-    const sendId = this.sendId();
-    return this.filteredSends().find((s) => s.id === sendId)?.type;
-  });
 
   protected async onEditSend(send: SendView): Promise<void> {
-    await this.selectSend(send.id);
+    await this.selectSend(send.id as SendId);
   }
 
   protected async onCopySend(send: SendView): Promise<void> {
@@ -219,11 +176,6 @@ export class SendV2Component {
         title: null,
         message: this.i18nService.t("removedPassword"),
       });
-
-      if (this.sendId() === send.id) {
-        this.sendId.set(null);
-        await this.selectSend(send.id);
-      }
     } catch (e) {
       this.logService.error(e);
     }
@@ -247,7 +199,5 @@ export class SendV2Component {
       title: null,
       message: this.i18nService.t("deletedSend"),
     });
-
-    this.closeEditPanel();
   }
 }
