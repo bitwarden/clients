@@ -12,6 +12,6 @@ import { ipc as ossIpc } from "@bitwarden/desktop/preload";
 
 export const ipc = {
   ...ossIpc,
-} as const;
+};
 
 contextBridge.exposeInMainWorld("ipc", ipc);

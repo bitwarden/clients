@@ -23,6 +23,6 @@ export const ipc = {
   platform,
   keyManagement,
   tools,
-} as const;
+};
 
 contextBridge.exposeInMainWorld("ipc", ipc);
