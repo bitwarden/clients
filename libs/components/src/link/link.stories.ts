@@ -43,6 +43,9 @@ export const Default: Story = {
   args: {
     linkType: "primary",
   },
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
 };
 
 export const AllVariations: Story = {
