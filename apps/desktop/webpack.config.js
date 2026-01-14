@@ -14,11 +14,11 @@ module.exports = (webpackConfig, context) => {
       },
       main: {
         entry: path.resolve(__dirname, "src/entry.ts"),
-        tsConfig: path.resolve(context.context.root, "apps/desktop/tsconfig.json"),
+        tsConfig: path.resolve(context.context.root, "apps/desktop/tsconfig.main.json"),
       },
       preload: {
         entry: path.resolve(__dirname, "src/preload.ts"),
-        tsConfig: path.resolve(context.context.root, "apps/desktop/tsconfig.json"),
+        tsConfig: path.resolve(context.context.root, "apps/desktop/tsconfig.preload.json"),
       },
       outputPath: path.resolve(context.context.root, context.options.outputPath),
     });
@@ -32,11 +32,11 @@ module.exports = (webpackConfig, context) => {
       },
       main: {
         entry: path.resolve(__dirname, "src/entry.ts"),
-        tsConfig: path.resolve(__dirname, "tsconfig.json"),
+        tsConfig: path.resolve(__dirname, "tsconfig.main.json"),
       },
       preload: {
         entry: path.resolve(__dirname, "src/preload.ts"),
-        tsConfig: path.resolve(__dirname, "tsconfig.json"),
+        tsConfig: path.resolve(__dirname, "tsconfig.preload.json"),
       },
     });
   }
