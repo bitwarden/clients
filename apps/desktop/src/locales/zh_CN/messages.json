@@ -3982,7 +3982,7 @@
     "message": "此应用程序已存在一个通行密钥。"
   },
   "applicationDoesNotSupportDuplicates": {
-    "message": "此应用程序不支持重复项。"
+    "message": "此应用程序不支持重复。"
   },
   "closeThisWindow": {
     "message": "关闭此窗口"
@@ -4010,6 +4010,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
+  },
+  "vulnerablePassword": {
+    "message": "易受攻击的密码。"
+  },
+  "changeNow": {
+    "message": "立即更改"
   },
   "missingWebsite": {
     "message": "缺少网站"
@@ -4268,7 +4274,7 @@
     "message": "输入快捷键"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "包含以下修饰键中的一个或两个：Ctrl、Alt、Win，以及一个字母。"
+    "message": "包含以下修饰键中的一个或两个：Ctrl、Alt、Win，以及一个字母键。"
   },
   "invalidShortcut": {
     "message": "无效的快捷键"
