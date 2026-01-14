@@ -187,8 +187,8 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
       return;
     }
 
-    if (requestInitiator) {
-      this.disableAutoSubmitFlow(requestInitiator, details).catch((error) =>
+    if (requestInitiator || this.validAutoSubmitHosts.size > 0) {
+      this.disableAutoSubmitFlow(requestInitiator || "", details).catch((error) =>
         this.logService.error(error),
       );
     }
@@ -437,7 +437,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
    */
   private getUrlHost = (url: string) => {
     let parsedUrl = url;
-    if (!parsedUrl) {
+    if (!parsedUrl || typeof parsedUrl !== "string") {
       return "";
     }
 
