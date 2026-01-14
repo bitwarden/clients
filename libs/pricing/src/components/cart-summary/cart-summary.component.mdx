@@ -67,7 +67,7 @@ The component uses the following Cart and CartItem data structures:
 
 ```typescript
 export type CartItem = {
-  name: string; // Display name for i18n lookup
+  translationKey: string; // Translation key for i18n lookup
   quantity: number; // Number of items
   cost: number; // Cost per item
   discount?: Discount; // Optional item-level discount
@@ -92,7 +92,6 @@ import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
 
 export type Discount = {
   type: DiscountType; // DiscountTypes.AmountOff | DiscountTypes.PercentOff
-  active: boolean; // Whether discount is currently applied
   value: number; // Dollar amount or percentage (20 for 20%)
 };
 ```
@@ -108,7 +107,7 @@ The cart summary component provides flexibility through its structured Cart inpu
     passwordManager: {
       seats: {
         quantity: 5,
-        name: 'members',
+        translationKey: 'members',
         cost: 50.00
       }
     },
@@ -124,12 +123,12 @@ The cart summary component provides flexibility through its structured Cart inpu
     passwordManager: {
       seats: {
         quantity: 5,
-        name: 'members',
+        translationKey: 'members',
         cost: 50.00
       },
       additionalStorage: {
         quantity: 2,
-        name: 'additionalStorageGB',
+        translationKey: 'additionalStorageGB',
         cost: 10.00
       }
     },
@@ -145,14 +144,13 @@ The cart summary component provides flexibility through its structured Cart inpu
     passwordManager: {
       seats: {
         quantity: 5,
-        name: 'members',
+        translationKey: 'members',
         cost: 50.00
       }
     },
     cadence: 'monthly',
     discount: {
       type: 'percent-off',
-      active: true,
       value: 20
     },
     estimatedTax: 8.00
@@ -188,7 +186,7 @@ Show cart with yearly subscription:
     passwordManager: {
       seats: {
         quantity: 5,
-        name: 'members',
+        translationKey: 'members',
         cost: 500.00
       }
     },
@@ -211,12 +209,12 @@ Show cart with password manager and additional storage:
     passwordManager: {
       seats: {
         quantity: 5,
-        name: 'members',
+        translationKey: 'members',
         cost: 50.00
       },
       additionalStorage: {
         quantity: 2,
-        name: 'additionalStorageGB',
+        translationKey: 'additionalStorageGB',
         cost: 10.00
       }
     },
@@ -239,14 +237,14 @@ Show cart with password manager and secrets manager seats only:
     passwordManager: {
       seats: {
         quantity: 5,
-        name: 'members',
+        translationKey: 'members',
         cost: 50.00
       }
     },
     secretsManager: {
       seats: {
         quantity: 3,
-        name: 'members',
+        translationKey: 'members',
         cost: 30.00
       }
     },
@@ -269,19 +267,19 @@ Show cart with password manager, secrets manager seats, and additional service a
     passwordManager: {
       seats: {
         quantity: 5,
-        name: 'members',
+        translationKey: 'members',
         cost: 50.00
       }
     },
     secretsManager: {
       seats: {
         quantity: 3,
-        name: 'members',
+        translationKey: 'members',
         cost: 30.00
       },
       additionalServiceAccounts: {
         quantity: 2,
-        name: 'additionalServiceAccounts',
+        translationKey: 'additionalServiceAccounts',
         cost: 6.00
       }
     },
@@ -304,24 +302,24 @@ Show a cart with all available products:
     passwordManager: {
       seats: {
         quantity: 5,
-        name: 'members',
+        translationKey: 'members',
         cost: 50.00
       },
       additionalStorage: {
         quantity: 2,
-        name: 'additionalStorageGB',
+        translationKey: 'additionalStorageGB',
         cost: 10.00
       }
     },
     secretsManager: {
       seats: {
         quantity: 3,
-        name: 'members',
+        translationKey: 'members',
         cost: 30.00
       },
       additionalServiceAccounts: {
         quantity: 2,
-        name: 'additionalServiceAccounts',
+        translationKey: 'additionalServiceAccounts',
         cost: 6.00
       }
     },
@@ -344,19 +342,18 @@ Show cart with percentage-based discount:
     passwordManager: {
       seats: {
         quantity: 5,
-        name: 'members',
+        translationKey: 'members',
         cost: 50.00
       },
       additionalStorage: {
         quantity: 2,
-        name: 'additionalStorageGB',
+        translationKey: 'additionalStorageGB',
         cost: 10.00
       }
     },
     cadence: 'monthly',
     discount: {
       type: 'percent-off',
-      active: true,
       value: 20
     },
     estimatedTax: 10.40
@@ -377,21 +374,20 @@ Show cart with fixed amount discount:
     passwordManager: {
       seats: {
         quantity: 5,
-        name: 'members',
+        translationKey: 'members',
         cost: 50.00
       }
     },
     secretsManager: {
       seats: {
         quantity: 3,
-        name: 'members',
+        translationKey: 'members',
         cost: 30.00
       }
     },
     cadence: 'annually',
     discount: {
       type: 'amount-off',
-      active: true,
       value: 50.00
     },
     estimatedTax: 95.00
@@ -431,7 +427,7 @@ Show cart with premium plan:
     passwordManager: {
       seats: {
         quantity: 1,
-        name: 'premiumMembership',
+        translationKey: 'premiumMembership',
         cost: 10.00
       }
     },
@@ -454,7 +450,7 @@ Show cart with families plan:
     passwordManager: {
       seats: {
         quantity: 1,
-        name: 'familiesMembership',
+        translationKey: 'familiesMembership',
         cost: 40.00
       }
     },
@@ -488,8 +484,7 @@ Show cart with families plan:
 - Use consistent naming and formatting for cart items
 - Include clear quantity and unit pricing information
 - Ensure tax estimates are accurate and clearly labeled
-- Set `active: true` on discounts that should be displayed
-- Use localized strings for CartItem names (for i18n lookup)
+- Use valid translation keys for CartItem translationKey (for i18n lookup)
 - Provide complete Cart object with all required fields
 - Use "annually" or "monthly" for cadence (not "year" or "month")
 
