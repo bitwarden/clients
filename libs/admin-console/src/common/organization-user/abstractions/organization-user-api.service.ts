@@ -266,6 +266,7 @@ export abstract class OrganizationUserApiService {
 
   /**
    * Revoke the current user's access to the organization
+   * if they decline an item transfer under the Organization Data Ownership policy.
    * @param organizationId - Identifier for the organization the user belongs to
    */
   abstract revokeSelf(organizationId: string): Promise<void>;
