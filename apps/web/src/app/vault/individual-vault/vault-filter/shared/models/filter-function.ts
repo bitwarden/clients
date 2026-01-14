@@ -47,7 +47,11 @@ export function createFilterFunction(
       if (filter.type === "archive" && !CipherViewLikeUtils.isArchived(cipher)) {
         return false;
       }
-      if (filter.type !== "archive" && CipherViewLikeUtils.isArchived(cipher)) {
+      if (
+        filter.type !== "archive" &&
+        filter.type !== "trash" &&
+        CipherViewLikeUtils.isArchived(cipher)
+      ) {
         return false;
       }
     }

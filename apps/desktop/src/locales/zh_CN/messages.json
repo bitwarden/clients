@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "新增",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "新增 URI"
   },
@@ -709,7 +713,7 @@
     "message": "添加附件"
   },
   "itemsTransferred": {
-    "message": "项目已传输"
+    "message": "项目已转移"
   },
   "fixEncryption": {
     "message": "修复加密"
@@ -1776,19 +1780,19 @@
     "message": "导出自"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "导出",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "导出",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "导入",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "导入",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -2411,6 +2415,10 @@
     "message": "确定要删除此 Send 吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "复制 Send 链接",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "复制 Send 链接到剪贴板",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -2566,7 +2574,7 @@
     }
   },
   "vaultTimeoutPolicyWithActionInEffect": {
-    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为 $ACTION$。",
+    "message": "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 $HOURS$ 小时 $MINUTES$ 分钟。您的密码库超时动作被设置为「$ACTION$」。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3785,7 +3793,7 @@
     "description": "Button text to navigate back"
   },
   "removeItem": {
-    "message": "删除 $NAME$",
+    "message": "移除 $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -3974,7 +3982,7 @@
     "message": "此应用程序已存在一个通行密钥。"
   },
   "applicationDoesNotSupportDuplicates": {
-    "message": "此应用程序不支持重复项。"
+    "message": "此应用程序不支持重复。"
   },
   "closeThisWindow": {
     "message": "关闭此窗口"
@@ -4002,6 +4010,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登录存在风险且缺少网站。请添加网站并更改密码以增强安全性。"
+  },
+  "vulnerablePassword": {
+    "message": "易受攻击的密码。"
+  },
+  "changeNow": {
+    "message": "立即更改"
   },
   "missingWebsite": {
     "message": "缺少网站"
@@ -4031,9 +4045,15 @@
     "message": "安全地发送敏感信息",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "未返回搜索结果"
+  },
   "sendsBodyNoItems": {
     "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "清除筛选或尝试其他搜索词"
   },
   "generatorNudgeTitle": {
     "message": "快速创建密码"
@@ -4253,8 +4273,8 @@
   "typeShortcut": {
     "message": "输入快捷键"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "包含以下一个或两个修饰符：Ctrl、Alt、Win 或 Shift，外加一个字母。"
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "包含以下修饰键中的一个或两个：Ctrl、Alt、Win，以及一个字母键。"
   },
   "invalidShortcut": {
     "message": "无效的快捷键"
@@ -4292,6 +4312,9 @@
   "unArchive": {
     "message": "取消归档"
   },
+  "archived": {
+    "message": "已归档"
+  },
   "itemsInArchive": {
     "message": "归档中的项目"
   },
@@ -4312,6 +4335,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
+  },
+  "unArchiveAndSave": {
+    "message": "取消归档并保存"
+  },
+  "restartPremium": {
+    "message": "重启高级版"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "您的高级版订阅已结束"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "要重新获取归档内容的访问权限，请重启您的高级版订阅。如果您在重启前编辑了某个已归档项目的详细信息，它将被移回您的密码库中。"
+  },
+  "itemRestored": {
+    "message": "项目已恢复"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / 邮政编码"
@@ -4388,6 +4426,9 @@
   "sessionTimeoutHeader": {
     "message": "会话超时"
   },
+  "resizeSideNavigation": {
+    "message": "调整侧边导航栏大小"
+  },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "此设置由您的组织管理。"
   },
@@ -4454,7 +4495,7 @@
     "message": "我该如何管理我的密码库？"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "传输项目到 $ORGANIZATION$",
+    "message": "转移项目到 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4463,7 +4504,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以传输您的项目的所有权。",
+    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4472,7 +4513,7 @@
     }
   },
   "acceptTransfer": {
-    "message": "接受传输"
+    "message": "接受转移"
   },
   "declineAndLeave": {
     "message": "拒绝并退出"
