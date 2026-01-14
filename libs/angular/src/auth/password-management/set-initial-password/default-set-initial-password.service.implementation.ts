@@ -408,7 +408,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(masterKeyWrappedUserKey, userId);
 
     // TODO Removed with https://bitwarden.atlassian.net/browse/PM-30676
-    await this.masterPasswordService.ź(newPassword, masterPasswordUnlockData, userId);
+    await this.masterPasswordService.setLegacyMasterKeyFromUnlockData(
+      newPassword,
+      masterPasswordUnlockData,
+      userId,
+    );
   }
 
   /**
