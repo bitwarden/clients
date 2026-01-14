@@ -812,9 +812,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
             userPrivateKey,
           })),
           catchError((err: unknown) => {
-            this.logService.error(
-              `Failed to decrypt private key for user ${userId}`,
-            );
+            this.logService.error(`Failed to decrypt private key for user ${userId}`);
             return of({
               userKey,
               userPrivateKey: null,
