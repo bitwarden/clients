@@ -574,7 +574,7 @@
     "message": "Element został przeniesiony do archiwum"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Element został usunięty z archiwum"
   },
   "itemUnarchived": {
     "message": "Element został usunięty z archiwum"
