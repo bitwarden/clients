@@ -48,6 +48,8 @@ export abstract class CipherReportComponent implements OnDestroy {
 
   filterStatus: any = [0];
   showFilterToggle: boolean = false;
+  selectedFilterChip: string = "0";
+  chipSelectOptions: { label: string; value: string; icon: string }[];
   vaultMsg: string = "vault";
   currentFilterStatus: number | string = 0;
   protected filterOrgStatus$ = new BehaviorSubject<number | string>(0);
@@ -288,6 +290,15 @@ export abstract class CipherReportComponent implements OnDestroy {
     return await this.cipherService.getAllDecrypted(activeUserId);
   }
 
+  protected canDisplayToggleGroup(): boolean {
+    return this.filterStatus.length <= 4;
+  }
+
+  async filterOrgToggleChipSelect(filterId: string | null) {
+    const selectedFilterId = filterId ?? 0;
+    await this.filterOrgToggle(selectedFilterId);
+  }
+
   protected filterCiphersByOrg(ciphersList: CipherView[]) {
     this.allCiphers = [...ciphersList];
 
@@ -309,5 +320,27 @@ export abstract class CipherReportComponent implements OnDestroy {
       this.showFilterToggle = false;
       this.vaultMsg = "vault";
     }
+
+    this.chipSelectOptions = this.setupChipSelectOptions(this.filterStatus);
+  }
+
+  private setupChipSelectOptions(filters: string[]) {
+    const options = filters.map((filterId: string, index: number) => {
+      let icon: string = "bwi-business";
+      icon = index === 0 ? "bwi-folder" : icon;
+      icon = index === 1 ? "bwi-user" : icon;
+
+      const name = this.getName(filterId);
+      const count = this.getCount(filterId);
+      const labelSuffix = count != null ? ` (${count})` : "";
+
+      return {
+        label: name + labelSuffix,
+        value: filterId,
+        icon,
+      };
+    });
+
+    return options;
   }
 }
