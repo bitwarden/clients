@@ -42,7 +42,10 @@ const { name } = argv;
   // Get active account userId
   const status = await nativeMessageService.checkStatus(handshakeResponse.sharedKey);
 
-  const activeUser = status.payload.filter((a) => a.active === true && a.status === "unlocked")[0];
+  const activeUser = status.payload.filter(
+    (a: { active: boolean; status: string; id: string }) =>
+      a.active === true && a.status === "unlocked",
+  )[0];
   if (activeUser === undefined) {
     LogUtils.logError("No active or unlocked user");
   }
