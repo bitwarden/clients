@@ -164,6 +164,6 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     }
 
     const username = CipherViewLikeUtils.getLogin(cipher).username ?? cipher.name;
-    return this.session.promptForUserVerification(username, "Verify it's you to log in");
+    return this.session.promptForUserVerification("assertion", username);
   }
 }

@@ -23,7 +23,10 @@ import {
   Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction,
   PublicKeyCredentialDescriptor,
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
-import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
+import {
+  Fido2UserInterfaceService,
+  Fido2UserVerificationService,
+} from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
 
@@ -61,13 +64,13 @@ export class Fido2AuthenticatorService<
     params: Fido2AuthenticatorMakeCredentialsParams,
     window: ParentWindowReference,
     abortController?: AbortController,
-    transactionContext?: string,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
       window,
       abortController,
-      transactionContext,
+      userVerificationService,
     );
 
     try {
@@ -232,13 +235,13 @@ export class Fido2AuthenticatorService<
     params: Fido2AuthenticatorGetAssertionParams,
     window: ParentWindowReference,
     abortController?: AbortController,
-    transactionContext?: string,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<Fido2AuthenticatorGetAssertionResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
       window,
       abortController,
-      transactionContext,
+      userVerificationService,
     );
     try {
       if (

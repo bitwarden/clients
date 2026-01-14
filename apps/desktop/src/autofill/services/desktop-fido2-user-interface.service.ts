@@ -16,13 +16,13 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import {
   Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction,
   Fido2UserInterfaceSession,
+  Fido2UserVerificationService,
   NewCredentialParams,
   PickCredentialParams,
   UserInteractionRequired,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -34,7 +34,6 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
-import { NativeAutofillUserVerificationCommand } from "../../platform/main/autofill/user-verification.command";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
 /**
@@ -75,7 +74,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
     fallbackSupported: boolean,
     nativeWindowObject: NativeWindowObject,
     abortController?: AbortController,
-    transactionContext?: string,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<DesktopFido2UserInterfaceSession> {
     this.logService.debug("newSession", fallbackSupported, abortController, nativeWindowObject);
     const session = new DesktopFido2UserInterfaceSession(
@@ -85,9 +84,9 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
       this.logService,
       this.router,
       this.desktopSettingsService,
+      userVerificationService,
       nativeWindowObject,
       abortController,
-      transactionContext,
     );
 
     this.currentSession = session;
@@ -103,9 +102,9 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private logService: LogService,
     private router: Router,
     private desktopSettingsService: DesktopSettingsService,
+    private userVerificationService: Fido2UserVerificationService,
     private windowObject: NativeWindowObject,
     private abortController: AbortController,
-    private transactionContext: string,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
@@ -167,11 +166,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
           const username = CipherViewLikeUtils.getLogin(cipherView).username ?? cipherView.name;
           try {
-            // TODO: internationalization
-            const isConfirmed = await this.promptForUserVerification(
-              username,
-              "Verify it's you to log in with Bitwarden.",
-            );
+            const isConfirmed = await this.promptForUserVerification("assertion", username);
             return { cipherId: cipherIds[0], userVerified: isConfirmed };
           } catch (e) {
             this.logService.debug("Failed to prompt for user verification without showing UI", e);
@@ -408,48 +403,11 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   /** Called by the UI to prompt the user for verification. May be fulfilled by the OS. */
-  async promptForUserVerification(username: string, displayHint: string): Promise<boolean> {
-    this.logService.info("DesktopFido2UserInterfaceSession] Prompting for user verification");
-    // If the UI was showing before (to unlock the vault), then use our
-    // window for the handle; otherwise, use the WebAuthn client's
-    // handle.
-    //
-    // For Windows, if the selected window handle is not in the foreground, then the Windows
-    // Hello dialog will also be in the background.
-    const windowDetails = await ipc.platform.getNativeWindowDetails();
-    this.logService.debug("Window details:", windowDetails);
-    let windowHandle;
-    if (windowDetails.isVisible && windowDetails.isFocused) {
-      windowHandle = windowDetails.handle;
-      this.logService.debug(
-        "Window is visible, setting Electron window as parent of Windows Hello UV dialog",
-        windowHandle.buffer,
-      );
-    } else {
-      windowHandle = this.windowObject.handle;
-      this.logService.debug(
-        "Window is not visible: setting client window as parent of Windows Hello UV dialog",
-        windowHandle.buffer,
-      );
-    }
-
-    this.logService.debug("Prompting for user verification");
-
-    const uvResult = await ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({
-      namespace: "autofill",
-      command: "user-verification",
-      params: {
-        windowHandle: Utils.fromBufferToB64(windowHandle),
-        transactionContext: this.transactionContext,
-        username,
-        displayHint,
-      },
-    });
-    if (uvResult.type === "error") {
-      this.logService.error("Error getting user verification", uvResult.error);
-      return false;
-    }
-    return uvResult.type === "success";
+  async promptForUserVerification(
+    operation: "registration" | "overwrite" | "assertion",
+    username: string,
+  ): Promise<boolean> {
+    return this.userVerificationService.promptForUserVerification(operation, username);
   }
 
   async informExcludedCredential(existingCipherIds: string[]): Promise<void> {

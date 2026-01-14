@@ -28,6 +28,7 @@ import {
   Fido2AuthenticatorMakeCredentialsParams,
   Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
+import { Fido2UserVerificationService } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -48,6 +49,7 @@ import {
 } from "../../platform/main/autofill/sync.command";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
+import { MacOsFido2UserVerificationService } from "./desktop-fido2-user-verification.service";
 
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
@@ -231,12 +233,13 @@ export class DesktopAutofillService implements OnDestroy {
       const clientHandle = request.clientWindowHandle
         ? new Uint8Array(request.clientWindowHandle)
         : null;
+      const uvService = this.getUserVerificationService(request);
       try {
         const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
           { windowXy: request.windowXy, handle: clientHandle },
           controller,
-          request.context,
+          uvService,
         );
 
         callback(null, this.convertRegistrationResponse(request, response));
@@ -309,12 +312,13 @@ export class DesktopAutofillService implements OnDestroy {
               new Uint8Array(parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId)),
             );
           }
+          const uvService = this.getUserVerificationService(request);
 
           const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request, { assumeUserPresence: true, isSilent: true }),
             { windowXy: request.windowXy, handle: clientHandle },
             controller,
-            request.context,
+            uvService,
           );
 
           callback(null, this.convertAssertionResponse(request, response));
@@ -349,11 +353,13 @@ export class DesktopAutofillService implements OnDestroy {
       const clientHandle = request.clientWindowHandle
         ? new Uint8Array(request.clientWindowHandle)
         : null;
+      const uvService = this.getUserVerificationService(request);
       try {
         const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
           { windowXy: request.windowXy, handle: clientHandle },
           controller,
+          uvService,
         );
 
         callback(null, this.convertAssertionResponse(request, response));
@@ -513,6 +519,20 @@ export class DesktopAutofillService implements OnDestroy {
       authenticatorData: Array.from(new Uint8Array(response.authenticatorData)),
       credentialId: Array.from(new Uint8Array(response.selectedCredential.id)),
     };
+  }
+
+  private getUserVerificationService(
+    request:
+      | autofill.PasskeyAssertionRequest
+      | autofill.PasskeyAssertionWithoutUserInterfaceRequest
+      | autofill.PasskeyRegistrationRequest,
+  ): Fido2UserVerificationService {
+    switch (ipc.platform.deviceType) {
+      case DeviceType.MacOsDesktop:
+        return new MacOsFido2UserVerificationService(this.logService);
+      default:
+        throw new Error("No platform user verification service defined");
+    }
   }
 
   ngOnDestroy(): void {

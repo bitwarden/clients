@@ -1,5 +1,7 @@
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 
+import { Fido2UserVerificationService } from "./fido2-user-interface.service.abstraction";
+
 /**
  * This class represents an abstraction of the WebAuthn Authenticator model as described by W3C:
  * https://www.w3.org/TR/webauthn-3/#sctn-authenticator-model
@@ -14,14 +16,14 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
    * @param params Parameters for creating a new credential
    * @param window A reference to the window of the WebAuthn client.
    * @param abortController An AbortController that can be used to abort the operation.
-   * @param transactionContext Context from the original WebAuthn request used for callbacks back to the WebAuthn client for user verification.
+   * @param userVerificationService A service that can perform user verification for the current WebAuthn request.
    * @returns A promise that resolves with the new credential and an attestation signature.
    **/
   abstract makeCredential(
     params: Fido2AuthenticatorMakeCredentialsParams,
     window: ParentWindowReference,
     abortController?: AbortController,
-    transactionContext?: string,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<Fido2AuthenticatorMakeCredentialResult>;
 
   /**
@@ -31,14 +33,14 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
    * @param params Parameters for generating an assertion
    * @param window A reference to the window of the WebAuthn client.
    * @param abortController An AbortController that can be used to abort the operation.
-   * @param transactionContext Context from the original WebAuthn request used for callbacks back to the WebAuthn client for user verification.
+   * @param userVerificationService A service that can perform user verification for the current WebAuthn request.
    * @returns A promise that resolves with the asserted credential and an assertion signature.
    */
   abstract getAssertion(
     params: Fido2AuthenticatorGetAssertionParams,
     window: ParentWindowReference,
     abortController?: AbortController,
-    transactionContext?: string,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<Fido2AuthenticatorGetAssertionResult>;
 
   /**

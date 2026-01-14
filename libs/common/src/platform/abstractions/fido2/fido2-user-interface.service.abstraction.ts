@@ -79,7 +79,7 @@ export abstract class Fido2UserInterfaceService<ParentWindowReference> {
     fallbackSupported: boolean,
     window: ParentWindowReference,
     abortController?: AbortController,
-    transactionContext?: string,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<Fido2UserInterfaceSession>;
 }
 
@@ -130,3 +130,10 @@ export abstract class Fido2UserInterfaceSession {
 
 /** Thrown when user interaction is required during a request for a silent assertion. */
 export class UserInteractionRequired extends Error {}
+
+export interface Fido2UserVerificationService {
+  promptForUserVerification(
+    operation: "registration" | "overwrite" | "assertion",
+    username: string,
+  ): Promise<boolean>;
+}
