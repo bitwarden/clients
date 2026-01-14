@@ -164,10 +164,11 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     details: chrome.webRequest.OnBeforeRequestDetails,
   ): undefined => {
     const requestInitiator = this.getRequestInitiator(details);
-    if (!requestInitiator) {
+    if (!requestInitiator && this.validAutoSubmitHosts.size === 0) {
       return;
     }
-    const isValidInitiator = this.isValidInitiator(requestInitiator);
+
+    const isValidInitiator = requestInitiator ? this.isValidInitiator(requestInitiator) : false;
 
     if (
       this.postRequestEncounteredAfterSubmission(details, isValidInitiator) ||
@@ -177,14 +178,20 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
       return;
     }
 
-    if (isValidInitiator && this.shouldRouteTriggerAutoSubmit(details, requestInitiator)) {
+    if (
+      requestInitiator &&
+      isValidInitiator &&
+      this.shouldRouteTriggerAutoSubmit(details, requestInitiator)
+    ) {
       this.setupAutoSubmitFlow(details);
       return;
     }
 
-    this.disableAutoSubmitFlow(requestInitiator, details).catch((error) =>
-      this.logService.error(error),
-    );
+    if (requestInitiator) {
+      this.disableAutoSubmitFlow(requestInitiator, details).catch((error) =>
+        this.logService.error(error),
+      );
+    }
   };
 
   /**
@@ -535,7 +542,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
    */
   private async initSafari() {
     const currentTab = await BrowserApi.getTabFromCurrentWindow();
-    if (currentTab?.url && currentTab.id !== undefined) {
+    if (currentTab?.url && currentTab.id != null && currentTab.id >= 0) {
       this.setMostRecentIdpHost(currentTab.url, currentTab.id);
     }
 
@@ -567,7 +574,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     }
 
     const tab = await BrowserApi.getTab(activeInfo.tabId);
-    if (tab?.url && tab.id !== undefined) {
+    if (tab?.url && tab.id != null && tab.id >= 0) {
       this.setMostRecentIdpHost(tab.url, tab.id);
     }
   };
@@ -579,7 +586,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
    * @param changeInfo - The change information of the tab.
    */
   private handleSafariTabOnUpdated = (tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo) => {
-    if (changeInfo && changeInfo.url) {
+    if (changeInfo.url) {
       this.setMostRecentIdpHost(changeInfo.url, tabId);
     }
   };
