@@ -90,7 +90,7 @@ const commonStyles = [
 
 @Directive()
 abstract class LinkDirective {
-  readonly linkType = input<LinkType>("primary");
+  readonly linkType = input<LinkType>("default");
 }
 
 /**
