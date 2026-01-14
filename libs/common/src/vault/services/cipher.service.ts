@@ -910,20 +910,22 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+    const useSdk = await this.configService.getFeatureFlag(
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
 
-    if (sdkCipherEncryptionEnabled) {
-      return (await this.createWithServer_sdk(cipherView, userId, orgAdmin)) || new CipherView();
-    } else {
-      const encrypted = await this.encrypt(cipherView, userId);
-      const result = await this.createWithServer_legacy(encrypted, orgAdmin);
-      return await this.decrypt(result, userId);
+    if (useSdk) {
+      return (
+        (await this.createWithServerUsingSdk(cipherView, userId, orgAdmin)) || new CipherView()
+      );
     }
+
+    const encrypted = await this.encrypt(cipherView, userId);
+    const result = await this.createWithServer_legacy(encrypted, orgAdmin);
+    return await this.decrypt(result, userId);
   }
 
-  private async createWithServer_sdk(
+  private async createWithServerUsingSdk(
     cipherView: CipherView,
     userId: UserId,
     orgAdmin?: boolean,
@@ -986,21 +988,21 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+    const useSdk = await this.configService.getFeatureFlag(
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
 
-    if (sdkCipherEncryptionEnabled) {
-      return await this.updateWithServer_sdk(cipherView, userId, originalCipherView, orgAdmin);
-    } else {
-      const encrypted = await this.encrypt(cipherView, userId);
-      const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
-      const updatedCipherView = await this.decrypt(updatedCipher, userId);
-      return updatedCipherView;
+    if (useSdk) {
+      return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
     }
+
+    const encrypted = await this.encrypt(cipherView, userId);
+    const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
+    const updatedCipherView = await this.decrypt(updatedCipher, userId);
+    return updatedCipherView;
   }
 
-  async updateWithServer_sdk(
+  async updateWithServerUsingSdk(
     cipher: CipherView,
     userId: UserId,
     originalCipherView?: CipherView,
