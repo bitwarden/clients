@@ -73,16 +73,16 @@ export const AllVariations: Story = {
           <a bitLink linkType="default" href="#">Default</a>
         </div>
         <div class="tw-flex tw-gap-4 tw-p-2">
-          <a bitLink linkType="subtle" href="#">subtle</a>
+          <a bitLink linkType="subtle" href="#">Subtle</a>
         </div>
         <div class="tw-flex tw-gap-4 tw-p-2">
-          <a bitLink linkType="success" href="#">success</a>
+          <a bitLink linkType="success" href="#">Success</a>
         </div>
         <div class="tw-flex tw-gap-4 tw-p-2">
-          <a bitLink linkType="warning" href="#">warning</a>
+          <a bitLink linkType="warning" href="#">Warning</a>
         </div>
         <div class="tw-flex tw-gap-4 tw-p-2">
-          <a bitLink linkType="danger" href="#">danger</a>
+          <a bitLink linkType="danger" href="#">Danger</a>
         </div>
       </div>
     `,
@@ -131,25 +131,25 @@ export const InteractionStates: Story = {
       </div>
       <div class="tw-flex tw-gap-4 tw-p-2">
         <a bitLink linkType="subtle" href="#">subtle</a>
-        <a bitLink linkType="subtle" href="#" class="tw-test-hover">subtle</a>
+        <a bitLink linkType="subtle" href="#" class="tw-test-hover">Subtle</a>
         <a bitLink linkType="subtle" href="#" class="tw-test-focus-visible">subtle</a>
         <a bitLink linkType="subtle" href="#" class="tw-test-hover tw-test-focus-visible">subtle</a>
       </div>
       <div class="tw-flex tw-gap-4 tw-p-2">
         <a bitLink linkType="success" href="#">success</a>
-        <a bitLink linkType="success" href="#" class="tw-test-hover">success</a>
+        <a bitLink linkType="success" href="#" class="tw-test-hover">Success</a>
         <a bitLink linkType="success" href="#" class="tw-test-focus-visible">success</a>
         <a bitLink linkType="success" href="#" class="tw-test-hover tw-test-focus-visible">success</a>
       </div>
       <div class="tw-flex tw-gap-4 tw-p-2">
         <a bitLink linkType="warning" href="#">warning</a>
-        <a bitLink linkType="warning" href="#" class="tw-test-hover">warning</a>
+        <a bitLink linkType="warning" href="#" class="tw-test-hover">Warning</a>
         <a bitLink linkType="warning" href="#" class="tw-test-focus-visible">warning</a>
         <a bitLink linkType="warning" href="#" class="tw-test-hover tw-test-focus-visible">warning</a>
       </div>
       <div class="tw-flex tw-gap-4 tw-p-2">
         <a bitLink linkType="danger" href="#">danger</a>
-        <a bitLink linkType="danger" href="#" class="tw-test-hover">danger</a>
+        <a bitLink linkType="danger" href="#" class="tw-test-hover">Danger</a>
         <a bitLink linkType="danger" href="#" class="tw-test-focus-visible">danger</a>
         <a bitLink linkType="danger" href="#" class="tw-test-hover tw-test-focus-visible">danger</a>
       </div>
