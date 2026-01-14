@@ -85,9 +85,13 @@ export class PrivateKeyStep implements RecoveryStep {
     }
 
     logger.record("Replacing private key");
-    await this.privateKeyRegenerationService.regenerateUserPublicKeyEncryptionKeyPair(
+    const recovered = await this.privateKeyRegenerationService.regenerateUserPublicKeyEncryptionKeyPair(
       workingData.userId!,
     );
-    logger.record("Private key replaced successfully");
+    if (!recovered) {
+      logger.record("Private key replacement could not be performed");
+    } else {
+      logger.record("Private key replacement replaced successfully");
+    }
   }
 }
