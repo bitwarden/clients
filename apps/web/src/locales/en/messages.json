@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Restore selected"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
+  "archivedItemsRestored": {
+    "message": "Archived items restored"
+  },
   "restoredItem": {
     "message": "Item restored"
   },
