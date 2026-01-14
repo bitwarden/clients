@@ -32,10 +32,15 @@ export const Default: Story = {
   render: (args) => ({
     props: {
       linkType: args.linkType,
-      showContrast: args.linkType === "contrast" || args.linkType === "light",
+      backgroundClass:
+        args.linkType === "contrast"
+          ? "tw-bg-bg-contrast"
+          : args.linkType === "light"
+            ? "tw-bg-bg-brand"
+            : "tw-bg-transparent",
     },
     template: /*html*/ `
-      <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': !showContrast, 'tw-bg-bg-contrast': showContrast }">
+      <div class="tw-p-2" [class]="backgroundClass">
         <a bitLink href="" ${formatArgsForCodeSnippet<ButtonLinkDirective>(args)}>Your text here</a>
       </div>
     `,
@@ -161,9 +166,17 @@ export const InteractionStates: Story = {
 
 export const Buttons: Story = {
   render: (args) => ({
-    props: args,
+    props: {
+      linkType: args.linkType,
+      backgroundClass:
+        args.linkType === "contrast"
+          ? "tw-bg-bg-contrast"
+          : args.linkType === "light"
+            ? "tw-bg-bg-brand"
+            : "tw-bg-transparent",
+    },
     template: /*html*/ `
-    <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-bg-contrast': linkType === 'contrast' }">
+    <div class="tw-p-2" [class]="backgroundClass">
       <div class="tw-block tw-p-2">
         <button type="button" bitLink [linkType]="linkType">Button</button>
       </div>
@@ -192,9 +205,17 @@ export const Buttons: Story = {
 
 export const Anchors: StoryObj<AnchorLinkDirective> = {
   render: (args) => ({
-    props: args,
+    props: {
+      linkType: args.linkType,
+      backgroundClass:
+        args.linkType === "contrast"
+          ? "tw-bg-bg-contrast"
+          : args.linkType === "light"
+            ? "tw-bg-bg-brand"
+            : "tw-bg-transparent",
+    },
     template: /*html*/ `
-    <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-contrast-600': linkType === 'contrast' }">
+    <div class="tw-p-2" [class]="backgroundClass">
       <div class="tw-block tw-p-2">
         <a bitLink [linkType]="linkType" href="#">Anchor</a>
       </div>
