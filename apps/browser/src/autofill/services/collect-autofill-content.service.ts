@@ -1072,19 +1072,21 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   private setupTopLayerCandidateListener = (element: Element) => {
-    const ownedTags = this.autofillOverlayContentService.getOwnedInlineMenuTagNames() || [];
-    this.ownedExperienceTagNames = ownedTags;
+    if (this.autofillOverlayContentService) {
+      const ownedTags = this.autofillOverlayContentService.getOwnedInlineMenuTagNames() || [];
+      this.ownedExperienceTagNames = ownedTags;
 
-    if (!ownedTags.includes(element.tagName)) {
-      element.addEventListener("toggle", (event: ToggleEvent) => {
-        if (event.newState === "open") {
-          // Add a slight delay (but faster than a user's reaction), to ensure the layer
-          // positioning happens after any triggered toggle has completed.
-          setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
-        }
-      });
+      if (!ownedTags.includes(element.tagName)) {
+        element.addEventListener("toggle", (event: ToggleEvent) => {
+          if (event.newState === "open") {
+            // Add a slight delay (but faster than a user's reaction), to ensure the layer
+            // positioning happens after any triggered toggle has completed.
+            setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
+          }
+        });
 
-      this.autofillOverlayContentService.refreshMenuLayerPosition();
+        this.autofillOverlayContentService.refreshMenuLayerPosition();
+      }
     }
   };
 
