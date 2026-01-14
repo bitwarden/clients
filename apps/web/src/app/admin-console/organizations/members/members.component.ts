@@ -262,14 +262,11 @@ export class vNextMembersComponent {
       this.dataSource().replaceUser(user);
     };
 
-    const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(
-      user,
-      this.userNamePipe,
-      this.organizationManagementPreferencesService,
-    );
+    const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(user);
 
     if (publicKeyResult == null) {
-      throw new Error("Public key not found");
+      this.logService.warning("Public key not found");
+      return;
     }
 
     const result = await this.memberActionsService.confirmUser(user, publicKeyResult, organization);
@@ -522,16 +519,24 @@ export class vNextMembersComponent {
     user: OrganizationUserView,
     sideEffect?: () => void | Promise<void>,
   ) {
+    if (result.error != null) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(result.error),
+      });
+      this.logService.error(result.error);
+      return;
+    }
+
     if (result.success) {
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(successKey, this.userNamePipe.transform(user)),
       });
+
       if (sideEffect) {
         await sideEffect();
       }
-    } else {
-      throw new Error(result.error);
     }
   }
 

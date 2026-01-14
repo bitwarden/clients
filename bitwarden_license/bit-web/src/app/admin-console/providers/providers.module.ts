@@ -5,7 +5,7 @@ import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CardComponent, ScrollLayoutDirective, SearchModule } from "@bitwarden/components";
-import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services";
+import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 import {
@@ -33,6 +33,7 @@ import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
 import { EventsComponent } from "./manage/events.component";
 import { vNextMembersComponent } from "./manage/members.component";
+import { ProviderActionsService } from "./manage/services/provider-actions/provider-actions.service";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
 import { ProvidersComponent } from "./providers.component";
@@ -84,6 +85,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     VerifyRecoverDeleteProviderComponent,
     SetupBusinessUnitComponent,
   ],
-  providers: [WebProviderService, MemberActionsService],
+  providers: [WebProviderService, ProviderActionsService, MemberActionsService],
 })
 export class ProvidersModule {}

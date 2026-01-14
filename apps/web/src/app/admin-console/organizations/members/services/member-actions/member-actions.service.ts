@@ -1,11 +1,12 @@
-import { Injectable, signal } from "@angular/core";
-import { lastValueFrom, firstValueFrom, switchMap, map } from "rxjs";
+import { inject, Injectable, signal } from "@angular/core";
+import { lastValueFrom, firstValueFrom } from "rxjs";
 
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import {
@@ -13,18 +14,13 @@ import {
   OrganizationUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-confirm.request";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { ProviderId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
@@ -47,18 +43,16 @@ export interface BulkActionResult {
 
 @Injectable()
 export class MemberActionsService {
-  constructor(
-    private organizationUserApiService: OrganizationUserApiService,
-    private organizationUserService: OrganizationUserService,
-    private configService: ConfigService,
-    private organizationMetadataService: OrganizationMetadataServiceAbstraction,
-    private apiService: ApiService,
-    private dialogService: DialogService,
-    private keyService: KeyService,
-    private logService: LogService,
-    private accountService: AccountService,
-    private encryptService: EncryptService,
-  ) {}
+  private organizationUserApiService = inject(OrganizationUserApiService);
+  private organizationUserService = inject(OrganizationUserService);
+  private configService = inject(ConfigService);
+  private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
+  private apiService = inject(ApiService);
+  private dialogService = inject(DialogService);
+  private keyService = inject(KeyService);
+  private logService = inject(LogService);
+  private orgManagementPrefs = inject(OrganizationManagementPreferencesService);
+  private userNamePipe = inject(UserNamePipe);
 
   readonly isProcessing = signal(false);
 
@@ -101,21 +95,6 @@ export class MemberActionsService {
     try {
       await this.organizationUserApiService.removeOrganizationUser(organization.id, userId);
       this.organizationMetadataService.refreshMetadataCache();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
-    } finally {
-      this.endProcessing();
-    }
-  }
-
-  async deleteProviderUser(
-    providerId: ProviderId,
-    user: ProviderUser,
-  ): Promise<MemberActionResult> {
-    this.startProcessing();
-    try {
-      await this.apiService.deleteProviderUser(providerId, user.id);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
@@ -175,18 +154,6 @@ export class MemberActionsService {
     }
   }
 
-  async reinviteProvider(providerId: ProviderId, user: ProviderUser): Promise<MemberActionResult> {
-    this.startProcessing();
-    try {
-      await this.apiService.postProviderUserReinvite(providerId, user.id);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
-    } finally {
-      this.endProcessing();
-    }
-  }
-
   async confirmUser(
     user: OrganizationUserView,
     publicKey: Uint8Array,
@@ -197,35 +164,6 @@ export class MemberActionsService {
       await firstValueFrom(
         this.organizationUserService.confirmUser(organization, user.id, publicKey),
       );
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
-    } finally {
-      this.endProcessing();
-    }
-  }
-
-  async confirmProvider(
-    user: ProviderUser,
-    providerId: ProviderId,
-    publicKey: Uint8Array,
-  ): Promise<MemberActionResult> {
-    this.startProcessing();
-    try {
-      const providerKey = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(
-          getUserId,
-          switchMap((userId) => this.keyService.providerKeys$(userId)),
-          map((providerKeys) => providerKeys?.[providerId] ?? null),
-        ),
-      );
-      assertNonNullish(providerKey, "Provider key not found");
-
-      const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
-      assertNonNullish(key.encryptedString, "No key was provided");
-
-      const request = new ProviderUserConfirmRequest(key.encryptedString);
-      await this.apiService.postProviderUserConfirm(providerId, user.id, request);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
@@ -359,14 +297,12 @@ export class MemberActionsService {
    */
   async getPublicKeyForConfirm(
     user: OrganizationUserView | ProviderUser,
-    userNamePipe: { transform: (user: OrganizationUserView | ProviderUser) => string },
-    orgManagementPrefs: OrganizationManagementPreferencesService,
   ): Promise<Uint8Array | undefined> {
     try {
       assertNonNullish(user, "Cannot confirm null user.");
 
       const autoConfirmFingerPrint = await firstValueFrom(
-        orgManagementPrefs.autoConfirmFingerPrints.state$,
+        this.orgManagementPrefs.autoConfirmFingerPrints.state$,
       );
 
       const publicKeyResponse = await this.apiService.getUserPublicKey(user.userId);
@@ -378,7 +314,7 @@ export class MemberActionsService {
 
         const confirmed = UserConfirmComponent.open(this.dialogService, {
           data: {
-            name: userNamePipe.transform(user),
+            name: this.userNamePipe.transform(user),
             userId: user.userId,
             publicKey: publicKey,
           },

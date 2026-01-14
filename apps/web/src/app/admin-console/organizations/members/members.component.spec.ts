@@ -283,7 +283,13 @@ describe("vNextMembersComponent", () => {
         error: "Remove failed",
       });
 
-      await expect(component.remove(mockUser, mockOrg)).rejects.toThrow("Remove failed");
+      await component.remove(mockUser, mockOrg);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "Remove failed",
+      });
+      expect(mockLogService.error).toHaveBeenCalledWith("Remove failed");
     });
   });
 
@@ -303,7 +309,13 @@ describe("vNextMembersComponent", () => {
         error: "Reinvite failed",
       });
 
-      await expect(component.reinvite(mockUser, mockOrg)).rejects.toThrow("Reinvite failed");
+      await component.reinvite(mockUser, mockOrg);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "Reinvite failed",
+      });
+      expect(mockLogService.error).toHaveBeenCalledWith("Reinvite failed");
     });
   });
 
@@ -320,11 +332,7 @@ describe("vNextMembersComponent", () => {
 
       await component.confirm(mockUser, mockOrg);
 
-      expect(mockMemberActionsService.getPublicKeyForConfirm).toHaveBeenCalledWith(
-        mockUser,
-        mockUserNamePipe,
-        mockOrganizationManagementPreferencesService,
-      );
+      expect(mockMemberActionsService.getPublicKeyForConfirm).toHaveBeenCalledWith(mockUser);
       expect(mockMemberActionsService.confirmUser).toHaveBeenCalledWith(
         mockUser,
         mockPublicKey,
@@ -340,19 +348,21 @@ describe("vNextMembersComponent", () => {
       // Mock getPublicKeyForConfirm to return null
       mockMemberActionsService.getPublicKeyForConfirm.mockResolvedValue(null);
 
-      await expect(component.confirm(mockUser, mockOrg)).rejects.toThrow("Public key not found");
+      await component.confirm(mockUser, mockOrg);
 
       expect(mockMemberActionsService.getPublicKeyForConfirm).toHaveBeenCalled();
       expect(mockMemberActionsService.confirmUser).not.toHaveBeenCalled();
+      expect(mockLogService.warning).toHaveBeenCalledWith("Public key not found");
     });
 
     it("should handle API errors gracefully", async () => {
       // Mock getPublicKeyForConfirm to return null
       mockMemberActionsService.getPublicKeyForConfirm.mockResolvedValue(null);
 
-      await expect(component.confirm(mockUser, mockOrg)).rejects.toThrow("Public key not found");
+      await component.confirm(mockUser, mockOrg);
 
       expect(mockMemberActionsService.getPublicKeyForConfirm).toHaveBeenCalled();
+      expect(mockLogService.warning).toHaveBeenCalledWith("Public key not found");
     });
   });
 
@@ -399,7 +409,13 @@ describe("vNextMembersComponent", () => {
         error: "Restore failed",
       });
 
-      await expect(component.restore(mockUser, mockOrg)).rejects.toThrow("Restore failed");
+      await component.restore(mockUser, mockOrg);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "Restore failed",
+      });
+      expect(mockLogService.error).toHaveBeenCalledWith("Restore failed");
     });
   });
 
@@ -622,7 +638,13 @@ describe("vNextMembersComponent", () => {
         error: "Delete failed",
       });
 
-      await expect(component.deleteUser(mockUser, mockOrg)).rejects.toThrow("Delete failed");
+      await component.deleteUser(mockUser, mockOrg);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "Delete failed",
+      });
+      expect(mockLogService.error).toHaveBeenCalledWith("Delete failed");
     });
   });
 
@@ -647,17 +669,21 @@ describe("vNextMembersComponent", () => {
       expect(sideEffect).toHaveBeenCalled();
     });
 
-    it("should call validationService.showError when result is not successful", async () => {
+    it("should show error toast when result is not successful", async () => {
       const result: MemberActionResult = { success: false, error: "Error message" };
       const sideEffect = jest.fn();
 
-      await expect(
-        component.handleMemberActionResult(result, "testSuccessKey", mockUser, sideEffect),
-      ).rejects.toThrow("Error message");
+      await component.handleMemberActionResult(result, "testSuccessKey", mockUser, sideEffect);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "Error message",
+      });
+      expect(mockLogService.error).toHaveBeenCalledWith("Error message");
       expect(sideEffect).not.toHaveBeenCalled();
     });
 
-    it("should call validationService.showError when side effect throws", async () => {
+    it("should propagate error when side effect throws", async () => {
       const result: MemberActionResult = { success: true };
       const error = new Error("Side effect failed");
       const sideEffect = jest.fn().mockRejectedValue(error);

@@ -15,20 +15,19 @@ import { first, map } from "rxjs/operators";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ProviderId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import {
   CloudBulkReinviteLimit,
   MaxCheckedCount,
@@ -39,10 +38,7 @@ import {
 } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
-import {
-  MemberActionResult,
-  MemberActionsService,
-} from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
+import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
 
 import {
   AddEditMemberDialogComponent,
@@ -51,6 +47,10 @@ import {
 } from "./dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./dialogs/bulk-remove-dialog.component";
+import {
+  MemberActionResult,
+  ProviderActionsService,
+} from "./services/provider-actions/provider-actions.service";
 
 interface BulkProviderFlags {
   showBulkConfirmUsers: boolean;
@@ -67,9 +67,6 @@ export class vNextMembersComponent {
   protected apiService = inject(ApiService);
   protected dialogService = inject(DialogService);
   protected i18nService = inject(I18nService);
-  protected organizationManagementPreferencesService = inject(
-    OrganizationManagementPreferencesService,
-  );
   protected userNamePipe = inject(UserNamePipe);
   protected validationService = inject(ValidationService);
   protected toastService = inject(ToastService);
@@ -78,7 +75,9 @@ export class vNextMembersComponent {
   private accountService = inject(AccountService);
   private configService = inject(ConfigService);
   private environmentService = inject(EnvironmentService);
+  private providerActionsService = inject(ProviderActionsService);
   private memberActionsService = inject(MemberActionsService);
+  private logService = inject(LogService);
 
   protected accessEvents = false;
 
@@ -108,7 +107,7 @@ export class vNextMembersComponent {
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
 
-  protected isProcessing = this.memberActionsService.isProcessing;
+  protected isProcessing = this.providerActionsService.isProcessing;
 
   constructor() {
     // Connect the search input and status toggles to the table dataSource filter
@@ -277,25 +276,25 @@ export class vNextMembersComponent {
     }
 
     const sideEffect = () => this.dataSource().removeUser(user);
-    const result = await this.memberActionsService.deleteProviderUser(providerId, user);
+    const result = await this.providerActionsService.deleteProviderUser(providerId, user);
 
     await this.handleMemberActionResult(result, "success", user, sideEffect);
   }
 
   async reinvite(user: ProviderUser, providerId: ProviderId) {
-    const result = await this.memberActionsService.reinviteProvider(providerId, user);
+    const result = await this.providerActionsService.reinviteProvider(providerId, user);
     await this.handleMemberActionResult(result, "success", user);
   }
 
   async confirm(user: ProviderUser, providerId: ProviderId) {
-    const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(
-      user,
-      this.userNamePipe,
-      this.organizationManagementPreferencesService,
-    );
-    assertNonNullish(publicKeyResult, "Public key not found");
+    const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(user);
 
-    const result = await this.memberActionsService.confirmProvider(
+    if (publicKeyResult == null) {
+      this.logService.warning("Public key not found");
+      return;
+    }
+
+    const result = await this.providerActionsService.confirmProvider(
       user,
       providerId,
       publicKeyResult,
@@ -366,16 +365,21 @@ export class vNextMembersComponent {
     user: ProviderUser,
     sideEffect?: () => void | Promise<void>,
   ) {
+    if (result.error != null) {
+      this.validationService.showError(result.error);
+      this.logService.error(result.error);
+      return;
+    }
+
     if (result.success) {
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(successKey, this.userNamePipe.transform(user)),
       });
+
       if (sideEffect) {
         await sideEffect();
       }
-    } else {
-      this.validationService.showError(result.error);
     }
   }
 }
