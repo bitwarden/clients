@@ -82,8 +82,8 @@ const commonStyles = [
   "focus-visible:tw-z-10",
   "aria-disabled:tw-no-underline",
   "aria-disabled:tw-pointer-events-none",
-  "aria-disabled:!tw-text-secondary-300",
-  "aria-disabled:hover:!tw-text-secondary-300",
+  "aria-disabled:!tw-text-fg-disabled",
+  "aria-disabled:hover:!tw-text-fg-disabled",
   "aria-disabled:hover:tw-no-underline",
 ];
 
