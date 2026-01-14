@@ -3,7 +3,9 @@ import { Router, UrlTree } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, NEVER } from "rxjs";
 
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { mockAccountServiceWith, FakeStateProvider } from "@bitwarden/common/spec";
 import { SemanticLogger } from "@bitwarden/common/tools/log";
@@ -17,6 +19,7 @@ import { SEND_RESPONSE_KEY, SEND_CONTEXT_KEY } from "./send-access-memory";
 
 describe("DefaultSendAccessService", () => {
   let service: DefaultSendAccessService;
+  let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let stateProvider: FakeStateProvider;
   let sendApiService: MockProxy<SendApiService>;
   let router: MockProxy<Router>;
@@ -24,18 +27,22 @@ describe("DefaultSendAccessService", () => {
   let systemServiceProvider: MockProxy<SystemServiceProvider>;
 
   beforeEach(() => {
+    jest.resetAllMocks();
+
     const accountService = mockAccountServiceWith("user-id" as UserId);
     stateProvider = new FakeStateProvider(accountService);
     sendApiService = mock<SendApiService>();
     router = mock<Router>();
     logger = mock<SemanticLogger>();
     systemServiceProvider = mock<SystemServiceProvider>();
+    cryptoFunctionService = mock<CryptoFunctionService>();
 
     systemServiceProvider.log.mockReturnValue(logger);
 
     TestBed.configureTestingModule({
       providers: [
         DefaultSendAccessService,
+        { provide: CryptoFunctionService, useValue: cryptoFunctionService },
         { provide: StateProvider, useValue: stateProvider },
         { provide: SendApiService, useValue: sendApiService },
         { provide: Router, useValue: router },
@@ -127,7 +134,7 @@ describe("DefaultSendAccessService", () => {
     });
 
     it("emits timeout error when API response exceeds 10 seconds", fakeAsync(() => {
-      // Mock API to never resolve (simulating a hung request)
+      // simulate a hung request
       sendApiService.postSendAccess.mockReturnValue(firstValueFrom(NEVER));
 
       const result$ = service.redirect$(sendId);
@@ -159,7 +166,6 @@ describe("DefaultSendAccessService", () => {
 
   describe("clear", () => {
     it("sets both SEND_RESPONSE_KEY and SEND_CONTEXT_KEY to null when called", async () => {
-      // Set initial values
       await stateProvider.getGlobal(SEND_RESPONSE_KEY).update(() => ({ some: "response" }) as any);
       await stateProvider.getGlobal(SEND_CONTEXT_KEY).update(() => ({ id: "test", key: "test" }));
 
@@ -171,5 +177,178 @@ describe("DefaultSendAccessService", () => {
       expect(response).toBeNull();
       expect(context).toBeNull();
     });
+  });
+
+  describe("authenticate$", () => {
+    const sendId = "test-send-id";
+    const password = "test-password";
+
+    it("returns true and stores response when authentication succeeds", async () => {
+      const keyArray = new Uint8Array([1, 2, 3, 4, 5]);
+      const key = Utils.fromBufferToB64(keyArray);
+      const hashedArray = new Uint8Array([10, 20, 30, 40]);
+      const expectedPassword = Utils.fromBufferToB64(hashedArray);
+      const mockResponse = { id: sendId, data: "some data" } as any;
+
+      await stateProvider.getGlobal(SEND_CONTEXT_KEY).update(() => ({ id: sendId, key }));
+      cryptoFunctionService.pbkdf2.mockResolvedValue(hashedArray);
+      sendApiService.postSendAccess.mockResolvedValue(mockResponse);
+
+      const result = await firstValueFrom(service.authenticate$(sendId, password));
+
+      expect(result).toBe(true);
+      expect(sendApiService.postSendAccess).toHaveBeenCalledWith(
+        sendId,
+        expect.objectContaining({ password: expectedPassword }),
+      );
+
+      // Verify response is stored in state
+      const storedResponse = await firstValueFrom(
+        stateProvider.getGlobal(SEND_RESPONSE_KEY).state$,
+      );
+      expect(storedResponse).toBe(mockResponse);
+    });
+
+    it("returns false and logs debug when authentication fails with 401", async () => {
+      const keyArray = new Uint8Array([1, 2, 3, 4, 5]);
+      const key = Utils.fromBufferToB64(keyArray);
+      const hashedArray = new Uint8Array([10, 20, 30, 40]);
+      const errorResponse = new ErrorResponse([], 401);
+      await stateProvider.getGlobal(SEND_CONTEXT_KEY).update(() => ({ id: sendId, key }));
+      cryptoFunctionService.pbkdf2.mockResolvedValue(hashedArray);
+      sendApiService.postSendAccess.mockRejectedValue(errorResponse);
+
+      const result = await firstValueFrom(service.authenticate$(sendId, password));
+
+      expect(result).toBe(false);
+      expect(logger.debug).toHaveBeenCalledWith("received failed authentication response");
+
+      // Verify state is not updated
+      const storedResponse = await firstValueFrom(
+        stateProvider.getGlobal(SEND_RESPONSE_KEY).state$,
+      );
+      expect(storedResponse).toBeNull();
+    });
+
+    it("panics when sendId mismatch occurs", fakeAsync(async () => {
+      const wrongSendId = "wrong-send-id";
+      const keyArray = new Uint8Array([1, 2, 3, 4, 5]);
+      const key = Utils.fromBufferToB64(keyArray);
+      await stateProvider.getGlobal(SEND_CONTEXT_KEY).update(() => ({ id: wrongSendId, key }));
+      logger.panicWhen.mockImplementation((condition, data, message) => {
+        if (condition) {
+          throw new Error(`Panic: ${message}`);
+        }
+
+        return true;
+      });
+
+      const result$ = service.authenticate$(sendId, password);
+      let error: any;
+      result$.subscribe({
+        error: (err: unknown) => (error = err),
+      });
+
+      tick();
+
+      expect(error).toBeDefined();
+      expect(error.message).toBe("Panic: unexpected sendId");
+      expect(logger.panicWhen).toHaveBeenCalledWith(
+        true, // condition: sendId !== id (test-send-id !== wrong-send-id)
+        { expected: sendId, actual: sendId },
+        "unexpected sendId",
+      );
+    }));
+
+    it("emits timeout error when context is null", fakeAsync(async () => {
+      await stateProvider.getGlobal(SEND_CONTEXT_KEY).update(() => null);
+
+      const result$ = service.authenticate$(sendId, password);
+      let error: any;
+
+      result$.subscribe({
+        error: (err: unknown) => (error = err),
+      });
+
+      // Advance time past 10 seconds
+      tick(10001);
+
+      expect(error).toBeDefined();
+      expect(error.name).toBe("TimeoutError");
+    }));
+
+    it("emits timeout error when context is invalid", fakeAsync(async () => {
+      await stateProvider.getGlobal(SEND_CONTEXT_KEY).update(() => ({ missingId: "test" }) as any);
+
+      const result$ = service.authenticate$(sendId, password);
+      let error: any;
+
+      result$.subscribe({
+        error: (err: unknown) => (error = err),
+      });
+
+      // Advance time past 10 seconds
+      tick(10001);
+
+      expect(error).toBeDefined();
+      expect(error.name).toBe("TimeoutError");
+    }));
+
+    it("throws error and logs when server error occurs", async () => {
+      const keyArray = new Uint8Array([1, 2, 3, 4, 5]);
+      const key = Utils.fromBufferToB64(keyArray);
+      const hashedArray = new Uint8Array([10, 20, 30, 40]);
+      const errorResponse = new ErrorResponse([], 500);
+      await stateProvider.getGlobal(SEND_CONTEXT_KEY).update(() => ({ id: sendId, key }));
+
+      cryptoFunctionService.pbkdf2.mockResolvedValue(hashedArray);
+      sendApiService.postSendAccess.mockRejectedValue(errorResponse);
+
+      await expect(firstValueFrom(service.authenticate$(sendId, password))).rejects.toBe(
+        errorResponse,
+      );
+
+      expect(logger.error).toHaveBeenCalledWith("an error occurred during authentication");
+    });
+
+    it("throws error and logs when network error occurs", async () => {
+      const keyArray = new Uint8Array([1, 2, 3, 4, 5]);
+      const key = Utils.fromBufferToB64(keyArray);
+      const hashedArray = new Uint8Array([10, 20, 30, 40]);
+      const networkError = new Error("Network error");
+      await stateProvider.getGlobal(SEND_CONTEXT_KEY).update(() => ({ id: sendId, key }));
+      cryptoFunctionService.pbkdf2.mockResolvedValue(hashedArray);
+      sendApiService.postSendAccess.mockRejectedValue(networkError);
+
+      await expect(firstValueFrom(service.authenticate$(sendId, password))).rejects.toThrow(
+        "Network error",
+      );
+
+      expect(logger.error).toHaveBeenCalledWith("an error occurred during authentication");
+    });
+
+    it("emits timeout error when API response exceeds 10 seconds", fakeAsync(async () => {
+      const keyArray = new Uint8Array([1, 2, 3, 4, 5]);
+      const key = Utils.fromBufferToB64(keyArray);
+      const hashedArray = new Uint8Array([10, 20, 30, 40]);
+      await stateProvider.getGlobal(SEND_CONTEXT_KEY).update(() => ({ id: sendId, key }));
+
+      // simulate a hung request
+      sendApiService.postSendAccess.mockReturnValue(firstValueFrom(NEVER));
+      cryptoFunctionService.pbkdf2.mockResolvedValue(hashedArray);
+
+      const result$ = service.authenticate$(sendId, password);
+      let error: any;
+
+      result$.subscribe({
+        error: (err: unknown) => (error = err),
+      });
+
+      // Advance time past 10 seconds
+      tick(10001);
+
+      expect(error).toBeDefined();
+      expect(error.name).toBe("TimeoutError");
+    }));
   });
 });

@@ -1,7 +1,8 @@
 import { Injectable, Inject } from "@angular/core";
 import { Router, UrlTree } from "@angular/router";
-import { map, of, from, catchError, timeout } from "rxjs";
+import { map, of, from, catchError, timeout, concatMap, filter, tap } from "rxjs";
 
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SemanticLogger } from "@bitwarden/common/tools/log";
@@ -10,9 +11,10 @@ import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/s
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SYSTEM_SERVICE_PROVIDER } from "@bitwarden/generator-components";
 
+import { keyToSendAccessRequest } from "./rx";
 import { SEND_RESPONSE_KEY, SEND_CONTEXT_KEY } from "./send-access-memory";
 import { SendAccessService } from "./send-access-service.abstraction";
-import { isErrorResponse } from "./util";
+import { isErrorResponse, isSendContext } from "./util";
 
 const TEN_SECONDS = 10_000;
 
@@ -21,6 +23,7 @@ export class DefaultSendAccessService implements SendAccessService {
   private readonly logger: SemanticLogger;
 
   constructor(
+    private readonly crypto: CryptoFunctionService,
     private readonly state: StateProvider,
     private readonly api: SendApiService,
     private readonly router: Router,
@@ -58,6 +61,40 @@ export class DefaultSendAccessService implements SendAccessService {
     );
 
     return redirect$;
+  }
+
+  authenticate$(sendId: string, password: string) {
+    const authenticate$ = this.state.getGlobal(SEND_CONTEXT_KEY).state$.pipe(
+      filter(isSendContext),
+      tap(({ id }) =>
+        this.logger.panicWhen(
+          sendId !== id,
+          { expected: sendId, actual: sendId },
+          "unexpected sendId",
+        ),
+      ),
+      map(({ key }) => key),
+      keyToSendAccessRequest(this.crypto, password),
+      concatMap(async (request) => {
+        const result = await this.api.postSendAccess(sendId, request);
+
+        await this.state.getGlobal(SEND_RESPONSE_KEY).update(() => result);
+
+        return true;
+      }),
+      catchError((error: unknown) => {
+        if (isErrorResponse(error) && error.statusCode === 401) {
+          this.logger.debug("received failed authentication response");
+          return of(false);
+        }
+
+        this.logger.error("an error occurred during authentication");
+        throw error;
+      }),
+      timeout({ first: TEN_SECONDS }),
+    );
+
+    return authenticate$;
   }
 
   private toViewRedirect(sendId: string) {
