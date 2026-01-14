@@ -11620,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
   },
+  "vulnerablePassword": {
+    "message": "Palavra-passe vulnerável."
+  },
+  "changeNow": {
+    "message": "Alterar agora"
+  },
   "missingWebsite": {
     "message": "Site em falta"
   },
@@ -12614,5 +12620,11 @@
   },
   "storageFullDescription": {
     "message": "Utilizou os $GB$ GB do seu armazenamento encriptado. Para continuar a guardar ficheiros, adicione mais espaço de armazenamento."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Ao remover espaço de armazenamento, receberá um crédito proporcional na conta, que será automaticamente aplicado na sua próxima fatura."
+  },
+  "youHavePremium": {
+    "message": "Tem Premium"
   }
 }

@@ -11620,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
   },
+  "vulnerablePassword": {
+    "message": "Kwetsbaar wachtwoord."
+  },
+  "changeNow": {
+    "message": "Nu wijzigen"
+  },
   "missingWebsite": {
     "message": "Ontbrekende website"
   },
@@ -12614,5 +12620,11 @@
   },
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Wanneer je opslag verwijdert, krijg je op je volgende rekening automatisch pro-rata rekeningkrediet."
+  },
+  "youHavePremium": {
+    "message": "Je hebt Premium"
   }
 }

@@ -11620,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Denna inloggning är i riskzonen och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för starkare säkerhet."
   },
+  "vulnerablePassword": {
+    "message": "Sårbart lösenord."
+  },
+  "changeNow": {
+    "message": "Ändra nu"
+  },
   "missingWebsite": {
     "message": "Saknar webbplats"
   },
@@ -12614,5 +12620,11 @@
   },
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+  },
+  "whenYouRemoveStorage": {
+    "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+  },
+  "youHavePremium": {
+    "message": "You have Premium"
   }
 }

@@ -11620,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu hesap risk altında ve web sitesi eksik. Bir web sitesi ekleyin ve güvenliğinizi artırmak için parolayı değiştirin."
   },
+  "vulnerablePassword": {
+    "message": "Güvensiz parola."
+  },
+  "changeNow": {
+    "message": "Şimdi değiştir"
+  },
   "missingWebsite": {
     "message": "Web sitesi eksik"
   },
@@ -12614,5 +12620,11 @@
   },
   "storageFullDescription": {
     "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+  },
+  "whenYouRemoveStorage": {
+    "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+  },
+  "youHavePremium": {
+    "message": "Premium abonesiniz"
   }
 }
