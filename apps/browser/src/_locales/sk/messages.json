@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Položka bola archivovaná"
   },
+  "itemWasUnarchived": {
+    "message": "Položka bola odobraná z archívu"
+  },
   "itemUnarchived": {
     "message": "Položka bola odobraná z archívu"
   },
@@ -4810,6 +4813,39 @@
   },
   "adminConsole": {
     "message": "Správcovská konzola"
+  },
+  "admin": {
+    "message": "Správca"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatické potvrdenie používateľa"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automaticky potvrdzovať čakajúcich používateľov, keď je toto zariadenie odomknuté"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Šetrite čas automatickým potvrdzovaním používateľa"
+  },
+  "autoConfirmWarning": {
+    "message": "Môže mať vplyv na bezpečnosť údajov vašej organizácie. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Dozvedieť sa viac o rizikách"
+  },
+  "autoConfirmSetup": {
+    "message": "Automaticky potvrdzovať nových používateľov"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Noví používatelia budú automaticky potvrdení, keď je toto zariadenie odomknuté."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Aké sú potenciálne bezpečnostné riziká?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Zapnuté automatické potvrdzovanie"
+  },
+  "availableNow": {
+    "message": "Teraz dostupné"
   },
   "accountSecurity": {
     "message": "Zabezpečenie účtu"
