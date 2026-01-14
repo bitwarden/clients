@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Eintrag wurde archiviert"
   },
+  "itemWasUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
+  },
   "itemUnarchived": {
     "message": "Eintrag wird nicht mehr archiviert"
   },
@@ -584,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "Für die Nutzung des Archivs ist eine Premium-Mitgliedschaft erforderlich."
+  },
+  "itemRestored": {
+    "message": "Eintrag wurde wiederhergestellt"
   },
   "edit": {
     "message": "Bearbeiten"
@@ -4808,6 +4814,39 @@
   "adminConsole": {
     "message": "Administrator-Konsole"
   },
+  "admin": {
+    "message": "Administrator"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatische Benutzerbestätigung"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Ausstehende Benutzer automatisch bestätigen, während dieses Gerät entsperrt ist"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Spare Zeit durch die automatische Benutzerbestätigung"
+  },
+  "autoConfirmWarning": {
+    "message": "Dies könnte die Datensicherheit deiner Organisation beeinflussen. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Erfahre mehr über die Risiken"
+  },
+  "autoConfirmSetup": {
+    "message": "Neue Benutzer automatisch bestätigen"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Neue Benutzer werden automatisch bestätigt, während dieses Gerät entsperrt ist."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Was sind die möglichen Sicherheitsrisiken?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Automatische Bestätigung aktiviert"
+  },
+  "availableNow": {
+    "message": "Jetzt verfügbar"
+  },
   "accountSecurity": {
     "message": "Kontosicherheit"
   },
@@ -5663,6 +5702,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
+  },
+  "vulnerablePassword": {
+    "message": "Gefährdetes Passwort."
+  },
+  "changeNow": {
+    "message": "Jetzt ändern"
   },
   "missingWebsite": {
     "message": "Fehlende Website"

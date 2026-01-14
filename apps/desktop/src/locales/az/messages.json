@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Yeni",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Yeni URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Bu \"Send\"i silmək istədiyinizə əminsiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "\"Send\" keçidini kopyala",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Send keçidini lövhəyə kopyala",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4031,9 +4039,15 @@
     "message": "Send ilə həssas məlumatlar əmniyyətdədir",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Heç bir axtarış nəticəsi qayıtmadı"
+  },
   "sendsBodyNoItems": {
     "message": "İstənilən platformada faylları və veriləri hər kəslə güvənli şəkildə paylaşın. Məlumatlarınız, ifşa olunmamaq üçün ucdan-uca şifrələnmiş qalacaq.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
   },
   "generatorNudgeTitle": {
     "message": "Cəld parol yaradın"
@@ -4253,8 +4267,8 @@
   "typeShortcut": {
     "message": "Yazma qısayolu"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Aşağıdakı dəyişdiricilərdən birini və ya ikisini daxil edin: Ctrl, Alt, Win və ya Shift və bir hərf."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Aşağıdakı dəyişdiricilərdən birini və ya ikisini daxil edin: Ctrl, Alt, Win və bir hərf."
   },
   "invalidShortcut": {
     "message": "Yararsız qısayol"
@@ -4292,6 +4306,9 @@
   "unArchive": {
     "message": "Arxivdən çıxart"
   },
+  "archived": {
+    "message": "Arxivləndi"
+  },
   "itemsInArchive": {
     "message": "Arxivdəki elementlər"
   },
@@ -4312,6 +4329,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
+  },
+  "unArchiveAndSave": {
+    "message": "Arxivdən çıxart və saxla"
+  },
+  "restartPremium": {
+    "message": "\"Premium\"u yenidən başlat"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Premium abunəliyiniz bitdi"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
+  },
+  "itemRestored": {
+    "message": "Element bərpa edildi"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / Poçt kodu"

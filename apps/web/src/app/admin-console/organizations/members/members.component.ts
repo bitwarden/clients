@@ -35,6 +35,7 @@ import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billin
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -55,7 +56,11 @@ import { OrganizationUserView } from "../core/views/organization-user.view";
 
 import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
 import { MemberDialogResult, MemberDialogTab } from "./components/member-dialog";
-import { MemberDialogManagerService, OrganizationMembersService } from "./services";
+import {
+  MemberDialogManagerService,
+  MemberExportService,
+  OrganizationMembersService,
+} from "./services";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
 import {
   MemberActionsService,
@@ -119,6 +124,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private policyService: PolicyService,
     private policyApiService: PolicyApiServiceAbstraction,
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
+    private memberExportService: MemberExportService,
+    private fileDownloadService: FileDownloadService,
     private configService: ConfigService,
     private environmentService: EnvironmentService,
   ) {
@@ -593,4 +600,36 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       .getCheckedUsers()
       .every((member) => member.managedByOrganization && validStatuses.includes(member.status));
   }
+
+  exportMembers = async (): Promise<void> => {
+    try {
+      const members = this.dataSource.data;
+      if (!members || members.length === 0) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("noMembersToExport"),
+        });
+        return;
+      }
+
+      const csvData = this.memberExportService.getMemberExport(members);
+      const fileName = this.memberExportService.getFileName("org-members");
+
+      this.fileDownloadService.download({
+        fileName: fileName,
+        blobData: csvData,
+        blobOptions: { type: "text/plain" },
+      });
+
+      this.toastService.showToast({
+        variant: "success",
+        title: undefined,
+        message: this.i18nService.t("dataExportSuccess"),
+      });
+    } catch (e) {
+      this.validationService.showError(e);
+      this.logService.error(`Failed to export members: ${e}`);
+    }
+  };
 }
