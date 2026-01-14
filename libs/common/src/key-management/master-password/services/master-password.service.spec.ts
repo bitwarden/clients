@@ -422,6 +422,7 @@ describe("MasterPasswordService", () => {
     it("derives master key from password and sets it in state", async () => {
       const masterKey = makeSymmetricCryptoKey(32, 5) as MasterKey;
       keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
+      cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
 
       const masterPasswordUnlockData = new MasterPasswordUnlockData(
         salt,
@@ -444,6 +445,7 @@ describe("MasterPasswordService", () => {
     it("works with argon2 kdf config", async () => {
       const masterKey = makeSymmetricCryptoKey(32, 6) as MasterKey;
       keyGenerationService.deriveKeyFromPassword.mockResolvedValue(masterKey);
+      cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
 
       const masterPasswordUnlockData = new MasterPasswordUnlockData(
         salt,
