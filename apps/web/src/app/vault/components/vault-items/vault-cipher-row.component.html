@@ -177,10 +177,12 @@
           {{ (cipher.favorite ? "unfavorite" : "favorite") | i18n }}
         </button>
       }
-      <button bitMenuItem type="button" (click)="editCipher()" *ngIf="canEditCipher">
-        <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
-        {{ "edit" | i18n }}
-      </button>
+      @if (showEdit) {
+        <button bitMenuItem type="button" (click)="editCipher()" *ngIf="canEditCipher">
+          <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+          {{ "edit" | i18n }}
+        </button>
+      }
       <button bitMenuItem *ngIf="showAttachments" type="button" (click)="attachments()">
         <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
         {{ "attachments" | i18n }}
