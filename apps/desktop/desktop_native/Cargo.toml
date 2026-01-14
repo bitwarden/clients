@@ -25,7 +25,7 @@ anyhow = "=1.0.100"
 arboard = { version = "=3.6.1", default-features = false }
 ashpd = "=0.12.0"
 base64 = "=0.22.1"
-bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "a641316227227f8777fdf56ac9fa2d6b5f7fe662" }
+bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "cc20a849c5a11669be835ddc21785867aa6949ab" }
 byteorder = "=1.5.0"
 bytes = "=1.11.0"
 cbc = "=0.1.2"
