@@ -952,6 +952,8 @@ export class CipherService implements CipherServiceAbstraction {
         }),
       ),
     );
+    // The SDK manages the cache of encrypted ciphers, but doesn't update the cache of decrypted ciphers.
+    // Calling `this.clearCache` forces the decrypted cache to refresh.
     await this.clearCache(userId);
     return resultCipherView;
   }
@@ -1034,6 +1036,8 @@ export class CipherService implements CipherServiceAbstraction {
         }),
       ),
     );
+    // The SDK manages the cache of encrypted ciphers, but doesn't update the cache of decrypted ciphers.
+    // Calling `this.clearCache` forces the decrypted cache to refresh.
     await this.clearCache(userId);
     return resultCipherView;
   }
