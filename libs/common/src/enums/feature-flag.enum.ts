@@ -48,7 +48,6 @@ export enum FeatureFlag {
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
 
   /* Tools */
-  DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   ChromiumImporterWithABE = "pm-25855-chromium-importer-abe",
   SendUIRefresh = "pm-28175-send-ui-refresh",
@@ -109,7 +108,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
 
   /* Tools */
-  [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.ChromiumImporterWithABE]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,

@@ -1,21 +1,19 @@
-<div class="tw-my-4 tw-px-4">
-  <bit-header [title]="resolvedTitle()" [icon]="icon()">
-    <ng-container slot="breadcrumbs">
-      <ng-content select="[slot=breadcrumbs]" />
-    </ng-container>
+<bit-header [title]="resolvedTitle()" [icon]="icon()">
+  <ng-container slot="breadcrumbs">
+    <ng-content select="[slot=breadcrumbs]" />
+  </ng-container>
 
-    <ng-content />
+  <ng-content />
 
-    <ng-container slot="title-suffix">
-      <ng-content select="[slot=title-suffix]" />
-    </ng-container>
+  <ng-container slot="title-suffix">
+    <ng-content select="[slot=title-suffix]" />
+  </ng-container>
 
-    <ng-container slot="secondary">
-      <ng-content select="[slot=secondary]" />
-    </ng-container>
+  <ng-container slot="secondary">
+    <ng-content select="[slot=secondary]" />
+  </ng-container>
 
-    <ng-container slot="tabs">
-      <ng-content select="[slot=tabs]" />
-    </ng-container>
-  </bit-header>
-</div>
+  <ng-container slot="tabs">
+    <ng-content select="[slot=tabs]" />
+  </ng-container>
+</bit-header>
