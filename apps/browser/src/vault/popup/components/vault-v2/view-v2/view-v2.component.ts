@@ -35,6 +35,7 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   AsyncActionsModule,
+  BadgeModule,
   ButtonModule,
   CalloutModule,
   DialogService,
@@ -97,6 +98,7 @@ type LoadAction =
     AsyncActionsModule,
     PopOutComponent,
     CalloutModule,
+    BadgeModule,
   ],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },

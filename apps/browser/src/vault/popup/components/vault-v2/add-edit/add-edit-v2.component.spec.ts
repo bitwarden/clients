@@ -4,8 +4,10 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,6 +21,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
 import { DialogService } from "@bitwarden/components";
 import {
@@ -95,6 +98,18 @@ describe("AddEditV2Component", () => {
           },
         },
         { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
+        {
+          provide: TaskService,
+          useValue: mock<TaskService>(),
+        },
+        {
+          provide: ViewCacheService,
+          useValue: { signal: jest.fn(() => (): any => null) },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: mock<BillingAccountProfileStateService>(),
+        },
         {
           provide: CipherArchiveService,
           useValue: cipherArchiveService,
@@ -378,6 +393,46 @@ describe("AddEditV2Component", () => {
 
       expect(back).toHaveBeenCalled();
     });
+  });
+
+  describe("submit button text", () => {
+    beforeEach(() => {
+      // prevent form from rendering
+      jest.spyOn(component as any, "loading", "get").mockReturnValue(true);
+    });
+
+    it("sets it to 'save' by default", fakeAsync(() => {
+      buildConfigResponse.originalCipher = {} as Cipher;
+
+      queryParams$.next({});
+
+      tick();
+
+      const submitBtn = fixture.debugElement.query(By.css("button[type=submit]"));
+      expect(submitBtn.nativeElement.textContent.trim()).toBe("save");
+    }));
+
+    it("sets it to 'save' when the user is able to archive the item", fakeAsync(() => {
+      buildConfigResponse.originalCipher = { isArchived: false } as any;
+
+      queryParams$.next({});
+
+      tick();
+
+      const submitBtn = fixture.debugElement.query(By.css("button[type=submit]"));
+      expect(submitBtn.nativeElement.textContent.trim()).toBe("save");
+    }));
+
+    it("sets it to 'unarchiveAndSave' when the user cannot archive and the item is archived", fakeAsync(() => {
+      cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
+      buildConfigResponse.originalCipher = { isArchived: true } as any;
+
+      queryParams$.next({});
+      tick();
+
+      const submitBtn = fixture.debugElement.query(By.css("button[type=submit]"));
+      expect(submitBtn.nativeElement.textContent.trim()).toBe("save");
+    }));
   });
 
   describe("archive", () => {
