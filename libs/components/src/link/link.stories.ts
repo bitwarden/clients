@@ -61,7 +61,7 @@ export const AllVariations: Story = {
         <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-contrast">
           <a bitLink linkType="contrast" href="#">Contrast</a>
         </div>
-        <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-contrast">
+        <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-brand">
           <a bitLink linkType="light" href="#">Light</a>
         </div>
         <div class="tw-flex tw-gap-4 tw-p-2">
@@ -112,7 +112,7 @@ export const InteractionStates: Story = {
         <a bitLink linkType="contrast" href="#" class="tw-test-focus-visible">Contrast</a>
         <a bitLink linkType="contrast" href="#" class="tw-test-hover tw-test-focus-visible">Contrast</a>
       </div>
-      <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-contrast">
+      <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-brand">
         <a bitLink linkType="light" href="#">Light</a>
         <a bitLink linkType="light" href="#" class="tw-test-hover">Light</a>
         <a bitLink linkType="light" href="#" class="tw-test-focus-visible">Light</a>
