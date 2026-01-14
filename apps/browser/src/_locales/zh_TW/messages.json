@@ -4815,16 +4815,16 @@
     "message": "管理控制台"
   },
   "admin": {
-    "message": "Admin"
+    "message": "管理員"
   },
   "automaticUserConfirmation": {
     "message": "自動使用者確認"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "在此裝置解鎖時自動確認待處理的使用者"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "透過自動使用者確認節省時間"
   },
   "autoConfirmWarning": {
     "message": "可能影響您的組織資料安全性。"
@@ -4836,7 +4836,7 @@
     "message": "自動確認新使用者"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "當此裝置處於解鎖狀態時，新的使用者將會自動獲得確認。"
   },
   "autoConfirmSetupHint": {
     "message": "潛在的安全性風險有哪些？"
@@ -4845,7 +4845,7 @@
     "message": "開啟自動確認"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "立即可用"
   },
   "accountSecurity": {
     "message": "帳戶安全性"
