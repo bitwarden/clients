@@ -1890,6 +1890,8 @@ jobs:
     needs:
       - setup
       - linux
+    permissions:
+      contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
@@ -1933,6 +1935,8 @@ jobs:
     needs:
       - setup
       - linux
+    permissions:
+      contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
@@ -1974,6 +1978,8 @@ jobs:
     needs:
       - setup
       - linux
+    permissions:
+      contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
@@ -2031,6 +2037,8 @@ jobs:
       - setup
       - linux
       - linux-arm64
+    permissions:
+      contents: read
     steps:
       - name: Check out repo
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -2081,6 +2089,8 @@ jobs:
       - setup
       - linux
       - linux-arm64
+    permissions:
+      contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _CPU_ARCH: ${{ matrix.os == 'ubuntu-22.04' && 'amd64' || 'arm64' }}
@@ -2126,6 +2136,8 @@ jobs:
     needs:
       - setup
       - macos-package-github
+    permissions:
+      contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
@@ -2170,6 +2182,8 @@ jobs:
     needs:
       - setup
       - windows
+    permissions:
+      contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
