@@ -216,9 +216,6 @@ export const Anchors: StoryObj<AnchorLinkDirective> = {
     </div>
     `,
   }),
-  args: {
-    linkType: "primary",
-  },
 };
 
 export const Inline: Story = {
@@ -230,9 +227,6 @@ export const Inline: Story = {
       </span>
     `,
   }),
-  args: {
-    linkType: "primary",
-  },
 };
 
 export const Inactive: Story = {
