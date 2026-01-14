@@ -2,7 +2,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 
-import { AnchorLinkDirective, ButtonLinkDirective , LinkTypes } from "./link.directive";
+import { AnchorLinkDirective, ButtonLinkDirective, LinkTypes } from "./link.directive";
 import { LinkModule } from "./link.module";
 
 export default {
@@ -30,10 +30,61 @@ type Story = StoryObj<ButtonLinkDirective>;
 
 export const Default: Story = {
   render: (args) => ({
+    props: {
+      linkType: args.linkType,
+      showContrast: args.linkType === "contrast" || args.linkType === "light",
+    },
     template: /*html*/ `
-      <a bitLink href="" ${formatArgsForCodeSnippet<ButtonLinkDirective>(args)}>Your text here</a>
+      <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': !showContrast, 'tw-bg-bg-contrast': showContrast }">
+        <a bitLink href="" ${formatArgsForCodeSnippet<ButtonLinkDirective>(args)}>Your text here</a>
+      </div>
     `,
   }),
+  args: {
+    linkType: "primary",
+  },
+};
+
+export const AllVariations: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-6">
+        <div class="tw-flex tw-gap-4 tw-p-2">
+          <a bitLink linkType="primary" href="#">Primary</a>
+        </div>
+        <div class="tw-flex tw-gap-4 tw-p-2">
+          <a bitLink linkType="secondary" href="#">Secondary</a>
+        </div>
+        <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-contrast">
+          <a bitLink linkType="contrast" href="#">Contrast</a>
+        </div>
+        <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-contrast">
+          <a bitLink linkType="light" href="#">Light</a>
+        </div>
+        <div class="tw-flex tw-gap-4 tw-p-2">
+          <a bitLink linkType="default" href="#">Default</a>
+        </div>
+        <div class="tw-flex tw-gap-4 tw-p-2">
+          <a bitLink linkType="subtle" href="#">subtle</a>
+        </div>
+        <div class="tw-flex tw-gap-4 tw-p-2">
+          <a bitLink linkType="success" href="#">success</a>
+        </div>
+        <div class="tw-flex tw-gap-4 tw-p-2">
+          <a bitLink linkType="warning" href="#">warning</a>
+        </div>
+        <div class="tw-flex tw-gap-4 tw-p-2">
+          <a bitLink linkType="danger" href="#">danger</a>
+        </div>
+      </div>
+    `,
+  }),
+  parameters: {
+    controls: {
+      exclude: ["linkType"],
+      hideNoControlsWarning: true,
+    },
+  },
 };
 
 export const InteractionStates: Story = {
@@ -52,13 +103,13 @@ export const InteractionStates: Story = {
         <a bitLink linkType="secondary" href="#" class="tw-test-focus-visible">Secondary</a>
         <a bitLink linkType="secondary" href="#" class="tw-test-hover tw-test-focus-visible">Secondary</a>
       </div>
-      <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-primary-600">
+      <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-contrast">
         <a bitLink linkType="contrast" href="#">Contrast</a>
         <a bitLink linkType="contrast" href="#" class="tw-test-hover">Contrast</a>
         <a bitLink linkType="contrast" href="#" class="tw-test-focus-visible">Contrast</a>
         <a bitLink linkType="contrast" href="#" class="tw-test-hover tw-test-focus-visible">Contrast</a>
       </div>
-      <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-primary-600">
+      <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-contrast">
         <a bitLink linkType="light" href="#">Light</a>
         <a bitLink linkType="light" href="#" class="tw-test-hover">Light</a>
         <a bitLink linkType="light" href="#" class="tw-test-focus-visible">Light</a>
@@ -97,13 +148,19 @@ export const InteractionStates: Story = {
       </div>
     `,
   }),
+  parameters: {
+    controls: {
+      exclude: ["linkType"],
+      hideNoControlsWarning: true,
+    },
+  },
 };
 
 export const Buttons: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-primary-600': linkType === 'contrast' }">
+    <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-bg-contrast': linkType === 'contrast' }">
       <div class="tw-block tw-p-2">
         <button type="button" bitLink [linkType]="linkType">Button</button>
       </div>
@@ -134,7 +191,7 @@ export const Anchors: StoryObj<AnchorLinkDirective> = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-primary-600': linkType === 'contrast' }">
+    <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-contrast-600': linkType === 'contrast' }">
       <div class="tw-block tw-p-2">
         <a bitLink [linkType]="linkType" href="#">Anchor</a>
       </div>
@@ -175,13 +232,13 @@ export const Inline: Story = {
   },
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
       <button type="button" bitLink disabled linkType="primary" class="tw-me-2">Primary</button>
       <button type="button" bitLink disabled linkType="secondary" class="tw-me-2">Secondary</button>
-      <div class="tw-bg-primary-600 tw-p-2 tw-inline-block">
+      <div class="tw-bg-bg-contrast tw-p-2 tw-inline-block">
         <button type="button" bitLink disabled linkType="contrast">Contrast</button>
       </div>
     `,
