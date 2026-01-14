@@ -995,7 +995,7 @@ export class CipherService implements CipherServiceAbstraction {
     } else {
       const encrypted = await this.encrypt(cipherView, userId);
       const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
-      const updatedCipherView = this.decrypt(updatedCipher, userId);
+      const updatedCipherView = await this.decrypt(updatedCipher, userId);
       return updatedCipherView;
     }
   }
