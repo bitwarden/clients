@@ -20,11 +20,16 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { SendItemsService, SendListFiltersService } from "@bitwarden/send-ui";
-
-import { AddEditComponent } from "../send/add-edit.component";
+import {
+  SendItemsService,
+  SendListFiltersService,
+  DefaultSendFormConfigService,
+  SendAddEditDialogComponent,
+  SendFormConfig,
+} from "@bitwarden/send-ui";
 
 import { SendV2Component } from "./send-v2.component";
 
@@ -37,12 +42,34 @@ describe("SendV2Component", () => {
   let sendItemsService: MockProxy<SendItemsService>;
   let sendListFiltersService: MockProxy<SendListFiltersService>;
   let changeDetectorRef: MockProxy<ChangeDetectorRef>;
+  let sendFormConfigService: MockProxy<DefaultSendFormConfigService>;
+  let dialogService: MockProxy<DialogService>;
+  let environmentService: MockProxy<EnvironmentService>;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let sendApiService: MockProxy<SendApiService>;
+  let toastService: MockProxy<ToastService>;
+  let i18nService: MockProxy<I18nService>;
 
   beforeEach(async () => {
     sendService = mock<SendService>();
     accountService = mock<AccountService>();
     policyService = mock<PolicyService>();
     changeDetectorRef = mock<ChangeDetectorRef>();
+    sendFormConfigService = mock<DefaultSendFormConfigService>();
+    dialogService = mock<DialogService>();
+    environmentService = mock<EnvironmentService>();
+    platformUtilsService = mock<PlatformUtilsService>();
+    sendApiService = mock<SendApiService>();
+    toastService = mock<ToastService>();
+    i18nService = mock<I18nService>();
+
+    // Setup environmentService mock
+    environmentService.getEnvironment.mockResolvedValue({
+      getSendUrl: () => "https://send.bitwarden.com/#/",
+    } as any);
+
+    // Setup i18nService mock
+    i18nService.t.mockImplementation((key: string) => key);
 
     // Mock SendItemsService with all required observables
     sendItemsService = mock<SendItemsService>();
@@ -71,15 +98,16 @@ describe("SendV2Component", () => {
       providers: [
         provideNoopAnimations(),
         { provide: SendService, useValue: sendService },
-        { provide: I18nService, useValue: mock<I18nService>() },
-        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
+        { provide: I18nService, useValue: i18nService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: EnvironmentService, useValue: environmentService },
         { provide: SearchService, useValue: mockSearchService },
         { provide: PolicyService, useValue: policyService },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: SendApiService, useValue: mock<SendApiService>() },
-        { provide: DialogService, useValue: mock<DialogService>() },
-        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: SendApiService, useValue: sendApiService },
+        { provide: DialogService, useValue: dialogService },
+        { provide: DefaultSendFormConfigService, useValue: sendFormConfigService },
+        { provide: ToastService, useValue: toastService },
         { provide: AccountService, useValue: accountService },
         { provide: SendItemsService, useValue: sendItemsService },
         { provide: SendListFiltersService, useValue: sendListFiltersService },
@@ -97,7 +125,16 @@ describe("SendV2Component", () => {
           },
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(SendV2Component, {
+        set: {
+          providers: [
+            { provide: DefaultSendFormConfigService, useValue: sendFormConfigService },
+            { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
+          ],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(SendV2Component);
     component = fixture.componentInstance;
@@ -107,109 +144,110 @@ describe("SendV2Component", () => {
     expect(component).toBeTruthy();
   });
 
-  it("initializes with correct default action", () => {
-    expect(component.action()).toBe("");
-  });
-
   describe("addSend", () => {
-    it("sets action to Add", async () => {
-      await component.addSend(SendType.Text);
-      expect(component.action()).toBe("add");
+    beforeEach(() => {
+      jest.clearAllMocks();
     });
 
-    it("calls resetAndLoad on addEditComponent when component exists", async () => {
-      const mockAddEdit = mock<AddEditComponent>();
-      mockAddEdit.resetAndLoad.mockResolvedValue();
-      jest.spyOn(component as any, "addEditComponent").mockReturnValue(mockAddEdit);
+    it("opens dialog with correct config for Text send", async () => {
+      const mockConfig = { mode: "add", sendType: SendType.Text } as SendFormConfig;
+      const mockDialogRef = { closed: of(true) };
 
-      await component.addSend(SendType.Text);
+      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
+      const openDrawerSpy = jest
+        .spyOn(SendAddEditDialogComponent, "openDrawer")
+        .mockReturnValue(mockDialogRef as any);
 
-      expect(mockAddEdit.resetAndLoad).toHaveBeenCalled();
+      await component["addSend"](SendType.Text);
+
+      expect(sendFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        SendType.Text,
+      );
+      expect(openDrawerSpy).toHaveBeenCalled();
+      expect(openDrawerSpy.mock.calls[0][1]).toEqual({
+        formConfig: mockConfig,
+      });
     });
 
-    it("does not throw when addEditComponent is null", async () => {
-      jest.spyOn(component as any, "addEditComponent").mockReturnValue(undefined);
-      await expect(component.addSend(SendType.Text)).resolves.not.toThrow();
-    });
-  });
+    it("opens dialog with correct config for File send", async () => {
+      const mockConfig = { mode: "add", sendType: SendType.File } as SendFormConfig;
+      const mockDialogRef = { closed: of(true) };
 
-  describe("closeEditPanel", () => {
-    it("resets action to None", () => {
-      component["action"].set("edit");
-      component["sendId"].set("test-id");
+      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
+      const openDrawerSpy = jest
+        .spyOn(SendAddEditDialogComponent, "openDrawer")
+        .mockReturnValue(mockDialogRef as any);
 
-      component["closeEditPanel"]();
+      await component["addSend"](SendType.File);
 
-      expect(component["action"]()).toBe("");
-      expect(component["sendId"]()).toBeNull();
-    });
-  });
-
-  describe("savedSend", () => {
-    it("selects the saved send", async () => {
-      jest.spyOn(component as any, "selectSend").mockResolvedValue();
-
-      const mockSend = new SendView();
-      mockSend.id = "saved-send-id";
-
-      await component["savedSend"](mockSend);
-
-      expect(component["selectSend"]).toHaveBeenCalledWith("saved-send-id");
+      expect(sendFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        SendType.File,
+      );
+      expect(openDrawerSpy).toHaveBeenCalled();
+      expect(openDrawerSpy.mock.calls[0][1]).toEqual({
+        formConfig: mockConfig,
+      });
     });
   });
 
   describe("selectSend", () => {
-    it("sets action to Edit and updates sendId", async () => {
-      await component["selectSend"]("new-send-id");
-
-      expect(component["action"]()).toBe("edit");
-      expect(component["sendId"]()).toBe("new-send-id");
+    beforeEach(() => {
+      jest.clearAllMocks();
     });
 
-    it("updates addEditComponent when it exists", async () => {
-      const mockAddEdit = mock<AddEditComponent>();
-      mockAddEdit.refresh.mockResolvedValue();
-      jest.spyOn(component as any, "addEditComponent").mockReturnValue(mockAddEdit);
+    it("opens dialog with correct config for editing send", async () => {
+      const mockConfig = { mode: "edit", sendId: "test-send-id" } as SendFormConfig;
+      const mockDialogRef = { closed: of(true) };
+
+      sendFormConfigService.buildConfig.mockResolvedValue(mockConfig);
+      const openDrawerSpy = jest
+        .spyOn(SendAddEditDialogComponent, "openDrawer")
+        .mockReturnValue(mockDialogRef as any);
 
       await component["selectSend"]("test-send-id");
 
-      expect(mockAddEdit.sendId).toBe("test-send-id");
-      expect(mockAddEdit.refresh).toHaveBeenCalled();
-    });
-
-    it("does not reload if same send is already selected in edit mode", async () => {
-      const mockAddEdit = mock<AddEditComponent>();
-      jest.spyOn(component as any, "addEditComponent").mockReturnValue(mockAddEdit);
-      component["sendId"].set("same-id");
-      component["action"].set("edit");
-
-      await component["selectSend"]("same-id");
-
-      expect(mockAddEdit.refresh).not.toHaveBeenCalled();
-    });
-
-    it("reloads if selecting different send", async () => {
-      const mockAddEdit = mock<AddEditComponent>();
-      mockAddEdit.refresh.mockResolvedValue();
-      jest.spyOn(component as any, "addEditComponent").mockReturnValue(mockAddEdit);
-      component["sendId"].set("old-id");
-      component["action"].set("edit");
-
-      await component["selectSend"]("new-id");
-
-      expect(mockAddEdit.refresh).toHaveBeenCalled();
+      expect(sendFormConfigService.buildConfig).toHaveBeenCalledWith("edit", "test-send-id");
+      expect(openDrawerSpy).toHaveBeenCalled();
+      expect(openDrawerSpy.mock.calls[0][1]).toEqual({
+        formConfig: mockConfig,
+      });
     });
   });
 
   describe("onEditSend", () => {
     it("selects the send for editing", async () => {
-      jest.spyOn(component as any, "selectSend").mockResolvedValue();
+      jest.spyOn(component as any, "selectSend").mockResolvedValue(undefined);
       const mockSend = new SendView();
       mockSend.id = "edit-send-id";
 
       await component["onEditSend"](mockSend);
 
       expect(component["selectSend"]).toHaveBeenCalledWith("edit-send-id");
+    });
+  });
+
+  describe("onCopySend", () => {
+    it("copies send link to clipboard and shows success toast", async () => {
+      const mockSend = {
+        accessId: "test-access-id",
+        urlB64Key: "test-key",
+      } as SendView;
+
+      await component["onCopySend"](mockSend);
+
+      expect(environmentService.getEnvironment).toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
+        "https://send.bitwarden.com/#/test-access-id/test-key",
+      );
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        title: null,
+        message: expect.any(String),
+      });
     });
   });
 });
