@@ -1780,19 +1780,19 @@
     "message": "Экспорт из"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Экспорт",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Экспортировать",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Импорт",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Импортировать",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -4010,6 +4010,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
+  },
+  "vulnerablePassword": {
+    "message": "Уязвимый пароль."
+  },
+  "changeNow": {
+    "message": "Изменить сейчас"
   },
   "missingWebsite": {
     "message": "Отсутствует сайт"

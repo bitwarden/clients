@@ -4011,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
   },
+  "vulnerablePassword": {
+    "message": "A jelszó sérülékeny."
+  },
+  "changeNow": {
+    "message": "Módosítás most"
+  },
   "missingWebsite": {
     "message": "Hiányzó webhely"
   },
