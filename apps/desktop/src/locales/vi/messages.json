@@ -4011,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Thông tin đăng nhập này có rủi ro và thiếu một trang web. Hãy thêm trang web và đổi mật khẩu để tăng cường bảo mật."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Thiếu trang web"
   },
