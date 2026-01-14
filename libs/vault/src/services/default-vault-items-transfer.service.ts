@@ -163,7 +163,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     );
 
     if (!userAcceptedTransfer) {
-      await this.organizationUserApiService.revokeSelfUser(migrationInfo.enforcingOrganization.id);
+      await this.organizationUserApiService.revokeSelf(migrationInfo.enforcingOrganization.id);
 
       this.toastService.showToast({
         variant: "success",

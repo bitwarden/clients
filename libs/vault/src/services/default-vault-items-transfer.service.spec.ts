@@ -638,11 +638,11 @@ describe("DefaultVaultItemsTransferService", () => {
       mockDialogService.open
         .mockReturnValueOnce(createMockDialogRef(TransferItemsDialogResult.Declined))
         .mockReturnValueOnce(createMockDialogRef(LeaveConfirmationDialogResult.Confirmed));
-      mockOrganizationUserApiService.revokeSelfUser.mockResolvedValue(undefined);
+      mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
 
       await service.enforceOrganizationDataOwnership(userId);
 
-      expect(mockOrganizationUserApiService.revokeSelfUser).toHaveBeenCalledWith(organizationId);
+      expect(mockOrganizationUserApiService.revokeSelf).toHaveBeenCalledWith(organizationId);
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "leftOrganization",
