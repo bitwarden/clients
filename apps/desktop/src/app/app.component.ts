@@ -97,22 +97,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 @Component({
   selector: "app-root",
   styles: [],
-  template: ` <ng-template #settings></ng-template>
-    <ng-template #premium></ng-template>
-    <ng-template #passwordHistory></ng-template>
-    <ng-template #exportVault></ng-template>
-    <ng-template #appGenerator></ng-template>
-    <ng-template #loginApproval></ng-template>
-    <app-header *ngIf="showHeader$ | async"></app-header>
-
-    <div id="container">
-      <div class="loading" *ngIf="loading">
-        <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
-      </div>
-      <router-outlet *ngIf="!loading"></router-outlet>
-    </div>
-
-    <bit-toast-container></bit-toast-container>`,
+  templateUrl: "app.component.html",
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {

@@ -10,7 +10,7 @@ module.exports = (webpackConfig, context) => {
       configName: "Commercial",
       renderer: {
         entry: path.resolve(__dirname, "src/app/main.ts"),
-        entryModule: "src/app/app.module#AppModule",
+        entryModule: "bitwarden_license/bit-desktop/src/app/app.module#AppModule",
         tsConfig: path.resolve(
           context.context.root,
           "bitwarden_license/bit-desktop/tsconfig.renderer.json",
@@ -31,7 +31,7 @@ module.exports = (webpackConfig, context) => {
       configName: "Commercial",
       renderer: {
         entry: path.resolve(__dirname, "src/app/main.ts"),
-        entryModule: "src/app/app.module#AppModule",
+        entryModule: "bitwarden_license/bit-desktop/src/app/app.module#AppModule",
         tsConfig: path.resolve(__dirname, "tsconfig.renderer.json"),
       },
       main: {
