@@ -13,7 +13,7 @@ import { ButtonModule, ButtonType, LinkModule, TypographyModule } from "@bitward
   imports: [CommonModule, TypographyModule, JslibModule, LinkModule, ButtonModule],
   host: {
     class:
-      "tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-border [&:not(bit-layout_*)]:tw-rounded-lg tw-rounded-lg tw-p-6 tw-h-56 tw-max-h-56",
+      "tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-border [&:not(bit-layout_*)]:tw-rounded-lg tw-rounded-lg tw-p-6 tw-min-h-56 tw-overflow-hidden",
   },
 })
 export class ActivityCardComponent {
