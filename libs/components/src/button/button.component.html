@@ -1,8 +1,20 @@
+@let showLoadingStyles = showLoadingStyle();
+@let leadIcon = startIcon();
+@let tailIcon = endIcon();
+
 <span class="tw-relative">
-  <span [ngClass]="{ 'tw-invisible': showLoadingStyle() }">
-    <ng-content></ng-content>
+  <span [class.tw-invisible]="showLoadingStyles">
+    <span [class]="leadIcon || tailIcon ? 'tw-flex tw-items-center tw-gap-2' : ''">
+      @if (leadIcon) {
+        <i class="{{ startIconClasses() }}"></i>
+      }
+      <ng-content></ng-content>
+      @if (tailIcon) {
+        <i class="{{ endIconClasses() }}"></i>
+      }
+    </span>
   </span>
-  @if (showLoadingStyle()) {
+  @if (showLoadingStyles) {
     <span class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
       <bit-spinner size="fill" noColor></bit-spinner>
     </span>
