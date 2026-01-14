@@ -265,6 +265,12 @@ export abstract class OrganizationUserApiService {
   ): Promise<ListResponse<OrganizationUserBulkResponse>>;
 
   /**
+   * Revoke the current user's access to the organization
+   * @param organizationId - Identifier for the organization the user belongs to
+   */
+  abstract revokeSelfUser(organizationId: string): Promise<void>;
+
+  /**
    * Restore an organization user's access to the organization
    * @param organizationId - Identifier for the organization the user belongs to
    * @param id - Organization user identifier

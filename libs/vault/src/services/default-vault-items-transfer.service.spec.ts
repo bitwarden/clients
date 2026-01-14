@@ -2,7 +2,11 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of, Subject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionView,
+  OrganizationUserApiService,
+} from "@bitwarden/admin-console/common";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -41,6 +45,7 @@ describe("DefaultVaultItemsTransferService", () => {
   let mockToastService: MockProxy<ToastService>;
   let mockEventCollectionService: MockProxy<EventCollectionService>;
   let mockConfigService: MockProxy<ConfigService>;
+  let mockOrganizationUserApiService: MockProxy<OrganizationUserApiService>;
 
   const userId = "user-id" as UserId;
   const organizationId = "org-id" as OrganizationId;
@@ -76,6 +81,7 @@ describe("DefaultVaultItemsTransferService", () => {
     mockToastService = mock<ToastService>();
     mockEventCollectionService = mock<EventCollectionService>();
     mockConfigService = mock<ConfigService>();
+    mockOrganizationUserApiService = mock<OrganizationUserApiService>();
 
     mockI18nService.t.mockImplementation((key) => key);
     transferInProgressValues = [];
@@ -91,6 +97,7 @@ describe("DefaultVaultItemsTransferService", () => {
       mockToastService,
       mockEventCollectionService,
       mockConfigService,
+      mockOrganizationUserApiService,
     );
   });
 
@@ -631,9 +638,15 @@ describe("DefaultVaultItemsTransferService", () => {
       mockDialogService.open
         .mockReturnValueOnce(createMockDialogRef(TransferItemsDialogResult.Declined))
         .mockReturnValueOnce(createMockDialogRef(LeaveConfirmationDialogResult.Confirmed));
+      mockOrganizationUserApiService.revokeSelfUser.mockResolvedValue(undefined);
 
       await service.enforceOrganizationDataOwnership(userId);
 
+      expect(mockOrganizationUserApiService.revokeSelfUser).toHaveBeenCalledWith(organizationId);
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "leftOrganization",
+      });
       expect(mockCipherService.shareManyWithServer).not.toHaveBeenCalled();
     });
 
