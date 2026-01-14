@@ -13,7 +13,6 @@ export const LinkTypes = [
   "success",
   "warning",
   "danger",
-  "contrast",
 ] as const;
 
 export type LinkType = (typeof LinkTypes)[number];
