@@ -112,9 +112,4 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
   ): Promise<CipherView | null> {
     return await this.isPasswordExposed(updatedCipherView);
   }
-
-  async filterOrgToggleChipSelect(filterId: string | null) {
-    const selectedFilterId = filterId ?? 0;
-    await this.filterOrgToggle(selectedFilterId);
-  }
 }
