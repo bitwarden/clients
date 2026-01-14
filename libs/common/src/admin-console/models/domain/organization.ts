@@ -415,4 +415,15 @@ export class Organization {
   get canUseAccessIntelligence() {
     return this.productTierType === ProductTierType.Enterprise;
   }
+
+  getIconString(): string {
+    if (
+      this?.productTierType === ProductTierType.Free ||
+      this?.productTierType === ProductTierType.Families
+    ) {
+      return "bwi-family";
+    } else {
+      return "bwi-business";
+    }
+  }
 }
