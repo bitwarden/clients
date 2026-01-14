@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "アイテムはアーカイブに送信されました"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "アイテムはアーカイブから解除されました"
   },
@@ -4828,6 +4831,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
   },
   "accountSecurity": {
     "message": "アカウントのセキュリティ"

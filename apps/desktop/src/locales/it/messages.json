@@ -4011,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Sito Web mancante"
   },
@@ -4268,7 +4274,7 @@
     "message": "Premi i tasti da impostare per la scorciatoia"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
+    "message": "Includi uno o due tasti modificatori a scelta tra Ctrl, Alt e Win."
   },
   "invalidShortcut": {
     "message": "Scorciatoia non valida"

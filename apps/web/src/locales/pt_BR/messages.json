@@ -5616,6 +5616,37 @@
     "message": "Send salvo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send criado com sucesso!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou pelos próximos $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ horas",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Novo Send de texto",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Novo Send de arquivo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send salvo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -11589,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Esta credencial está em risco e está sem um site. Adicione um site e altere a senha para segurança melhor."
   },
+  "vulnerablePassword": {
+    "message": "Senha vulnerável."
+  },
+  "changeNow": {
+    "message": "Alterar agora"
+  },
   "missingWebsite": {
     "message": "Site ausente"
   },
@@ -11647,6 +11684,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Itens foram enviados para o arquivo"
+  },
+  "itemWasUnarchived": {
+    "message": "O item foi desarquivado"
   },
   "itemUnarchived": {
     "message": "O item foi desarquivado"
@@ -12580,5 +12620,11 @@
   },
   "storageFullDescription": {
     "message": "Você usou todos os $GB$ GB do seu armazenamento criptografado. Para continuar armazenando arquivos, adicione mais armazenamento."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Quando você remover o armazenamento, você receberá um crédito de conta proporcional que irá automaticamente para sua próxima fatura."
+  },
+  "youHavePremium": {
+    "message": "Você tem o Premium"
   }
 }

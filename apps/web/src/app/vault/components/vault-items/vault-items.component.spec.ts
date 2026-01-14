@@ -79,6 +79,101 @@ describe("VaultItemsComponent", () => {
     component = fixture.componentInstance;
   });
 
+  describe("bulkArchiveAllowed", () => {
+    it("returns false when no items are selected", () => {
+      component.userCanArchive = true;
+      component["selection"].clear();
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
+
+    it("returns false when userCanArchive is false", () => {
+      component.userCanArchive = false;
+
+      const items: VaultItem<CipherView>[] = [
+        { cipher: cipher1 as CipherView },
+        { cipher: cipher2 as CipherView },
+      ];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
+
+    it("returns false when selecting collections", () => {
+      component.userCanArchive = true;
+      const collection1 = { id: "col-1", name: "Collection 1" } as CollectionView;
+
+      const items: VaultItem<CipherView>[] = [
+        { cipher: cipher1 as CipherView },
+        { collection: collection1 },
+      ];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
+
+    it("returns true when selecting unarchived ciphers without organization", () => {
+      component.userCanArchive = true;
+
+      const items: VaultItem<CipherView>[] = [
+        { cipher: cipher1 as CipherView },
+        { cipher: cipher2 as CipherView },
+      ];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(true);
+    });
+
+    it("returns false when any selected cipher has an organizationId", () => {
+      component.userCanArchive = true;
+
+      const personalCipher: Partial<CipherView> = {
+        ...cipher1,
+        organizationId: undefined,
+      };
+
+      const orgCipher: Partial<CipherView> = {
+        ...cipher2,
+        organizationId: "org-1",
+      };
+
+      const items: VaultItem<CipherView>[] = [
+        { cipher: personalCipher as CipherView },
+        { cipher: orgCipher as CipherView },
+      ];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
+
+    it("returns false when any selected cipher is already archived", () => {
+      component.userCanArchive = true;
+
+      const unarchivedCipher: Partial<CipherView> = {
+        ...cipher1,
+        archivedDate: undefined,
+      };
+
+      const archivedCipher: Partial<CipherView> = {
+        ...cipher2,
+        archivedDate: new Date("2024-01-01"),
+      };
+
+      const items: VaultItem<CipherView>[] = [
+        { cipher: unarchivedCipher as CipherView },
+        { cipher: archivedCipher as CipherView },
+      ];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
+  });
+
   describe("bulkUnarchiveAllowed", () => {
     it("returns false when no items are selected", () => {
       component["selection"].clear();

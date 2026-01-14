@@ -5616,6 +5616,37 @@
     "message": "Send сохранена",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send успешно создана!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Скопируйте и распространите эту ссылку для Send. Она может быть просмотрена указанными вами пользователями в следующие $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ час.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Новая текстовая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Новая файловая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send сохранена",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -11589,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
   },
+  "vulnerablePassword": {
+    "message": "Уязвимый пароль."
+  },
+  "changeNow": {
+    "message": "Изменить сейчас"
+  },
   "missingWebsite": {
     "message": "Отсутствует сайт"
   },
@@ -11647,6 +11684,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Элементы были отправлены в архив"
+  },
+  "itemWasUnarchived": {
+    "message": "Элемент был разархивирован"
   },
   "itemUnarchived": {
     "message": "Элемент был разархивирован"
@@ -12580,5 +12620,11 @@
   },
   "storageFullDescription": {
     "message": "Вы использовали все $GB$ вашего зашифрованного хранилища. Чтобы продолжить хранение файлов, добавьте дополнительное хранилище."
+  },
+  "whenYouRemoveStorage": {
+    "message": "При удалении хранилища вы получите пропорциональную сумму на свой счет, которая автоматически пойдет на оплату вашего следующего счета."
+  },
+  "youHavePremium": {
+    "message": "У вас Премиум"
   }
 }
