@@ -394,16 +394,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get showFavorite() {
     if (
-      (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) ||
+      (!this.viewingOrgVault &&
+        CipherViewLikeUtils.isArchived(this.cipher) &&
+        !this.userCanArchive) ||
       CipherViewLikeUtils.isDeleted(this.cipher)
     ) {
-      return false;
-    }
-    return true;
-  }
-
-  protected get showEdit() {
-    if (CipherViewLikeUtils.isDeleted(this.cipher)) {
       return false;
     }
     return true;
