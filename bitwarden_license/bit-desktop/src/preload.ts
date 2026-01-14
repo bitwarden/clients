@@ -1,6 +1,6 @@
 import { contextBridge } from "electron";
 
-import { ipc as ossIpc } from "@bitwarden/desktop/preload.base";
+import { ipc as ossIpc } from "@bitwarden/desktop/preload";
 
 /**
  * Bitwarden Preload script.
@@ -12,6 +12,6 @@ import { ipc as ossIpc } from "@bitwarden/desktop/preload.base";
 
 export const ipc = {
   ...ossIpc,
-};
+} as const;
 
 contextBridge.exposeInMainWorld("ipc", ipc);
