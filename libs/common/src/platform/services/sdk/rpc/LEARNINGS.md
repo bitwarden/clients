@@ -15,3 +15,24 @@ Instead, I went with the simpler approach and optimized it by batching multiple 
 ## Object references
 
 Currently references are only support in one direction `client -> server`. This means that the client is not able to send object references to the server. This blocks any functionality that would require e.g. passing a callback function from the client to the server. This could also be used to implement observables.
+
+## Reference cleanup and memory management
+
+**Current state:** References stored in `ReferenceStore` are never cleaned up, leading to a memory leak.
+
+The protocol defines a `release` command (`{ method: "release"; referenceId: ReferenceId }`), but:
+1. The server's `handle()` method doesn't process release commands
+2. Client proxies never send release commands
+3. References accumulate indefinitely during the session
+
+### Memory leak impact
+
+Every non-primitive return value creates a permanent reference:
+
+For long-running sessions (especially browser background scripts), this will consume increasing amounts of memory.
+
+### Proposed solution: FinalizationRegistry
+
+Use JavaScript's [`FinalizationRegistry`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/FinalizationRegistry) to automatically release references when proxies are garbage collected.
+
+*NOTE:* This does not account for the client crashing in which case the `release` command might never be sent
