@@ -237,6 +237,9 @@ export const Anchors: StoryObj<AnchorLinkDirective> = {
     </div>
     `,
   }),
+  args: {
+    linkType: "primary",
+  },
 };
 
 export const Inline: Story = {
