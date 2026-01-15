@@ -2,8 +2,6 @@
 
 ## Overview
 
-### What This Project Does
-
 Bitwarden Clients is a monorepo containing all Bitwarden client applications:
 
 - **Web Vault** - Angular SPA for browser-based password management
@@ -24,11 +22,11 @@ All clients share core libraries in `/libs` for business logic, cryptography, an
 | **Organization** | Shared vault for team/enterprise password sharing                     |
 | **Collection**   | Grouping mechanism for organizing Ciphers within Organizations        |
 
-Some important dependencies being used are:
+# Tech stack
 
 - Angular
 - RxJS
-- Tailwind
+- Tailwind (with `tw-` prefix)
 - The Bitwarden SDK (wasm rust crate)
 
 ### Typed IDs
@@ -274,7 +272,6 @@ describe("MyComponent", () => {
 - **Prettier** for code formatting (run `npm run prettier`)
 - **ESLint** for linting (run `npm run lint:fix`)
 - Pre-commit hooks enforce formatting
-- Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`)
 
 ### Naming Conventions
 
@@ -308,13 +305,10 @@ enum CipherType {
 - **NEVER** add new encryption logic to this repo—use the SDK
 - **NEVER** send unencrypted vault data to API services
 - **NEVER** log decrypted data, encryption keys, or PII
-- **NEVER** add new TypeScript enums—use const objects
 - **NEVER** use code regions—refactor for readability
-- Don't use Tailwind classes without the `tw-` prefix
 - Don't create manual subscriptions without cleanup
 - Don't import from apps in libraries
 - Don't use `any` type without justification
-- Don't skip the View layer for displaying data
 
 ## Troubleshooting
 
