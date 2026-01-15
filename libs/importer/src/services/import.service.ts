@@ -4,12 +4,11 @@ import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CollectionService, CollectionWithIdRequest } from "@bitwarden/admin-console/common";
 import {
-  CollectionService,
-  CollectionWithIdRequest,
   CollectionView,
   CollectionTypes,
-} from "@bitwarden/admin-console/common";
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";

@@ -15,11 +15,8 @@ import {
 } from "rxjs";
 
 import {
-  CollectionAccessSelectionView,
   CollectionAdminService,
-  CollectionAdminView,
   OrganizationUserApiService,
-  CollectionView,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
@@ -30,6 +27,11 @@ import {
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminView,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";

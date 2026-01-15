@@ -1,4 +1,4 @@
-import { Unassigned } from "@bitwarden/admin-console/common";
+import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 
 /**

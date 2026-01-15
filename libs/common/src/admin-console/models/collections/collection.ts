@@ -1,3 +1,4 @@
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
@@ -5,7 +6,6 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 
 import { CollectionData } from "./collection.data";
-import { CollectionView } from "./collection.view";
 
 export const CollectionTypes = {
   SharedCollection: 0,

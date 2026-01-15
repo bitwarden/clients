@@ -4,22 +4,21 @@ import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { combineLatest, map, Observable } from "rxjs";
 
-import { Unassigned } from "@bitwarden/admin-console/common";
+import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-
-import { RoutedVaultFilterBridge } from "../shared/models/routed-vault-filter-bridge.model";
-import { RoutedVaultFilterModel, All } from "../shared/models/routed-vault-filter.model";
-import { VaultFilter } from "../shared/models/vault-filter.model";
 import {
+  VaultFilterServiceAbstraction as VaultFilterService,
+  RoutedVaultFilterService,
+  RoutedVaultFilterBridge,
+  RoutedVaultFilterModel,
+  All,
+  VaultFilter,
   CipherTypeFilter,
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "../shared/models/vault-filter.type";
-
-import { VaultFilterService } from "./abstractions/vault-filter.service";
-import { RoutedVaultFilterService } from "./routed-vault-filter.service";
+} from "@bitwarden/vault";
 
 /**
  * This file is part of a layer that is used to temporary bridge between URL filtering and the old state-in-code method.

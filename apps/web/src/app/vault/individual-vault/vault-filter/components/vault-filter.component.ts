@@ -27,22 +27,19 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
-
-import { VaultFilterService } from "../services/abstractions/vault-filter.service";
 import {
+  VaultFilterServiceAbstraction as VaultFilterService,
   VaultFilterList,
   VaultFilterSection,
   VaultFilterType,
-} from "../shared/models/vault-filter-section.type";
-import { VaultFilter } from "../shared/models/vault-filter.model";
-import {
+  VaultFilter,
   CipherStatus,
   CipherTypeFilter,
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "../shared/models/vault-filter.type";
+} from "@bitwarden/vault";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { OrganizationOptionsComponent } from "./organization-options.component";
 
