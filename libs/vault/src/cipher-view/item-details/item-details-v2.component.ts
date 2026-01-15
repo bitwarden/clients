@@ -17,9 +17,9 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   BadgeModule,
-  ButtonLinkDirective,
   CardComponent,
   FormFieldModule,
+  LinkComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -37,7 +37,7 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     TypographyModule,
     OrgIconDirective,
     FormFieldModule,
-    ButtonLinkDirective,
+    LinkComponent,
     BadgeModule,
   ],
 })
