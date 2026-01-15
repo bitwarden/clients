@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
 import { ChipSelectComponent } from "@bitwarden/components";
-import { CipherFormConfigService, DefaultCipherFormConfigService } from "@bitwarden/vault";
 import {
   CipherFormConfigService,
   DefaultCipherFormConfigService,

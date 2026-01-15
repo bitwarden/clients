@@ -17,8 +17,6 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ChipSelectComponent, DialogService } from "@bitwarden/components";
-import { PasswordRepromptService, CipherFormConfigService } from "@bitwarden/vault";
-import { DialogService } from "@bitwarden/components";
 import {
   PasswordRepromptService,
   CipherFormConfigService,
