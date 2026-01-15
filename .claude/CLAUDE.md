@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Overview
 
 ### What This Project Does
@@ -13,7 +11,7 @@ Bitwarden Clients is a monorepo containing all Bitwarden client applications:
 - **Desktop App** - Electron-based desktop application (Windows, macOS, Linux)
 - **CLI** - Command-line interface for automation and scripting
 
-All clients share core libraries for business logic, cryptography, and UI components.
+All clients share core libraries in `/libs` for business logic, cryptography, and UI components.
 
 ### Key Concepts
 
@@ -25,6 +23,35 @@ All clients share core libraries for business logic, cryptography, and UI compon
 | **Vault**        | User's encrypted collection of Ciphers                                |
 | **Organization** | Shared vault for team/enterprise password sharing                     |
 | **Collection**   | Grouping mechanism for organizing Ciphers within Organizations        |
+
+Some important dependencies being used are:
+
+- Angular
+- RxJS
+- Tailwind
+- The Bitwarden SDK (wasm rust crate)
+
+### Typed IDs
+
+All IDs in the codebase use branded types for type safety. Most are located in `libs/common/src/types/guid.ts`.
+
+```typescript
+export type CipherId = Opaque<string, "CipherId">;
+export type SendId = Opaque<string, "SendId">;
+```
+
+### Data Model
+
+Domains generally consists of multiple DTO layers:
+
+- `<Domain>`: Encrypted representation of the object
+- `<Domain>View`: Decrypted representations
+- `<Domain>Data`: Serializeable representation for storage
+- `<Domain>Response`: Response from API
+- `<Domain>Export`: Export representation for exporting/importing
+- `<Domain><Modifier>Request`: Requests to create/update the object
+
+Some examples of these are `Cipher`, `Folder`, `Send`.
 
 ## Build and Development Commands
 
@@ -76,13 +103,8 @@ x npm test                        # Run tests for that app
 x npm run test:watch              # Watch mode
 ```
 
-**Run single test file** (from root):
-
-```bash
-npm test -- libs/common/src/vault/models/cipher.spec.ts
-```
-
 **NX commands** (monorepo task runner):
+Faster but only works XXX
 
 ```bash
 npx nx test @bitwarden/common   # Test specific library
@@ -161,56 +183,13 @@ type CollectionId = Opaque<string, "CollectionId">;
 
 ## Angular Patterns
 
-**Observable Data Services (ADR-0003)**:
-
-```typescript
-// Service exposes Observable streams
-private _data$ = new BehaviorSubject<Data[]>([]);
-readonly data$ = this._data$.asObservable();
-
-// Component uses async pipe
-data$ = this.dataService.data$;
-// Template: <div *ngFor="let item of data$ | async">
-```
-
-**Subscription cleanup** (required for explicit subscriptions):
-
-```typescript
-constructor() {
-  this.observable$.pipe(takeUntilDestroyed()).subscribe(...);
-}
-```
-
-**Signals**: Use Angular Signals only in components and presentational services. Use RxJS for cross-client services and complex reactive workflows.
-
-**No TypeScript Enums (ADR-0025)**:
-
-```typescript
-// ✅ Correct
-export const CipherType = Object.freeze({
-  Login: 1,
-  SecureNote: 2,
-} as const);
-export type CipherType = (typeof CipherType)[keyof typeof CipherType];
-
-// ❌ Wrong - don't add new enums
-enum CipherType {
-  Login = 1,
-}
-```
-
-**Component Change Detection**: Use `OnPush` change detection strategy for all components.
+When working with Angular related files (files that import anything from `@angular/*`), you MUST READ AND FOLLOW THIS FILE: `./angular.md`.
 
 ## State Management
 
-State is managed through `StateProvider` with typed `KeyDefinition`s:
+State is managed through `StateProvider` in [`libs/state`](libs/state/README.md) with typed `KeyDefinition`s:
 
 ```typescript
-// Define state key
-const MY_STATE = KeyDefinition.record<MyData>(STATE_DEFINITION, "myKey", {
-  deserializer: (data) => data,
-});
-
 // Use in service
 this.state$ = this.stateProvider.getGlobal(MY_STATE).state$;
 ```
@@ -224,8 +203,6 @@ Feature flags are defined in `libs/common/src/enums/feature-flag.enum.ts`. Use `
 ```typescript
 const enabled = await this.configService.getFeatureFlag(FeatureFlag.MyFlag);
 ```
-
-Flags MUST be short-lived and removed once fully enabled.
 
 ## Testing
 
@@ -300,7 +277,7 @@ describe("MyComponent", () => {
 ### Formatting
 
 - **Prettier** for code formatting (run `npm run prettier`)
-- **ESLint** for linting (run `npm run lint`)
+- **ESLint** for linting (run `npm run lint:fix`)
 - Pre-commit hooks enforce formatting
 
 ### Naming Conventions
@@ -313,12 +290,6 @@ describe("MyComponent", () => {
 | Variables/Functions | camelCase                  | `getCipher()`       |
 | Constants           | SCREAMING_SNAKE_CASE       | `MAX_RETRY_COUNT`   |
 | Observables         | camelCase with `$` suffix  | `ciphers$`          |
-
-### Import Order
-
-1. External packages (`@angular/*`, `rxjs`, etc.)
-2. `@bitwarden/*` packages
-3. Relative imports
 
 ## Anti-Patterns
 
@@ -335,7 +306,7 @@ describe("MyComponent", () => {
 
 ### DON'T
 
-- Add new TypeScript enums
+- Add new TypeScript enums, instead use const objects
 - Add encryption logic (use SDK)
 - Log sensitive data (PII, keys, vault data)
 - Use Tailwind classes without `tw-` prefix
@@ -349,32 +320,10 @@ describe("MyComponent", () => {
 
 ### Common Issues
 
-| Issue                                | Solution                                        |
-| ------------------------------------ | ----------------------------------------------- |
-| Build fails with module errors       | Run `npm ci` to reinstall dependencies          |
-| Tests fail with "Cannot find module" | Check `tsconfig.json` paths, run `npx nx reset` |
-| Tailwind styles not applying         | Ensure `tw-` prefix on all Tailwind classes     |
-| State not persisting                 | Verify `KeyDefinition` is correctly configured  |
-| Encryption errors                    | Check SDK is properly initialized               |
-
-### Debug Tips
-
-**Web**: Use browser DevTools, check Network tab for API calls
-
-**Browser Extension**: Load unpacked extension, use `chrome://extensions` → "Inspect views"
-
-**Desktop**: Use `--inspect` flag, access DevTools via View → Toggle Developer Tools
-
-**CLI**: Add `--debug` flag, use `console.log` for quick debugging
-
-## Component Library
-
-Located in `libs/components/`. Use Storybook for development:
-
-```bash
-npm run storybook            # Start at http://localhost:6006
-npm run build-storybook      # Build static Storybook
-```
+| Issue                          | Solution                                    |
+| ------------------------------ | ------------------------------------------- |
+| Build fails with module errors | Run `npm ci` to reinstall dependencies      |
+| Tailwind styles not applying   | Ensure `tw-` prefix on all Tailwind classes |
 
 ## References
 
