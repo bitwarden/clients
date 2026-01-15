@@ -96,8 +96,7 @@
               [appCopyClick]="sendDetailsForm.get('password').value"
               showToast
             ></button>
-          }
-          @if (hasPassword) {
+          } @else {
             <button
               class="tw-border-l-0 last:tw-rounded-r focus-visible:tw-border-l focus-visible:tw-ml-[-1px]"
               type="button"

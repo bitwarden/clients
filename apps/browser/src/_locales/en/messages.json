@@ -981,6 +981,9 @@
   "no": {
     "message": "No"
   },
+  "noAuth": {
+    "message": "No Auth"
+  },
   "location": {
     "message": "Location"
   },
@@ -6101,6 +6104,6 @@
     "message": "Enter multiple emails by separating with a comma"
   },
   "emailPlaceholder": {
-    "message": "sbolina@bitwarden.com , sbolina@acme.com"
+    "message": "user@bitwarden.com , user@acme.com"
   }
 }
