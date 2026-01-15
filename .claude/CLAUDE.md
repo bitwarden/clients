@@ -311,7 +311,7 @@ enum CipherType {
 ### Official Documentation
 
 - [Clients Architecture](https://contributing.bitwarden.com/architecture/clients)
-- [ADRs](https://contributing.bitwarden.com/architecture/adr/)
+- [Architectural Decision Records (ADRs)](https://contributing.bitwarden.com/architecture/adr/)
 - [Contributing Guide](https://contributing.bitwarden.com/)
 - [Code Style](https://contributing.bitwarden.com/contributing/code-style/)
 
