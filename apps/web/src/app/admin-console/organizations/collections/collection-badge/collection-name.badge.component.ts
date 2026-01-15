@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId } from "@bitwarden/sdk-internal";
 

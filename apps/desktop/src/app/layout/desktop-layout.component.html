@@ -2,7 +2,7 @@
   <app-side-nav slot="side-nav">
     <bit-nav-logo [openIcon]="logo" route="." [label]="'passwordManager' | i18n" />
 
-    <bit-nav-item icon="bwi-vault" [text]="'vault' | i18n" route="new-vault" />
+    <app-vault-filter />
     <app-send-filters-nav />
 
     <bit-nav-item icon="bwi-generate" [text]="'generator' | i18n" (click)="openGenerator()" />

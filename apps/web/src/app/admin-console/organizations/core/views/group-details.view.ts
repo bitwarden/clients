@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CollectionAccessSelectionView } from "@bitwarden/admin-console/common";
+import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
 import { View } from "@bitwarden/common/models/view/view";
 
 import { GroupDetailsResponse } from "../services/group/responses/group.response";

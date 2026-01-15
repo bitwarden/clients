@@ -1,9 +1,11 @@
 import { Jsonify } from "type-fest";
 
+import {
+  CollectionDetailsResponse,
+  CollectionType,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-
-import { CollectionType, CollectionTypes } from "./collection";
-import { CollectionDetailsResponse } from "./collection.response";
 
 export class CollectionData {
   id: CollectionId;

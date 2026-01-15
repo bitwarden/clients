@@ -1,4 +1,4 @@
-import { CollectionAccessSelectionView } from "@bitwarden/admin-console/common";
+import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
 
 export interface AddEditGroupDetail {
   id: string;

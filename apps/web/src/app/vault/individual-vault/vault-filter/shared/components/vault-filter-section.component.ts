@@ -8,10 +8,12 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-
-import { VaultFilterService } from "../../services/abstractions/vault-filter.service";
-import { VaultFilterSection, VaultFilterType } from "../models/vault-filter-section.type";
-import { VaultFilter } from "../models/vault-filter.model";
+import {
+  VaultFilterServiceAbstraction as VaultFilterService,
+  VaultFilterSection,
+  VaultFilterType,
+  VaultFilter,
+} from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

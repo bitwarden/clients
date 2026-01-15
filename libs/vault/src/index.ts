@@ -39,3 +39,14 @@ export * from "./abstractions/vault-items-transfer.service";
 export * from "./services/default-vault-items-transfer.service";
 export * from "./services/default-change-login-password.service";
 export * from "./services/archive-cipher-utilities.service";
+
+export * from "./models/vault-filter.type";
+export * from "./models/vault-filter.model";
+export * from "./models/routed-vault-filter.model";
+export * from "./models/routed-vault-filter-bridge.model";
+export * from "./models/vault-filter-section.type";
+export * from "./models/filter-function";
+export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstractions/vault-filter.service";
+export * from "./services/vault-filter.service";
+export * from "./services/routed-vault-filter.service";
+export * from "./services/routed-vault-filter-bridge.service";

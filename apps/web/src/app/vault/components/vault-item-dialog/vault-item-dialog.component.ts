@@ -15,11 +15,11 @@ import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -63,11 +63,11 @@ import {
   CipherViewComponent,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
+  RoutedVaultFilterService,
+  RoutedVaultFilterModel,
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
-import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
-import { RoutedVaultFilterModel } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 import { WebCipherFormGenerationService } from "../../services/web-cipher-form-generation.service";
 import { WebVaultPremiumUpgradePromptService } from "../../services/web-premium-upgrade-prompt.service";
 

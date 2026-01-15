@@ -1,9 +1,9 @@
+import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrgKey } from "@bitwarden/common/types/key";
 
-import { CollectionAccessSelectionView } from "./collection-access-selection.view";
 import { CollectionAccessDetailsResponse, CollectionResponse } from "./collection.response";
 import { CollectionView } from "./collection.view";
 

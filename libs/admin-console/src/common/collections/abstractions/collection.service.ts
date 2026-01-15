@@ -1,10 +1,13 @@
 import { Observable } from "rxjs";
 
+import {
+  CollectionView,
+  Collection,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-
-import { CollectionData, Collection, CollectionView } from "../models";
 
 export abstract class CollectionService {
   abstract encryptedCollections$(userId: UserId): Observable<Collection[] | null>;

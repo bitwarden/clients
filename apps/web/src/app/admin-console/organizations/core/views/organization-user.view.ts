@@ -1,14 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  OrganizationUserUserDetailsResponse,
-  CollectionAccessSelectionView,
-} from "@bitwarden/admin-console/common";
+import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
 
 export class OrganizationUserView {
   id: string;

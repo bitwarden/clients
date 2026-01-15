@@ -7,16 +7,17 @@ import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of, ReplaySubject } from "rxjs";
 
-import {
-  CollectionService,
-  CollectionType,
-  CollectionTypes,
-  CollectionView,
-} from "@bitwarden/admin-console/common";
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import * as vaultFilterSvc from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  CollectionView,
+  CollectionType,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -31,7 +32,7 @@ import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/
 import { VaultFilterService } from "./vault-filter.service";
 
 jest.mock("@bitwarden/angular/vault/vault-filter/services/vault-filter.service", () => ({
-  sortDefaultCollections: jest.fn(() => []),
+  sortDefaultCollections: jest.fn((): CollectionView[] => []),
 }));
 
 describe("vault filter service", () => {
@@ -96,7 +97,6 @@ describe("vault filter service", () => {
       stateProvider,
       collectionService,
       accountService,
-      configService,
     );
     collapsedGroupingsState = stateProvider.singleUser.getFake(mockUserId, COLLAPSED_GROUPINGS);
     organizations.next([]);
@@ -127,7 +127,10 @@ describe("vault filter service", () => {
 
   describe("organizations", () => {
     beforeEach(() => {
-      const storedOrgs = [createOrganization("1", "org1"), createOrganization("2", "org2")];
+      const storedOrgs = [
+        createOrganization("1" as OrganizationId, "org1"),
+        createOrganization("2" as OrganizationId, "org2"),
+      ];
       organizations.next(storedOrgs);
       organizationDataOwnershipPolicy.next(false);
       singleOrgPolicy.next(false);
@@ -175,7 +178,9 @@ describe("vault filter service", () => {
     describe("filtered folders with organization", () => {
       beforeEach(() => {
         // Org must be updated before folderService else the subscription uses the null org default value
-        vaultFilterService.setOrganizationFilter(createOrganization("org test id", "Test Org"));
+        vaultFilterService.setOrganizationFilter(
+          createOrganization("org test id" as OrganizationId, "Test Org"),
+        );
       });
       it("returns folders filtered by current organization", async () => {
         const storedCiphers = [
@@ -225,7 +230,9 @@ describe("vault filter service", () => {
   describe("collections", () => {
     describe("filtered collections", () => {
       it("returns collections filtered by current organization", async () => {
-        vaultFilterService.setOrganizationFilter(createOrganization("org test id", "Test Org"));
+        vaultFilterService.setOrganizationFilter(
+          createOrganization("org test id" as OrganizationId, "Test Org"),
+        );
 
         const storedCollections = [
           createCollectionView("1", "collection 1", "org test id"),
@@ -316,8 +323,8 @@ describe("vault filter service", () => {
 
       it("calls sortDefaultCollections with the correct args", async () => {
         const storedOrgs = [
-          createOrganization("id-defaultOrg1", "org1"),
-          createOrganization("id-defaultOrg2", "org2"),
+          createOrganization("id-defaultOrg1" as OrganizationId, "org1"),
+          createOrganization("id-defaultOrg2" as OrganizationId, "org2"),
         ];
         organizations.next(storedOrgs);
 
@@ -353,7 +360,7 @@ describe("vault filter service", () => {
     });
   });
 
-  function createOrganization(id: string, name: string) {
+  function createOrganization(id: OrganizationId, name: string) {
     const org = new Organization();
     org.id = id;
     org.name = name;

@@ -3,13 +3,13 @@
 import * as papa from "papaparse";
 import { filter, firstValueFrom, map } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import {
-  CollectionService,
-  CollectionData,
-  Collection,
-  CollectionDetailsResponse,
   CollectionView,
-} from "@bitwarden/admin-console/common";
+  CollectionDetailsResponse,
+  Collection,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";

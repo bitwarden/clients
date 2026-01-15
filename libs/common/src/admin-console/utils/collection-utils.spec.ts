@@ -1,4 +1,4 @@
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { newGuid } from "@bitwarden/guid";

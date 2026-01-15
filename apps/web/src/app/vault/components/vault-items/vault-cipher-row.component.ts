@@ -11,7 +11,7 @@ import {
   input,
 } from "@angular/core";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";

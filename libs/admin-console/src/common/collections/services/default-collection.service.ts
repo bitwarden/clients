@@ -12,6 +12,11 @@ import {
   switchMap,
 } from "rxjs";
 
+import {
+  CollectionView,
+  Collection,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -23,7 +28,6 @@ import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionService } from "../abstractions/collection.service";
-import { Collection, CollectionData, CollectionView } from "../models";
 
 import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 
