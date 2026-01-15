@@ -9,7 +9,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { CalloutModule, DialogModule } from "@bitwarden/components";
+import { CalloutModule, DialogModule, ToastContainerComponent } from "@bitwarden/components";
 import { AssignCollectionsComponent } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
@@ -28,7 +28,6 @@ import { HeaderComponent } from "./layout/header.component";
 import { NavComponent } from "./layout/nav.component";
 import { SearchComponent } from "./layout/search/search.component";
 import { SharedModule } from "./shared/shared.module";
-import { ToastContainerComponent } from "libs/components/src/toast/toast-container.component";
 
 @NgModule({
   imports: [
@@ -44,6 +43,7 @@ import { ToastContainerComponent } from "libs/components/src/toast/toast-contain
     NavComponent,
     AssignCollectionsComponent,
     VaultV2Component,
+    ToastContainerComponent,
   ],
   declarations: [
     AccountSwitcherComponent,
