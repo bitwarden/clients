@@ -1,4 +1,4 @@
-import { NgClass } from "@angular/common";
+import { NgClass, NgTemplateOutlet } from "@angular/common";
 import {
   input,
   HostBinding,
@@ -72,7 +72,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
-  imports: [NgClass, SpinnerComponent],
+  imports: [NgClass, NgTemplateOutlet, SpinnerComponent],
   hostDirectives: [AriaDisableDirective],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
