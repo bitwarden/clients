@@ -40,6 +40,7 @@ import { AppComponent } from "./app.component";
 import { ExtensionAnonLayoutWrapperComponent } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { ServicesModule } from "./services/services.module";
 import { TabsV2Component } from "./tabs-v2.component";
+import { PqpComponent } from "./pqp/pqp.component";
 
 // Register the locales for the application
 import "../platform/popup/locales";
@@ -84,7 +85,7 @@ import "../platform/popup/locales";
     CalloutModule,
     LinkModule,
   ],
-  declarations: [AppComponent, ColorPasswordPipe, ColorPasswordCountPipe, TabsV2Component],
+  declarations: [AppComponent, ColorPasswordPipe, ColorPasswordCountPipe, TabsV2Component, PqpComponent],
   exports: [CalloutModule],
   providers: [CurrencyPipe, DatePipe],
   bootstrap: [AppComponent],

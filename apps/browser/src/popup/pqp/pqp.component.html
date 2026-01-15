@@ -1,0 +1,64 @@
+<h1>PqP Extension</h1>
+
+<!-- NETWORK PEERS -->
+<div class="card" id="peersCard">
+  <h3>PQP Network</h3>
+  <div id="peersList"></div>
+</div>
+
+<!-- WEBRTC CARD -->
+<div class="card" id="webrtcCard">
+  <h3>WebRTC P2P (STUN + PqP)</h3>
+  <input type="text" id="webrtcTargetQueue" placeholder="Queue id for P2P..." />
+  <div style="display: flex; gap: 6px; justify-content: center">
+    <button type="button" id="webrtcConnectBtn" style="flex: 1">Start P2P</button>
+    <button type="button" id="webrtcSendFileBtn" style="flex: 1">Send Hello-World.txt</button>
+  </div>
+  <div id="webrtcStatus" style="text-align: left; margin-top: 8px; font-size: 12px"></div>
+</div>
+
+<!-- MESSAGES LIST -->
+<div class="card" id="messagesList" style="text-align: left; max-height: 200px; overflow-y: auto">
+  <h4 style="margin-top: 0">Messages:</h4>
+  <div id="messagesContainer"></div>
+</div>
+
+<!-- SEND QUEUE -->
+<div class="card">
+  <h3>Queue ID to Send</h3>
+  <input type="text" id="sendQueueId" placeholder="Enter queue id to send to..." />
+  <textarea id="messageBody" placeholder="Type your message..." rows="4"></textarea>
+  <button type="button" id="sendBtn">Send Message</button>
+</div>
+
+<!-- VAULT TEST -->
+<div class="card" id="vaultTestCard">
+  <h3>Vault Test (OPFS)</h3>
+  <input type="text" id="vaultContent" placeholder="Enter text to write..." />
+  <div style="display: flex; gap: 6px; justify-content: center">
+    <button type="button" id="vaultWriteBtn" style="flex: 1">Write</button>
+    <button type="button" id="vaultReadBtn" style="flex: 1">Read</button>
+    <button type="button" id="vaultDeleteBtn" style="flex: 1">Delete</button>
+    <button type="button" id="vaultListBtn" style="flex: 1">List</button>
+  </div>
+  <div
+    id="vaultStatus"
+    style="text-align: left; margin-top: 8px; font-size: 12px; word-break: break-all"
+  >
+    Status: Idle
+  </div>
+</div>
+
+<!-- GOOGLE DRIVE BACKUP -->
+<div class="card" id="driveBackupCard">
+  <h3>Google Drive Backup</h3>
+  <div id="driveStatus" style="margin-bottom: 10px; font-size: 13px">Checking...</div>
+  <div style="display: flex; gap: 6px; justify-content: center">
+    <button type="button" id="driveLoginBtn" style="flex: 1">Login to Drive</button>
+    <button type="button" id="driveRestoreBtn" style="flex: 1" disabled>Restore Keys</button>
+  </div>
+</div>
+
+<div id="auth_status" style="color: black">Checking...</div>
+<button type="button" id="loginBtn">Sign In</button>
+<button type="button" id="logoutBtn">Sign Out</button>

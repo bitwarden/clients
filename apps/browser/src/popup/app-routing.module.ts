@@ -108,6 +108,7 @@ import {
 } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
+import { PqpComponent } from "./pqp/pqp.component";
 
 /**
  * Data properties acceptable for use in extension route objects
@@ -717,6 +718,11 @@ const routes: Routes = [
         path: "send",
         component: SendV2Component,
         canActivate: [authGuard],
+        data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        path: "pqp",
+        component: PqpComponent,
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],

@@ -61,8 +61,17 @@
     "webNavigation",
     "webRequest",
     "webRequestAuthProvider",
-    "notifications"
+    "notifications",
+    "cookies",
+    "identity"
   ],
+  "oauth2": {
+    "client_id": "277645520335-odap29difgpeu0h8nc7alflb8dl7413u.apps.googleusercontent.com",
+    "scopes":[
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/drive.appdata"
+    ]
+  },
   "__firefox__permissions": [
     "activeTab",
     "alarms",

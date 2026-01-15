@@ -10,6 +10,7 @@ import {
   OffscreenDocumentExtensionMessageHandlers,
   OffscreenDocument as OffscreenDocumentInterface,
 } from "./abstractions/offscreen-document";
+import { initPqpOffscreen } from "./pqp-offscreen";
 
 class OffscreenDocument implements OffscreenDocumentInterface {
   private consoleLogService: ConsoleLogService = new ConsoleLogService(false);
@@ -97,4 +98,5 @@ class OffscreenDocument implements OffscreenDocumentInterface {
 (() => {
   const offscreenDocument = new OffscreenDocument();
   offscreenDocument.init();
+  initPqpOffscreen();
 })();
