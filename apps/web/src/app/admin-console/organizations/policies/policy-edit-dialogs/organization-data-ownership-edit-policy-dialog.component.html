@@ -50,7 +50,11 @@
     bitFormButton
     type="submit"
   >
-    {{ "save" | i18n }}
+    @if (policyComponent?.policyResponse?.enabled) {
+      {{ "save" | i18n }}
+    } @else {
+      {{ "continue" | i18n }}
+    }
   </button>
 
   <button bitButton buttonType="secondary" bitDialogClose type="button">
