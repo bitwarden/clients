@@ -326,7 +326,7 @@ export class PhishingDataService {
       return await new Response(stream).text();
     } catch (err) {
       this.logService.error("[PhishingDataService] Decompression failed", err);
-      return decodeURIComponent(escape(atob(base64)));
+      return decodeURIComponent(atob(base64));
     }
   }
 
