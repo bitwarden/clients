@@ -102,6 +102,18 @@ export class NavItemComponent extends NavBaseComponent {
     this.focusVisibleWithin$.next(false);
   }
 
+  /**
+   * By default, a navigation will put the user's focus on the `main` element.
+   *
+   * If the user's focus should be moved to another element upon navigation end, pass a selector
+   * here (i.e. `#elementId`).
+   *
+   * Pass `false` to opt out of moving the focus entirely. Focus will stay on the nav item.
+   *
+   * See router-focus-manager.service for implementation of focus management
+   */
+  readonly focusAfterNavTarget = input<string | boolean>();
+
   constructor(
     protected sideNavService: SideNavService,
     @Optional() private parentNavGroup: NavGroupAbstraction,
