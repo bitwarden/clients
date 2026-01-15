@@ -537,6 +537,7 @@ const safeProviders: SafeProvider[] = [
       AccountService,
       BillingAccountProfileStateService,
       ConfigService,
+      LogService,
       OrganizationService,
       PlatformUtilsService,
       StateProvider,

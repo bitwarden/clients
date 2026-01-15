@@ -1510,6 +1510,7 @@ export default class MainBackground {
       this.accountService,
       this.billingAccountProfileStateService,
       this.configService,
+      this.logService,
       this.organizationService,
       this.platformUtilsService,
       this.stateProvider,
