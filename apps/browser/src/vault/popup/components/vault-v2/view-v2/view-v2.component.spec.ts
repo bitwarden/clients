@@ -78,8 +78,9 @@ describe("ViewV2Component", () => {
       username: "test-username",
       password: "test-password",
       totp: "123",
-      uris: [],
+      uris: ["https://example.com"],
     },
+    permissions: {},
     card: {},
   } as unknown as CipherView;
 
@@ -155,7 +156,7 @@ describe("ViewV2Component", () => {
         {
           provide: CipherAuthorizationService,
           useValue: {
-            canDeleteCipher$: jest.fn().mockReturnValue(true),
+            canDeleteCipher$: jest.fn().mockReturnValue(of(true)),
           },
         },
         {
@@ -642,6 +643,46 @@ describe("ViewV2Component", () => {
           });
         });
       });
+    });
+  });
+
+  describe("archived badge", () => {
+    it("shows archived badge if the cipher is archived", fakeAsync(() => {
+      component.cipher = { ...mockCipher, isArchived: true } as CipherView;
+      mockCipherService.cipherViews$.mockImplementationOnce(() =>
+        of([
+          {
+            ...mockCipher,
+            isArchived: true,
+          },
+        ]),
+      );
+
+      params$.next({ action: "view", cipherId: mockCipher.id });
+
+      flush();
+
+      fixture.detectChanges();
+
+      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      expect(badge).toBeTruthy();
+    }));
+
+    it("does not show archived badge if the cipher is not archived", () => {
+      component.cipher = { ...mockCipher, isArchived: false } as CipherView;
+      mockCipherService.cipherViews$.mockImplementationOnce(() =>
+        of([
+          {
+            ...mockCipher,
+            archivedDate: new Date(),
+          },
+        ]),
+      );
+
+      fixture.detectChanges();
+
+      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      expect(badge).toBeFalsy();
     });
   });
 });
