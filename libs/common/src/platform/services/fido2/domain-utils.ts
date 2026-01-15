@@ -2,6 +2,22 @@
 // @ts-strict-ignore
 import { parse } from "tldts";
 
+/**
+ * Validates whether a Relying Party ID (rpId) is valid for a given origin according to WebAuthn specifications.
+ *
+ * The validation enforces the following rules:
+ * - The origin must use the HTTPS scheme
+ * - Both rpId and origin must be valid domain names (not IP addresses)
+ * - Both must have the same registrable domain (e.g., example.com)
+ * - The origin must either exactly match the rpId or be a subdomain of it
+ * - Single-label domains are rejected unless they are 'localhost'
+ * - Localhost is always valid when both rpId and origin are localhost
+ *
+ * @param rpId - The Relying Party identifier to validate
+ * @param origin - The origin URL to validate against (must start with https://)
+ * @returns `true` if the rpId is valid for the given origin, `false` otherwise
+ *
+ */
 export function isValidRpId(rpId: string, origin: string) {
   if (!rpId || !origin) {
     return false;
