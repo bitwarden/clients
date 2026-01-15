@@ -24,6 +24,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { pin } from "@bitwarden/common/tools/rx";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   SectionComponent,
@@ -128,6 +129,7 @@ export class SendDetailsComponent implements OnInit {
 
   FileSendType = SendType.File;
   TextSendType = SendType.Text;
+  readonly AuthType = AuthType;
   sendLink: string | null = null;
   customDeletionDateOption: DatePresetSelectOption | null = null;
   datePresetOptions: DatePresetSelectOption[] = [];
@@ -140,19 +142,19 @@ export class SendDetailsComponent implements OnInit {
     ),
   );
 
-  authTypes: { name: string; value: string | null; disabled?: boolean }[] = [
-    { name: this.i18nService.t("noAuth"), value: null },
-    { name: this.i18nService.t("password"), value: "password" },
-    { name: this.i18nService.t("specificPeople"), value: "email" },
+  authTypes: { name: string; value: AuthType; disabled?: boolean }[] = [
+    { name: this.i18nService.t("noAuth"), value: AuthType.None },
+    { name: this.i18nService.t("password"), value: AuthType.Password },
+    { name: this.i18nService.t("specificPeople"), value: AuthType.Email },
   ];
 
   availableAuthTypes$ = combineLatest([this.emailVerificationFeatureFlag$, this.hasPremium$]).pipe(
     map(([enabled, hasPremium]) => {
       if (!enabled) {
-        return this.authTypes.filter((t) => t.value !== "email");
+        return this.authTypes.filter((t) => t.value !== AuthType.Email);
       }
       return this.authTypes.map((t) => {
-        if (t.value === "email" && !hasPremium) {
+        if (t.value === AuthType.Email && !hasPremium) {
           return { ...t, disabled: true };
         }
         return t;
@@ -163,13 +165,13 @@ export class SendDetailsComponent implements OnInit {
   sendDetailsForm = this.formBuilder.group({
     name: new FormControl("", Validators.required),
     selectedDeletionDatePreset: new FormControl(DatePreset.SevenDays || "", Validators.required),
-    authType: [null as string],
+    authType: [AuthType.None as AuthType],
     password: [null as string],
     emails: [null as string],
   });
 
   get hasPassword(): boolean {
-    return this.originalSendView && this.originalSendView.password !== null;
+    return this.originalSendView?.password !== null;
   }
 
   constructor(
@@ -219,11 +221,11 @@ export class SendDetailsComponent implements OnInit {
         const emailsControl = this.sendDetailsForm.get("emails");
         const passwordControl = this.sendDetailsForm.get("password");
 
-        if (type === "password") {
+        if (type === AuthType.Password) {
           emailsControl.setValue(null);
           emailsControl.clearValidators();
           passwordControl.setValidators([Validators.required]);
-        } else if (type === "email") {
+        } else if (type === AuthType.Email) {
           passwordControl.setValue(null);
           passwordControl.clearValidators();
           emailsControl.setValidators([Validators.required, this.emailListValidator()]);
@@ -249,10 +251,10 @@ export class SendDetailsComponent implements OnInit {
         selectedDeletionDatePreset: this.originalSendView.deletionDate.toString(),
         password: this.hasPassword ? "************" : null,
         authType: this.hasPassword
-          ? "password"
+          ? AuthType.Password
           : this.originalSendView.emails?.length > 0
-            ? "email"
-            : null,
+            ? AuthType.Email
+            : AuthType.None,
         emails: this.originalSendView.emails?.join(", "),
       });
 
@@ -338,7 +340,7 @@ export class SendDetailsComponent implements OnInit {
   };
 
   removePassword = async () => {
-    if (!this.originalSendView || !this.originalSendView.password) {
+    if (!this.originalSendView?.password) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({

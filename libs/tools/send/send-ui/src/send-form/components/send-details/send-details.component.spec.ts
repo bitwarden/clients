@@ -11,6 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
@@ -100,7 +101,7 @@ describe("SendDetailsComponent", () => {
   });
 
   it("should initialize authType to null if no password or emails", () => {
-    expect(component.sendDetailsForm.value.authType).toBeNull();
+    expect(component.sendDetailsForm.value.authType).toBe(AuthType.None);
   });
 
   it("should toggle validation based on authType", () => {
@@ -112,17 +113,17 @@ describe("SendDetailsComponent", () => {
     expect(passwordControl?.validator).toBeNull();
 
     // Select Email
-    component.sendDetailsForm.patchValue({ authType: "email" });
+    component.sendDetailsForm.patchValue({ authType: AuthType.Email });
     expect(emailsControl?.validator).not.toBeNull();
     expect(passwordControl?.validator).toBeNull();
 
     // Select Password
-    component.sendDetailsForm.patchValue({ authType: "password" });
+    component.sendDetailsForm.patchValue({ authType: AuthType.Password });
     expect(passwordControl?.validator).not.toBeNull();
     expect(emailsControl?.validator).toBeNull();
 
     // Select None
-    component.sendDetailsForm.patchValue({ authType: null });
+    component.sendDetailsForm.patchValue({ authType: AuthType.None });
     expect(emailsControl?.validator).toBeNull();
     expect(passwordControl?.validator).toBeNull();
   });

@@ -59,12 +59,12 @@
           </bit-option>
         }
       </bit-select>
-      @if (sendDetailsForm.get("authType").value === "email") {
+      @if (sendDetailsForm.get("authType").value === AuthType.Email) {
         <bit-hint class="tw-mt-2">{{ "emailVerificationDesc" | i18n }}</bit-hint>
       }
     </bit-form-field>
 
-    @if (sendDetailsForm.get("authType").value === "password") {
+    @if (sendDetailsForm.get("authType").value === AuthType.Password) {
       <bit-form-field disableMargin>
         <bit-label>{{ (passwordRemoved ? "newPassword" : "password") | i18n }}</bit-label>
         <input bitInput type="password" formControlName="password" />
@@ -113,7 +113,7 @@
       </bit-form-field>
     }
 
-    @if (sendDetailsForm.get("authType").value === "email") {
+    @if (sendDetailsForm.get("authType").value === AuthType.Email) {
       <bit-form-field disableMargin>
         <bit-label>{{ "emails" | i18n }}</bit-label>
         <textarea
