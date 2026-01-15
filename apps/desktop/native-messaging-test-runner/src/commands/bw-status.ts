@@ -11,10 +11,8 @@ import * as config from "../variables";
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
   // Initialize SDK before using crypto functions
-  LogUtils.logInfo("Initializing SDK");
   const sdkLoadService = new TestRunnerSdkLoadService();
   await sdkLoadService.loadAndInit();
-  LogUtils.logSuccess("SDK initialized");
 
   const nativeMessageService = new NativeMessageService(NativeMessagingVersion.One);
 
