@@ -5,13 +5,13 @@ license = { workspace = true }
 version = { workspace = true }
 publish = { workspace = true }
 
-[[bin]]
-name = "uniffi-bindgen"
-path = "uniffi-bindgen.rs"
-
 [lib]
 crate-type = ["staticlib", "cdylib"]
 bench = false
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
 
 [dependencies]
 uniffi = { workspace = true, features = ["cli"] }
@@ -23,8 +23,8 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
 tracing-oslog = "=0.3.0"
+tracing-subscriber = { workspace = true }
 
 [build-dependencies]
 uniffi = { workspace = true, features = ["build"] }
