@@ -52,9 +52,7 @@
           >
             <span class="tw-flex tw-items-center tw-gap-2">
               {{ "archiveNoun" | i18n }}
-              @if (!userHasArchivedItems()) {
-                <app-premium-badge></app-premium-badge>
-              }
+              <app-premium-badge></app-premium-badge>
             </span>
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
           </a>
