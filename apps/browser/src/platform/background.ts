@@ -16,28 +16,38 @@ const logService = new ConsoleLogService(false);
 
   // [NEW] Register message handlers for popup commands
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    (async () => {
-      // Auth handlers
-      if (message.type === 'LOGIN') {
+    // 1. Auth handlers
+    if (message.type === "LOGIN") {
+      (async () => {
         login();
         sendResponse({ success: true });
-        return;
-      }
-  
-      if (message.type === 'LOGOUT') {
+      })();
+      return true;
+    }
+
+    if (message.type === "LOGOUT") {
+      (async () => {
         await logout();
         sendResponse({ success: true });
-        return;
-      }
-  
-      // WebRTC handler
-      const handledWebRtc = await handleWebRtcMessage(message, sendResponse);
-      if (handledWebRtc) return;
-    })();
-  
-    // Return true to indicate async response (if needed by other handlers, keep in mind multiple listeners)
-    // returning true here is good practice for async sendResponse
-    return true; 
+      })();
+      return true;
+    }
+
+    // 2. WebRTC handlers
+    const rtcTypes = [
+      "RTC_CONNECT",
+      "RTC_SEND_HELLO",
+      "RTC_SEND_FILE",
+      "RTC_GET_STATUS",
+      "RTC_CLOSE",
+    ];
+    if (message.type && rtcTypes.includes(message.type)) {
+      handleWebRtcMessage(message, sendResponse);
+      return true;
+    }
+
+    // 3. Fallthrough - Not handled by us
+    return false;
   });
 
 const bitwardenMain = ((self as any).bitwardenMain = new MainBackground());
