@@ -39,6 +39,7 @@ import {
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { ROUTES_AFTER_EDIT_DELETION } from "../components/vault-v2/add-edit/add-edit-v2.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -120,7 +121,11 @@ export class ArchiveComponent {
     }
 
     await this.router.navigate(["/view-cipher"], {
-      queryParams: { cipherId: cipher.id, type: cipher.type },
+      queryParams: {
+        cipherId: cipher.id,
+        type: cipher.type,
+        routeAfterDeletion: ROUTES_AFTER_EDIT_DELETION.archive,
+      },
     });
   }
 
@@ -130,7 +135,11 @@ export class ArchiveComponent {
     }
 
     await this.router.navigate(["/edit-cipher"], {
-      queryParams: { cipherId: cipher.id, type: cipher.type },
+      queryParams: {
+        cipherId: cipher.id,
+        type: cipher.type,
+        routeAfterDeletion: ROUTES_AFTER_EDIT_DELETION.archive,
+      },
     });
   }
 
