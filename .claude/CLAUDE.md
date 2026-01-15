@@ -22,34 +22,12 @@ All clients share core libraries in `/libs` for business logic, cryptography, an
 | **Organization** | Shared vault for team/enterprise password sharing                     |
 | **Collection**   | Grouping mechanism for organizing Ciphers within Organizations        |
 
-# Tech stack
+### Tech stack
 
 - Angular
 - RxJS
 - Tailwind (with `tw-` prefix)
 - The Bitwarden SDK (wasm rust crate)
-
-### Typed IDs
-
-All IDs in the codebase use branded types for type safety. Most are located in `libs/common/src/types/guid.ts`.
-
-```typescript
-export type CipherId = Opaque<string, "CipherId">;
-export type SendId = Opaque<string, "SendId">;
-```
-
-### Data Model
-
-Domains generally consists of multiple DTO layers:
-
-- `<Domain>`: Encrypted representation of the object
-- `<Domain>View`: Decrypted representations
-- `<Domain>Data`: Serializeable representation for storage
-- `<Domain>Response`: Response from API
-- `<Domain>Export`: Export representation for exporting/importing
-- `<Domain><Modifier>Request`: Requests to create/update the object
-
-Some examples of these are `Cipher`, `Folder`, `Send`.
 
 ## Build and Development Commands
 
@@ -153,6 +131,13 @@ The codebase uses a layered model pattern:
 Response (API) → Data (Storage) → Domain (Encrypted) → View (Decrypted)
 ```
 
+- `<Domain>`: Encrypted representation of the object
+- `<Domain>View`: Decrypted representations
+- `<Domain>Data`: Serializeable representation for storage
+- `<Domain>Response`: Response from API
+- `<Domain>Export`: Export representation for exporting/importing
+- `<Domain><Modifier>Request`: Requests to create/update the object
+
 | Layer        | Purpose                       | Example                                |
 | ------------ | ----------------------------- | -------------------------------------- |
 | **Response** | API response DTOs             | `CipherResponse`                       |
@@ -160,14 +145,16 @@ Response (API) → Data (Storage) → Domain (Encrypted) → View (Decrypted)
 | **Domain**   | Encrypted business objects    | `Cipher` (contains `EncString` fields) |
 | **View**     | Decrypted for UI display      | `CipherView` (contains plain strings)  |
 
-**Core Types** (from `libs/common/src/types/guid.ts`):
+### Typed IDs
+
+All IDs in the codebase use branded types for type safety. Most are located in `libs/common/src/types/guid.ts`.
 
 ```typescript
-// Branded types for type-safe IDs
 type UserId = Opaque<string, "UserId">;
 type CipherId = Opaque<string, "CipherId">;
 type OrganizationId = Opaque<string, "OrganizationId">;
 type CollectionId = Opaque<string, "CollectionId">;
+...
 ```
 
 ## Angular Patterns
