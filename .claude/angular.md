@@ -20,7 +20,7 @@ constructor() {
 }
 ```
 
-## Signals
+## Angular Signals (ADR-0027):
 
 Use Angular Signals only in components and presentational services. Use RxJS for cross-client services and complex reactive workflows.
 
