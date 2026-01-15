@@ -86,6 +86,7 @@ import { PasswordHistoryComponent } from "../vault/popup/components/vault/vault-
 import { VaultComponent } from "../vault/popup/components/vault/vault.component";
 import { ViewComponent } from "../vault/popup/components/vault/view/view.component";
 import {
+  atRiskPasswordAuthGuard,
   canAccessAtRiskPasswords,
   hasAtRiskPasswords,
 } from "../vault/popup/guards/at-risk-passwords.guard";
@@ -723,7 +724,7 @@ const routes: Routes = [
   {
     path: "at-risk-passwords",
     component: AtRiskPasswordsComponent,
-    canActivate: [authGuard, canAccessAtRiskPasswords, hasAtRiskPasswords],
+    canActivate: [atRiskPasswordAuthGuard, canAccessAtRiskPasswords, hasAtRiskPasswords],
   },
   {
     path: AuthExtensionRoute.AccountSwitcher,
