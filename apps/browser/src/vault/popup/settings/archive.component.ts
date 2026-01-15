@@ -92,8 +92,7 @@ export class ArchiveComponent {
     startWith(true),
   );
 
-  protected canAssignCollections$ = this.accountService.activeAccount$.pipe(
-    getUserId,
+  protected canAssignCollections$ = this.userId$.pipe(
     switchMap((userId) => {
       return combineLatest([
         this.organizationService.hasOrganizations(userId),
