@@ -140,6 +140,7 @@
         "browserslist",
         "byteorder",
         "bytes",
+        "ciborium",
         "core-foundation",
         "copy-webpack-plugin",
         "css-loader",
