@@ -3,6 +3,9 @@
 import { parse } from "tldts";
 
 export function isValidRpId(rpId: string, origin: string) {
+  if (!rpId || !origin) {
+    return false;
+  }
   const parsedOrigin = parse(origin, { allowPrivateDomains: true });
   const parsedRpId = parse(rpId, { allowPrivateDomains: true });
 

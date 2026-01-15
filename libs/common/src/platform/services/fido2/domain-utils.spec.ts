@@ -2,6 +2,18 @@ import { isValidRpId } from "./domain-utils";
 
 // Spec: If options.rp.id is not a registrable domain suffix of and is not equal to effectiveDomain, return a DOMException whose name is "SecurityError", and terminate this algorithm.
 describe("validateRpId", () => {
+  it("should not be valid when rpId is null", () => {
+    const origin = "example.com";
+
+    expect(isValidRpId(null, origin)).toBe(false);
+  });
+
+  it("should not be valid when origin is null", () => {
+    const rpId = "example.com";
+
+    expect(isValidRpId(rpId, null)).toBe(false);
+  });
+
   it("should not be valid when rpId is more specific than origin", () => {
     const rpId = "sub.login.bitwarden.com";
     const origin = "https://login.bitwarden.com:1337";
