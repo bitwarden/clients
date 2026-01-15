@@ -152,7 +152,7 @@ describe("BrowserPopupUtils", () => {
         focused: false,
         alwaysOnTop: false,
         incognito: false,
-        width: 380,
+        width: 480,
       });
       jest.spyOn(BrowserApi, "createWindow").mockImplementation();
       jest.spyOn(BrowserApi, "updateWindowProperties").mockImplementation();
@@ -168,7 +168,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: 480,
         height: 630,
         left: 85,
         top: 190,
@@ -197,7 +197,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: 480,
         height: 630,
         left: 85,
         top: 190,
@@ -214,7 +214,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: 480,
         height: 630,
         left: 85,
         top: 190,
@@ -267,7 +267,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: 480,
         height: 630,
         left: 85,
         top: 190,
@@ -290,7 +290,7 @@ describe("BrowserPopupUtils", () => {
         focused: false,
         alwaysOnTop: false,
         incognito: false,
-        width: 380,
+        width: 480,
         state: "fullscreen",
       });
       jest
@@ -321,7 +321,7 @@ describe("BrowserPopupUtils", () => {
         focused: false,
         alwaysOnTop: false,
         incognito: false,
-        width: 380,
+        width: 480,
         state: "fullscreen",
       });
 
