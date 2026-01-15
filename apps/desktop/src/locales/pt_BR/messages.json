@@ -4011,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Esta credencial está em risco e está sem um site. Adicione um site e altere a senha para segurança melhor."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Site ausente"
   },
@@ -4267,8 +4273,8 @@
   "typeShortcut": {
     "message": "Atalho de digitação"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win, ou Shift, e uma letra."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win, e uma letra."
   },
   "invalidShortcut": {
     "message": "Atalho inválido"

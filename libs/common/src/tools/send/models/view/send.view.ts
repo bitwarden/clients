@@ -4,7 +4,7 @@ import { View } from "../../../../models/view/view";
 import { Utils } from "../../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
-import { SendType } from "../../enums/send-type";
+import { SendType } from "../../types/send-type";
 import { Send } from "../domain/send";
 
 import { SendFileView } from "./send-file.view";
