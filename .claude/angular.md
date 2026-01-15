@@ -24,22 +24,6 @@ constructor() {
 
 Use Angular Signals only in components and presentational services. Use RxJS for cross-client services and complex reactive workflows.
 
-## No TypeScript Enums (ADR-0025):
-
-```typescript
-// ✅ Correct
-export const CipherType = Object.freeze({
-  Login: 1,
-  SecureNote: 2,
-} as const);
-export type CipherType = (typeof CipherType)[keyof typeof CipherType];
-
-// ❌ Wrong - don't add new enums
-enum CipherType {
-  Login = 1,
-}
-```
-
 ## Component Change Detection
 
 Use `OnPush` change detection strategy for all components.

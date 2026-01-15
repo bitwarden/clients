@@ -291,6 +291,22 @@ describe("MyComponent", () => {
 | Constants           | SCREAMING_SNAKE_CASE       | `MAX_RETRY_COUNT`   |
 | Observables         | camelCase with `$` suffix  | `ciphers$`          |
 
+### No TypeScript Enums (ADR-0025):
+
+```typescript
+// ✅ Correct
+export const CipherType = Object.freeze({
+  Login: 1,
+  SecureNote: 2,
+} as const);
+export type CipherType = (typeof CipherType)[keyof typeof CipherType];
+
+// ❌ Wrong - don't add new enums
+enum CipherType {
+  Login = 1,
+}
+```
+
 ## Anti-Patterns
 
 ### DO
