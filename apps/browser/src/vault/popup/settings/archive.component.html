@@ -5,6 +5,21 @@
     </ng-container>
   </popup-header>
 
+  @if (showSubscriptionEndedMessaging$ | async) {
+    <bit-card class="tw-mb-4">
+      <div class="tw-flex tw-gap-2 tw-items-baseline">
+        <i class="bwi bwi-info-circle" aria-hidden="true"></i>
+        <h3 class="tw-font-[500]" bitTypography="h5">{{ "premiumSubscriptionEnded" | i18n }}</h3>
+      </div>
+      <p bitTypography="body2" class="tw-mb-3">
+        {{ "archivePremiumRestart" | i18n }}
+      </p>
+      <button type="button" bitButton (click)="navigateToPremium()" buttonType="primary">
+        {{ "restartPremium" | i18n }}
+      </button>
+    </bit-card>
+  }
+
   @if (archivedCiphers$ | async; as archivedItems) {
     @if (archivedItems.length) {
       <bit-section>
