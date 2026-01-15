@@ -143,7 +143,7 @@ export class UpgradePaymentService {
   ): Promise<void> {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
-    await this.accountBillingClient.purchasePremiumSubscription(paymentMethod, billingAddress);
+    await this.accountBillingClient.purchaseSubscription(paymentMethod, billingAddress);
 
     await this.refreshAndSync();
   }
@@ -200,7 +200,8 @@ export class UpgradePaymentService {
   }
 
   private getPasswordManagerSeats(planDetails: PlanDetails): number {
-    return "users" in planDetails.details.passwordManager
+    return "users" in planDetails.details.passwordManager &&
+      planDetails.details.passwordManager.users
       ? planDetails.details.passwordManager.users
       : 0;
   }

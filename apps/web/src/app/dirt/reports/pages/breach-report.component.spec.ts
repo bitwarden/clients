@@ -1,16 +1,17 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/breach-account.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { AsyncActionsModule, ButtonModule, FormFieldModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BreachReportComponent } from "./breach-report.component";
 
@@ -31,6 +32,21 @@ const breachedAccounts = [
   }),
 ];
 
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-header",
+  template: "<div></div>",
+  standalone: false,
+})
+class MockHeaderComponent {}
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "bit-container",
+  template: "<div></div>",
+  standalone: false,
+})
+class MockBitContainerComponent {}
+
 describe("BreachReportComponent", () => {
   let component: BreachReportComponent;
   let fixture: ComponentFixture<BreachReportComponent>;
@@ -38,9 +54,10 @@ describe("BreachReportComponent", () => {
   let accountService: MockProxy<AccountService>;
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
     id: "testId" as UserId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
   });
 
   beforeEach(async () => {
@@ -49,8 +66,8 @@ describe("BreachReportComponent", () => {
     accountService.activeAccount$ = activeAccountSubject;
 
     await TestBed.configureTestingModule({
-      declarations: [BreachReportComponent, I18nPipe],
-      imports: [ReactiveFormsModule],
+      declarations: [BreachReportComponent, MockHeaderComponent, MockBitContainerComponent],
+      imports: [ReactiveFormsModule, I18nPipe, AsyncActionsModule, ButtonModule, FormFieldModule],
       providers: [
         {
           provide: AuditService,
@@ -65,9 +82,7 @@ describe("BreachReportComponent", () => {
           useValue: mock<I18nService>(),
         },
       ],
-      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
-      errorOnUnknownElements: false,
-      errorOnUnknownProperties: false,
+      schemas: [],
     }).compileComponents();
   });
 
