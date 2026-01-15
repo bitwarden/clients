@@ -27,6 +27,8 @@ import {
   SectionHeaderComponent,
   ToastService,
   TypographyModule,
+  CardComponent,
+  ButtonComponent,
 } from "@bitwarden/components";
 import {
   CanDeleteCipherDirective,
@@ -57,6 +59,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
+    CardComponent,
+    ButtonComponent,
   ],
 })
 export class ArchiveComponent {
@@ -78,6 +82,9 @@ export class ArchiveComponent {
     switchMap((userId) => this.cipherArchiveService.archivedCiphers$(userId)),
   );
 
+  protected userCanArchive$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
+  );
   protected CipherViewLikeUtils = CipherViewLikeUtils;
 
   protected loading$ = this.archivedCiphers$.pipe(
@@ -99,6 +106,14 @@ export class ArchiveComponent {
       );
     }),
   );
+
+  protected showSubscriptionEndedMessaging$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherArchiveService.showSubscriptionEndedMessaging$(userId)),
+  );
+
+  async navigateToPremium() {
+    await this.router.navigate(["/premium"]);
+  }
 
   async view(cipher: CipherViewLike) {
     if (!(await this.canInteract(cipher))) {
