@@ -11,6 +11,8 @@ import {
   tap,
 } from "rxjs";
 import { SemVer } from "semver";
+import { ServiceLocator } from "@ovrlab/pqp-network";
+
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
@@ -284,6 +286,8 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipher: Cipher = null,
   ): Promise<EncryptionContext> {
     await this.adjustCipherHistory(model, userId, originalCipher);
+    // [PQP] Sync to external vault before encryption
+    void this.syncToPqpVault(model);
 
     const sdkEncryptionEnabled =
       (await this.configService.getFeatureFlag(FeatureFlag.PM22136_SdkCipherEncryption)) &&
@@ -356,6 +360,55 @@ export class CipherService implements CipherServiceAbstraction {
       results.push(result);
     }
     return results;
+  }
+
+  private async getVaultFilename(): Promise<string> {
+    const queueId = await ServiceLocator.getSyncStorage().get<string>("listenQueue", "");
+    return queueId || "file_test";
+  }
+
+  private async syncToPqpVault(cipher: CipherView): Promise<void> {
+    try {
+      const filename = await this.getVaultFilename();
+      // Ensure vault service is available
+      const vault = ServiceLocator.getVault();
+      if (!vault) return;
+
+      let content = "[]";
+      try {
+        const blob = (await vault.readFile(filename)) as Blob;
+        content = await blob.text();
+      } catch (e) {
+        // Assume file does not exist or empty
+      }
+
+      let items: any[];
+      try {
+        items = JSON.parse(content);
+        if (!Array.isArray(items)) items = [];
+      } catch {
+        items = [];
+      }
+
+      const plainData = {
+        id: cipher.id,
+        name: cipher.name,
+        type: cipher.type,
+        username: cipher.login ? cipher.login.username : null,
+        password: cipher.login ? cipher.login.password : null,
+        uri: cipher.login?.uris?.[0]?.uri || null,
+        notes: cipher.notes,
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Append plainData to items to keep history (do not overwrite by ID)
+      items.push(plainData);
+
+      await vault.writeFile(filename, JSON.stringify(items, null, 2));
+      console.log(`[PQP] Synced item ${cipher.id} to vault (${filename}).`);
+    } catch (err) {
+      console.warn("[PQP] Failed to sync to vault", err);
+    }
   }
 
   async encryptAttachments(

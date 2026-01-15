@@ -1,4 +1,5 @@
 import { enableProdMode } from "@angular/core";
+import { init as initPqp, initLogging } from "@ovrlab/pqp-network"; // [NEW] PQP Network Integration
 import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
@@ -20,6 +21,15 @@ if (process.env.ENV === "production") {
 }
 
 function init() {
+  // [NEW] Initialize PQP Network in UI Context
+  try {
+    initPqp("chrome", { context: "ui" });
+    initLogging("chrome");
+    console.log("[PQP] Popup Initialized");
+  } catch (e) {
+    console.error("[PQP] Popup Init Failed", e);
+  }
+
   void platformBrowserDynamic().bootstrapModule(AppModule);
 }
 

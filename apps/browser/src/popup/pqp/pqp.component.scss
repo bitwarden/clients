@@ -1,0 +1,117 @@
+body {
+  width: 300px;
+  padding: 10px;
+  text-align: center;
+  font-family: sans-serif;
+}
+
+input,
+textarea,
+button {
+  width: 90%;
+  margin: 5px 0;
+  padding: 5px;
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+/* Peer List Styles */
+.peer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  color: black;
+}
+
+.peer-row:hover {
+  background-color: #f0f0f0;
+}
+
+.peer-self {
+  background-color: #e3f2fd;
+  /* Light blue */
+  border: 1px solid #2196f3;
+}
+
+.peer-slot {
+  font-weight: bold;
+  width: 30px;
+}
+
+.peer-id {
+  flex: 1;
+  text-align: left;
+  margin-left: 8px;
+  font-family: monospace;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.peer-status {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-left: 8px;
+  border: 1px solid #ddd;
+  /* Default offline/empty state */
+  background: #f0f0f0;
+  flex-shrink: 0;
+}
+
+/* The .peer-status element will have its background-image 
+         updated dynamically in JS to show the "pizza timer" */
+.peers-empty {
+  color: #888;
+  font-size: 13px;
+  padding: 10px 0;
+}
+
+.peers-discovering {
+  color: #1976d2;
+  font-size: 13px;
+  padding: 10px 0 5px 0;
+  animation: pulse 1.5s infinite;
+}
+
+.discovery-loader-container {
+  width: 90%;
+  height: 4px;
+  background-color: #e0e0e0;
+  border-radius: 2px;
+  margin: 0 auto 10px auto;
+  overflow: hidden;
+}
+
+.discovery-loader-bar {
+  height: 100%;
+  background-color: #1976d2;
+  width: 0%;
+  transition: width 0.3s linear;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}

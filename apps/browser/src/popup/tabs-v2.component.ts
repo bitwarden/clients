@@ -57,6 +57,12 @@ export class TabsV2Component {
           iconActive: SettingsActive,
           showBerry: hasBadges,
         },
+        {
+          label: "PQP", // Or use a localized key if available, but plain string for now
+          page: "/tabs/pqp",
+          icon: SendInactive,
+          iconActive: SendActive,
+        },
       ];
     }),
   );
