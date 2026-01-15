@@ -265,10 +265,10 @@ export class PhishingDataService {
         }
 
         if (next.meta) {
-          await this._phishingMetaState.update(() => next.meta);
+          await this._phishingMetaState.update(() => next!.meta!);
         }
         if (next.blob) {
-          await this._phishingBlobState.update(() => next.blob);
+          await this._phishingBlobState.update(() => next!.blob!);
           await this._loadBlobToMemory();
         }
 
@@ -321,9 +321,16 @@ export class PhishingDataService {
       const bytes = (Uint8Array as any).fromBase64
         ? (Uint8Array as any).fromBase64(base64)
         : this._base64ToUint8Fallback(base64);
-      const stream = new Response(bytes).body.pipeThrough(new DecompressionStream("gzip"));
-
-      return await new Response(stream).text();
+      if (bytes == null) {
+        throw new Error("Base64 decoding resulted in null");
+      }
+      const byteResponse = new Response(bytes);
+      if (!byteResponse.body) {
+        throw new Error("Response body is null");
+      }
+      const stream = byteResponse.body.pipeThrough(new DecompressionStream("gzip"));
+      const streamResponse = new Response(stream);
+      return await streamResponse.text();
     } catch (err) {
       this.logService.error("[PhishingDataService] Decompression failed", err);
       return decodeURIComponent(atob(base64));
@@ -342,10 +349,11 @@ export class PhishingDataService {
       const text = await this._decompressString(blobBase64);
       // Split and filter
       const lines = text.split(/\r?\n/);
-      this._webAddressesSet = new Set(lines);
+      const newWebAddressesSet = new Set(lines);
 
       // Add test addresses
-      this._testWebAddresses.forEach((a) => this._webAddressesSet.add(a));
+      this._testWebAddresses.forEach((a) => newWebAddressesSet.add(a));
+      this._webAddressesSet = new Set(newWebAddressesSet);
       this.logService.info(
         `[PhishingDataService] loaded ${this._webAddressesSet.size} addresses into memory from blob`,
       );
