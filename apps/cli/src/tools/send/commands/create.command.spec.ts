@@ -7,10 +7,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { AuthType } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { UserId } from "@bitwarden/user-core";
 
 import { SendCreateCommand } from "./create.command";
