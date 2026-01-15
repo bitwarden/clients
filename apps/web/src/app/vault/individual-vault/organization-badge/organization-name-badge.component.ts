@@ -3,7 +3,7 @@
 import { Component, Input, OnChanges } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { Unassigned } from "@bitwarden/admin-console/common";
+import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";

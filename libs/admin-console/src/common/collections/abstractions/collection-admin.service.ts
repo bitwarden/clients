@@ -1,9 +1,11 @@
 import { Observable } from "rxjs";
 
-import { CollectionDetailsResponse } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminView,
+  CollectionAccessSelectionView,
+  CollectionDetailsResponse,
+} from "@bitwarden/common/admin-console/models/collections";
 import { UserId } from "@bitwarden/common/types/guid";
-
-import { CollectionAccessSelectionView, CollectionAdminView } from "../models";
 
 export abstract class CollectionAdminService {
   abstract collectionAdminViews$(
