@@ -3,9 +3,10 @@ import { BehaviorSubject, bufferCount, firstValueFrom, Subject, ObservedValueOf 
 
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
+import { mockAccountInfoWith } from "../../../../spec";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -32,8 +33,9 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
-  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
+  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
+  let policyService: MockProxy<InternalPolicyService>;
 
   let activeUserAccount$: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let userAccounts$: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -125,16 +127,9 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       return webPushSupportStatusByUser.get(userId)!.asObservable();
     });
 
-    authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
+    authRequestAnsweringService = mock<AuthRequestAnsweringService>();
 
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
-      const flagValueByFlag: Partial<Record<FeatureFlag, boolean>> = {
-        [FeatureFlag.InactiveUserServerNotification]: true,
-        [FeatureFlag.PushNotificationsWhenLocked]: true,
-      };
-      return new BehaviorSubject(flagValueByFlag[flag] ?? false) as any;
-    });
+    policyService = mock<InternalPolicyService>();
 
     defaultServerNotificationsService = new DefaultServerNotificationsService(
       mock<LogService>(),
@@ -149,6 +144,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       webPushNotificationConnectionService,
       authRequestAnsweringService,
       configService,
+      policyService,
     );
   });
 
@@ -158,9 +154,10 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     } else {
       activeUserAccount$.next({
         id: userId,
-        email: "email",
-        name: "Test Name",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "email",
+          name: "Test Name",
+        }),
       });
     }
   }
@@ -169,7 +166,10 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     const currentAccounts = (userAccounts$.getValue() as Record<string, any>) ?? {};
     userAccounts$.next({
       ...currentAccounts,
-      [userId]: { email: "email", name: "Test Name", emailVerified: true },
+      [userId]: mockAccountInfoWith({
+        email: "email",
+        name: "Test Name",
+      }),
     } as any);
   }
 
@@ -270,13 +270,13 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     // allow async queue to drain
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
-      notificationId: "auth-id-2",
-    });
+    // When authRequestAnsweringService.receivedPendingAuthRequest exists (Extension/Desktop),
+    // only that method is called. messagingService.send is only called for Web (NoopAuthRequestAnsweringService).
     expect(authRequestAnsweringService.receivedPendingAuthRequest).toHaveBeenCalledWith(
       mockUserId2,
       "auth-id-2",
     );
+    expect(messagingService.send).not.toHaveBeenCalled();
 
     subscription.unsubscribe();
   });

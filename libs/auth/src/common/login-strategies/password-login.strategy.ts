@@ -10,6 +10,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "@bitwarden/common/auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
@@ -33,6 +34,8 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
   localMasterKeyHash: string;
   /** The user's master key */
   masterKey: MasterKey;
+  /** The user's master password */
+  masterPassword: string;
   /**
    * Tracks if the user needs to update their password due to
    * a password that does not meet an organization's master password policy.
@@ -83,6 +86,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
       masterPassword,
       email,
     );
+    data.masterPassword = masterPassword;
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
@@ -152,6 +156,12 @@ export class PasswordLoginStrategy extends LoginStrategy {
       response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
       userId,
     );
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
   }
 
   protected override encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {
@@ -162,14 +172,20 @@ export class PasswordLoginStrategy extends LoginStrategy {
     identityResponse:
       | IdentityTokenResponse
       | IdentityTwoFactorResponse
-      | IdentityDeviceVerificationResponse,
+      | IdentityDeviceVerificationResponse
+      | IdentitySsoRequiredResponse,
     credentials: PasswordLoginCredentials,
     authResult: AuthResult,
   ): Promise<void> {
     // TODO: PM-21084 - investigate if we should be sending down masterPasswordPolicy on the
     // IdentityDeviceVerificationResponse like we do for the IdentityTwoFactorResponse
     // If the response is a device verification response, we don't need to evaluate the password
-    if (identityResponse instanceof IdentityDeviceVerificationResponse) {
+    // If SSO is required, we also do not evaluate the password here, since the user needs to first
+    // authenticate with their SSO IdP Provider
+    if (
+      identityResponse instanceof IdentityDeviceVerificationResponse ||
+      identityResponse instanceof IdentitySsoRequiredResponse
+    ) {
       return;
     }
 
@@ -251,6 +267,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     this.cache.next(data);
 
     const [authResult] = await this.startLogIn();
+    authResult.masterPassword = this.cache.value["masterPassword"] ?? null;
     return authResult;
   }
 

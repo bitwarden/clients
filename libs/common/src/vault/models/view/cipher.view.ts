@@ -109,6 +109,10 @@ export class CipherView implements View, InitializerMetadata {
     return this.item?.subTitle;
   }
 
+  get canBeArchived(): boolean {
+    return !this.isDeleted && !this.isArchived;
+  }
+
   get hasPasswordHistory(): boolean {
     return this.passwordHistory && this.passwordHistory.length > 0;
   }
@@ -166,10 +170,6 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   get canAssignToCollections(): boolean {
-    if (this.isArchived) {
-      return false;
-    }
-
     if (this.organizationId == null) {
       return true;
     }

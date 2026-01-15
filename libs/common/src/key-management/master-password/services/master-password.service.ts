@@ -5,6 +5,7 @@ import { firstValueFrom, map, Observable } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
@@ -25,6 +26,7 @@ import { MasterKey, UserKey } from "../../../types/key";
 import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptedString, EncString } from "../../crypto/models/enc-string";
+import { USES_KEY_CONNECTOR } from "../../key-connector/services/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -84,6 +86,19 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     private cryptoFunctionService: CryptoFunctionService,
     private accountService: AccountService,
   ) {}
+
+  async userHasMasterPassword(userId: UserId): Promise<boolean> {
+    assertNonNullish(userId, "userId");
+    // A user has a master-password if they have a master-key encrypted user key *but* are not a key connector user
+    // Note: We can't use the key connector service as an abstraction here because it causes a run-time dependency injection cycle between KC service and MP service.
+    const usesKeyConnector = await firstValueFrom(
+      this.stateProvider.getUser(userId, USES_KEY_CONNECTOR).state$,
+    );
+    const usesMasterKey = await firstValueFrom(
+      this.stateProvider.getUser(userId, MASTER_KEY_ENCRYPTED_USER_KEY).state$,
+    );
+    return usesMasterKey && !usesKeyConnector;
+  }
 
   saltForUser$(userId: UserId): Observable<MasterPasswordSalt> {
     assertNonNullish(userId, "userId");
@@ -307,6 +322,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
         masterPasswordUnlockData.kdf.toSdkConfig(),
       ),
     );
+
     return userKey as UserKey;
   }
 
@@ -326,5 +342,52 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(userId, "userId");
 
     return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
+  }
+
+  async setLegacyMasterKeyFromUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    assertNonNullish(password, "password");
+    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
+    assertNonNullish(userId, "userId");
+
+    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
+      password,
+      masterPasswordUnlockData.salt,
+      masterPasswordUnlockData.kdf,
+    )) as MasterKey;
+    const localKeyHash = await this.hashMasterKey(
+      password,
+      masterKey,
+      HashPurpose.LocalAuthorization,
+    );
+
+    await this.setMasterKey(masterKey, userId);
+    await this.setMasterKeyHash(localKeyHash, userId);
+  }
+
+  // Copied from KeyService to avoid circular dependency. This will be dropped together with `setLegacyMatserKeyFromUnlockData`.
+  private async hashMasterKey(
+    password: string,
+    key: MasterKey,
+    hashPurpose: HashPurpose,
+  ): Promise<string> {
+    if (password == null) {
+      throw new Error("password is required.");
+    }
+    if (key == null) {
+      throw new Error("key is required.");
+    }
+
+    const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
+    const hash = await this.cryptoFunctionService.pbkdf2(
+      key.inner().encryptionKey,
+      password,
+      "sha256",
+      iterations,
+    );
+    return Utils.fromBufferToB64(hash);
   }
 }

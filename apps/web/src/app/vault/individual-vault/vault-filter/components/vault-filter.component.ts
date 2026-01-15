@@ -19,28 +19,27 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
-
-import { VaultFilterService } from "../services/abstractions/vault-filter.service";
 import {
+  VaultFilterServiceAbstraction as VaultFilterService,
   VaultFilterList,
   VaultFilterSection,
   VaultFilterType,
-} from "../shared/models/vault-filter-section.type";
-import { VaultFilter } from "../shared/models/vault-filter.model";
-import {
+  VaultFilter,
   CipherStatus,
   CipherTypeFilter,
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "../shared/models/vault-filter.type";
+} from "@bitwarden/vault";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { OrganizationOptionsComponent } from "./organization-options.component";
 
@@ -170,6 +169,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherService: CipherService,
     protected cipherArchiveService: CipherArchiveService,
+    private premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -252,14 +252,20 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
-    const hasArchiveFlag = await firstValueFrom(this.cipherArchiveService.hasArchiveFlagEnabled$());
+    const [userId, showArchive] = await firstValueFrom(
+      combineLatest([
+        this.accountService.activeAccount$.pipe(getUserId),
+        this.cipherArchiveService.hasArchiveFlagEnabled$,
+      ]),
+    );
+
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
-    if (hasArchiveFlag) {
-      builderFilter.archiveFilter = await this.addArchiveFilter();
+    if (showArchive) {
+      builderFilter.archiveFilter = await this.addArchiveFilter(userId);
     }
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
@@ -419,7 +425,18 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return trashFilterSection;
   }
 
-  protected async addArchiveFilter(): Promise<VaultFilterSection> {
+  protected async addArchiveFilter(userId: UserId): Promise<VaultFilterSection> {
+    const [hasArchivedCiphers, userHasPremium] = await firstValueFrom(
+      combineLatest([
+        this.cipherArchiveService
+          .archivedCiphers$(userId)
+          .pipe(map((archivedCiphers) => archivedCiphers.length > 0)),
+        this.cipherArchiveService.userHasPremium$(userId),
+      ]),
+    );
+
+    const promptForPremiumOnFilter = !userHasPremium && !hasArchivedCiphers;
+
     const archiveFilterSection: VaultFilterSection = {
       data$: this.vaultFilterService.buildTypeTree(
         {
@@ -442,6 +459,12 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         isSelectable: true,
       },
       action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
+      premiumOptions: {
+        showBadgeForNonPremium: true,
+        blockFilterAction: promptForPremiumOnFilter
+          ? async () => await this.premiumUpgradePromptService.promptForPremium()
+          : undefined,
+      },
     };
     return archiveFilterSection;
   }

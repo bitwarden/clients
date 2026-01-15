@@ -4,11 +4,12 @@ import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import {
   CollectionData,
   CollectionDetailsResponse,
-  CollectionService,
-} from "@bitwarden/admin-console/common";
+} from "@bitwarden/common/admin-console/models/collections";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -105,6 +106,7 @@ export class DefaultSyncService extends CoreSyncService {
     stateProvider: StateProvider,
     private securityStateService: SecurityStateService,
     private kdfConfigService: KdfConfigService,
+    private accountCryptographicStateService: AccountCryptographicStateService,
   ) {
     super(
       tokenService,
@@ -243,18 +245,28 @@ export class DefaultSyncService extends CoreSyncService {
 
     // Cleanup: Only the first branch should be kept after the server always returns accountKeys https://bitwarden.atlassian.net/browse/PM-21768
     if (response.accountKeys != null) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeys.toWrappedAccountCryptographicState(),
+        response.id,
+      );
+
+      // V1 and V2 users
       await this.keyService.setPrivateKey(
         response.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey,
         response.id,
       );
-      if (response.accountKeys.signatureKeyPair !== null) {
-        // User is V2 user
+      // V2 users only
+      if (response.accountKeys.isV2Encryption()) {
         await this.keyService.setUserSigningKey(
           response.accountKeys.signatureKeyPair.wrappedSigningKey,
           response.id,
         );
         await this.securityStateService.setAccountSecurityState(
           response.accountKeys.securityState.securityState,
+          response.id,
+        );
+        await this.keyService.setSignedPublicKey(
+          response.accountKeys.publicKeyEncryptionKeyPair.signedPublicKey,
           response.id,
         );
       }
@@ -271,6 +283,7 @@ export class DefaultSyncService extends CoreSyncService {
     await this.avatarService.setSyncAvatarColor(response.id, response.avatarColor);
     await this.tokenService.setSecurityStamp(response.securityStamp, response.id);
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
+    await this.accountService.setAccountCreationDate(response.id, new Date(response.creationDate));
     await this.accountService.setAccountVerifyNewDeviceLogin(response.id, response.verifyDevices);
 
     await this.billingAccountProfileStateService.setHasPremium(
