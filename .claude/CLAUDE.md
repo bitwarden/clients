@@ -208,13 +208,6 @@ const enabled = await this.configService.getFeatureFlag(FeatureFlag.MyFlag);
 
 ### Test Structure
 
-Tests are colocated with source files using `.spec.ts` suffix:
-
-```
-libs/common/src/vault/models/domain/cipher.ts
-libs/common/src/vault/models/domain/cipher.spec.ts
-```
-
 ### Test Utilities
 
 | Utility                 | Location                                   | Purpose                          |
