@@ -7,11 +7,6 @@ export function isValidRpId(rpId: string, origin: string) {
     return false;
   }
 
-  // The origin's scheme must be https.
-  if (!origin.startsWith("https://")) {
-    return false;
-  }
-
   const parsedOrigin = parse(origin, { allowPrivateDomains: true });
   const parsedRpId = parse(rpId, { allowPrivateDomains: true });
 
@@ -22,6 +17,11 @@ export function isValidRpId(rpId: string, origin: string) {
   // Special case: localhost is always valid when both match
   if (parsedRpId.hostname === "localhost" && parsedOrigin.hostname === "localhost") {
     return true;
+  }
+
+  // The origin's scheme must be https.
+  if (!origin.startsWith("https://")) {
+    return false;
   }
 
   // Reject IP addresses (both must be domain names)
