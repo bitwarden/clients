@@ -37,7 +37,7 @@ describe("validateRpId", () => {
 
   it("should not be valid when rpId and origin are both different TLD", () => {
     const rpId = "bitwarden";
-    const origin = "localhost";
+    const origin = "https://localhost";
 
     expect(isValidRpId(rpId, origin)).toBe(false);
   });
@@ -46,14 +46,14 @@ describe("validateRpId", () => {
   // adding support for ip-addresses and other TLDs
   it("should not be valid when rpId and origin are both the same TLD", () => {
     const rpId = "bitwarden";
-    const origin = "bitwarden";
+    const origin = "https://bitwarden";
 
     expect(isValidRpId(rpId, origin)).toBe(false);
   });
 
   it("should not be valid when rpId and origin are ip-addresses", () => {
     const rpId = "127.0.0.1";
-    const origin = "127.0.0.1";
+    const origin = "https://127.0.0.1";
 
     expect(isValidRpId(rpId, origin)).toBe(false);
   });

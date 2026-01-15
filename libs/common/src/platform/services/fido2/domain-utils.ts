@@ -6,6 +6,12 @@ export function isValidRpId(rpId: string, origin: string) {
   if (!rpId || !origin) {
     return false;
   }
+
+  // The origin's scheme must be https.
+  if (!origin.startsWith("https://")) {
+    return false;
+  }
+
   const parsedOrigin = parse(origin, { allowPrivateDomains: true });
   const parsedRpId = parse(rpId, { allowPrivateDomains: true });
 
