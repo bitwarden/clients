@@ -9,9 +9,10 @@ import {
   WritableSignal,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -54,6 +55,16 @@ export class OrganizationDataOwnershipPolicyDialogComponent
 {
   policyType = PolicyType;
 
+  protected centralizeDataOwnershipEnabled$: Observable<boolean> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policies$(userId)),
+      map(
+        (policies) =>
+          policies.find((p) => p.type === PolicyType.OrganizationDataOwnership)?.enabled ?? false,
+      ),
+    );
+
   protected readonly currentStep: WritableSignal<number> = signal(0);
   protected readonly multiStepSubmit: WritableSignal<MultiStepSubmit[]> = signal([]);
 
@@ -74,6 +85,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
     dialogRef: DialogRef<PolicyEditDialogResult>,
     toastService: ToastService,
     protected keyService: KeyService,
+    private policyService: PolicyService,
   ) {
     super(
       data,
@@ -90,6 +102,15 @@ export class OrganizationDataOwnershipPolicyDialogComponent
 
   async ngAfterViewInit() {
     await super.ngAfterViewInit();
+
+    if (this.policyComponent) {
+      this.saveDisabled$ = combineLatest([
+        this.centralizeDataOwnershipEnabled$,
+        this.policyComponent.enabled.valueChanges.pipe(
+          startWith(this.policyComponent.enabled.value),
+        ),
+      ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
+    }
 
     this.multiStepSubmit.set(this.buildMultiStepSubmit());
   }
