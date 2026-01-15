@@ -92,4 +92,11 @@ describe("validateRpId", () => {
 
     expect(isValidRpId(rpId, origin)).toBe(true);
   });
+
+  it("should not be valid for a partial match of a subdomain", () => {
+    const rpId = "accounts.example.com";
+    const origin = "https://evilaccounts.example.com";
+
+    expect(isValidRpId(rpId, origin)).toBe(false);
+  });
 });
