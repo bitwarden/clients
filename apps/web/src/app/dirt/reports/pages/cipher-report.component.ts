@@ -49,7 +49,7 @@ export abstract class CipherReportComponent implements OnDestroy {
   filterStatus: any = [0];
   showFilterToggle: boolean = false;
   selectedFilterChip: string = "0";
-  chipSelectOptions: { label: string; value: string; icon: string }[];
+  chipSelectOptions: { label: string; value: string; icon: string }[] = [];
   vaultMsg: string = "vault";
   currentFilterStatus: number | string = 0;
   protected filterOrgStatus$ = new BehaviorSubject<number | string>(0);
