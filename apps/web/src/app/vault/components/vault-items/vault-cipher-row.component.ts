@@ -217,11 +217,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
-  // Do Not show Assign to Collections option if item is archived
   protected get showAssignToCollections() {
-    if (CipherViewLikeUtils.isArchived(this.cipher)) {
-      return false;
-    }
     return (
       this.organizations?.length &&
       this.canAssignCollections &&

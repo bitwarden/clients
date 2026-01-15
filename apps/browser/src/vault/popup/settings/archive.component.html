@@ -63,6 +63,15 @@
                   <button type="button" bitMenuItem (click)="clone(cipher)">
                     {{ "clone" | i18n }}
                   </button>
+                  @if (canAssignCollections$ | async) {
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="conditionallyNavigateToAssignCollections(cipher)"
+                    >
+                      {{ "assignToCollections" | i18n }}
+                    </button>
+                  }
                   <button type="button" bitMenuItem (click)="unarchive(cipher)">
                     {{ "unArchive" | i18n }}
                   </button>
