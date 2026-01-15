@@ -142,4 +142,45 @@ describe("VaultCipherRowComponent", () => {
       expect(overlayContent).not.toContain('appcopyfield="password"');
     });
   });
+
+  describe("showAssignToCollections", () => {
+    let archivedCipher: CipherView;
+
+    beforeEach(() => {
+      archivedCipher = new CipherView();
+      archivedCipher.id = "cipher-1";
+      archivedCipher.name = "Test Cipher";
+      archivedCipher.type = CipherType.Login;
+      archivedCipher.organizationId = "org-1";
+      archivedCipher.deletedDate = null;
+      archivedCipher.archivedDate = new Date();
+
+      component.cipher = archivedCipher;
+      component.organizations = [{ id: "org-1" } as any];
+      component.canAssignCollections = true;
+      component.disabled = false;
+    });
+
+    it("returns true when cipher is archived and conditions are met", () => {
+      expect(component["showAssignToCollections"]).toBe(true);
+    });
+
+    it("returns false when cipher is deleted", () => {
+      archivedCipher.deletedDate = new Date();
+
+      expect(component["showAssignToCollections"]).toBe(false);
+    });
+
+    it("returns false when user cannot assign collections", () => {
+      component.canAssignCollections = false;
+
+      expect(component["showAssignToCollections"]).toBe(false);
+    });
+
+    it("returns false when there are no organizations", () => {
+      component.organizations = [];
+
+      expect(component["showAssignToCollections"]).toBeFalsy();
+    });
+  });
 });
