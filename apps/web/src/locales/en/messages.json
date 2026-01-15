@@ -5932,7 +5932,7 @@
     "message": "Give each user a private “My items” space for their own logins."
   },
   "centralizeDataOwnershipWarningTitle": {
-    "message": "This policy may require users to transfer items to the organization"
+    "message": "Users must transfer items to the organization"
   },
   "centralizeDataOwnershipWarningDesc": {
     "message": "Members will be prompted to transfer their individual vault items to the organization or leave. If they leave, their access will be revoked but it can be restored at any time."

@@ -15,7 +15,7 @@ import { EncString } from "@bitwarden/sdk-internal";
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-interface OrganizationDataOwnershipPolicyRequest {
+export interface OrganizationDataOwnershipPolicyRequest {
   policy: PolicyRequest;
   metadata: {
     defaultUserCollectionName: string;

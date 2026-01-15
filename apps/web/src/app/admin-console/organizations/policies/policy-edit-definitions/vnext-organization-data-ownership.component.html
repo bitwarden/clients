@@ -1,4 +1,6 @@
-<ng-container #step0>
+<ng-container [ngTemplateOutlet]="steps[step()]()"></ng-container>
+
+<ng-template #step0>
   <p>
     {{ "centralizeDataOwnershipDesc" | i18n }}
     <a
@@ -6,7 +8,8 @@
       href="https://bitwarden.com/resources/credential-lifecycle-management/"
       target="_blank"
     >
-      {{ "centralizeDataOwnershipContentAnchor" | i18n }}.
+      {{ "centralizeDataOwnershipContentAnchor" | i18n }}
+      <i class="bwi bwi-external-link"></i>
     </a>
   </p>
 
@@ -26,45 +29,26 @@
       </ul>
     </div>
   </div>
-</ng-container>
 
-<ng-container>
   <bit-form-control>
-    <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+    <input class="tw-mt-4" type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
     <bit-label>{{ "turnOn" | i18n }}</bit-label>
   </bit-form-control>
+</ng-template>
 
-  <ng-template #dialog>
-    <bit-simple-dialog background="alt">
-      <i bitDialogIcon class="bwi bwi-info-circle tw-text-info tw-text-3xl" aria-hidden="true"></i>
-      <ng-container bitDialogTitle>
-        {{ "centralizeDataOwnershipWarningTitle" | i18n }}
-      </ng-container>
-      <ng-container bitDialogContent>
-        <div class="tw-flex tw-flex-col tw-gap-2 tw-overflow-hidden">
-          <span>
-            {{ "centralizeDataOwnershipWarningTitle" | i18n }}
-          </span>
-          <a
-            bitLink
-            href="https://bitwarden.com/resources/credential-lifecycle-management/"
-            target="_blank"
-          >
-            {{ "centralizeDataOwnershipWarningLink" | i18n }}
-            <i class="bwi bwi-external-link"></i>
-          </a>
-        </div>
-      </ng-container>
-      <ng-container bitDialogFooter>
-        <span class="tw-flex tw-flex-col tw-gap-2">
-          <button bitButton buttonType="primary" [bitDialogClose]="true" type="submit">
-            {{ "continue" | i18n }}
-          </button>
-          <button bitButton buttonType="secondary" [bitDialogClose]="false" type="button">
-            {{ "cancel" | i18n }}
-          </button>
-        </span>
-      </ng-container>
-    </bit-simple-dialog>
-  </ng-template>
-</ng-container>
+<ng-template #step1>
+  <div class="tw-flex tw-flex-col tw-gap-2 tw-overflow-hidden">
+    <span>
+      {{ "centralizeDataOwnershipWarningDesc" | i18n }}
+    </span>
+    <a
+      class="tw-mt-4"
+      bitLink
+      href="https://bitwarden.com/resources/credential-lifecycle-management/"
+      target="_blank"
+    >
+      {{ "centralizeDataOwnershipWarningLink" | i18n }}
+      <i class="bwi bwi-external-link"></i>
+    </a>
+  </div>
+</ng-template>

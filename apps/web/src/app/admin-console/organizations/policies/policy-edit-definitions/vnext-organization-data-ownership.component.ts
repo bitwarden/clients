@@ -2,11 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  signal,
   Signal,
   TemplateRef,
   viewChild,
+  WritableSignal,
 } from "@angular/core";
-import { lastValueFrom, Observable } from "rxjs";
+import { Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -16,13 +18,13 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 import { EncString } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { OrganizationDataOwnershipPolicyDialogComponent } from "../policy-edit-dialogs";
 
-interface VNextOrganizationDataOwnershipPolicyRequest {
+export interface OrganizationDataOwnershipPolicyRequest {
   policy: PolicyRequest;
   metadata: {
     defaultUserCollectionName: string;
@@ -35,6 +37,8 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefiniti
   type = PolicyType.OrganizationDataOwnership;
   component = vNextOrganizationDataOwnershipPolicyComponent;
   showDescription = false;
+
+  editDialogComponent = OrganizationDataOwnershipPolicyDialogComponent;
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.MigrateMyVaultToMyItems);
@@ -52,37 +56,25 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   implements OnInit
 {
   constructor(
-    private dialogService: DialogService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
   ) {
     super();
   }
   private readonly policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
-  private readonly warningContent = viewChild.required<TemplateRef<unknown>>("dialog");
+  private readonly warningContent: Signal<TemplateRef<any> | undefined> = viewChild("step1");
+  protected readonly step: WritableSignal<number> = signal(0);
 
-  protected step: number = 0;
   protected steps = [this.policyForm, this.warningContent];
 
-  override async confirm(): Promise<boolean> {
-    if (!this.policyResponse?.enabled && this.enabled.value) {
-      const dialogRef = this.dialogService.open(this.warningContent(), {
-        positionStrategy: new CenterPositionStrategy(),
-      });
-      const result = await lastValueFrom(dialogRef.closed);
-      return Boolean(result);
-    }
-    return true;
-  }
-
-  async buildVNextRequest(orgKey: OrgKey): Promise<VNextOrganizationDataOwnershipPolicyRequest> {
+  async buildVNextRequest(orgKey: OrgKey): Promise<OrganizationDataOwnershipPolicyRequest> {
     if (!this.policy) {
       throw new Error("Policy was not found");
     }
 
     const defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
 
-    const request: VNextOrganizationDataOwnershipPolicyRequest = {
+    const request: OrganizationDataOwnershipPolicyRequest = {
       policy: {
         enabled: this.enabled.value ?? false,
         data: this.buildRequestData(),
@@ -104,5 +96,9 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     }
 
     return encrypted.encryptedString;
+  }
+
+  setStep(step: number) {
+    this.step.set(step);
   }
 }

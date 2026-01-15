@@ -16,6 +16,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -28,8 +29,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
-import { OrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions/organization-data-ownership.component";
-import { vNextOrganizationDataOwnershipPolicyComponent } from "./policy-edit-definitions/vnext-organization-data-ownership.component";
+import { OrganizationDataOwnershipPolicyRequest } from "./policy-edit-definitions/organization-data-ownership.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -74,11 +74,22 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     private formBuilder: FormBuilder,
     protected dialogRef: DialogRef<PolicyEditDialogResult>,
     protected toastService: ToastService,
-    private keyService: KeyService,
+    protected keyService: KeyService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
     return this.data.policy;
+  }
+
+  /**
+   * Type guard to check if the policy component has the buildVNextRequest method.
+   */
+  private hasVNextRequest(
+    component: BasePolicyEditComponent,
+  ): component is BasePolicyEditComponent & {
+    buildVNextRequest: (orgKey: OrgKey) => Promise<OrganizationDataOwnershipPolicyRequest>;
+  } {
+    return "buildVNextRequest" in component && typeof component.buildVNextRequest === "function";
   }
 
   /**
@@ -130,10 +141,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     try {
-      if (
-        this.policyComponent instanceof OrganizationDataOwnershipPolicyComponent ||
-        this.policyComponent instanceof vNextOrganizationDataOwnershipPolicyComponent
-      ) {
+      if (this.hasVNextRequest(this.policyComponent)) {
         await this.handleVNextSubmission(this.policyComponent);
       } else {
         await this.handleStandardSubmission();
@@ -162,9 +170,9 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   }
 
   private async handleVNextSubmission(
-    policyComponent:
-      | OrganizationDataOwnershipPolicyComponent
-      | vNextOrganizationDataOwnershipPolicyComponent,
+    policyComponent: BasePolicyEditComponent & {
+      buildVNextRequest: (orgKey: OrgKey) => Promise<OrganizationDataOwnershipPolicyRequest>;
+    },
   ): Promise<void> {
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
