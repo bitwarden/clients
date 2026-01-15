@@ -197,25 +197,43 @@ export class SetInitialPasswordComponent implements OnInit {
 
     switch (this.userType) {
       case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER:
+        /**
+         * "KM flag"   = EnableAccountEncryptionV2JitPasswordRegistration
+         * "Auth flag" = PM27086_UpdateAuthenticationApisForInputPassword (checked in InputPasswordComponent and
+         *                                                                 passed through via PasswordInputResult)
+         *
+         * Flag unwinding for this specific `case` will depend on which flag gets unwound first:
+         * - If KM flag gets unwound first, remove all code (in this `case`) after the call
+         *   to setInitialPasswordJitMPUserV2Encryption(), as the V2Encryption method is the
+         *   end-goal for this `case`.
+         * - If Auth flag gets unwound first (in PM-28143), keep the KM code & early return,
+         *   but unwind the auth flagging logic and then remove the method call marked with
+         *   the "Default Scenario" comment.
+         */
+
         // const accountEncryptionV2 = await this.configService.getFeatureFlag(
         //   FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration,
         // );
 
-        // // KM flag ON
+        // // Scenario 1: KM flag ON
         // if (accountEncryptionV2) {
         //   await this.setInitialPasswordJitMPUserV2Encryption(passwordInputResult);
         //   return;
         // }
 
-        // KM flag OFF, Auth flag ON
+        // Scenario 2: KM flag OFF, Auth flag ON
         if (
           passwordInputResult.newApisWithInputPasswordFlagEnabled &&
-          !passwordInputResult.newMasterKey
+          !passwordInputResult.newMasterKey &&
+          !passwordInputResult.newServerMasterKeyHash &&
+          !passwordInputResult.newLocalMasterKeyHash
         ) {
           /**
-           * If the newApisWithInputPasswordFlagEnabled is enabled, it means the InputPasswordComponent
-           * will not emit a newMasterKey, newServerMasterKeyHash, and newLocalMasterKeyHash. So we must
-           * create them here and add them late to the PasswordInputResult before calling setInitialPassword().
+           * If the Auth flag is enabled, it means the InputPasswordComponent will not emit a newMasterKey,
+           * newServerMasterKeyHash, and newLocalMasterKeyHash. So we must create them here and add them late
+           * to the PasswordInputResult before calling setInitialPassword().
+           *
+           * This is a temporary state. The end-goal will be to use KM's V2Encryption method above.
            */
 
           const newMasterKey = await this.keyService.makeMasterKey(
@@ -240,12 +258,12 @@ export class SetInitialPasswordComponent implements OnInit {
           passwordInputResult.newServerMasterKeyHash = newServerMasterKeyHash;
           passwordInputResult.newLocalMasterKeyHash = newLocalMasterKeyHash;
 
-          await this.setInitialPassword(passwordInputResult);
+          await this.setInitialPassword(passwordInputResult); // passwordInputResult masterKey properties generated on the SetInitialPasswordComponent (just above)
           return;
         }
 
-        // Default - both flags OFF
-        await this.setInitialPassword(passwordInputResult);
+        // Default Scenario: both flags OFF
+        await this.setInitialPassword(passwordInputResult); // passwordInputResult masterKey properties generated on the InputPasswordComponent (default)
 
         break;
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
