@@ -11620,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
   },
+  "vulnerablePassword": {
+    "message": "Gefährdetes Passwort."
+  },
+  "changeNow": {
+    "message": "Jetzt ändern"
+  },
   "missingWebsite": {
     "message": "Fehlende Webseite"
   },
@@ -12597,7 +12603,7 @@
     "message": "Dein Abonnement wurde gekündigt am"
   },
   "storageFull": {
-    "message": "Speicher voll"
+    "message": "Speicherplatz voll"
   },
   "storageUsedDescription": {
     "message": "Du hast $USED$ von $AVAILABLE$ GB deines verschlüsselten Datenspeichers verwendet.",
@@ -12614,5 +12620,11 @@
   },
   "storageFullDescription": {
     "message": "Du hast die gesamten $GB$ GB deines verschlüsselten Speichers verwendet. Um mit dem Speichern von Dateien fortzufahren, füge mehr Speicher hinzu."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Wenn du Speicherplatz entfernst, erhältst du eine anteilige Gutschrift, die automatisch mit deiner nächsten Rechnung verrechnet wird."
+  },
+  "youHavePremium": {
+    "message": "Du hast Premium"
   }
 }
