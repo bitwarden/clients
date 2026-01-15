@@ -11,6 +11,7 @@ import { EncryptService } from "../../../../key-management/crypto/abstractions/e
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../../platform/services/container.service";
 import { UserKey } from "../../../../types/key";
+import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
 
@@ -25,6 +26,7 @@ describe("Send", () => {
       id: "id",
       accessId: "accessId",
       type: SendType.Text,
+      authType: AuthType.None,
       name: "encName",
       notes: "encNotes",
       text: {
@@ -55,6 +57,7 @@ describe("Send", () => {
       id: null,
       accessId: null,
       type: undefined,
+      authType: undefined,
       name: null,
       notes: null,
       text: undefined,
@@ -78,6 +81,7 @@ describe("Send", () => {
       id: "id",
       accessId: "accessId",
       type: SendType.Text,
+      authType: AuthType.None,
       name: { encryptedString: "encName", encryptionType: 0 },
       notes: { encryptedString: "encNotes", encryptionType: 0 },
       text: {
@@ -107,6 +111,7 @@ describe("Send", () => {
     send.id = "id";
     send.accessId = "accessId";
     send.type = SendType.Text;
+    send.authType = AuthType.None;
     send.name = mockEnc("name");
     send.notes = mockEnc("notes");
     send.text = text;
@@ -145,6 +150,7 @@ describe("Send", () => {
       name: "name",
       notes: "notes",
       type: 0,
+      authType: 2,
       key: expect.anything(),
       cryptoKey: "cryptoKey",
       file: expect.anything(),
