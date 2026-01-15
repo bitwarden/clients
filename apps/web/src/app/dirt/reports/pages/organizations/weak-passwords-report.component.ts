@@ -93,8 +93,23 @@ export class WeakPasswordsReportComponent
     });
   }
 
-  getAllCiphers(): Promise<CipherView[]> {
-    return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+  async getAllCiphers(): Promise<CipherView[]> {
+    const orgCiphers = await this.cipherService.getAllFromApiForOrganization(
+      this.organization.id,
+      true,
+    );
+
+    // response from API above does not include permission levels for ciphers. look up ciphers in cache and use current user's permissions where possible
+    orgCiphers.map((cipher) => {
+      const editable = this.manageableCiphers.find((c) => c.id === cipher.id);
+      if (editable) {
+        cipher.edit = editable.edit;
+        cipher.viewPassword = editable.viewPassword;
+        cipher.permissions = editable.permissions;
+      }
+    });
+
+    return orgCiphers;
   }
 
   canManageCipher(c: CipherView): boolean {
