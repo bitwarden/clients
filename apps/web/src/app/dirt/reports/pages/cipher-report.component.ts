@@ -46,10 +46,11 @@ export abstract class CipherReportComponent implements OnDestroy {
   organizations: Organization[] = [];
   organizations$: Observable<Organization[]>;
 
+  readonly maxItemsToSwitchToChipSelect = 5;
   filterStatus: any = [0];
   showFilterToggle: boolean = false;
   selectedFilterChip: string = "0";
-  chipSelectOptions: { label: string; value: string; icon: string }[] = [];
+  chipSelectOptions: { label: string; value: string }[] = [];
   vaultMsg: string = "vault";
   currentFilterStatus: number | string = 0;
   protected filterOrgStatus$ = new BehaviorSubject<number | string>(0);
@@ -291,7 +292,7 @@ export abstract class CipherReportComponent implements OnDestroy {
   }
 
   protected canDisplayToggleGroup(): boolean {
-    return this.filterStatus.length <= 4;
+    return this.filterStatus.length <= this.maxItemsToSwitchToChipSelect;
   }
 
   async filterOrgToggleChipSelect(filterId: string | null) {
@@ -326,10 +327,6 @@ export abstract class CipherReportComponent implements OnDestroy {
 
   private setupChipSelectOptions(filters: string[]) {
     const options = filters.map((filterId: string, index: number) => {
-      let icon: string = "bwi-business";
-      icon = index === 0 ? "bwi-folder" : icon;
-      icon = index === 1 ? "bwi-user" : icon;
-
       const name = this.getName(filterId);
       const count = this.getCount(filterId);
       const labelSuffix = count != null ? ` (${count})` : "";
@@ -337,7 +334,6 @@ export abstract class CipherReportComponent implements OnDestroy {
       return {
         label: name + labelSuffix,
         value: filterId,
-        icon,
       };
     });
 

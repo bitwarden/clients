@@ -39,7 +39,6 @@
       @if (!isAdminConsoleActive && !canDisplayToggleGroup()) {
         <bit-chip-select
           [placeholderText]="chipSelectOptions[0].label"
-          [placeholderIcon]="chipSelectOptions[0].icon"
           [options]="chipSelectOptions"
           [ngModel]="selectedFilterChip"
           (ngModelChange)="filterOrgToggleChipSelect($event)"
