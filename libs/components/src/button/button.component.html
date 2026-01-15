@@ -2,7 +2,7 @@
 @let leadIcon = startIcon();
 @let tailIcon = endIcon();
 
-<ng-template #content>
+<ng-template #buttonContent>
   <ng-content></ng-content>
 </ng-template>
 
@@ -14,7 +14,7 @@
           <i class="{{ startIconClasses() }}"></i>
         }
         <div>
-          <ng-container *ngTemplateOutlet="content"></ng-container>
+          <ng-container *ngTemplateOutlet="buttonContent"></ng-container>
         </div>
         @if (tailIcon) {
           <i class="{{ endIconClasses() }}"></i>
@@ -22,7 +22,7 @@
       </div>
     } @else {
       <div>
-        <ng-container *ngTemplateOutlet="content"></ng-container>
+        <ng-container *ngTemplateOutlet="buttonContent"></ng-container>
       </div>
     }
   </span>

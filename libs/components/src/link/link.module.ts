@@ -1,9 +1,10 @@
 import { NgModule } from "@angular/core";
 
-import { AnchorLinkDirective, ButtonLinkDirective } from "./link.directive";
+import { LinkComponent } from "./link.component";
+import { ButtonLinkDirective } from "./link.directive";
 
 @NgModule({
-  imports: [AnchorLinkDirective, ButtonLinkDirective],
-  exports: [AnchorLinkDirective, ButtonLinkDirective],
+  imports: [LinkComponent, ButtonLinkDirective],
+  exports: [LinkComponent, ButtonLinkDirective],
 })
 export class LinkModule {}
