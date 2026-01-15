@@ -11620,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
   },
+  "vulnerablePassword": {
+    "message": "Mot de passe vulnérable."
+  },
+  "changeNow": {
+    "message": "Changer maintenant"
+  },
   "missingWebsite": {
     "message": "Site Web manquant"
   },
@@ -12614,5 +12620,11 @@
   },
   "storageFullDescription": {
     "message": "Vous avez utilisé tous les $GB$ Go de votre stockage chiffré. Pour continuer à stocker des fichiers, ajoutez plus de stockage."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Lorsque vous supprimez le stockage, vous recevrez un crédit de compte au prorata qui sera automatiquement appliqué à votre prochaine facture."
+  },
+  "youHavePremium": {
+    "message": "Vous avez Premium"
   }
 }

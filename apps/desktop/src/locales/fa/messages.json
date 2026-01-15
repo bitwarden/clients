@@ -4011,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "این ورود در معرض خطر است و فاقد وب‌سایت می‌باشد. برای امنیت بیشتر، یک وب‌سایت اضافه کنید و رمز عبور را تغییر دهید."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "وب‌سایت وجود ندارد"
   },
