@@ -4,7 +4,7 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import {
@@ -42,8 +42,7 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
   });
 
   it("input selected on load when policy enabled", async () => {
-    component.policyResponse = new PolicyResponse({
-      id: "policy1",
+    component.policyResponse = new PolicyStatusResponse({
       organizationId: "org1",
       type: PolicyType.RemoveUnlockWithPin,
       enabled: true,
@@ -63,8 +62,7 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
   });
 
   it("input not selected on load when policy disabled", async () => {
-    component.policyResponse = new PolicyResponse({
-      id: "policy1",
+    component.policyResponse = new PolicyStatusResponse({
       organizationId: "org1",
       type: PolicyType.RemoveUnlockWithPin,
       enabled: false,
@@ -84,8 +82,7 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
   });
 
   it("turn on message label", async () => {
-    component.policyResponse = new PolicyResponse({
-      id: "policy1",
+    component.policyResponse = new PolicyStatusResponse({
       organizationId: "org1",
       type: PolicyType.RemoveUnlockWithPin,
       enabled: false,
