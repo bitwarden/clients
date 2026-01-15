@@ -19,7 +19,6 @@ import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
 import { SendTextResponse } from "../models/send-text.response";
 import { SendResponse } from "../models/send.response";
-``
 export class SendCreateCommand {
   constructor(
     private sendService: SendService,
