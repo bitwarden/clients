@@ -16,7 +16,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
+import { ChipSelectComponent, DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
@@ -42,7 +42,7 @@ import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule],
+  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipSelectComponent],
 })
 export class WeakPasswordsReportComponent
   extends BaseWeakPasswordsReportComponent
