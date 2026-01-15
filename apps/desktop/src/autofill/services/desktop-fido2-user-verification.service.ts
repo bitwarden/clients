@@ -1,21 +1,24 @@
 import { Fido2UserVerificationService } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/logging";
 
 import { NativeAutofillUserVerificationCommand } from "../../platform/main/autofill/user-verification.command";
 
 export class MacOsFido2UserVerificationService implements Fido2UserVerificationService {
-  constructor(private readonly logService: LogService) {}
+  constructor(
+    private readonly i18nService: I18nService,
+    private readonly logService: LogService,
+  ) {}
 
   async promptForUserVerification(
     operation: "registration" | "overwrite" | "assertion",
     username: string,
     _context?: void,
   ): Promise<boolean> {
-    // TODO: internationalization
     const displayHint = {
-      registration: "verify it's you to create a new credential",
-      overwrite: "verify it's you to overwrite a credential",
-      assertion: "verify it's you to log in",
+      registration: this.i18nService.translate("confirmPasskeyRegistrationMacOS"),
+      overwrite: this.i18nService.translate("confirmPasskeyOverwriteMacOS"),
+      assertion: this.i18nService.translate("confirmPasskeyAssertionMacOS"),
     }[operation];
 
     const uvResult = await ipc.autofill.runCommand<NativeAutofillUserVerificationCommand>({

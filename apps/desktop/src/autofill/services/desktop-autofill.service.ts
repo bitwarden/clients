@@ -29,6 +29,7 @@ import {
   Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { Fido2UserVerificationService } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -67,6 +68,7 @@ export class DesktopAutofillService implements OnDestroy {
     private accountService: AccountService,
     private authService: AuthService,
     platformUtilsService: PlatformUtilsService,
+    private i18nService: I18nService,
   ) {
     const deviceType = platformUtilsService.getDevice();
     if (deviceType === DeviceType.MacOsDesktop) {
@@ -529,7 +531,7 @@ export class DesktopAutofillService implements OnDestroy {
   ): Fido2UserVerificationService {
     switch (ipc.platform.deviceType) {
       case DeviceType.MacOsDesktop:
-        return new MacOsFido2UserVerificationService(this.logService);
+        return new MacOsFido2UserVerificationService(this.i18nService, this.logService);
       default:
         throw new Error("No platform user verification service defined");
     }
