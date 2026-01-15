@@ -1,5 +1,5 @@
 import { combineLatest, Observable, of, switchMap } from "rxjs";
-import { catchError, distinctUntilChanged, map, shareReplay } from "rxjs/operators";
+import { catchError, distinctUntilChanged, map, shareReplay, tap } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -9,6 +9,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { PHISHING_DETECTION_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
@@ -32,27 +33,47 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
     private accountService: AccountService,
     private billingService: BillingAccountProfileStateService,
     private configService: ConfigService,
+    private logService: LogService,
     private organizationService: OrganizationService,
     private platformService: PlatformUtilsService,
     private stateProvider: StateProvider,
   ) {
+    this.logService.debug(`[PhishingDetectionSettingsService] Initializing service...`);
     this.available$ = this.buildAvailablePipeline$().pipe(
       distinctUntilChanged(),
+      tap((available) =>
+        this.logService.debug(
+          `[PhishingDetectionSettingsService] Phishing detection available: ${available}`,
+        ),
+      ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
     this.enabled$ = this.buildEnabledPipeline$().pipe(
       distinctUntilChanged(),
+      tap((enabled) =>
+        this.logService.debug(
+          `[PhishingDetectionSettingsService] Phishing detection enabled: ${{ enabled }}`,
+        ),
+      ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     this.on$ = combineLatest([this.available$, this.enabled$]).pipe(
       map(([available, enabled]) => available && enabled),
       distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true }),
+      tap((on) =>
+        this.logService.debug(
+          `[PhishingDetectionSettingsService] Phishing detection is on: ${{ on }}`,
+        ),
+      ),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
   }
 
   async setEnabled(userId: UserId, enabled: boolean): Promise<void> {
+    this.logService.debug(
+      `[PhishingDetectionSettingsService] Setting phishing detection enabled: ${{ enabled, userId }}`,
+    );
     await this.stateProvider.getUser(userId, ENABLE_PHISHING_DETECTION).update(() => enabled);
   }
 
@@ -64,6 +85,9 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
   private buildAvailablePipeline$(): Observable<boolean> {
     // Phishing detection is unavailable on Safari due to platform limitations.
     if (this.platformService.isSafari()) {
+      this.logService.warning(
+        `[PhishingDetectionSettingsService] Phishing detection is unavailable on Safari due to platform limitations`,
+      );
       return of(false);
     }
 
@@ -97,6 +121,9 @@ export class PhishingDetectionSettingsService implements PhishingDetectionSettin
         if (!account) {
           return of(false);
         }
+        this.logService.debug(
+          `[PhishingDetectionSettingsService] Refreshing phishing detection enabled state`,
+        );
         return this.stateProvider.getUserState$(ENABLE_PHISHING_DETECTION, account.id);
       }),
       map((enabled) => enabled ?? true),
