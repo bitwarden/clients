@@ -113,15 +113,6 @@ npx nx run-many -t test --all   # Run all tests
 npx nx affected -t test         # Test only affected projects
 ```
 
-## Critical Rules
-
-- **NEVER** add new encryption logic to this repo—cryptographic operations belong in the SDK
-- **NEVER** send unencrypted vault data to API services
-- **NEVER** log decrypted data, encryption keys, or PII
-- **CRITICAL**: Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`)
-- **NEVER** use TypeScript enums—use const objects with type aliases (see pattern below)
-- **NEVER** use code regions—refactor for readability instead
-
 ## Monorepo Architecture
 
 ```
@@ -267,11 +258,23 @@ describe("MyComponent", () => {
 
 ## Code Style & Standards
 
+### General Practices
+
+- Use the Bitwarden SDK for all cryptographic operations
+- Use branded types (`UserId`, `CipherId`) for IDs
+- Use `takeUntilDestroyed()` for subscription cleanup
+- Use `OnPush` change detection in components
+- Use `async` pipe in templates
+- Use the View layer for displaying decrypted data
+- Write unit tests for services
+- Use dependency injection
+
 ### Formatting
 
 - **Prettier** for code formatting (run `npm run prettier`)
 - **ESLint** for linting (run `npm run lint:fix`)
 - Pre-commit hooks enforce formatting
+- Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`)
 
 ### Naming Conventions
 
@@ -302,28 +305,16 @@ enum CipherType {
 
 ## Anti-Patterns
 
-### DO
-
-- Use `takeUntilDestroyed()` for subscription cleanup
-- Use `OnPush` change detection
-- Use const objects instead of enums
-- Use branded types (`UserId`, `CipherId`) for IDs
-- Use `async` pipe in templates
-- Keep components focused and small
-- Write unit tests for services
-- Use dependency injection
-
-### DON'T
-
-- Add new TypeScript enums, instead use const objects
-- Add encryption logic (use SDK)
-- Log sensitive data (PII, keys, vault data)
-- Use Tailwind classes without `tw-` prefix
-- Create manual subscriptions without cleanup
-- Import from apps in libraries
-- Use `any` type without justification
-- Skip the View layer for displaying data
-- Use code regions
+- **NEVER** add new encryption logic to this repo—use the SDK
+- **NEVER** send unencrypted vault data to API services
+- **NEVER** log decrypted data, encryption keys, or PII
+- **NEVER** add new TypeScript enums—use const objects
+- **NEVER** use code regions—refactor for readability
+- Don't use Tailwind classes without the `tw-` prefix
+- Don't create manual subscriptions without cleanup
+- Don't import from apps in libraries
+- Don't use `any` type without justification
+- Don't skip the View layer for displaying data
 
 ## Troubleshooting
 
