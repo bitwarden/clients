@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "新增",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "新增 URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "您確定要刪除此 Send 嗎？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "複製 Send 連結",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "複製 Send 連結到剪貼簿",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4003,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
   },
+  "vulnerablePassword": {
+    "message": "有安全疑慮的密碼。"
+  },
+  "changeNow": {
+    "message": "立即變更"
+  },
   "missingWebsite": {
     "message": "缺少網站"
   },
@@ -4031,9 +4045,15 @@
     "message": "安全傳送機密的資訊",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "沒有搜尋結果"
+  },
   "sendsBodyNoItems": {
     "message": "安全的和任何人及任何平臺分享檔案及資料。您的資料會受到端對端加密的保護。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "清除過濾器或更換另一個搜尋條件"
   },
   "generatorNudgeTitle": {
     "message": "快速建立密碼"
@@ -4253,7 +4273,7 @@
   "typeShortcut": {
     "message": "輸入快捷鍵"
   },
-  "editAutotypeShortcutDescription": {
+  "editAutotypeKeyboardModifiersDescription": {
     "message": "請包含以下修飾鍵之一或兩個：Ctrl、Alt、Win 或 Shift，再加上一個字母。"
   },
   "invalidShortcut": {
@@ -4292,6 +4312,9 @@
   "unArchive": {
     "message": "取消封存"
   },
+  "archived": {
+    "message": "已封存"
+  },
   "itemsInArchive": {
     "message": "封存中的項目"
   },
@@ -4312,6 +4335,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
+  },
+  "unArchiveAndSave": {
+    "message": "取消封存並儲存"
+  },
+  "restartPremium": {
+    "message": "重新啟用進階版"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "您的進階版訂閱已到期"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
+  },
+  "itemRestored": {
+    "message": "已還原項目"
   },
   "zipPostalCodeLabel": {
     "message": "郵編 / 郵政代碼"

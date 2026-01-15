@@ -13,7 +13,7 @@ default = [
     "dep:security-framework",
     "dep:security-framework-sys",
     "dep:zbus",
-    "dep:zbus_polkit"
+    "dep:zbus_polkit",
 ]
 manual_test = []
 
@@ -46,6 +46,23 @@ tracing = { workspace = true }
 typenum = { workspace = true }
 zeroizing-alloc = { workspace = true }
 
+[target.'cfg(target_os = "linux")'.dependencies]
+ashpd = { workspace = true }
+homedir = { workspace = true }
+libc = { workspace = true }
+linux-keyutils = { workspace = true }
+oo7 = { workspace = true }
+zbus = { workspace = true, optional = true }
+zbus_polkit = { workspace = true, optional = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+core-foundation = { workspace = true, optional = true }
+desktop_objc = { path = "../objc" }
+homedir = { workspace = true }
+secmem-proc = { workspace = true }
+security-framework = { workspace = true, optional = true }
+security-framework-sys = { workspace = true, optional = true }
+
 [target.'cfg(windows)'.dependencies]
 pin-project = { workspace = true }
 scopeguard = { workspace = true }
@@ -67,23 +84,6 @@ windows = { workspace = true, features = [
     "Win32_System_Pipes",
 ], optional = true }
 windows-future = { workspace = true }
-
-[target.'cfg(target_os = "macos")'.dependencies]
-core-foundation = { workspace = true, optional = true }
-homedir = { workspace = true }
-secmem-proc = { workspace = true }
-security-framework = { workspace = true, optional = true }
-security-framework-sys = { workspace = true, optional = true }
-desktop_objc = { path = "../objc" }
-
-[target.'cfg(target_os = "linux")'.dependencies]
-ashpd = { workspace = true }
-homedir = { workspace = true }
-libc = { workspace = true }
-linux-keyutils = { workspace = true }
-oo7 = { workspace = true }
-zbus = { workspace = true, optional = true }
-zbus_polkit = { workspace = true, optional = true }
 
 [lints]
 workspace = true

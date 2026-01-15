@@ -11,7 +11,7 @@ import {
   input,
 } from "@angular/core";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -144,8 +144,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
   }
 
+  // Archive button will not show in Admin Console
   protected get showArchiveButton() {
-    if (!this.archiveEnabled()) {
+    if (!this.archiveEnabled() || this.viewingOrgVault) {
       return false;
     }
 
@@ -216,11 +217,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
-  // Do Not show Assign to Collections option if item is archived
   protected get showAssignToCollections() {
-    if (CipherViewLikeUtils.isArchived(this.cipher)) {
-      return false;
-    }
     return (
       this.organizations?.length &&
       this.canAssignCollections &&

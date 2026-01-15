@@ -1,6 +1,9 @@
 <section [formGroup]="itemDetailsForm" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "itemDetails" | i18n }}</h2>
+    @if (showArchiveBadge()) {
+      <span bitBadge> {{ "archived" | i18n }} </span>
+    }
     <button
       *ngIf="!config.hideIndividualVaultFields"
       slot="end"

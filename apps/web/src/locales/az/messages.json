@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Sadalanacaq heç bir üzv yoxdur."
   },
+  "noMembersToExport": {
+    "message": ".dillonvince767@gmail.com"
+  },
   "noEventsInList": {
     "message": "Sadalanacaq heç bir tədbir yoxdur."
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "Fəallaşdırıldı"
   },
+  "optionEnabled": {
+    "message": "Fəaldır"
+  },
   "restoreAccess": {
     "message": "Erişimi bərpa et"
   },
@@ -3145,6 +3151,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
+  },
+  "itemRestored": {
+    "message": "Element bərpa edildi"
   },
   "restartPremium": {
     "message": "\"Premium\"u yenidən başlat"
@@ -5607,6 +5616,37 @@
     "message": "Send yaradıldı",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send uğurla yaradıldı!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Bu Send keçidini kopyala və paylaş. Qeyd etdiyiniz şəxslər buna növbəti $TIME$ ərzində baxa bilər.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ saat",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Yeni Send mətni",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Yeni Send faylı",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "\"Send\"ə düzəliş edildi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5645,6 +5685,9 @@
   },
   "revoked": {
     "message": "Ləğv edildi"
+  },
+  "accepted": {
+    "message": "Qəbul edildi"
   },
   "sendLink": {
     "message": "\"Send\" keçidi",
@@ -6303,6 +6346,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Hesab geri qaytarılmasına yazıldınız"
+  },
+  "enrolled": {
+    "message": "Yazılma uğurludur"
+  },
+  "notEnrolled": {
+    "message": "Yazılma baş tutmayıb"
   },
   "withdrawAccountRecovery": {
     "message": "Hesab geri qaytarılması üzrə razılığı geri götür"
@@ -11571,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Əskik veb sayt"
   },
@@ -11609,6 +11664,9 @@
   "unArchive": {
     "message": "Arxivdən çıxart"
   },
+  "archived": {
+    "message": "Arxivləndi"
+  },
   "unArchiveAndSave": {
     "message": "Arxivdən çıxart və saxla"
   },
@@ -11626,6 +11684,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Elementlər arxivə göndərildi"
+  },
+  "itemWasUnarchived": {
+    "message": "Element arxivdən çıxarıldı"
   },
   "itemUnarchived": {
     "message": "Element arxivdən çıxarıldı"
@@ -12485,5 +12546,85 @@
   },
   "planDescPremium": {
     "message": "Tam onlayn təhlükəsizlik"
+  },
+  "updatePayment": {
+    "message": "Ödənişi güncəllə"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Ödənişiniz emal olunmadı. Lütfən ödəniş üsulunuzu güncəlləyin, ya da kömək üçün dəstək komandası ilə əlaqə saxlayın."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Abunəliyinizin vaxtı bitib. Kömək üçün lütfən dəstək komandası ilə əlaqə saxlayın."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Abunəliyiniz $DATE$ tarixində ləğv ediləcək. Abunəliyinizi bu tarixdən əvvəl təkrar aktivləşdirə bilərsiniz.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Ailələr planı ilə daha çoxunu paylaşın, ya da Komandalar və ya Müəssisə planı ilə daha güclü və etibarlı parol təhlükəsizliyi əldə edin."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Abunəliyinizin bitmə tarixindən etibarən $DAYS$ gün güzəşt dövrünüz var. Lütfən $DATE$ tarixinə qədər vaxtı keçmiş fakturaları həll edin.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Fakturaları idarə et"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Növbəti ödəniş haqqı"
+  },
+  "dueOn": {
+    "message": "tarix"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Abunəliyinizin fəaliyyəti dayandırılacaq"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Abunəliyinizin fəaliyyəti dayandırıldı"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Abunəliyiniz ləğv ediləcək"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Abunəliyiniz ləğv edildi"
+  },
+  "storageFull": {
+    "message": "Anbar dolub"
+  },
+  "storageUsedDescription": {
+    "message": "$AVAILABLE$ GB şifrələnmiş fayl anbarınızın $USED$ qədəri istifadə olunub.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Bütün $GB$ GB-lıq şifrələnmiş anbar sahənizi istifadə etmisiniz. Faylları saxlaya bilmək üçün daha çox anbar sahəsi əlavə edin."
+  },
+  "whenYouRemoveStorage": {
+    "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+  },
+  "youHavePremium": {
+    "message": "You have Premium"
   }
 }

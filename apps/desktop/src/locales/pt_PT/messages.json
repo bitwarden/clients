@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Novo",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Novo URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Tem a certeza de que pretende eliminar este Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Copiar link do Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Copiar o link do Send para a área de transferência",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4003,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
   },
+  "vulnerablePassword": {
+    "message": "Palavra-passe vulnerável."
+  },
+  "changeNow": {
+    "message": "Alterar agora"
+  },
   "missingWebsite": {
     "message": "Site em falta"
   },
@@ -4031,9 +4045,15 @@
     "message": "Envie informações sensíveis com segurança",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Não foram apresentados resultados de pesquisa"
+  },
   "sendsBodyNoItems": {
     "message": "Partilhe ficheiros e dados de forma segura com qualquer pessoa, em qualquer plataforma. As suas informações permanecerão encriptadas ponto a ponto, limitando a exposição.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Limpe os filtros ou tente outro termo de pesquisa"
   },
   "generatorNudgeTitle": {
     "message": "Criar rapidamente palavras-passe"
@@ -4253,8 +4273,8 @@
   "typeShortcut": {
     "message": "Introduzir atalho"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win, ou Shift, e uma letra."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Inclua um ou dois dos seguintes modificadores: Ctrl, Alt, Win e uma letra."
   },
   "invalidShortcut": {
     "message": "Atalho inválido"
@@ -4292,6 +4312,9 @@
   "unArchive": {
     "message": "Desarquivar"
   },
+  "archived": {
+    "message": "Arquivado"
+  },
   "itemsInArchive": {
     "message": "Itens no arquivo"
   },
@@ -4312,6 +4335,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  },
+  "unArchiveAndSave": {
+    "message": "Desarquivar e guardar"
+  },
+  "restartPremium": {
+    "message": "Reiniciar Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "A sua subscrição Premium terminou"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre."
+  },
+  "itemRestored": {
+    "message": "O item foi restaurado"
   },
   "zipPostalCodeLabel": {
     "message": "Código postal"

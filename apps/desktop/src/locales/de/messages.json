@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Neu",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Neue URL"
   },
@@ -2411,6 +2415,10 @@
     "message": "Bist du sicher, dass du dieses Send löschen möchtest?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Send-Link kopieren",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Send-Link in Zwischenablage kopieren",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4003,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
   },
+  "vulnerablePassword": {
+    "message": "Gefährdetes Passwort."
+  },
+  "changeNow": {
+    "message": "Jetzt ändern"
+  },
   "missingWebsite": {
     "message": "Fehlende Website"
   },
@@ -4031,9 +4045,15 @@
     "message": "Sensible Informationen sicher versenden",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Keine Suchergebnisse gefunden"
+  },
   "sendsBodyNoItems": {
     "message": "Teile Dateien und Daten sicher mit jedem auf jeder Plattform. Deine Informationen bleiben Ende-zu-Ende-verschlüsselt, während die Verbreitung begrenzt wird.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
   },
   "generatorNudgeTitle": {
     "message": "Passwörter schnell erstellen"
@@ -4253,8 +4273,8 @@
   "typeShortcut": {
     "message": "Autotype-Tastaturkürzel"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Füge einen oder zwei der folgenden Modifikatoren ein: Strg, Alt, Win oder Umschalttaste, sowie einen Buchstaben."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Füge einen oder zwei der folgenden Modifikatoren ein: Strg, Alt, Win und einen Buchstaben."
   },
   "invalidShortcut": {
     "message": "Ungültiges Tastaturkürzel"
@@ -4292,6 +4312,9 @@
   "unArchive": {
     "message": "Wiederherstellen"
   },
+  "archived": {
+    "message": "Archiviert"
+  },
   "itemsInArchive": {
     "message": "Einträge im Archiv"
   },
@@ -4312,6 +4335,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  },
+  "unArchiveAndSave": {
+    "message": "Nicht mehr archivieren und speichern"
+  },
+  "restartPremium": {
+    "message": "Premium neu starten"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Dein Premium-Abonnement ist abgelaufen"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
+  },
+  "itemRestored": {
+    "message": "Eintrag wurde wiederhergestellt"
   },
   "zipPostalCodeLabel": {
     "message": "PLZ / Postleitzahl"
