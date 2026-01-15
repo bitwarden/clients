@@ -7,9 +7,9 @@ import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Observable, switchMap, of, map } from "rxjs";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -25,6 +25,7 @@ import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
@@ -34,6 +35,7 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   AsyncActionsModule,
+  BadgeModule,
   ButtonModule,
   CalloutModule,
   DialogService,
@@ -42,6 +44,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  ArchiveCipherUtilitiesService,
   ChangeLoginPasswordService,
   CipherViewComponent,
   CopyCipherFieldService,
@@ -95,6 +98,7 @@ type LoadAction =
     AsyncActionsModule,
     PopOutComponent,
     CalloutModule,
+    BadgeModule,
   ],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
@@ -114,6 +118,10 @@ export class ViewV2Component {
   senderTabId?: number;
 
   protected showFooter$: Observable<boolean>;
+  protected userCanArchive$ = this.accountService.activeAccount$
+    .pipe(getUserId)
+    .pipe(switchMap((userId) => this.archiveService.userCanArchive$(userId)));
+  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
 
   constructor(
     private passwordRepromptService: PasswordRepromptService,
@@ -131,6 +139,8 @@ export class ViewV2Component {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
+    private archiveService: CipherArchiveService,
+    private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
   ) {
     this.subscribeToParams();
   }
@@ -270,6 +280,24 @@ export class ViewV2Component {
       title: null,
       message: this.i18nService.t("restoredItem"),
     });
+  };
+
+  archive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.archiveCipher(this.cipher, true);
+
+    if (!cipherResponse) {
+      return;
+    }
+    this.cipher.archivedDate = new Date(cipherResponse.archivedDate);
+  };
+
+  unarchive = async () => {
+    const cipherResponse = await this.archiveCipherUtilsService.unarchiveCipher(this.cipher);
+
+    if (!cipherResponse) {
+      return;
+    }
+    this.cipher.archivedDate = null;
   };
 
   protected deleteCipher() {

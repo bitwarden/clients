@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Nowy element",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Nowy URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Czy na pewno chcesz usunąć wysyłkę?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Kopiuj link wysyłki",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Kopiuj link wysyłki do schowka",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3923,7 +3931,7 @@
     "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Przypomnij później"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
     "message": "Do you have reliable access to your email, $EMAIL$?",
@@ -3944,34 +3952,34 @@
     "message": "Turn on two-step login"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Zmień adres e-mail konta"
   },
   "passkeyLogin": {
-    "message": "Log in with passkey?"
+    "message": "Zalogować się kluczem dostępu?"
   },
   "savePasskeyQuestion": {
-    "message": "Save passkey?"
+    "message": "Zapisać klucz dostępu?"
   },
   "saveNewPasskey": {
-    "message": "Save as new login"
+    "message": "Zapisz jako nowy dane logowania"
   },
   "savePasskeyNewLogin": {
-    "message": "Save passkey as new login"
+    "message": "Zapisz klucz dostępu jako nowe dane logowania"
   },
   "noMatchingLoginsForSite": {
-    "message": "No matching logins for this site"
+    "message": "Brak pasujących danych logowania dla tej strony"
   },
   "overwritePasskey": {
-    "message": "Overwrite passkey?"
+    "message": "Zastąpić klucz dostępu?"
   },
   "unableToSavePasskey": {
-    "message": "Unable to save passkey"
+    "message": "Nie można zapisać klucza dostępu"
   },
   "alreadyContainsPasskey": {
-    "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
+    "message": "Element zawiera już klucz dostępu. Czy na pewno chcesz zastąpić obecny klucz dostępu?"
   },
   "passkeyAlreadyExists": {
-    "message": "A passkey already exists for this application."
+    "message": "Klucz dostępu dla tej aplikacji już istnieje."
   },
   "applicationDoesNotSupportDuplicates": {
     "message": "This application does not support duplicates."
@@ -4003,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Zmień teraz"
+  },
   "missingWebsite": {
     "message": "Brak strony internetowej"
   },
@@ -4031,9 +4045,15 @@
     "message": "Wysyłaj poufne informacje w bezpieczny sposób",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Brak pasujących elementów"
+  },
   "sendsBodyNoItems": {
     "message": "Udostępniaj pliki i teksty każdemu na dowolnej platformie. Informacje będę szyfrowane end-to-end, zapewniając poufność.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Wyczyść filtry lub użyj innej frazy"
   },
   "generatorNudgeTitle": {
     "message": "Szybkie tworzenie haseł"
@@ -4253,8 +4273,8 @@
   "typeShortcut": {
     "message": "Rodzaj skrótu"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "Skrót jest nieprawidłowy"
@@ -4292,6 +4312,9 @@
   "unArchive": {
     "message": "Usuń z archiwum"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "itemsInArchive": {
     "message": "Elementy w archiwum"
   },
@@ -4312,6 +4335,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Zarchiwizowane elementy są wykluczone z wyników wyszukiwania i sugestii autouzupełniania. Czy na pewno chcesz archiwizować element?"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
     "message": "Kod pocztowy"
@@ -4387,6 +4425,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
+  },
+  "resizeSideNavigation": {
+    "message": "Zmień rozmiar nawigacji bocznej"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "This setting is managed by your organization."

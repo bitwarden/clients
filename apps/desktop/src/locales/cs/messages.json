@@ -100,6 +100,10 @@
       }
     }
   },
+  "new": {
+    "message": "Nová",
+    "description": "for adding new items"
+  },
   "newUri": {
     "message": "Nová URI"
   },
@@ -2411,6 +2415,10 @@
     "message": "Opravdu chcete smazat tento Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "copySendLink": {
+    "message": "Kopírovat odkaz pro Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "copySendLinkToClipboard": {
     "message": "Zkopírovat odkaz Send do schránky",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4003,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
+  "vulnerablePassword": {
+    "message": "Zranitelné heslo."
+  },
+  "changeNow": {
+    "message": "Změnit nyní"
+  },
   "missingWebsite": {
     "message": "Chybějící webová stránka"
   },
@@ -4031,9 +4045,15 @@
     "message": "Posílejte citlivé informace bezpečně",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "Nebyly vráceny žádné výsledky hledání"
+  },
   "sendsBodyNoItems": {
     "message": "Sdílejte bezpečně soubory a data s kýmkoli na libovolné platformě. Vaše informace zůstanou šifrovány a zároveň omezují expozici.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
   },
   "generatorNudgeTitle": {
     "message": "Rychlé vytvoření hesla"
@@ -4253,7 +4273,7 @@
   "typeShortcut": {
     "message": "Napsat zkratku"
   },
-  "editAutotypeShortcutDescription": {
+  "editAutotypeKeyboardModifiersDescription": {
     "message": "Zahrňte jeden nebo dva z následujících modifikátorů: Ctrl, Alt, Win nebo Shift a písmeno."
   },
   "invalidShortcut": {
@@ -4292,6 +4312,9 @@
   "unArchive": {
     "message": "Odebrat z archivu"
   },
+  "archived": {
+    "message": "Archivováno"
+  },
   "itemsInArchive": {
     "message": "Položky v archivu"
   },
@@ -4312,6 +4335,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  },
+  "unArchiveAndSave": {
+    "message": "Odebrat z archivu a uložit"
+  },
+  "restartPremium": {
+    "message": "Restartovat Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Vaše předplatné Premium skončilo"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "Chcete-li získat přístup k Vašemu archivu, restartujte předplatné Premium. Pokud upravíte detaily archivované položky před restartováním, bude přesunuta zpět do Vašeho trezoru."
+  },
+  "itemRestored": {
+    "message": "Položka byla obnovena"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / PSČ"
@@ -4387,6 +4425,9 @@
   },
   "sessionTimeoutHeader": {
     "message": "Časový limit relace"
+  },
+  "resizeSideNavigation": {
+    "message": "Změnit velikost boční navigace"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Tato nastavení je spravováno Vaší organizací."

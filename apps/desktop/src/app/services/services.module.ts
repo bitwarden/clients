@@ -1,11 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule } from "@angular/core";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { LoginApprovalDialogComponentServiceAbstraction } from "@bitwarden/angular/auth/login-approval";
+import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -37,6 +36,7 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   PolicyService as PolicyServiceAbstraction,
   InternalPolicyService,
@@ -45,6 +45,7 @@ import {
   AccountService,
   AccountService as AccountServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import {
   AuthService,
   AuthService as AuthServiceAbstraction,
@@ -52,6 +53,7 @@ import {
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType } from "@bitwarden/common/enums";
@@ -61,7 +63,10 @@ import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  MasterPasswordServiceAbstraction,
+} from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
@@ -103,6 +108,7 @@ import { SystemService } from "@bitwarden/common/platform/services/system.servic
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
@@ -118,10 +124,18 @@ import {
   SessionTimeoutSettingsComponentService,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
+import {
+  DefaultSshImportPromptService,
+  SshImportPromptService,
+  VaultFilterServiceAbstraction,
+  VaultFilterService,
+  RoutedVaultFilterService,
+  RoutedVaultFilterBridgeService,
+  VAULT_FILTER_BASE_ROUTE,
+} from "@bitwarden/vault";
 
-import { DesktopLoginApprovalDialogComponentService } from "../../auth/login/desktop-login-approval-dialog-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
+import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-request-answering/desktop-auth-request-answering.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
@@ -470,11 +484,6 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: LoginApprovalDialogComponentServiceAbstraction,
-    useClass: DesktopLoginApprovalDialogComponentService,
-    deps: [I18nServiceAbstraction],
-  }),
-  safeProvider({
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [DialogService, ToastService, PlatformUtilsServiceAbstraction, I18nServiceAbstraction],
@@ -508,6 +517,47 @@ const safeProviders: SafeProvider[] = [
     provide: SessionTimeoutSettingsComponentService,
     useClass: SessionTimeoutSettingsComponentService,
     deps: [I18nServiceAbstraction, SessionTimeoutTypeService, PolicyServiceAbstraction],
+  }),
+  safeProvider({
+    provide: VaultFilterServiceAbstraction,
+    useClass: VaultFilterService,
+    deps: [
+      OrganizationService,
+      FolderService,
+      CipherServiceAbstraction,
+      PolicyServiceAbstraction,
+      I18nServiceAbstraction,
+      StateProvider,
+      CollectionService,
+      AccountServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: VAULT_FILTER_BASE_ROUTE,
+    useValue: "/new-vault",
+  }),
+  safeProvider({
+    provide: RoutedVaultFilterService,
+    useClass: RoutedVaultFilterService,
+    deps: [ActivatedRoute],
+  }),
+  safeProvider({
+    provide: RoutedVaultFilterBridgeService,
+    useClass: RoutedVaultFilterBridgeService,
+    deps: [Router, RoutedVaultFilterService, VaultFilterServiceAbstraction],
+  }),
+  safeProvider({
+    provide: AuthRequestAnsweringService,
+    useClass: DesktopAuthRequestAnsweringService,
+    deps: [
+      AccountServiceAbstraction,
+      AuthService,
+      MasterPasswordServiceAbstraction,
+      MessagingServiceAbstraction,
+      PendingAuthRequestsStateService,
+      I18nServiceAbstraction,
+      LogService,
+    ],
   }),
 ];
 

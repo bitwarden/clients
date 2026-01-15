@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Elemento archiviato"
   },
+  "itemWasUnarchived": {
+    "message": "Elemento rimosso dall'archivio"
+  },
   "itemUnarchived": {
     "message": "Elemento rimosso dall'archivio"
   },
@@ -584,6 +587,9 @@
   },
   "upgradeToUseArchive": {
     "message": "Per utilizzare Archivio è necessario un abbonamento premium."
+  },
+  "itemRestored": {
+    "message": "L'elemento è stato ripristinato"
   },
   "edit": {
     "message": "Modifica"
@@ -4808,6 +4814,39 @@
   "adminConsole": {
     "message": "Console di amministrazione"
   },
+  "admin": {
+    "message": "Amministratore"
+  },
+  "automaticUserConfirmation": {
+    "message": "Conferma automatica degli utenti"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Conferma automaticamente gli utenti in sospeso mentre il dispositivo è sbloccato"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Risparmia tempo con la conferma automatica degli utenti"
+  },
+  "autoConfirmWarning": {
+    "message": "Potrebbe influenzare la sicurezza dei dati della tua organizzazione. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Scopri quali sono i rischi"
+  },
+  "autoConfirmSetup": {
+    "message": "Conferma automaticamente i nuovi utenti"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "I nuovi utenti saranno automaticamente confermati mentre questo dispositivo è sbloccato."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Quali sono i rischi potenziali per la sicurezza?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Conferma automatica attivata"
+  },
+  "availableNow": {
+    "message": "Disponibile ora"
+  },
   "accountSecurity": {
     "message": "Sicurezza dell'account"
   },
@@ -5664,6 +5703,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
   },
+  "vulnerablePassword": {
+    "message": "Password vulnerabile."
+  },
+  "changeNow": {
+    "message": "Cambiala subito!"
+  },
   "missingWebsite": {
     "message": "Sito web mancante"
   },
@@ -6039,5 +6084,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Perché vedo questo avviso?"
+  },
+  "resizeSideNavigation": {
+    "message": "Ridimensiona la navigazione laterale"
   }
 }
