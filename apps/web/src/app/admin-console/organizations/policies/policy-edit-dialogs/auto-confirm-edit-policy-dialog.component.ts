@@ -197,7 +197,8 @@ export class AutoConfirmPolicyDialogComponent
     }
 
     const autoConfirmRequest = await this.policyComponent.buildRequest();
-    await this.policyApiService.putPolicyVNext(
+
+    await this.policyApiService.putPolicy(
       this.data.organizationId,
       this.data.policy.type,
       autoConfirmRequest,

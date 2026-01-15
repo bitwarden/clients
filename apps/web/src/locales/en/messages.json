@@ -5923,13 +5923,13 @@
     "message": "Benefits"
   },
   "centralizeDataOwnershipBenefit1":{
-    "message": "Gain full visibility into item health, regardless if it’s shared or not."
+    "message": "Gain full visibility into credential health, including shared and unshared items"
   },
   "centralizeDataOwnershipBenefit2":{
-    "message": "Easily transfer items when members leave, ensuring no access gaps."
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps"
   },
   "centralizeDataOwnershipBenefit3":{
-    "message": "Give each user a private “My items” space for their own logins."
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins"
   },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Users must transfer items to the organization"
