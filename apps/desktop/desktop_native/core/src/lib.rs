@@ -12,7 +12,7 @@ pub mod process_isolation;
 pub(crate) mod secure_memory;
 pub mod ssh_agent;
 
-use zeroizing_alloc::ZeroAlloc;
+use zeroizing_alloc::ZeroAlloc; // test
 
 #[global_allocator]
 static ALLOC: ZeroAlloc<std::alloc::System> = ZeroAlloc(std::alloc::System);
