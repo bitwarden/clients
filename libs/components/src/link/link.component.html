@@ -1,0 +1,22 @@
+@let leadIcon = startIcon();
+@let tailIcon = endIcon();
+
+<ng-template #linkContent>
+  <ng-content></ng-content>
+</ng-template>
+
+<span class="tw-relative">
+  @if (leadIcon || tailIcon) {
+    <div class="tw-flex tw-items-center tw-gap-2">
+      @if (leadIcon) {
+        <i class="{{ startIconClasses() }}"></i>
+      }
+      <ng-container *ngTemplateOutlet="linkContent"></ng-container>
+      @if (tailIcon) {
+        <i class="{{ endIconClasses() }}"></i>
+      }
+    </div>
+  } @else {
+    <ng-container *ngTemplateOutlet="linkContent"></ng-container>
+  }
+</span>

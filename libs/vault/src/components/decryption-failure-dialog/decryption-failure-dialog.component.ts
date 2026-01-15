@@ -7,7 +7,7 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogRef,
-  AnchorLinkDirective,
+  LinkComponent,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -32,7 +32,7 @@ export type DecryptionFailureDialogParams = {
     JslibModule,
     AsyncActionsModule,
     ButtonModule,
-    AnchorLinkDirective,
+    LinkComponent,
   ],
 })
 export class DecryptionFailureDialogComponent {

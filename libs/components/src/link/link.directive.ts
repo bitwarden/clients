@@ -1,4 +1,4 @@
-import { input, HostBinding, Directive, inject, ElementRef, booleanAttribute } from "@angular/core";
+import { input, Directive, inject, ElementRef, booleanAttribute, computed } from "@angular/core";
 
 import { AriaDisableDirective } from "../a11y";
 import { ariaDisableElement } from "../utils";
@@ -32,6 +32,7 @@ const commonStyles = [
   "tw-rounded",
   "tw-transition",
   "tw-no-underline",
+  "tw-cursor-pointer",
   "hover:tw-underline",
   "hover:tw-decoration-1",
   "disabled:tw-no-underline",
@@ -68,47 +69,36 @@ const commonStyles = [
   "aria-disabled:hover:tw-no-underline",
 ];
 
-@Directive()
-abstract class LinkDirective {
-  readonly linkType = input<LinkType>("primary");
-}
-
-/**
-  * Text Links and Buttons can use either the `<a>` or `<button>` tags. Choose which based on the action the button takes:
-
-  * - if navigating to a new page, use a `<a>`
-  * - if taking an action on the current page, use a `<button>`
-
-  * Text buttons or links are most commonly used in paragraphs of text or in forms to customize actions or show/hide additional form options.
- */
-@Directive({
-  selector: "a[bitLink]",
-})
-export class AnchorLinkDirective extends LinkDirective {
-  @HostBinding("class") get classList() {
-    return ["before:-tw-inset-y-[0.125rem]"]
-      .concat(commonStyles)
-      .concat(linkStyles[this.linkType()] ?? []);
-  }
+export function getLinkClasses({
+  linkType,
+  verticalInset,
+}: {
+  linkType: LinkType;
+  verticalInset: string;
+}): string[] {
+  return [`before:-tw-inset-y-[${verticalInset}]`]
+    .concat(commonStyles)
+    .concat(linkStyles[linkType] ?? []);
 }
 
 @Directive({
   selector: "button[bitLink]",
   hostDirectives: [AriaDisableDirective],
+  host: {
+    "[class]": "classList()",
+  },
 })
-export class ButtonLinkDirective extends LinkDirective {
+export class ButtonLinkDirective {
   private el = inject(ElementRef<HTMLButtonElement>);
 
+  readonly linkType = input<LinkType>("primary");
   readonly disabled = input(false, { transform: booleanAttribute });
 
-  @HostBinding("class") get classList() {
-    return ["before:-tw-inset-y-[0.25rem]"]
-      .concat(commonStyles)
-      .concat(linkStyles[this.linkType()] ?? []);
-  }
+  readonly classList = computed(() => {
+    return getLinkClasses({ linkType: this.linkType(), verticalInset: "0.25rem" });
+  });
 
   constructor() {
-    super();
     ariaDisableElement(this.el.nativeElement, this.disabled);
   }
 }

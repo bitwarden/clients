@@ -6,7 +6,7 @@ import { firstValueFrom, switchMap } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { AnchorLinkDirective, CalloutModule, BannerModule } from "@bitwarden/components";
+import { LinkComponent, CalloutModule, BannerModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { AtRiskPasswordCalloutData, AtRiskPasswordCalloutService } from "@bitwarden/vault";
 
@@ -15,7 +15,7 @@ import { AtRiskPasswordCalloutData, AtRiskPasswordCalloutService } from "@bitwar
 @Component({
   selector: "vault-at-risk-password-callout",
   imports: [
-    AnchorLinkDirective,
+    LinkComponent,
     CommonModule,
     RouterModule,
     CalloutModule,

@@ -2,7 +2,8 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 
-import { AnchorLinkDirective, ButtonLinkDirective } from "./link.directive";
+import { LinkComponent } from "./link.component";
+import { ButtonLinkDirective } from "./link.directive";
 import { LinkModule } from "./link.module";
 
 export default {
@@ -98,7 +99,7 @@ export const Buttons: Story = {
   },
 };
 
-export const Anchors: StoryObj<AnchorLinkDirective> = {
+export const Anchors: StoryObj<LinkComponent> = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
