@@ -5,19 +5,18 @@ import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } fr
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
+  BehaviorSubject,
   combineLatest,
   distinctUntilChanged,
   filter,
   firstValueFrom,
-  from,
   map,
   Observable,
   shareReplay,
   switchMap,
   take,
-  withLatestFrom,
   tap,
-  BehaviorSubject,
+  withLatestFrom,
 } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
@@ -138,17 +137,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   activeUserId: UserId | null = null;
 
-  /**
-   * Subject that indicates whether the vault is ready to render
-   * and that all initialization tasks have been completed (ngOnInit).
-   * @private
-   */
   private readySubject = new BehaviorSubject(false);
 
-  /**
-   * Indicates whether the vault is loading and not yet ready to be displayed.
-   * @protected
-   */
   protected loading$ = combineLatest([
     this.vaultPopupLoadingService.loading$,
     this.readySubject.asObservable(),
@@ -169,10 +159,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     FeatureFlag.BrowserPremiumSpotlight,
   );
 
-  private showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
-    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
-  );
-
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
@@ -180,38 +166,39 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected hasPremium$ = this.activeUserId$.pipe(
     switchMap((userId) => this.billingAccountService.hasPremiumFromAnySource$(userId)),
   );
-  protected accountAgeInDays$ = this.activeUserId$.pipe(
-    switchMap((userId) => {
-      const creationDate$ = from(this.vaultProfileService.getProfileCreationDate(userId));
-      return creationDate$.pipe(
-        map((creationDate) => {
-          if (!creationDate) {
-            return 0;
-          }
-          const ageInMilliseconds = Date.now() - creationDate.getTime();
-          return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
-        }),
-      );
+  protected accountAgeInDays$ = this.accountService.activeAccount$.pipe(
+    map((account) => {
+      if (!account || !account.creationDate) {
+        return 0;
+      }
+      const creationDate = account.creationDate;
+      const ageInMilliseconds = Date.now() - creationDate.getTime();
+      return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
     }),
   );
 
   protected showPremiumSpotlight$ = combineLatest([
     this.premiumSpotlightFeatureFlag$,
-    this.showPremiumNudgeSpotlight$,
+    this.activeUserId$.pipe(
+      switchMap((userId) =>
+        this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId),
+      ),
+    ),
     this.showHasItemsVaultSpotlight$,
     this.hasPremium$,
     this.cipherCount$,
     this.accountAgeInDays$,
   ]).pipe(
-    map(
-      ([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) =>
+    map(([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) => {
+      return (
         featureFlagEnabled &&
         showPremiumNudge &&
         !showHasItemsNudge &&
         !hasPremium &&
         count >= 5 &&
-        age >= 7,
-    ),
+        age >= 7
+      );
+    }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
