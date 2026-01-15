@@ -60,6 +60,7 @@ export default {
             getAllDecrypted: () => Promise.resolve([]),
           },
         },
+        // Can remove ConfigService from component and stories in PM-28143 (if it is no longer used)
         {
           provide: ConfigService,
           useValue: {

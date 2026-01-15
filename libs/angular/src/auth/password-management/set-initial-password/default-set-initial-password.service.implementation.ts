@@ -50,7 +50,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   ) {}
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated To be removed in PM-28143. When you remove this, also check for any objects/methods
+   * in this default service that are now un-used and can also be removed.
    */
   async setInitialPassword(
     credentials: SetInitialPasswordCredentials,

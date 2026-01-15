@@ -364,6 +364,7 @@ export class InputPasswordComponent implements OnInit {
         return;
       }
 
+      // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
       const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
         FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
       );
@@ -393,6 +394,10 @@ export class InputPasswordComponent implements OnInit {
         this.onPasswordFormSubmit.emit(passwordInputResult);
         return passwordInputResult;
       }
+
+      /*******************************************************************
+       * The following code (within this `try`) to be removed in PM-28143
+       *******************************************************************/
 
       // 4. Create cryptographic keys and build a PasswordInputResult object
       const newMasterKey = await this.keyService.makeMasterKey(
