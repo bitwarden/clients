@@ -4011,6 +4011,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Site Web manquant"
   },
@@ -4267,8 +4273,8 @@
   "typeShortcut": {
     "message": "Saisir le raccourci"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Inclure un ou deux des modificateurs suivants : Ctrl, Alt, Win, ou Shift, et une lettre."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "Raccourci invalide"
