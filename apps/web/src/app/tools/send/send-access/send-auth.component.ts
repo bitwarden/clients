@@ -22,11 +22,11 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { AuthType } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
