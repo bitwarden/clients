@@ -2,17 +2,29 @@
 @let leadIcon = startIcon();
 @let tailIcon = endIcon();
 
+<ng-template #content>
+  <ng-content></ng-content>
+</ng-template>
+
 <span class="tw-relative">
   <span [class.tw-invisible]="showLoadingStyles">
-    <span [class]="leadIcon || tailIcon ? 'tw-flex tw-items-center tw-gap-2' : ''">
-      @if (leadIcon) {
-        <i class="{{ startIconClasses() }}"></i>
-      }
-      <ng-content></ng-content>
-      @if (tailIcon) {
-        <i class="{{ endIconClasses() }}"></i>
-      }
-    </span>
+    @if (leadIcon || tailIcon) {
+      <div class="tw-flex tw-items-center tw-gap-2">
+        @if (leadIcon) {
+          <i class="{{ startIconClasses() }}"></i>
+        }
+        <div>
+          <ng-container *ngTemplateOutlet="content"></ng-container>
+        </div>
+        @if (tailIcon) {
+          <i class="{{ endIconClasses() }}"></i>
+        }
+      </div>
+    } @else {
+      <div>
+        <ng-container *ngTemplateOutlet="content"></ng-container>
+      </div>
+    }
   </span>
   @if (showLoadingStyles) {
     <span class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
