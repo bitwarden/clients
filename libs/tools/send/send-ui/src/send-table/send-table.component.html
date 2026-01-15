@@ -33,14 +33,16 @@
               ></i>
               <span class="tw-sr-only">{{ "disabled" | i18n }}</span>
             }
-            @if (s.password) {
+            @if (s.authType !== authType.None) {
+              @let titleKey =
+                s.authType === authType.Email ? "emailProtected" : "passwordProtected";
               <i
-                class="bwi bwi-key"
+                class="bwi bwi-lock"
                 appStopProp
-                title="{{ 'password' | i18n }}"
+                title="{{ titleKey | i18n }}"
                 aria-hidden="true"
               ></i>
-              <span class="tw-sr-only">{{ "password" | i18n }}</span>
+              <span class="tw-sr-only">{{ titleKey | i18n }}</span>
             }
             @if (s.maxAccessCountReached) {
               <i
