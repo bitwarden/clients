@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Objektet skickades till arkivet"
   },
+  "itemWasUnarchived": {
+    "message": "Objektet har avarkiverats"
+  },
   "itemUnarchived": {
     "message": "Objektet har avarkiverats"
   },
@@ -4812,22 +4815,37 @@
     "message": "Adminkonsol"
   },
   "admin": {
-    "message": "Admin"
+    "message": "Administratör"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Automatisk bekräftelse av användare"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "Bekräfta automatiskt väntande användare medan enheten är olåst"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "Spara tid med automatisk användarbekräftelse"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "Detta kan påverka din organisations datasäkerhet. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "Läs mer om riskerna"
+  },
+  "autoConfirmSetup": {
+    "message": "Bekräfta nya användare automatiskt"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Nya användare kommer automatiskt att bekräftas när denna enhet är upplåst."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Vilka är de potentiella säkerhetsriskerna?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Aktiverade automatisk bekräftelse"
+  },
+  "availableNow": {
+    "message": "Tillgänglig nu"
   },
   "accountSecurity": {
     "message": "Kontosäkerhet"

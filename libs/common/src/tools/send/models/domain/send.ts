@@ -8,20 +8,13 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";
-import { SendType } from "../../enums/send-type";
+import { AuthType } from "../../types/auth-type";
+import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
 
 import { SendFile } from "./send-file";
 import { SendText } from "./send-text";
-
-export const AuthType = Object.freeze({
-  Email: 0,
-  Password: 1,
-  None: 2,
-} as const);
-
-export type AuthType = (typeof AuthType)[keyof typeof AuthType];
 
 export class Send extends Domain {
   id: string;
@@ -63,6 +56,7 @@ export class Send extends Domain {
     );
 
     this.type = obj.type;
+    this.authType = obj.authType;
     this.maxAccessCount = obj.maxAccessCount;
     this.accessCount = obj.accessCount;
     this.password = obj.password;

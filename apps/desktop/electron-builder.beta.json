@@ -13,14 +13,15 @@
   },
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
-  "asarUnpack": ["**/*.node"],
+  "beforePack": "scripts/before-pack.js",
   "files": [
-    "**/*",
-    "!**/node_modules/@bitwarden/desktop-napi/**/*",
-    "**/node_modules/@bitwarden/desktop-napi/index.js",
-    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
+    "!node_modules/@bitwarden/desktop-napi/scripts",
+    "!node_modules/@bitwarden/desktop-napi/src",
+    "!node_modules/@bitwarden/desktop-napi/Cargo.toml",
+    "!node_modules/@bitwarden/desktop-napi/build.rs",
+    "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "36.8.1",
+  "electronVersion": "37.7.0",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -34,11 +35,11 @@
     },
     "extraFiles": [
       {
-        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
+        "from": "desktop_native/dist/desktop_proxy.win32-${arch}.exe",
         "to": "desktop_proxy.exe"
       },
       {
-        "from": "desktop_native/dist/bitwarden_chromium_import_helper.${platform}-${arch}.exe",
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
         "to": "bitwarden_chromium_import_helper.exe"
       }
     ]
@@ -58,6 +59,7 @@
   "appx": {
     "artifactName": "Bitwarden-Beta-${version}-${arch}.${ext}",
     "backgroundColor": "#175DDC",
+    "customManifestPath": "./custom-appx-manifest.xml",
     "applicationId": "BitwardenBeta",
     "identityName": "8bitSolutionsLLC.BitwardenBeta",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
