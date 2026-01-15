@@ -4839,7 +4839,7 @@
     "message": "当此设备已解锁时，新用户将被自动确认。"
   },
   "autoConfirmSetupHint": {
-    "message": "有哪些潜在的安全风险？"
+    "message": "潜在的安全风险有哪些？"
   },
   "autoConfirmEnabled": {
     "message": "启用了自动确认"
