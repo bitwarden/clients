@@ -1,4 +1,4 @@
-import { Subject, switchMap, timer } from "rxjs";
+import { firstValueFrom, Subject, switchMap, timer } from "rxjs";
 
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -33,9 +33,6 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     collectPageDetailsResponse: ({ message, sender }) =>
       this.handleCollectPageDetailsResponse(message, sender),
   };
-  // @TODO update via feature-flag
-  private useUndiscoveredCipherScenarioTriggeringLogic = false;
-
   constructor(
     private logService: LogService,
     private notificationBackground: NotificationBackground,
@@ -450,7 +447,11 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     tab: chrome.tabs.Tab,
     config: { skippable: NotificationScenario[] } = { skippable: [] },
   ) => {
-    const notificationCandidates = this.useUndiscoveredCipherScenarioTriggeringLogic
+    const useUndeterminedCipherScenarioTriggeringLogic = await firstValueFrom(
+      this.notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$,
+    );
+
+    const notificationCandidates = useUndeterminedCipherScenarioTriggeringLogic
       ? [
           {
             type: NotificationScenarios.Cipher,

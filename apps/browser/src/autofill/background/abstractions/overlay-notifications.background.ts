@@ -21,8 +21,8 @@ export type LoginSecurityTaskInfo = {
 /**
  * Distinguished from `NotificationTypes` in that this represents the
  * pre-resolved notification scenario, vs the notification component
- * (e.g. "Add" and "Cipher" will be removed post-`useFullCipherTriggeringLogic`
- * migration)
+ * (e.g. "Add" and "Change" will be removed
+ * post-`useUndeterminedCipherScenarioTriggeringLogic` migration)
  */
 export const NotificationScenarios = {
   ...NotificationTypes,

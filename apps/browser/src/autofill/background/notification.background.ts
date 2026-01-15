@@ -22,6 +22,7 @@ import {
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
@@ -175,6 +176,10 @@ export default class NotificationBackground {
 
     this.cleanupNotificationQueue();
   }
+
+  useUndeterminedCipherScenarioTriggeringLogic$ = this.configService.getFeatureFlag$(
+    FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic,
+  );
 
   /**
    * Gets the enableChangedPasswordPrompt setting from the user notification settings service.

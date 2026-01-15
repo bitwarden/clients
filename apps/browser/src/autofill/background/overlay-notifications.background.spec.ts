@@ -1,4 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
@@ -32,6 +33,7 @@ describe("OverlayNotificationsBackground", () => {
     jest.useFakeTimers();
     logService = mock<LogService>();
     notificationBackground = mock<NotificationBackground>();
+    notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(false);
     getEnableChangedPasswordPromptSpy = jest
       .spyOn(notificationBackground, "getEnableChangedPasswordPrompt")
       .mockResolvedValue(true);
@@ -458,7 +460,7 @@ describe("OverlayNotificationsBackground", () => {
       const pageDetails = mock<AutofillPageDetails>({ fields: [mock<AutofillField>()] });
 
       beforeEach(async () => {
-        overlayNotificationsBackground["useUndiscoveredCipherScenarioTriggeringLogic"] = false;
+        notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(false);
         sendMockExtensionMessage(
           { command: "collectPageDetailsResponse", details: pageDetails },
           sender,
@@ -522,8 +524,8 @@ describe("OverlayNotificationsBackground", () => {
         expect(notificationAddLoginSpy).toHaveBeenCalled();
       });
 
-      it("with `useUndiscoveredCipherScenarioTriggeringLogic` on, waits for the tab's navigation to complete using the web navigation API before initializing the notification", async () => {
-        overlayNotificationsBackground["useUndiscoveredCipherScenarioTriggeringLogic"] = true;
+      it("with `useUndeterminedCipherScenarioTriggeringLogic` on, waits for the tab's navigation to complete using the web navigation API before initializing the notification", async () => {
+        notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(true);
         chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
           callback(
             mock<chrome.tabs.Tab>({
@@ -593,8 +595,8 @@ describe("OverlayNotificationsBackground", () => {
         expect(notificationAddLoginSpy).toHaveBeenCalled();
       });
 
-      it("with `useUndiscoveredCipherScenarioTriggeringLogic` on, initializes the notification immediately when the tab's navigation is complete", async () => {
-        overlayNotificationsBackground["useUndiscoveredCipherScenarioTriggeringLogic"] = true;
+      it("with `useUndeterminedCipherScenarioTriggeringLogic` on, initializes the notification immediately when the tab's navigation is complete", async () => {
+        notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(true);
         sendMockExtensionMessage(
           {
             command: "formFieldSubmitted",
@@ -677,8 +679,8 @@ describe("OverlayNotificationsBackground", () => {
         expect(notificationChangedPasswordSpy).toHaveBeenCalled();
       });
 
-      it("with `useUndiscoveredCipherScenarioTriggeringLogic` on, triggers the notification on the beforeRequest listener when a post-submission redirection is encountered", async () => {
-        overlayNotificationsBackground["useUndiscoveredCipherScenarioTriggeringLogic"] = true;
+      it("with `useUndeterminedCipherScenarioTriggeringLogic` on, triggers the notification on the beforeRequest listener when a post-submission redirection is encountered", async () => {
+        notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(true);
         sender.tab = mock<chrome.tabs.Tab>({ id: 4 });
         sendMockExtensionMessage(
           { command: "collectPageDetailsResponse", details: pageDetails },
