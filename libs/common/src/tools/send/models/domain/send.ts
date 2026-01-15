@@ -20,6 +20,7 @@ export class Send extends Domain {
   id: string;
   accessId: string;
   type: SendType;
+  authType: AuthType;
   name: EncString;
   notes: EncString;
   file: SendFile;

@@ -11,6 +11,7 @@ export class SendData {
   id: string;
   accessId: string;
   type: SendType;
+  authType: AuthType;
   name: string;
   notes: string;
   file: SendFileData;
@@ -35,6 +36,7 @@ export class SendData {
     this.id = response.id;
     this.accessId = response.accessId;
     this.type = response.type;
+    this.authType = response.authType;
     this.name = response.name;
     this.notes = response.notes;
     this.key = response.key;
