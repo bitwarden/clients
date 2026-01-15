@@ -29,8 +29,9 @@ export class OrgIntegrationBuilder {
     uri: string,
     token: string,
     bw_serviceName: OrganizationIntegrationServiceName,
+    scheme: string = "Bearer",
   ): OrgIntegrationConfiguration {
-    return new HecConfiguration(uri, token, bw_serviceName);
+    return new HecConfiguration(uri, token, bw_serviceName, scheme);
   }
 
   static buildHecTemplate(
@@ -57,7 +58,12 @@ export class OrgIntegrationBuilder {
     switch (type) {
       case OrganizationIntegrationType.Hec: {
         const hecConfig = this.convertToJson<HecConfiguration>(configuration);
-        return this.buildHecConfiguration(hecConfig.uri, hecConfig.token, hecConfig.bw_serviceName);
+        return this.buildHecConfiguration(
+          hecConfig.uri,
+          hecConfig.token,
+          hecConfig.bw_serviceName,
+          hecConfig.scheme,
+        );
       }
       case OrganizationIntegrationType.Datadog: {
         const datadogConfig = this.convertToJson<DatadogConfiguration>(configuration);
