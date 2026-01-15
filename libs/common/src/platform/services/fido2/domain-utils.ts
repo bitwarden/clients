@@ -48,7 +48,12 @@ export function isValidRpId(rpId: string, origin: string) {
   if (rpId !== "localhost" && !rpId.includes(".")) {
     return false;
   }
-  if (parsedOrigin.hostname !== "localhost" && !parsedOrigin.hostname.includes(".")) {
+
+  if (
+    parsedOrigin.hostname != null &&
+    parsedOrigin.hostname !== "localhost" &&
+    !parsedOrigin.hostname.includes(".")
+  ) {
     return false;
   }
 
@@ -65,7 +70,7 @@ export function isValidRpId(rpId: string, origin: string) {
 
   // Check if origin is a subdomain of rpId
   // This prevents "evilaccounts.example.com" from matching "accounts.example.com"
-  if (parsedOrigin.hostname.endsWith("." + rpId)) {
+  if (parsedOrigin.hostname != null && parsedOrigin.hostname.endsWith("." + rpId)) {
     return true;
   }
 
