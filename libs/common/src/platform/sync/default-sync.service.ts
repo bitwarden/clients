@@ -470,7 +470,10 @@ export class DefaultSyncService extends CoreSyncService {
             .map((option) => WebAuthnPrfUserDecryptionOption.fromResponse(option))
             .filter((option) => option !== undefined);
 
-          await this.userDecryptionOptionsService.setUserDecryptionOptions(updatedOptions);
+          await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+            activeAccount.id,
+            updatedOptions,
+          );
         }
       } catch (error) {
         this.logService.error("[Sync] Failed to update WebAuthn PRF options:", error);
