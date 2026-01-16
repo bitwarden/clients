@@ -6,6 +6,7 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
+      - "uif/cl-695/storybook"
   pull_request_target:
     types: [opened, synchronize, reopened]
     branches:
