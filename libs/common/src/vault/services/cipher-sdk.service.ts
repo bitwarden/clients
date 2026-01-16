@@ -1,4 +1,4 @@
-import { firstValueFrom, switchMap, catchError, of } from "rxjs";
+import { firstValueFrom, switchMap, catchError } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -18,7 +18,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     cipherView: CipherView,
     userId: UserId,
     orgAdmin?: boolean,
-  ): Promise<CipherView | void> {
+  ): Promise<CipherView> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -37,7 +37,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to create cipher: ${error}`);
-          return of(undefined);
+          throw error;
         }),
       ),
     );
