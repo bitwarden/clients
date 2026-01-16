@@ -2,7 +2,8 @@
 // @ts-strict-ignore
 import * as child_process from "child_process";
 
-import open from "open";
+// eslint-disable-next-line
+const open = require("open");
 
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -87,8 +88,7 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     if (process.platform === "linux") {
       child_process.spawnSync("xdg-open", [uri]);
     } else {
-      // eslint-disable-next-line no-console
-      open(uri).catch(console.error);
+      open(uri);
     }
   }
 
