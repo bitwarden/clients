@@ -238,10 +238,11 @@ export class SetInitialPasswordComponent implements OnInit {
           const ctx = "Could not set initial password.";
           assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
           assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+          assertTruthy(this.email, "email", ctx);
 
           const newMasterKey = await this.keyService.makeMasterKey(
             passwordInputResult.newPassword,
-            this.email,
+            this.email.trim().toLowerCase(),
             passwordInputResult.kdfConfig,
           );
 
