@@ -42,7 +42,6 @@ import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/org
 
 import {
   AddEditMemberDialogComponent,
-  AddEditMemberDialogParams,
   AddEditMemberDialogResultType,
 } from "./dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./dialogs/bulk-confirm-dialog.component";
@@ -308,20 +307,11 @@ export class vNextMembersComponent {
   }
 
   async edit(providerId: ProviderId, user?: ProviderUser): Promise<void> {
-    const data: AddEditMemberDialogParams = {
-      providerId: providerId,
-    };
-
-    if (user != null) {
-      data.user = {
-        id: user.id,
-        name: this.userNamePipe.transform(user),
-        type: user.type,
-      };
-    }
-
     const dialogRef = AddEditMemberDialogComponent.open(this.dialogService, {
-      data,
+      data: {
+        providerId,
+        user,
+      },
     });
 
     const result = await lastValueFrom(dialogRef.closed);

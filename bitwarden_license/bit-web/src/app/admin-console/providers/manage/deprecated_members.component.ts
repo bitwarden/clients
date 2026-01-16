@@ -296,15 +296,8 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   edit = async (user: ProviderUser | null): Promise<void> => {
     const data: AddEditMemberDialogParams = {
       providerId: this.providerId,
+      user,
     };
-
-    if (user != null) {
-      data.user = {
-        id: user.id,
-        name: this.userNamePipe.transform(user),
-        type: user.type,
-      };
-    }
 
     const dialogRef = AddEditMemberDialogComponent.open(this.dialogService, {
       data,

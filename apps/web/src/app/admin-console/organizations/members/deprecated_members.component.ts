@@ -599,7 +599,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       .every((member) => member.managedByOrganization && validStatuses.includes(member.status));
   }
 
-  protected exportMembers() {
+  exportMembers = () => {
     const result = this.memberExportService.getMemberExport(this.dataSource.data);
     if (result.success) {
       this.toastService.showToast({
@@ -612,5 +612,5 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     if (result.error != null) {
       this.validationService.showError(result.error.message);
     }
-  }
+  };
 }

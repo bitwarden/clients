@@ -20,7 +20,6 @@ import {
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
@@ -36,7 +35,6 @@ import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billin
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -85,9 +83,6 @@ interface BulkMemberFlags {
 })
 export class vNextMembersComponent {
   protected i18nService = inject(I18nService);
-  protected organizationManagementPreferencesService = inject(
-    OrganizationManagementPreferencesService,
-  );
   protected validationService = inject(ValidationService);
   protected logService = inject(LogService);
   protected userNamePipe = inject(UserNamePipe);
@@ -108,7 +103,6 @@ export class vNextMembersComponent {
   private configService = inject(ConfigService);
   private environmentService = inject(EnvironmentService);
   private memberExportService = inject(MemberExportService);
-  private fileDownloadService = inject(FileDownloadService);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -315,8 +309,14 @@ export class vNextMembersComponent {
     );
   }
 
-  private async handleInviteDialog(organization: Organization) {
+  async invite(organization: Organization) {
     const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+
+    if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization)) {
+      return;
+    }
+
     const allUserEmails = this.dataSource().data?.map((user) => user.email) ?? [];
 
     const result = await this.memberDialogManager.openInviteDialog(
@@ -327,14 +327,6 @@ export class vNextMembersComponent {
 
     if (result === MemberDialogResult.Saved) {
       await this.load(organization);
-    }
-  }
-
-  async invite(organization: Organization) {
-    const billingMetadata = await firstValueFrom(this.billingMetadata$);
-    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
-    if (!(await this.billingConstraint.seatLimitReached(seatLimitResult, organization))) {
-      await this.handleInviteDialog(organization);
       this.organizationMetadataService.refreshMetadataCache();
     }
   }
@@ -561,7 +553,7 @@ export class vNextMembersComponent {
     return result;
   }
 
-  protected exportMembers() {
+  exportMembers = () => {
     const result = this.memberExportService.getMemberExport(this.dataSource().data);
     if (result.success) {
       this.toastService.showToast({
@@ -574,5 +566,5 @@ export class vNextMembersComponent {
     if (result.error != null) {
       this.validationService.showError(result.error.message);
     }
-  }
+  };
 }
