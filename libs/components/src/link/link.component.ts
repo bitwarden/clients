@@ -128,6 +128,10 @@ export class LinkComponent {
       .concat(linkStyles[this.linkType()] ?? []);
   });
 
+  focus() {
+    this.el.nativeElement.focus();
+  }
+
   constructor() {
     if (this.isButton) {
       ariaDisableElement(this.el.nativeElement, this.disabled);
