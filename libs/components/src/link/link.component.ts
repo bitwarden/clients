@@ -113,7 +113,7 @@ export class LinkComponent {
    */
   readonly endIcon = input<BitwardenIcon | undefined>(undefined);
   /**
-   * Weather the button is disabled
+   * Whether the button is disabled
    * @default false
    * @note Only applicable if the link is rendered as a button
    */
