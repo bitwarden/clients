@@ -45,7 +45,7 @@ const commonStyles = [
   "tw-no-underline",
   "tw-cursor-pointer",
   "hover:[&_span]:tw-underline",
-  "hover:[&_span]:tw-decoration-1",
+  "hover:[&_span]:tw-decoration-[.125em]",
   "disabled:tw-no-underline",
   "disabled:tw-cursor-not-allowed",
   "disabled:!tw-text-secondary-300",
@@ -53,7 +53,7 @@ const commonStyles = [
   "disabled:hover:tw-no-underline",
   "focus-visible:tw-outline-none",
   "focus-visible:[&_span]:tw-underline",
-  "focus-visible:[&_span]:tw-decoration-1",
+  "focus-visible:[&_span]:tw-decoration-[.125em]",
 
   // Workaround for html button tag not being able to be set to `display: inline`
   // and at the same time not being able to use `tw-ring-offset` because of box-shadow issue.
