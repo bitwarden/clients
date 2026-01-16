@@ -1,4 +1,4 @@
-import { CollectionAdminView } from "@bitwarden/admin-console/common";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
