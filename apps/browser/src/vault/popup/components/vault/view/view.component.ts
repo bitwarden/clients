@@ -7,9 +7,9 @@ import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Observable, switchMap, of, map } from "rxjs";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -65,6 +65,7 @@ import { BrowserViewPasswordHistoryService } from "../../../services/browser-vie
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../../../utils/vault-popout-window";
+import { ROUTES_AFTER_EDIT_DELETION } from "../add-edit/add-edit-v2.component";
 
 /**
  * The types of actions that can be triggered when loading the view vault item popout via the
@@ -115,6 +116,7 @@ export class ViewComponent {
   collections$: Observable<CollectionView[]>;
   loadAction: LoadAction;
   senderTabId?: number;
+  routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
 
   protected showFooter$: Observable<boolean>;
   protected userCanArchive$ = this.accountService.activeAccount$
@@ -150,6 +152,9 @@ export class ViewComponent {
         switchMap(async (params) => {
           this.loadAction = params.action;
           this.senderTabId = params.senderTabId ? parseInt(params.senderTabId, 10) : undefined;
+          this.routeAfterDeletion = params.routeAfterDeletion
+            ? params.routeAfterDeletion
+            : undefined;
 
           this.activeUserId = await firstValueFrom(
             this.accountService.activeAccount$.pipe(getUserId),
@@ -229,7 +234,12 @@ export class ViewComponent {
       return false;
     }
     void this.router.navigate(["/edit-cipher"], {
-      queryParams: { cipherId: this.cipher.id, type: this.cipher.type, isNew: false },
+      queryParams: {
+        cipherId: this.cipher.id,
+        type: this.cipher.type,
+        isNew: false,
+        routeAfterDeletion: this.routeAfterDeletion,
+      },
     });
     return true;
   }
