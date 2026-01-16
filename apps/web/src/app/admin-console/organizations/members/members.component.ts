@@ -561,35 +561,18 @@ export class vNextMembersComponent {
     return result;
   }
 
-  exportMembers = async (): Promise<void> => {
-    try {
-      const members = this.dataSource().data;
-      if (!members || members.length === 0) {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("noMembersToExport"),
-        });
-        return;
-      }
-
-      const csvData = this.memberExportService.getMemberExport(members);
-      const fileName = this.memberExportService.getFileName("org-members");
-
-      this.fileDownloadService.download({
-        fileName: fileName,
-        blobData: csvData,
-        blobOptions: { type: "text/plain" },
-      });
-
+  protected exportMembers() {
+    const result = this.memberExportService.getMemberExport(this.dataSource().data);
+    if (result.success) {
       this.toastService.showToast({
         variant: "success",
         title: undefined,
         message: this.i18nService.t("dataExportSuccess"),
       });
-    } catch (e) {
-      this.validationService.showError(e);
-      this.logService.error(`Failed to export members: ${e}`);
     }
-  };
+
+    if (result.error != null) {
+      this.validationService.showError(result.error.message);
+    }
+  }
 }
