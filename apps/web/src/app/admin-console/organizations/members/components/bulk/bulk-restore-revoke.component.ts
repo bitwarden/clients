@@ -1,10 +1,20 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
+import { combineLatest, firstValueFrom, from, Observable, switchMap } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import {
+  OrganizationUserApiService,
+  OrganizationUserService,
+} from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { DIALOG_DATA, DialogService } from "@bitwarden/components";
 
 import { BulkUserDetails } from "./bulk-status.component";
@@ -34,10 +44,15 @@ export class BulkRestoreRevokeComponent {
   error: string;
   showNoMasterPasswordWarning = false;
   nonCompliantMembers: boolean = false;
+  organization$: Observable<Organization>;
 
   constructor(
     protected i18nService: I18nService,
     private organizationUserApiService: OrganizationUserApiService,
+    private organizationUserService: OrganizationUserService,
+    private accountService: AccountService,
+    private organizationService: OrganizationService,
+    private configService: ConfigService,
     @Inject(DIALOG_DATA) protected data: BulkRestoreDialogParams,
   ) {
     this.isRevoking = data.isRevoking;
@@ -45,6 +60,12 @@ export class BulkRestoreRevokeComponent {
     this.users = data.users;
     this.showNoMasterPasswordWarning = this.users.some(
       (u) => u.status > OrganizationUserStatusType.Invited && u.hasMasterPassword === false,
+    );
+
+    this.organization$ = accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        organizationService.organizations$(account?.id).pipe(getById(this.organizationId)),
+      ),
     );
   }
 
@@ -83,9 +104,24 @@ export class BulkRestoreRevokeComponent {
         userIds,
       );
     } else {
-      return await this.organizationUserApiService.restoreManyOrganizationUsers(
-        this.organizationId,
-        userIds,
+      return await firstValueFrom(
+        combineLatest([
+          this.configService.getFeatureFlag$(FeatureFlag.DefaultUserCollectionRestore),
+          this.organization$,
+        ]).pipe(
+          switchMap(([enabled, organization]) => {
+            if (enabled) {
+              return this.organizationUserService.bulkRestoreUsers(organization, userIds);
+            } else {
+              return from(
+                this.organizationUserApiService.restoreManyOrganizationUsers(
+                  this.organizationId,
+                  userIds,
+                ),
+              );
+            }
+          }),
+        ),
       );
     }
   }

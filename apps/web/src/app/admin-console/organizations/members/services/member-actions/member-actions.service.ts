@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { lastValueFrom, firstValueFrom } from "rxjs";
+import { lastValueFrom, firstValueFrom, from, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -10,8 +10,8 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import {
-  OrganizationUserType,
   OrganizationUserStatusType,
+  OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
@@ -119,7 +119,20 @@ export class MemberActionsService {
   async restoreUser(organization: Organization, userId: string): Promise<MemberActionResult> {
     this.startProcessing();
     try {
-      await this.organizationUserApiService.restoreOrganizationUser(organization.id, userId);
+      await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.DefaultUserCollectionRestore).pipe(
+          switchMap((enabled) => {
+            if (enabled) {
+              return this.organizationUserService.restoreUser(organization, userId);
+            } else {
+              return from(
+                this.organizationUserApiService.restoreOrganizationUser(organization.id, userId),
+              );
+            }
+          }),
+        ),
+      );
+
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
