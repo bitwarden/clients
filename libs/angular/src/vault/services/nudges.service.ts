@@ -75,6 +75,8 @@ export class NudgesService {
    * NOTE: If a custom nudge service requires client specific services/features:
    *  1. The custom nudge service must be provided via injection token and marked as optional.
    *  2. The custom nudge service must be manually registered with that token in the client(s).
+   *
+   *  See the README.md in the custom-nudge-services folder for more details on adding custom nudges.
    * @private
    */
   private customNudgeServices: Partial<Record<NudgeType, SingleNudgeService>> = {
