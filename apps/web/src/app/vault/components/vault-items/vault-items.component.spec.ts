@@ -2,7 +2,7 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { TestBed } from "@angular/core/testing";
 import { of, Subject } from "rxjs";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -11,8 +11,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { RoutedVaultFilterService } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/services/routed-vault-filter.service";
-import { RoutedVaultFilterModel } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
+import { RoutedVaultFilterService, RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { VaultItem } from "./vault-item";
 import { VaultItemsComponent } from "./vault-items.component";
