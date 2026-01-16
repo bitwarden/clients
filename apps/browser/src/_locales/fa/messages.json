@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "گزینه‌های ورود اضافی دو مرحله‌ای مانند YubiKey و Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "گزارش‌های بهداشت کلمه عبور، سلامت حساب کاربری و نقض داده‌ها برای ایمن نگهداشتن گاوصندوق شما."

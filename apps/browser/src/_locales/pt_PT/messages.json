@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
   },
+  "archived": {
+    "message": "Arquivado"
+  },
+  "unarchiveAndSave": {
+    "message": "Desarquivar e guardar"
+  },
   "upgradeToUseArchive": {
     "message": "É necessária uma subscrição Premium para utilizar o Arquivo."
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "A sua subscrição Premium terminou"
+  },
+  "archivePremiumRestart": {
+    "message": "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre."
+  },
+  "restartPremium": {
+    "message": "Reiniciar Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Higiene de palavras-passe, saúde da conta e relatórios de violação de dados para manter o seu cofre seguro."

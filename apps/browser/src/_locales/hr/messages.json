@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
   },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Mogućnosti za prijavu u dva koraka kao što su YubiKey i Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Higijenu lozinki, zdravlje računa i izvještaje o krađi podatak radi zaštite svojeg trezora."

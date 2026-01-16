@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
   },
+  "archived": {
+    "message": "Arhivēts"
+  },
+  "unarchiveAndSave": {
+    "message": "Atcelt arhivēšanu un saglabāt"
+  },
   "upgradeToUseArchive": {
     "message": "Ir nepieciešama Premium dalība, lai izmantotu arhīvu."
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Tādas slēgtā pirmavota divpakāpju pieteikšanās iespējas kā YubiKey un Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Tavs Premium abonements beidzās"
+  },
+  "archivePremiumRestart": {
+    "message": "Lai atgūtu piekļuvi savam arhīvam, jāatsāk Premium abonements. Ja labosi arhivēta vienuma informāciju pirms atsākšanas, tas tiks pārvietots atpakaļ Tavā glabātavā."
+  },
+  "restartPremium": {
+    "message": "Atsākt Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Paroļu higiēnas, konta veselības un datu noplūžu pārskati, lai uzturētu glabātavu drošu."

@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
   },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "upgradeToUseArchive": {
     "message": "Je hebt een Premium-abonnement nodig om te kunnen archiveren."
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Eigen opties voor tweestapsaanmelding zoals YubiKey en Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Wachtwoordhygiëne, gezondheid van je account en datalekken om je kluis veilig te houden."

@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
   },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "upgradeToUseArchive": {
     "message": "Une adhésion premium est requise pour utiliser Archive."
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Options de connexion propriétaires à deux facteurs telles que YubiKey et Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Hygiène du mot de passe, santé du compte et rapports sur les brèches de données pour assurer la sécurité de votre coffre."
