@@ -64,7 +64,7 @@ export class SendEditCommand {
 
     // Infer authType based on emails/password (mutually exclusive)
     const hasEmails = req.emails != null && req.emails.length > 0;
-    const hasPassword = req.password != null && req.password !== "";
+    const hasPassword = req.password != null && req.password.trim() !== "";
 
     if (hasEmails && hasPassword) {
       return Response.badRequest("--password and --emails are mutually exclusive.");
