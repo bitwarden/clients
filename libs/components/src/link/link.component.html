@@ -1,12 +1,9 @@
-@let leadIcon = startIcon();
-@let tailIcon = endIcon();
-
-@if (leadIcon) {
-  <i class="{{ startIconClasses() }}" aria-hidden="true"></i>
+@if (startIcon()) {
+  <i [class]="['bwi', startIcon()]" aria-hidden="true"></i>
 }
 <span>
   <ng-content></ng-content>
 </span>
-@if (tailIcon) {
-  <i class="{{ endIconClasses() }}" aria-hidden="true"></i>
+@if (endIcon()) {
+  <i [class]="['bwi', endIcon()]" aria-hidden="true"></i>
 }
