@@ -446,6 +446,10 @@ fn send_message_helper(
     let json = serde_json::to_string(&message).map_err(|err| {
         BitwardenError::Internal(format!("Could not serialize message as JSON: {err}"))
     })?;
+    // The OS calls us serially, and we only need 1-3 concurrent requests
+    // (passkey request, cancellation, maybe user verification).
+    // So it's safe to send on this thread since there should always be enough
+    // room in the receiver buffer to send.
     tx.blocking_send(json)
         .map_err(|_| BitwardenError::Disconnected)?;
     Ok(())
