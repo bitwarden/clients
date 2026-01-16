@@ -5932,10 +5932,10 @@
     "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
   },
   "centralizeDataOwnershipWarningTitle": {
-    "message": "Users must transfer items to the organization"
+    "message": "Prompt members to transfer their items"
   },
   "centralizeDataOwnershipWarningDesc": {
-    "message": "Members will be prompted to transfer their individual vault items to the organization or leave. If they leave, their access will be revoked but it can be restored at any time."
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
