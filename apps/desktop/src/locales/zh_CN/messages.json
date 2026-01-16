@@ -100,6 +100,70 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "此 Send 将在此日期后被永久删除。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "要分享的文件"
+  },
+  "hideTextByDefault": {
+    "message": "默认隐藏文本"
+  },
+  "hideYourEmail": {
+    "message": "对查看者隐藏您的电子邮件地址。"
+  },
+  "limitSendViews": {
+    "message": "限制查看次数"
+  },
+  "limitSendViewsCount": {
+    "message": "剩余 $ACCESSCOUNT$ 次查看次数",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "达到限额后，任何人无法查看此 Send。",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "私密备注"
+  },
+  "sendDetails": {
+    "message": "Send 详细信息",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "添加一个用于接收者访问此 Send 的可选密码。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "要分享的文本"
+  },
+  "newItemHeaderTextSend": {
+    "message": "新增文本 Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "新增文件 Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "编辑文本 Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "编辑文件 Send",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "确定要永久删除此 Send 吗？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "新增",
     "description": "for adding new items"
@@ -3484,7 +3548,7 @@
     "message": "清除全部"
   },
   "plusNMore": {
-    "message": "另外 $QUANTITY$ 个",
+    "message": "还有 $QUANTITY$ 个",
     "placeholders": {
       "quantity": {
         "content": "$1",
