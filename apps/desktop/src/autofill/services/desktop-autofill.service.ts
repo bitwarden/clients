@@ -211,7 +211,7 @@ export class DesktopAutofillService implements OnDestroy {
     ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
       if (!this.isEnabled) {
         this.logService.debug(
-          "listenPasskeyRegistration: Native credential sync feature flag is disabled",
+          `listenPasskeyRegistration: Native credential sync feature flag (${this.featureFlag}) is disabled`,
         );
         callback(new Error("Native credential sync feature flag is disabled"), null);
         return;
@@ -242,7 +242,7 @@ export class DesktopAutofillService implements OnDestroy {
       async (clientId, sequenceNumber, request, callback) => {
         if (!this.isEnabled) {
           this.logService.debug(
-            "listenPasskeyAssertionWithoutUserInterface: Native credential sync feature flag is disabled",
+            `listenPasskeyAssertionWithoutUserInterface: Native credential sync feature flag (${this.featureFlag}) is disabled`,
           );
           callback(new Error("Native credential sync feature flag is disabled"), null);
           return;
@@ -309,7 +309,7 @@ export class DesktopAutofillService implements OnDestroy {
     ipc.autofill.listenPasskeyAssertion(async (clientId, sequenceNumber, request, callback) => {
       if (!this.isEnabled) {
         this.logService.debug(
-          "listenPasskeyAssertion: Native credential sync feature flag is disabled",
+          `listenPasskeyAssertion: Native credential sync feature flag (${this.featureFlag}) is disabled`,
         );
         callback(new Error("Native credential sync feature flag is disabled"), null);
         return;
@@ -336,7 +336,7 @@ export class DesktopAutofillService implements OnDestroy {
     ipc.autofill.listenNativeStatus(async (clientId, sequenceNumber, status) => {
       if (!this.isEnabled) {
         this.logService.debug(
-          "listenNativeStatus: Native credential sync feature flag is disabled",
+          `listenNativeStatus: Native credential sync feature flag (${this.featureFlag}) is disabled`,
         );
         return;
       }
