@@ -12626,5 +12626,8 @@
   },
   "youHavePremium": {
     "message": "Você tem o Premium"
+  },
+  "emailProtected": {
+    "message": "E-mail protegido"
   }
 }

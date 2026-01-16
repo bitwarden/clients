@@ -12626,5 +12626,8 @@
   },
   "youHavePremium": {
     "message": "Tem Premium"
+  },
+  "emailProtected": {
+    "message": "E-mail protegido"
   }
 }

@@ -5571,7 +5571,7 @@
     "message": "组织的所有者和管理员不受此策略的约束。"
   },
   "limitSendViews": {
-    "message": "查看次数限制"
+    "message": "限制查看次数"
   },
   "limitSendViewsHint": {
     "message": "达到限额后，任何人无法查看此 Send。",
@@ -12626,5 +12626,8 @@
   },
   "youHavePremium": {
     "message": "您拥有高级版"
+  },
+  "emailProtected": {
+    "message": "Email protected"
   }
 }
