@@ -150,15 +150,10 @@ export class SendDetailsComponent implements OnInit {
 
   availableAuthTypes$ = combineLatest([this.emailVerificationFeatureFlag$, this.hasPremium$]).pipe(
     map(([enabled, hasPremium]) => {
-      if (!enabled) {
+      if (!enabled || !hasPremium) {
         return this.authTypes.filter((t) => t.value !== AuthType.Email);
       }
-      return this.authTypes.map((t) => {
-        if (t.value === AuthType.Email && !hasPremium) {
-          return { ...t, disabled: true };
-        }
-        return t;
-      });
+      return this.authTypes;
     }),
   );
 
