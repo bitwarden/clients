@@ -1,9 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,6 +27,8 @@ import {
   SectionHeaderComponent,
   ToastService,
   TypographyModule,
+  CardComponent,
+  ButtonComponent,
 } from "@bitwarden/components";
 import {
   CanDeleteCipherDirective,
@@ -35,6 +39,7 @@ import {
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { ROUTES_AFTER_EDIT_DELETION } from "../components/vault-v2/add-edit/add-edit-v2.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -55,6 +60,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
+    CardComponent,
+    ButtonComponent,
   ],
 })
 export class ArchiveComponent {
@@ -67,6 +74,8 @@ export class ArchiveComponent {
   private i18nService = inject(I18nService);
   private cipherArchiveService = inject(CipherArchiveService);
   private passwordRepromptService = inject(PasswordRepromptService);
+  private organizationService = inject(OrganizationService);
+  private collectionService = inject(CollectionService);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -74,6 +83,9 @@ export class ArchiveComponent {
     switchMap((userId) => this.cipherArchiveService.archivedCiphers$(userId)),
   );
 
+  protected userCanArchive$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
+  );
   protected CipherViewLikeUtils = CipherViewLikeUtils;
 
   protected loading$ = this.archivedCiphers$.pipe(
@@ -81,13 +93,39 @@ export class ArchiveComponent {
     startWith(true),
   );
 
+  protected canAssignCollections$ = this.userId$.pipe(
+    switchMap((userId) => {
+      return combineLatest([
+        this.organizationService.hasOrganizations(userId),
+        this.collectionService.decryptedCollections$(userId),
+      ]).pipe(
+        map(([hasOrgs, collections]) => {
+          const canEditCollections = collections.some((c) => !c.readOnly);
+          return hasOrgs && canEditCollections;
+        }),
+      );
+    }),
+  );
+
+  protected showSubscriptionEndedMessaging$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherArchiveService.showSubscriptionEndedMessaging$(userId)),
+  );
+
+  async navigateToPremium() {
+    await this.router.navigate(["/premium"]);
+  }
+
   async view(cipher: CipherViewLike) {
     if (!(await this.canInteract(cipher))) {
       return;
     }
 
     await this.router.navigate(["/view-cipher"], {
-      queryParams: { cipherId: cipher.id, type: cipher.type },
+      queryParams: {
+        cipherId: cipher.id,
+        type: cipher.type,
+        routeAfterDeletion: ROUTES_AFTER_EDIT_DELETION.archive,
+      },
     });
   }
 
@@ -97,7 +135,11 @@ export class ArchiveComponent {
     }
 
     await this.router.navigate(["/edit-cipher"], {
-      queryParams: { cipherId: cipher.id, type: cipher.type },
+      queryParams: {
+        cipherId: cipher.id,
+        type: cipher.type,
+        routeAfterDeletion: ROUTES_AFTER_EDIT_DELETION.archive,
+      },
     });
   }
 
@@ -170,6 +212,17 @@ export class ArchiveComponent {
         cipherId: cipher.id,
         type: cipher.type,
       },
+    });
+  }
+
+  /** Prompts for password when necessary then navigates to the assign collections route */
+  async conditionallyNavigateToAssignCollections(cipher: CipherViewLike) {
+    if (cipher.reprompt && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      return;
+    }
+
+    await this.router.navigate(["/assign-collections"], {
+      queryParams: { cipherId: cipher.id },
     });
   }
 
