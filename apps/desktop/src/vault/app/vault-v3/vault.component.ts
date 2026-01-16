@@ -77,6 +77,8 @@ import {
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterBridgeService,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
@@ -128,6 +130,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
       provide: COPY_CLICK_LISTENER,
       useExisting: VaultComponent,
     },
+    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
 export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
@@ -212,6 +215,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
     private routedVaultFilterBridgeService: RoutedVaultFilterBridgeService,
     private vaultFilterService: VaultFilterService,
+    private vaultItemTransferService: VaultItemsTransferService,
   ) {}
 
   async ngOnInit() {
@@ -263,6 +267,11 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
               case "syncCompleted":
                 if (this.vaultItemsComponent) {
                   await this.vaultItemsComponent.refresh().catch(() => {});
+                }
+                if (this.activeUserId) {
+                  void this.vaultItemTransferService.enforceOrganizationDataOwnership(
+                    this.activeUserId,
+                  );
                 }
                 break;
               case "modalShown":
@@ -370,6 +379,8 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       .subscribe((collections) => {
         this.filteredCollections = collections;
       });
+
+    void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
   ngOnDestroy() {
