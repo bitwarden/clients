@@ -63,7 +63,10 @@ export class DefaultCipherSdkService implements CipherSdkService {
               .vault()
               .ciphers()
               .admin()
-              .edit(sdkUpdateRequest, originalCipherView?.toSdkCipherView());
+              .edit(
+                sdkUpdateRequest,
+                originalCipherView?.toSdkCipherView() || new CipherView().toSdkCipherView(),
+              );
           } else {
             result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
           }

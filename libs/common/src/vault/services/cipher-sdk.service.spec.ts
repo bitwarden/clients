@@ -210,7 +210,7 @@ describe("DefaultCipherSdkService", () => {
           id: expect.anything(),
           name: cipherView.name,
         }),
-        undefined,
+        new CipherView().toSdkCipherView(),
       );
       expect(result).toBeInstanceOf(CipherView);
       expect(result.name).toBe(cipherView.name);
