@@ -21,7 +21,9 @@ import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../guards/org-redirect.guard";
 import { EventsComponent } from "../manage/events.component";
 
+import { CipherHealthTestComponent } from "./cipher-health-test.component";
 import { ReportsHomeComponent } from "./reports-home.component";
+import { RiskInsightsPrototypeComponent } from "./risk-insights-prototype/risk-insights-prototype.component";
 
 const routes: Routes = [
   {
@@ -79,6 +81,22 @@ const routes: Routes = [
             component: WeakPasswordsReportComponent,
             data: {
               titleId: "weakPasswordsReport",
+            },
+            canActivate: [isPaidOrgGuard()],
+          },
+          {
+            path: "cipher-health-test",
+            component: CipherHealthTestComponent,
+            data: {
+              titleId: "cipherHealthTest",
+            },
+            canActivate: [isPaidOrgGuard()],
+          },
+          {
+            path: "risk-insights-prototype",
+            component: RiskInsightsPrototypeComponent,
+            data: {
+              titleId: "riskInsightsPrototype",
             },
             canActivate: [isPaidOrgGuard()],
           },

@@ -505,7 +505,11 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: AuditServiceAbstraction,
-    useClass: AuditService,
+    useFactory: (
+      cryptoFunctionService: CryptoFunctionServiceAbstraction,
+      apiService: ApiServiceAbstraction,
+      hibpApiService: HibpApiService,
+    ) => new AuditService(cryptoFunctionService, apiService, hibpApiService),
     deps: [CryptoFunctionServiceAbstraction, ApiServiceAbstraction, HibpApiService],
   }),
   safeProvider({

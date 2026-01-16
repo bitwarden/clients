@@ -1,4 +1,15 @@
-import { filter, from, map, mergeMap, Observable, toArray } from "rxjs";
+import { Injectable } from "@angular/core";
+import {
+  bufferCount,
+  filter,
+  from,
+  map,
+  mergeMap,
+  Observable,
+  scan,
+  startWith,
+  toArray,
+} from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -12,6 +23,38 @@ import {
   WeakPasswordScore,
 } from "../../models/password-health";
 
+/**
+ * State of HIBP (Have I Been Pwned) password checking (per ADR-0025 - no enums)
+ */
+export const HibpCheckState = Object.freeze({
+  NotStarted: "not-started",
+  Checking: "checking",
+  Complete: "complete",
+  Error: "error",
+} as const);
+export type HibpCheckState = (typeof HibpCheckState)[keyof typeof HibpCheckState];
+
+/**
+ * Progress result for progressive HIBP password checking
+ */
+export interface HibpProgressResult {
+  /** Current state of the HIBP check */
+  state: HibpCheckState;
+  /** Number of passwords checked so far */
+  checkedCount: number;
+  /** Total number of passwords to check */
+  totalCount: number;
+  /** Progress percentage (0-100) */
+  progressPercent: number;
+  /** Exposed passwords found so far */
+  exposedPasswords: ExposedPasswordDetail[];
+  /** Elapsed time in milliseconds */
+  elapsedMs: number;
+  /** Error message if state is Error */
+  error?: string;
+}
+
+@Injectable()
 export class PasswordHealthService {
   constructor(
     private auditService: AuditService,
@@ -39,6 +82,93 @@ export class PasswordHealthService {
         cipherId: cipher.id,
       })),
       toArray(),
+    );
+  }
+
+  /**
+   * Progressive version of auditPasswordLeaks$ that emits progress updates
+   * as passwords are checked against HIBP.
+   *
+   * @param ciphers The list of ciphers to check.
+   * @param batchEmitSize How often to emit progress updates (default: 500 passwords).
+   * @returns An observable that emits HibpProgressResult with progress updates.
+   */
+  auditPasswordLeaksProgressive$(
+    ciphers: CipherView[],
+    batchEmitSize: number = 500,
+  ): Observable<HibpProgressResult> {
+    const validCiphers = ciphers.filter((c) => this.isValidCipher(c));
+    const totalCount = validCiphers.length;
+    const startTime = performance.now();
+
+    if (totalCount === 0) {
+      // No valid ciphers to check - emit immediate completion
+      return from([
+        {
+          state: HibpCheckState.Complete,
+          checkedCount: 0,
+          totalCount: 0,
+          progressPercent: 100,
+          exposedPasswords: [],
+          elapsedMs: 0,
+        } as HibpProgressResult,
+      ]);
+    }
+
+    // Accumulator for scan operator
+    interface ProgressAccumulator {
+      checkedCount: number;
+      exposedPasswords: ExposedPasswordDetail[];
+    }
+
+    return from(validCiphers).pipe(
+      // Use mergeMap with concurrency matching audit service (100 concurrent)
+      mergeMap(
+        (cipher) =>
+          from(this.auditService.passwordLeaked(cipher.login.password!)).pipe(
+            map((exposedCount) => ({ cipherId: cipher.id, exposedCount })),
+          ),
+        100,
+      ),
+      // Buffer results and emit every batchEmitSize checks
+      bufferCount(batchEmitSize),
+      // Use scan to accumulate results across batches
+      scan(
+        (acc: ProgressAccumulator, batch) => {
+          const newExposed = batch
+            .filter((result) => result.exposedCount > 0)
+            .map((result) => ({
+              cipherId: result.cipherId,
+              exposedXTimes: result.exposedCount,
+            }));
+
+          return {
+            checkedCount: acc.checkedCount + batch.length,
+            exposedPasswords: [...acc.exposedPasswords, ...newExposed],
+          };
+        },
+        { checkedCount: 0, exposedPasswords: [] } as ProgressAccumulator,
+      ),
+      // Map accumulated state to progress result
+      map(
+        (acc): HibpProgressResult => ({
+          state: acc.checkedCount >= totalCount ? HibpCheckState.Complete : HibpCheckState.Checking,
+          checkedCount: acc.checkedCount,
+          totalCount,
+          progressPercent: Math.round((acc.checkedCount / totalCount) * 100),
+          exposedPasswords: acc.exposedPasswords,
+          elapsedMs: performance.now() - startTime,
+        }),
+      ),
+      // Start with initial progress state
+      startWith({
+        state: HibpCheckState.Checking,
+        checkedCount: 0,
+        totalCount,
+        progressPercent: 0,
+        exposedPasswords: [],
+        elapsedMs: 0,
+      } as HibpProgressResult),
     );
   }
 

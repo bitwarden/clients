@@ -10739,6 +10739,69 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Off"
   },
+  "cipherHealthTest": {
+    "message": "Risk insights diagnostics"
+  },
+  "cipherHealthTestDesc": {
+    "message": "Test password health and member access mapping in parallel. View detailed performance diagnostics and analyze cipher security risks."
+  },
+  "riskInsightsPrototype": {
+    "message": "Risk Insights Prototype"
+  },
+  "riskInsightsPrototypeDesc": {
+    "message": "Prototype report for analyzing password risk across items, applications, and members."
+  },
+  "applications": {
+    "message": "Applications"
+  },
+  "riskInsightsPrototypeItemsPlaceholder": {
+    "message": "Items tab content will be displayed here."
+  },
+  "riskInsightsPrototypeApplicationsPlaceholder": {
+    "message": "Applications tab content will be displayed here."
+  },
+  "riskInsightsPrototypeMembersPlaceholder": {
+    "message": "Members tab content will be displayed here."
+  },
+  "enableWeakPasswordCheck": {
+    "message": "Enable Weak Password Check"
+  },
+  "enableHibpCheck": {
+    "message": "Enable Exposed Password Check"
+  },
+  "enableReusedPasswordCheck": {
+    "message": "Enable Reused Password Check"
+  },
+  "runReport": {
+    "message": "Run Report"
+  },
+  "checkingExposedPasswords": {
+    "message": "Checking exposed passwords"
+  },
+  "reportComplete": {
+    "message": "Report complete"
+  },
+  "totalItems": {
+    "message": "Total items"
+  },
+  "weak": {
+    "message": "Weak"
+  },
+  "reused": {
+    "message": "Reused"
+  },
+  "exposed": {
+    "message": "Exposed"
+  },
+  "atRisk": {
+    "message": "At-Risk"
+  },
+  "healthy": {
+    "message": "Healthy"
+  },
+  "processing": {
+    "message": "Processing..."
+  },
   "kdfIterationRecommends": {
     "message": "We recommend 600,000 or more"
   },

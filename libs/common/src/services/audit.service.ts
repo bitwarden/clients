@@ -21,9 +21,7 @@ export class AuditService implements AuditServiceAbstraction {
     private cryptoFunctionService: CryptoFunctionService,
     private apiService: ApiService,
     private hibpApiService: HibpApiService,
-    private readonly maxConcurrent: number = 100, // default to 100, can be overridden
   ) {
-    this.maxConcurrent = maxConcurrent;
     this.passwordLeakedSubject
       .pipe(
         mergeMap(
@@ -36,7 +34,7 @@ export class AuditService implements AuditServiceAbstraction {
               req.reject(err);
             }
           },
-          this.maxConcurrent, // Limit concurrent API calls
+          100, // Limit concurrent API calls
         ),
       )
       .subscribe();

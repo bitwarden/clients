@@ -1,0 +1,222 @@
+<div class="tw-flex tw-flex-col tw-gap-4">
+  <!-- Controls Section -->
+  <div class="tw-p-4 tw-bg-background-alt tw-rounded-lg">
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-6 tw-mb-4">
+      <!-- Weak Password Checkbox -->
+      <label class="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer">
+        <input
+          type="checkbox"
+          bitCheckbox
+          [checked]="enableWeakPassword()"
+          (change)="toggleWeakPassword()"
+          [disabled]="isProcessing()"
+        />
+        <span class="tw-text-main">{{ "enableWeakPasswordCheck" | i18n }}</span>
+      </label>
+
+      <!-- HIBP Checkbox -->
+      <label class="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer">
+        <input
+          type="checkbox"
+          bitCheckbox
+          [checked]="enableHibp()"
+          (change)="toggleHibp()"
+          [disabled]="isProcessing()"
+        />
+        <span class="tw-text-main">{{ "enableHibpCheck" | i18n }}</span>
+      </label>
+
+      <!-- Reused Password Checkbox -->
+      <label class="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer">
+        <input
+          type="checkbox"
+          bitCheckbox
+          [checked]="enableReusedPassword()"
+          (change)="toggleReusedPassword()"
+          [disabled]="isProcessing()"
+        />
+        <span class="tw-text-main">{{ "enableReusedPasswordCheck" | i18n }}</span>
+      </label>
+    </div>
+
+    <!-- Run Report Button -->
+    <button bitButton buttonType="primary" (click)="runReport()" [disabled]="isProcessing()">
+      @if (isProcessing()) {
+        <i class="bwi bwi-spinner bwi-spin tw-mr-2" aria-hidden="true"></i>
+        {{ "processing" | i18n }}
+      } @else {
+        <i class="bwi bwi-play tw-mr-2" aria-hidden="true"></i>
+        {{ "runReport" | i18n }}
+      }
+    </button>
+  </div>
+
+  <!-- Progress Section -->
+  @if (showProgress()) {
+    <div class="tw-p-4 tw-bg-background-alt tw-rounded-lg">
+      <!-- Main Progress -->
+      <div class="tw-mb-4">
+        <div class="tw-flex tw-justify-between tw-text-sm tw-mb-1">
+          <span class="tw-text-muted">{{ progressMessage() || "Processing..." }}</span>
+          <span class="tw-text-muted">{{ getOverallProgress() | number: "1.0-0" }}%</span>
+        </div>
+        <bit-progress [barWidth]="getOverallProgress()" bgColor="primary"></bit-progress>
+      </div>
+
+      <!-- HIBP Progress (only when HIBP is enabled and running) -->
+      @if (enableHibp() && processingPhase() === ProcessingPhase.RunningHibp) {
+        <div>
+          <div class="tw-flex tw-justify-between tw-text-sm tw-mb-1">
+            <span class="tw-text-muted">
+              {{ "checkingExposedPasswords" | i18n }}: {{ hibpProgress().current }} /
+              {{ hibpProgress().total }}
+            </span>
+            <span class="tw-text-muted">{{ hibpProgress().percent }}%</span>
+          </div>
+          <bit-progress [barWidth]="hibpProgress().percent" bgColor="warning"></bit-progress>
+        </div>
+      }
+
+      <!-- Completion Status -->
+      @if (processingPhase() === ProcessingPhase.Complete) {
+        <div class="tw-flex tw-items-center tw-gap-2 tw-text-success-600">
+          <i class="bwi bwi-check-circle" aria-hidden="true"></i>
+          <span>{{ "reportComplete" | i18n }}</span>
+        </div>
+      }
+
+      <!-- Error Status -->
+      @if (processingPhase() === ProcessingPhase.Error && error()) {
+        <div class="tw-flex tw-items-center tw-gap-2 tw-text-danger-600">
+          <i class="bwi bwi-error" aria-hidden="true"></i>
+          <span>{{ error() }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Results Table -->
+  @if (items().length > 0) {
+    <div class="tw-text-sm tw-text-muted tw-mb-2">
+      {{ "totalItems" | i18n }}: {{ items().length | number }}
+    </div>
+
+    <bit-table-scroll [dataSource]="dataSource" [rowSize]="ROW_SIZE" [trackBy]="trackByItemId">
+      <ng-container header>
+        <th bitCell class="tw-min-w-[200px]">{{ "name" | i18n }}</th>
+        <th bitCell class="tw-text-center tw-w-24">{{ "weak" | i18n }}</th>
+        <th bitCell class="tw-text-center tw-w-24">{{ "reused" | i18n }}</th>
+        <th bitCell class="tw-text-center tw-w-24">{{ "exposed" | i18n }}</th>
+        <th bitCell class="tw-text-center tw-w-24">{{ "members" | i18n }}</th>
+        <th bitCell class="tw-text-center tw-w-28">{{ "status" | i18n }}</th>
+      </ng-container>
+
+      <ng-template bitRowDef let-row>
+        <!-- Cipher Name -->
+        <td bitCell>
+          <div class="tw-font-medium tw-truncate tw-max-w-[200px]" [title]="row.cipherName">
+            {{ row.cipherName }}
+          </div>
+          @if (row.cipherSubtitle) {
+            <div class="tw-text-xs tw-text-muted tw-truncate tw-max-w-[200px]">
+              {{ row.cipherSubtitle }}
+            </div>
+          }
+        </td>
+
+        <!-- Weak Password Status -->
+        <td bitCell class="tw-text-center">
+          @if (row.weakPassword === null) {
+            @if (enableWeakPassword()) {
+              <i
+                class="bwi bwi-spinner bwi-spin tw-text-muted"
+                aria-hidden="true"
+                title="{{ 'loading' | i18n }}"
+              ></i>
+            } @else {
+              <span class="tw-text-muted">-</span>
+            }
+          } @else if (row.weakPassword) {
+            <span bitBadge variant="warning">{{ "weak" | i18n }}</span>
+          } @else {
+            <i class="bwi bwi-check tw-text-success-600" aria-hidden="true"></i>
+          }
+        </td>
+
+        <!-- Reused Password Status -->
+        <td bitCell class="tw-text-center">
+          @if (row.reusedPassword === null) {
+            @if (enableReusedPassword()) {
+              <i
+                class="bwi bwi-spinner bwi-spin tw-text-muted"
+                aria-hidden="true"
+                title="{{ 'loading' | i18n }}"
+              ></i>
+            } @else {
+              <span class="tw-text-muted">-</span>
+            }
+          } @else if (row.reusedPassword) {
+            <span bitBadge variant="warning">{{ "yes" | i18n }}</span>
+          } @else {
+            <i class="bwi bwi-check tw-text-success-600" aria-hidden="true"></i>
+          }
+        </td>
+
+        <!-- Exposed Password Status -->
+        <td bitCell class="tw-text-center">
+          @if (row.exposedPassword === null) {
+            @if (enableHibp()) {
+              <i
+                class="bwi bwi-spinner bwi-spin tw-text-muted"
+                aria-hidden="true"
+                title="{{ 'loading' | i18n }}"
+              ></i>
+            } @else {
+              <span class="tw-text-muted">-</span>
+            }
+          } @else if (row.exposedPassword) {
+            <span bitBadge variant="danger" [title]="row.exposedCount + ' times'">
+              {{ row.exposedCount | number }}x
+            </span>
+          } @else {
+            <i class="bwi bwi-check tw-text-success-600" aria-hidden="true"></i>
+          }
+        </td>
+
+        <!-- Member Count -->
+        <td bitCell class="tw-text-center">
+          @if (row.memberAccessPending) {
+            <i
+              class="bwi bwi-spinner bwi-spin tw-text-muted"
+              aria-hidden="true"
+              title="{{ 'loading' | i18n }}"
+            ></i>
+          } @else {
+            <span>{{ row.memberCount | number }}</span>
+          }
+        </td>
+
+        <!-- Status -->
+        <td bitCell class="tw-text-center">
+          @if (row.status === null) {
+            <i
+              class="bwi bwi-spinner bwi-spin tw-text-muted"
+              aria-hidden="true"
+              title="{{ 'loading' | i18n }}"
+            ></i>
+          } @else if (row.status === RiskInsightsItemStatus.AtRisk) {
+            <span bitBadge variant="danger">{{ "atRisk" | i18n }}</span>
+          } @else {
+            <span bitBadge variant="success">{{ "healthy" | i18n }}</span>
+          }
+        </td>
+      </ng-template>
+    </bit-table-scroll>
+  } @else if (processingPhase() === ProcessingPhase.Idle) {
+    <!-- Initial State -->
+    <div class="tw-text-center tw-py-8 tw-text-muted">
+      <i class="bwi bwi-report tw-text-4xl tw-mb-4" aria-hidden="true"></i>
+      <p>{{ "riskInsightsPrototypeItemsPlaceholder" | i18n }}</p>
+    </div>
+  }
+</div>
