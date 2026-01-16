@@ -44,9 +44,11 @@
         <!-- Show screen when there is report data OR when feature flag is disabled (show tabs even without data) -->
         <div @fadeIn class="tw-min-h-screen tw-flex tw-flex-col">
           <div>
-            <div class="tw-text-main tw-max-w-4xl tw-mb-2" *ngIf="appsCount > 0">
-              {{ "reviewAtRiskPasswords" | i18n }}
-            </div>
+            @if (appsCount > 0) {
+              <div class="tw-text-main tw-max-w-4xl tw-mb-2">
+                {{ "reviewAtRiskPasswords" | i18n }}
+              </div>
+            }
             @let isRunningReport = dataService.isGeneratingReport$ | async;
             <div
               class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-items-center"
@@ -61,23 +63,25 @@
                 }}</span>
               }
               <span class="tw-flex tw-justify-center">
-                <button
-                  *ngIf="!isRunningReport"
-                  type="button"
-                  bitButton
-                  buttonType="secondary"
-                  class="tw-border-none !tw-font-normal tw-cursor-pointer !tw-py-0"
-                  tabindex="0"
-                  [bitAction]="generateReport.bind(this)"
-                >
-                  {{ "riskInsightsRunReport" | i18n }}
-                </button>
+                @if (!isRunningReport) {
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    class="tw-border-none !tw-font-normal tw-cursor-pointer !tw-py-0"
+                    tabindex="0"
+                    [bitAction]="generateReport.bind(this)"
+                  >
+                    {{ "riskInsightsRunReport" | i18n }}
+                  </button>
+                }
                 <span>
-                  <i
-                    *ngIf="isRunningReport"
-                    class="bwi bwi-spinner bwi-spin tw-text-muted tw-text-[1.2rem]"
-                    aria-hidden="true"
-                  ></i>
+                  @if (isRunningReport) {
+                    <i
+                      class="bwi bwi-spinner bwi-spin tw-text-muted tw-text-[1.2rem]"
+                      aria-hidden="true"
+                    ></i>
+                  }
                 </span>
               </span>
             </div>

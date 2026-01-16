@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { Component, input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -19,7 +18,7 @@ const ProgressStepConfig = Object.freeze({
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-report-loading",
-  imports: [CommonModule, JslibModule, ProgressModule],
+  imports: [JslibModule, ProgressModule],
   templateUrl: "./report-loading.component.html",
 })
 export class ReportLoadingComponent {

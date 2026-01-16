@@ -12,28 +12,32 @@
       <th bitSortable="memberCount" bitCell tabindex="0">{{ "totalMembers" | i18n }}</th>
     </ng-container>
     <ng-template bitRowDef let-row>
-      <td
-        bitCell
-        *ngIf="showRowCheckBox"
-        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-        appStopProp
-      >
-        <input
-          bitCheckbox
-          type="checkbox"
-          *ngIf="!row.isMarkedAsCritical"
-          [checked]="selectedUrls.has(row.applicationName)"
-          (change)="checkboxChange(row.applicationName, $event)"
-        />
-        <i class="bwi bwi-star-f" *ngIf="row.isMarkedAsCritical"></i>
-      </td>
-      <td
-        bitCell
-        *ngIf="!showRowCheckBox"
-        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-      >
-        <i class="bwi bwi-star-f" *ngIf="row.isMarkedAsCritical"></i>
-      </td>
+      @if (showRowCheckBox) {
+        <td
+          bitCell
+          [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
+          appStopProp
+        >
+          @if (!row.isMarkedAsCritical) {
+            <input
+              bitCheckbox
+              type="checkbox"
+              [checked]="selectedUrls.has(row.applicationName)"
+              (change)="checkboxChange(row.applicationName, $event)"
+            />
+          }
+          @if (row.isMarkedAsCritical) {
+            <i class="bwi bwi-star-f"></i>
+          }
+        </td>
+      }
+      @if (!showRowCheckBox) {
+        <td bitCell [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }">
+          @if (row.isMarkedAsCritical) {
+            <i class="bwi bwi-star-f"></i>
+          }
+        </td>
+      }
       <td
         bitCell
         class="tw-cursor-pointer"
@@ -45,11 +49,9 @@
         tabindex="0"
         [attr.aria-label]="'viewItem' | i18n"
       >
-        <app-vault-icon
-          *ngIf="row.iconCipher"
-          [cipher]="row.iconCipher"
-          [size]="24"
-        ></app-vault-icon>
+        @if (row.iconCipher) {
+          <app-vault-icon [cipher]="row.iconCipher" [size]="24"></app-vault-icon>
+        }
       </td>
       <td
         class="tw-cursor-pointer"
@@ -122,27 +124,27 @@
       >
         {{ row.memberCount }}
       </td>
-      <td
-        bitCell
-        *ngIf="showRowMenuForCriticalApps"
-        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-        appStopProp
-      >
-        <button
-          [bitMenuTriggerFor]="rowMenu"
-          type="button"
-          bitIconButton="bwi-ellipsis-v"
-          size="small"
-          label="{{ 'options' | i18n }}"
-          tabindex="0"
-        ></button>
-
-        <bit-menu #rowMenu>
-          <button type="button" bitMenuItem (click)="unmarkAsCritical(row.applicationName)">
-            {{ "unmarkAsCritical" | i18n }}
-          </button>
-        </bit-menu>
-      </td>
+      @if (showRowMenuForCriticalApps) {
+        <td
+          bitCell
+          [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
+          appStopProp
+        >
+          <button
+            [bitMenuTriggerFor]="rowMenu"
+            type="button"
+            bitIconButton="bwi-ellipsis-v"
+            size="small"
+            label="{{ 'options' | i18n }}"
+            tabindex="0"
+          ></button>
+          <bit-menu #rowMenu>
+            <button type="button" bitMenuItem (click)="unmarkAsCritical(row.applicationName)">
+              {{ "unmarkAsCritical" | i18n }}
+            </button>
+          </bit-menu>
+        </td>
+      }
     </ng-template>
   </bit-table-scroll>
 </ng-container>
