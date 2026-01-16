@@ -902,7 +902,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    */
   async editCipherAttachments(cipher: C) {
     if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
-      await this.go({ cipherId: null, itemId: null });
+      await this.go(
+        { cipherId: null, itemId: null },
+        this.configureRouterFocusToCipher(typeof cipher?.id === "string" ? cipher.id : undefined),
+      );
       return;
     }
 
