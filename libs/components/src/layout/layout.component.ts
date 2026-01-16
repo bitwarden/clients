@@ -52,11 +52,11 @@ export class LayoutComponent {
    *
    * @see https://github.com/angular/components/issues/10247#issuecomment-384060265
    **/
-  private readonly skipLink = viewChild.required<ElementRef<HTMLElement>>("skipLink");
+  private readonly skipLink = viewChild.required<LinkComponent>("skipLink");
   handleKeydown(ev: KeyboardEvent) {
     if (isNothingFocused()) {
       ev.preventDefault();
-      this.skipLink().nativeElement.focus();
+      this.skipLink().el.nativeElement.focus();
     }
   }
 }

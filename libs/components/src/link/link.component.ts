@@ -96,7 +96,7 @@ const commonStyles = [
   },
 })
 export class LinkComponent {
-  private el = inject(ElementRef<HTMLElement>);
+  readonly el = inject(ElementRef<HTMLElement>);
   /**
    * The variant of link you want to render
    * @default "primary"
