@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
   },
+  "archived": {
+    "message": "Archivované"
+  },
+  "unarchiveAndSave": {
+    "message": "Zrušiť archiváciu a uložiť"
+  },
   "upgradeToUseArchive": {
     "message": "Na použitie archívu je potrebné prémiové členstvo."
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietárne možnosti dvojstupňového prihlásenia ako napríklad YubiKey a Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Vaše predplatné Prémium skončilo"
+  },
+  "archivePremiumRestart": {
+    "message": "Ak chcete obnoviť prístup k svojmu archívu, reštartujte predplatné Prémium. Ak pred reštartom upravíte podrobnosti archivovanej položky, bude presunutá späť do trezoru."
+  },
+  "restartPremium": {
+    "message": "Reštartovať Prémium"
   },
   "ppremiumSignUpReports": {
     "message": "Správy o sile hesla, zabezpečení účtov a únikoch dát ktoré vám pomôžu udržať vaše kontá v bezpečí."

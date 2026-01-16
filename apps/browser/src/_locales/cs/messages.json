@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
   },
+  "archived": {
+    "message": "Archivováno"
+  },
+  "unarchiveAndSave": {
+    "message": "Odebrat z archivu a uložit"
+  },
   "upgradeToUseArchive": {
     "message": "Pro použití funkce Archiv je potřebné prémiové členství."
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Volby proprietálních dvoufázových přihlášení jako je YubiKey a Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Vaše předplatné Premium skončilo"
+  },
+  "archivePremiumRestart": {
+    "message": "Chcete-li získat přístup k Vašemu archivu, restartujte předplatné Premium. Pokud upravíte detaily archivované položky před restartováním, bude přesunuta zpět do Vašeho trezoru."
+  },
+  "restartPremium": {
+    "message": "Restartovat Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Reporty o hygieně Vašich hesel, zdraví účtu a narušeních bezpečnosti."
