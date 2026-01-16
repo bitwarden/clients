@@ -1,9 +1,9 @@
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -13,12 +13,29 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 import { cipherData } from "./reports-ciphers.mock";
 import { UnsecuredWebsitesReportComponent } from "./unsecured-websites-report.component";
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-header",
+  template: "<div></div>",
+  standalone: false,
+})
+class MockHeaderComponent {}
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "bit-container",
+  template: "<div></div>",
+  standalone: false,
+})
+class MockBitContainerComponent {}
 
 describe("UnsecuredWebsitesReportComponent", () => {
   let component: UnsecuredWebsitesReportComponent;
@@ -30,7 +47,7 @@ describe("UnsecuredWebsitesReportComponent", () => {
   const userId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(userId);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     let cipherFormConfigServiceMock: MockProxy<CipherFormConfigService>;
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
@@ -38,10 +55,13 @@ describe("UnsecuredWebsitesReportComponent", () => {
     collectionService = mock<CollectionService>();
     adminConsoleCipherFormConfigService = mock<AdminConsoleCipherFormConfigService>();
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.configureTestingModule({
-      declarations: [UnsecuredWebsitesReportComponent, I18nPipe],
+    await TestBed.configureTestingModule({
+      declarations: [
+        UnsecuredWebsitesReportComponent,
+        MockHeaderComponent,
+        MockBitContainerComponent,
+      ],
+      imports: [I18nPipe],
       providers: [
         {
           provide: CipherService,
@@ -85,8 +105,6 @@ describe("UnsecuredWebsitesReportComponent", () => {
         },
       ],
       schemas: [],
-      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
-      errorOnUnknownElements: false,
     }).compileComponents();
   });
 
