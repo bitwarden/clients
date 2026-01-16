@@ -12626,5 +12626,8 @@
   },
   "youHavePremium": {
     "message": "Имате платен абонамент"
+  },
+  "emailProtected": {
+    "message": "Email protected"
   }
 }
