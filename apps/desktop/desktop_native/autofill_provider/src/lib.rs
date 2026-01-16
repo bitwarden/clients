@@ -640,11 +640,11 @@ mod tests {
                 .build()
                 .unwrap();
             rt.block_on(async move {
-                tracing::debug!("Starting server at {server_path:?}");
+                tracing::debug!(?server_path, "Starting server");
                 let server = desktop_core::ipc::server::Server::start(&server_path, tx).unwrap();
 
                 // Signal to main thread that the server is ready to process messages.
-                tracing::debug!(" Server started");
+                tracing::debug!("Server started");
                 signal_tx.send(()).unwrap();
 
                 // Handle incoming messages
