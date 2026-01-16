@@ -69,7 +69,18 @@
   >
     <div class="content">
       <div class="inner-content">
-        <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+        @if (activeFilter.status === "archive" && !(hasArchivedCiphers$ | async)) {
+          <bit-no-items [icon]="itemTypesIcon">
+            <div slot="title">
+              {{ "noItemsInArchive" | i18n }}
+            </div>
+            <p slot="description" bitTypography="body2" class="tw-max-w-md tw-text-center">
+              {{ "noItemsInArchiveDesc" | i18n }}
+            </p>
+          </bit-no-items>
+        } @else {
+          <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+        }
       </div>
     </div>
   </div>
