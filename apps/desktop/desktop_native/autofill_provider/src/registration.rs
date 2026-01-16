@@ -84,8 +84,8 @@ pub struct PasskeyRegistrationResponse {
     pub attestation_object: Vec<u8>,
 }
 
-#[cfg_attr(target_os = "macos", uniffi::export(with_foreign))]
 /// Callback to process a response to passkey registration request.
+#[cfg_attr(target_os = "macos", uniffi::export(with_foreign))]
 pub trait PreparePasskeyRegistrationCallback: Send + Sync {
     /// Function to call if a successful response is returned.
     fn on_complete(&self, credential: PasskeyRegistrationResponse);

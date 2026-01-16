@@ -35,7 +35,6 @@ pub struct PasskeyAssertionRequest {
     /// On Windows, this must be logical pixels, not physical pixels.
     pub window_xy: Position,
 
-    #[cfg(not(target_os = "macos"))]
     /// Byte string representing the native OS window handle for the WebAuthn client.
     /// # Operating System Differences
     ///
@@ -44,9 +43,9 @@ pub struct PasskeyAssertionRequest {
     ///
     /// ## Windows
     /// On Windows, this is a HWND.
+    #[cfg(not(target_os = "macos"))]
     pub client_window_handle: Vec<u8>,
 
-    #[cfg(not(target_os = "macos"))]
     /// Native context required for callbacks to the OS. Format differs on the OS.
     /// # Operating System Differences
     ///
@@ -56,6 +55,7 @@ pub struct PasskeyAssertionRequest {
     /// ## Windows
     /// On Windows, this is a base64-string representing the following data:
     /// `request transaction id (GUID, 16 bytes) || SHA-256(pluginOperationRequest)`
+    #[cfg(not(target_os = "macos"))]
     pub context: String,
     //  TODO(PM-30510): Implement support for extensions
     // pub extension_input: Vec<u8>,
@@ -114,7 +114,6 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     #[cfg(not(target_os = "macos"))]
     pub client_window_handle: Vec<u8>,
 
-    // #[cfg(not(target_os = "macos"))]
     /// Native context required for callbacks to the OS. Format differs on the OS.
     /// # Operating System Differences
     ///
@@ -127,10 +126,10 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     pub context: String,
 }
 
+/// Response for a passkey assertion request.
 #[cfg_attr(target_os = "macos", derive(uniffi::Record))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Response for a passkey assertion request.
 pub struct PasskeyAssertionResponse {
     /// Relying Party ID.
     pub rp_id: String,

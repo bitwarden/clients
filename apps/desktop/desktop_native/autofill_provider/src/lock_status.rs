@@ -4,12 +4,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::{BitwardenError, Callback, TimedCallback};
 
-#[derive(Debug, Serialize, Deserialize)]
 /// Request to retrieve the lock status of the desktop client.
+#[derive(Debug, Serialize, Deserialize)]
 pub(super) struct LockStatusRequest {}
 
-#[derive(Debug, Deserialize)]
 /// Response for the lock status of the desktop client.
+#[derive(Debug, Deserialize)]
 pub struct LockStatusResponse {
     /// Whether the desktop client is unlocked.
     #[serde(rename = "isUnlocked")]
