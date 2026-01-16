@@ -208,6 +208,54 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
   }
 
+  async setInitialPasswordTdeOffboarding(
+    credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) {
+    const { newPassword, salt, kdfConfig, newPasswordHint } = credentials;
+
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} not found. Could not set password.`);
+      }
+    }
+
+    if (userId == null) {
+      throw new Error("userId not found. Could not set password.");
+    }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("userKey not found. Could not set password.");
+    }
+
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        newPassword,
+        kdfConfig,
+        salt,
+      );
+
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        newPassword,
+        kdfConfig,
+        salt,
+        userKey,
+      );
+
+    const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+      authenticationData,
+      unlockData,
+      newPasswordHint,
+    );
+
+    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
+
+    // Clear force set password reason to allow navigation back to vault.
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+  }
+
   /**
    * @deprecated To be removed in PM-28143
    */
@@ -361,54 +409,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
     request.newMasterPasswordHash = newServerMasterKeyHash;
     request.masterPasswordHint = newPasswordHint;
-
-    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
-
-    // Clear force set password reason to allow navigation back to vault.
-    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
-  }
-
-  async setInitialPasswordTdeOffboarding(
-    credentials: SetInitialPasswordTdeOffboardingCredentials,
-    userId: UserId,
-  ) {
-    const { newPassword, kdfConfig, salt, newPasswordHint } = credentials;
-
-    for (const [key, value] of Object.entries(credentials)) {
-      if (value == null) {
-        throw new Error(`${key} not found. Could not set password.`);
-      }
-    }
-
-    if (userId == null) {
-      throw new Error("userId not found. Could not set password.");
-    }
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-    if (userKey == null) {
-      throw new Error("userKey not found. Could not set password.");
-    }
-
-    const authenticationData: MasterPasswordAuthenticationData =
-      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
-        newPassword,
-        kdfConfig,
-        salt,
-      );
-
-    const unlockData: MasterPasswordUnlockData =
-      await this.masterPasswordService.makeMasterPasswordUnlockData(
-        newPassword,
-        kdfConfig,
-        salt,
-        userKey,
-      );
-
-    const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
-      authenticationData,
-      unlockData,
-      newPasswordHint,
-    );
 
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
 

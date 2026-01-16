@@ -343,19 +343,17 @@ export class SetInitialPasswordComponent implements OnInit {
 
   private async setInitialPasswordTdeOffboarding(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
-
     assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
-    assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
     assertTruthy(passwordInputResult.salt, "salt", ctx);
+    assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
     assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
-
     assertTruthy(this.userId, "userId", ctx);
 
     try {
       const credentials: SetInitialPasswordTdeOffboardingCredentials = {
         newPassword: passwordInputResult.newPassword,
-        kdfConfig: passwordInputResult.kdfConfig,
         salt: passwordInputResult.salt,
+        kdfConfig: passwordInputResult.kdfConfig,
         newPasswordHint: passwordInputResult.newPasswordHint,
       };
 

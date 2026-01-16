@@ -66,8 +66,8 @@ export interface SetInitialPasswordTdeOffboardingCredentialsOld {
 
 export interface SetInitialPasswordTdeOffboardingCredentials {
   newPassword: string;
-  kdfConfig: KdfConfig;
   salt: MasterPasswordSalt;
+  kdfConfig: KdfConfig;
   newPasswordHint: string;
 }
 
