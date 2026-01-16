@@ -57,7 +57,8 @@ pub struct PasskeyAssertionRequest {
     /// On Windows, this is a base64-string representing the following data:
     /// `request transaction id (GUID, 16 bytes) || SHA-256(pluginOperationRequest)`
     pub context: String,
-    // pub extension_input: Vec<u8>, TODO: Implement support for extensions
+    //  TODO(PM-30510): Implement support for extensions
+    // pub extension_input: Vec<u8>,
 }
 
 /// Request to assert a credential without user interaction.
