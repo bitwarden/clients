@@ -56,7 +56,7 @@ export class LayoutComponent {
   handleKeydown(ev: KeyboardEvent) {
     if (isNothingFocused()) {
       ev.preventDefault();
-      this.skipLink().el.nativeElement.focus();
+      this.skipLink().focus();
     }
   }
 }
