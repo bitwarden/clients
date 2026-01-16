@@ -100,6 +100,70 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "W tym dniu wysyłka zostanie trwale usunięta.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Plik wysyłki"
+  },
+  "hideTextByDefault": {
+    "message": "Ukryj domyślnie tekst wysyłki"
+  },
+  "hideYourEmail": {
+    "message": "Ukryj mój adres e-mail przed odbiorcami."
+  },
+  "limitSendViews": {
+    "message": "Maksymalna liczba wyświetleń"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Po osiągnięciu limitu wysyłka będzie niedostępna.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Prywatna notatka"
+  },
+  "sendDetails": {
+    "message": "Szczegóły wysyłki",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "Zabezpiecz wysyłkę opcjonalnym hasłem.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Tekst wysyłki"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nowa wysyłka tekstu",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nowa wysyłka pliku",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edytuj tekst wysyłki",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edytuj plik wysyłki",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Czy na pewno chcesz usunąć trwale wysyłkę?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "Nowy element",
     "description": "for adding new items"

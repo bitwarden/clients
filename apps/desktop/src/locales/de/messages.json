@@ -100,6 +100,70 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "Das Send wird an diesem Datum dauerhaft gelöscht.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Zu teilende Datei"
+  },
+  "hideTextByDefault": {
+    "message": "Text standardmäßig ausblenden"
+  },
+  "hideYourEmail": {
+    "message": "Verberge deine E-Mail-Adresse vor Betrachtern."
+  },
+  "limitSendViews": {
+    "message": "Ansichten begrenzen"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ Ansichten übrig",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Nach Erreichen des Limits kann niemand mehr dieses Send sehen.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Private Notiz"
+  },
+  "sendDetails": {
+    "message": "Send-Details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "Füge ein optionales Passwort hinzu, mit dem Empfänger auf dieses Send zugreifen können.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Zu teilender Text"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Neues Text-Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Neues Datei-Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Text-Send bearbeiten",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Datei-Send bearbeiten",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Bist du sicher, dass du dieses Send dauerhaft löschen möchtest?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "Neu",
     "description": "for adding new items"
