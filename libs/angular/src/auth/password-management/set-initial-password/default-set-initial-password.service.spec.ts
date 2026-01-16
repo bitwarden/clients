@@ -41,6 +41,7 @@ import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
+  SetInitialPasswordTdeOffboardingCredentialsOld,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
@@ -729,9 +730,13 @@ describe("DefaultSetInitialPasswordService", () => {
     });
   });
 
-  describe("setInitialPasswordTdeOffboarding(...)", () => {
+  /**
+   * @deprecated To be removed in PM-28143. When you remove this, check also if there are any imports/properties
+   * in the test setup above that are now un-used and can also be removed.
+   */
+  describe("setInitialPasswordTdeOffboardingOld(...)", () => {
     // Mock function parameters
-    let credentials: SetInitialPasswordTdeOffboardingCredentials;
+    let credentials: SetInitialPasswordTdeOffboardingCredentialsOld;
 
     beforeEach(() => {
       // Mock function parameters
@@ -757,7 +762,7 @@ describe("DefaultSetInitialPasswordService", () => {
       request.masterPasswordHint = credentials.newPasswordHint;
 
       // Act
-      await sut.setInitialPasswordTdeOffboarding(credentials, userId);
+      await sut.setInitialPasswordTdeOffboardingOld(credentials, userId);
 
       // Assert
       expect(masterPasswordApiService.putUpdateTdeOffboardingPassword).toHaveBeenCalledTimes(1);
@@ -772,7 +777,7 @@ describe("DefaultSetInitialPasswordService", () => {
         setupTdeOffboardingMocks();
 
         // Act
-        await sut.setInitialPasswordTdeOffboarding(credentials, userId);
+        await sut.setInitialPasswordTdeOffboardingOld(credentials, userId);
 
         // Assert
         expect(masterPasswordApiService.putUpdateTdeOffboardingPassword).toHaveBeenCalledTimes(1);
@@ -787,13 +792,13 @@ describe("DefaultSetInitialPasswordService", () => {
       ["newMasterKey", "newServerMasterKeyHash", "newPasswordHint"].forEach((key) => {
         it(`should throw if ${key} is not provided on the SetInitialPasswordTdeOffboardingCredentials object`, async () => {
           // Arrange
-          const invalidCredentials: SetInitialPasswordTdeOffboardingCredentials = {
+          const invalidCredentials: SetInitialPasswordTdeOffboardingCredentialsOld = {
             ...credentials,
             [key]: null,
           };
 
           // Act
-          const promise = sut.setInitialPasswordTdeOffboarding(invalidCredentials, userId);
+          const promise = sut.setInitialPasswordTdeOffboardingOld(invalidCredentials, userId);
 
           // Assert
           await expect(promise).rejects.toThrow(`${key} not found. Could not set password.`);
@@ -805,7 +810,7 @@ describe("DefaultSetInitialPasswordService", () => {
         userId = null;
 
         // Act
-        const promise = sut.setInitialPasswordTdeOffboarding(credentials, userId);
+        const promise = sut.setInitialPasswordTdeOffboardingOld(credentials, userId);
 
         // Assert
         await expect(promise).rejects.toThrow("userId not found. Could not set password.");
@@ -816,7 +821,7 @@ describe("DefaultSetInitialPasswordService", () => {
         keyService.userKey$.mockReturnValue(of(null));
 
         // Act
-        const promise = sut.setInitialPasswordTdeOffboarding(credentials, userId);
+        const promise = sut.setInitialPasswordTdeOffboardingOld(credentials, userId);
 
         // Assert
         await expect(promise).rejects.toThrow("userKey not found. Could not set password.");
@@ -829,7 +834,7 @@ describe("DefaultSetInitialPasswordService", () => {
         setupTdeOffboardingMocks();
 
         // Act
-        const promise = sut.setInitialPasswordTdeOffboarding(credentials, userId);
+        const promise = sut.setInitialPasswordTdeOffboardingOld(credentials, userId);
 
         // Assert
         await expect(promise).rejects.toThrow(
