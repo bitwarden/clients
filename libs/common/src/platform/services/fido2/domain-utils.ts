@@ -7,7 +7,7 @@ import { parse } from "tldts";
  * This limit prevents malicious servers from causing excessive processing.
  * Per WebAuthn spec recommendation.
  */
-const ROR_MAX_LABELS = 5;
+const ROR_MAX_LABELS = 10;
 
 /**
  * Timeout in milliseconds for fetching the .well-known/webauthn endpoint.
