@@ -235,6 +235,9 @@ export class SetInitialPasswordComponent implements OnInit {
            *
            * This is a temporary state. The end-goal will be to use KM's V2Encryption method above.
            */
+          const ctx = "Could not set initial password.";
+          assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+          assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
 
           const newMasterKey = await this.keyService.makeMasterKey(
             passwordInputResult.newPassword,
