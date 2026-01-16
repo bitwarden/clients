@@ -10739,12 +10739,6 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Off"
   },
-  "cipherHealthTest": {
-    "message": "Risk insights diagnostics"
-  },
-  "cipherHealthTestDesc": {
-    "message": "Test password health and member access mapping in parallel. View detailed performance diagnostics and analyze cipher security risks."
-  },
   "riskInsightsPrototype": {
     "message": "Risk Insights Prototype"
   },

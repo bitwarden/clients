@@ -84,10 +84,6 @@ export class ReportsHomeComponent implements OnInit {
             : ReportVariant.RequiresEnterprise,
       },
       {
-        ...reports[ReportType.CipherHealthTest],
-        variant: reportRequiresUpgrade,
-      },
-      {
         ...reports[ReportType.RiskInsightsPrototype],
         variant: reportRequiresUpgrade,
       },

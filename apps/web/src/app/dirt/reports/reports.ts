@@ -20,7 +20,6 @@ export enum ReportType {
   Inactive2fa = "inactive2fa",
   DataBreach = "dataBreach",
   MemberAccessReport = "memberAccessReport",
-  CipherHealthTest = "cipherHealthTest",
   RiskInsightsPrototype = "riskInsightsPrototype",
 }
 
@@ -68,12 +67,6 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     description: "memberAccessReportDesc",
     route: "member-access-report",
     icon: UserLockIcon,
-  },
-  [ReportType.CipherHealthTest]: {
-    title: "cipherHealthTest",
-    description: "cipherHealthTestDesc",
-    route: "cipher-health-test",
-    icon: UnlockedIcon,
   },
   [ReportType.RiskInsightsPrototype]: {
     title: "riskInsightsPrototype",
