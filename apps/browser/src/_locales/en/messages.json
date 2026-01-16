@@ -4745,6 +4745,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "More options - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5131,14 +5134,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
