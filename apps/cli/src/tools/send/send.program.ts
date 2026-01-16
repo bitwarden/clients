@@ -32,13 +32,16 @@ import { parseEmail } from "./util";
 const writeLn = CliUtils.writeLn;
 
 export class SendProgram extends BaseProgram {
-  register() {
-    program.addCommand(this.sendCommand());
+  async register() {
+    const emailAuthEnabled = await this.serviceContainer.configService.getFeatureFlag(
+      FeatureFlag.SendEmailOTP,
+    );
+    program.addCommand(this.sendCommand(emailAuthEnabled));
     // receive is accessible both at `bw receive` and `bw send receive`
     program.addCommand(this.receiveCommand());
   }
 
-  private sendCommand(): Command {
+  private sendCommand(emailAuthEnabled: boolean): Command {
     return new Command("send")
       .argument("<data>", "The data to Send. Specify as a filepath with the --file option")
       .description(
@@ -77,16 +80,13 @@ export class SendProgram extends BaseProgram {
       .addCommand(this.templateCommand())
       .addCommand(this.getCommand())
       .addCommand(this.receiveCommand())
-      .addCommand(this.createCommand())
-      .addCommand(this.editCommand())
+      .addCommand(this.createCommand(emailAuthEnabled))
+      .addCommand(this.editCommand(emailAuthEnabled))
       .addCommand(this.removePasswordCommand())
       .addCommand(this.deleteCommand())
       .action(async (data: string, options: OptionValues) => {
         if (options.email) {
-          const emailFeatureEnabled = await this.serviceContainer.configService.getFeatureFlag(
-            FeatureFlag.SendEmailOTP,
-          );
-          if (!emailFeatureEnabled) {
+          if (!emailAuthEnabled) {
             this.processResponse(Response.error("The --email feature is not currently available."));
             return;
           }
@@ -208,7 +208,7 @@ export class SendProgram extends BaseProgram {
       });
   }
 
-  private createCommand(): Command {
+  private createCommand(emailAuthEnabled: any): Command {
     return new Command("create")
       .argument("[encodedJson]", "JSON object to upload. Can also be piped in through stdin.")
       .description("create a Send")
@@ -226,10 +226,7 @@ export class SendProgram extends BaseProgram {
         const { fullObject = false, email = undefined, password = undefined } = args.parent.opts();
 
         if (email) {
-          const emailFeatureEnabled = await this.serviceContainer.configService.getFeatureFlag(
-            FeatureFlag.SendEmailOTP,
-          );
-          if (!emailFeatureEnabled) {
+          if (!emailAuthEnabled) {
             this.processResponse(Response.error("The --email feature is not currently available."));
             return;
           }
@@ -247,7 +244,7 @@ export class SendProgram extends BaseProgram {
       });
   }
 
-  private editCommand(): Command {
+  private editCommand(emailAuthEnabled: any): Command {
     return new Command("edit")
       .argument(
         "[encodedJson]",
@@ -265,10 +262,7 @@ export class SendProgram extends BaseProgram {
         await this.exitIfLocked();
         const { email = undefined, password = undefined } = args.parent.opts();
         if (email) {
-          const emailFeatureEnabled = await this.serviceContainer.configService.getFeatureFlag(
-            FeatureFlag.SendEmailOTP,
-          );
-          if (!emailFeatureEnabled) {
+          if (!emailAuthEnabled) {
             this.processResponse(Response.error("The --email feature is not currently available."));
             return;
           }
