@@ -1,6 +1,11 @@
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
+use serde_with::{
+    base64::{Base64, Standard},
+    formats::Padded,
+    serde_as,
+};
 
 use crate::{BitwardenError, Callback, TimedCallback};
 
@@ -16,6 +21,7 @@ pub(super) struct WindowHandleQueryRequest {
 }
 
 /// Response to window handle request.
+#[serde_as]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WindowHandleQueryResponse {
@@ -33,7 +39,7 @@ pub struct WindowHandleQueryResponse {
     ///
     /// ## Windows
     /// On Windows, this is a HWND.
-    #[serde(deserialize_with = "crate::util::deserialize_b64")]
+    #[serde_as(as = "Base64<Standard, Padded>")]
     pub handle: Vec<u8>,
 }
 

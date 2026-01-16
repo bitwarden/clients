@@ -19,13 +19,14 @@ desktop_core = { path = "../core" }
 futures = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+serde_with = { workspace = true, features = ["base64"] }
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 uniffi = { workspace = true, features = ["cli"] }
-tracing-subscriber = { workspace = true }
 tracing-oslog = "=0.3.0"
+tracing-subscriber = { workspace = true }
 
 [build-dependencies]
 uniffi = { workspace = true, features = ["build"] }

@@ -2,7 +2,6 @@
 mod assertion;
 mod lock_status;
 mod registration;
-mod util;
 mod window_handle_query;
 
 #[cfg(target_os = "macos")]
