@@ -1,0 +1,173 @@
+.TH BW-SERVE 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-serve \- start a local RESTful API web server
+
+.SH SYNOPSIS
+.B bw serve
+[\fIoptions\fP]
+
+.SH DESCRIPTION
+Start a local RESTful API web server that exposes Bitwarden CLI functionality
+through HTTP endpoints. This enables integration with other applications,
+browser extensions, and automation tools.
+
+The server runs on localhost by default and requires an unlocked vault session.
+
+.SH OPTIONS
+.TP
+.BI \-\-hostname\  hostname
+Hostname to bind to. Default is \fBlocalhost\fP. Use \fBall\fP to bind to
+all interfaces (0.0.0.0).
+.TP
+.BI \-\-port\  port
+Port to listen on. Default is \fB8087\fP.
+.TP
+.BR \-\-disable\-origin\-protection
+Disable CSRF/origin header protection.
+.sp
+\fBWARNING:\fP This disables important security checks. Only use this if you
+understand the implications and have other protections in place.
+
+.SH API ENDPOINTS
+The API exposes endpoints corresponding to CLI commands:
+
+.SS Authentication
+.TP
+.B POST /unlock
+Unlock the vault. Body: \fB{"password": "..."}\fP
+.TP
+.B POST /lock
+Lock the vault.
+.TP
+.B GET /status
+Get current status.
+.TP
+.B POST /sync
+Sync the vault.
+
+.SS Vault Operations
+.TP
+.B GET /list/object/:object
+List objects (items, folders, collections, etc.).
+.TP
+.B GET /object/:object/:id
+Get a specific object.
+.TP
+.B POST /object/:object
+Create an object.
+.TP
+.B PUT /object/:object/:id
+Update an object.
+.TP
+.B DELETE /object/:object/:id
+Delete an object.
+
+.SS Utilities
+.TP
+.B GET /generate
+Generate a password.
+.TP
+.B POST /object/attachment
+Create an attachment.
+
+.SH EXAMPLES
+.TP
+Start the API server:
+.nf
+$ bw serve
+Listening on localhost:8087
+.fi
+.TP
+Start on a custom port:
+.nf
+$ bw serve --port 9000
+Listening on localhost:9000
+.fi
+.TP
+Bind to all interfaces (for container use):
+.nf
+$ bw serve --hostname all --port 8087
+Listening on 0.0.0.0:8087
+.fi
+.TP
+Run in background:
+.nf
+$ bw serve &
+.fi
+.TP
+Use with curl to list items:
+.nf
+$ curl http://localhost:8087/list/object/items
+.fi
+.TP
+Get a specific item:
+.nf
+$ curl http://localhost:8087/object/item/12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Generate a password:
+.nf
+$ curl "http://localhost:8087/generate?length=20&uppercase=true&lowercase=true&number=true&special=true"
+.fi
+.TP
+Unlock the vault via API:
+.nf
+$ curl -X POST -H "Content-Type: application/json" \\
+    -d '{"password":"masterpassword"}' \\
+    http://localhost:8087/unlock
+.fi
+
+.SH SECURITY CONSIDERATIONS
+.TP
+\(bu
+The server has access to all vault data; secure it appropriately.
+.TP
+\(bu
+By default, only localhost connections are accepted.
+.TP
+\(bu
+Origin header validation prevents CSRF attacks from web pages.
+.TP
+\(bu
+Do not expose the server to untrusted networks.
+.TP
+\(bu
+Use \fB--disable-origin-protection\fP only when absolutely necessary.
+.TP
+\(bu
+Consider running behind a reverse proxy with authentication for production use.
+.TP
+\(bu
+The server does not have its own authentication; the vault session provides access.
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked before starting).
+.TP
+\(bu
+The server runs in the foreground by default.
+.TP
+\(bu
+Press Ctrl+C to stop the server.
+.TP
+\(bu
+API responses are in JSON format.
+.TP
+\(bu
+Query parameters can be used for filtering (same as CLI options).
+
+.SH EXIT STATUS
+.TP
+.B 0
+Server stopped normally.
+.TP
+.B 1
+Error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-unlock (1),
+.BR bw-list (1),
+.BR bw-get (1)

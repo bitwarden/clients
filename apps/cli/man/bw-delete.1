@@ -1,0 +1,107 @@
+.TH BW-DELETE 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-delete \- delete an object from the vault
+
+.SH SYNOPSIS
+.B bw delete
+\fIobject\fP \fIid\fP [\fIoptions\fP]
+
+.SH DESCRIPTION
+Delete an object from the vault. By default, items are moved to the trash
+and can be restored within 30 days. Use \fB--permanent\fP to permanently
+delete items.
+
+.SH ARGUMENTS
+.TP
+.I object
+Type of object to delete. Valid values:
+.RS
+.IP \(bu 2
+.B item
+\- A vault item
+.IP \(bu 2
+.B attachment
+\- An attachment (requires \fB--itemid\fP)
+.IP \(bu 2
+.B folder
+\- A folder (items in folder are not deleted)
+.IP \(bu 2
+.B org-collection
+\- An organization collection
+.RE
+.TP
+.I id
+Object UUID to delete, or attachment ID/filename for attachments.
+
+.SH OPTIONS
+.TP
+.BI \-\-itemid\  id
+Item ID (required when deleting attachments).
+.TP
+.BI \-\-organizationid\  id
+Organization ID (required for org-collection).
+.TP
+.BR \-p ", " \-\-permanent
+Permanently delete the item instead of moving to trash. Only applies to items.
+
+.SH EXAMPLES
+.TP
+Delete an item (moves to trash):
+.nf
+$ bw delete item 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Permanently delete an item:
+.nf
+$ bw delete item 12345678-1234-1234-1234-123456789012 --permanent
+.fi
+.TP
+Delete an attachment:
+.nf
+$ bw delete attachment "document.pdf" --itemid 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Delete a folder:
+.nf
+$ bw delete folder 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Delete an organization collection:
+.nf
+$ bw delete org-collection 12345678-1234-1234-1234-123456789012 --organizationid org-id
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked).
+.TP
+\(bu
+Deleted items go to trash and are permanently deleted after 30 days.
+.TP
+\(bu
+Use \fBbw restore\fP to recover items from trash.
+.TP
+\(bu
+Deleting a folder does not delete items in that folder.
+.TP
+\(bu
+Permanently deleted items cannot be recovered.
+.TP
+\(bu
+Organization items may require appropriate permissions to delete.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Object deleted successfully.
+.TP
+.B 1
+Deletion failed or error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-restore (1),
+.BR bw-create (1),
+.BR bw-list (1)

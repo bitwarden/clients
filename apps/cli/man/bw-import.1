@@ -1,0 +1,134 @@
+.TH BW-IMPORT 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-import \- import vault data from various formats
+
+.SH SYNOPSIS
+.B bw import
+[\fIformat\fP] [\fIinput\fP] [\fIoptions\fP]
+
+.SH DESCRIPTION
+Import vault data from a file or stdin. Supports many password manager
+export formats including CSV, JSON, XML, and proprietary formats from
+various password managers.
+
+.SH ARGUMENTS
+.TP
+.I format
+Import format identifier. Use \fB--formats\fP to list all supported formats.
+.TP
+.I input
+Path to the import file, or omit to read from stdin.
+
+.SH OPTIONS
+.TP
+.BR \-\-formats
+List all supported import formats and exit.
+.TP
+.BI \-\-organizationid\  id
+Import to an organization vault instead of personal vault.
+
+.SH SUPPORTED FORMATS
+Common formats include (use \fB--formats\fP for complete list):
+.RS
+.IP \(bu 2
+.B bitwardencsv
+\- Bitwarden CSV
+.IP \(bu 2
+.B bitwardenjson
+\- Bitwarden JSON
+.IP \(bu 2
+.B lastpasscsv
+\- LastPass CSV
+.IP \(bu 2
+.B keepabordenxml
+\- KeePass 2 XML
+.IP \(bu 2
+.B 1passwordcsv
+\- 1Password CSV
+.IP \(bu 2
+.B 1password1pif
+\- 1Password 1PIF
+.IP \(bu 2
+.B dashlanecsv
+\- Dashlane CSV
+.IP \(bu 2
+.B chromecsv
+\- Chrome/Chromium CSV
+.IP \(bu 2
+.B firefoxcsv
+\- Firefox CSV
+.IP \(bu 2
+.B safariicsv
+\- Safari CSV
+.RE
+
+.SH EXAMPLES
+.TP
+List all supported formats:
+.nf
+$ bw import --formats
+.fi
+.TP
+Import from Bitwarden JSON:
+.nf
+$ bw import bitwardenjson ./backup.json
+.fi
+.TP
+Import from LastPass CSV:
+.nf
+$ bw import lastpasscsv ./lastpass_export.csv
+.fi
+.TP
+Import from 1Password:
+.nf
+$ bw import 1password1pif ./1password_export.1pif
+.fi
+.TP
+Import from Chrome:
+.nf
+$ bw import chromecsv ./chrome_passwords.csv
+.fi
+.TP
+Import to an organization:
+.nf
+$ bw import bitwardenjson ./team_passwords.json --organizationid 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Import from stdin:
+.nf
+$ cat passwords.csv | bw import lastpasscsv
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked).
+.TP
+\(bu
+Import files may contain sensitive data; delete them securely after import.
+.TP
+\(bu
+Some formats may not support all Bitwarden features (custom fields, etc.).
+.TP
+\(bu
+Organization imports require appropriate permissions.
+.TP
+\(bu
+Large imports may take time to process.
+.TP
+\(bu
+Duplicate items are not automatically merged.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Import completed successfully.
+.TP
+.B 1
+Import failed or error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-export (1),
+.BR bw-create (1)

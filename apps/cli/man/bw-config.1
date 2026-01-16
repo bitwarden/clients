@@ -1,0 +1,111 @@
+.TH BW-CONFIG 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-config \- configure CLI settings
+
+.SH SYNOPSIS
+.B bw config
+\fIsetting\fP [\fIvalue\fP] [\fIoptions\fP]
+
+.SH DESCRIPTION
+Configure CLI settings, primarily for connecting to self-hosted Bitwarden
+servers. Without a value, displays the current setting.
+
+.SH ARGUMENTS
+.TP
+.I setting
+The setting to configure. Currently supported:
+.RS
+.IP \(bu 2
+.B server
+\- Bitwarden server URL (for self-hosted installations)
+.RE
+.TP
+.I value
+The value to set. Omit to view current value. Use \fBnull\fP to reset to default.
+
+.SH OPTIONS
+.TP
+.BI \-\-web\-vault\  url
+Set a custom web vault URL.
+.TP
+.BI \-\-api\  url
+Set a custom API URL.
+.TP
+.BI \-\-identity\  url
+Set a custom identity URL.
+.TP
+.BI \-\-icons\  url
+Set a custom icons URL.
+.TP
+.BI \-\-notifications\  url
+Set a custom notifications URL.
+.TP
+.BI \-\-events\  url
+Set a custom events URL.
+.TP
+.BI \-\-key\-connector\  url
+Set a custom key connector URL.
+
+.SH EXAMPLES
+.TP
+View current server setting:
+.nf
+$ bw config server
+https://vault.bitwarden.com
+.fi
+.TP
+Set a self-hosted server:
+.nf
+$ bw config server https://bitwarden.example.com
+.fi
+.TP
+Set server with custom component URLs:
+.nf
+$ bw config server https://bitwarden.example.com \\
+    --api https://api.bitwarden.example.com \\
+    --identity https://identity.bitwarden.example.com
+.fi
+.TP
+Reset to default Bitwarden servers:
+.nf
+$ bw config server null
+.fi
+.TP
+Set only specific URLs (advanced):
+.nf
+$ bw config server \\
+    --web-vault https://vault.example.com \\
+    --api https://api.example.com \\
+    --identity https://id.example.com
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Does not require authentication.
+.TP
+\(bu
+Configuration is stored locally in the CLI data directory.
+.TP
+\(bu
+Log out and log back in after changing server settings.
+.TP
+\(bu
+Self-hosted servers must be properly configured with valid SSL certificates.
+.TP
+\(bu
+The individual URL options allow for split-service deployments.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Configuration updated or viewed successfully.
+.TP
+.B 1
+Error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-login (1),
+.BR bw-status (1)

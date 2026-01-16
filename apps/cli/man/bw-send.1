@@ -1,0 +1,183 @@
+.TH BW-SEND 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-send \- create and manage Bitwarden Sends for secure sharing
+
+.SH SYNOPSIS
+.B bw send
+[\fIdata\fP] [\fIoptions\fP]
+.br
+.B bw send
+\fIsubcommand\fP [\fIarguments\fP] [\fIoptions\fP]
+
+.SH DESCRIPTION
+Create, manage, and access Bitwarden Sends. Sends allow secure sharing of
+text or files with anyone, even if they don't have a Bitwarden account.
+Sends can be password-protected and have expiration settings.
+
+.SH QUICK CREATE
+The simplest form creates a text Send directly:
+
+.B bw send
+\fIdata\fP [\fIoptions\fP]
+
+.SH SUBCOMMANDS
+.TP
+.B list
+List all Sends you own.
+.TP
+.B get \fIid\fP
+Get details of a Send by ID or search term.
+.TP
+.B create \fI[encodedJson]\fP
+Create a Send from encoded JSON template.
+.TP
+.B edit \fI[encodedJson]\fP
+Edit an existing Send.
+.TP
+.B delete \fIid\fP
+Delete a Send.
+.TP
+.B template \fIobject\fP
+Get JSON template for Send objects.
+.TP
+.B remove-password \fIid\fP
+Remove password protection from a Send.
+
+.SH QUICK CREATE OPTIONS
+.TP
+.BR \-f ", " \-\-file
+Treat \fIdata\fP as a file path to upload.
+.TP
+.BI \-d ", " \-\-deleteInDays\  days
+Number of days until automatic deletion. Default is 7.
+.TP
+.BI \-\-password\  password
+Password protect the Send.
+.TP
+.BI \-a ", " \-\-maxAccessCount\  count
+Maximum number of times the Send can be accessed.
+.TP
+.BR \-\-hidden
+Hide the text value by default (text Sends only).
+.TP
+.BI \-n ", " \-\-name\  name
+Name of the Send.
+.TP
+.BI \-\-notes\  notes
+Private notes about the Send (not shared with recipients).
+.TP
+.BR \-\-fullObject
+Return the full Send object instead of just the URL.
+
+.SH TEMPLATE TYPES
+For \fBbw send template\fP:
+.RS
+.IP \(bu 2
+.B send.text
+or
+.B text
+\- Text Send template
+.IP \(bu 2
+.B send.file
+or
+.B file
+\- File Send template
+.RE
+
+.SH EXAMPLES
+.SS Quick Create
+.TP
+Create a simple text Send:
+.nf
+$ bw send "Secret message"
+https://send.bitwarden.com/#...
+.fi
+.TP
+Create password-protected text Send:
+.nf
+$ bw send "Secret message" --password "sharepassword"
+.fi
+.TP
+Create a file Send:
+.nf
+$ bw send -f ./document.pdf
+.fi
+.TP
+Create Send with custom options:
+.nf
+$ bw send "API Key: abc123" -n "API Credentials" -d 1 -a 3 --hidden
+.fi
+
+.SS List and Get
+.TP
+List all Sends:
+.nf
+$ bw send list
+.fi
+.TP
+Get a specific Send:
+.nf
+$ bw send get "API Credentials"
+.fi
+.TP
+Get Send text content directly:
+.nf
+$ bw send get "API Credentials" --text
+.fi
+
+.SS Create with Template
+.TP
+Create from template:
+.nf
+$ bw send template send.text | jq '.text.text="Secret" | .name="My Send"' | bw encode | bw send create
+.fi
+
+.SS Edit and Delete
+.TP
+Edit a Send:
+.nf
+$ bw send get 12345678-1234-1234-1234-123456789012 | jq '.name="New Name"' | bw encode | bw send edit
+.fi
+.TP
+Delete a Send:
+.nf
+$ bw send delete 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Remove password from Send:
+.nf
+$ bw send remove-password 12345678-1234-1234-1234-123456789012
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked).
+.TP
+\(bu
+Send URLs contain the decryption key; treat them as sensitive.
+.TP
+\(bu
+File Sends cannot have their files updated after creation.
+.TP
+\(bu
+Maximum file size limits apply based on your account type.
+.TP
+\(bu
+Sends are automatically deleted after the specified number of days.
+.TP
+\(bu
+Use \fB--hidden\fP for sensitive text that shouldn't be immediately visible.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Command completed successfully.
+.TP
+.B 1
+Error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-receive (1)

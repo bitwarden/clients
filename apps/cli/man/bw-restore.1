@@ -1,0 +1,60 @@
+.TH BW-RESTORE 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-restore \- restore an object from the trash
+
+.SH SYNOPSIS
+.B bw restore
+\fIobject\fP \fIid\fP
+
+.SH DESCRIPTION
+Restore a deleted item from the trash. Items in trash are automatically
+permanently deleted after 30 days, so restore them before then if needed.
+
+.SH ARGUMENTS
+.TP
+.I object
+Type of object to restore. Currently only \fBitem\fP is supported.
+.TP
+.I id
+UUID of the item to restore.
+
+.SH EXAMPLES
+.TP
+Restore an item from trash:
+.nf
+$ bw restore item 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+List items in trash first:
+.nf
+$ bw list items --trash
+$ bw restore item 12345678-1234-1234-1234-123456789012
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked).
+.TP
+\(bu
+Only items in trash can be restored.
+.TP
+\(bu
+Items permanently deleted cannot be restored.
+.TP
+\(bu
+Use \fBbw list items --trash\fP to see items available for restoration.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Item restored successfully.
+.TP
+.B 1
+Restoration failed or error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-delete (1),
+.BR bw-list (1)

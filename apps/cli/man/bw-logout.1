@@ -1,0 +1,49 @@
+.TH BW-LOGOUT 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-logout \- log out of the current Bitwarden user account
+
+.SH SYNOPSIS
+.B bw logout
+
+.SH DESCRIPTION
+Log out of the current Bitwarden user account. This removes all locally stored
+account data and invalidates the current session.
+
+After logging out, you must log in again with \fBbw login\fP to access the vault.
+
+.SH OPTIONS
+This command has no specific options. See \fBbw\fP(1) for global options.
+
+.SH EXAMPLES
+.TP
+Log out of current account:
+.nf
+$ bw logout
+You have logged out.
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Logging out removes locally cached vault data.
+.TP
+\(bu
+Any active session key becomes invalid after logout.
+.TP
+\(bu
+You cannot log out if you are not logged in.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Successful logout.
+.TP
+.B 1
+Error occurred (e.g., not logged in).
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-login (1),
+.BR bw-lock (1),
+.BR bw-status (1)

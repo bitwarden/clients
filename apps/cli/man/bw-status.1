@@ -1,0 +1,110 @@
+.TH BW-STATUS 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-status \- show account and vault status
+
+.SH SYNOPSIS
+.B bw status
+
+.SH DESCRIPTION
+Display the current status of the CLI, including server URL, last sync time,
+user information, and vault lock status.
+
+Returns a JSON object with status information that can be parsed by scripts.
+
+.SH OPTIONS
+This command has no specific options. See \fBbw\fP(1) for global options.
+
+.SH OUTPUT FIELDS
+.TP
+.B serverUrl
+The Bitwarden server URL being used.
+.TP
+.B lastSync
+ISO 8601 timestamp of the last successful sync, or null if never synced.
+.TP
+.B userEmail
+Email address of the logged-in user, or null if not logged in.
+.TP
+.B userId
+UUID of the logged-in user, or null if not logged in.
+.TP
+.B status
+Current status. One of:
+.RS
+.IP \(bu 2
+.B unauthenticated
+\- Not logged in
+.IP \(bu 2
+.B locked
+\- Logged in but vault is locked
+.IP \(bu 2
+.B unlocked
+\- Logged in and vault is unlocked
+.RE
+
+.SH EXAMPLES
+.TP
+Check current status:
+.nf
+$ bw status
+{
+  "serverUrl": "https://vault.bitwarden.com",
+  "lastSync": "2026-01-15T10:30:00.000Z",
+  "userEmail": "user@example.com",
+  "userId": "12345678-1234-1234-1234-123456789012",
+  "status": "unlocked"
+}
+.fi
+.TP
+Check status with pretty printing:
+.nf
+$ bw status --pretty
+.fi
+.TP
+Get just the status field with jq:
+.nf
+$ bw status | jq -r '.status'
+unlocked
+.fi
+.TP
+Check if logged in:
+.nf
+$ bw status | jq -r 'if .status == "unauthenticated" then "Not logged in" else "Logged in as " + .userEmail end'
+.fi
+.TP
+Use in a script:
+.nf
+#!/bin/bash
+status=$(bw status | jq -r '.status')
+if [ "$status" == "unlocked" ]; then
+    echo "Vault is ready"
+else
+    echo "Please unlock vault first"
+fi
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Does not require authentication (returns unauthenticated status).
+.TP
+\(bu
+Useful for checking state before running other commands.
+.TP
+\(bu
+Output is always JSON regardless of global options.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Status retrieved successfully.
+.TP
+.B 1
+Error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-login (1),
+.BR bw-unlock (1),
+.BR bw-sync (1)

@@ -1,0 +1,179 @@
+.TH BW-GET 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-get \- get an object from the vault
+
+.SH SYNOPSIS
+.B bw get
+\fIobject\fP \fIid\fP [\fIoptions\fP]
+
+.SH DESCRIPTION
+Get a specific object from the vault. The \fIid\fP can be the object's UUID
+or a search term that uniquely identifies the object.
+
+.SH ARGUMENTS
+.TP
+.I object
+Type of object to get. Valid values:
+.RS
+.IP \(bu 2
+.B item
+\- A vault item (returns full item JSON)
+.IP \(bu 2
+.B username
+\- Username field of a login item
+.IP \(bu 2
+.B password
+\- Password field of a login item
+.IP \(bu 2
+.B uri
+\- First URI of a login item
+.IP \(bu 2
+.B totp
+\- TOTP code for a login item (if configured)
+.IP \(bu 2
+.B notes
+\- Secure notes field of an item
+.IP \(bu 2
+.B exposed
+\- Check if password has been exposed in data breaches
+.IP \(bu 2
+.B attachment
+\- Download an attachment
+.IP \(bu 2
+.B folder
+\- A folder
+.IP \(bu 2
+.B collection
+\- A collection
+.IP \(bu 2
+.B org-collection
+\- An organization collection
+.IP \(bu 2
+.B organization
+\- An organization
+.IP \(bu 2
+.B template
+\- Get a JSON template for creating objects
+.IP \(bu 2
+.B fingerprint
+\- Get fingerprint phrase for a user
+.IP \(bu 2
+.B send
+\- A Bitwarden Send
+.RE
+.TP
+.I id
+Object UUID or search term. For templates, use the template type name.
+
+.SH OPTIONS
+.TP
+.BI \-\-itemid\  id
+Attachment's item ID (required for attachments).
+.TP
+.BI \-\-output\  path
+Output file path for attachments. Use \fB-\fP for stdout.
+.TP
+.BI \-\-organizationid\  id
+Organization ID (for org-collection).
+
+.SH TEMPLATE TYPES
+When using \fBbw get template\fP, valid types are:
+.RS
+.IP \(bu 2
+item, item.login, item.card, item.identity, item.securenote
+.IP \(bu 2
+item.field, item.login.uri
+.IP \(bu 2
+folder, collection, org-collection
+.IP \(bu 2
+send.text, send.file
+.RE
+
+.SH EXAMPLES
+.TP
+Get an item by ID:
+.nf
+$ bw get item 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Get an item by search term:
+.nf
+$ bw get item "GitHub"
+.fi
+.TP
+Get a password (useful for piping):
+.nf
+$ bw get password "GitHub" | pbcopy
+.fi
+.TP
+Get username:
+.nf
+$ bw get username "GitHub"
+.fi
+.TP
+Get TOTP code:
+.nf
+$ bw get totp "GitHub"
+.fi
+.TP
+Check if password has been exposed:
+.nf
+$ bw get exposed 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Download an attachment:
+.nf
+$ bw get attachment "document.pdf" --itemid 12345678-1234-1234-1234-123456789012 --output ~/Downloads/
+.fi
+.TP
+Get attachment to stdout:
+.nf
+$ bw get attachment "file.txt" --itemid 12345678-1234-1234-1234-123456789012 --output -
+.fi
+.TP
+Get a template for creating new items:
+.nf
+$ bw get template item.login
+.fi
+.TP
+Get a folder:
+.nf
+$ bw get folder "Work"
+.fi
+.TP
+Get user fingerprint phrase:
+.nf
+$ bw get fingerprint me
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked).
+.TP
+\(bu
+When using a search term as ID, it must uniquely match one object.
+.TP
+\(bu
+Use \fB--raw\fP to get only the value without formatting (useful for scripts).
+.TP
+\(bu
+TOTP codes are time-sensitive and rotate every 30 seconds.
+.TP
+\(bu
+The "exposed" check uses the Have I Been Pwned API with k-anonymity.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Object retrieved successfully.
+.TP
+.B 1
+Object not found or error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-list (1),
+.BR bw-create (1),
+.BR bw-edit (1)
