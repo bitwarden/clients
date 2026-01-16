@@ -496,6 +496,7 @@ export class VaultV2Component<C extends CipherViewLike>
     }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: this.cipherId as CipherId,
+      canEditCipher: this.cipher().edit,
     });
     const result = await firstValueFrom(dialogRef.closed).catch((): any => null);
     if (
