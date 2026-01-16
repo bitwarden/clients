@@ -23,7 +23,7 @@ aes = "=0.8.4"
 aes-gcm = "=0.10.3"
 anyhow = "=1.0.100"
 arboard = { version = "=3.6.1", default-features = false }
-ashpd = "=0.12.1"
+ashpd = "=0.12.0"
 base64 = "=0.22.1"
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "a641316227227f8777fdf56ac9fa2d6b5f7fe662" }
 byteorder = "=1.5.0"
@@ -78,7 +78,7 @@ windows = "=0.61.1"
 windows-core = "=0.61.0"
 windows-future = "=0.2.0"
 windows-registry = "=0.6.1"
-zbus = "=5.13.1"
+zbus = "=5.12.0"
 zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"
 
