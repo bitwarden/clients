@@ -57,7 +57,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Verify
@@ -90,7 +90,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: true
 
       - name: Get Package Version
@@ -176,7 +176,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 1
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Free disk space
@@ -335,7 +335,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Set up Node
@@ -483,7 +483,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Set up Node
@@ -996,7 +996,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Set up Node
@@ -1236,7 +1236,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Set up Node
@@ -1511,7 +1511,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Set up Node
@@ -1852,7 +1852,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Log in to Azure
@@ -1897,12 +1897,13 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 1
-          ref: ${{  github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Download deb artifact
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
+          run_id: ${{ github.run_id }}
           path: apps/desktop/artifacts/linux/deb
           artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
 
@@ -1940,12 +1941,13 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Download appimage artifact
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
+          run_id: ${{ github.run_id }}
           path: apps/desktop/artifacts/linux/appimage
           artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
 
@@ -1981,12 +1983,13 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Download appimage artifact
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
+          run_id: ${{ github.run_id }}
           path: apps/desktop/artifacts/linux/appimage
           artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
 
@@ -2036,12 +2039,13 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Download flatpak artifact
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
+          run_id: ${{ github.run_id }}
           path: apps/desktop/artifacts/linux/flatpak/
           artifacts: com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
 
@@ -2089,12 +2093,13 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Download snap artifact
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
+          run_id: ${{ github.run_id }}
           path: apps/desktop/artifacts/linux/snap
           artifacts: bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.snap
 
@@ -2133,12 +2138,13 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Download dmg artifact
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
+          run_id: ${{ github.run_id }}
           path: apps/desktop/artifacts/macos/dmg
           artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
 
@@ -2177,12 +2183,13 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 1
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Download portable artifact
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
+          run_id: ${{ github.run_id }}
           path: apps/desktop/artifacts/windows/portable
           artifacts: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
 
