@@ -31,7 +31,7 @@ type Story = StoryObj<LinkComponent>;
 export const Default: Story = {
   render: (args) => ({
     template: /*html*/ `
-      <a bitLink ${formatArgsForCodeSnippet<LinkComponent>(args)}>Your text here</a>
+      <a bitLink href="#" ${formatArgsForCodeSnippet<LinkComponent>(args)}>Your text here</a>
     `,
   }),
 };
@@ -130,7 +130,7 @@ export const Inline: Story = {
     props: args,
     template: /*html*/ `
       <span class="tw-text-main">
-        On the internet paragraphs often contain <a bitLink href="#">inline links</a>, but few know that <button type="button" bitLink>buttons</button> can be used for similar purposes.
+        On the internet paragraphs often contain <a bitLink href="#">inline links with very long text that might break</a>, but few know that <button type="button" bitLink>buttons</button> can be used for similar purposes.
       </span>
     `,
   }),
