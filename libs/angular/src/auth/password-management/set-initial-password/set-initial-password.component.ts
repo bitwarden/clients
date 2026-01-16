@@ -276,7 +276,7 @@ export class SetInitialPasswordComponent implements OnInit {
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
         // Remove wrapping "if" check and early return in PM-28143
-        if (passwordInputResult.newApisFlagEnabled) {
+        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
           await this.setInitialPasswordTdeOffboarding(passwordInputResult);
           return;
         }
