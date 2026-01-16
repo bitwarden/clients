@@ -19,7 +19,6 @@ export class SendView implements View {
   key: Uint8Array;
   cryptoKey: SymmetricCryptoKey;
   type: SendType = null;
-  authType: AuthType = null;
   text = new SendTextView();
   file = new SendFileView();
   maxAccessCount?: number = null;

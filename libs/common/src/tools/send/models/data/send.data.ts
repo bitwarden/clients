@@ -11,7 +11,6 @@ export class SendData {
   id: string;
   accessId: string;
   type: SendType;
-  authType: AuthType;
   name: string;
   notes: string;
   file: SendFileData;

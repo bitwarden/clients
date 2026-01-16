@@ -26,7 +26,6 @@ describe("Send", () => {
       id: "id",
       accessId: "accessId",
       type: SendType.Text,
-      authType: AuthType.None,
       name: "encName",
       notes: "encNotes",
       text: {
@@ -82,7 +81,6 @@ describe("Send", () => {
       id: "id",
       accessId: "accessId",
       type: SendType.Text,
-      authType: AuthType.None,
       name: { encryptedString: "encName", encryptionType: 0 },
       notes: { encryptedString: "encNotes", encryptionType: 0 },
       text: {
@@ -153,7 +151,6 @@ describe("Send", () => {
       name: "name",
       notes: "notes",
       type: 0,
-      authType: 2,
       key: expect.anything(),
       cryptoKey: "cryptoKey",
       file: expect.anything(),

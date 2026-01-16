@@ -6,6 +6,7 @@ import * as path from "path";
 import * as chalk from "chalk";
 import { program, Command, Option, OptionValues } from "commander";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
@@ -81,6 +82,16 @@ export class SendProgram extends BaseProgram {
       .addCommand(this.removePasswordCommand())
       .addCommand(this.deleteCommand())
       .action(async (data: string, options: OptionValues) => {
+        if (options.email) {
+          const emailFeatureEnabled = await this.serviceContainer.configService.getFeatureFlag(
+            FeatureFlag.SendEmailOTP,
+          );
+          if (!emailFeatureEnabled) {
+            this.processResponse(Response.error("The --email feature is not currently available."));
+            return;
+          }
+        }
+
         const encodedJson = this.makeSendJson(data, options);
 
         let response: Response;
@@ -213,6 +224,17 @@ export class SendProgram extends BaseProgram {
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         // subcommands inherit flags from their parent; they cannot override them
         const { fullObject = false, email = undefined, password = undefined } = args.parent.opts();
+
+        if (email) {
+          const emailFeatureEnabled = await this.serviceContainer.configService.getFeatureFlag(
+            FeatureFlag.SendEmailOTP,
+          );
+          if (!emailFeatureEnabled) {
+            this.processResponse(Response.error("The --email feature is not currently available."));
+            return;
+          }
+        }
+
         const mergedOptions = {
           ...options,
           fullObject: fullObject,
@@ -241,6 +263,17 @@ export class SendProgram extends BaseProgram {
       })
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         await this.exitIfLocked();
+        const { email = undefined, password = undefined } = args.parent.opts();
+        if (email) {
+          const emailFeatureEnabled = await this.serviceContainer.configService.getFeatureFlag(
+            FeatureFlag.SendEmailOTP,
+          );
+          if (!emailFeatureEnabled) {
+            this.processResponse(Response.error("The --email feature is not currently available."));
+            return;
+          }
+        }
+
         const getCmd = new SendGetCommand(
           this.serviceContainer.sendService,
           this.serviceContainer.environmentService,
@@ -257,8 +290,6 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.accountService,
         );
 
-        // subcommands inherit flags from their parent; they cannot override them
-        const { email = undefined, password = undefined } = args.parent.opts();
         const mergedOptions = {
           ...options,
           email,
