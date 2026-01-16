@@ -41,6 +41,7 @@ interface OverlayLike {
 interface OverlayRefStub {
   attach: (portal: ComponentPortal<unknown>) => unknown;
   updatePosition: () => void;
+  dispose: () => void;
 }
 
 describe("TooltipDirective (visibility only)", () => {
@@ -68,6 +69,7 @@ describe("TooltipDirective (visibility only)", () => {
         },
       })),
       updatePosition: jest.fn(),
+      dispose: jest.fn(),
     };
 
     const overlayMock: OverlayLike = {
