@@ -115,7 +115,7 @@ jobs:
         run: rustup --version
 
       - name: Cache cargo registry
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
 
       - name: Run cargo fmt
         working-directory: ./apps/desktop/desktop_native
@@ -128,7 +128,7 @@ jobs:
           RUSTFLAGS: "-D warnings"
 
       - name: Install cargo-sort
-        run: cargo install cargo-sort --locked --git https://github.com/DevinR528/cargo-sort.git --rev f5047967021cbb1f822faddc355b3b07674305a1
+        run: cargo install cargo-sort --locked --git https://github.com/DevinR528/cargo-sort.git --rev ac6e328faf467a39e38ab48dc60dcf4f6a46d7a5 # v2.0.2
 
       - name: Cargo sort
         working-directory: ./apps/desktop/desktop_native
