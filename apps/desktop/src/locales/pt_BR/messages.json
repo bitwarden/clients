@@ -100,6 +100,70 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "O Send será apagado permanentemente nesta data.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Arquivo para compartilhar"
+  },
+  "hideTextByDefault": {
+    "message": "Ocultar texto por padrão"
+  },
+  "hideYourEmail": {
+    "message": "Ocultar seu endereço de e-mail dos visualizadores."
+  },
+  "limitSendViews": {
+    "message": "Limitar visualizações"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ visualizações restantes",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Ninguém poderá visualizar este Send depois que o limite foi atingido.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Anotação privada"
+  },
+  "sendDetails": {
+    "message": "Detalhes do Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "Adicione uma senha opcional para que os destinatários acessem este Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Texto para compartilhar"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Novo Send de texto",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Novo Send de arquivo",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Editar Send de texto",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Editar Send de arquivo",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Tem certeza de que quer apagar este Send permanentemente?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "Criar",
     "description": "for adding new items"
@@ -4012,10 +4076,10 @@
     "message": "Esta credencial está em risco e está sem um site. Adicione um site e altere a senha para segurança melhor."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Senha vulnerável."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Alterar agora"
   },
   "missingWebsite": {
     "message": "Site ausente"
