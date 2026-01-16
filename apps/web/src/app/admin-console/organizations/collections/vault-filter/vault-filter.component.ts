@@ -16,7 +16,7 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
-  VaultFilterService,
+  VaultFilterServiceAbstraction,
   VaultFilterList,
   VaultFilterSection,
   VaultFilterType,
@@ -49,7 +49,7 @@ export class VaultFilterComponent
   protected destroy$: Subject<void>;
 
   constructor(
-    protected vaultFilterService: VaultFilterService,
+    protected vaultFilterService: VaultFilterServiceAbstraction,
     protected policyService: PolicyService,
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
