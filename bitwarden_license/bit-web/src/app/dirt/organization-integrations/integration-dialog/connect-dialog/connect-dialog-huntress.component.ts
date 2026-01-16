@@ -3,7 +3,6 @@ import { FormBuilder, Validators } from "@angular/forms";
 
 import { HecConfiguration } from "@bitwarden/bit-common/dirt/organization-integrations/models/configuration/hec-configuration";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
-import { HecTemplate } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration-configuration-config/configuration-template/hec-template";
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -33,7 +32,6 @@ export interface HuntressConnectDialogResult {
 export class ConnectHuntressDialogComponent implements OnInit {
   loading = false;
   huntressConfig: HecConfiguration | null = null;
-  huntressTemplate: HecTemplate | null = null;
   formGroup = this.formBuilder.group({
     url: ["", [Validators.required, Validators.minLength(7)]],
     token: ["", Validators.required],
@@ -50,9 +48,6 @@ export class ConnectHuntressDialogComponent implements OnInit {
   ngOnInit(): void {
     this.huntressConfig =
       this.connectInfo.settings.organizationIntegration?.getConfiguration<HecConfiguration>() ??
-      null;
-    this.huntressTemplate =
-      this.connectInfo.settings.organizationIntegration?.integrationConfiguration?.[0]?.getTemplate<HecTemplate>() ??
       null;
 
     this.formGroup.patchValue({
