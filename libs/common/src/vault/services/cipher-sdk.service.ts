@@ -18,7 +18,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     cipherView: CipherView,
     userId: UserId,
     orgAdmin?: boolean,
-  ): Promise<CipherView> {
+  ): Promise<CipherView | undefined> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -48,7 +48,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
-  ): Promise<CipherView> {
+  ): Promise<CipherView | undefined> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {

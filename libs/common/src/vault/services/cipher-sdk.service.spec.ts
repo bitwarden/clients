@@ -106,28 +106,24 @@ describe("DefaultCipherSdkService", () => {
       expect(result?.name).toBe(cipherView.name);
     });
 
-    it("should return void and log error when SDK client is not available", async () => {
+    it("should throw error and log when SDK client is not available", async () => {
       sdkService.userClient$.mockReturnValue(of(null));
       const cipherView = new CipherView();
       cipherView.name = "Test Cipher";
 
-      const result = await cipherSdkService.createWithServer(cipherView, userId);
-
-      expect(result).toBeUndefined();
+      await expect(cipherSdkService.createWithServer(cipherView, userId)).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to create cipher"),
       );
     });
 
-    it("should return void and log error when SDK throws an error", async () => {
+    it("should throw error and log when SDK throws an error", async () => {
       const cipherView = new CipherView();
       cipherView.name = "Test Cipher";
 
       mockCiphersSdk.create.mockRejectedValue(new Error("SDK error"));
 
-      const result = await cipherSdkService.createWithServer(cipherView, userId);
-
-      expect(result).toBeUndefined();
+      await expect(cipherSdkService.createWithServer(cipherView, userId)).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to create cipher"),
       );

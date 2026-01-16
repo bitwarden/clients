@@ -17,7 +17,7 @@ export abstract class CipherSdkService {
     cipherView: CipherView,
     userId: UserId,
     orgAdmin?: boolean,
-  ): Promise<CipherView | void>;
+  ): Promise<CipherView | undefined>;
 
   /**
    * Updates a cipher on the server using the SDK.
@@ -33,5 +33,5 @@ export abstract class CipherSdkService {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
-  ): Promise<CipherView>;
+  ): Promise<CipherView | undefined>;
 }
