@@ -44,16 +44,16 @@ const commonStyles = [
   "tw-transition",
   "tw-no-underline",
   "tw-cursor-pointer",
-  "hover:[&>span]:tw-underline",
-  "hover:[&>span]:tw-decoration-1",
+  "hover:[&_span]:tw-underline",
+  "hover:[&_span]:tw-decoration-1",
   "disabled:tw-no-underline",
   "disabled:tw-cursor-not-allowed",
   "disabled:!tw-text-secondary-300",
   "disabled:hover:!tw-text-secondary-300",
   "disabled:hover:tw-no-underline",
   "focus-visible:tw-outline-none",
-  "focus-visible:[&>span]:tw-underline",
-  "focus-visible:[&>span]:tw-decoration-1",
+  "focus-visible:[&_span]:tw-underline",
+  "focus-visible:[&_span]:tw-decoration-1",
 
   // Workaround for html button tag not being able to be set to `display: inline`
   // and at the same time not being able to use `tw-ring-offset` because of box-shadow issue.
@@ -71,6 +71,9 @@ const commonStyles = [
   "before:-tw-inset-x-[0.1em]",
   "before:tw-rounded-md",
   "before:tw-transition",
+  "before:tw-h-full",
+  "before:tw-w-[calc(100%_+_.25rem)]",
+  "before:tw-pointer-events-none",
   "focus-visible:before:tw-ring-2",
   "focus-visible:tw-z-10",
   "aria-disabled:tw-no-underline",
@@ -80,52 +83,53 @@ const commonStyles = [
   "aria-disabled:hover:tw-no-underline",
 ];
 
-export function getLinkClasses({
-  linkType,
-  verticalInset,
-}: {
-  linkType: LinkType;
-  verticalInset: string;
-}): string[] {
-  return [`before:-tw-inset-y-[${verticalInset}]`]
-    .concat(commonStyles)
-    .concat(linkStyles[linkType] ?? []);
-}
-
 @Component({
   selector: "a[bitLink], button[bitLink]",
   templateUrl: "./link.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "[class]": "classList()",
-    "[attr.bit-aria-disable]": "isButton() ? true : null",
+    // This is for us to be able to correctly aria-disable the button and capture clicks.
+    // It's normally added via the AriaDisableDirective as a host directive.
+    // But, we're not able to conditionally apply the host directive based on if this is a button or not
+    "[attr.bit-aria-disable]": "isButton ? true : null",
   },
 })
 export class LinkComponent {
   private el = inject(ElementRef<HTMLElement>);
-
+  /**
+   * The variant of link you want to render
+   * @default "primary"
+   */
   readonly linkType = input<LinkType>("primary");
+  /**
+   * The leading icon to display within the link
+   * @default undefined
+   */
   readonly startIcon = input<BitwardenIcon | undefined>(undefined);
+  /**
+   * The trailing icon to display within the link
+   * @default undefined
+   */
   readonly endIcon = input<BitwardenIcon | undefined>(undefined);
+  /**
+   * Weather the button is disabled
+   * @default false
+   * @note Only applicable if the link is rendered as a button
+   */
   readonly disabled = input(false, { transform: booleanAttribute });
 
-  protected readonly isButton = computed(() => this.el.nativeElement.tagName === "BUTTON");
+  protected isButton = this.el.nativeElement.tagName === "BUTTON";
 
   readonly classList = computed(() => {
-    const verticalInset = this.isButton() ? "0.25rem" : "0.125rem";
-    return getLinkClasses({ linkType: this.linkType(), verticalInset });
-  });
-
-  readonly startIconClasses = computed(() => {
-    return ["bwi", "!tw-no-underline", this.startIcon()];
-  });
-
-  readonly endIconClasses = computed(() => {
-    return ["bwi", "!tw-no-underline", this.endIcon()];
+    const verticalInset = this.isButton ? "0.25rem" : "0.125rem";
+    return [`before:-tw-inset-y-[${verticalInset}]`]
+      .concat(commonStyles)
+      .concat(linkStyles[this.linkType()] ?? []);
   });
 
   constructor() {
-    if (this.isButton()) {
+    if (this.isButton) {
       ariaDisableElement(this.el.nativeElement, this.disabled);
     }
   }
