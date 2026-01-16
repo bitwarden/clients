@@ -1,6 +1,6 @@
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { ProcessingPhase, ProgressInfo, RiskInsightsItem } from "../types";
+import { ProcessingPhase, ProgressInfo, RiskInsightsApplication, RiskInsightsItem } from "../types";
 
 /**
  * Generic read-only signal interface for framework-agnostic abstraction.
@@ -35,8 +35,9 @@ export abstract class RiskInsightsPrototypeOrchestrationServiceAbstraction {
   abstract readonly memberProgress: ReadonlySignal<ProgressInfo>;
   abstract readonly hibpProgress: ReadonlySignal<ProgressInfo>;
 
-  // Results (read-only signal)
+  // Results (read-only signals)
   abstract readonly items: ReadonlySignal<RiskInsightsItem[]>;
+  abstract readonly applications: ReadonlySignal<RiskInsightsApplication[]>;
 
   // Error state (read-only signal)
   abstract readonly error: ReadonlySignal<string | null>;

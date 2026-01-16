@@ -1,6 +1,189 @@
-<div class="tw-p-4">
-  <h2 class="tw-text-xl tw-font-semibold tw-mb-4">{{ "applications" | i18n }}</h2>
-  <p class="tw-text-muted">
-    {{ "riskInsightsPrototypeApplicationsPlaceholder" | i18n }}
-  </p>
+<div class="tw-flex tw-flex-col tw-gap-4">
+  <!-- Results Table -->
+  @if (applications().length > 0) {
+    <div class="tw-text-sm tw-text-muted tw-mb-2">
+      {{ "totalApplications" | i18n }}: {{ applications().length | number }}
+    </div>
+
+    <table bitTable>
+      <thead>
+        <tr>
+          <th bitCell class="tw-w-8"></th>
+          <th bitCell class="tw-min-w-[200px]">{{ "application" | i18n }}</th>
+          <th bitCell class="tw-text-center tw-w-32">{{ "passwords" | i18n }}</th>
+          <th bitCell class="tw-text-center tw-w-32">{{ "atRiskPasswords" | i18n }}</th>
+          <th bitCell class="tw-text-center tw-w-32">{{ "members" | i18n }}</th>
+          <th bitCell class="tw-text-center tw-w-32">{{ "atRiskMembers" | i18n }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (app of applications(); track app.domain) {
+          <!-- Application Row (clickable) -->
+          <tr
+            bitRow
+            class="tw-cursor-pointer hover:tw-bg-background-alt"
+            (click)="toggleExpanded(app.domain)"
+          >
+            <!-- Expand/Collapse Icon -->
+            <td bitCell class="tw-text-center">
+              <i
+                class="bwi tw-text-muted"
+                [class.bwi-angle-right]="!isExpanded(app.domain)"
+                [class.bwi-angle-down]="isExpanded(app.domain)"
+                aria-hidden="true"
+              ></i>
+            </td>
+
+            <!-- Application Domain -->
+            <td bitCell>
+              <div class="tw-font-medium">{{ app.domain }}</div>
+            </td>
+
+            <!-- Password Count -->
+            <td bitCell class="tw-text-center">
+              <span>{{ app.passwordCount | number }}</span>
+            </td>
+
+            <!-- At-Risk Password Count -->
+            <td bitCell class="tw-text-center">
+              @if (app.atRiskPasswordCount > 0) {
+                <span bitBadge variant="danger">{{ app.atRiskPasswordCount | number }}</span>
+              } @else {
+                <span class="tw-text-muted">0</span>
+              }
+            </td>
+
+            <!-- Member Count -->
+            <td bitCell class="tw-text-center">
+              @if (app.memberAccessPending) {
+                <i
+                  class="bwi bwi-spinner bwi-spin tw-text-muted"
+                  aria-hidden="true"
+                  title="{{ 'loading' | i18n }}"
+                ></i>
+              } @else {
+                <span>{{ app.memberIds.size | number }}</span>
+              }
+            </td>
+
+            <!-- At-Risk Member Count -->
+            <td bitCell class="tw-text-center">
+              @if (app.memberAccessPending) {
+                <i
+                  class="bwi bwi-spinner bwi-spin tw-text-muted"
+                  aria-hidden="true"
+                  title="{{ 'loading' | i18n }}"
+                ></i>
+              } @else if (app.atRiskMemberIds.size > 0) {
+                <span bitBadge variant="danger">{{ app.atRiskMemberIds.size | number }}</span>
+              } @else {
+                <span class="tw-text-muted">0</span>
+              }
+            </td>
+          </tr>
+
+          <!-- Expanded Cipher Rows -->
+          @if (isExpanded(app.domain)) {
+            @for (cipher of getCiphersForApplication(app.cipherIds); track cipher.cipherId) {
+              <tr bitRow class="tw-bg-background-alt">
+                <!-- Empty cell for alignment -->
+                <td bitCell></td>
+
+                <!-- Cipher Name (indented) -->
+                <td bitCell>
+                  <div class="tw-pl-4">
+                    <div
+                      class="tw-font-medium tw-truncate tw-max-w-[180px]"
+                      [title]="cipher.cipherName"
+                    >
+                      {{ cipher.cipherName }}
+                    </div>
+                    @if (cipher.cipherSubtitle) {
+                      <div class="tw-text-xs tw-text-muted tw-truncate tw-max-w-[180px]">
+                        {{ cipher.cipherSubtitle }}
+                      </div>
+                    }
+                  </div>
+                </td>
+
+                <!-- Health Status (combined cell) -->
+                <td bitCell colspan="2" class="tw-text-center">
+                  <div class="tw-flex tw-justify-center tw-gap-2">
+                    <!-- Weak -->
+                    @if (cipher.weakPassword === true) {
+                      <span bitBadge variant="warning" title="{{ 'weak' | i18n }}">W</span>
+                    }
+                    <!-- Reused -->
+                    @if (cipher.reusedPassword === true) {
+                      <span bitBadge variant="warning" title="{{ 'reused' | i18n }}">R</span>
+                    }
+                    <!-- Exposed -->
+                    @if (cipher.exposedPassword === true) {
+                      <span
+                        bitBadge
+                        variant="danger"
+                        [title]="cipher.exposedCount + ' ' + ('timesExposed' | i18n)"
+                        >E</span
+                      >
+                    }
+                    <!-- Healthy -->
+                    @if (
+                      cipher.status === RiskInsightsItemStatus.Healthy &&
+                      !cipher.weakPassword &&
+                      !cipher.reusedPassword &&
+                      !cipher.exposedPassword
+                    ) {
+                      <i class="bwi bwi-check tw-text-success-600" aria-hidden="true"></i>
+                    }
+                    <!-- Loading -->
+                    @if (cipher.status === null) {
+                      <i
+                        class="bwi bwi-spinner bwi-spin tw-text-muted"
+                        aria-hidden="true"
+                        title="{{ 'loading' | i18n }}"
+                      ></i>
+                    }
+                  </div>
+                </td>
+
+                <!-- Member Count -->
+                <td bitCell class="tw-text-center">
+                  @if (cipher.memberAccessPending) {
+                    <i
+                      class="bwi bwi-spinner bwi-spin tw-text-muted"
+                      aria-hidden="true"
+                      title="{{ 'loading' | i18n }}"
+                    ></i>
+                  } @else {
+                    <span>{{ cipher.memberCount | number }}</span>
+                  }
+                </td>
+
+                <!-- Status -->
+                <td bitCell class="tw-text-center">
+                  @if (cipher.status === null) {
+                    <i
+                      class="bwi bwi-spinner bwi-spin tw-text-muted"
+                      aria-hidden="true"
+                      title="{{ 'loading' | i18n }}"
+                    ></i>
+                  } @else if (cipher.status === RiskInsightsItemStatus.AtRisk) {
+                    <span bitBadge variant="danger">{{ "atRisk" | i18n }}</span>
+                  } @else {
+                    <span bitBadge variant="success">{{ "healthy" | i18n }}</span>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        }
+      </tbody>
+    </table>
+  } @else if (processingPhase() === ProcessingPhase.Idle) {
+    <!-- Initial State -->
+    <div class="tw-text-center tw-py-8 tw-text-muted">
+      <i class="bwi bwi-collection tw-text-4xl tw-mb-4" aria-hidden="true"></i>
+      <p>{{ "riskInsightsPrototypeApplicationsPlaceholder" | i18n }}</p>
+    </div>
+  }
 </div>

@@ -37,6 +37,26 @@ export interface ProgressInfo {
 }
 
 /**
+ * Represents an application (domain) aggregation in the Applications tab
+ */
+export interface RiskInsightsApplication {
+  /** The trimmed domain (e.g., "amazon.com") */
+  domain: string;
+  /** Number of ciphers associated with this application */
+  passwordCount: number;
+  /** Number of at-risk ciphers */
+  atRiskPasswordCount: number;
+  /** Set of distinct member IDs with access to ANY cipher in this application */
+  memberIds: Set<string>;
+  /** Set of distinct member IDs with access to AT-RISK ciphers */
+  atRiskMemberIds: Set<string>;
+  /** Whether member data is still being loaded */
+  memberAccessPending: boolean;
+  /** IDs of ciphers belonging to this application (for expandable row drill-down) */
+  cipherIds: string[];
+}
+
+/**
  * Represents a single item in the risk insights report
  */
 export interface RiskInsightsItem {

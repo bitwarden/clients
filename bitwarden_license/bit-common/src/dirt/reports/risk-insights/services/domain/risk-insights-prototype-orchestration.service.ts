@@ -8,12 +8,19 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { CipherAccessMappingService, MemberAccessLoadState } from "./cipher-access-mapping.service";
+import { getTrimmedCipherUris } from "../../helpers/risk-insights-data-mappers";
+
+import {
+  CipherAccessMappingService,
+  CipherWithMemberAccess,
+  MemberAccessLoadState,
+} from "./cipher-access-mapping.service";
 import { PasswordHealthService } from "./password-health.service";
 import { RiskInsightsPrototypeService } from "./risk-insights-prototype.service";
 import {
   ProcessingPhase,
   ProgressInfo,
+  RiskInsightsApplication,
   RiskInsightsItem,
   RiskInsightsItemStatus,
   calculateRiskStatus,
@@ -51,6 +58,15 @@ export class RiskInsightsPrototypeOrchestrationService {
   private allCiphers: CipherView[] = [];
   private passwordUseMap: Map<string, string[]> = new Map();
 
+  /** Maps cipher ID to the domains (applications) it belongs to */
+  private cipherToApplicationsMap = new Map<string, string[]>();
+
+  /** Maps domain to the cipher IDs that belong to it */
+  private applicationToCiphersMap = new Map<string, string[]>();
+
+  /** Maps cipher ID to the set of member IDs with access (for at-risk member tracking) */
+  private cipherToMemberIdsMap = new Map<string, Set<string>>();
+
   // ============================================================================
   // Internal Signals (private, writable)
   // ============================================================================
@@ -72,6 +88,7 @@ export class RiskInsightsPrototypeOrchestrationService {
 
   // Results
   private readonly _items = signal<RiskInsightsItem[]>([]);
+  private readonly _applications = signal<RiskInsightsApplication[]>([]);
 
   // Error state
   private readonly _error = signal<string | null>(null);
@@ -97,6 +114,7 @@ export class RiskInsightsPrototypeOrchestrationService {
 
   // Results
   readonly items = this._items.asReadonly();
+  readonly applications = this._applications.asReadonly();
 
   // Error state
   readonly error = this._error.asReadonly();
@@ -197,6 +215,9 @@ export class RiskInsightsPrototypeOrchestrationService {
 
           // Build password use map for reuse detection
           this.passwordUseMap = this.riskInsightsService.buildPasswordUseMap(ciphers);
+
+          // Build application aggregations
+          this.buildApplicationAggregations();
         }),
         // PHASE 2: Run health checks if enabled
         switchMap(() => this.runHealthChecksIfEnabled$()),
@@ -240,6 +261,7 @@ export class RiskInsightsPrototypeOrchestrationService {
    */
   resetState(): void {
     this._items.set([]);
+    this._applications.set([]);
     this._processingPhase.set(ProcessingPhase.Idle);
     this._progressMessage.set("");
     this._cipherProgress.set({ current: 0, total: 0, percent: 0 });
@@ -250,6 +272,9 @@ export class RiskInsightsPrototypeOrchestrationService {
     this.cipherIndexMap.clear();
     this.allCiphers = [];
     this.passwordUseMap.clear();
+    this.cipherToApplicationsMap.clear();
+    this.applicationToCiphersMap.clear();
+    this.cipherToMemberIdsMap.clear();
   }
 
   // ============================================================================
@@ -322,6 +347,9 @@ export class RiskInsightsPrototypeOrchestrationService {
           total: totalCiphers,
           percent: Math.round((processedCount / totalCiphers) * 100),
         });
+
+        // Update application at-risk counts after health checks
+        this.updateApplicationAtRiskCounts();
       }),
       map((): void => undefined),
     );
@@ -370,6 +398,9 @@ export class RiskInsightsPrototypeOrchestrationService {
 
             // Update items with member counts
             this.updateItemsWithMemberCounts(progressResult.processedCiphers);
+
+            // Update application member counts
+            this.updateApplicationsWithMemberCounts(progressResult.processedCiphers);
           }
         }),
         last(),
@@ -485,6 +516,9 @@ export class RiskInsightsPrototypeOrchestrationService {
 
     if (hasChanges) {
       this._items.set(currentItems);
+
+      // Update application at-risk counts after HIBP updates
+      this.updateApplicationAtRiskCounts();
     }
   }
 
@@ -541,5 +575,163 @@ export class RiskInsightsPrototypeOrchestrationService {
     if (hasChanges) {
       this._items.set(currentItems);
     }
+  }
+
+  // ============================================================================
+  // Private Methods - Application Aggregation
+  // ============================================================================
+
+  /**
+   * Builds application aggregations from the loaded ciphers.
+   * Called after Phase 1 cipher loading completes.
+   * Creates an application entry for each unique domain found across all ciphers.
+   */
+  private buildApplicationAggregations(): void {
+    const applicationMap = new Map<string, RiskInsightsApplication>();
+
+    // Clear existing maps
+    this.cipherToApplicationsMap.clear();
+    this.applicationToCiphersMap.clear();
+
+    for (const cipher of this.allCiphers) {
+      const domains = getTrimmedCipherUris(cipher);
+
+      // Track which applications this cipher belongs to
+      this.cipherToApplicationsMap.set(cipher.id, domains);
+
+      for (const domain of domains) {
+        // Track which ciphers belong to each application
+        if (!this.applicationToCiphersMap.has(domain)) {
+          this.applicationToCiphersMap.set(domain, []);
+        }
+        this.applicationToCiphersMap.get(domain)!.push(cipher.id);
+
+        // Create or update application entry
+        if (!applicationMap.has(domain)) {
+          applicationMap.set(domain, {
+            domain,
+            passwordCount: 0,
+            atRiskPasswordCount: 0,
+            memberIds: new Set<string>(),
+            atRiskMemberIds: new Set<string>(),
+            memberAccessPending: true,
+            cipherIds: [],
+          });
+        }
+
+        const app = applicationMap.get(domain)!;
+        app.passwordCount++;
+        app.cipherIds.push(cipher.id);
+      }
+    }
+
+    // Convert to array and sort by password count descending
+    const applications = Array.from(applicationMap.values()).sort(
+      (a, b) => b.passwordCount - a.passwordCount,
+    );
+
+    this._applications.set(applications);
+  }
+
+  /**
+   * Updates application member counts when cipher member data arrives.
+   * Called incrementally during Phase 3 member loading.
+   *
+   * @param processedCiphers - Ciphers with their member access data
+   */
+  private updateApplicationsWithMemberCounts(processedCiphers: CipherWithMemberAccess[]): void {
+    const currentApplications = this._applications();
+    const items = this._items();
+    const itemMap = new Map(items.map((item) => [item.cipherId, item]));
+
+    // Build a domain -> Set<memberIds> map
+    const domainMemberMap = new Map<string, Set<string>>();
+    const domainAtRiskMemberMap = new Map<string, Set<string>>();
+
+    for (const processed of processedCiphers) {
+      const cipherId = processed.cipher.id;
+      const domains = this.cipherToApplicationsMap.get(cipherId) ?? [];
+      const memberIds = processed.members.map((m) => m.userId);
+
+      // Store cipher member IDs for at-risk member tracking
+      this.cipherToMemberIdsMap.set(cipherId, new Set(memberIds));
+
+      // Check if this cipher is at-risk
+      const item = itemMap.get(cipherId);
+      const isAtRisk = item?.status === RiskInsightsItemStatus.AtRisk;
+
+      for (const domain of domains) {
+        // Add all members to domain's member set
+        if (!domainMemberMap.has(domain)) {
+          domainMemberMap.set(domain, new Set<string>());
+        }
+        for (const memberId of memberIds) {
+          domainMemberMap.get(domain)!.add(memberId);
+        }
+
+        // If cipher is at-risk, add members to at-risk set
+        if (isAtRisk) {
+          if (!domainAtRiskMemberMap.has(domain)) {
+            domainAtRiskMemberMap.set(domain, new Set<string>());
+          }
+          for (const memberId of memberIds) {
+            domainAtRiskMemberMap.get(domain)!.add(memberId);
+          }
+        }
+      }
+    }
+
+    // Update applications with member data
+    const updatedApplications: RiskInsightsApplication[] = currentApplications.map((app) => {
+      const memberIds = domainMemberMap.get(app.domain) ?? app.memberIds;
+      const atRiskMemberIds = domainAtRiskMemberMap.get(app.domain) ?? app.atRiskMemberIds;
+
+      return {
+        ...app,
+        memberIds: new Set<string>(memberIds),
+        atRiskMemberIds: new Set<string>(atRiskMemberIds),
+        memberAccessPending: false,
+      };
+    });
+
+    this._applications.set(updatedApplications);
+  }
+
+  /**
+   * Updates application at-risk counts based on current item statuses.
+   * Called after health checks complete or when item statuses change.
+   */
+  private updateApplicationAtRiskCounts(): void {
+    const items = this._items();
+    const itemMap = new Map(items.map((item) => [item.cipherId, item]));
+    const currentApplications = this._applications();
+
+    const updatedApplications = currentApplications.map((app) => {
+      let atRiskCount = 0;
+      const atRiskMemberIds = new Set<string>();
+
+      for (const cipherId of app.cipherIds) {
+        const item = itemMap.get(cipherId);
+        if (item?.status === RiskInsightsItemStatus.AtRisk) {
+          atRiskCount++;
+
+          // Add members of at-risk ciphers to at-risk member set
+          const cipherMemberIds = this.cipherToMemberIdsMap.get(cipherId);
+          if (cipherMemberIds) {
+            for (const memberId of cipherMemberIds) {
+              atRiskMemberIds.add(memberId);
+            }
+          }
+        }
+      }
+
+      return {
+        ...app,
+        atRiskPasswordCount: atRiskCount,
+        atRiskMemberIds,
+      };
+    });
+
+    this._applications.set(updatedApplications);
   }
 }

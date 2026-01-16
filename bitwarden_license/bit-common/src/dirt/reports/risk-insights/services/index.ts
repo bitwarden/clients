@@ -3,7 +3,6 @@ export * from "./api/member-cipher-details-api.service";
 export * from "./api/risk-insights-api.service";
 export * from "./api/security-tasks-api.service";
 export * from "./domain/cipher-access-mapping.service";
-export * from "./domain/cipher-health-orchestration.service";
 export * from "./domain/critical-apps.service";
 export * from "./domain/password-health.service";
 export * from "./domain/risk-insights-encryption.service";

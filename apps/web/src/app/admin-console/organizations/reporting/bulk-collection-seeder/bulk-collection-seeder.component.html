@@ -1,0 +1,77 @@
+<bit-section>
+  <bit-section-header>
+    <h2 bitTypography="h2">Bulk Collection Seeder</h2>
+    <p bitTypography="body1" class="tw-text-muted">
+      Create multiple collections at once for testing purposes. Enter one collection name per line.
+    </p>
+  </bit-section-header>
+
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <bit-form-field>
+      <bit-label>Collection Names (one per line)</bit-label>
+      <textarea
+        bitInput
+        [(ngModel)]="collectionNames"
+        rows="10"
+        placeholder="Collection 1&#10;Collection 2&#10;Parent/Child Collection&#10;..."
+        [disabled]="isProcessing()"
+      ></textarea>
+      <bit-hint
+        >Enter collection names, one per line. Use "/" for nested collections (e.g.,
+        "Parent/Child").</bit-hint
+      >
+    </bit-form-field>
+
+    <div class="tw-flex tw-gap-2">
+      <button
+        bitButton
+        buttonType="primary"
+        [disabled]="isProcessing() || !collectionNames.trim()"
+        (click)="createCollections()"
+      >
+        <span *ngIf="!isProcessing()">Create Collections</span>
+        <span *ngIf="isProcessing()">Creating...</span>
+      </button>
+      <button
+        bitButton
+        buttonType="secondary"
+        [disabled]="isProcessing() || !hasRun()"
+        (click)="clearResults()"
+      >
+        Clear Results
+      </button>
+    </div>
+
+    <div *ngIf="isProcessing() || hasRun()" class="tw-mt-4">
+      <bit-progress [barWidth]="progress()"></bit-progress>
+      <p bitTypography="body2" class="tw-mt-2 tw-text-muted">{{ progressMessage() }}</p>
+    </div>
+
+    <div *ngIf="hasRun() && !isProcessing()" class="tw-mt-4">
+      <h3 bitTypography="h3">Results</h3>
+      <p bitTypography="body1">
+        <span class="tw-text-success">{{ successCount }} succeeded</span>
+        <span *ngIf="failureCount > 0"
+          >, <span class="tw-text-danger">{{ failureCount }} failed</span></span
+        >
+      </p>
+
+      <div
+        *ngIf="results().length > 0"
+        class="tw-mt-2 tw-max-h-64 tw-overflow-y-auto tw-border tw-border-secondary-300 tw-rounded tw-p-2"
+      >
+        <div
+          *ngFor="let result of results()"
+          class="tw-flex tw-items-center tw-gap-2 tw-py-1 tw-border-b tw-border-secondary-100 last:tw-border-b-0"
+        >
+          <span *ngIf="result.success" class="tw-text-success">&#10003;</span>
+          <span *ngIf="!result.success" class="tw-text-danger">&#10007;</span>
+          <span>{{ result.name }}</span>
+          <span *ngIf="!result.success" class="tw-text-danger tw-text-sm"
+            >- {{ result.error }}</span
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</bit-section>
