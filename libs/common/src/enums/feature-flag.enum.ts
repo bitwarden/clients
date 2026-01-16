@@ -55,6 +55,7 @@ export enum FeatureFlag {
 
   /* DIRT */
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
+  EventManagementForHuntress = "event-management-for-huntress",
   PhishingDetection = "phishing-detection",
 
   /* Vault */
@@ -116,6 +117,7 @@ export const DefaultFeatureFlagValue = {
 
   /* DIRT */
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
+  [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
 
   /* Vault */
