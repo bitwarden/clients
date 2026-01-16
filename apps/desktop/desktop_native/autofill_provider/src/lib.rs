@@ -582,6 +582,16 @@ impl PreparePasskeyRegistrationCallback for TimedCallback<PasskeyRegistrationRes
 
 #[cfg(test)]
 mod tests {
+    //! For debugging test failures, it may be useful to enable tracing to see
+    //! the request flow more easily.  You can do that by adding the following
+    //! line to the beginning of the `#[test]` function you're working on:
+    //!
+    //! ```no_run
+    //! tracing_subscriber::fmt::init();
+    //! ```
+    //!
+    //! After that, you can set `RUST_LOG=debug` and run `cargo test` to see the traces.
+
     use std::{
         path::PathBuf,
         sync::{atomic::AtomicU32, Arc},
