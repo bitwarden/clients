@@ -54,9 +54,11 @@
       <bit-label>{{ "whoCanView" | i18n }}</bit-label>
       <bit-select formControlName="authType">
         @for (option of availableAuthTypes$ | async; track option.value) {
-          <bit-option [value]="option.value" [disabled]="option.disabled" [label]="option.name">
-            {{ option.name }}
-          </bit-option>
+          <bit-option
+            [value]="option.value"
+            [disabled]="option.disabled"
+            [label]="option.name"
+          ></bit-option>
         }
       </bit-select>
       @if (sendDetailsForm.get("authType").value === AuthType.Email) {
