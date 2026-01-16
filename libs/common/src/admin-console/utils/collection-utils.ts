@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
-  CollectionAdminView,
   CollectionView,
   NestingDelimiter,
-} from "@bitwarden/admin-console/common";
+  CollectionAdminView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
