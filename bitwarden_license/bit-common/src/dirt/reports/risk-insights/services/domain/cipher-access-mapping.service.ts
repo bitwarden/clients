@@ -14,9 +14,9 @@ import {
 
 import {
   CollectionAdminService,
-  CollectionAdminView,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
