@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { Subject, Subscription, debounceTime } from "rxjs";
+import { Subject, Subscription, debounceTime, filter } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchModule } from "@bitwarden/components";
@@ -34,7 +34,10 @@ export class SendSearchComponent {
 
   subscribeToLatestSearchText(): Subscription {
     return this.sendListItemService.latestSearchText$
-      .pipe(takeUntilDestroyed())
+      .pipe(
+        takeUntilDestroyed(),
+        filter((data) => !!data),
+      )
       .subscribe((text) => {
         this.searchText = text;
       });
