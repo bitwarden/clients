@@ -6,6 +6,7 @@ import { BehaviorSubject, of } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordDetailsResponse,
+  OrganizationUserResetPasswordRequest,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -13,6 +14,15 @@ import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -21,7 +31,7 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, OrgKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfType, KeyService } from "@bitwarden/key-management";
+import { DEFAULT_KDF_CONFIG, KdfConfig, KdfType, KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 
@@ -39,6 +49,8 @@ describe("OrganizationUserResetPasswordService", () => {
   let i18nService: MockProxy<I18nService>;
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
+  let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let configService: MockProxy<ConfigService>;
 
   beforeAll(() => {
     keyService = mock<KeyService>();
@@ -48,6 +60,8 @@ describe("OrganizationUserResetPasswordService", () => {
     organizationApiService = mock<OrganizationApiService>();
     i18nService = mock<I18nService>();
     accountService = mockAccountServiceWith(mockUserId);
+    masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    configService = mock<ConfigService>();
 
     sut = new OrganizationUserResetPasswordService(
       keyService,
@@ -57,6 +71,8 @@ describe("OrganizationUserResetPasswordService", () => {
       organizationApiService,
       i18nService,
       accountService,
+      masterPasswordService,
+      configService,
     );
   });
 
@@ -129,13 +145,23 @@ describe("OrganizationUserResetPasswordService", () => {
     });
   });
 
-  describe("resetMasterPassword", () => {
+  /**
+   * @deprecated This 'describe' to be removed in PM-28143. When you remove this, check also if there are
+   * any imports/properties in the test setup above that are now un-used and can also be removed.
+   */
+  describe("resetMasterPassword [PM27086_UpdateAuthenticationApisForInputPassword flag DISABLED]", () => {
+    const PM27086_UpdateAuthenticationApisForInputPasswordFlagEnabled = false;
+
     const mockNewMP = "new-password";
     const mockEmail = "test@example.com";
     const mockOrgUserId = "test-org-user-id";
     const mockOrgId = "test-org-id";
 
     beforeEach(() => {
+      configService.getFeatureFlag.mockResolvedValue(
+        PM27086_UpdateAuthenticationApisForInputPasswordFlagEnabled,
+      );
+
       organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
         new OrganizationUserResetPasswordDetailsResponse({
           kdf: KdfType.PBKDF2_SHA256,
@@ -182,6 +208,117 @@ describe("OrganizationUserResetPasswordService", () => {
       await expect(
         sut.resetMasterPassword(mockNewMP, mockEmail, mockOrgUserId, mockOrgId),
       ).rejects.toThrow();
+    });
+  });
+
+  describe("resetMasterPassword [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED]", () => {
+    // Mock sut method parameters
+    const newMasterPassword = "new-master-password";
+    const email = "user@example.com";
+    const orgUserId = "org-user-id";
+    const orgId = "org-id" as OrganizationId;
+
+    // Mock feature flag value
+    const PM27086_UpdateAuthenticationApisForInputPasswordFlagEnabled = true;
+
+    // Mock method data
+    let organizationUserResetPasswordDetailsResponse: OrganizationUserResetPasswordDetailsResponse;
+    let salt: MasterPasswordSalt;
+    let kdfConfig: KdfConfig;
+    let authenticationData: MasterPasswordAuthenticationData;
+    let unlockData: MasterPasswordUnlockData;
+
+    beforeEach(() => {
+      // Mock feature flag value
+      configService.getFeatureFlag.mockResolvedValue(
+        PM27086_UpdateAuthenticationApisForInputPasswordFlagEnabled,
+      );
+
+      // Mock method data
+      kdfConfig = DEFAULT_KDF_CONFIG;
+
+      organizationUserResetPasswordDetailsResponse =
+        new OrganizationUserResetPasswordDetailsResponse({
+          kdf: kdfConfig.kdfType,
+          kdfIterations: kdfConfig.iterations,
+          resetPasswordKey: "test-reset-password-key",
+          encryptedPrivateKey: "test-encrypted-private-key",
+        });
+
+      organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
+        organizationUserResetPasswordDetailsResponse,
+      );
+
+      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+      const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
+
+      keyService.orgKeys$.mockReturnValue(
+        of({ [orgId]: mockOrgKey } as Record<OrganizationId, OrgKey>),
+      );
+
+      encryptService.unwrapDecapsulationKey.mockResolvedValue(mockRandomBytes);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+        new SymmetricCryptoKey(mockRandomBytes) as UserKey,
+      );
+
+      salt = email as MasterPasswordSalt;
+
+      authenticationData = {
+        salt,
+        kdf: kdfConfig,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      unlockData = {
+        salt,
+        kdf: kdfConfig,
+        masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      } as MasterPasswordUnlockData;
+
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        authenticationData,
+      );
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
+    });
+
+    it("should throw an error if the organizationUserResetPasswordDetailsResponse is nullish", async () => {
+      // Arrange
+      organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(null);
+
+      // Act
+      const promise = sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
+
+      // Assert
+      await expect(promise).rejects.toThrow();
+    });
+
+    it("should throw an error if the org key cannot be found", async () => {
+      // Arrange
+      keyService.orgKeys$.mockReturnValue(of({ [orgId]: null } as Record<OrganizationId, OrgKey>));
+
+      // Act
+      const promise = sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
+
+      // Assert
+      await expect(promise).rejects.toThrow();
+    });
+
+    it("should call organizationUserApiService.putOrganizationUserResetPassword() to reset the user's master password", async () => {
+      // Act
+      await sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
+
+      // Assert
+      const request = OrganizationUserResetPasswordRequest.newConstructor(
+        authenticationData,
+        unlockData,
+      );
+      expect(organizationUserApiService.putOrganizationUserResetPassword).toHaveBeenCalledTimes(1);
+      expect(organizationUserApiService.putOrganizationUserResetPassword).toHaveBeenCalledWith(
+        orgId,
+        orgUserId,
+        request,
+      );
     });
   });
 

@@ -51,8 +51,8 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     private organizationApiService: OrganizationApiServiceAbstraction,
     private i18nService: I18nService,
     private accountService: AccountService,
-    private configService: ConfigService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -153,6 +153,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     if (newApisWithInputPasswordFlagEnabled) {
       const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
 
+      // Create authentication and unlock data
       const authenticationData =
         await this.masterPasswordService.makeMasterPasswordAuthenticationData(
           newMasterPassword,
@@ -167,11 +168,13 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
         existingUserKey,
       );
 
+      // Create request
       const request = OrganizationUserResetPasswordRequest.newConstructor(
         authenticationData,
         unlockData,
       );
 
+      // Change user's password
       await this.organizationUserApiService.putOrganizationUserResetPassword(
         orgId,
         orgUserId,
