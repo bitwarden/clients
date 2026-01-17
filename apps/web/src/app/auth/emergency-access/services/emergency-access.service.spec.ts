@@ -7,8 +7,10 @@ import { of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -42,6 +44,8 @@ describe("EmergencyAccessService", () => {
   let cipherService: MockProxy<CipherService>;
   let logService: MockProxy<LogService>;
   let emergencyAccessService: EmergencyAccessService;
+  let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let configService: MockProxy<ConfigService>;
 
   const mockNewUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("trustedPublicKey")];
@@ -54,6 +58,8 @@ describe("EmergencyAccessService", () => {
     encryptService = mock<EncryptService>();
     cipherService = mock<CipherService>();
     logService = mock<LogService>();
+    masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    configService = mock<ConfigService>();
 
     emergencyAccessService = new EmergencyAccessService(
       emergencyAccessApiService,
@@ -62,6 +68,8 @@ describe("EmergencyAccessService", () => {
       encryptService,
       cipherService,
       logService,
+      masterPasswordService,
+      configService,
     );
   });
 
@@ -215,7 +223,13 @@ describe("EmergencyAccessService", () => {
     });
   });
 
-  describe("takeover", () => {
+  /**
+   * @deprecated This 'describe' to be removed in PM-28143. When you remove this, check also if there are any imports/properties
+   * in the test setup above that are now un-used and can also be removed.
+   */
+  describe("takeover [PM27086_UpdateAuthenticationApisForInputPassword flag DISABLED]", () => {
+    const PM27086_UpdateAuthenticationApisForInputPasswordEnabled = false;
+
     const params = {
       id: "emergencyAccessId",
       masterPassword: "mockPassword",
@@ -242,6 +256,10 @@ describe("EmergencyAccessService", () => {
     );
 
     beforeEach(() => {
+      configService.getFeatureFlag.mockResolvedValue(
+        PM27086_UpdateAuthenticationApisForInputPasswordEnabled,
+      );
+
       emergencyAccessApiService.postEmergencyAccessTakeover.mockResolvedValueOnce(takeoverResponse);
       keyService.userPrivateKey$.mockReturnValue(of(userPrivateKey));
 
