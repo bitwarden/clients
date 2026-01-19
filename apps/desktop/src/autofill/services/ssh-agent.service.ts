@@ -33,8 +33,9 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { ApproveSshRequestComponent } from "../../platform/components/approve-ssh-request";
+import { SelectSshKeyComponent } from "../../platform/components/select-ssh-key";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { SshAgentPromptType } from "../models/ssh-agent-setting";
+import { SshAgentKeySelectionMode, SshAgentPromptType } from "../models/ssh-agent-setting";
 
 @Injectable({
   providedIn: "root",
@@ -45,6 +46,7 @@ export class SshAgentService implements OnDestroy {
   SSH_REQUEST_UNLOCK_POLLING_INTERVAL = 100;
 
   private authorizedSshKeys: Record<string, Date> = {};
+  private currentlySelectedSshKeyId: string | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -141,8 +143,10 @@ export class SshAgentService implements OnDestroy {
             map((ciphers) => [message, ciphers] as const),
           ),
         ),
+        // Get the key selection mode setting
+        withLatestFrom(this.desktopSettingsService.sshAgentKeySelectionMode$),
         // This concatMap handles showing the dialog to approve the request.
-        concatMap(async ([message, ciphers]) => {
+        concatMap(async ([[message, ciphers], keySelectionMode]) => {
           const cipherId = message.cipherId as string;
           const isListRequest = message.isListRequest as boolean;
           const requestId = message.requestId as number;
@@ -157,14 +161,64 @@ export class SshAgentService implements OnDestroy {
             const sshCiphers = ciphers.filter(
               (cipher) => cipher.type === CipherType.SshKey && !cipher.isDeleted,
             );
-            const keys = sshCiphers.map((cipher) => {
-              return {
-                name: cipher.name,
-                privateKey: cipher.sshKey.privateKey,
-                cipherId: cipher.id,
-              };
-            });
-            await ipc.platform.sshAgent.setKeys(keys);
+
+            let keysToSend;
+            if (keySelectionMode === SshAgentKeySelectionMode.SelectKey) {
+              // Clear any previously selected key to force selection on each new connection
+              this.currentlySelectedSshKeyId = null;
+
+              // In SelectKey mode, we need to prompt the user to select a key
+              if (sshCiphers.length === 0) {
+                this.toastService.showToast({
+                  variant: "error",
+                  title: null,
+                  message: this.i18nService.t("noSshKeysFound"),
+                });
+                await ipc.platform.sshAgent.signRequestResponse(requestId, false);
+                return;
+              }
+
+              ipc.platform.focusWindow();
+              const selectDialogRef = SelectSshKeyComponent.open(
+                this.dialogService,
+                sshCiphers,
+                application,
+                namespace,
+              );
+
+              const selectedKeyId = await firstValueFrom(selectDialogRef.closed);
+              if (!selectedKeyId) {
+                await ipc.platform.sshAgent.signRequestResponse(requestId, false);
+                return;
+              }
+
+              this.currentlySelectedSshKeyId = selectedKeyId;
+
+              // Send only the selected key
+              const selectedCipher = sshCiphers.find(
+                (cipher) => cipher.id === this.currentlySelectedSshKeyId,
+              );
+              keysToSend = selectedCipher
+                ? [
+                    {
+                      name: selectedCipher.name,
+                      privateKey: selectedCipher.sshKey.privateKey,
+                      cipherId: selectedCipher.id,
+                    },
+                  ]
+                : [];
+            } else {
+              // In AllKeys mode, send all keys
+              keysToSend = sshCiphers.map((cipher) => {
+                return {
+                  name: cipher.name,
+                  privateKey: cipher.sshKey.privateKey,
+                  cipherId: cipher.id,
+                };
+              });
+            }
+
+            await ipc.platform.sshAgent.setKeys(keysToSend);
             await ipc.platform.sshAgent.signRequestResponse(requestId, true);
             return;
           }
@@ -173,6 +227,62 @@ export class SshAgentService implements OnDestroy {
             ipc.platform.sshAgent
               .signRequestResponse(requestId, false)
               .catch((e) => this.logService.error("Failed to respond to SSH request", e));
+          }
+
+          const sshCiphers = ciphers.filter(
+            (cipher) => cipher.type === CipherType.SshKey && !cipher.isDeleted,
+          );
+
+          if (keySelectionMode === SshAgentKeySelectionMode.SelectKey) {
+            // Only ask user to select if no key is currently selected
+            if (!this.currentlySelectedSshKeyId) {
+              ipc.platform.focusWindow();
+              const selectDialogRef = SelectSshKeyComponent.open(
+                this.dialogService,
+                sshCiphers,
+                application,
+                namespace,
+              );
+
+              const selectedKeyId = await firstValueFrom(selectDialogRef.closed);
+              if (!selectedKeyId) {
+                return ipc.platform.sshAgent.signRequestResponse(requestId, false);
+              }
+
+              this.currentlySelectedSshKeyId = selectedKeyId;
+            }
+
+            const selectedCipher = sshCiphers.find(
+              (cipher) => cipher.id === this.currentlySelectedSshKeyId,
+            );
+
+            // The key was already set during the list request, no need to set it again
+
+            if (await this.needsAuthorization(this.currentlySelectedSshKeyId, isAgentForwarding)) {
+              const approveDialogRef = ApproveSshRequestComponent.open(
+                this.dialogService,
+                selectedCipher.name,
+                application,
+                isAgentForwarding,
+                namespace,
+              );
+
+              if (await firstValueFrom(approveDialogRef.closed)) {
+                await this.rememberAuthorization(this.currentlySelectedSshKeyId);
+                await ipc.platform.sshAgent.signRequestResponse(requestId, true);
+                // Don't clear keys here - they're needed for the actual signing
+                // Keys will be cleared on next list request
+                return;
+              } else {
+                this.currentlySelectedSshKeyId = null;
+                return ipc.platform.sshAgent.signRequestResponse(requestId, false);
+              }
+            } else {
+              await ipc.platform.sshAgent.signRequestResponse(requestId, true);
+              // Don't clear keys here - they're needed for the actual signing
+              // Keys will be cleared on next list request
+              return;
+            }
           }
 
           if (await this.needsAuthorization(cipherId, isAgentForwarding)) {
@@ -217,6 +327,7 @@ export class SshAgentService implements OnDestroy {
       complete: () => {
         this.logService.info("Active account observable completed, clearing SSH keys");
         this.authorizedSshKeys = {};
+        this.currentlySelectedSshKeyId = null;
         ipc.platform.sshAgent
           .clearKeys()
           .catch((e) => this.logService.error("Failed to clear SSH keys", e));
@@ -226,11 +337,13 @@ export class SshAgentService implements OnDestroy {
     combineLatest([
       timer(0, this.SSH_REFRESH_INTERVAL),
       this.desktopSettingsService.sshAgentEnabled$,
+      this.desktopSettingsService.sshAgentKeySelectionMode$,
     ])
       .pipe(
-        concatMap(async ([, enabled]) => {
+        concatMap(async ([, enabled, keySelectionMode]) => {
           if (!enabled) {
             await ipc.platform.sshAgent.clearKeys();
+            this.currentlySelectedSshKeyId = null;
             return;
           }
 
@@ -239,12 +352,18 @@ export class SshAgentService implements OnDestroy {
             this.authService.authStatusFor$(activeAccount.id),
           );
           if (authStatus !== AuthenticationStatus.Unlocked) {
+            this.currentlySelectedSshKeyId = null;
             return;
           }
 
           const ciphers = await this.cipherService.getAllDecrypted(activeAccount.id);
           if (ciphers == null) {
             await ipc.platform.sshAgent.lock();
+            this.currentlySelectedSshKeyId = null;
+            return;
+          }
+
+          if (keySelectionMode === SshAgentKeySelectionMode.SelectKey) {
             return;
           }
 

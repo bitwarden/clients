@@ -450,6 +450,24 @@
                   "sshAgentPromptBehaviorDesc" | i18n
                 }}</small>
               </div>
+              <div class="form-group" *ngIf="this.form.value.enableSshAgent">
+                <label for="sshAgentKeySelectionMode">{{
+                  "sshAgentKeySelectionMode" | i18n
+                }}</label>
+                <select
+                  id="sshAgentKeySelectionMode"
+                  aria-describedby="sshAgentKeySelectionModeHelp"
+                  formControlName="sshAgentKeySelectionMode"
+                  (change)="saveSshAgentKeySelectionMode()"
+                >
+                  <option *ngFor="let o of sshAgentKeySelectionModeOptions" [ngValue]="o.value">
+                    {{ o.name }}
+                  </option>
+                </select>
+                <small id="sshAgentKeySelectionModeHelp" class="help-block">{{
+                  "sshAgentKeySelectionModeDesc" | i18n
+                }}</small>
+              </div>
               <div class="form-group" *ngIf="!isLinux">
                 <div class="checkbox">
                   <label for="allowScreenshots">

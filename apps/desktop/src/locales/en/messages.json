@@ -332,6 +332,30 @@
   "sshAgentPromptBehaviorRememberUntilLock": {
     "message": "Remember until vault is locked"
   },
+  "sshAgentKeySelectionMode": {
+    "message": "SSH key selection mode"
+  },
+  "sshAgentKeySelectionModeDesc": {
+    "message": "Choose whether to send all SSH keys to the agent or select a specific key for each request."
+  },
+  "sshAgentKeySelectionModeAllKeys": {
+    "message": "Send all SSH keys"
+  },
+  "sshAgentKeySelectionModeSelectKey": {
+    "message": "Select key for each request"
+  },
+  "selectSshKeyTitle": {
+    "message": "Select SSH Key"
+  },
+  "selectSshKeyMessageInfix": {
+    "message": "is requesting to use an SSH key. Please select which key to use:"
+  },
+  "selectSshKeyLabel": {
+    "message": "SSH Key"
+  },
+  "selectSshKeyHelp": {
+    "message": "The selected key will be used for this request only and removed from the agent after use."
+  },
   "premiumRequired": {
     "message": "Premium required"
   },
