@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Elemento archiviato"
   },
+  "itemWasUnarchived": {
+    "message": "Elemento rimosso dall'archivio"
+  },
   "itemUnarchived": {
     "message": "Elemento rimosso dall'archivio"
   },
@@ -581,6 +584,12 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Gli elementi archiviati sono esclusi dai risultati di ricerca e suggerimenti di autoriempimento. Vuoi davvero archiviare questo elemento?"
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "Per utilizzare Archivio è necessario un abbonamento premium."
@@ -1535,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opzioni di verifica in due passaggi proprietarie come YubiKey e Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Sicurezza delle password, integrità dell'account, e rapporti su violazioni di dati per mantenere sicura la tua cassaforte."
@@ -4828,6 +4846,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "Scopri quali sono i rischi"
+  },
+  "autoConfirmSetup": {
+    "message": "Conferma automaticamente i nuovi utenti"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "I nuovi utenti saranno automaticamente confermati mentre questo dispositivo è sbloccato."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Quali sono i rischi potenziali per la sicurezza?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Conferma automatica attivata"
+  },
+  "availableNow": {
+    "message": "Disponibile ora"
   },
   "accountSecurity": {
     "message": "Sicurezza dell'account"
