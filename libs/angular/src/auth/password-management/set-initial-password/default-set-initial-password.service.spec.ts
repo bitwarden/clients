@@ -1004,10 +1004,17 @@ describe("DefaultSetInitialPasswordService", () => {
     });
 
     describe("input validation", () => {
-      it("should throw error when orgSsoIdentifier is null", async () => {
+      it.each([
+        "newPasswordHint",
+        "orgSsoIdentifier",
+        "orgId",
+        "resetPasswordAutoEnroll",
+        "newPassword",
+        "salt",
+      ])("should throw error when %s is null", async (field) => {
         const invalidCredentials = {
           ...credentials,
-          orgSsoIdentifier: null,
+          [field]: null,
         } as unknown as InitializeJitPasswordCredentials;
 
         const promise = sut.initializePasswordJitPasswordUserV2Encryption(
@@ -1015,58 +1022,7 @@ describe("DefaultSetInitialPasswordService", () => {
           userId,
         );
 
-        await expect(promise).rejects.toThrow("Organization SSO identifier is required.");
-
-        expect(organizationApiService.getKeys).not.toHaveBeenCalled();
-        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
-      });
-
-      it("should throw error when orgId is null", async () => {
-        const invalidCredentials = {
-          ...credentials,
-          orgId: null,
-        } as unknown as InitializeJitPasswordCredentials;
-
-        const promise = sut.initializePasswordJitPasswordUserV2Encryption(
-          invalidCredentials,
-          userId,
-        );
-
-        await expect(promise).rejects.toThrow("Organization id is required.");
-
-        expect(organizationApiService.getKeys).not.toHaveBeenCalled();
-        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
-      });
-
-      it("should throw error when newPassword is null", async () => {
-        const invalidCredentials = {
-          ...credentials,
-          newPassword: null,
-        } as unknown as InitializeJitPasswordCredentials;
-
-        const promise = sut.initializePasswordJitPasswordUserV2Encryption(
-          invalidCredentials,
-          userId,
-        );
-
-        await expect(promise).rejects.toThrow("New password is required.");
-
-        expect(organizationApiService.getKeys).not.toHaveBeenCalled();
-        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
-      });
-
-      it("should throw error when salt is null", async () => {
-        const invalidCredentials = {
-          ...credentials,
-          salt: null,
-        } as unknown as InitializeJitPasswordCredentials;
-
-        const promise = sut.initializePasswordJitPasswordUserV2Encryption(
-          invalidCredentials,
-          userId,
-        );
-
-        await expect(promise).rejects.toThrow("Salt is required.");
+        await expect(promise).rejects.toThrow(`${field} is required.`);
 
         expect(organizationApiService.getKeys).not.toHaveBeenCalled();
         expect(registerSdkService.registerClient$).not.toHaveBeenCalled();

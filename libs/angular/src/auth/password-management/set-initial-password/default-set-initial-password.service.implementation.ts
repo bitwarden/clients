@@ -257,24 +257,18 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
   ): Promise<void> {
-    const { newPasswordHint, orgSsoIdentifier, orgId, resetPasswordAutoEnroll, newPassword, salt } =
-      credentials;
-
-    if (orgSsoIdentifier == null) {
-      throw new Error("Organization SSO identifier is required.");
-    }
-    if (orgId == null) {
-      throw new Error("Organization id is required.");
-    }
-    if (newPassword == null) {
-      throw new Error("New password is required.");
-    }
-    if (salt == null) {
-      throw new Error("Salt is required.");
-    }
     if (userId == null) {
       throw new Error("User ID is required.");
     }
+
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} is required.`);
+      }
+    }
+
+    const { newPasswordHint, orgSsoIdentifier, orgId, resetPasswordAutoEnroll, newPassword, salt } =
+      credentials;
 
     const organizationKeys = await this.organizationApiService.getKeys(orgId);
     if (organizationKeys == null) {
