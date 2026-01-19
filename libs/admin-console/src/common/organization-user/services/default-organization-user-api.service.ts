@@ -339,6 +339,16 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     return new ListResponse(r, OrganizationUserBulkResponse);
   }
 
+  revokeSelf(organizationId: string): Promise<void> {
+    return this.apiService.send(
+      "PUT",
+      "/organizations/" + organizationId + "/users/revoke-self",
+      null,
+      true,
+      false,
+    );
+  }
+
   restoreOrganizationUser(organizationId: string, id: string): Promise<void> {
     return this.apiService.send(
       "PUT",
