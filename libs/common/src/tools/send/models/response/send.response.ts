@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { BaseResponse } from "../../../../models/response/base.response";
+import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendFileApi } from "../api/send-file.api";
 import { SendTextApi } from "../api/send-text.api";
@@ -9,6 +10,7 @@ export class SendResponse extends BaseResponse {
   id: string;
   accessId: string;
   type: SendType;
+  authType: AuthType;
   name: string;
   notes: string;
   file: SendFileApi;
@@ -29,6 +31,7 @@ export class SendResponse extends BaseResponse {
     this.id = this.getResponseProperty("Id");
     this.accessId = this.getResponseProperty("AccessId");
     this.type = this.getResponseProperty("Type");
+    this.authType = this.getResponseProperty("AuthType");
     this.name = this.getResponseProperty("Name");
     this.notes = this.getResponseProperty("Notes");
     this.key = this.getResponseProperty("Key");

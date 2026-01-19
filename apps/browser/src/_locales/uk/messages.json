@@ -574,7 +574,7 @@
     "message": "Запис архівовано"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Запис розархівовано"
   },
   "itemUnarchived": {
     "message": "Запис розархівовано"
@@ -585,11 +585,17 @@
   "archiveItemConfirmDesc": {
     "message": "Архівовані записи виключаються з результатів звичайного пошуку та пропозицій автозаповнення. Ви дійсно хочете архівувати цей запис?"
   },
+  "archived": {
+    "message": "Архівовано"
+  },
+  "unarchiveAndSave": {
+    "message": "Розархівувати й зберегти"
+  },
   "upgradeToUseArchive": {
     "message": "Для використання архіву необхідна передплата Premium."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Запис відновлено"
   },
   "edit": {
     "message": "Змінити"
@@ -1329,19 +1335,19 @@
     "message": "Експортувати з"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Експортувати",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Експорт",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Імпорт",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Імпортувати",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Додаткові можливості двоетапної авторизації, як-от YubiKey та Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ваша передплата Premium завершилась"
+  },
+  "archivePremiumRestart": {
+    "message": "Щоб відновити доступ до архіву, поновіть передплату Premium. Якщо ви редагуєте архівований запис перед поновленням, його буде повернуто назад у ваше сховище."
+  },
+  "restartPremium": {
+    "message": "Поновити Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Гігієна паролів, здоров'я облікового запису, а також звіти про вразливості даних, щоб зберігати ваше сховище в безпеці."
@@ -4815,37 +4830,37 @@
     "message": "консолі адміністратора,"
   },
   "admin": {
-    "message": "Admin"
+    "message": "Адміністратор"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Автоматичне підтвердження користувачів"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "Автоматично підтверджувати користувачів, які перебувають у черзі, поки цей пристрій розблокований"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "Заощаджуйте час завдяки автоматичному підтвердженню користувачів"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "Це може вплинути на безпеку даних вашої організації. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "Дізнатися про ризики"
   },
   "autoConfirmSetup": {
-    "message": "Automatically confirm new users"
+    "message": "Автоматично підтверджувати нових користувачів"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "Нові користувачі будуть автоматично підтверджені, якщо пристрій розблоковано."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "Які потенційні ризики безпеки?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "Автоматичне підтвердження увімкнено"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Доступно зараз"
   },
   "accountSecurity": {
     "message": "Безпека облікового запису"
@@ -5704,10 +5719,10 @@
     "message": "Цей запис ризикований, і не має адреси вебсайту. Додайте адресу вебсайту і змініть пароль для вдосконалення безпеки."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Вразливий пароль."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Змінити зараз"
   },
   "missingWebsite": {
     "message": "Немає вебсайту"
@@ -6086,6 +6101,6 @@
     "message": "Чому я це бачу?"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Змінити розмір бічної панелі"
   }
 }
