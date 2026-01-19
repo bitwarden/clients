@@ -244,7 +244,7 @@ jobs:
             apps/desktop/desktop_native/dist/*
             ${{ env.RUNNER_TEMP }}/.cargo/registry
             ${{ env.RUNNER_TEMP }}/.cargo/git
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/Cargo.*', 'apps/desktop/desktop_native/**/*.rs') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -407,7 +407,7 @@ jobs:
             apps/desktop/desktop_native/dist/*
             ${{ env.RUNNER_TEMP }}/.cargo/registry
             ${{ env.RUNNER_TEMP }}/.cargo/git
-          key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/Cargo.*', 'apps/desktop/desktop_native/**/*.rs') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -568,7 +568,7 @@ jobs:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/Cargo.*', 'apps/desktop/desktop_native/**/*.rs') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -833,7 +833,7 @@ jobs:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/Cargo.*', 'apps/desktop/desktop_native/**/*.rs') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -1191,7 +1191,7 @@ jobs:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/Cargo.*', 'apps/desktop/desktop_native/**/*.rs') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -1415,7 +1415,7 @@ jobs:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/Cargo.*', 'apps/desktop/desktop_native/**/*.rs') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -1698,7 +1698,7 @@ jobs:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/Cargo.*', 'apps/desktop/desktop_native/**/*.rs') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
