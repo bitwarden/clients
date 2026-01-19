@@ -21,7 +21,7 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { assertTruthy, assertNonNullish } from "@bitwarden/common/auth/utils";
+import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -116,9 +116,11 @@ export class SetInitialPasswordComponent implements OnInit {
 
         if (accountEncryptionV2) {
           await this.setInitialPasswordJitMPUserV2Encryption(passwordInputResult);
-        } else {
-          await this.setInitialPassword(passwordInputResult);
+          return;
         }
+
+        await this.setInitialPassword(passwordInputResult);
+
         break;
       }
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
