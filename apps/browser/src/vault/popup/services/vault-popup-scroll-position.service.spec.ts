@@ -1,3 +1,4 @@
+import { CdkVirtualScrollableElement } from "@angular/cdk/scrolling";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { NavigationEnd, Router } from "@angular/router";
 import { Subject, Subscription } from "rxjs";
@@ -65,18 +66,21 @@ describe("VaultPopupScrollPositionService", () => {
   });
 
   describe("start", () => {
-    let scrollElement: HTMLElement;
-
-    beforeEach(() => {
-      scrollElement = document.createElement("div");
-
-      (scrollElement as any).scrollTo = jest.fn(function scrollTo(opts: { top?: number }) {
-        if (opts?.top != null) {
-          (scrollElement as any).scrollTop = opts.top;
-        }
-      });
-      (scrollElement as any).scrollTop = 0;
-    });
+    const elementScrolled$ = new Subject();
+    const focus = jest.fn();
+    const nativeElement = {
+      scrollTop: 0,
+      querySelector: jest.fn(() => ({ focus })),
+      addEventListener: jest.fn(),
+      style: {
+        visibility: "",
+      },
+    };
+    const virtualElement = {
+      elementScrolled: () => elementScrolled$,
+      getElementRef: () => ({ nativeElement }),
+      scrollTo: jest.fn(),
+    } as unknown as CdkVirtualScrollableElement;
 
     afterEach(() => {
       // remove the actual subscription created by `.subscribe`
@@ -85,55 +89,47 @@ describe("VaultPopupScrollPositionService", () => {
 
     describe("initial scroll position", () => {
       beforeEach(() => {
-        ((scrollElement as any).scrollTo as jest.Mock).mockClear();
+        (virtualElement.scrollTo as jest.Mock).mockClear();
+        nativeElement.querySelector.mockClear();
       });
 
       it("does not scroll when `scrollPosition` is null", () => {
         service["scrollPosition"] = null;
 
-        service.start(scrollElement);
+        service.start(virtualElement);
 
-        expect((scrollElement as any).scrollTo).not.toHaveBeenCalled();
+        expect(virtualElement.scrollTo).not.toHaveBeenCalled();
       });
 
-      it("scrolls the element to `scrollPosition` (async via setTimeout)", fakeAsync(() => {
+      it("scrolls the virtual element to `scrollPosition`", fakeAsync(() => {
         service["scrollPosition"] = 500;
+        nativeElement.scrollTop = 500;
 
-        service.start(scrollElement);
+        service.start(virtualElement);
         tick();
 
-        expect((scrollElement as any).scrollTo).toHaveBeenCalledWith({
-          behavior: "instant",
-          top: 500,
-        });
-        expect((scrollElement as any).scrollTop).toBe(500);
+        expect(virtualElement.scrollTo).toHaveBeenCalledWith({ behavior: "instant", top: 500 });
       }));
     });
 
     describe("scroll listener", () => {
       it("unsubscribes from any existing subscription", () => {
-        service.start(scrollElement);
+        service.start(virtualElement);
 
         expect(unsubscribe).toHaveBeenCalled();
       });
 
-      it("stores scrollTop on subsequent scroll events (skips first)", fakeAsync(() => {
-        service["scrollPosition"] = null;
+      it("subscribes to `elementScrolled`", fakeAsync(() => {
+        virtualElement.measureScrollOffset = jest.fn(() => 455);
 
-        service.start(scrollElement);
+        service.start(virtualElement);
 
-        // First scroll event is intentionally ignored (equivalent to old skip(1)).
-        (scrollElement as any).scrollTop = 111;
-        scrollElement.dispatchEvent(new Event("scroll"));
+        elementScrolled$.next(null); // first subscription is skipped by `skip(1)`
+        elementScrolled$.next(null);
         tick();
 
-        expect(service["scrollPosition"]).toBeNull();
-
-        // Second scroll event should persist.
-        (scrollElement as any).scrollTop = 455;
-        scrollElement.dispatchEvent(new Event("scroll"));
-        tick();
-
+        expect(virtualElement.measureScrollOffset).toHaveBeenCalledTimes(1);
+        expect(virtualElement.measureScrollOffset).toHaveBeenCalledWith("top");
         expect(service["scrollPosition"]).toBe(455);
       }));
     });

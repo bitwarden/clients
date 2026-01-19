@@ -1,7 +1,7 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { ScrollingModule } from "@angular/cdk/scrolling";
+import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, effect, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
@@ -119,8 +119,10 @@ type VaultState = UnionOfValues<typeof VaultState>;
   ],
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
-export class VaultV2Component implements OnInit, OnDestroy {
-  private readonly popupPage = viewChild(PopupPageComponent);
+export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
 
   NudgeType = NudgeType;
   cipherType = CipherType;
@@ -306,33 +308,16 @@ export class VaultV2Component implements OnInit, OnDestroy {
       });
   }
 
-  private scrollWired = false;
-
-  private readonly _scrollPositionEffect = effect((onCleanup) => {
-    if (this.scrollWired) {
-      return;
-    }
-
-    const popupPage = this.popupPage();
-    const scrollEl = popupPage?.scrollElement();
-
-    if (!scrollEl) {
-      return;
-    }
-
-    const sub = combineLatest([this.allFilters$, this.loading$])
-      .pipe(
-        filter(([, loading]) => !loading),
-        take(1),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => {
-        this.scrollWired = true;
-        this.vaultScrollPositionService.start(scrollEl);
+  ngAfterViewInit(): void {
+    if (this.virtualScrollElement) {
+      // The filters component can cause the size of the virtual scroll element to change,
+      // which can cause the scroll position to be land in the wrong spot. To fix this,
+      // wait until all filters are populated before restoring the scroll position.
+      this.allFilters$.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+        this.vaultScrollPositionService.start(this.virtualScrollElement!);
       });
-
-    onCleanup(() => sub.unsubscribe());
-  });
+    }
+  }
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

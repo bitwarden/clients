@@ -1,3 +1,4 @@
+import { CdkVirtualScrollableElement } from "@angular/cdk/scrolling";
 import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -393,28 +394,21 @@ describe("VaultV2Component", () => {
     expect(values[values.length - 1]).toBe(false);
   });
 
-  it("passes popup-page scroll region element to scroll position service", fakeAsync(() => {
-    const fixture = TestBed.createComponent(VaultV2Component);
-    const component = fixture.componentInstance;
-
-    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
-    const itemsLoading$ = itemsSvc.loading$ as unknown as BehaviorSubject<boolean>;
+  it("ngAfterViewInit waits for allFilters$ then starts scroll position service", fakeAsync(() => {
     const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
 
-    fixture.detectChanges();
+    (component as any).virtualScrollElement = {} as CdkVirtualScrollableElement;
+
+    component.ngAfterViewInit();
+    expect(scrollSvc.start).not.toHaveBeenCalled();
+
+    allFilters$.next({ any: true });
     tick();
 
-    const scrollRegion = fixture.nativeElement.querySelector(
-      '[data-testid="popup-layout-scroll-region"]',
-    ) as HTMLElement;
+    expect(scrollSvc.start).toHaveBeenCalledTimes(1);
+    expect(scrollSvc.start).toHaveBeenCalledWith((component as any).virtualScrollElement);
 
-    // Unblock loading
-    itemsLoading$.next(false);
-    readySubject$.next(true);
-    allFilters$.next({});
-    tick();
-
-    expect(scrollSvc.start).toHaveBeenCalledWith(scrollRegion);
+    flush();
   }));
 
   it("showPremiumDialog opens PremiumUpgradeDialogComponent", () => {
