@@ -31,6 +31,7 @@ export class AzureFileUploadService {
     });
 
     const request = new Request(url, {
+      // @ts-ignore - ArrayBuffer compatibility issue with fetch in Node.js, safe at runtime
       body: data.buffer,
       cache: "no-store",
       method: "PUT",

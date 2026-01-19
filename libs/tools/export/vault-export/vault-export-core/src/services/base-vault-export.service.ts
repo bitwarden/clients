@@ -25,7 +25,7 @@ export class BaseVaultExportService {
   ): Promise<string> {
     const kdfConfig: KdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
-    const salt = Utils.fromBufferToB64(await this.cryptoFunctionService.randomBytes(16));
+    const salt = Utils.fromArrayToB64(await this.cryptoFunctionService.randomBytes(16));
 
     const key = await this.keyGenerationService.deriveVaultExportKey(password, salt, kdfConfig);
 

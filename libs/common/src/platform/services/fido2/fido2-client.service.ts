@@ -181,7 +181,7 @@ export class Fido2ClientService<
     };
     const clientDataJSON = JSON.stringify(collectedClientData);
     const clientDataJSONBytes = Utils.fromByteStringToArray(clientDataJSON);
-    const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+    const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes.buffer as ArrayBuffer);
     const makeCredentialParams = mapToMakeCredentialParams({
       params,
       credTypesAndPubKeyAlgs,

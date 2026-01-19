@@ -425,7 +425,7 @@ export class LoginCommand {
 
   private async validatedParams() {
     const key = await this.cryptoFunctionService.randomBytes(64);
-    process.env.BW_SESSION = Utils.fromBufferToB64(key);
+    process.env.BW_SESSION = Utils.fromArrayToB64(key);
   }
 
   private async handleSuccessResponse(response: AuthResult): Promise<Response> {

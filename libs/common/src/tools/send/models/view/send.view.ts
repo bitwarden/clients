@@ -49,7 +49,7 @@ export class SendView implements View {
   }
 
   get urlB64Key(): string {
-    return Utils.fromBufferToUrlB64(this.key);
+    return Utils.fromArrayToUrlB64(this.key);
   }
 
   get maxAccessCountReached(): boolean {
@@ -74,7 +74,7 @@ export class SendView implements View {
     return Utils.merge(
       { ...this },
       {
-        key: Utils.fromBufferToB64(this.key),
+        key: Utils.fromArrayToB64(this.key),
       },
     );
   }

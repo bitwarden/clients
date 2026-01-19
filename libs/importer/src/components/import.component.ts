@@ -16,7 +16,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import * as JSZip from "jszip";
+import JSZip from "jszip";
 import {
   Observable,
   Subject,

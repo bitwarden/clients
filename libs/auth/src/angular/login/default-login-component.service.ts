@@ -96,7 +96,7 @@ export class DefaultLoginComponentService implements LoginComponentService {
 
     const codeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
     const codeVerifierHash = await this.cryptoFunctionService.hash(codeVerifier, "sha256");
-    const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+    const codeChallenge = Utils.fromArrayToUrlB64(codeVerifierHash);
 
     // Save SSO params
     await this.ssoLoginService.setSsoState(state);

@@ -62,7 +62,7 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     const clientKeyHalf = await this.getOrCreateBiometricEncryptionClientKeyHalf(userId, key);
 
     const storageDetails = await this.getStorageDetails({
-      clientKeyHalfB64: clientKeyHalf ? Utils.fromBufferToB64(clientKeyHalf) : undefined,
+      clientKeyHalfB64: clientKeyHalf ? Utils.fromArrayToB64(clientKeyHalf) : undefined,
     });
     await biometrics.setBiometricSecret(
       SERVICE,
@@ -103,7 +103,7 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     } else {
       let clientKeyPartB64: string | null = null;
       if (this.clientKeyHalves.has(userId)) {
-        clientKeyPartB64 = Utils.fromBufferToB64(this.clientKeyHalves.get(userId)!);
+        clientKeyPartB64 = Utils.fromArrayToB64(this.clientKeyHalves.get(userId)!);
       }
       const encValue = new EncString(value);
       this.setIv(encValue.iv);

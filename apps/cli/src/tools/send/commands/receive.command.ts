@@ -143,7 +143,7 @@ export class SendReceiveCommand extends DownloadCommand {
       "sha256",
       100000,
     );
-    return Utils.fromBufferToB64(passwordHash);
+    return Utils.fromArrayToB64(passwordHash);
   }
 
   private async sendRequest(

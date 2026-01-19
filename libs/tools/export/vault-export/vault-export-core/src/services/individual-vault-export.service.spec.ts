@@ -449,7 +449,7 @@ describe("VaultExportService", () => {
         mac.encryptedString = "mac" as EncryptedString;
         data.encryptedString = "encData" as EncryptedString;
 
-        jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(salt);
+        jest.spyOn(Utils, "fromArrayToB64").mockReturnValue(salt);
         cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
 
         exportedVault = await exportService.getPasswordProtectedExport(userId, password);

@@ -208,10 +208,10 @@ describe("LoginStrategy", () => {
 
     beforeEach(() => {
       userKey = new SymmetricCryptoKey(
-        new Uint8Array(userKeyBytesLength).buffer as CsprngArray,
+        new Uint8Array(userKeyBytesLength),
       ) as UserKey;
       masterKey = new SymmetricCryptoKey(
-        new Uint8Array(masterKeyBytesLength).buffer as CsprngArray,
+        new Uint8Array(masterKeyBytesLength),
       ) as MasterKey;
 
       const mockVaultTimeoutAction = VaultTimeoutAction.Lock;

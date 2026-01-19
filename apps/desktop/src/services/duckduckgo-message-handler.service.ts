@@ -130,7 +130,7 @@ export class DuckDuckGoMessageHandlerService {
         version: NativeMessagingVersion.Latest,
         payload: {
           status: "success",
-          sharedKey: Utils.fromBufferToB64(encryptedSecret),
+          sharedKey: Utils.fromArrayToB64(encryptedSecret),
         },
       });
       // FIXME: Remove when updating file. Eslint update

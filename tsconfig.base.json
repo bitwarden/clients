@@ -12,12 +12,12 @@
     "emitDecoratorMetadata": true,
     "declaration": false,
     "outDir": "dist",
-    "baseUrl": ".",
     "resolveJsonModule": true,
     "allowJs": true,
     "sourceMap": true,
     "skipLibCheck": true,
     "paths": {
+      "*": ["./*"],
       "@bitwarden/admin-console/common": ["./libs/admin-console/src/common"],
       "@bitwarden/angular/*": ["./libs/angular/src/*"],
       "@bitwarden/assets": ["./libs/assets/src/index.ts"],

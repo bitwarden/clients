@@ -92,7 +92,7 @@ export class AccessService {
     );
     const result = new AccessTokenCreationResponse(r);
     this._accessToken.next(null);
-    const keyB64 = Utils.fromBufferToB64(key.material);
+    const keyB64 = Utils.fromArrayToB64(key.material);
     return `${this._accessTokenVersion}.${result.id}.${result.clientSecret}:${keyB64}`;
   }
 

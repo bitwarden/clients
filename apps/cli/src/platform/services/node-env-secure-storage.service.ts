@@ -69,7 +69,7 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
       throw new Error("Value didn't encrypt.");
     }
 
-    return Utils.fromBufferToB64(encValue.buffer);
+    return Utils.fromArrayToB64(encValue.buffer);
   }
 
   private async decrypt(encValue: string): Promise<string> {
@@ -86,7 +86,7 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
         return null;
       }
 
-      return Utils.fromBufferToB64(decValue);
+      return Utils.fromArrayToB64(decValue);
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {

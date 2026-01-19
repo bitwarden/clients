@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as JSZip from "jszip";
+import JSZip from "jszip";
 import * as papa from "papaparse";
 import { firstValueFrom } from "rxjs";
 

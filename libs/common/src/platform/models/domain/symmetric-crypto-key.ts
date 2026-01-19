@@ -83,7 +83,7 @@ export class SymmetricCryptoKey {
    * @returns The serialized key in base64 format
    */
   toBase64(): string {
-    return Utils.fromBufferToB64(this.toEncoded());
+    return Utils.fromArrayToB64(this.toEncoded());
   }
 
   /**

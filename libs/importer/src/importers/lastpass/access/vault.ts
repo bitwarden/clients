@@ -64,7 +64,7 @@ export class Vault {
       this.cryptoUtils.ExclusiveOr(k1, k2),
       "sha256",
     );
-    const hiddenPassword = Utils.fromBufferToB64(hiddenPasswordArr);
+    const hiddenPassword = Utils.fromArrayToB64(hiddenPasswordArr);
     this.accounts = await this.client.openVault(
       federatedUser.username,
       hiddenPassword,

@@ -159,7 +159,7 @@ export class BiometricMessageHandlerService {
       }
 
       const connectedApp = {
-        publicKey: Utils.fromBufferToB64(remotePublicKey),
+        publicKey: Utils.fromArrayToB64(remotePublicKey),
         sessionSecret: null,
         trusted: false,
       } as ConnectedApp;
@@ -307,7 +307,7 @@ export class BiometricMessageHandlerService {
       appId: appId,
       command: "setupEncryption",
       messageId: -1, // to indicate to the other side that this is a new desktop client. refactor later to use proper versioning
-      sharedSecret: Utils.fromBufferToB64(encryptedSecret),
+      sharedSecret: Utils.fromArrayToB64(encryptedSecret),
     });
   }
 

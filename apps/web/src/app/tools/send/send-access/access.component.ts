@@ -106,7 +106,7 @@ export class AccessComponent implements OnInit {
           "sha256",
           SEND_KDF_ITERATIONS,
         );
-        this.accessRequest.password = Utils.fromBufferToB64(passwordHash);
+        this.accessRequest.password = Utils.fromArrayToB64(passwordHash);
       }
       let sendResponse: SendAccessResponse = null;
       if (this.loading) {

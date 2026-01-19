@@ -1421,13 +1421,13 @@ describe("keyService", () => {
       const mockPrivateKeyEncString = makeEncString("encryptedPrivateKey");
 
       cryptoFunctionService.rsaGenerateKeyPair.mockResolvedValue(mockKeyPair);
-      jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(mockPublicKeyB64);
+      jest.spyOn(Utils, "fromArrayToB64").mockReturnValue(mockPublicKeyB64);
       encryptService.wrapDecapsulationKey.mockResolvedValue(mockPrivateKeyEncString);
 
       const [publicKey, privateKey] = await keyService.makeKeyPair(mockKey);
 
       expect(cryptoFunctionService.rsaGenerateKeyPair).toHaveBeenCalledWith(2048);
-      expect(Utils.fromBufferToB64).toHaveBeenCalledWith(mockKeyPair[0]);
+      expect(Utils.fromArrayToB64).toHaveBeenCalledWith(mockKeyPair[0]);
       expect(encryptService.wrapDecapsulationKey).toHaveBeenCalledWith(mockKeyPair[1], mockKey);
       expect(publicKey).toBe(mockPublicKeyB64);
       expect(privateKey).toBe(mockPrivateKeyEncString);

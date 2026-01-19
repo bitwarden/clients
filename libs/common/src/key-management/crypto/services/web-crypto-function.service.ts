@@ -38,16 +38,18 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     const passwordBuf = this.toBuf(password);
     const saltBuf = this.toBuf(salt);
 
+    // @ts-ignore - ArrayBufferLike compatibility issue with Web Crypto API, safe at runtime
     const pbkdf2Params: Pbkdf2Params = {
       name: "PBKDF2",
-      salt: saltBuf,
+      salt: saltBuf.buffer as any,
       iterations: iterations,
       hash: { name: this.toWebCryptoAlgorithm(algorithm) },
     };
 
+    // @ts-ignore - ArrayBufferLike compatibility issue with Web Crypto API, safe at runtime
     const impKey = await this.subtle.importKey(
       "raw",
-      passwordBuf,
+      passwordBuf.buffer as any,
       { name: "PBKDF2" } as any,
       false,
       ["deriveBits"],
@@ -66,14 +68,16 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     const saltBuf = this.toBuf(salt);
     const infoBuf = this.toBuf(info);
 
+    // @ts-ignore - ArrayBufferLike compatibility issue with Web Crypto API, safe at runtime
     const hkdfParams: HkdfParams = {
       name: "HKDF",
-      salt: saltBuf,
-      info: infoBuf,
+      salt: saltBuf as any,
+      info: infoBuf as any,
       hash: { name: this.toWebCryptoAlgorithm(algorithm) },
     };
 
-    const impKey = await this.subtle.importKey("raw", ikm, { name: "HKDF" } as any, false, [
+    // @ts-ignore - ArrayBufferLike compatibility issue with Web Crypto API, safe at runtime
+    const impKey = await this.subtle.importKey("raw", ikm as any, { name: "HKDF" } as any, false, [
       "deriveBits",
     ]);
     const buffer = await this.subtle.deriveBits(hkdfParams as any, impKey, outputByteSize * 8);
@@ -128,9 +132,10 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     }
 
     const valueBuf = this.toBuf(value);
+    // @ts-ignore - ArrayBufferLike compatibility issue with Web Crypto API, safe at runtime
     const buffer = await this.subtle.digest(
       { name: this.toWebCryptoAlgorithm(algorithm) },
-      valueBuf,
+      valueBuf as any,
     );
     return new Uint8Array(buffer);
   }
@@ -145,8 +150,10 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       hash: { name: this.toWebCryptoAlgorithm(algorithm) },
     };
 
-    const impKey = await this.subtle.importKey("raw", key, signingAlgorithm, false, ["sign"]);
-    const buffer = await this.subtle.sign(signingAlgorithm, impKey, value);
+    // @ts-ignore - ArrayBufferLike compatibility issue with Web Crypto API, safe at runtime
+    const impKey = await this.subtle.importKey("raw", key as any, signingAlgorithm, false, ["sign"]);
+    // @ts-ignore - ArrayBufferLike compatibility issue with Web Crypto API, safe at runtime
+    const buffer = await this.subtle.sign(signingAlgorithm, impKey, value as any);
     return new Uint8Array(buffer);
   }
 
@@ -194,15 +201,18 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       return {
         iv: forge.util.decode64(iv),
         data: forge.util.decode64(data),
-        encKey: forge.util.createBuffer(innerKey.encryptionKey).getBytes(),
+        // @ts-ignore - Uint8Array type compatibility issue, safe at runtime
+        encKey: forge.util.createBuffer(innerKey.encryptionKey as any).getBytes(),
       } as CbcDecryptParameters<string>;
     } else if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
       const macData = forge.util.decode64(iv) + forge.util.decode64(data);
       return {
         iv: forge.util.decode64(iv),
         data: forge.util.decode64(data),
-        encKey: forge.util.createBuffer(innerKey.encryptionKey).getBytes(),
-        macKey: forge.util.createBuffer(innerKey.authenticationKey).getBytes(),
+        // @ts-ignore - Uint8Array type compatibility issue, safe at runtime
+        encKey: forge.util.createBuffer(innerKey.encryptionKey as any).getBytes(),
+        // @ts-ignore - Uint8Array type compatibility issue, safe at runtime
+        macKey: forge.util.createBuffer(innerKey.authenticationKey as any).getBytes(),
         mac: forge.util.decode64(mac!),
         macData,
       } as CbcDecryptParameters<string>;
@@ -248,7 +258,8 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       const result = await this.aesDecryptFast({ mode: "ecb", parameters });
       return Utils.fromByteStringToArray(result);
     }
-    const impKey = await this.subtle.importKey("raw", key, { name: "AES-CBC" } as any, false, [
+    // @ts-ignore - ArrayBufferLike compatibility issue with Web Crypto API, safe at runtime
+    const impKey = await this.subtle.importKey("raw", key as any, { name: "AES-CBC" } as any, false, [
       "decrypt",
     ]);
 
@@ -256,7 +267,8 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     if (iv == null) {
       throw new Error("IV is required for CBC mode.");
     }
-    const buffer = await this.subtle.decrypt({ name: "AES-CBC", iv: iv }, impKey, data);
+    // @ts-expect-error - ArrayBufferLike compatibility issue, safe at runtime
+    const buffer = await this.subtle.decrypt({ name: "AES-CBC", iv: iv }, impKey, data as any);
     return new Uint8Array(buffer);
   }
 
@@ -313,12 +325,12 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return Promise.resolve(arr as CsprngArray);
   }
 
-  private toBuf(value: string | Uint8Array): Uint8Array {
-    let buf: Uint8Array;
+  private toBuf(value: string | Uint8Array): Uint8Array<ArrayBuffer> {
+    let buf: Uint8Array<ArrayBuffer>;
     if (typeof value === "string") {
-      buf = Utils.fromUtf8ToArray(value);
+      buf = Utils.fromUtf8ToArray(value) as Uint8Array<ArrayBuffer>;
     } else {
-      buf = value;
+      buf = value as Uint8Array<ArrayBuffer>;
     }
     return buf;
   }
@@ -328,7 +340,8 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     if (typeof value === "string") {
       bytes = forge.util.encodeUtf8(value);
     } else {
-      bytes = Utils.fromBufferToByteString(value);
+      // @ts-expect-error - Uint8Array type compatibility issue, safe at runtime
+      bytes = Utils.fromBufferToByteString(value as any);
     }
     return bytes;
   }

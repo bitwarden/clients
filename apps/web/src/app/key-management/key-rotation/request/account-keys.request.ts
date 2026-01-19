@@ -29,7 +29,7 @@ export class AccountKeysRequest {
   static fromV1CryptographicState(state: V1UserCryptographicState): AccountKeysRequest {
     const request = new AccountKeysRequest();
     request.userKeyEncryptedAccountPrivateKey = state.publicKeyEncryptionKeyPair.wrappedPrivateKey;
-    request.accountPublicKey = Utils.fromBufferToB64(state.publicKeyEncryptionKeyPair.publicKey);
+    request.accountPublicKey = Utils.fromArrayToB64(state.publicKeyEncryptionKeyPair.publicKey);
     request.publicKeyEncryptionKeyPair = new PublicKeyEncryptionKeyPairRequestModel(
       state.publicKeyEncryptionKeyPair.wrappedPrivateKey,
       state.publicKeyEncryptionKeyPair.publicKey,
@@ -47,7 +47,7 @@ export class AccountKeysRequest {
 
     const request = new AccountKeysRequest();
     request.userKeyEncryptedAccountPrivateKey = state.publicKeyEncryptionKeyPair.wrappedPrivateKey!;
-    request.accountPublicKey = Utils.fromBufferToB64(state.publicKeyEncryptionKeyPair.publicKey);
+    request.accountPublicKey = Utils.fromArrayToB64(state.publicKeyEncryptionKeyPair.publicKey);
     request.publicKeyEncryptionKeyPair = new PublicKeyEncryptionKeyPairRequestModel(
       state.publicKeyEncryptionKeyPair.wrappedPrivateKey,
       state.publicKeyEncryptionKeyPair.publicKey,

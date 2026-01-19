@@ -131,7 +131,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   async migrateUser(keyConnectorUrl: string, userId: UserId) {
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(
-      Utils.fromBufferToB64(masterKey.inner().encryptionKey),
+      Utils.fromArrayToB64(masterKey.inner().encryptionKey),
     );
 
     try {
@@ -278,7 +278,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       kdfConfig,
     );
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(
-      Utils.fromBufferToB64(masterKey.inner().encryptionKey),
+      Utils.fromArrayToB64(masterKey.inner().encryptionKey),
     );
     await this.masterPasswordService.setMasterKey(masterKey, userId);
 

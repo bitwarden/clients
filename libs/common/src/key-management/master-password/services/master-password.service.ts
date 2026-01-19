@@ -262,7 +262,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       kdf,
     )) as MasterKey;
 
-    const masterPasswordAuthenticationHash = Utils.fromBufferToB64(
+    const masterPasswordAuthenticationHash = Utils.fromArrayToB64(
       await this.cryptoFunctionService.pbkdf2(
         masterKey.toEncoded(),
         password,

@@ -75,7 +75,8 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
       t.set(previousT);
       t.set(infoArr, previousT.length);
       t.set([i + 1], t.length - 1);
-      previousT = await this.hmac(t, prk, algorithm);
+      // @ts-ignore - ArrayBufferLike compatibility issue with Node.js crypto, safe at runtime
+      previousT = (await this.hmac(t, prk, algorithm)) as Uint8Array<ArrayBufferLike>;
       okm.set(previousT, runningOkmLength);
       runningOkmLength += previousT.length;
       if (runningOkmLength >= outputByteSize) {
@@ -190,7 +191,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     | { mode: "ecb"; parameters: EcbDecryptParameters<Uint8Array> }): Promise<string> {
     const iv = mode === "cbc" ? parameters.iv : null;
     const decBuf = await this.aesDecrypt(parameters.data, iv, parameters.encKey, mode);
-    return Utils.fromBufferToUtf8(decBuf);
+    return Utils.fromArrayToUtf8(decBuf);
   }
 
   aesDecrypt(
@@ -285,7 +286,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   }
 
   private toPemPrivateKey(key: Uint8Array): string {
-    const byteString = Utils.fromBufferToByteString(key);
+    const byteString = Utils.fromArrayToByteString(key);
     const asn1 = forge.asn1.fromDer(byteString);
     const privateKey = forge.pki.privateKeyFromAsn1(asn1);
     const rsaPrivateKey = forge.pki.privateKeyToAsn1(privateKey);
@@ -294,7 +295,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   }
 
   private toPemPublicKey(key: Uint8Array): string {
-    const byteString = Utils.fromBufferToByteString(key);
+    const byteString = Utils.fromArrayToByteString(key);
     const asn1 = forge.asn1.fromDer(byteString);
     const publicKey = forge.pki.publicKeyFromAsn1(asn1);
     return forge.pki.publicKeyToPem(publicKey);

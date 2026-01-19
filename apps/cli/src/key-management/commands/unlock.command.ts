@@ -125,7 +125,7 @@ export class UnlockCommand {
 
   private async setNewSessionKey() {
     const key = await this.cryptoFunctionService.randomBytes(64);
-    process.env.BW_SESSION = Utils.fromBufferToB64(key);
+    process.env.BW_SESSION = Utils.fromArrayToB64(key);
   }
 
   private async successResponse() {

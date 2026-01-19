@@ -14,7 +14,7 @@
   "license": "GPL-3.0",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsgo",
     "build:watch": "npm run clean && tsc -watch",
     "test": "jest --passWithNoTests"
   }

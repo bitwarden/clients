@@ -402,10 +402,10 @@ function randomBytes(length: number): Uint8Array {
 // so we need to mock them and assign them to the global object to make them available
 // for the tests
 export class MockAuthenticatorAssertionResponse implements AuthenticatorAssertionResponse {
-  clientDataJSON: ArrayBuffer = randomBytes(32).buffer;
-  authenticatorData: ArrayBuffer = randomBytes(196).buffer;
-  signature: ArrayBuffer = randomBytes(72).buffer;
-  userHandle: ArrayBuffer = randomBytes(16).buffer;
+  clientDataJSON: ArrayBuffer = randomBytes(32).buffer as ArrayBuffer;
+  authenticatorData: ArrayBuffer = randomBytes(196).buffer as ArrayBuffer;
+  signature: ArrayBuffer = randomBytes(72).buffer as ArrayBuffer;
+  userHandle: ArrayBuffer = randomBytes(16).buffer as ArrayBuffer;
 
   clientDataJSONB64Str = Utils.fromBufferToUrlB64(this.clientDataJSON);
   authenticatorDataB64Str = Utils.fromBufferToUrlB64(this.authenticatorData);
@@ -417,7 +417,7 @@ export class MockPublicKeyCredential implements PublicKeyCredential {
   authenticatorAttachment = "cross-platform";
   id = "mockCredentialId";
   type = "public-key";
-  rawId: ArrayBuffer = randomBytes(32).buffer;
+  rawId: ArrayBuffer = randomBytes(32).buffer as ArrayBuffer;
   rawIdB64Str = Utils.fromBufferToB64(this.rawId);
 
   response: MockAuthenticatorAssertionResponse = new MockAuthenticatorAssertionResponse();

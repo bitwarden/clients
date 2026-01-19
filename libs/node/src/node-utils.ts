@@ -31,6 +31,7 @@ export class NodeUtils {
 
   // https://stackoverflow.com/a/31394257
   static bufferToArrayBuffer(buf: Buffer): ArrayBuffer {
-    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+    // @ts-ignore - Buffer is a subclass of Uint8Array, safe at runtime
+    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
   }
 }

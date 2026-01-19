@@ -207,8 +207,8 @@ describe("UserApiLoginStrategy", () => {
   });
 
   it("decrypts and sets the user key if Key Connector is enabled", async () => {
-    const userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-    const masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
+    const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+    const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
 
     const tokenResponse = identityTokenResponseFactory();
     tokenResponse.apiUseKeyConnector = true;

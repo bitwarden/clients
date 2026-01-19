@@ -123,7 +123,7 @@ export class DownloadAttachmentComponent {
 
       this.fileDownloadService.download({
         fileName: attachment.fileName,
-        blobData: decBuf,
+        blobData: decBuf.buffer as ArrayBuffer,
       });
     } catch {
       this.toastService.showToast({

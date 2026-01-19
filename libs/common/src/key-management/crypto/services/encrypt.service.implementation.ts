@@ -209,7 +209,7 @@ export class EncryptServiceImplementation implements EncryptService {
 
   async hash(value: string | Uint8Array, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
     const hashArray = await this.cryptoFunctionService.hash(value, algorithm);
-    return Utils.fromBufferToB64(hashArray);
+    return Utils.fromArrayToB64(hashArray);
   }
 
   async encapsulateKeyUnsigned(

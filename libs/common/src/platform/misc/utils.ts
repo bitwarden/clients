@@ -128,6 +128,45 @@ export class Utils {
     return arr;
   }
 
+  static fromArrayToHex(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+    return this.fromBufferToHex(arr.buffer as ArrayBuffer);
+  }
+
+  static fromArrayToB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    return this.fromBufferToB64(arr.buffer as ArrayBuffer);
+  }
+
+  static fromArrayToUrlB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    return this.fromBufferToUrlB64(arr.buffer as ArrayBuffer);
+  }
+
+  static fromArrayToByteString(arr: Uint8Array | null): string | null {
+    if (arr == null) {  
+      return null;
+    }
+
+    return this.fromBufferToByteString(arr.buffer as ArrayBuffer);
+  }
+
+  static fromArrayToUtf8(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    return this.fromBufferToUtf8(arr.buffer as ArrayBuffer);
+  }
+
   /**
    * Convert binary data into a Base64 string.
    *
@@ -301,7 +340,7 @@ export class Utils {
   }
 
   static fromUtf8ToUrlB64(utfStr: string): string {
-    return Utils.fromBufferToUrlB64(Utils.fromUtf8ToArray(utfStr));
+    return Utils.fromArrayToUrlB64(Utils.fromUtf8ToArray(utfStr));
   }
 
   static fromB64ToUtf8(b64Str: string): string {

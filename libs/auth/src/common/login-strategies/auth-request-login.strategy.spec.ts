@@ -74,9 +74,9 @@ describe("AuthRequestLoginStrategy", () => {
   const accessCode = "ACCESS_CODE";
   const authRequestId = "AUTH_REQUEST_ID";
   const decMasterKey = new SymmetricCryptoKey(
-    new Uint8Array(64).buffer as CsprngArray,
+    new Uint8Array(64)
   ) as MasterKey;
-  const decUserKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+  const decUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const decMasterKeyHash = "LOCAL_PASSWORD_HASH";
 
   beforeEach(async () => {
@@ -160,8 +160,8 @@ describe("AuthRequestLoginStrategy", () => {
       decMasterKeyHash,
     );
 
-    const masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
-    const userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+    const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
+    const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
     masterPasswordService.masterKeySubject.next(masterKey);
     masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);

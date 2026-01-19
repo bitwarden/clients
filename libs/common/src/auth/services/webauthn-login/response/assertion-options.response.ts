@@ -19,6 +19,7 @@ export class AssertionOptionsResponse
       ...c,
       id: Utils.fromUrlB64ToArray(c.id).buffer,
     }));
+    // @ts-ignore - ArrayBuffer compatibility issue with fetch in Node.js, safe at runtime
     this.challenge = Utils.fromUrlB64ToArray(this.getResponseProperty("challenge"));
     this.extensions = this.getResponseProperty("extensions");
     this.rpId = this.getResponseProperty("rpId");
