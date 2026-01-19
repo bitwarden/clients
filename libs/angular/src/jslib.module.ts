@@ -45,9 +45,12 @@ import { SearchCiphersPipe } from "./pipes/search-ciphers.pipe";
 import { SearchPipe } from "./pipes/search.pipe";
 import { UserNamePipe } from "./pipes/user-name.pipe";
 import { UserTypePipe } from "./pipes/user-type.pipe";
+import { DecentralizedInitService as DecentralizedInitServiceAbstraction } from "./platform/abstractions/decentralized-init.service";
 import { EllipsisPipe } from "./platform/pipes/ellipsis.pipe";
 import { FingerprintPipe } from "./platform/pipes/fingerprint.pipe";
 import { I18nPipe } from "./platform/pipes/i18n.pipe";
+import { DecentralizedInitService } from "./platform/services/decentralized-init.service";
+import { safeProvider } from "./platform/utils/safe-provider";
 import { IconComponent } from "./vault/components/icon.component";
 
 @NgModule({
@@ -145,6 +148,11 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     FingerprintPipe,
     PluralizePipe,
+    safeProvider({
+      provide: DecentralizedInitServiceAbstraction,
+      useClass: DecentralizedInitService,
+      useAngularDecorators: true,
+    }),
   ],
 })
 export class JslibModule {}
