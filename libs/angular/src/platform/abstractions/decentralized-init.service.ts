@@ -1,5 +1,7 @@
 import { InjectionToken, Type } from "@angular/core";
 
+import { SafeProvider } from "../utils/safe-provider";
+
 /**
  * Services that implement Initializable can participate in decentralized initialization.
  * Each service declares its dependencies, and the DecentralizedInitService will execute
@@ -32,6 +34,19 @@ export abstract class Initializable {
  * ```
  */
 export const INIT_SERVICES = new InjectionToken<Initializable[]>("INIT_SERVICES");
+
+/**
+ * Helper function to create a type-safe provider for an Initializable service.
+ *
+ * @param type The Initializable service class
+ */
+export function initializableProvider<T extends Type<Initializable>>(ctor: T) {
+  return {
+    provide: INIT_SERVICES,
+    useExisting: ctor,
+    multi: true,
+  } as SafeProvider;
+}
 
 /**
  * Service responsible for coordinating decentralized initialization.

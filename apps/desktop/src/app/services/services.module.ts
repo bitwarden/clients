@@ -1,11 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { APP_INITIALIZER, NgModule } from "@angular/core";
+import { inject, NgModule, provideAppInitializer } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import {
+  DecentralizedInitService,
+  initializableProvider,
+} from "@bitwarden/angular/platform/abstractions/decentralized-init.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   SECURE_STORAGE,
@@ -194,12 +198,10 @@ const safeProviders: SafeProvider[] = [
   safeProvider(BiometricMessageHandlerService),
   safeProvider(SearchBarService),
   safeProvider(DialogService),
-  safeProvider({
-    provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
-    useFactory: (initService: InitService) => initService.init(),
-    deps: [InitService],
-    multi: true,
-  }),
+  provideAppInitializer(() => {
+    const initService = inject(DecentralizedInitService);
+    return initService.init();
+  }) as any,
   safeProvider({
     provide: RELOAD_CALLBACK,
     useValue: null,
@@ -559,6 +561,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
     ],
   }),
+  initializableProvider(InitService),
 ];
 
 @NgModule({
