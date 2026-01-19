@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Kayıt arşive gönderildi"
   },
+  "itemWasUnarchived": {
+    "message": "Kayıt arşivden çıkarıldı"
+  },
   "itemUnarchived": {
     "message": "Kayıt arşivden çıkarıldı"
   },
@@ -580,10 +583,19 @@
     "message": "Kaydı arşivle"
   },
   "archiveItemConfirmDesc": {
-    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğine emin misin?"
+    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğinizden emin misiniz?"
+  },
+  "archived": {
+    "message": "Arşivlendi"
+  },
+  "unarchiveAndSave": {
+    "message": "Arşivden çıkar ve kaydet"
   },
   "upgradeToUseArchive": {
     "message": "Arşivi kullanmak için premium üyelik gereklidir."
+  },
+  "itemRestored": {
+    "message": "Kayıt geri yüklendi"
   },
   "edit": {
     "message": "Düzenle"
@@ -1532,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey ve Duo gibi marka bazlı iki aşamalı giriş seçenekleri."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Premium aboneliğiniz sona erdi"
+  },
+  "archivePremiumRestart": {
+    "message": "Arşivinize yeniden erişebilmek için Premium aboneliğinizi yeniden başlatın. Yeniden başlatmadan önce arşivlenmiş bir kaydın ayrıntılarını düzenlerseniz kayıt tekrar kasanıza taşınır."
+  },
+  "restartPremium": {
+    "message": "Premium’u yeniden başlat"
   },
   "ppremiumSignUpReports": {
     "message": "Kasanızı güvende tutmak için parola hijyeni, hesap sağlığı ve veri ihlali raporları."
@@ -4808,6 +4829,39 @@
   "adminConsole": {
     "message": "Yönetici Konsolu"
   },
+  "admin": {
+    "message": "Yönetici"
+  },
+  "automaticUserConfirmation": {
+    "message": "Otomatik kullanıcı onayı"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Yeni kullanıcıları otomatik onayla"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
   "accountSecurity": {
     "message": "Hesap güvenliği"
   },
@@ -5216,7 +5270,7 @@
     "message": "Web sitesi URI'sini yeniden sıralayın. Kayıtı yukarı veya aşağı taşımak için ok tuşunu kullanın."
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ yukarı taşındı, konum: $LENGTH$'in $INDEX$'i",
+    "message": "$LABEL$ yukarı taşındı. Konum: $LENGTH$/$INDEX$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5664,6 +5718,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu hesap risk altında ve web sitesi eksik. Bir web sitesi ekleyin ve güvenliğinizi artırmak için parolayı değiştirin."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Şimdi değiştir"
+  },
   "missingWebsite": {
     "message": "Web sitesi eksik"
   },
@@ -5739,7 +5799,7 @@
     "message": "Oltalama tespiti hakkında daha fazla bilgi edinin"
   },
   "protectedBy": {
-    "message": "$PRODUCT$ tarafından korunuyor",
+    "message": "$PRODUCT$ ile korunuyor",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -6039,5 +6099,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Bunu neden görüyorum?"
+  },
+  "resizeSideNavigation": {
+    "message": "Kenar menüsünü yeniden boyutlandır"
   }
 }

@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "ย้ายรายการไปที่จัดเก็บถาวรแล้ว"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "เลิกจัดเก็บถาวรรายการแล้ว"
   },
@@ -582,8 +585,17 @@
   "archiveItemConfirmDesc": {
     "message": "รายการที่จัดเก็บถาวรจะไม่ถูกรวมในผลการค้นหาทั่วไปและคำแนะนำการป้อนอัตโนมัติ ยืนยันที่จะจัดเก็บรายการนี้ถาวรหรือไม่"
   },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "upgradeToUseArchive": {
     "message": "ต้องเป็นสมาชิกพรีเมียมจึงจะใช้งานฟีเจอร์จัดเก็บถาวรได้"
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "edit": {
     "message": "แก้ไข"
@@ -1532,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "ตัวเลือกการเข้าสู่ระบบ 2 ขั้นตอนแบบพิเศษ เช่น YubiKey และ Duo"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "รายงานความปลอดภัยของรหัสผ่าน สุขภาพบัญชี และข้อมูลรั่วไหล เพื่อรักษาตู้นิรภัยให้ปลอดภัย"
@@ -4808,6 +4829,39 @@
   "adminConsole": {
     "message": "คอนโซลผู้ดูแลระบบ"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
   "accountSecurity": {
     "message": "ความปลอดภัยของบัญชี"
   },
@@ -5664,6 +5718,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "ข้อมูลเข้าสู่ระบบนี้มีความเสี่ยงและไม่มีเว็บไซต์ เพิ่มเว็บไซต์และเปลี่ยนรหัสผ่านเพื่อความปลอดภัยที่รัดกุมยิ่งขึ้น"
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "ไม่มีเว็บไซต์"
   },
@@ -6039,5 +6099,8 @@
   },
   "whyAmISeeingThis": {
     "message": "ทำไมฉันจึงเห็นสิ่งนี้"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }
