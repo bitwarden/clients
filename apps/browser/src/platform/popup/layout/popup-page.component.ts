@@ -3,9 +3,13 @@ import {
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
+  computed,
+  ElementRef,
   inject,
   input,
+  Signal,
   signal,
+  viewChild,
 } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -35,6 +39,13 @@ export class PopupPageComponent {
 
   /** Accessible loading label for the spinner. Defaults to "loading" */
   readonly loadingText = input<string | undefined>(this.i18nService.t("loading"));
+
+  private readonly scrollRegionRef = viewChild<ElementRef<HTMLElement>>("scrollRegion");
+
+  /** The actual scroll container element for the page (null until view init). */
+  readonly scrollElement: Signal<HTMLElement | null> = computed(() => {
+    return this.scrollRegionRef()?.nativeElement ?? null;
+  });
 
   handleScroll(event: Event) {
     this.scrolled.set((event.currentTarget as HTMLElement).scrollTop !== 0);
