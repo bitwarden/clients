@@ -13,7 +13,7 @@ export class PublicKeyEncryptionKeyPairRequestModel {
     signedPublicKey: SignedPublicKey | null,
   ) {
     this.wrappedPrivateKey = wrappedPrivateKey;
-    this.publicKey = Utils.fromArrayToB64(publicKey);
+    this.publicKey = Utils.fromArrayToB64(publicKey)!;
     this.signedPublicKey = signedPublicKey;
   }
 }

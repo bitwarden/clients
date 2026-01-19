@@ -357,7 +357,7 @@ export class SsoComponent implements OnInit {
     if (codeChallenge == null) {
       const codeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
       const codeVerifierHash = await this.cryptoFunctionService.hash(codeVerifier, "sha256");
-      codeChallenge = Utils.fromArrayToUrlB64(codeVerifierHash);
+      codeChallenge = Utils.fromArrayToUrlB64(codeVerifierHash)!;
       await this.ssoLoginService.setCodeVerifier(codeVerifier);
     }
 

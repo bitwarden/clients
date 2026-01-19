@@ -248,7 +248,9 @@ export class Fido2ClientService<
       credentialId: Fido2Utils.bufferToString(makeCredentialResult.credentialId),
       attestationObject: Fido2Utils.bufferToString(makeCredentialResult.attestationObject),
       authData: Fido2Utils.bufferToString(makeCredentialResult.authData),
-      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
+      clientDataJSON: Fido2Utils.bufferToString(
+        Buffer.from(clientDataJSONBytes.buffer as ArrayBuffer),
+      ),
       publicKey: Fido2Utils.bufferToString(makeCredentialResult.publicKey),
       publicKeyAlgorithm: makeCredentialResult.publicKeyAlgorithm,
       transports: ["internal", "hybrid"],
@@ -308,7 +310,10 @@ export class Fido2ClientService<
       );
     }
 
-    const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+    const clientDataHash = await crypto.subtle.digest(
+      { name: "SHA-256" },
+      new Uint8Array(clientDataJSONBytes.buffer as ArrayBuffer),
+    );
     const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });
 
     if (abortController.signal.aborted) {
@@ -402,7 +407,10 @@ export class Fido2ClientService<
       ];
       assumeUserPresence = true;
 
-      const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+      const clientDataHash = await crypto.subtle.digest(
+      { name: "SHA-256" },
+      new Uint8Array(clientDataJSONBytes.buffer as ArrayBuffer),
+    );
       const getAssertionParams = mapToGetAssertionParams({
         params,
         clientDataHash,
@@ -429,7 +437,9 @@ export class Fido2ClientService<
   ): AssertCredentialResult {
     return {
       authenticatorData: Fido2Utils.bufferToString(getAssertionResult.authenticatorData),
-      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
+      clientDataJSON: Fido2Utils.bufferToString(
+        new Uint8Array(clientDataJSONBytes.buffer as ArrayBuffer),
+      ),
       credentialId: Fido2Utils.bufferToString(getAssertionResult.selectedCredential.id),
       userHandle:
         getAssertionResult.selectedCredential.userHandle !== undefined

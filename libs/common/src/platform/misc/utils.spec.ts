@@ -447,10 +447,10 @@ describe("Utils Service", () => {
       "should correctly round trip convert from base64 to ArrayBuffer and back",
       () => {
         // Convert known base64 string to ArrayBuffer
-        const bufferFromB64 = Utils.fromB64ToArray(b64HelloWorldString).buffer;
+        const bufferFromB64 = Utils.fromB64ToArray(b64HelloWorldString);
 
         // Convert the ArrayBuffer back to a base64 string
-        const roundTrippedB64String = Utils.fromBufferToB64(bufferFromB64);
+        const roundTrippedB64String = Utils.fromArrayToB64(bufferFromB64);
 
         // Compare the original base64 string with the round-tripped base64 string
         expect(roundTrippedB64String).toBe(b64HelloWorldString);

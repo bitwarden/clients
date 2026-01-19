@@ -572,7 +572,9 @@ describe("FidoAuthenticatorService", () => {
         const allowedCredentialIds = [
           Fido2Utils.bufferToString(guidToRawFormat(Utils.newGuid())),
           Fido2Utils.bufferToString(guidToRawFormat(Utils.newGuid())),
-          Fido2Utils.bufferToString(Utils.fromByteStringToArray("not-a-guid")),
+          Fido2Utils.bufferToString(
+            new Uint8Array(Utils.fromByteStringToArray("not-a-guid").buffer as ArrayBuffer),
+          ),
         ];
         const params = createParams({
           userVerification: "required",
@@ -700,11 +702,11 @@ describe("FidoAuthenticatorService", () => {
     function createAuthenticatorAssertResult(): Fido2AuthenticatorGetAssertionResult {
       return {
         selectedCredential: {
-          id: randomBytes(32),
-          userHandle: randomBytes(32),
+          id: randomBytes(32).buffer as ArrayBuffer,
+          userHandle: randomBytes(32).buffer as ArrayBuffer,
         },
-        authenticatorData: randomBytes(64),
-        signature: randomBytes(64),
+        authenticatorData: randomBytes(64).buffer as ArrayBuffer,
+        signature: randomBytes(64).buffer as ArrayBuffer,
       };
     }
   });

@@ -43,14 +43,14 @@ export class Fido2Utils {
   }
 
   static bufferToString(bufferSource: BufferSource): string {
-    return Fido2Utils.fromBufferToB64(Fido2Utils.bufferSourceToUint8Array(bufferSource))
+    return Fido2Utils.fromArrayToB64(Fido2Utils.bufferSourceToUint8Array(bufferSource))
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
       .replace(/=/g, "");
   }
 
   static stringToBuffer(str: string): ArrayBuffer {
-    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)).buffer;
+    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)).buffer as ArrayBuffer;
   }
 
   static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {
@@ -70,13 +70,12 @@ export class Fido2Utils {
     return b64Str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
   }
 
-  static fromBufferToB64(buffer: ArrayBuffer): string {
-    if (buffer == null) {
+  static fromArrayToB64(bytes: Uint8Array): string {
+    if (bytes == null) {
       return null;
     }
 
     let binary = "";
-    const bytes = new Uint8Array(buffer);
     for (let i = 0; i < bytes.byteLength; i++) {
       binary += String.fromCharCode(bytes[i]);
     }

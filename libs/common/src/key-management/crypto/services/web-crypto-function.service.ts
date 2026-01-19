@@ -258,17 +258,23 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       const result = await this.aesDecryptFast({ mode: "ecb", parameters });
       return Utils.fromByteStringToArray(result);
     }
-    // @ts-ignore - ArrayBufferLike compatibility issue with Web Crypto API, safe at runtime
-    const impKey = await this.subtle.importKey("raw", key as any, { name: "AES-CBC" } as any, false, [
-      "decrypt",
-    ]);
+    const impKey = await this.subtle.importKey(
+      "raw",
+      new Uint8Array(key.buffer as ArrayBuffer),
+      { name: "AES-CBC" },
+      false,
+      ["decrypt"],
+    );
 
     // CBC
     if (iv == null) {
       throw new Error("IV is required for CBC mode.");
     }
-    // @ts-expect-error - ArrayBufferLike compatibility issue, safe at runtime
-    const buffer = await this.subtle.decrypt({ name: "AES-CBC", iv: iv }, impKey, data as any);
+    const buffer = await this.subtle.decrypt(
+      { name: "AES-CBC", iv: new Uint8Array(iv.buffer as ArrayBuffer) },
+      impKey,
+      new Uint8Array(data.buffer as ArrayBuffer),
+    );
     return new Uint8Array(buffer);
   }
 
@@ -340,8 +346,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     if (typeof value === "string") {
       bytes = forge.util.encodeUtf8(value);
     } else {
-      // @ts-expect-error - Uint8Array type compatibility issue, safe at runtime
-      bytes = Utils.fromBufferToByteString(value as any);
+      bytes = Utils.fromBufferToByteString(value.buffer as ArrayBuffer);
     }
     return bytes;
   }

@@ -111,7 +111,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       const existingUserPublicKey = await firstValueFrom(this.keyService.userPublicKey$(userId));
 
       if (existingUserPrivateKey != null && existingUserPublicKey != null) {
-        const existingUserPublicKeyB64 = Utils.fromArrayToB64(existingUserPublicKey);
+        const existingUserPublicKeyB64 = Utils.fromArrayToB64(existingUserPublicKey)!;
 
         // Existing key pair
         keyPair = [

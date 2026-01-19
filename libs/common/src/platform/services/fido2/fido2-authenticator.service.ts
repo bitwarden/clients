@@ -348,12 +348,12 @@ export class Fido2AuthenticatorService<
         });
 
         return {
-          authenticatorData,
+          authenticatorData: authenticatorData.buffer as ArrayBuffer,
           selectedCredential: {
             id: parseCredentialId(selectedCredentialId),
             userHandle: Fido2Utils.stringToBuffer(selectedFido2Credential.userHandle),
           },
-          signature,
+          signature: signature.buffer as ArrayBuffer,
         };
       } catch (error) {
         this.logService?.error(
@@ -449,8 +449,10 @@ export class Fido2AuthenticatorService<
         cipher.login.fido2Credentials[0].rpId === rpId &&
         credentials.some((credential) =>
           compareCredentialIds(
-            credential.id,
-            parseCredentialId(cipher.login.fido2Credentials[0].credentialId),
+            new Uint8Array(credential.id),
+            new Uint8Array(
+              parseCredentialId(cipher.login.fido2Credentials[0].credentialId),
+            ),
           ),
         ),
     );
@@ -536,8 +538,12 @@ interface AuthDataParams {
 async function generateAuthData(params: AuthDataParams) {
   const authData: Array<number> = [];
 
+  const rpIdBytes = Utils.fromByteStringToArray(params.rpId);
   const rpIdHash = new Uint8Array(
-    await crypto.subtle.digest({ name: "SHA-256" }, Utils.fromByteStringToArray(params.rpId)),
+    await crypto.subtle.digest(
+      { name: "SHA-256" },
+      new Uint8Array(rpIdBytes.buffer as ArrayBuffer),
+    ),
   );
   authData.push(...rpIdHash);
 
@@ -612,7 +618,7 @@ async function generateSignature(params: SignatureParams) {
         hash: { name: "SHA-256" },
       },
       params.privateKey,
-      sigBase,
+      new Uint8Array(sigBase.buffer as ArrayBuffer),
     ),
   );
 

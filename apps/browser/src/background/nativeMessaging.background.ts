@@ -409,7 +409,7 @@ export class NativeMessagingBackground {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendUnencrypted({
       command: "setupEncryption",
-      publicKey: Utils.fromArrayToB64(publicKey),
+      publicKey: Utils.fromArrayToB64(publicKey)!,
       userId: userId,
       messageId: this.messageId++,
     });

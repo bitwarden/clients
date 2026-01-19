@@ -337,7 +337,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       "sha256",
       iterations,
     );
-    return Utils.fromArrayToB64(hash);
+    return Utils.fromArrayToB64(hash)!;
   }
 
   async compareKeyHash(
@@ -510,7 +510,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const keyPair = await this.cryptoFunctionService.rsaGenerateKeyPair(2048);
-    const publicB64 = Utils.fromArrayToB64(keyPair[0]);
+    const publicB64 = Utils.fromArrayToB64(keyPair[0])!;
     const privateEnc = await this.encryptService.wrapDecapsulationKey(keyPair[1], key);
     return [publicB64, privateEnc];
   }

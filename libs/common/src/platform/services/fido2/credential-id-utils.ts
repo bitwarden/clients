@@ -18,16 +18,13 @@ export function parseCredentialId(encodedCredentialId: string): ArrayBuffer {
 /**
  * Compares two credential IDs for equality.
  */
-export function compareCredentialIds(a: ArrayBuffer, b: ArrayBuffer): boolean {
+export function compareCredentialIds(a: Uint8Array, b: Uint8Array): boolean {
   if (a.byteLength !== b.byteLength) {
     return false;
   }
 
-  const viewA = new Uint8Array(a);
-  const viewB = new Uint8Array(b);
-
-  for (let i = 0; i < viewA.length; i++) {
-    if (viewA[i] !== viewB[i]) {
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
       return false;
     }
   }
