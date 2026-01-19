@@ -36,7 +36,7 @@ export enum FeatureFlag {
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
-  SdkKeyRotation = "sdk-key-rotation",
+  SdkKeyRotation = "pm-30144-sdk-key-rotation",
   PM25174_DisableType0Decryption = "pm-25174-disable-type-0-decryption",
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
