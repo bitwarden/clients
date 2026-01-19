@@ -437,14 +437,13 @@ describe("keyService", () => {
       );
     });
 
-    it("throws an error if unwrapping encrypted private key fails", async () => {
+    it("emits null if unwrapping encrypted private key fails", async () => {
       encryptService.unwrapDecapsulationKey.mockImplementationOnce(() => {
         throw new Error("Unwrapping failed");
       });
 
-      await expect(firstValueFrom(keyService.userPrivateKey$(mockUserId))).rejects.toThrow(
-        "Unwrapping failed",
-      );
+      const result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
+      expect(result).toBeNull();
     });
 
     it("returns null if user key is not set", async () => {
