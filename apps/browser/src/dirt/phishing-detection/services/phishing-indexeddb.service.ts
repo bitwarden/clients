@@ -165,4 +165,65 @@ export class PhishingIndexedDbService {
       };
     });
   }
+
+  /**
+   * Saves phishing URLs directly from a stream.
+   * Processes data incrementally to minimize memory usage.
+   *
+   * @param stream - ReadableStream of newline-delimited URLs
+   * @returns `true` if save succeeded, `false` on error
+   */
+  async saveUrlsFromStream(stream: ReadableStream<Uint8Array>): Promise<boolean> {
+    let db: IDBDatabase | null = null;
+    try {
+      db = await this.openDatabase();
+      await this.clearStore(db);
+      await this.processStream(db, stream);
+      return true;
+    } catch (error) {
+      this.logService.error("[PhishingIndexedDbService] Stream save failed", error);
+      return false;
+    } finally {
+      db?.close();
+    }
+  }
+
+  /**
+   * Processes a stream of URL data, parsing lines and saving in chunks.
+   */
+  private async processStream(db: IDBDatabase, stream: ReadableStream<Uint8Array>): Promise<void> {
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    const urls: string[] = [];
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          if (buffer.trim()) {
+            urls.push(buffer.trim());
+          }
+          if (urls.length) {
+            await this.saveChunk(db, urls);
+          }
+          break;
+        }
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (line.trim()) {
+            urls.push(line.trim());
+          }
+        }
+        if (urls.length >= this.CHUNK_SIZE) {
+          await this.saveChunk(db, urls.splice(0, this.CHUNK_SIZE));
+          await new Promise((r) => setTimeout(r, 0));
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
 }
