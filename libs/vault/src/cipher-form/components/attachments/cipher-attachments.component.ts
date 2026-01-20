@@ -195,7 +195,7 @@ export class CipherAttachmentsComponent {
   /** Save the attachments to the cipher */
   submit = async () => {
     //user can't edit cipher and will close the bit-dialog
-    if (!this.cipher().edit) {
+    if (!(this.cipher()?.edit ?? false)) {
       this.onCloseButtonPress.emit();
       return;
     }
