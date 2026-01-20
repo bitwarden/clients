@@ -129,6 +129,70 @@ export class Utils {
   }
 
   /**
+   * Converts a Uint8Array to a hexadecimal string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The hexadecimal string representation, or null if the input is null.
+   */
+  static fromArrayToHex(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+    return this.fromBufferToHex(arr.buffer as ArrayBuffer);
+  }
+
+  /**
+   * Converts a Uint8Array to a Base64 encoded string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The Base64 encoded string, or null if the input is null.
+   */
+  static fromArrayToB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    return this.fromBufferToB64(arr.buffer as ArrayBuffer);
+  }
+
+  /**
+   * Converts a Uint8Array to a URL-safe Base64 encoded string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The URL-safe Base64 encoded string, or null if the input is null.
+   */
+  static fromArrayToUrlB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    return this.fromBufferToUrlB64(arr.buffer as ArrayBuffer);
+  }
+
+  /**
+   * Converts a Uint8Array to a byte string (each byte as a character).
+   * @param arr - The Uint8Array to convert.
+   * @returns The byte string representation, or null if the input is null.
+   */
+  static fromArrayToByteString(arr: Uint8Array | null): string | null {
+    if (arr == null) {  
+      return null;
+    }
+
+    return this.fromBufferToByteString(arr.buffer as ArrayBuffer);
+  }
+
+  /**
+   * Converts a Uint8Array to a UTF-8 decoded string.
+   * @param arr - The Uint8Array containing UTF-8 encoded bytes.
+   * @returns The decoded UTF-8 string, or null if the input is null.
+   */
+  static fromArrayToUtf8(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    return this.fromBufferToUtf8(arr.buffer as ArrayBuffer);
+  }
+
+  /**
    * Convert binary data into a Base64 string.
    *
    * Overloads are provided for two categories of input:
@@ -301,7 +365,7 @@ export class Utils {
   }
 
   static fromUtf8ToUrlB64(utfStr: string): string {
-    return Utils.fromBufferToUrlB64(Utils.fromUtf8ToArray(utfStr));
+    return Utils.fromArrayToUrlB64(Utils.fromUtf8ToArray(utfStr));
   }
 
   static fromB64ToUtf8(b64Str: string): string {
