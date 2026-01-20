@@ -7,6 +7,7 @@ import {
   filter,
   firstValueFrom,
   interval,
+  timer,
   mergeMap,
   Subject,
   switchMap,
@@ -197,7 +198,7 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private listenForUnlockOptionsChanges() {
-    interval(1000)
+    timer(0, 5000)
       .pipe(
         mergeMap(async () => {
           if (this.activeAccount?.id != null) {
