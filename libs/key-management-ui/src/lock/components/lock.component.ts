@@ -55,6 +55,7 @@ import {
 } from "@bitwarden/key-management";
 
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { UnlockService } from "@bitwarden/unlock";
 
 import {
   UnlockOption,
@@ -179,8 +180,7 @@ export class LockComponent implements OnInit, OnDestroy {
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private encryptedMigrator: EncryptedMigrator,
-    private registerSdkService: RegisterSdkService,
-    private accountCryptographicStateService: AccountCryptographicStateService,
+    private unlockService: UnlockService,
 
     // desktop deps
     private broadcasterService: BroadcasterService,
@@ -491,34 +491,8 @@ export class LockComponent implements OnInit, OnDestroy {
     const MAX_INVALID_PIN_ENTRY_ATTEMPTS = 5;
 
     try {
-      await firstValueFrom(
-        this.registerSdkService.registerClient$(this.activeAccount.id).pipe(
-          map(async (sdk) => {
-            if (!sdk) {
-              throw new Error("SDK not available");
-            }
-            using ref = sdk.take();
-            return ref.value.crypto().initialize_user_crypto({
-              userId: this.activeAccount.id,
-              kdfParams: {
-                pBKDF2: { iterations: 100000 }
-              },
-              email: "test@quexten.com",
-              accountCryptographicState: await firstValueFrom(this.accountCryptographicStateService.accountCryptographicState$(this.activeAccount.id)),
-              method: {
-                pinEnvelope: {
-                  pin: pin,
-                  pin_protected_user_key_envelope: await this.pinStateService.getPinProtectedUserKeyEnvelope(
-                    this.activeAccount.id,
-                    "PERSISTENT",
-                  ),
-                }
-              }
-            });
-          }),
-        )
-      );
-      //const userKey = await this.pinService.decryptUserKeyWithPin(pin, this.activeAccount.id);
+      this.unlockService.unlockWithPin(this.activeAccount.id, pin);
+      // Backward compatibility. The user-key is already set
       const userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
 
       if (userKey) {
