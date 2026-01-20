@@ -41,7 +41,11 @@ import {
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperComponent,
+  AnonLayoutWrapperData,
+  Translation,
+} from "@bitwarden/components";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
@@ -63,10 +67,17 @@ import { SendV2Component } from "./tools/send-v2/send-v2.component";
 /**
  * Data properties acceptable for use in route objects in the desktop
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RouteDataProperties {
-  // For any new route data properties, add them here.
-  // then assert that the data object satisfies this interface in the route object.
+  /**
+   * The optional title of the page.
+   * If a string is provided, it will be presented as is (ex: Organization name)
+   * If a Translation object (supports placeholders) is provided, it will be translated
+   */
+  pageTitle?: string | Translation | null;
+  /**
+   * Temporary flag to remove padding from layout component during desktop ui migration
+   */
+  noPadding?: boolean;
 }
 
 const routes: Routes = [
@@ -359,6 +370,7 @@ const routes: Routes = [
       {
         path: "new-vault",
         component: VaultComponent,
+        data: { noPadding: true } satisfies RouteDataProperties,
       },
       {
         path: "new-sends",

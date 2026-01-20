@@ -1,5 +1,7 @@
 import { Component, inject } from "@angular/core";
-import { RouterModule } from "@angular/router";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, NavigationEnd, Router, RouterModule } from "@angular/router";
+import { filter, map, startWith } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { DialogService, LayoutComponent, NavigationModule } from "@bitwarden/components";
@@ -30,8 +32,18 @@ import { DesktopSideNavComponent } from "./desktop-side-nav.component";
 })
 export class DesktopLayoutComponent {
   private dialogService = inject(DialogService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   protected readonly logo = PasswordManagerLogo;
+  protected readonly noPadding = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      startWith(null),
+      map(() => Boolean(this.route.firstChild?.snapshot?.data?.["noPadding"])),
+    ),
+    { initialValue: false },
+  );
 
   protected openGenerator() {
     this.dialogService.open(CredentialGeneratorComponent);
