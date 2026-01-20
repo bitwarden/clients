@@ -24,7 +24,7 @@ import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { OrganizationDataOwnershipPolicyDialogComponent } from "../policy-edit-dialogs";
 
-export interface OrganizationDataOwnershipPolicyRequest {
+export interface VNextPolicyRequest {
   policy: PolicyRequest;
   metadata: {
     defaultUserCollectionName: string;
@@ -67,14 +67,14 @@ export class vNextOrganizationDataOwnershipPolicyComponent
 
   protected steps = [this.policyForm, this.warningContent];
 
-  async buildVNextRequest(orgKey: OrgKey): Promise<OrganizationDataOwnershipPolicyRequest> {
+  async buildVNextRequest(orgKey: OrgKey): Promise<VNextPolicyRequest> {
     if (!this.policy) {
       throw new Error("Policy was not found");
     }
 
     const defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
 
-    const request: OrganizationDataOwnershipPolicyRequest = {
+    const request: VNextPolicyRequest = {
       policy: {
         enabled: this.enabled.value ?? false,
         data: this.buildRequestData(),

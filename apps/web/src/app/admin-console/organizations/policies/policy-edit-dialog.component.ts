@@ -29,7 +29,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
-import { OrganizationDataOwnershipPolicyRequest } from "./policy-edit-definitions/organization-data-ownership.component";
+import { VNextPolicyRequest } from "./policy-edit-definitions/organization-data-ownership.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -87,7 +87,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private hasVNextRequest(
     component: BasePolicyEditComponent,
   ): component is BasePolicyEditComponent & {
-    buildVNextRequest: (orgKey: OrgKey) => Promise<OrganizationDataOwnershipPolicyRequest>;
+    buildVNextRequest: (orgKey: OrgKey) => Promise<VNextPolicyRequest>;
   } {
     return "buildVNextRequest" in component && typeof component.buildVNextRequest === "function";
   }
@@ -171,7 +171,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   private async handleVNextSubmission(
     policyComponent: BasePolicyEditComponent & {
-      buildVNextRequest: (orgKey: OrgKey) => Promise<OrganizationDataOwnershipPolicyRequest>;
+      buildVNextRequest: (orgKey: OrgKey) => Promise<VNextPolicyRequest>;
     },
   ): Promise<void> {
     const orgKey = await firstValueFrom(
