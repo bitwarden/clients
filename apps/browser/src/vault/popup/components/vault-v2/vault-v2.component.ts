@@ -1,7 +1,7 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, effect, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
@@ -47,6 +47,7 @@ import {
   ButtonModule,
   DialogService,
   NoItemsModule,
+  ScrollLayoutService,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -120,8 +121,6 @@ type VaultState = UnionOfValues<typeof VaultState>;
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
 export class VaultV2Component implements OnInit, OnDestroy {
-  private readonly popupPage = viewChild(PopupPageComponent);
-
   NudgeType = NudgeType;
   cipherType = CipherType;
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -306,29 +305,17 @@ export class VaultV2Component implements OnInit, OnDestroy {
       });
   }
 
-  private scrollWired = false;
+  private readonly scrollLayout = inject(ScrollLayoutService);
 
   private readonly _scrollPositionEffect = effect((onCleanup) => {
-    if (this.scrollWired) {
-      return;
-    }
-
-    const popupPage = this.popupPage();
-    const scrollEl = popupPage?.scrollElement();
-
-    if (!scrollEl) {
-      return;
-    }
-
-    const sub = combineLatest([this.allFilters$, this.loading$])
+    const sub = combineLatest([this.scrollLayout.scrollableRef$, this.allFilters$, this.loading$])
       .pipe(
-        filter(([, loading]) => !loading),
+        filter(([ref, _filters, loading]) => !!ref && !loading),
         take(1),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => {
-        this.scrollWired = true;
-        this.vaultScrollPositionService.start(scrollEl);
+      .subscribe(([ref]) => {
+        this.vaultScrollPositionService.start(ref!.nativeElement);
       });
 
     onCleanup(() => sub.unsubscribe());
