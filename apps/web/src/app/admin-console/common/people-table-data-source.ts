@@ -2,18 +2,24 @@
 // @ts-strict-ignore
 import { computed, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { map } from "rxjs";
+import { Observable, Subject, map } from "rxjs";
 
 import {
   OrganizationUserStatusType,
   ProviderUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
+import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { TableDataSource } from "@bitwarden/components";
 
-import { StatusType, UserViewTypes } from "./base-members.component";
+import { OrganizationUserView } from "../organizations/core/views/organization-user.view";
+
+export type StatusType = OrganizationUserStatusType | ProviderUserStatusType;
+
+export type UserViewTypes = ProviderUser | OrganizationUserView;
+export type ProviderUser = ProviderUserUserDetailsResponse;
 
 /**
  * Default maximum for most bulk operations (confirm, remove, delete, etc.)
@@ -100,6 +106,8 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
       this.data?.filter((u) => u.status === this.statusType.Confirmed).length ?? 0;
     this.revokedUserCount =
       this.data?.filter((u) => u.status === this.statusType.Revoked).length ?? 0;
+
+    this.checkedUsersUpdated$.next();
   }
 
   override get data() {
@@ -112,11 +120,26 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
    * @param select check the user (true), uncheck the user (false), or toggle the current state (null)
    */
   checkUser(user: T, select?: boolean) {
+    this.setUserChecked(user, select);
+    this.checkedUsersUpdated$.next();
+  }
+
+  /**
+   * Internal method to set checked state without triggering emissions.
+   * Use this in bulk operations to avoid excessive emissions.
+   */
+  private setUserChecked(user: T, select?: boolean) {
     (user as any).checked = select == null ? !(user as any).checked : select;
   }
 
   getCheckedUsers() {
     return this.data.filter((u) => (u as any).checked);
+  }
+
+  private checkedUsersUpdated$ = new Subject<void>();
+
+  usersUpdated(): Observable<T[]> {
+    return this.checkedUsersUpdated$.asObservable().pipe(map(() => this.getCheckedUsers()));
   }
 
   /**
@@ -147,8 +170,10 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
       : Math.min(filteredUsers.length, MaxCheckedCount);
 
     for (let i = 0; i < selectCount; i++) {
-      this.checkUser(filteredUsers[i], select);
+      this.setUserChecked(filteredUsers[i], select);
     }
+
+    this.checkedUsersUpdated$.next();
   }
 
   uncheckAllUsers() {
@@ -190,7 +215,10 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
     }
 
     // Uncheck users beyond the limit
-    users.slice(limit).forEach((user) => this.checkUser(user, false));
+    users.slice(limit).forEach((user) => this.setUserChecked(user, false));
+
+    // Emit once after all unchecking is done
+    this.checkedUsersUpdated$.next();
 
     return users.slice(0, limit);
   }
@@ -212,4 +240,27 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
       return this.getCheckedUsers();
     }
   }
+}
+
+export class ProvidersTableDataSource extends PeopleTableDataSource<ProviderUser> {
+  protected statusType = ProviderUserStatusType;
+}
+
+export class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView> {
+  protected statusType = OrganizationUserStatusType;
+}
+
+/**
+ * Helper function to determine if the confirm users banner should be shown
+ * @params dataSource Either a ProvidersTableDataSource or a MembersTableDataSource
+ */
+export function showConfirmBanner(
+  dataSource: ProvidersTableDataSource | MembersTableDataSource,
+): boolean {
+  return (
+    dataSource.activeUserCount > 1 &&
+    dataSource.confirmedUserCount > 0 &&
+    dataSource.confirmedUserCount < 3 &&
+    dataSource.acceptedUserCount > 0
+  );
 }
