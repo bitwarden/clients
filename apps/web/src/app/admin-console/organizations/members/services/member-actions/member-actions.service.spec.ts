@@ -1,3 +1,4 @@
+import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -6,6 +7,9 @@ import {
   OrganizationUserBulkResponse,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import {
   OrganizationUserType,
   OrganizationUserStatusType,
@@ -14,8 +18,11 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { DialogService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 
@@ -56,12 +63,29 @@ describe("MemberActionsService", () => {
       resetPasswordEnrolled: true,
     } as OrganizationUserView;
 
-    service = new MemberActionsService(
-      organizationUserApiService,
-      organizationUserService,
-      configService,
-      organizationMetadataService,
-    );
+    TestBed.configureTestingModule({
+      providers: [
+        MemberActionsService,
+        { provide: OrganizationUserApiService, useValue: organizationUserApiService },
+        { provide: OrganizationUserService, useValue: organizationUserService },
+        { provide: ConfigService, useValue: configService },
+        {
+          provide: OrganizationMetadataServiceAbstraction,
+          useValue: organizationMetadataService,
+        },
+        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: OrganizationManagementPreferencesService,
+          useValue: mock<OrganizationManagementPreferencesService>(),
+        },
+        { provide: UserNamePipe, useValue: mock<UserNamePipe>() },
+      ],
+    });
+
+    service = TestBed.inject(MemberActionsService);
   });
 
   describe("inviteUser", () => {
@@ -658,6 +682,28 @@ describe("MemberActionsService", () => {
       const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("isProcessing signal", () => {
+    it("should be false initially", () => {
+      expect(service.isProcessing()).toBe(false);
+    });
+
+    it("should be false after operation completes successfully", async () => {
+      organizationUserApiService.removeOrganizationUser.mockResolvedValue(undefined);
+
+      await service.removeUser(mockOrganization, userIdToManage);
+
+      expect(service.isProcessing()).toBe(false);
+    });
+
+    it("should be false after operation fails", async () => {
+      organizationUserApiService.removeOrganizationUser.mockRejectedValue(new Error("Failed"));
+
+      await service.removeUser(mockOrganization, userIdToManage);
+
+      expect(service.isProcessing()).toBe(false);
     });
   });
 });
