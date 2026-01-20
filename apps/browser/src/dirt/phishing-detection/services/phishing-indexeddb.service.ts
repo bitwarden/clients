@@ -93,4 +93,35 @@ export class PhishingIndexedDbService {
       tx.onerror = () => reject(tx.error);
     });
   }
+
+  /**
+   * Checks if a URL exists in the phishing database.
+   *
+   * @param url - The URL to check
+   * @returns `true` if URL exists, `false` if not found or on error
+   */
+  async hasUrl(url: string): Promise<boolean> {
+    let db: IDBDatabase | null = null;
+    try {
+      db = await this.openDatabase();
+      return await this.checkUrlExists(db, url);
+    } catch (error) {
+      this.logService.error("[PhishingIndexedDbService] Check failed", error);
+      return false;
+    } finally {
+      db?.close();
+    }
+  }
+
+  /**
+   * Performs the actual URL existence check using index lookup.
+   */
+  private checkUrlExists(db: IDBDatabase, url: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(this.STORE_NAME, "readonly");
+      const req = tx.objectStore(this.STORE_NAME).get(url);
+      req.onerror = () => reject(req.error);
+      req.onsuccess = () => resolve(req.result !== undefined);
+    });
+  }
 }
