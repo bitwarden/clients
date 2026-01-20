@@ -23,7 +23,7 @@ export class PinService implements PinServiceAbstraction {
     private keyService: KeyService,
     private sdkService: SdkService,
     private pinStateService: PinStateServiceAbstraction,
-  ) {}
+  ) { }
 
   getPinLockType(userId: UserId): Promise<PinLockType> {
     assertNonNullish(userId, "userId");
