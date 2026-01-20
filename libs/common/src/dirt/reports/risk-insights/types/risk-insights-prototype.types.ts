@@ -57,6 +57,26 @@ export interface RiskInsightsApplication {
 }
 
 /**
+ * Represents a member aggregation in the Members tab
+ */
+export interface RiskInsightsMember {
+  /** Organization user ID */
+  memberId: string;
+  /** Member email address */
+  email: string;
+  /** Total number of ciphers this member has access to */
+  cipherCount: number;
+  /** Number of at-risk ciphers this member has access to */
+  atRiskCipherCount: number;
+  /** IDs of all ciphers the member can access (for drill-down) */
+  cipherIds: string[];
+  /** IDs of at-risk ciphers the member can access (for drill-down) */
+  atRiskCipherIds: string[];
+  /** Whether member data is still being loaded */
+  memberAccessPending: boolean;
+}
+
+/**
  * Represents a single item in the risk insights report
  */
 export interface RiskInsightsItem {

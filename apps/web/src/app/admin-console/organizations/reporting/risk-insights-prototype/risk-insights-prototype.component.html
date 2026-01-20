@@ -112,13 +112,19 @@
   <div class="tw-flex-1 tw-flex tw-flex-col">
     <bit-tab-group [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
       <bit-tab [label]="'items' | i18n">
-        <app-risk-insights-prototype-items></app-risk-insights-prototype-items>
+        @if (initialized()) {
+          <app-risk-insights-prototype-items></app-risk-insights-prototype-items>
+        }
       </bit-tab>
       <bit-tab [label]="'applications' | i18n">
-        <app-risk-insights-prototype-applications></app-risk-insights-prototype-applications>
+        @if (initialized()) {
+          <app-risk-insights-prototype-applications></app-risk-insights-prototype-applications>
+        }
       </bit-tab>
       <bit-tab [label]="'members' | i18n">
-        <app-risk-insights-prototype-members></app-risk-insights-prototype-members>
+        @if (initialized()) {
+          <app-risk-insights-prototype-members></app-risk-insights-prototype-members>
+        }
       </bit-tab>
     </bit-tab-group>
   </div>

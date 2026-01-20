@@ -1,6 +1,13 @@
 /* eslint-disable no-restricted-imports -- Prototype feature using licensed services */
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { RiskInsightsPrototypeOrchestrationService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
@@ -68,6 +75,12 @@ export class RiskInsightsPrototypeApplicationsComponent {
   /** Set of expanded application domains */
   protected readonly expandedApplications = signal(new Set<string>());
 
+  /** Cached map of cipher ID to item for O(1) lookups */
+  private readonly itemMap = computed(() => {
+    const items = this.items();
+    return new Map(items.map((item) => [item.cipherId, item]));
+  });
+
   // ============================================================================
   // Lifecycle
   // ============================================================================
@@ -104,11 +117,9 @@ export class RiskInsightsPrototypeApplicationsComponent {
 
   /** Get cipher items for an application (for expanded view) */
   protected getCiphersForApplication(cipherIds: string[]): RiskInsightsItem[] {
-    const allItems = this.items();
-    const itemMap = new Map(allItems.map((item) => [item.cipherId, item]));
-
+    const map = this.itemMap();
     return cipherIds
-      .map((id) => itemMap.get(id))
+      .map((id) => map.get(id))
       .filter((item): item is RiskInsightsItem => item !== undefined);
   }
 

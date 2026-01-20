@@ -8,6 +8,7 @@ export {
   ProgressInfo,
   RiskInsightsItem,
   RiskInsightsApplication,
+  RiskInsightsMember,
   createRiskInsightsItem,
   calculateRiskStatus,
 } from "@bitwarden/common/dirt/reports/risk-insights/types";

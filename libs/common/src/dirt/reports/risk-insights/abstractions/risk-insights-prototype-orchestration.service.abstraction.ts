@@ -1,6 +1,12 @@
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { ProcessingPhase, ProgressInfo, RiskInsightsApplication, RiskInsightsItem } from "../types";
+import {
+  ProcessingPhase,
+  ProgressInfo,
+  RiskInsightsApplication,
+  RiskInsightsItem,
+  RiskInsightsMember,
+} from "../types";
 
 /**
  * Generic read-only signal interface for framework-agnostic abstraction.
@@ -38,6 +44,7 @@ export abstract class RiskInsightsPrototypeOrchestrationServiceAbstraction {
   // Results (read-only signals)
   abstract readonly items: ReadonlySignal<RiskInsightsItem[]>;
   abstract readonly applications: ReadonlySignal<RiskInsightsApplication[]>;
+  abstract readonly members: ReadonlySignal<RiskInsightsMember[]>;
 
   // Error state (read-only signal)
   abstract readonly error: ReadonlySignal<string | null>;
@@ -59,4 +66,10 @@ export abstract class RiskInsightsPrototypeOrchestrationServiceAbstraction {
   // Actions
   abstract startProcessing(): void;
   abstract resetState(): void;
+
+  /**
+   * Ensures member aggregations are built (lazy loading).
+   * Call this when the Members tab is first selected.
+   */
+  abstract ensureMemberAggregationsBuilt(): void;
 }

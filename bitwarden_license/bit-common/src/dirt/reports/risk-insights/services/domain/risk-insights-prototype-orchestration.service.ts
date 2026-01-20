@@ -23,6 +23,7 @@ import {
   RiskInsightsApplication,
   RiskInsightsItem,
   RiskInsightsItemStatus,
+  RiskInsightsMember,
   calculateRiskStatus,
 } from "./risk-insights-prototype.types";
 
@@ -55,6 +56,7 @@ export class RiskInsightsPrototypeOrchestrationService {
   private organizationId: OrganizationId | null = null;
   private currentUserId: UserId | null = null;
   private cipherIndexMap = new Map<string, number>();
+  private cipherItemMap = new Map<string, RiskInsightsItem>();
   private allCiphers: CipherView[] = [];
   private passwordUseMap: Map<string, string[]> = new Map();
 
@@ -66,6 +68,18 @@ export class RiskInsightsPrototypeOrchestrationService {
 
   /** Maps cipher ID to the set of member IDs with access (for at-risk member tracking) */
   private cipherToMemberIdsMap = new Map<string, Set<string>>();
+
+  /** Maps member ID to cipher IDs they have access to */
+  private memberToCiphersMap = new Map<string, Set<string>>();
+
+  /** Maps member ID to email */
+  private memberEmailMap = new Map<string, string>();
+
+  /** Stores processed cipher-member data for rebuilding aggregations */
+  private processedCipherMemberData: CipherWithMemberAccess[] = [];
+
+  /** Whether member aggregations have been built (for lazy loading) */
+  private _memberAggregationsBuilt = false;
 
   // ============================================================================
   // Internal Signals (private, writable)
@@ -89,6 +103,7 @@ export class RiskInsightsPrototypeOrchestrationService {
   // Results
   private readonly _items = signal<RiskInsightsItem[]>([]);
   private readonly _applications = signal<RiskInsightsApplication[]>([]);
+  private readonly _members = signal<RiskInsightsMember[]>([]);
 
   // Error state
   private readonly _error = signal<string | null>(null);
@@ -115,6 +130,7 @@ export class RiskInsightsPrototypeOrchestrationService {
   // Results
   readonly items = this._items.asReadonly();
   readonly applications = this._applications.asReadonly();
+  readonly members = this._members.asReadonly();
 
   // Error state
   readonly error = this._error.asReadonly();
@@ -200,6 +216,7 @@ export class RiskInsightsPrototypeOrchestrationService {
           // Transform to items and display immediately
           const items = this.riskInsightsService.transformCiphersToItems(ciphers);
           this._items.set(items);
+          this.updateCipherItemMap();
 
           // Build cipher index map for O(1) updates
           this.cipherIndexMap.clear();
@@ -235,8 +252,9 @@ export class RiskInsightsPrototypeOrchestrationService {
                   this._processingPhase.set(ProcessingPhase.Complete);
                   this._progressMessage.set("");
                 },
-                error: (_err: unknown) => {
-                  // HIBP check error - silently ignore for prototype
+                error: () => {
+                  this._processingPhase.set(ProcessingPhase.Complete);
+                  this._progressMessage.set("");
                 },
               });
           } else {
@@ -262,6 +280,7 @@ export class RiskInsightsPrototypeOrchestrationService {
   resetState(): void {
     this._items.set([]);
     this._applications.set([]);
+    this._members.set([]);
     this._processingPhase.set(ProcessingPhase.Idle);
     this._progressMessage.set("");
     this._cipherProgress.set({ current: 0, total: 0, percent: 0 });
@@ -270,11 +289,52 @@ export class RiskInsightsPrototypeOrchestrationService {
     this._hibpProgress.set({ current: 0, total: 0, percent: 0 });
     this._error.set(null);
     this.cipherIndexMap.clear();
+    this.cipherItemMap.clear();
     this.allCiphers = [];
     this.passwordUseMap.clear();
     this.cipherToApplicationsMap.clear();
     this.applicationToCiphersMap.clear();
     this.cipherToMemberIdsMap.clear();
+    this.memberToCiphersMap.clear();
+    this.memberEmailMap.clear();
+    this.processedCipherMemberData = [];
+    this._memberAggregationsBuilt = false;
+  }
+
+  /**
+   * Ensures member aggregations are built (lazy loading).
+   * Call this when the Members tab is first selected.
+   */
+  ensureMemberAggregationsBuilt(): void {
+    if (this._memberAggregationsBuilt) {
+      return;
+    }
+
+    if (this.processedCipherMemberData.length === 0) {
+      return;
+    }
+
+    // Use setTimeout to yield to UI before potentially blocking work
+    setTimeout(() => {
+      this.buildMemberAggregations(this.processedCipherMemberData);
+      this._memberAggregationsBuilt = true;
+    }, 0);
+  }
+
+  // ============================================================================
+  // Private Methods - Cache Management
+  // ============================================================================
+
+  /**
+   * Updates the cached cipher item map for O(1) lookups.
+   * Must be called after every _items.set() to keep cache in sync.
+   */
+  private updateCipherItemMap(): void {
+    const items = this._items();
+    this.cipherItemMap.clear();
+    for (const item of items) {
+      this.cipherItemMap.set(item.cipherId, item);
+    }
   }
 
   // ============================================================================
@@ -342,6 +402,7 @@ export class RiskInsightsPrototypeOrchestrationService {
         }
 
         this._items.set(currentItems);
+        this.updateCipherItemMap();
         this._healthProgress.set({
           current: processedCount,
           total: totalCiphers,
@@ -405,8 +466,7 @@ export class RiskInsightsPrototypeOrchestrationService {
         }),
         last(),
         map((): void => undefined),
-        catchError((_err: unknown) => {
-          // Member access error - silently continue for prototype
+        catchError(() => {
           return of(undefined);
         }),
       );
@@ -438,6 +498,7 @@ export class RiskInsightsPrototypeOrchestrationService {
 
     if (hasChanges) {
       this._items.set(currentItems);
+      this.updateCipherItemMap();
     }
   }
 
@@ -516,6 +577,7 @@ export class RiskInsightsPrototypeOrchestrationService {
 
     if (hasChanges) {
       this._items.set(currentItems);
+      this.updateCipherItemMap();
 
       // Update application at-risk counts after HIBP updates
       this.updateApplicationAtRiskCounts();
@@ -574,6 +636,7 @@ export class RiskInsightsPrototypeOrchestrationService {
 
     if (hasChanges) {
       this._items.set(currentItems);
+      this.updateCipherItemMap();
     }
   }
 
@@ -640,9 +703,10 @@ export class RiskInsightsPrototypeOrchestrationService {
    * @param processedCiphers - Ciphers with their member access data
    */
   private updateApplicationsWithMemberCounts(processedCiphers: CipherWithMemberAccess[]): void {
+    // Store processed cipher-member data for member aggregation
+    this.processedCipherMemberData = processedCiphers;
+
     const currentApplications = this._applications();
-    const items = this._items();
-    const itemMap = new Map(items.map((item) => [item.cipherId, item]));
 
     // Build a domain -> Set<memberIds> map
     const domainMemberMap = new Map<string, Set<string>>();
@@ -656,8 +720,8 @@ export class RiskInsightsPrototypeOrchestrationService {
       // Store cipher member IDs for at-risk member tracking
       this.cipherToMemberIdsMap.set(cipherId, new Set(memberIds));
 
-      // Check if this cipher is at-risk
-      const item = itemMap.get(cipherId);
+      // Check if this cipher is at-risk (use cached map for O(1) lookup)
+      const item = this.cipherItemMap.get(cipherId);
       const isAtRisk = item?.status === RiskInsightsItemStatus.AtRisk;
 
       for (const domain of domains) {
@@ -702,8 +766,6 @@ export class RiskInsightsPrototypeOrchestrationService {
    * Called after health checks complete or when item statuses change.
    */
   private updateApplicationAtRiskCounts(): void {
-    const items = this._items();
-    const itemMap = new Map(items.map((item) => [item.cipherId, item]));
     const currentApplications = this._applications();
 
     const updatedApplications = currentApplications.map((app) => {
@@ -711,7 +773,8 @@ export class RiskInsightsPrototypeOrchestrationService {
       const atRiskMemberIds = new Set<string>();
 
       for (const cipherId of app.cipherIds) {
-        const item = itemMap.get(cipherId);
+        // Use cached map for O(1) lookup
+        const item = this.cipherItemMap.get(cipherId);
         if (item?.status === RiskInsightsItemStatus.AtRisk) {
           atRiskCount++;
 
@@ -733,5 +796,113 @@ export class RiskInsightsPrototypeOrchestrationService {
     });
 
     this._applications.set(updatedApplications);
+
+    // Update member at-risk counts
+    this.updateMemberAtRiskCounts();
+  }
+
+  // ============================================================================
+  // Private Methods - Member Aggregation
+  // ============================================================================
+
+  /**
+   * Builds member aggregations from cipher-member data.
+   * Called after member access data is loaded to create the inverted view
+   * (member -> ciphers instead of cipher -> members).
+   *
+   * @param processedCiphers - Ciphers with their member access data
+   */
+  private buildMemberAggregations(processedCiphers: CipherWithMemberAccess[]): void {
+    // Clear existing maps
+    this.memberToCiphersMap.clear();
+    this.memberEmailMap.clear();
+
+    // Build inverted mapping: member -> ciphers
+    for (const processed of processedCiphers) {
+      const cipherId = processed.cipher.id;
+
+      for (const member of processed.members) {
+        const memberId = member.userId;
+
+        // Store email mapping
+        if (!this.memberEmailMap.has(memberId)) {
+          this.memberEmailMap.set(memberId, member.email ?? "(unknown)");
+        }
+
+        // Build member -> cipher mapping
+        if (!this.memberToCiphersMap.has(memberId)) {
+          this.memberToCiphersMap.set(memberId, new Set<string>());
+        }
+        this.memberToCiphersMap.get(memberId)!.add(cipherId);
+      }
+    }
+
+    // Build member aggregations
+    const memberAggregations: RiskInsightsMember[] = [];
+
+    for (const [memberId, cipherIds] of this.memberToCiphersMap) {
+      const cipherIdArray = Array.from(cipherIds);
+
+      // Calculate at-risk ciphers for this member (use cached map for O(1) lookup)
+      const atRiskCipherIds: string[] = [];
+      for (const cipherId of cipherIdArray) {
+        const item = this.cipherItemMap.get(cipherId);
+        if (item?.status === RiskInsightsItemStatus.AtRisk) {
+          atRiskCipherIds.push(cipherId);
+        }
+      }
+
+      memberAggregations.push({
+        memberId,
+        email: this.memberEmailMap.get(memberId) ?? "(unknown)",
+        cipherCount: cipherIdArray.length,
+        atRiskCipherCount: atRiskCipherIds.length,
+        cipherIds: cipherIdArray,
+        atRiskCipherIds,
+        memberAccessPending: false,
+      });
+    }
+
+    // Sort by cipher count descending
+    memberAggregations.sort((a, b) => b.cipherCount - a.cipherCount);
+
+    this._members.set(memberAggregations);
+  }
+
+  /**
+   * Updates member at-risk counts based on current item statuses.
+   * Called after health checks complete or when item statuses change (e.g., HIBP results).
+   */
+  private updateMemberAtRiskCounts(): void {
+    // Skip if member aggregations haven't been built yet (lazy loading)
+    if (!this._memberAggregationsBuilt) {
+      return;
+    }
+
+    const currentMembers = this._members();
+
+    if (currentMembers.length === 0) {
+      return;
+    }
+
+    const updatedMembers = currentMembers.map((member) => {
+      const atRiskCipherIds: string[] = [];
+
+      for (const cipherId of member.cipherIds) {
+        // Use cached map for O(1) lookup
+        const item = this.cipherItemMap.get(cipherId);
+        if (item?.status === RiskInsightsItemStatus.AtRisk) {
+          atRiskCipherIds.push(cipherId);
+        }
+      }
+
+      return {
+        ...member,
+        atRiskCipherCount: atRiskCipherIds.length,
+        atRiskCipherIds,
+      };
+    });
+
+    this._members.set(updatedMembers);
   }
 }
