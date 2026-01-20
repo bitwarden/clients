@@ -20,7 +20,13 @@
             {{ "emptyVaultDescription" | i18n }}
           </p>
         </ng-container>
-        <a slot="button" bitButton buttonType="secondary" [routerLink]="['/add-cipher']">
+        <a
+          slot="button"
+          bitButton
+          buttonType="secondary"
+          [routerLink]="['/add-cipher']"
+          [queryParams]="{ prefillNameAndURIFromTab: true }"
+        >
           {{ "newLogin" | i18n }}
         </a>
       </bit-no-items>
