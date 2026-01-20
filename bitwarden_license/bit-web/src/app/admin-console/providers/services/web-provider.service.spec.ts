@@ -13,6 +13,7 @@ import { OrgKey, ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { WebProviderService } from "./web-provider.service";
@@ -122,7 +123,10 @@ describe("WebProviderService", () => {
     const defaultCollectionTranslation = "Default Collection";
 
     beforeEach(() => {
-      keyService.makeOrgKey.mockResolvedValue([new EncString("mockEncryptedKey"), mockOrgKey]);
+      keyService.makeOrgKey.mockResolvedValue([
+        "mockEncryptedKey" as UnsignedSharedKey,
+        mockOrgKey,
+      ]);
       keyService.makeKeyPair.mockResolvedValue([publicKey, encryptedPrivateKey]);
       i18nService.t.mockReturnValue(defaultCollectionTranslation);
       encryptService.encryptString.mockResolvedValue(encryptedCollectionName);

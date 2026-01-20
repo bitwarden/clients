@@ -13,10 +13,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -29,6 +26,7 @@ import {
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserResetPasswordEntry } from "./organization-user-reset-password-entry";
 
@@ -60,7 +58,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     orgId: string,
     userKey: UserKey,
     trustedPublicKeys: Uint8Array[],
-  ): Promise<EncryptedString> {
+  ): Promise<UnsignedSharedKey> {
     if (userKey == null) {
       throw new Error("User key is required for recovery.");
     }
@@ -84,7 +82,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     // RSA Encrypt user key with organization's public key
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
-    return encryptedKey.encryptedString;
+    return encryptedKey;
   }
 
   /**
@@ -129,7 +127,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
 
     // Decrypt User's Reset Password Key to get UserKey
     const userKey = await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(response.resetPasswordKey),
+      response.resetPasswordKey,
       decPrivateKey,
     );
     const existingUserKey = userKey as UserKey;

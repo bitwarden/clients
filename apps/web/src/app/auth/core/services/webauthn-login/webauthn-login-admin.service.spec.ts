@@ -18,6 +18,7 @@ import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { WebauthnLoginCredentialPrfStatus } from "../../enums/webauthn-login-credential-prf-status.enum";
@@ -119,7 +120,7 @@ describe("WebauthnAdminService", () => {
       // Arrange
       const response = new MockPublicKeyCredential();
       const prfKeySet = new RotateableKeySet<PrfKey>(
-        new EncString("test_encryptedUserKey"),
+        "test_encryptedUserKey" as UnsignedSharedKey,
         new EncString("test_encryptedPublicKey"),
         new EncString("test_encryptedPrivateKey"),
       );
@@ -134,7 +135,7 @@ describe("WebauthnAdminService", () => {
       const request = new EnableCredentialEncryptionRequest();
       request.token = assertionOptions.token;
       request.deviceResponse = assertionOptions.deviceResponse;
-      request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey.encryptedString;
+      request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey;
       request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
       request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
 

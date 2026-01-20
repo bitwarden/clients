@@ -125,7 +125,7 @@ export class SetupComponent implements OnInit, OnDestroy {
       }
       const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       const providerKey = await this.keyService.makeOrgKey<ProviderKey>(activeUserId);
-      const key = providerKey[0].encryptedString;
+      const key = providerKey[0];
 
       const request = new ProviderSetupRequest();
       request.name = this.formGroup.value.name!;

@@ -1,10 +1,12 @@
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+
 export type EncryptedOrganizationKeyData =
   | OrganizationEncryptedOrganizationKeyData
   | ProviderEncryptedOrganizationKeyData;
 
 type OrganizationEncryptedOrganizationKeyData = {
   type: "organization";
-  key: string;
+  key: UnsignedSharedKey;
 };
 
 type ProviderEncryptedOrganizationKeyData = {

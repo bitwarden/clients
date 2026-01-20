@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
 import { OtherDeviceKeysUpdateRequest } from "@bitwarden/common/auth/models/request/update-devices-trust.request";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
 import { UserId } from "../../../types/guid";
@@ -43,7 +44,7 @@ export abstract class DeviceTrustServiceAbstraction {
   abstract decryptUserKeyWithDeviceKey(
     userId: UserId,
     encryptedDevicePrivateKey: EncString,
-    encryptedUserKey: EncString,
+    encryptedUserKey: UnsignedSharedKey,
     deviceKey: DeviceKey,
   ): Promise<UserKey | null>;
   abstract rotateDevicesTrust(

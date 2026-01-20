@@ -83,7 +83,7 @@ export class SetupBusinessUnitComponent extends BaseAcceptComponent {
     );
 
     const userId = await firstValueFrom(activeUserId$);
-    const [{ encryptedString: encryptedProviderKey }, providerKey] =
+    const [encryptedProviderKey, providerKey] =
       await this.keyService.makeOrgKey<ProviderKey>(userId);
 
     const organizationKey = await firstValueFrom(organizationKey$);
