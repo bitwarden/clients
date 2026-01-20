@@ -213,11 +213,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.buildProtectedSymmetricKey(masterKey, newUserKey);
   }
 
-  async makeUserKeyV1(): Promise<UserKey> {
-    const newUserKey = await this.keyGenerationService.createKey(512);
-    return newUserKey as UserKey;
-  }
-
   /**
    * Clears the user key. Clears all stored versions of the user keys as well, such as the biometrics key
    * @param userId The desired user
@@ -796,7 +791,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$;
   }
 
-  private userPrivateKeyHelper$(userId: UserId) {
+  private userPrivateKeyHelper$(userId: UserId): Observable<{
+    userKey: UserKey;
+    userPrivateKey: UserPrivateKey | null;
+  } | null> {
     const userKey$ = this.userKey$(userId);
     return userKey$.pipe(
       switchMap((userKey) => {
@@ -806,18 +804,20 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
         return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$.pipe(
           switchMap(async (encryptedPrivateKey) => {
-            try {
-              return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
-            } catch (e) {
-              this.logService.error("Failed to decrypt private key for user ", userId, e);
-              throw e;
-            }
+            return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
           }),
           // Combine outerscope info with user private key
           map((userPrivateKey) => ({
             userKey,
             userPrivateKey,
           })),
+          catchError((err: unknown) => {
+            this.logService.error(`Failed to decrypt private key for user ${userId}`);
+            return of({
+              userKey,
+              userPrivateKey: null,
+            });
+          }),
         );
       }),
     );

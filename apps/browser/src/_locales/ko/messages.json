@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "항목이 보관함으로 이동되었습니다"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "항목 보관 해제됨"
   },
@@ -581,6 +584,12 @@
   },
   "archiveItemConfirmDesc": {
     "message": "보관된 항목은 일반 검색 결과와 자동 완성 제안에서 제외됩니다. 이 항목을 보관하시겠습니까?"
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
@@ -1535,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey나 Duo와 같은 독점적인 2단계 로그인 옵션"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "보관함을 안전하게 유지하기 위한 암호 위생, 계정 상태, 데이터 유출 보고서"
@@ -4828,6 +4846,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
   },
   "accountSecurity": {
     "message": "계정 보안"

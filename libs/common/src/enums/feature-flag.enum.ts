@@ -14,6 +14,7 @@ export enum FeatureFlag {
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
+  MembersComponentRefactor = "pm-29503-refactor-members-inheritance",
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
@@ -31,6 +32,8 @@ export enum FeatureFlag {
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
   PM26462_Milestone_3 = "pm-26462-milestone-3",
   PM23341_Milestone_2 = "pm-23341-milestone-2",
+  PM29594_UpdateIndividualSubscriptionPage = "pm-29594-update-individual-subscription-page",
+  PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -45,7 +48,6 @@ export enum FeatureFlag {
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
 
   /* Tools */
-  DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   ChromiumImporterWithABE = "pm-25855-chromium-importer-abe",
   SendUIRefresh = "pm-28175-send-ui-refresh",
@@ -54,7 +56,6 @@ export enum FeatureFlag {
   /* DIRT */
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
   PhishingDetection = "phishing-detection",
-  PM22887_RiskInsightsActivityTab = "pm-22887-risk-insights-activity-tab",
 
   /* Vault */
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
@@ -100,6 +101,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
   [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
+  [FeatureFlag.MembersComponentRefactor]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -107,7 +109,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
 
   /* Tools */
-  [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.ChromiumImporterWithABE]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
@@ -116,7 +117,6 @@ export const DefaultFeatureFlagValue = {
   /* DIRT */
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
-  [FeatureFlag.PM22887_RiskInsightsActivityTab]: FALSE,
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
@@ -139,6 +139,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
   [FeatureFlag.PM26462_Milestone_3]: FALSE,
   [FeatureFlag.PM23341_Milestone_2]: FALSE,
+  [FeatureFlag.PM29594_UpdateIndividualSubscriptionPage]: FALSE,
+  [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,

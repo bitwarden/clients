@@ -344,16 +344,16 @@
     "message": "Bitwarden for Business"
   },
   "bitwardenAuthenticator": {
-    "message": "Dilyswr Bitwarden"
+    "message": "Dilysydd Bitwarden"
   },
   "continueToAuthenticatorPageDesc": {
     "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "Rheolydd Cyfrinachau Bitwarden"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "Securely store, manage, and share developer secrets with Bitwarden Secrets Manager. Learn more on the bitwarden.com website."
+    "message": "Gallwch storio, rheoli a rhannu cyfrinachau datblygwyr yn ddiogel gyda Rheolydd Cyfrinachau Bitwarden. Dysgwch fwy ar wefan bitwarden.com."
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "Item was unarchived"
   },
@@ -581,6 +584,12 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
@@ -1535,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Dewisiadau mewngofnodi dau gam perchenogol megis YubiKey a Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
@@ -4155,7 +4173,7 @@
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockYourAccountToViewAutofillSuggestions": {
-    "message": "Unlock your account to view autofill suggestions",
+    "message": "Datglowch eich cyfrif i weld argymhellion llenwi awtomatig",
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockAccount": {
@@ -4829,6 +4847,21 @@
   "autoConfirmWarningLink": {
     "message": "Learn about the risks"
   },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
   "accountSecurity": {
     "message": "Diogelwch eich cyfrif"
   },
@@ -4957,7 +4990,7 @@
     "message": "Download Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "Lawrlwytho Bitwarden ar bob dyfais"
   },
   "getTheMobileApp": {
     "message": "Get the mobile app"
@@ -4987,7 +5020,7 @@
     "message": "Premium"
   },
   "unlockFeaturesWithPremium": {
-    "message": "Unlock reporting, emergency access, and more security features with Premium."
+    "message": "Datglowch nodweddion diogelwch megis adroddiadau, mynediad mewn argyfwng, a mwy drwy gyfrif Premium."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Free organizations cannot use attachments"
@@ -4996,7 +5029,7 @@
     "message": "Filters"
   },
   "filterVault": {
-    "message": "Filter vault"
+    "message": "Hidlo'r gell"
   },
   "filterApplied": {
     "message": "One filter applied"
@@ -5882,7 +5915,7 @@
     "message": "Great job securing your at-risk logins!"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Uwchraddio nawr"
   },
   "builtInAuthenticator": {
     "message": "Built-in authenticator"
