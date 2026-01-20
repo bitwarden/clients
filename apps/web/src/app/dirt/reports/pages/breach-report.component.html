@@ -16,19 +16,15 @@
     <div class="tw-mt-4">
       @if (error) {
         <p>{{ "reportError" | i18n }}...</p>
-      }
-      @if (!error) {
+      } @else {
         @if (!breachedAccounts.length) {
           <bit-callout type="success" title="{{ 'goodNews' | i18n }}">
             {{ "breachUsernameNotFound" | i18n: checkedUsername }}
           </bit-callout>
-        }
-        @if (breachedAccounts.length) {
+        } @else {
           <bit-callout type="danger" title="{{ 'breachFound' | i18n }}">
             {{ "breachUsernameFound" | i18n: checkedUsername : breachedAccounts.length }}
           </bit-callout>
-        }
-        @if (breachedAccounts.length) {
           <ul
             class="tw-list-none tw-flex-col tw-divide-x-0 tw-divide-y tw-divide-solid tw-divide-secondary-300 tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-p-0"
           >
