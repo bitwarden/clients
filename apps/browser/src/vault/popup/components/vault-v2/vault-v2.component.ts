@@ -161,10 +161,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     }),
   );
 
-  protected skeletonFeatureFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.VaultLoadingSkeletons,
-  );
-
   protected premiumSpotlightFeatureFlag$ = this.configService.getFeatureFlag$(
     FeatureFlag.BrowserPremiumSpotlight,
   );
@@ -219,20 +215,14 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     PremiumUpgradeDialogComponent.open(this.dialogService);
   }
 
-  /** When true, show spinner loading state */
-  protected showSpinnerLoaders$ = combineLatest([this.loading$, this.skeletonFeatureFlag$]).pipe(
-    map(([loading, skeletonsEnabled]) => loading && !skeletonsEnabled),
-  );
-
   /** When true, show skeleton loading state with debouncing to prevent flicker */
   protected showSkeletonsLoaders$ = combineLatest([
     this.loading$,
     this.searchService.isCipherSearching$,
     this.vaultItemsTransferService.transferInProgress$,
-    this.skeletonFeatureFlag$,
   ]).pipe(
-    map(([loading, cipherSearching, transferInProgress, skeletonsEnabled]) => {
-      return (loading || cipherSearching || transferInProgress) && skeletonsEnabled;
+    map(([loading, cipherSearching, transferInProgress]) => {
+      return loading || cipherSearching || transferInProgress;
     }),
     distinctUntilChanged(),
     skeletonLoadingDelay(),

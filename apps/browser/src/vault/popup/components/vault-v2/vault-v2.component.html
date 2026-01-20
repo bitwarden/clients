@@ -1,4 +1,4 @@
-<popup-page [loading]="showSpinnerLoaders$ | async" [hideOverflow]="showSkeletonsLoaders$ | async">
+<popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -27,13 +27,9 @@
     </div>
   </ng-template>
 
-  @if (skeletonFeatureFlag$ | async) {
-    <vault-fade-in-out *ngIf="vaultState === VaultStateEnum.Empty">
-      <ng-container *ngTemplateOutlet="emptyVaultTemplate"></ng-container>
-    </vault-fade-in-out>
-  } @else {
+  <vault-fade-in-out *ngIf="vaultState === VaultStateEnum.Empty">
     <ng-container *ngTemplateOutlet="emptyVaultTemplate"></ng-container>
-  }
+  </vault-fade-in-out>
 
   <blocked-injection-banner
     *ngIf="vaultState !== VaultStateEnum.Empty"
@@ -126,13 +122,9 @@
       </ng-container>
     </ng-template>
 
-    @if (skeletonFeatureFlag$ | async) {
-      <vault-fade-in-out *ngIf="vaultState === null">
-        <ng-container *ngTemplateOutlet="vaultContentTemplate"></ng-container>
-      </vault-fade-in-out>
-    } @else {
+    <vault-fade-in-out *ngIf="vaultState === null">
       <ng-container *ngTemplateOutlet="vaultContentTemplate"></ng-container>
-    }
+    </vault-fade-in-out>
   </ng-container>
 
   @if (showSkeletonsLoaders$ | async) {

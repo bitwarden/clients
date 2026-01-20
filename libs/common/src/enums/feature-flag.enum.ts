@@ -62,7 +62,6 @@ export enum FeatureFlag {
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
   RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
-  VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
 
@@ -122,7 +121,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
   [FeatureFlag.RiskInsightsForPremium]: FALSE,
-  [FeatureFlag.VaultLoadingSkeletons]: FALSE,
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
 
