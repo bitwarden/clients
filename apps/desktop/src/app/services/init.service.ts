@@ -1,7 +1,6 @@
-import { Inject, Injectable, DOCUMENT, Type } from "@angular/core";
+import { Inject, Injectable, DOCUMENT } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { Initializable } from "@bitwarden/angular/platform/abstractions/decentralized-init.service";
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
@@ -11,9 +10,9 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Dependency, Initializable } from "@bitwarden/common/platform/abstractions/initializable";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -42,30 +41,23 @@ export class InitService implements Initializable {
     private twoFactorService: TwoFactorService,
     private notificationsService: ServerNotificationsService,
     private platformUtilsService: PlatformUtilsServiceAbstraction,
-    private stateService: StateServiceAbstraction,
     private keyService: KeyServiceAbstraction,
-    private nativeMessagingService: NativeMessagingService,
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
     private userAutoUnlockKeyService: UserAutoUnlockKeyService,
     private accountService: AccountService,
     private versionService: VersionService,
-    private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
     private autotypeService: DesktopAutotypeService,
-    private sdkLoadService: SdkLoadService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
     private configService: ConfigService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
   ) {}
 
-  dependencies: Type<Initializable>[] = [];
+  dependencies: Dependency[] = [SdkLoadService, SshAgentService, NativeMessagingService];
 
   async init() {
-    await this.sdkLoadService.loadAndInit();
-    await this.sshAgentService.init();
-    this.nativeMessagingService.init();
     await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
     this.encryptService.init(this.configService);
 

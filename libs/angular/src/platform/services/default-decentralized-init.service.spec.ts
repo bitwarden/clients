@@ -2,7 +2,7 @@ import { Type } from "@angular/core";
 
 import { Initializable } from "../abstractions/decentralized-init.service";
 
-import { DecentralizedInitService } from "./decentralized-init.service";
+import { DefaultDecentralizedInitService } from "./default-decentralized-init.service";
 
 // Test service implementations
 class TestService implements Initializable {
@@ -23,7 +23,7 @@ function createTrackingService(name: string, executionOrder: string[]) {
   };
 }
 
-describe("DecentralizedInitService", () => {
+describe("DefaultDecentralizedInitService", () => {
   let executionOrder: string[];
 
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe("DecentralizedInitService", () => {
     describe("given no registered services", () => {
       it("completes without error when called", async () => {
         // Arrange
-        const sut = new DecentralizedInitService([]);
+        const sut = new DefaultDecentralizedInitService([]);
 
         // Act & Assert
         await expect(sut.init()).resolves.not.toThrow();
@@ -45,7 +45,7 @@ describe("DecentralizedInitService", () => {
       it("initializes a single service when called", async () => {
         // Arrange
         const service = new TestService();
-        const sut = new DecentralizedInitService([service]);
+        const sut = new DefaultDecentralizedInitService([service]);
 
         // Act
         await sut.init();
@@ -59,7 +59,7 @@ describe("DecentralizedInitService", () => {
         const service1 = new TestService();
         const service2 = new TestService();
         const service3 = new TestService();
-        const sut = new DecentralizedInitService([service1, service2, service3]);
+        const sut = new DefaultDecentralizedInitService([service1, service2, service3]);
 
         // Act
         await sut.init();
@@ -81,7 +81,7 @@ describe("DecentralizedInitService", () => {
         const serviceB = new ServiceB();
         serviceB.dependencies = [ServiceA];
 
-        const sut = new DecentralizedInitService([serviceB, serviceA]);
+        const sut = new DefaultDecentralizedInitService([serviceB, serviceA]);
 
         // Act
         await sut.init();
@@ -107,7 +107,7 @@ describe("DecentralizedInitService", () => {
         serviceC.dependencies = [ServiceA, ServiceB];
         serviceD.dependencies = [ServiceC];
 
-        const sut = new DecentralizedInitService([serviceD, serviceB, serviceC, serviceA]);
+        const sut = new DefaultDecentralizedInitService([serviceD, serviceB, serviceC, serviceA]);
 
         // Act
         await sut.init();
@@ -139,7 +139,7 @@ describe("DecentralizedInitService", () => {
         serviceC.dependencies = [ServiceA];
         serviceD.dependencies = [ServiceB, ServiceC];
 
-        const sut = new DecentralizedInitService([serviceD, serviceC, serviceB, serviceA]);
+        const sut = new DefaultDecentralizedInitService([serviceD, serviceC, serviceB, serviceA]);
 
         // Act
         await sut.init();
@@ -166,7 +166,7 @@ describe("DecentralizedInitService", () => {
         }
 
         const service = new CountingService();
-        const sut = new DecentralizedInitService([service]);
+        const sut = new DefaultDecentralizedInitService([service]);
 
         // Act
         await sut.init();
@@ -188,7 +188,7 @@ describe("DecentralizedInitService", () => {
         serviceA.dependencies = [ServiceB as Type<Initializable>];
         serviceB.dependencies = [ServiceA as Type<Initializable>];
 
-        const sut = new DecentralizedInitService([serviceA, serviceB]);
+        const sut = new DefaultDecentralizedInitService([serviceA, serviceB]);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/Circular dependency detected/);
@@ -208,7 +208,7 @@ describe("DecentralizedInitService", () => {
         serviceB.dependencies = [ServiceC as Type<Initializable>];
         serviceC.dependencies = [ServiceA as Type<Initializable>];
 
-        const sut = new DecentralizedInitService([serviceA, serviceB, serviceC]);
+        const sut = new DefaultDecentralizedInitService([serviceA, serviceB, serviceC]);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/Circular dependency detected/);
@@ -224,7 +224,7 @@ describe("DecentralizedInitService", () => {
         }
 
         const serviceB = new ServiceB();
-        const sut = new DecentralizedInitService([serviceB]);
+        const sut = new DefaultDecentralizedInitService([serviceB]);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/not registered in INIT_SERVICES/);
@@ -238,7 +238,7 @@ describe("DecentralizedInitService", () => {
         }
 
         const myService = new MyService();
-        const sut = new DecentralizedInitService([myService]);
+        const sut = new DefaultDecentralizedInitService([myService]);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow("MyService depends on MyDependency");
@@ -256,7 +256,7 @@ describe("DecentralizedInitService", () => {
         }
 
         const service = new FailingService();
-        const sut = new DecentralizedInitService([service]);
+        const sut = new DefaultDecentralizedInitService([service]);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/Failed to initialize FailingService/);
@@ -275,7 +275,7 @@ describe("DecentralizedInitService", () => {
         }
 
         const service = new SyncService();
-        const sut = new DecentralizedInitService([service]);
+        const sut = new DefaultDecentralizedInitService([service]);
 
         // Act
         await sut.init();
@@ -305,7 +305,7 @@ describe("DecentralizedInitService", () => {
 
         const syncService = new SyncService();
         const asyncService = new AsyncService();
-        const sut = new DecentralizedInitService([asyncService, syncService]);
+        const sut = new DefaultDecentralizedInitService([asyncService, syncService]);
 
         // Act
         await sut.init();

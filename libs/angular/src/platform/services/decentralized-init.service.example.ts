@@ -1,10 +1,10 @@
 /**
- * Example usage of DecentralizedInitService
+ * Example usage of DefaultDecentralizedInitService
  *
  * This file demonstrates how to:
  * 1. Make services implement Initializable
  * 2. Register services with INIT_SERVICES
- * 3. Use DecentralizedInitService in your app
+ * 3. Use DefaultDecentralizedInitService in your app
  *
  * This is NOT production code - it's a reference example.
  */
@@ -90,17 +90,17 @@ export const EXAMPLE_LIBRARY_PROVIDERS = [
 /**
  * In your app's main config (e.g., app.config.ts or main.ts):
  *
- * import { DecentralizedInitService } from '@bitwarden/angular/platform/services/decentralized-init.service';
+ * import { DefaultDecentralizedInitService } from '@bitwarden/angular/platform/services/default-decentralized-init.service';
  * import { EXAMPLE_LIBRARY_PROVIDERS } from '@bitwarden/angular/platform/services/decentralized-init.service.example';
  *
  * export const appConfig: ApplicationConfig = {
  *   providers: [
  *     ...EXAMPLE_LIBRARY_PROVIDERS,
- *     DecentralizedInitService,
+ *     DefaultDecentralizedInitService,
  *     {
  *       provide: APP_INITIALIZER,
- *       useFactory: (initService: DecentralizedInitService) => () => initService.init(),
- *       deps: [DecentralizedInitService],
+ *       useFactory: (initService: DefaultDecentralizedInitService) => () => initService.init(),
+ *       deps: [DefaultDecentralizedInitService],
  *       multi: true,
  *     },
  *   ]
@@ -110,7 +110,7 @@ export const EXAMPLE_LIBRARY_PROVIDERS = [
  *
  * @Component({ ... })
  * export class AppComponent {
- *   constructor(private initService: DecentralizedInitService) {}
+ *   constructor(private initService: DefaultDecentralizedInitService) {}
  *
  *   ngOnInit() {
  *     await this.initService.init();

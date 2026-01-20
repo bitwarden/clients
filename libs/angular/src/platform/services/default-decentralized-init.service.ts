@@ -1,8 +1,9 @@
-import { Inject, Injectable, Type } from "@angular/core";
+import { Inject, Injectable } from "@angular/core";
+
+import { Dependency, Initializable } from "@bitwarden/common/platform/abstractions/initializable";
 
 import {
-  DecentralizedInitService as DecentralizedInitServiceAbstraction,
-  Initializable,
+  DecentralizedInitService,
   INIT_SERVICES,
 } from "../abstractions/decentralized-init.service";
 
@@ -18,7 +19,7 @@ import {
  * - Executes init() methods sequentially in dependency order
  */
 @Injectable()
-export class DecentralizedInitService implements DecentralizedInitServiceAbstraction {
+export class DefaultDecentralizedInitService implements DecentralizedInitService {
   constructor(@Inject(INIT_SERVICES) private initServices: Initializable[]) {}
 
   async init(): Promise<void> {
@@ -46,9 +47,9 @@ export class DecentralizedInitService implements DecentralizedInitServiceAbstrac
    */
   private topologicalSort(services: Initializable[]): Initializable[] {
     // Build a map from constructor to instance for quick lookup
-    const instanceMap = new Map<Type<Initializable>, Initializable>();
+    const instanceMap = new Map<Dependency, Initializable>();
     for (const service of services) {
-      instanceMap.set(service.constructor as Type<Initializable>, service);
+      instanceMap.set(service.constructor as Dependency, service);
     }
 
     const sorted: Initializable[] = [];
@@ -70,7 +71,7 @@ export class DecentralizedInitService implements DecentralizedInitServiceAbstrac
       const currentPath = [...path, service.constructor.name];
 
       // Visit all dependencies first
-      for (const depClass of service.dependencies) {
+      for (const depClass of service.dependencies ?? []) {
         const depInstance = instanceMap.get(depClass);
 
         if (!depInstance) {

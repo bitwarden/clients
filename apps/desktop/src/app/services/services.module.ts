@@ -146,6 +146,7 @@ import { DesktopAutofillService } from "../../autofill/services/desktop-autofill
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
+import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
@@ -562,6 +563,9 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   initializableProvider(InitService),
+  initializableProvider(SdkLoadService),
+  // initializableProvider(flagEnabled("sdk") ? DefaultSdkLoadService : NoopSdkLoadService),
+  initializableProvider(SshAgentService),
 ];
 
 @NgModule({
