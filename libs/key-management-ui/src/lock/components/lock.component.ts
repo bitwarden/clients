@@ -6,7 +6,6 @@ import {
   BehaviorSubject,
   filter,
   firstValueFrom,
-  interval,
   timer,
   mergeMap,
   Subject,
