@@ -32,7 +32,7 @@
     "message": "Użyj logowania jednokrotnego"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Twoja organizacja wymaga logowania jednokrotnego."
   },
   "welcomeBack": {
     "message": "Witaj ponownie"
@@ -436,8 +436,8 @@
   "sync": {
     "message": "Synchronizacja"
   },
-  "syncVaultNow": {
-    "message": "Synchronizuj sejf"
+  "syncNow": {
+    "message": "Sync now"
   },
   "lastSync": {
     "message": "Ostatnia synchronizacja:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Aplikacja internetowa Bitwarden"
-  },
-  "importItems": {
-    "message": "Importuj elementy"
   },
   "select": {
     "message": "Wybierz"
@@ -576,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Element został przeniesiony do archiwum"
   },
+  "itemWasUnarchived": {
+    "message": "Element został usunięty z archiwum"
+  },
   "itemUnarchived": {
     "message": "Element został usunięty z archiwum"
   },
@@ -585,6 +585,18 @@
   "archiveItemConfirmDesc": {
     "message": "Zarchiwizowane elementy są wykluczone z wyników wyszukiwania i sugestii autouzupełniania. Czy na pewno chcesz archiwizować element?"
   },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
+  "itemRestored": {
+    "message": "Element został przywrócony"
+  },
   "edit": {
     "message": "Edytuj"
   },
@@ -592,7 +604,13 @@
     "message": "Pokaż"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Pokaż wszystko"
+  },
+  "showAll": {
+    "message": "Pokaż wszystko"
+  },
+  "viewLess": {
+    "message": "Pokaż mniej"
   },
   "viewLogin": {
     "message": "Pokaż dane logowania"
@@ -740,7 +758,7 @@
     "message": "Hasło główne jest nieprawidłowe"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Nieprawidłowe hasło główne. Sprawdź, czy Twój adres e-mail jest poprawny i czy Twoje konto zostało utworzone na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -795,6 +813,12 @@
   },
   "onLocked": {
     "message": "Po zablokowaniu urządzenia"
+  },
+  "onIdle": {
+    "message": "Podczas bezczynności systemu"
+  },
+  "onSleep": {
+    "message": "Podczas uśpienia systemu"
   },
   "onRestart": {
     "message": "Po uruchomieniu przeglądarki"
@@ -1035,10 +1059,10 @@
     "message": "Element został zapisany"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Zapisana strona internetowa"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Zapisane strony internetowe ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1310,8 +1334,21 @@
   "exportFrom": {
     "message": "Eksportuj z"
   },
-  "exportVault": {
-    "message": "Eksportuj sejf"
+  "exportVerb": {
+    "message": "Eksportuj",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importuj",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Format pliku"
@@ -1391,6 +1428,27 @@
   "learnMore": {
     "message": "Dowiedz się więcej"
   },
+  "migrationsFailed": {
+    "message": "Wystąpił błąd podczas aktualizacji ustawień szyfrowania."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Zaktualizuj ustawienia szyfrowania"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Wpisz hasło główne"
+  },
+  "updateSettings": {
+    "message": "Zaktualizuj ustawienia"
+  },
+  "later": {
+    "message": "Później"
+  },
   "authenticatorKeyTotp": {
     "message": "Klucz uwierzytelniający (TOTP)"
   },
@@ -1421,6 +1479,15 @@
   "attachmentSaved": {
     "message": "Załącznik został zapisany"
   },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
+  },
   "file": {
     "message": "Plik"
   },
@@ -1429,6 +1496,9 @@
   },
   "selectFile": {
     "message": "Wybierz plik"
+  },
+  "itemsTransferred": {
+    "message": "Items transferred"
   },
   "maxFileSize": {
     "message": "Maksymalny rozmiar pliku to 500 MB."
@@ -1460,11 +1530,29 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB miejsca na zaszyfrowane załączniki."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "Dostęp awaryjny."
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Specjalne opcje logowania dwustopniowego, takie jak YubiKey i Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Raporty bezpieczeństwa haseł, konta i wycieków danych, aby Twoje dane były bezpieczne."
@@ -1564,7 +1652,7 @@
     "message": "Odczytywanie klucza dostępu..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "Uwierzytelnienie za pomocą klucza nie powiodło się"
   },
   "useADifferentLogInMethod": {
     "message": "Użyj innej metody logowania"
@@ -1636,7 +1724,7 @@
     "message": "Musisz dodać podstawowy adres URL serwera lub co najmniej jedno niestandardowe środowisko."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "Adresy URL muszą używać protokołu HTTPS."
   },
   "customEnvironment": {
     "message": "Niestandardowe środowisko"
@@ -1692,28 +1780,28 @@
     "message": "Wyłącz autouzupełnianie"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "Potwierdź autouzupełnianie"
   },
   "confirmAutofillDesc": {
-    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+    "message": "Ta witryna nie pasuje do Twoich zapisanych danych logowania. Zanim wpiszesz dane logowania, upewnij się, że jest to zaufana witryna."
   },
   "showInlineMenuLabel": {
     "message": "Pokaż sugestie autouzupełniania na polach formularza"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "W jaki sposób Bitwarden chroni Twoje dane przed phishingiem?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Obecna strona internetowa"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "Uzupełnij i dodaj stronę internetową"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "Uzupełnij bez dodawania"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "Nie wypełniaj automatycznie"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Pokaż tożsamości w sugestiach"
@@ -1857,6 +1945,9 @@
   },
   "expirationYear": {
     "message": "Rok wygaśnięcia"
+  },
+  "monthly": {
+    "message": "miesiąc"
   },
   "expiration": {
     "message": "Data wygaśnięcia"
@@ -2426,6 +2517,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Ta strona zakłóca działanie Bitwarden. Menu Bitwarden zostało tymczasowo wyłączone ze względów bezpieczeństwa."
   },
   "setMasterPassword": {
     "message": "Ustaw hasło główne"
@@ -3189,9 +3283,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nie znaleziono unikatowego identyfikatora."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Hasło główne nie jest już wymagane dla członków następującej organizacji. Potwierdź poniższą domenę z administratorem organizacji."
-  },
   "organizationName": {
     "message": "Nazwa organizacji"
   },
@@ -3277,7 +3368,7 @@
     "message": "Błąd odszyfrowywania"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "Błąd podczas pobierania danych autouzupełniania"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden nie mógł odszyfrować poniższych elementów sejfu."
@@ -4051,13 +4142,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "Nie można automatycznie wypełnić"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "Domyślnie dopasowanie jest ustawione na „Dokładne dopasowanie”. Aktualna strona internetowa nie jest dokładnie taka sama jak zapisane dane logowania dla tego elementu."
   },
   "okay": {
-    "message": "Okay"
+    "message": "Ok"
   },
   "toggleSideNavigation": {
     "message": "Przełącz nawigację boczną"
@@ -4154,10 +4245,6 @@
   },
   "ignore": {
     "message": "Ignoruj"
-  },
-  "importData": {
-    "message": "Importuj dane",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Błąd importowania"
@@ -4742,8 +4829,50 @@
   "adminConsole": {
     "message": "Konsola administratora"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
   "accountSecurity": {
     "message": "Bezpieczeństwo konta"
+  },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
     "message": "Powiadomienia"
@@ -4890,6 +5019,9 @@
   "premium": {
     "message": "Premium"
   },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
+  },
   "freeOrgsCannotUseAttachments": {
     "message": "Darmowe organizacje nie mogą używać załączników"
   },
@@ -4975,7 +5107,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "Domyślne ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5586,6 +5718,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Zmień teraz"
+  },
   "missingWebsite": {
     "message": "Brak strony internetowej"
   },
@@ -5638,30 +5776,30 @@
     "message": "Witaj w sejfie!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "Wykryto próbę phishingu"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "Witryna, którą próbujesz odwiedzić, jest znaną złośliwą witryną i zagrożeniem bezpieczeństwa."
   },
   "phishingPageCloseTabV2": {
     "message": "Zamknij kartę"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "Przejdź do tej witryny (niezalecane)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "Ta witryna została znaleziona w ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": ", lista znanych witryn phishingowych, które służą do kradzieży danych osobowych i poufnych.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "Dowiedz się więcej o wykrywaniu phishingu"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "Chronione przez $PRODUCT$",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5774,34 +5912,49 @@
     "message": "Potwierdź domenę Key Connector"
   },
   "atRiskLoginsSecured": {
-    "message": "Great job securing your at-risk logins!"
+    "message": "Świetna robota z zabezpieczeniem Twoich zagrożonych danych logowania!"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Zaktualizuj teraz"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Wbudowany uwierzytelniacz"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Bezpieczne przechowywanie plików"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Dostęp awaryjny"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Monitorowanie naruszeń"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "I jeszcze więcej!"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Ulepsz do Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Poznaj Premium"
+  },
+  "loadingVault": {
+    "message": "Ładowanie sejfu"
+  },
+  "vaultLoaded": {
+    "message": "Sejf załadowany"
   },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "Ustawienie jest wyłączone przez Twoją organizację.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
@@ -5809,5 +5962,145 @@
   },
   "cardNumberLabel": {
     "message": "Numer karty"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Kontynuuj logowanie"
+  },
+  "doNotContinue": {
+    "message": "Nie kontynuuj"
+  },
+  "domain": {
+    "message": "Domena"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Sposób blokady"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Your organization has set the default session timeout to Immediately."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Opuść organizację $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Jak zarządzać sejfami?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Przenieś elementy do organizacji $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Zmień rozmiar nawigacji bocznej"
   }
 }

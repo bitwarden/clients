@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { delay, of } from "rxjs";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

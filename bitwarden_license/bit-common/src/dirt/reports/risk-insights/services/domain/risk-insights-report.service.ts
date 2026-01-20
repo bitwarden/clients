@@ -83,8 +83,8 @@ export class RiskInsightsReportService {
   getApplicationsSummary(
     reports: ApplicationHealthReportDetail[],
     applicationData: OrganizationReportApplication[],
+    totalMemberCount: number,
   ): OrganizationReportSummary {
-    const totalUniqueMembers = getUniqueMembers(reports.flatMap((x) => x.memberDetails));
     const atRiskUniqueMembers = getUniqueMembers(reports.flatMap((x) => x.atRiskMemberDetails));
 
     const criticalReports = this.filterApplicationsByCritical(reports, applicationData);
@@ -94,7 +94,7 @@ export class RiskInsightsReportService {
     );
 
     return {
-      totalMemberCount: totalUniqueMembers.length,
+      totalMemberCount: totalMemberCount,
       totalAtRiskMemberCount: atRiskUniqueMembers.length,
       totalApplicationCount: reports.length,
       totalAtRiskApplicationCount: reports.filter((app) => app.atRiskPasswordCount > 0).length,

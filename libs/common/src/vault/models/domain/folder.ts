@@ -23,8 +23,8 @@ export class Folder extends Domain {
     this.revisionDate = new Date(obj.revisionDate);
   }
 
-  decrypt(): Promise<FolderView> {
-    return this.decryptObj<Folder, FolderView>(this, new FolderView(this), ["name"], null);
+  decrypt(key: SymmetricCryptoKey): Promise<FolderView> {
+    return this.decryptObj<Folder, FolderView>(this, new FolderView(this), ["name"], key);
   }
 
   async decryptWithKey(

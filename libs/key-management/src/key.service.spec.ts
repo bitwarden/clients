@@ -69,10 +69,12 @@ describe("keyService", () => {
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     accountService = mockAccountServiceWith(mockUserId);
     masterPasswordService = new FakeMasterPasswordService();
     stateProvider = new FakeStateProvider(accountService);
+
+    await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
 
     keyService = new DefaultKeyService(
       masterPasswordService,
@@ -172,6 +174,32 @@ describe("keyService", () => {
     it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
       stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(hasKey ? mockUserKey : null);
       expect(await keyService.hasUserKey(mockUserId)).toBe(hasKey);
+    });
+  });
+
+  describe("makeUserKey", () => {
+    test.each([null as unknown as MasterKey, undefined as unknown as MasterKey])(
+      "throws when the provided masterKey is %s",
+      async (masterKey) => {
+        await expect(keyService.makeUserKey(masterKey)).rejects.toThrow("MasterKey is required");
+      },
+    );
+
+    it("encrypts the user key with the master key", async () => {
+      const mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
+      const mockEncryptedUserKey = makeEncString("encryptedUserKey");
+
+      keyGenerationService.createKey.mockResolvedValue(mockUserKey);
+      encryptService.wrapSymmetricKey.mockResolvedValue(mockEncryptedUserKey);
+      const stretchedMasterKey = new SymmetricCryptoKey(new Uint8Array(64));
+      keyGenerationService.stretchKey.mockResolvedValue(stretchedMasterKey);
+
+      const result = await keyService.makeUserKey(makeSymmetricCryptoKey<MasterKey>(32));
+
+      expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockUserKey, stretchedMasterKey);
+      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(result[0]).toBe(mockUserKey);
+      expect(result[1]).toBe(mockEncryptedUserKey);
     });
   });
 
@@ -409,14 +437,13 @@ describe("keyService", () => {
       );
     });
 
-    it("throws an error if unwrapping encrypted private key fails", async () => {
+    it("emits null if unwrapping encrypted private key fails", async () => {
       encryptService.unwrapDecapsulationKey.mockImplementationOnce(() => {
         throw new Error("Unwrapping failed");
       });
 
-      await expect(firstValueFrom(keyService.userPrivateKey$(mockUserId))).rejects.toThrow(
-        "Unwrapping failed",
-      );
+      const result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
+      expect(result).toBeNull();
     });
 
     it("returns null if user key is not set", async () => {
@@ -1354,6 +1381,51 @@ describe("keyService", () => {
       const result = await firstValueFrom(keyService.providerKeys$(mockUserId));
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe("encryptUserKeyWithMasterKey", () => {
+    const mockMasterKey = makeSymmetricCryptoKey<MasterKey>(32);
+    const mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
+
+    test.each([null as unknown as MasterKey, undefined as unknown as MasterKey])(
+      "throws when the provided master key is %s",
+      async (key) => {
+        await expect(keyService.encryptUserKeyWithMasterKey(key, mockUserKey)).rejects.toThrow(
+          "masterKey is required.",
+        );
+      },
+    );
+
+    test.each([null as unknown as UserKey, undefined as unknown as UserKey])(
+      "throws when the provided userKey key is %s",
+      async (key) => {
+        await expect(keyService.encryptUserKeyWithMasterKey(mockMasterKey, key)).rejects.toThrow(
+          "userKey is required.",
+        );
+      },
+    );
+
+    it("throws with invalid master key size", async () => {
+      const invalidMasterKey = new SymmetricCryptoKey(new Uint8Array(78)) as MasterKey;
+
+      await expect(
+        keyService.encryptUserKeyWithMasterKey(invalidMasterKey, mockUserKey),
+      ).rejects.toThrow("Invalid key size.");
+    });
+
+    it("encrypts the user key with the master key", async () => {
+      const mockEncryptedUserKey = makeEncString("encryptedUserKey");
+
+      encryptService.wrapSymmetricKey.mockResolvedValue(mockEncryptedUserKey);
+      const stretchedMasterKey = new SymmetricCryptoKey(new Uint8Array(64));
+      keyGenerationService.stretchKey.mockResolvedValue(stretchedMasterKey);
+
+      const result = await keyService.encryptUserKeyWithMasterKey(mockMasterKey, mockUserKey);
+
+      expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockUserKey, stretchedMasterKey);
+      expect(result[0]).toBe(mockUserKey);
+      expect(result[1]).toBe(mockEncryptedUserKey);
     });
   });
 

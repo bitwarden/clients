@@ -3,13 +3,13 @@ import * as JSZip from "jszip";
 import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
@@ -167,7 +167,7 @@ describe("VaultExportService", () => {
   let exportService: IndividualVaultExportService;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let cipherService: MockProxy<CipherService>;
-  let pinService: MockProxy<PinServiceAbstraction>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
   let folderService: MockProxy<FolderService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
@@ -182,7 +182,7 @@ describe("VaultExportService", () => {
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
     cipherService = mock<CipherService>();
-    pinService = mock<PinServiceAbstraction>();
+    keyGenerationService = mock<KeyGenerationService>();
     folderService = mock<FolderService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
@@ -218,7 +218,7 @@ describe("VaultExportService", () => {
     exportService = new IndividualVaultExportService(
       folderService,
       cipherService,
-      pinService,
+      keyGenerationService,
       keyService,
       encryptService,
       cryptoFunctionService,
@@ -522,6 +522,20 @@ describe("VaultExportService", () => {
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualFolders(UserFolders, exportedData.data);
+  });
+
+  it("does not export the key property in unencrypted exports", async () => {
+    // Create a cipher with a key property
+    const cipherWithKey = generateCipherView(false);
+    (cipherWithKey as any).key = "shouldBeDeleted";
+    cipherService.getAllDecrypted.mockResolvedValue([cipherWithKey]);
+
+    const actual = await exportService.getExport(userId, "json");
+    expect(typeof actual.data).toBe("string");
+    const exportedData = actual as ExportedVaultAsString;
+    const parsed = JSON.parse(exportedData.data);
+    expect(parsed.items.length).toBe(1);
+    expect(parsed.items[0].key).toBeUndefined();
   });
 });
 

@@ -25,7 +25,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -33,12 +32,12 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { OrganizationFilter } from "@bitwarden/vault";
 
 import { OrganizationUserResetPasswordService } from "../../../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { EnrollMasterPasswordReset } from "../../../../admin-console/organizations/users/enroll-master-password-reset.component";
 import { LinkSsoService } from "../../../../auth/core/services";
 import { OptionsInput } from "../shared/components/vault-filter-section.component";
-import { OrganizationFilter } from "../shared/models/vault-filter.type";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -96,7 +95,10 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     combineLatest([
       this.organization$,
       resetPasswordPolicies$,
-      this.userDecryptionOptionsService.userDecryptionOptions$,
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.userDecryptionOptionsService.userDecryptionOptionsById$(userId)),
+      ),
       managingOrg$,
     ])
       .pipe(takeUntil(this.destroy$))
@@ -181,13 +183,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("unlinkedSso"),
       });
 
-      const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM22110_DisableAlternateLoginMethods,
-      );
-
-      if (disableAlternateLoginMethodsFlagEnabled) {
-        await this.removeEmailFromSsoRequiredCacheIfPresent();
-      }
+      await this.removeEmailFromSsoRequiredCacheIfPresent();
     } catch (e) {
       this.logService.error(e);
     }
@@ -214,13 +210,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("leftOrganization"),
       });
 
-      const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM22110_DisableAlternateLoginMethods,
-      );
-
-      if (disableAlternateLoginMethodsFlagEnabled) {
-        await this.removeEmailFromSsoRequiredCacheIfPresent();
-      }
+      await this.removeEmailFromSsoRequiredCacheIfPresent();
     } catch (e) {
       this.logService.error(e);
     }

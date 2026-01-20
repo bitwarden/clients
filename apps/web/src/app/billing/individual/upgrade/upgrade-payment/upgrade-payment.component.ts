@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   DestroyRef,
   input,
   OnInit,
@@ -8,7 +9,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import {
   debounceTime,
@@ -21,6 +22,7 @@ import {
   combineLatest,
   map,
   shareReplay,
+  defer,
 } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -34,7 +36,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { CartSummaryComponent, LineItem } from "@bitwarden/pricing";
+import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -104,8 +106,6 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   protected readonly account = input.required<Account>();
   protected goBack = output<void>();
   protected complete = output<UpgradePaymentResult>();
-  protected selectedPlan: PlanDetails | null = null;
-  protected hasEnoughAccountCredit$!: Observable<boolean>;
 
   readonly paymentComponent = viewChild.required(EnterPaymentMethodComponent);
   readonly cartSummaryComponent = viewChild.required(CartSummaryComponent);
@@ -116,15 +116,51 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
+  protected readonly selectedPlan = signal<PlanDetails | null>(null);
   protected readonly loading = signal(true);
+  protected readonly upgradeToMessage = signal("");
+
+  protected hasEnoughAccountCredit$!: Observable<boolean>;
   private pricingTiers$!: Observable<PersonalSubscriptionPricingTier[]>;
 
-  // Cart Summary data
-  protected passwordManager!: LineItem;
-  protected estimatedTax$!: Observable<number>;
+  // Use defer to lazily create the observable when subscribed to
+  protected estimatedTax$ = defer(() =>
+    this.formGroup.controls.billingAddress.valueChanges.pipe(
+      startWith(this.formGroup.controls.billingAddress.value),
+      debounceTime(1000),
+      switchMap(() => this.refreshSalesTax$()),
+    ),
+  );
 
-  // Display data
-  protected upgradeToMessage = "";
+  // Convert estimatedTax$ to signal for use in computed cart
+  protected readonly estimatedTax = toSignal(this.estimatedTax$, {
+    initialValue: this.INITIAL_TAX_VALUE,
+  });
+
+  // Cart Summary data
+  protected readonly cart = computed<Cart>(() => {
+    if (!this.selectedPlan()) {
+      return {
+        passwordManager: {
+          seats: { translationKey: "", cost: 0, quantity: 0 },
+        },
+        cadence: "annually",
+        estimatedTax: 0,
+      };
+    }
+
+    return {
+      passwordManager: {
+        seats: {
+          translationKey: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
+          cost: this.selectedPlan()!.details.passwordManager.annualPrice ?? 0,
+          quantity: 1,
+        },
+      },
+      cadence: "annually",
+      estimatedTax: this.estimatedTax() ?? 0,
+    };
+  });
 
   constructor(
     private i18nService: I18nService,
@@ -162,32 +198,19 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
         const planDetails = plans.find((plan) => plan.id === this.selectedPlanId());
 
         if (planDetails) {
-          this.selectedPlan = {
+          this.selectedPlan.set({
             tier: this.selectedPlanId(),
             details: planDetails,
-          };
-          this.passwordManager = {
-            name: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
-            cost: this.selectedPlan.details.passwordManager.annualPrice,
-            quantity: 1,
-            cadence: "year",
-          };
+          });
 
-          this.upgradeToMessage = this.i18nService.t(
-            this.isFamiliesPlan ? "startFreeFamiliesTrial" : "upgradeToPremium",
+          this.upgradeToMessage.set(
+            this.i18nService.t(this.isFamiliesPlan ? "startFreeFamiliesTrial" : "upgradeToPremium"),
           );
         } else {
           this.complete.emit({ status: UpgradePaymentStatus.Closed, organizationId: null });
           return;
         }
       });
-
-    this.estimatedTax$ = this.formGroup.controls.billingAddress.valueChanges.pipe(
-      startWith(this.formGroup.controls.billingAddress.value),
-      debounceTime(1000),
-      // Only proceed when form has required values
-      switchMap(() => this.refreshSalesTax$()),
-    );
 
     this.loading.set(false);
   }
@@ -228,7 +251,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (!this.selectedPlan) {
+    if (!this.selectedPlan()) {
       throw new Error("No plan selected");
     }
 
@@ -260,7 +283,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   }
 
   private async processUpgrade(): Promise<UpgradePaymentResult> {
-    if (!this.selectedPlan) {
+    if (!this.selectedPlan()) {
       throw new Error("No plan selected");
     }
 
@@ -308,7 +331,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
     const response = await this.upgradePaymentService.upgradeToFamilies(
       this.account(),
-      this.selectedPlan!,
+      this.selectedPlan()!,
       paymentMethod,
       paymentFormValues,
     );
@@ -344,7 +367,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
   // Create an observable for tax calculation
   private refreshSalesTax$(): Observable<number> {
-    if (this.formGroup.invalid || !this.selectedPlan) {
+    if (this.formGroup.invalid || !this.selectedPlan()) {
       return of(this.INITIAL_TAX_VALUE);
     }
 
@@ -353,7 +376,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       return of(this.INITIAL_TAX_VALUE);
     }
     return from(
-      this.upgradePaymentService.calculateEstimatedTax(this.selectedPlan, billingAddress),
+      this.upgradePaymentService.calculateEstimatedTax(this.selectedPlan()!, billingAddress),
     ).pipe(
       catchError((error: unknown) => {
         this.logService.error("Tax calculation failed:", error);

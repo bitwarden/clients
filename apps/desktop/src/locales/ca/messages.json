@@ -42,7 +42,7 @@
     "message": "Cerca en la caixa forta"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Restableix la cerca"
   },
   "addItem": {
     "message": "Afegeix element"
@@ -70,7 +70,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "No teniu permisos per editar aquest element"
   },
   "welcomeBack": {
     "message": "Benvingut/da de nou"
@@ -99,6 +99,74 @@
         "example": "2"
       }
     }
+  },
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Private note"
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "new": {
+    "message": "New",
+    "description": "for adding new items"
   },
   "newUri": {
     "message": "Nova URI"
@@ -706,10 +774,22 @@
     "message": "S'ha guardat el fitxer adjunt."
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Afig adjunt"
+  },
+  "itemsTransferred": {
+    "message": "Items transferred"
+  },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "La mida màxima del fitxer és de 500 MB"
   },
   "file": {
     "message": "Fitxer"
@@ -757,7 +837,7 @@
     "message": "Inicia sessió a Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Introduïu el codi que us hem enviat al correu electrònic"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "Introduïu el codi de la vostra aplicació d'autenticació"
@@ -908,6 +988,12 @@
   "unexpectedError": {
     "message": "S'ha produït un error inesperat."
   },
+  "unexpectedErrorShort": {
+    "message": "Unexpected error"
+  },
+  "closeThisBitwardenWindow": {
+    "message": "Close this Bitwarden window and try again."
+  },
   "itemInformation": {
     "message": "Informació de l'element"
   },
@@ -954,14 +1040,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "No ho torneu a preguntar en aquest dispositiu durant 30 dies"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Utilitzeu el codi de recuperació"
   },
   "insertU2f": {
     "message": "Introduïu la vostra clau de seguretat al port USB de l'ordinador. Si té un botó, premeu-lo."
@@ -1093,6 +1179,24 @@
   "learnMore": {
     "message": "Més informació"
   },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
   "featureUnavailable": {
     "message": "Característica no disponible"
   },
@@ -1162,8 +1266,8 @@
   "followUs": {
     "message": "Seguiu-nos"
   },
-  "syncVault": {
-    "message": "Sincronitza la caixa forta"
+  "syncNow": {
+    "message": "Sync now"
   },
   "changeMasterPass": {
     "message": "Canvia la contrasenya mestra"
@@ -1467,7 +1571,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "núm. targeta de crèdit"
   },
   "premiumMembership": {
     "message": "Subscripció Premium"
@@ -1489,6 +1593,15 @@
   },
   "premiumSignUpStorage": {
     "message": "1 GB d'emmagatzematge xifrat per als fitxers adjunts."
+  },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opcions propietàries de doble factor com ara YubiKey i Duo."
@@ -1730,8 +1843,21 @@
   "exportFrom": {
     "message": "Exporta des de"
   },
-  "exportVault": {
-    "message": "Exporta caixa forta"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Format de fitxer"
@@ -1862,10 +1988,10 @@
     "message": "Bloqueja amb la contrasenya mestra en reiniciar"
   },
   "requireMasterPasswordOrPinOnAppRestart": {
-    "message": "Require master password or PIN on app restart"
+    "message": "Sol·licita la contrasenya mestra o el PIN en reiniciar l'aplicació"
   },
   "requireMasterPasswordOnAppRestart": {
-    "message": "Require master password on app restart"
+    "message": "Sol·licita la contrasenya mestra en reiniciar l'aplicació"
   },
   "deleteAccount": {
     "message": "Suprimeix el compte"
@@ -2023,7 +2149,7 @@
     "message": "Make 2-step verification seamless"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden pot emmagatzemar i omplir codis de verificació en dos passos. Copieu i enganxeu la clau en aquest camp."
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
@@ -2048,7 +2174,7 @@
     }
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Targeta de crèdit caducada"
   },
   "cardExpiredMessage": {
     "message": "If you've renewed it, update the card's information"
@@ -2150,9 +2276,6 @@
   "browserIntegrationErrorDesc": {
     "message": "S'ha produït un error en activar la integració del navegador."
   },
-  "browserIntegrationMasOnlyDesc": {
-    "message": "Malauradament, la integració del navegador només és compatible amb la versió de Mac App Store."
-  },
   "browserIntegrationWindowsStoreDesc": {
     "message": "Malauradament, la integració del navegador només és compatible amb la versió de Microsoft Store."
   },
@@ -2230,6 +2353,10 @@
   },
   "contactInfo": {
     "message": "Informació de contacte"
+  },
+  "send": {
+    "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Tots els Send",
@@ -2350,6 +2477,10 @@
   },
   "deleteSendConfirmation": {
     "message": "Esteu segur que voleu suprimir aquest Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copySendLink": {
+    "message": "Copy Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -2590,9 +2721,6 @@
   },
   "removedMasterPassword": {
     "message": "S'ha suprimit la contrasenya mestra."
-  },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Ja no cal contrasenya mestra per als membres de la següent organització. Confirmeu el domini següent amb l'administrador de l'organització."
   },
   "organizationName": {
     "message": "Nom de l'organització"
@@ -2994,7 +3122,8 @@
     "message": "Esteu segur que voleu utilitzar l'opció \"Mai\"? En configurar les opcions de bloqueig a \"Mai\" s'emmagatzema la clau de xifratge de la vostra caixa forta al vostre dispositiu. Si utilitzeu aquesta opció, heu d'assegurar-vos que conserveu el dispositiu degudament protegit."
   },
   "vault": {
-    "message": "Caixa forta"
+    "message": "Caixa forta",
+    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
   "loginWithMasterPassword": {
     "message": "Inici de sessió amb contrasenya mestra"
@@ -3092,18 +3221,18 @@
     "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Aplicació web"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Mòbil",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Extensió",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Escriptori",
     "description": "Desktop app"
   },
   "cli": {
@@ -3114,10 +3243,10 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "Servidor"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Petició d'inici de sessió"
   },
   "deviceType": {
     "message": "Tipus de dispositiu"
@@ -3447,10 +3576,6 @@
   },
   "aliasDomain": {
     "message": "Domini d'àlies"
-  },
-  "importData": {
-    "message": "Importa dades",
-    "description": "Used for the desktop menu item and the header of the import dialog"
   },
   "importError": {
     "message": "Error d'importació"
@@ -3857,6 +3982,75 @@
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
   },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
+  },
+  "passkeyLogin": {
+    "message": "Log in with passkey?"
+  },
+  "savePasskeyQuestion": {
+    "message": "Save passkey?"
+  },
+  "saveNewPasskey": {
+    "message": "Save as new login"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Save passkey as new login"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "No matching logins for this site"
+  },
+  "overwritePasskey": {
+    "message": "Overwrite passkey?"
+  },
+  "unableToSavePasskey": {
+    "message": "Unable to save passkey"
+  },
+  "alreadyContainsPasskey": {
+    "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "A passkey already exists for this application."
+  },
+  "applicationDoesNotSupportDuplicates": {
+    "message": "This application does not support duplicates."
+  },
+  "closeThisWindow": {
+    "message": "Close this window"
+  },
   "allowScreenshots": {
     "message": "Permet capturar la pantalla"
   },
@@ -3880,6 +4074,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "Missing website"
@@ -3909,9 +4109,15 @@
     "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
   "sendsBodyNoItems": {
     "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
   },
   "generatorNudgeTitle": {
     "message": "Quickly create passwords"
@@ -4131,8 +4337,8 @@
   "typeShortcut": {
     "message": "Type shortcut"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, or Shift, and a letter."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "Invalid shortcut"
@@ -4170,6 +4376,9 @@
   "unArchive": {
     "message": "Unarchive"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "itemsInArchive": {
     "message": "Items in archive"
   },
@@ -4190,6 +4399,21 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / Postal code"
@@ -4215,10 +4439,150 @@
   "andMoreFeatures": {
     "message": "And more!"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
   }
 }

@@ -3,7 +3,7 @@
     "message": "همه‌ برنامه‌ها"
   },
   "activity": {
-    "message": "Activity"
+    "message": "فعالیت"
   },
   "appLogoLabel": {
     "message": "لوگو Bitwarden"
@@ -21,13 +21,13 @@
     "message": "خطر کلمه عبور"
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "شما مجاز به ویرایش این مورد نیستید"
   },
   "reviewAtRiskPasswords": {
     "message": "کلمات عبور در معرض خطر (ضعیف، افشا شده یا تکراری) را در برنامه‌ها بررسی کنید. برنامه‌های حیاتی خود را انتخاب کنید تا اقدامات امنیتی را برای کاربران‌تان اولویت‌بندی کنید و به کلمات عبور در معرض خطر رسیدگی کنید."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Review at-risk logins"
+    "message": "بررسی ورودهای پرخطر"
   },
   "dataLastUpdated": {
     "message": "آخرین به‌روزرسانی داده‌ها: $DATE$",
@@ -39,7 +39,7 @@
     }
   },
   "noReportRan": {
-    "message": "You have not created a report yet"
+    "message": "شما هنوز گزارشی ایجاد نکرده‌اید"
   },
   "notifiedMembers": {
     "message": "اعضای مطلع شده"
@@ -66,7 +66,7 @@
     "message": "ایجاد مورد ورود جدید"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$ درصد انجام شده",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -75,7 +75,7 @@
     }
   },
   "securityTasksCompleted": {
-    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "message": "$COUNT$ مورد از $TOTAL$ کار امنیتی انجام شده است",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -88,28 +88,28 @@
     }
   },
   "passwordChangeProgress": {
-    "message": "Password change progress"
+    "message": "وضعیت تغییر رمزهای عبور"
   },
   "assignMembersTasksToMonitorProgress": {
-    "message": "Assign members tasks to monitor progress"
+    "message": "به اعضا وظیفه بدهید تا روند کار را رصد کنند"
   },
-  "onceYouReviewApps": {
-    "message": "Once you review applications and mark them as critical, you can assign tasks to members to resolve at-risk items and monitor progress here"
+  "onceYouReviewApplications": {
+    "message": "وقتی برنامه‌ها را بررسی کردید و آنها را به عنوان مهم علامت زدید، به اعضای تیم خود وظیفه دهید که رمزهایشان را تغییر دهند."
   },
   "sendReminders": {
-    "message": "Send reminders"
+    "message": "ارسال يادآوری"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "وقتی برنامه‌ای را مهم علامت بزنید، اینجا نمایش داده می‌شود."
   },
   "viewAtRiskMembers": {
-    "message": "View at-risk members"
+    "message": "مشاهده اعضای در خطر"
   },
   "viewAtRiskApplications": {
-    "message": "View at-risk applications"
+    "message": "مشاهده برنامه‌های در خطر"
   },
   "criticalApplicationsAreAtRisk": {
-    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "message": "$COUNT$ مورد از $TOTAL$ برنامه مهم به دلیل رمزهای ضعیف در خطر هستند",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -131,10 +131,10 @@
     }
   },
   "criticalApplicationsMarked": {
-    "message": "critical applications marked"
+    "message": "برنامه‌های مهم علامت‌گذاری شده"
   },
   "countOfCriticalApplications": {
-    "message": "$COUNT$ critical applications",
+    "message": "$COUNT$ برنامه مهم",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -143,7 +143,7 @@
     }
   },
   "countOfApplicationsAtRisk": {
-    "message": "$COUNT$ applications at-risk",
+    "message": "$COUNT$ رمز عبور در خطر",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -152,7 +152,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ passwords at-risk",
+    "message": "$COUNT$ رمز عبور جدید در خطر",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -161,7 +161,7 @@
     }
   },
   "newPasswordsAtRisk": {
-    "message": "$COUNT$ new passwords at-risk",
+    "message": "$COUNT$ رمز عبور جدید در خطر",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -178,71 +178,65 @@
       }
     }
   },
-  "noApplicationsInOrgTitle": {
-    "message": "No applications found for $ORG NAME$",
-    "placeholders": {
-      "org name": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+  "noDataInOrgTitle": {
+    "message": "اطلاعاتی وجود ندارد"
   },
-  "noApplicationsInOrgDescription": {
-    "message": "Import your organization's login data to start monitoring credential security risks. Once imported you get to:"
+  "noDataInOrgDescription": {
+    "message": "اطلاعات ورود سازمان خود را وارد کنید تا با هوش دسترسی شروع کنید. بعد از این کار می‌توانید:"
   },
-  "benefit1Title": {
-    "message": "Prioritize risks"
+  "feature1Title": {
+    "message": "علامت‌گذاری برنامه‌ها به عنوان مهم"
   },
-  "benefit1Description": {
-    "message": "Focus on applications that matter the most"
+  "feature1Description": {
+    "message": "این کار به شما کمک می‌کند ابتدا خطرات برنامه‌های مهم خود را برطرف کنید."
   },
-  "benefit2Title": {
-    "message": "Guide remediation"
+  "feature2Title": {
+    "message": "کمک به اعضا برای بهبود امنیتشان"
   },
-  "benefit2Description": {
-    "message": "Assign at-risk members guided tasks to rotate at-risk credentials"
+  "feature2Description": {
+    "message": "به اعضای در خطر وظایف امنیتی راهنما شده بدهید تا اطلاعات ورودشان را به‌روز کنند."
   },
-  "benefit3Title": {
-    "message": "Monitor progress"
+  "feature3Title": {
+    "message": "نظارت بر پیشرفت"
   },
-  "benefit3Description": {
-    "message": "Track changes over time to show security improvements"
+  "feature3Description": {
+    "message": "تغییرات را در طول زمان دنبال کنید تا بهبود امنیت را نشان دهید."
   },
-  "noReportRunTitle": {
-    "message": "Run your first report to see applications"
+  "noReportsRunTitle": {
+    "message": "ایجاد گزارش"
   },
-  "noReportRunDescription": {
-    "message": "Generate a risk insights report to analyze your organization's applications and identify at-risk passwords that need attention. Running your first report will:"
+  "noReportsRunDescription": {
+    "message": "شما آماده ایجاد گزارش هستید. بعد از ایجاد گزارش می‌توانید:"
   },
   "noCriticalApplicationsTitle": {
-    "message": "You haven’t marked any applications as critical"
+    "message": "شما هیچ برنامه‌ای را به عنوان مهم علامت نزده‌اید"
   },
   "noCriticalApplicationsDescription": {
-    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "مهم‌ترین برنامه‌های خود را انتخاب کنید تا اقدامات امنیتی برای کاربران در مورد رمزهای ضعیف اولویت‌بندی شود."
   },
   "markCriticalApplications": {
-    "message": "Select critical applications"
+    "message": "انتخاب برنامه‌های مهم"
   },
   "markAppAsCritical": {
     "message": "برنامه را به عنوان حیاتی علامت‌گذاری کنید"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "علامت‌گذاری به عنوان مهم"
   },
   "applicationsSelected": {
-    "message": "applications selected"
+    "message": "برنامه انتخاب شده"
   },
   "selectApplication": {
-    "message": "Select application"
+    "message": "برنامه را انتخاب کنید"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "لغو انتخاب برنامه"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "برنامه‌های علامت گذاری شده به عنوان حیاتی"
   },
   "criticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked as critical",
+    "message": "$COUNT$ برنامه به عنوان مهم علامت زده شد",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -251,7 +245,7 @@
     }
   },
   "applicationsMarkedAsCriticalFail": {
-    "message": "Failed to mark applications as critical"
+    "message": "علامت‌گذاری برنامه‌ها به عنوان مهم ناموفق بود"
   },
   "application": {
     "message": "برنامه"
@@ -271,17 +265,17 @@
   "atRiskMembers": {
     "message": "اعضای در معرض خطر"
   },
-  "membersWithAccessToAtRiskItemsForCriticalApps": {
-    "message": "Members with access to at-risk items for critical applications"
+  "membersWithAccessToAtRiskItemsForCriticalApplications": {
+    "message": "این اعضا به موارد آسیب‌پذیر برنامه‌های مهم دسترسی دارند."
   },
   "membersWithAtRiskPasswords": {
-    "message": "Members with at-risk passwords"
+    "message": "اعضایی با رمزهای عبور ضعیف"
   },
-  "membersWillReceiveNotification": {
-    "message": "Members will receive a notification to resolve at-risk logins through the browser extension."
+  "membersWillReceiveSecurityTask": {
+    "message": "به اعضای سازمان شما وظیفه تغییر رمزهای آسیب‌پذیر داده می‌شود. آن‌ها در افزونه مرورگر Bitwarden خود اعلان دریافت می‌کنند."
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ members at-risk",
+    "message": "$COUNT$ عضو در خطر",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -307,8 +301,8 @@
       }
     }
   },
-  "atRiskMembersDescription": {
-    "message": "این اعضا با کلمات عبور ضعیف، افشا شده یا تکراری وارد برنامه‌ها می‌شوند."
+  "atRiskMemberDescription": {
+    "message": "این اعضا با رمزهای ضعیف، افشا شده یا تکراری وارد برنامه‌های مهم می‌شوند."
   },
   "atRiskMembersDescriptionNone": {
     "message": "هیچ عضوی با کلمات عبور ضعیف، افشا شده یا تکراری وارد برنامه‌ها نمی‌شود."
@@ -347,10 +341,13 @@
     "message": "کل برنامه‌ها"
   },
   "applicationsNeedingReview": {
-    "message": "Applications needing review"
+    "message": "برنامه‌هایی که نیاز به بررسی دارند"
+  },
+  "newApplicationsCardTitle": {
+    "message": "بررسی برنامه‌های جدید"
   },
   "newApplicationsWithCount": {
-    "message": "$COUNT$ new applications",
+    "message": "$COUNT$ برنامه جدید",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -359,28 +356,43 @@
     }
   },
   "newApplicationsDescription": {
-    "message": "Review new applications to mark as critical and keep your organization secure"
+    "message": "برنامه‌های جدید را بررسی کنید، آنها را به عنوان مهم علامت بزنید و سازمان خود را ایمن نگه دارید"
   },
   "reviewNow": {
-    "message": "Review now"
+    "message": "همین حالا بررسی کنید"
   },
   "allCaughtUp": {
-    "message": "All caught up!"
+    "message": "همه چیز انجام شد!"
   },
   "noNewApplicationsToReviewAtThisTime": {
-    "message": "No new applications to review at this time"
+    "message": "در حال حاضر برنامه جدیدی برای بررسی وجود ندارد"
+  },
+  "organizationHasItemsSavedForApplications": {
+    "message": "Your organization has items saved for $COUNT$ applications",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "310"
+      }
+    }
+  },
+  "reviewApplicationsToSecureItems": {
+    "message": "Review applications to secure the items most critical to your organization's security"
+  },
+  "reviewApplications": {
+    "message": "Review applications"
   },
   "prioritizeCriticalApplications": {
     "message": "Prioritize critical applications"
   },
-  "selectCriticalApplicationsDescription": {
-    "message": "Select which applications are most critical to your organization, then assign security tasks to members to resolve risks."
+  "selectCriticalAppsDescription": {
+    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "reviewNewApplications": {
     "message": "Review new applications"
   },
-  "reviewNewApplicationsDescription": {
-    "message": "We've highlighted at-risk items for new applications stored in Admin console that have weak, exposed, or reused passwords."
+  "reviewNewAppsDescription": {
+    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Click the star icon to mark an app as critical"
@@ -1737,6 +1749,9 @@
   "noMembersInList": {
     "message": "هیچ عضوی برای نمایش وجود ندارد."
   },
+  "noMembersToExport": {
+    "message": "There are no members to export."
+  },
   "noEventsInList": {
     "message": "هیچ مناسبتی برای نمایش وجود ندارد."
   },
@@ -1957,17 +1972,16 @@
   "encExportAccountWarningDesc": {
     "message": "کلیدهای رمزگذاری حساب برای هر حساب کاربری Bitwarden منحصر به فرد است، بنابراین نمی‌توانید برون ریزی رمزگذاری شده را به حساب دیگری وارد کنید."
   },
-  "export": {
-    "message": "برون ریزی"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "برون ریزی از"
-  },
-  "exportVault": {
-    "message": "برون ریزی گاوصندوق"
-  },
-  "exportSecrets": {
-    "message": "برون ریزی رازها"
   },
   "fileFormat": {
     "message": "فرمت پرونده"
@@ -1980,9 +1994,6 @@
   },
   "confirmMasterPassword": {
     "message": "تأیید کلمه عبور اصلی"
-  },
-  "confirmFormat": {
-    "message": "فرمت را تأیید کنید"
   },
   "filePassword": {
     "message": "کلمه عبور پرونده"
@@ -2294,6 +2305,14 @@
   "tools": {
     "message": "ابزار"
   },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
+  },
   "importData": {
     "message": "درون ریزی داده"
   },
@@ -2521,6 +2540,9 @@
   "enabled": {
     "message": "روشن شده"
   },
+  "optionEnabled": {
+    "message": "Enabled"
+  },
   "restoreAccess": {
     "message": "بازیابی دسترسی"
   },
@@ -2617,6 +2639,9 @@
   },
   "key": {
     "message": "کلید"
+  },
+  "unnamedKey": {
+    "message": "Unnamed key"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "کد تأیید"
@@ -3050,6 +3075,15 @@
   "premiumSignUpStorage": {
     "message": "۱ گیگابایت فضای ذخیره‌سازی رمزنگاری شده برای پرونده‌های پیوست."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "گزینه های ورود اضافی دو مرحله ای مانند YubiKey و Duo."
   },
@@ -3111,6 +3145,18 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "premiumSubscriptionEndedDesc": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "additionalStorageGb": {
     "message": "ذخیره‌سازی های اضافی (GB)"
@@ -3232,8 +3278,17 @@
   "nextCharge": {
     "message": "شارژ بعدی"
   },
+  "nextChargeHeader": {
+    "message": "Next Charge"
+  },
+  "plan": {
+    "message": "Plan"
+  },
   "details": {
     "message": "جزئیات"
+  },
+  "discount": {
+    "message": "discount"
   },
   "downloadLicense": {
     "message": "دانلود مجوز"
@@ -3249,6 +3304,9 @@
   },
   "launchCloudSubscription": {
     "message": "اشتراک Cloud را راه اندازی کنید"
+  },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Launch cloud subscription"
   },
   "storage": {
     "message": "حافظه"
@@ -4165,6 +4223,12 @@
       }
     }
   },
+  "userAcceptedTransfer": {
+    "message": "Accepted transfer to organization ownership."
+  },
+  "userDeclinedTransfer": {
+    "message": "Revoked for declining transfer to organization ownership."
+  },
   "invitedUserId": {
     "message": "کاربر $ID$ دعوت شد.",
     "placeholders": {
@@ -4442,6 +4506,30 @@
   "generatingYourAccessIntelligence": {
     "message": "Generating your Access Intelligence..."
   },
+  "fetchingMemberData": {
+    "message": "Fetching member data..."
+  },
+  "analyzingPasswordHealth": {
+    "message": "Analyzing password health..."
+  },
+  "calculatingRiskScores": {
+    "message": "Calculating risk scores..."
+  },
+  "generatingReportData": {
+    "message": "Generating report data..."
+  },
+  "savingReport": {
+    "message": "Saving report..."
+  },
+  "compilingInsights": {
+    "message": "Compiling insights..."
+  },
+  "loadingProgress": {
+    "message": "Loading progress"
+  },
+  "thisMightTakeFewMinutes": {
+    "message": "This might take a few minutes."
+  },
   "riskInsightsRunReport": {
     "message": "Run report"
   },
@@ -4562,6 +4650,24 @@
   },
   "learnMore": {
     "message": "بیشتر بدانید"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
   },
   "deleteRecoverDesc": {
     "message": "نشانی ایمیل خود را در زیر برای بازیابی و حذف حساب خود وارد کنید."
@@ -5088,8 +5194,20 @@
     "message": "اصلاح",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "پرونده‌های پیوستی قدیمی در گاوصندوق شما وجود دارد که قبل از اینکه بتوانید کلید رمزگذاری حساب خود را بچرخانید باید اصلاح شوند."
+  },
+  "itemsTransferred": {
+    "message": "Items transferred"
   },
   "yourAccountsFingerprint": {
     "message": "عبارت اثر انگشت حساب شما",
@@ -5498,6 +5616,37 @@
     "message": "ارسال ذخیره شد",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send created successfully!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "New Text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "New File Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "ارسال ذخیره شد",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5536,6 +5685,9 @@
   },
   "revoked": {
     "message": "لغو شد"
+  },
+  "accepted": {
+    "message": "Accepted"
   },
   "sendLink": {
     "message": "ارسال پیوند",
@@ -5764,9 +5916,9 @@
     "message": "Require all items to be owned by an organization, removing the option to store items at the account level.",
     "description": "This is the policy description shown in the policy list."
   },
-  "organizationDataOwnershipContent": {
-    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  "organizationDataOwnershipDescContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
     "message": "credential lifecycle",
@@ -5804,16 +5956,16 @@
   "howToTurnOnAutoConfirm": {
     "message": "How to turn on automatic user confirmation"
   },
-  "autoConfirmStep1": {
-    "message": "Open your Bitwarden extension."
+  "autoConfirmExtension1": {
+    "message": "Open your Bitwarden extension"
   },
-  "autoConfirmStep2a": {
+  "autoConfirmExtension2": {
     "message": "Select",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
-  "autoConfirmStep2b": {
-    "message": " Turn on.",
-    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on.'"
+  "autoConfirmExtension3": {
+    "message": " Turn on",
+    "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
     "message": "Successfully opened the Bitwarden browser extension. You can now activate the automatic user confirmation setting."
@@ -6195,6 +6347,12 @@
   "enrolledAccountRecovery": {
     "message": "در بازیابی حساب کاربری ثبت نام شد"
   },
+  "enrolled": {
+    "message": "Enrolled"
+  },
+  "notEnrolled": {
+    "message": "Not enrolled"
+  },
   "withdrawAccountRecovery": {
     "message": "برداشت از بازیابی حساب"
   },
@@ -6371,6 +6529,32 @@
   },
   "bulkReinviteMessage": {
     "message": "با موفقیت مجدد دعوت شد"
+  },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ users re-invited",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ of $SELECTEDCOUNT$ users re-invited. $EXCLUDEDCOUNT$ were not invited due to the $LIMIT$ invite limit.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
   },
   "bulkRemovedMessage": {
     "message": "با موفقیت حذف شد"
@@ -6692,8 +6876,8 @@
   "vaultTimeoutRangeError": {
     "message": "مهلت زمانی گاوصندوق در محدوده مجاز نیست."
   },
-  "disablePersonalVaultExport": {
-    "message": "حذف برون ریزی گاوصندوق شخصی"
+  "disableExport": {
+    "message": "Remove export"
   },
   "disablePersonalVaultExportDescription": {
     "message": "به اعضا اجازه ندهید که داده‌های گاوصندوق شخصی خود را برون ریزی کنند."
@@ -7013,9 +7197,6 @@
   "invalidVerificationCode": {
     "message": "کد تأیید نامعتبر است"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "برای اعضای سازمان زیر، کلمه عبور اصلی دیگر لازم نیست. لطفاً دامنه زیر را با مدیر سازمان خود تأیید کنید."
-  },
   "keyConnectorDomain": {
     "message": "دامنه رابط کلید"
   },
@@ -7073,8 +7254,8 @@
   "enabledSso": {
     "message": "SSO روشن شد"
   },
-  "disabledSso": {
-    "message": "SSO روشن شد"
+  "ssoTurnedOff": {
+    "message": "SSO turned off"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ must login with Single Sign-on",
@@ -8637,9 +8818,6 @@
   "server": {
     "message": "سرور"
   },
-  "exportData": {
-    "message": "برون ریزی داده"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "برون ریزی داده‌های مخفی سازمان"
   },
@@ -9367,6 +9545,9 @@
   "ssoLoginIsRequired": {
     "message": "ورود از طریق SSO الزامی است"
   },
+  "emailRequiredForSsoLogin": {
+    "message": "Email is required for SSO"
+  },
   "selectedRegionFlag": {
     "message": "پرچم منطقه انتخاب شد"
   },
@@ -9524,9 +9705,6 @@
   },
   "loggedInExclamation": {
     "message": "وارد شده!"
-  },
-  "beta": {
-    "message": "آزمایشی"
   },
   "assignCollectionAccess": {
     "message": "اختصاص دسترسی به مجموعه"
@@ -9778,6 +9956,14 @@
     "message": "خیلی گران است",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "switchToFreePlan": {
+    "message": "Switching to free plan",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "switchToFreeOrg": {
+    "message": "Switching to free organization",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "رایگان برای یک سال"
   },
@@ -9808,8 +9994,8 @@
   "assignTasks": {
     "message": "Assign tasks"
   },
-  "assignTasksToMembers": {
-    "message": "Assign tasks to members for guided resolution"
+  "assignSecurityTasksToMembers": {
+    "message": "Send notifications to change passwords"
   },
   "assignToCollections": {
     "message": "اختصاص به مجموعه‌ها"
@@ -11297,14 +11483,6 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "افزونه مرورگر Bitwarden با موفقیت باز شد. اکنون می‌توانید کلمات عبور در معرض خطر خود را بررسی کنید."
   },
-  "openExtensionManuallyPart1": {
-    "message": "در باز کردن افزونه مرورگر Bitwarden مشکل داشتیم. آیکون Bitwarden را باز کنید",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
-  "openExtensionManuallyPart2": {
-    "message": "از نوار ابزار.",
-    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
-  },
   "resellerRenewalWarningMsg": {
     "message": "اشتراک شما به‌زودی تمدید می‌شود. برای تضمین ادامه‌ی بدون وقفه‌ی خدمات، قبل از تاریخ $RENEWAL_DATE$ با $RESELLER$ تماس بگیرید و تمدید خود را تأیید کنید.",
     "placeholders": {
@@ -11442,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Missing website"
   },
@@ -11480,6 +11664,12 @@
   "unArchive": {
     "message": "Unarchive"
   },
+  "archived": {
+    "message": "Archived"
+  },
+  "unArchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "itemsInArchive": {
     "message": "Items in archive"
   },
@@ -11494,6 +11684,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Items were sent to archive"
+  },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
   },
   "itemUnarchived": {
     "message": "Item was unarchived"
@@ -11625,11 +11818,8 @@
   "bitwardenExtensionInstalled": {
     "message": "افزونه Bitwarden نصب شد!"
   },
-  "openTheBitwardenExtension": {
-    "message": "Open the Bitwarden extension"
-  },
-  "bitwardenExtensionInstalledOpenExtension": {
-    "message": "The Bitwarden extension is installed! Open the extension to log in and start autofilling."
+  "bitwardenExtensionIsInstalled": {
+    "message": "Bitwarden extension is installed!"
   },
   "openExtensionToAutofill": {
     "message": "افزونه را باز کنید تا وارد شوید و پر کردن خودکار را آغاز کنید."
@@ -11644,6 +11834,14 @@
   "gettingStartedWithBitwardenPart2": {
     "message": "مرکز آموزش",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "openExtensionFromToolbarPart1": {
+    "message": "If the extension didn't open, you may need to open Bitwarden from the icon ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
+  },
+  "openExtensionFromToolbarPart2": {
+    "message": " on the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'If the extension didn't open, you may need to open Bitwarden from the icon [Bitwarden Icon] on the toolbar.'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "مرکز راهنمایی",
@@ -11878,8 +12076,8 @@
   "familiesMembership": {
     "message": "Families membership"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "planDescFamiliesV2": {
     "message": "Premium security for your family"
@@ -12046,9 +12244,6 @@
   "updateYourEncryptionSettings": {
     "message": "Update your encryption settings"
   },
-  "updateSettings": {
-    "message": "Update settings"
-  },
   "algorithm": {
     "message": "Algorithm"
   },
@@ -12075,5 +12270,364 @@
   },
   "startFreeFamiliesTrial": {
     "message": "Start free Families trial"
+  },
+  "blockClaimedDomainAccountCreation": {
+    "message": "Block account creation for claimed domains"
+  },
+  "blockClaimedDomainAccountCreationDesc": {
+    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationPrerequisite": {
+    "message": "A domain must be claimed before activating this policy."
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Set up an unlock method to change your vault timeout action."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "Your vault timeout exceeds the restrictions set by your organization."
+  },
+  "neverLockWarning": {
+    "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
+  },
+  "appearance": {
+    "message": "Appearance"
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
+  "confirmNoSelectedCriticalApplicationsTitle": {
+    "message": "No critical applications are selected"
+  },
+  "confirmNoSelectedCriticalApplicationsDesc": {
+    "message": "Are you sure you want to continue?"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Delete unrecoverable vault items"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Some of your vault items could not be recovered. Do you want to delete these unrecoverable items from your vault?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Delete unrecoverable folders"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Some of your folders could not be recovered. Do you want to delete these unrecoverable folders from your vault?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Replace encryption key"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Synchronizing data"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Verifying encryption key integrity"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Verifying user information"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Verifying vault item integrity"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Verifying folder integrity"
+  },
+  "dataRecoveryTitle": {
+    "message": "Data Recovery and Diagnostics"
+  },
+  "dataRecoveryDescription": {
+    "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
+  },
+  "runDiagnostics": {
+    "message": "Run Diagnostics"
+  },
+  "repairIssues": {
+    "message": "Repair Issues"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Save Diagnostic Logs"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser refresh."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser refresh"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "You have Bitwarden Premium"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "View and manage your Premium subscription"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "You'll need to update your license file"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Upload license file"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Upload your license file"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Upload your Premium license file"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Already have a subscription?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+  },
+  "viewAllPlans": {
+    "message": "View all plans"
+  },
+  "planDescPremium": {
+    "message": "Complete online security"
+  },
+  "updatePayment": {
+    "message": "Update payment"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Your subscription has expired. Please contact the support team for assistance."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Manage invoices"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Your next charge is for"
+  },
+  "dueOn": {
+    "message": "due on"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Your subscription will be suspended on"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Your subscription was suspended on"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Your subscription will be canceled on"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Your subscription was canceled on"
+  },
+  "storageFull": {
+    "message": "Storage full"
+  },
+  "storageUsedDescription": {
+    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+  },
+  "whenYouRemoveStorage": {
+    "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+  },
+  "youHavePremium": {
+    "message": "You have Premium"
+  },
+  "emailProtected": {
+    "message": "Email protected"
   }
 }

@@ -49,10 +49,14 @@ import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/defau
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
-import { TwoFactorApiService, DefaultTwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import {
+  DefaultTwoFactorService,
+  TwoFactorService,
+  TwoFactorApiService,
+  DefaultTwoFactorApiService,
+} from "@bitwarden/common/auth/two-factor";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -65,6 +69,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import {
   DefaultKeyGenerationService,
   KeyGenerationService,
@@ -72,6 +77,10 @@ import {
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
+import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
+import { DefaultChangeKdfApiService } from "@bitwarden/common/key-management/kdf/change-kdf-api.service";
+import { DefaultChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -95,6 +104,7 @@ import {
   EnvironmentService,
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LogLevelType } from "@bitwarden/common/platform/enums";
@@ -115,6 +125,7 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
+import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -203,6 +214,7 @@ import {
 
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
+import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
@@ -313,6 +325,7 @@ export class ServiceContainer {
   kdfConfigService: KdfConfigService;
   taskSchedulerService: TaskSchedulerService;
   sdkService: SdkService;
+  registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   ssoUrlService: SsoUrlService;
@@ -320,10 +333,12 @@ export class ServiceContainer {
   cipherEncryptionService: CipherEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
+  encryptedMigrator: EncryptedMigrator;
   securityStateService: SecurityStateService;
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
+  private accountCryptographicStateService: DefaultAccountCryptographicStateService;
 
   constructor() {
     let p = null;
@@ -482,10 +497,7 @@ export class ServiceContainer {
 
     const pinStateService = new PinStateService(this.stateProvider);
     this.pinService = new PinService(
-      this.accountService,
       this.encryptService,
-      this.kdfConfigService,
-      this.keyGenerationService,
       this.logService,
       this.keyService,
       this.sdkService,
@@ -495,6 +507,7 @@ export class ServiceContainer {
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
       this.keyService,
+      this.logService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -507,11 +520,19 @@ export class ServiceContainer {
       ")";
 
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
-    this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
+    this.userDecryptionOptionsService = new UserDecryptionOptionsService(
+      this.singleUserStateProvider,
+    );
     this.ssoUrlService = new SsoUrlService();
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
-    this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
+    this.policyService = new DefaultPolicyService(
+      this.stateProvider,
+      this.organizationService,
+      this.accountService,
+    );
+
+    const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
@@ -524,6 +545,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.logService,
       VaultTimeoutStringType.Never, // default vault timeout
+      sessionTimeoutTypeService,
     );
 
     const refreshAccessTokenErrorCallback = () => {
@@ -613,23 +635,8 @@ export class ServiceContainer {
       this.accountService,
     );
 
-    this.keyConnectorService = new KeyConnectorService(
-      this.accountService,
-      this.masterPasswordService,
-      this.keyService,
-      this.apiService,
-      this.tokenService,
-      this.logService,
-      this.organizationService,
-      this.keyGenerationService,
-      logoutCallback,
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
       this.stateProvider,
-    );
-
-    this.twoFactorService = new TwoFactorService(
-      this.i18nService,
-      this.platformUtilsService,
-      this.globalStateProvider,
     );
 
     const sdkClientFactory = flagEnabled("sdk")
@@ -648,6 +655,41 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       customUserAgent,
+    );
+
+    this.registerSdkService = new DefaultRegisterSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      this.apiService,
+      this.stateProvider,
+      this.configService,
+      customUserAgent,
+    );
+
+    this.keyConnectorService = new KeyConnectorService(
+      this.accountService,
+      this.masterPasswordService,
+      this.keyService,
+      this.apiService,
+      this.tokenService,
+      this.logService,
+      this.organizationService,
+      this.keyGenerationService,
+      logoutCallback,
+      this.stateProvider,
+      this.configService,
+      this.registerSdkService,
+      this.securityStateService,
+      this.accountCryptographicStateService,
+    );
+
+    this.twoFactorService = new DefaultTwoFactorService(
+      this.i18nService,
+      this.platformUtilsService,
+      this.globalStateProvider,
+      this.twoFactorApiService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -696,6 +738,7 @@ export class ServiceContainer {
       this.userDecryptionOptionsService,
       this.logService,
       this.configService,
+      this.accountService,
     );
 
     this.loginStrategyService = new LoginStrategyService(
@@ -725,6 +768,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.taskSchedulerService,
       this.configService,
+      this.accountCryptographicStateService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -860,6 +904,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.securityStateService,
       this.kdfConfigService,
+      this.accountCryptographicStateService,
     );
 
     this.totpService = new TotpService(this.sdkService);
@@ -886,7 +931,7 @@ export class ServiceContainer {
       this.collectionService,
       this.keyService,
       this.encryptService,
-      this.pinService,
+      this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
     );
@@ -894,7 +939,7 @@ export class ServiceContainer {
     this.individualExportService = new IndividualVaultExportService(
       this.folderService,
       this.cipherService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -908,7 +953,7 @@ export class ServiceContainer {
     this.organizationExportService = new OrganizationVaultExportService(
       this.cipherService,
       this.vaultExportApiService,
-      this.pinService,
+      this.keyGenerationService,
       this.keyService,
       this.encryptService,
       this.cryptoFunctionService,
@@ -962,6 +1007,21 @@ export class ServiceContainer {
     );
 
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);
+    const changeKdfApiService = new DefaultChangeKdfApiService(this.apiService);
+    const changeKdfService = new DefaultChangeKdfService(
+      changeKdfApiService,
+      this.sdkService,
+      this.keyService,
+      this.masterPasswordService,
+    );
+    this.encryptedMigrator = new DefaultEncryptedMigrator(
+      this.kdfConfigService,
+      changeKdfService,
+      this.logService,
+      this.configService,
+      this.masterPasswordService,
+      this.syncService,
+    );
   }
 
   async logout() {

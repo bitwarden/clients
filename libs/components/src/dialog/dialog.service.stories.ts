@@ -1,18 +1,19 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { NoopAnimationsModule, provideAnimations } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { getAllByRole, userEvent } from "@storybook/test";
+import { getAllByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
 import { SharedModule } from "../shared";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
-import { I18nMockService } from "../utils/i18n-mock.service";
+import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
 import { DialogModule } from "./dialog.module";
 import { DialogService } from "./dialog.service";
@@ -30,13 +31,17 @@ interface Animal {
       <button class="tw-mr-2" bitButton type="button" (click)="openDialogNonDismissable()">
         Open Non-Dismissable Dialog
       </button>
-      <button bitButton type="button" (click)="openDrawer()">Open Drawer</button>
+      <button class="tw-mr-2" bitButton type="button" (click)="openDrawer()">Open Drawer</button>
+      <button class="tw-mr-2" bitButton size="small" type="button" (click)="openSmallDrawer()">
+        Open Small Drawer
+      </button>
+      <button bitButton type="button" (click)="openLargeDrawer()">Open Large Drawer</button>
     </bit-layout>
   `,
   imports: [ButtonModule, LayoutComponent],
 })
 class StoryDialogComponent {
-  constructor(public dialogService: DialogService) {}
+  dialogService = inject(DialogService);
 
   openDialog() {
     this.dialogService.open(StoryDialogContentComponent, {
@@ -47,7 +52,7 @@ class StoryDialogComponent {
   }
 
   openDialogNonDismissable() {
-    this.dialogService.open(NonDismissableContent, {
+    this.dialogService.open(NonDismissableContentComponent, {
       data: {
         animal: "panda",
       },
@@ -62,13 +67,29 @@ class StoryDialogComponent {
       },
     });
   }
+
+  openSmallDrawer() {
+    this.dialogService.openDrawer(SmallDrawerContentComponent, {
+      data: {
+        animal: "panda",
+      },
+    });
+  }
+
+  openLargeDrawer() {
+    this.dialogService.openDrawer(LargeDrawerContentComponent, {
+      data: {
+        animal: "panda",
+      },
+    });
+  }
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
-    <bit-dialog title="Dialog Title" dialogSize="large">
+    <bit-dialog title="Dialog Title">
       <span bitDialogContent>
         Dialog body text goes here.
         <br />
@@ -85,10 +106,8 @@ class StoryDialogComponent {
   imports: [DialogModule, ButtonModule],
 })
 class StoryDialogContentComponent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;
@@ -101,7 +120,6 @@ class StoryDialogContentComponent {
   template: `
     <bit-dialog
       title="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-      dialogSize="large"
     >
       <span bitDialogContent>
         Dialog body text goes here.
@@ -117,11 +135,67 @@ class StoryDialogContentComponent {
   `,
   imports: [DialogModule, ButtonModule],
 })
-class NonDismissableContent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+class NonDismissableContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
+
+  get animal() {
+    return this.data?.animal;
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template: `
+    <bit-dialog title="Small Drawer" dialogSize="small">
+      <span bitDialogContent>
+        Dialog body text goes here.
+        <br />
+        Animal: {{ animal }}
+      </span>
+      <ng-container bitDialogFooter>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+      </ng-container>
+    </bit-dialog>
+  `,
+  imports: [DialogModule, ButtonModule],
+})
+class SmallDrawerContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
+
+  get animal() {
+    return this.data?.animal;
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template: `
+    <bit-dialog title="Large Drawer" dialogSize="large">
+      <span bitDialogContent>
+        Dialog body text goes here.
+        <br />
+        Animal: {{ animal }}
+      </span>
+      <ng-container bitDialogFooter>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+      </ng-container>
+    </bit-dialog>
+  `,
+  imports: [DialogModule, ButtonModule],
+})
+class LargeDrawerContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;
@@ -165,6 +239,10 @@ export default {
             });
           },
         },
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
       ],
     }),
   ],
@@ -202,6 +280,24 @@ export const Drawer: Story = {
     const canvas = context.canvasElement;
 
     const button = getAllByRole(canvas, "button")[2];
+    await userEvent.click(button);
+  },
+};
+
+export const DrawerSmall: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[3];
+    await userEvent.click(button);
+  },
+};
+
+export const DrawerLarge: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[4];
     await userEvent.click(button);
   },
 };

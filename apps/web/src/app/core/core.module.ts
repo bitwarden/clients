@@ -9,8 +9,6 @@ import {
   DefaultCollectionAdminService,
   OrganizationUserApiService,
   CollectionService,
-  AutomaticUserConfirmationService,
-  DefaultAutomaticUserConfirmationService,
   OrganizationUserService,
   DefaultOrganizationUserService,
 } from "@bitwarden/admin-console/common";
@@ -46,6 +44,10 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
+import {
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -59,16 +61,20 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeout,
   VaultTimeoutStringType,
@@ -111,13 +117,17 @@ import {
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
   BiometricsService,
 } from "@bitwarden/key-management";
-import { LockComponentService } from "@bitwarden/key-management-ui";
+import {
+  LockComponentService,
+  SessionTimeoutSettingsComponentService,
+} from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
@@ -145,6 +155,7 @@ import { WebFileDownloadService } from "../core/web-file-download.service";
 import { UserKeyRotationService } from "../key-management/key-rotation/user-key-rotation.service";
 import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
+import { WebSessionTimeoutTypeService } from "../key-management/session-timeout/services/web-session-timeout-type.service";
 import { WebBiometricsService } from "../key-management/web-biometric.service";
 import { WebIpcService } from "../platform/ipc/web-ipc.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
@@ -308,6 +319,7 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       OrganizationInviteService,
       RouterService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
@@ -366,6 +378,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       InternalOrganizationServiceAbstraction,
       OrganizationUserApiService,
+      PolicyService,
     ],
   }),
   safeProvider({
@@ -465,11 +478,26 @@ const safeProviders: SafeProvider[] = [
     useClass: WebSystemService,
     deps: [],
   }),
+  safeProvider({
+    provide: SessionTimeoutTypeService,
+    useClass: WebSessionTimeoutTypeService,
+    deps: [PlatformUtilsService],
+  }),
+  safeProvider({
+    provide: SessionTimeoutSettingsComponentService,
+    useClass: SessionTimeoutSettingsComponentService,
+    deps: [I18nServiceAbstraction, SessionTimeoutTypeService, PolicyService],
+  }),
+  safeProvider({
+    provide: AuthRequestAnsweringService,
+    useClass: NoopAuthRequestAnsweringService,
+    deps: [],
+  }),
 ];
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule, JslibServicesModule],
+  imports: [CommonModule, JslibServicesModule, GeneratorServicesModule],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })

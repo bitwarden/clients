@@ -1,9 +1,24 @@
 <popup-page [loading]="loading$ | async">
-  <popup-header slot="header" [pageTitle]="'archive' | i18n" showBackButton>
+  <popup-header slot="header" [pageTitle]="'archiveNoun' | i18n" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
     </ng-container>
   </popup-header>
+
+  @if (showSubscriptionEndedMessaging$ | async) {
+    <bit-card class="tw-mb-4">
+      <div class="tw-flex tw-gap-2 tw-items-baseline">
+        <i class="bwi bwi-info-circle" aria-hidden="true"></i>
+        <h3 class="tw-font-[500]" bitTypography="h5">{{ "premiumSubscriptionEnded" | i18n }}</h3>
+      </div>
+      <p bitTypography="body2" class="tw-mb-3">
+        {{ "archivePremiumRestart" | i18n }}
+      </p>
+      <button type="button" bitButton (click)="navigateToPremium()" buttonType="primary">
+        {{ "restartPremium" | i18n }}
+      </button>
+    </bit-card>
+  }
 
   @if (archivedCiphers$ | async; as archivedItems) {
     @if (archivedItems.length) {
@@ -27,10 +42,24 @@
                   <app-vault-icon [cipher]="cipher"></app-vault-icon>
                 </div>
                 <span data-testid="item-name">{{ cipher.name }}</span>
-                @if (cipher.hasAttachments) {
-                  <i class="bwi bwi-paperclip bwi-sm" [appA11yTitle]="'attachments' | i18n"></i>
-                }
-                <span slot="secondary">{{ cipher.subTitle }}</span>
+                <div slot="default-trailing" class="tw-flex tw-gap-1.5">
+                  @if (cipher.organizationId) {
+                    <i
+                      appOrgIcon
+                      [tierType]="orgTierType(cipher)"
+                      [size]="'small'"
+                      [appA11yTitle]="orgIconTooltip(cipher)"
+                    ></i>
+                  }
+                  @if (CipherViewLikeUtils.hasAttachments(cipher)) {
+                    <i
+                      slot="default-trailing"
+                      class="bwi bwi-paperclip bwi-sm"
+                      [appA11yTitle]="'attachments' | i18n"
+                    ></i>
+                  }
+                </div>
+                <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
               </button>
               <bit-item-action slot="end">
                 <button
@@ -48,6 +77,15 @@
                   <button type="button" bitMenuItem (click)="clone(cipher)">
                     {{ "clone" | i18n }}
                   </button>
+                  @if (canAssignCollections$ | async) {
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="conditionallyNavigateToAssignCollections(cipher)"
+                    >
+                      {{ "assignToCollections" | i18n }}
+                    </button>
+                  }
                   <button type="button" bitMenuItem (click)="unarchive(cipher)">
                     {{ "unArchive" | i18n }}
                   </button>

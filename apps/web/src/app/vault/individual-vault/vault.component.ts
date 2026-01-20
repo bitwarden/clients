@@ -25,14 +25,7 @@ import {
   tap,
 } from "rxjs/operators";
 
-import {
-  AutomaticUserConfirmationService,
-  CollectionData,
-  CollectionDetailsResponse,
-  CollectionService,
-  CollectionView,
-  Unassigned,
-} from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import {
   NoResults,
@@ -42,6 +35,7 @@ import {
   ItemTypes,
   Icon,
 } from "@bitwarden/assets/svg";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {
@@ -50,7 +44,17 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  CollectionDetailsResponse,
+  CollectionView,
+  Unassigned,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import {
+  getNestedCollectionTree,
+  getFlatCollectionTree,
+} from "@bitwarden/common/admin-console/utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -97,15 +101,22 @@ import {
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
+  VaultFilterServiceAbstraction as VaultFilterService,
+  RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
+  createFilterFunction,
+  All,
+  RoutedVaultFilterModel,
+  VaultFilter,
+  FolderFilter,
+  OrganizationFilter,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 import { UnifiedUpgradePromptService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
-import {
-  getNestedCollectionTree,
-  getFlatCollectionTree,
-} from "../../admin-console/organizations/collections";
 import {
   AutoConfirmPolicy,
   AutoConfirmPolicyDialogComponent,
@@ -138,16 +149,6 @@ import {
 } from "./bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
-import { VaultFilterService } from "./vault-filter/services/abstractions/vault-filter.service";
-import { RoutedVaultFilterBridgeService } from "./vault-filter/services/routed-vault-filter-bridge.service";
-import { RoutedVaultFilterService } from "./vault-filter/services/routed-vault-filter.service";
-import { createFilterFunction } from "./vault-filter/shared/models/filter-function";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "./vault-filter/shared/models/routed-vault-filter.model";
-import { VaultFilter } from "./vault-filter/shared/models/vault-filter.model";
-import { FolderFilter, OrganizationFilter } from "./vault-filter/shared/models/vault-filter.type";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
@@ -182,6 +183,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
     DefaultCipherFormConfigService,
+    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
@@ -229,13 +231,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => this.organizationService.organizations$(id)));
-
-  protected userCanArchive$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => {
-      return this.cipherArchiveService.userCanArchive$(userId);
-    }),
-  );
 
   emptyState$ = combineLatest([
     this.currentSearchText$,
@@ -295,14 +290,28 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }),
   );
 
-  protected enforceOrgDataOwnershipPolicy$ = this.accountService.activeAccount$.pipe(
-    getUserId,
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  protected enforceOrgDataOwnershipPolicy$ = this.userId$.pipe(
     switchMap((userId) =>
       this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
     ),
   );
 
-  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  protected userCanArchive$ = this.userId$.pipe(
+    switchMap((userId) => {
+      return this.cipherArchiveService.userCanArchive$(userId);
+    }),
+  );
+
+  protected showSubscriptionEndedMessaging$ = this.userId$.pipe(
+    switchMap((userId) =>
+      combineLatest([
+        this.routedVaultFilterBridgeService.activeFilter$,
+        this.cipherArchiveService.showSubscriptionEndedMessaging$(userId),
+      ]).pipe(map(([activeFilter, showMessaging]) => activeFilter.isArchived && showMessaging)),
+    ),
+  );
 
   constructor(
     private syncService: SyncService,
@@ -341,6 +350,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private autoConfirmService: AutomaticUserConfirmationService,
     private configService: ConfigService,
+    private vaultItemTransferService: VaultItemsTransferService,
   ) {}
 
   async ngOnInit() {
@@ -413,6 +423,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
           queryParamsHandling: "merge",
           replaceUrl: true,
+          state: {
+            focusMainAfterNav: false,
+          },
         }),
       );
 
@@ -438,13 +451,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       allowedCiphers$,
       filter$,
       this.currentSearchText$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$(),
+      this.cipherArchiveService.hasArchiveFlagEnabled$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, archiveEnabled]) => {
+      concatMap(async ([ciphers, filter, searchText, showArchiveVault]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter, archiveEnabled);
+        const filterFunction = createFilterFunction(filter, showArchiveVault);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
@@ -550,15 +563,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
                 await this.editCipherId(cipherId);
               }
             } else {
-              this.toastService.showToast({
-                variant: "error",
-                title: null,
-                message: this.i18nService.t("unknownCipher"),
-              });
-              await this.router.navigate([], {
-                queryParams: { itemId: null, cipherId: null },
-                queryParamsHandling: "merge",
-              });
+              await this.handleUnknownCipher();
             }
           }
         }),
@@ -644,6 +649,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     void this.unifiedUpgradePromptService.displayUpgradePromptConditionally();
 
     this.setupAutoConfirm();
+
+    void this.vaultItemTransferService.enforceOrganizationDataOwnership(activeUserId);
   }
 
   ngOnDestroy() {
@@ -651,6 +658,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.destroy$.next();
     this.destroy$.complete();
     this.vaultFilterService.clearOrganizationFilter();
+  }
+
+  async navigateToGetPremium() {
+    await this.router.navigate(["/settings/subscription/premium"]);
   }
 
   async onVaultItemsEvent(event: VaultItemEvent<C>) {
@@ -714,6 +725,18 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
+  async handleUnknownCipher() {
+    this.toastService.showToast({
+      variant: "error",
+      title: null,
+      message: this.i18nService.t("unknownCipher"),
+    });
+    await this.router.navigate([], {
+      queryParams: { itemId: null, cipherId: null },
+      queryParamsHandling: "merge",
+    });
+  }
+
   async archive(cipher: C) {
     const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
 
@@ -723,7 +746,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
-      content: { key: "archiveItemConfirmDesc" },
+      content: { key: "archiveItemDialogContent" },
+      acceptButtonText: { key: "archiveVerb" },
       type: "info",
     });
 
@@ -997,6 +1021,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async editCipherId(id: string, cloneMode?: boolean) {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const cipher = await this.cipherService.get(id, activeUserId);
+    if (!cipher) {
+      await this.handleUnknownCipher();
+      return;
+    }
 
     if (
       cipher &&
@@ -1034,6 +1062,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async viewCipherById(id: string) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.cipherService.get(id, activeUserId);
+    if (!cipher) {
+      await this.handleUnknownCipher();
+      return;
+    }
     // If cipher exists (cipher is null when new) and MP reprompt
     // is on for this cipher, then show password reprompt.
     if (
@@ -1611,7 +1643,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             !policyEnabled &&
             autoConfirmState.showSetupDialog &&
             !!organization &&
-            (organization.canManageUsers || organization.canManagePolicies);
+            organization.canEnableAutoConfirmPolicy;
 
           if (showDialog) {
             await this.openAutoConfirmFeatureDialog(organization);

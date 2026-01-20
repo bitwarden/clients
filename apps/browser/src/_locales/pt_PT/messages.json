@@ -200,7 +200,7 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
-    "message": "Preencher automaticamente"
+    "message": "Preenchimento automático"
   },
   "autoFillLogin": {
     "message": "Preencher automaticamente credencial"
@@ -436,8 +436,8 @@
   "sync": {
     "message": "Sincronizar"
   },
-  "syncVaultNow": {
-    "message": "Sincronizar o cofre agora"
+  "syncNow": {
+    "message": "Sincronizar agora"
   },
   "lastSync": {
     "message": "Última sincronização:"
@@ -454,9 +454,6 @@
   },
   "bitWebVaultApp": {
     "message": "Aplicação web Bitwarden"
-  },
-  "importItems": {
-    "message": "Importar itens"
   },
   "select": {
     "message": "Selecionar"
@@ -576,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "O item foi movido para o arquivo"
   },
+  "itemWasUnarchived": {
+    "message": "O item foi desarquivado"
+  },
   "itemUnarchived": {
     "message": "O item foi desarquivado"
   },
@@ -585,6 +585,18 @@
   "archiveItemConfirmDesc": {
     "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
   },
+  "archived": {
+    "message": "Arquivado"
+  },
+  "unarchiveAndSave": {
+    "message": "Desarquivar e guardar"
+  },
+  "upgradeToUseArchive": {
+    "message": "É necessária uma subscrição Premium para utilizar o Arquivo."
+  },
+  "itemRestored": {
+    "message": "O item foi restaurado"
+  },
   "edit": {
     "message": "Editar"
   },
@@ -593,6 +605,12 @@
   },
   "viewAll": {
     "message": "Ver tudo"
+  },
+  "showAll": {
+    "message": "Mostrar tudo"
+  },
+  "viewLess": {
+    "message": "Ver menos"
   },
   "viewLogin": {
     "message": "Ver credencial"
@@ -795,6 +813,12 @@
   },
   "onLocked": {
     "message": "Ao bloquear o sistema"
+  },
+  "onIdle": {
+    "message": "Na inatividade do sistema"
+  },
+  "onSleep": {
+    "message": "Na suspensão do sistema"
   },
   "onRestart": {
     "message": "Ao reiniciar o navegador"
@@ -1310,8 +1334,21 @@
   "exportFrom": {
     "message": "Exportar de"
   },
-  "exportVault": {
-    "message": "Exportar cofre"
+  "exportVerb": {
+    "message": "Exportar",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Exportação",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Importar",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importação",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Formato do ficheiro"
@@ -1391,6 +1428,27 @@
   "learnMore": {
     "message": "Saber mais"
   },
+  "migrationsFailed": {
+    "message": "Ocorreu um erro ao atualizar as definições de encriptação."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Atualize as suas definições de encriptação"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirme a sua identidade para continuar"
+  },
+  "enterYourMasterPassword": {
+    "message": "Introduza a sua palavra-passe mestra"
+  },
+  "updateSettings": {
+    "message": "Atualizar definições"
+  },
+  "later": {
+    "message": "Mais tarde"
+  },
   "authenticatorKeyTotp": {
     "message": "Chave de autenticação (TOTP)"
   },
@@ -1421,6 +1479,15 @@
   "attachmentSaved": {
     "message": "Anexo guardado"
   },
+  "fixEncryption": {
+    "message": "Corrigir encriptação"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Este ficheiro está a utilizar um método de encriptação desatualizado."
+  },
+  "attachmentUpdated": {
+    "message": "Anexo atualizado"
+  },
   "file": {
     "message": "Ficheiro"
   },
@@ -1429,6 +1496,9 @@
   },
   "selectFile": {
     "message": "Selecionar um ficheiro"
+  },
+  "itemsTransferred": {
+    "message": "Itens transferidos"
   },
   "maxFileSize": {
     "message": "O tamanho máximo do ficheiro é de 500 MB."
@@ -1460,11 +1530,29 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ de armazenamento encriptado para anexos de ficheiros.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "Acesso de emergência."
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "A sua subscrição Premium terminou"
+  },
+  "archivePremiumRestart": {
+    "message": "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre."
+  },
+  "restartPremium": {
+    "message": "Reiniciar Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Higiene de palavras-passe, saúde da conta e relatórios de violação de dados para manter o seu cofre seguro."
@@ -1857,6 +1945,9 @@
   },
   "expirationYear": {
     "message": "Ano de validade"
+  },
+  "monthly": {
+    "message": "mês"
   },
   "expiration": {
     "message": "Prazo de validade"
@@ -2426,6 +2517,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "Esta página está a interferir com a experiência do Bitwarden. O menu em linha do Bitwarden foi temporariamente desativado como medida de segurança."
   },
   "setMasterPassword": {
     "message": "Definir a palavra-passe mestra"
@@ -3188,9 +3282,6 @@
   },
   "copyCustomFieldNameNotUnique": {
     "message": "Não foi encontrado um identificador único."
-  },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Já não é necessária uma palavra-passe mestra para os membros da seguinte organização. Por favor, confirme o domínio abaixo com o administrador da sua organização."
   },
   "organizationName": {
     "message": "Nome da organização"
@@ -4155,10 +4246,6 @@
   "ignore": {
     "message": "Ignorar"
   },
-  "importData": {
-    "message": "Importar dados",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Erro de importação"
   },
@@ -4742,8 +4829,50 @@
   "adminConsole": {
     "message": "Consola de administração"
   },
+  "admin": {
+    "message": "Administrador"
+  },
+  "automaticUserConfirmation": {
+    "message": "Confirmação automática do utilizador"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Confirmar automaticamente os utilizadores pendentes enquanto este dispositivo estiver desbloqueado"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Poupe tempo com a confirmação automática de utilizadores"
+  },
+  "autoConfirmWarning": {
+    "message": "Isto pode afetar a segurança dos dados da sua organização. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Saiba mais sobre os riscos"
+  },
+  "autoConfirmSetup": {
+    "message": "Confirmar automaticamente novos utilizadores"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Os novos utilizadores serão automaticamente confirmados enquanto este dispositivo estiver desbloqueado."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Quais são os riscos potenciais de segurança?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Confirmação automática ativada"
+  },
+  "availableNow": {
+    "message": "Já disponível"
+  },
   "accountSecurity": {
     "message": "Segurança da conta"
+  },
+  "phishingBlocker": {
+    "message": "Bloqueador de phishing"
+  },
+  "enablePhishingDetection": {
+    "message": "Deteção de phishing"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Mostrar aviso antes de aceder a sites suspeitos de phishing"
   },
   "notifications": {
     "message": "Notificações"
@@ -4889,6 +5018,9 @@
   },
   "premium": {
     "message": "Premium"
+  },
+  "unlockFeaturesWithPremium": {
+    "message": "Desbloqueie relatórios, acesso de emergência e outras funcionalidades de segurança com o Premium."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "As organizações gratuitas não podem utilizar anexos"
@@ -5586,6 +5718,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
   },
+  "vulnerablePassword": {
+    "message": "Palavra-passe vulnerável."
+  },
+  "changeNow": {
+    "message": "Alterar agora"
+  },
   "missingWebsite": {
     "message": "Site em falta"
   },
@@ -5794,11 +5932,26 @@
   "andMoreFeatures": {
     "message": "E muito mais!"
   },
-  "planDescPremium": {
-    "message": "Segurança total online"
+  "advancedOnlineSecurity": {
+    "message": "Segurança online avançada"
   },
   "upgradeToPremium": {
     "message": "Atualizar para o Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Desbloqueie funcionalidades de segurança avançadas"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "Uma subscrição Premium dá-lhe ferramentas adicionais para reforçar a sua segurança e manter o controlo"
+  },
+  "explorePremium": {
+    "message": "Explorar o Premium"
+  },
+  "loadingVault": {
+    "message": "A carregar o cofre"
+  },
+  "vaultLoaded": {
+    "message": "Cofre carregado"
   },
   "settingDisabledByPolicy": {
     "message": "Esta configuração está desativada pela política da sua organização.",
@@ -5809,5 +5962,145 @@
   },
   "cardNumberLabel": {
     "message": "Número do cartão"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "A sua organização já não utiliza palavras-passe mestras para iniciar sessão no Bitwarden. Para continuar, verifique a organização e o domínio."
+  },
+  "continueWithLogIn": {
+    "message": "Continuar com o início de sessão"
+  },
+  "doNotContinue": {
+    "message": "Não continuar"
+  },
+  "domain": {
+    "message": "Domínio"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Este domínio armazenará as chaves de encriptação da sua conta, portanto certifique-se de que confia nele. Se não tiver a certeza, verifique com o seu administrador."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifique a sua organização para iniciar sessão"
+  },
+  "organizationVerified": {
+    "message": "Organização verificada"
+  },
+  "domainVerified": {
+    "message": "Domínio verificado"
+  },
+  "leaveOrganizationContent": {
+    "message": "Se não verificar a sua organização, o seu acesso à organização será revogado."
+  },
+  "leaveNow": {
+    "message": "Sair agora"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifique o seu domínio para iniciar sessão"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Para continuar com o início de sessão, verifique este domínio."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Para continuar com o início de sessão, verifique a organização e o domínio."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Ação de tempo limite"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Esta configuração é gerida pela sua organização."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "A sua organização definiu o tempo limite máximo da sessão para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "A sua organização definiu o tempo limite predefinido da sessão como Imediatamente."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "A sua organização definiu o tempo limite de sessão predefinido para Ao bloquear o sistema."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "A sua organização definiu o tempo limite de sessão predefinido para Ao reiniciar o navegador."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "O tempo limite máximo não pode ser superior a $HOURS$ hora(s) e $MINUTES$ minuto(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Ao reiniciar o navegador"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Configure um método de desbloqueio para alterar a sua ação de tempo limite"
+  },
+  "upgrade": {
+    "message": "Atualizar"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Tem a certeza de que pretende sair?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Ao recusar, os seus itens pessoais permanecerão na sua conta, mas perderá o acesso aos itens partilhados e às funcionalidades da organização."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Entre em contacto com o seu administrador para recuperar o acesso."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Sair de $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Como posso gerir o meu cofre?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transferir itens para $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por motivos de segurança e conformidade. Clique em Aceitar para transferir a propriedade dos seus itens.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Aceitar transferência"
+  },
+  "declineAndLeave": {
+    "message": "Recusar e sair"
+  },
+  "whyAmISeeingThis": {
+    "message": "Porque é que estou a ver isto?"
+  },
+  "resizeSideNavigation": {
+    "message": "Redimensionar navegação lateral"
   }
 }

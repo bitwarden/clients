@@ -14,7 +14,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
+import { ReportLoadingComponent } from "../shared/report-loading.component";
 
 import { ActivityCardComponent } from "./activity-card.component";
 import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
@@ -25,7 +25,7 @@ import { NewApplicationsDialogComponent } from "./application-review-dialog/new-
 @Component({
   selector: "dirt-all-activity",
   imports: [
-    ApplicationsLoadingComponent,
+    ReportLoadingComponent,
     SharedModule,
     ActivityCardComponent,
     PasswordChangeMetricComponent,
@@ -39,12 +39,14 @@ export class AllActivityComponent implements OnInit {
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
+  totalApplicationCount = 0;
   newApplicationsCount = 0;
   newApplications: ApplicationHealthReportDetail[] = [];
   extendPasswordChangeWidget = false;
   allAppsHaveReviewDate = false;
   isAllCaughtUp = false;
   hasLoadedApplicationData = false;
+  showNeedsReviewState = false;
 
   destroyRef = inject(DestroyRef);
 
@@ -65,6 +67,12 @@ export class AllActivityComponent implements OnInit {
         this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
         this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
         this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
+        this.totalApplicationCount = summary.totalApplicationCount;
+        // If we have application data, mark as loaded
+        if (summary.totalApplicationCount > 0) {
+          this.hasLoadedApplicationData = true;
+        }
+        this.updateShowNeedsReviewState();
       });
 
     this.dataService.newApplications$
@@ -73,6 +81,7 @@ export class AllActivityComponent implements OnInit {
         this.newApplications = newApps;
         this.newApplicationsCount = newApps.length;
         this.updateIsAllCaughtUp();
+        this.updateShowNeedsReviewState();
       });
 
     this.allActivitiesService.extendPasswordChangeWidget$
@@ -110,6 +119,20 @@ export class AllActivityComponent implements OnInit {
       this.hasLoadedApplicationData &&
       this.newApplicationsCount === 0 &&
       this.allAppsHaveReviewDate;
+  }
+
+  /**
+   * Updates the showNeedsReviewState flag based on current state.
+   * This state is shown when:
+   * - Data has been loaded
+   * - There are applications (totalApplicationCount > 0)
+   * - ALL apps do NOT have a review date (newApplicationsCount === totalApplicationCount)
+   */
+  private updateShowNeedsReviewState(): void {
+    this.showNeedsReviewState =
+      this.hasLoadedApplicationData &&
+      this.totalApplicationCount > 0 &&
+      this.newApplicationsCount === this.totalApplicationCount;
   }
 
   /**
