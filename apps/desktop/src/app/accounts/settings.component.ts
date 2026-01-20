@@ -302,6 +302,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         name: this.i18nService.t("sshAgentKeySelectionModeSelectKey"),
         value: SshAgentKeySelectionMode.SelectKey,
       },
+      {
+        name: this.i18nService.t("sshAgentKeySelectionModeLoadSomeKeys"),
+        value: SshAgentKeySelectionMode.LoadSomeKeys,
+      },
     ];
 
     this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
@@ -950,9 +954,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async saveSshAgentKeySelectionMode() {
-    await this.desktopSettingsService.setSshAgentKeySelectionMode(
-      this.form.value.sshAgentKeySelectionMode,
-    );
+    const newMode = this.form.value.sshAgentKeySelectionMode;
+    const oldMode = await firstValueFrom(this.desktopSettingsService.sshAgentKeySelectionMode$);
+
+    await this.desktopSettingsService.setSshAgentKeySelectionMode(newMode);
+
+    // Clear selected keys when switching away from LoadSomeKeys
+    if (
+      oldMode === SshAgentKeySelectionMode.LoadSomeKeys &&
+      newMode !== SshAgentKeySelectionMode.LoadSomeKeys
+    ) {
+      await this.desktopSettingsService.setSshAgentSelectedKeyIds([]);
+    }
   }
 
   async savePreventScreenshots() {

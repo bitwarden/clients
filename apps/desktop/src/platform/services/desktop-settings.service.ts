@@ -102,6 +102,15 @@ const SSH_AGENT_KEY_SELECTION_MODE = new UserKeyDefinition<SshAgentKeySelectionM
   },
 );
 
+const SSH_AGENT_SELECTED_KEY_IDS = new UserKeyDefinition<string[]>(
+  DESKTOP_SETTINGS_DISK,
+  "sshAgentSelectedKeyIds",
+  {
+    deserializer: (ids) => ids ?? [],
+    clearOn: [],
+  },
+);
+
 const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeOnCopy", {
   deserializer: (b) => b,
   clearOn: [], // User setting, no need to clear
@@ -201,6 +210,13 @@ export class DesktopSettingsService {
   );
   sshAgentKeySelectionMode$ = this.sshAgentKeySelectionModeState.state$.pipe(
     map((v) => v ?? SshAgentKeySelectionMode.AllKeys),
+  );
+
+  private readonly sshAgentSelectedKeyIdsState = this.stateProvider.getActive(
+    SSH_AGENT_SELECTED_KEY_IDS,
+  );
+  readonly sshAgentSelectedKeyIds$ = this.sshAgentSelectedKeyIdsState.state$.pipe(
+    map((v) => v ?? []),
   );
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
@@ -342,6 +358,10 @@ export class DesktopSettingsService {
 
   async setSshAgentKeySelectionMode(value: SshAgentKeySelectionMode) {
     await this.sshAgentKeySelectionModeState.update(() => value);
+  }
+
+  async setSshAgentSelectedKeyIds(value: string[]): Promise<void> {
+    await this.sshAgentSelectedKeyIdsState.update(() => value);
   }
 
   /**

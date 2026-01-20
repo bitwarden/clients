@@ -9,6 +9,7 @@ export enum SshAgentPromptType {
 export const SshAgentKeySelectionMode = Object.freeze({
   AllKeys: "allKeys",
   SelectKey: "selectKey",
+  LoadSomeKeys: "loadSomeKeys",
 } as const);
 
 export type SshAgentKeySelectionMode =
