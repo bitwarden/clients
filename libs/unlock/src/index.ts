@@ -1,5 +1,5 @@
-export { UnlockService } from "./abstractions/unlock.service";
-export { DefaultUnlockService } from "./unlock.service";
+export { UnlockService } from "./unlock.service";
+export { DefaultUnlockService } from "./default-unlock.service";
 
 // Re-export abstractions
-export * from "./abstractions";
+
