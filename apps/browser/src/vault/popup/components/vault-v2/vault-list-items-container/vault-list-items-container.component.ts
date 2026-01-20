@@ -248,10 +248,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     return (cipher: CipherViewLike) => {
       const login = CipherViewLikeUtils.getLogin(cipher);
       const hasUsername = login?.username != null;
-      const key =
-        this.primaryActionAutofill() && !this.currentURIIsBlocked()
-          ? "autofillTitle"
-          : "viewItemTitle";
+      const key = !this.currentURIIsBlocked() ? "autofillTitle" : "viewItemTitle";
       return hasUsername ? `${key}WithField` : key;
     };
   });
@@ -268,9 +265,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
    */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  hideAutofillButton = computed(
-    () => !this.showAutofillButton() || this.currentURIIsBlocked() || this.primaryActionAutofill(),
-  );
+  hideAutofillButton = computed(() => !this.showAutofillButton() || this.currentURIIsBlocked());
 
   /**
    * Flag indicating whether the cipher item autofill menu options should be shown or not
@@ -278,13 +273,6 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   hideAutofillMenuOptions = computed(() => this.currentURIIsBlocked() || this.showAutofillButton());
-
-  /**
-   * Option to perform autofill operation as the primary action for autofill suggestions.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  primaryActionAutofill = input(false, { transform: booleanAttribute });
 
   /**
    * Remove the bottom margin from the bit-section in this component
@@ -341,9 +329,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   }
 
   primaryActionOnSelect(cipher: PopupCipherViewLike) {
-    return this.primaryActionAutofill() && !this.currentURIIsBlocked()
-      ? this.doAutofill(cipher)
-      : this.onViewCipher(cipher);
+    return !this.currentURIIsBlocked() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
   }
 
   /**

@@ -90,7 +90,7 @@
       </ng-container>
 
       <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
-        <bit-item *cdkVirtualFor="let cipher of group.ciphers">
+        <bit-item *cdkVirtualFor="let cipher of group.ciphers" class="tw-group/vault-item">
           <button
             bit-item-content
             type="button"
@@ -126,16 +126,11 @@
 
           <ng-container slot="end">
             <bit-item-action *ngIf="!hideAutofillButton()">
-              <button
-                type="button"
-                bitBadge
-                variant="primary"
-                (click)="doAutofill(cipher)"
-                [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
-                [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
+              <span
+                class="tw-opacity-0 tw-text-sm tw-text-primary-600 tw-px-2 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100"
               >
                 {{ "fill" | i18n }}
-              </button>
+              </span>
             </bit-item-action>
             <bit-item-action *ngIf="!showAutofillButton() && CipherViewLikeUtils.canLaunch(cipher)">
               <button
@@ -150,7 +145,6 @@
             <app-item-more-options
               [cipher]="cipher"
               [hideAutofillOptions]="hideAutofillMenuOptions()"
-              [showViewOption]="primaryActionAutofill()"
             ></app-item-more-options>
           </ng-container>
         </bit-item>
