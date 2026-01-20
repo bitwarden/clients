@@ -1,8 +1,13 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 /**
+ * Record type for phishing URL storage in IndexedDB.
+ */
+type PhishingUrlRecord = { url: string };
+
+/**
  * IndexedDB storage service for phishing URLs.
- * Stores URLs as individual rows
+ * Stores URLs as individual rows.
  */
 export class PhishingIndexedDbService {
   private readonly DB_NAME = "bitwarden-phishing";
@@ -37,6 +42,55 @@ export class PhishingIndexedDbService {
       const req = db.transaction(this.STORE_NAME, "readwrite").objectStore(this.STORE_NAME).clear();
       req.onerror = () => reject(req.error);
       req.onsuccess = () => resolve();
+    });
+  }
+
+  /**
+   * Saves an array of phishing URLs to IndexedDB.
+   * Atomically replaces all existing data.
+   *
+   * @param urls - Array of phishing URLs to save
+   * @returns `true` if save succeeded, `false` on error
+   */
+  async saveUrls(urls: string[]): Promise<boolean> {
+    let db: IDBDatabase | null = null;
+    try {
+      db = await this.openDatabase();
+      await this.clearStore(db);
+      await this.saveChunked(db, urls);
+      return true;
+    } catch (error) {
+      this.logService.error("[PhishingIndexedDbService] Save failed", error);
+      return false;
+    } finally {
+      db?.close();
+    }
+  }
+
+  /**
+   * Saves URLs in chunks to prevent transaction timeouts and UI freezes.
+   */
+  private async saveChunked(db: IDBDatabase, urls: string[]): Promise<void> {
+    for (let i = 0; i < urls.length; i += this.CHUNK_SIZE) {
+      await this.saveChunk(db, urls.slice(i, i + this.CHUNK_SIZE));
+      await new Promise((r) => setTimeout(r, 0)); // Yield to event loop
+    }
+  }
+
+  /**
+   * Saves a single chunk of URLs in one transaction.
+   */
+  private saveChunk(db: IDBDatabase, urls: string[]): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(this.STORE_NAME, "readwrite");
+      const store = tx.objectStore(this.STORE_NAME);
+      for (const url of urls) {
+        if (url.trim()) {
+          store.put({ url: url.trim() } as PhishingUrlRecord);
+        }
+      }
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
     });
   }
 }
