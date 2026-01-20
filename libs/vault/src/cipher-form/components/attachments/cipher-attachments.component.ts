@@ -156,7 +156,7 @@ export class CipherAttachmentsComponent {
       // Update the initial state of the submit button
       const btn = this.submitBtn();
       if (btn) {
-        btn.disabled.set(!this.attachmentForm.valid && this.cipher().edit);
+        btn.disabled.set(!this.attachmentForm.valid && (this.cipher()?.edit ?? true));
       }
     });
 
