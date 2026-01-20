@@ -249,6 +249,15 @@ describe("VaultItemDialogComponent", () => {
   });
 
   describe("archive button", () => {
+    it("should not show archive button in admin console", () => {
+      (component as any).userCanArchive$ = of(true);
+      component.setTestCipher({ canBeArchived: true });
+      component.setTestParams({ mode: "form", isAdminConsoleAction: true });
+      fixture.detectChanges();
+      const archiveButton = fixture.debugElement.query(By.css("[biticonbutton='bwi-archive']"));
+      expect(archiveButton).toBeFalsy();
+    });
+
     it("should show archive button when the user can archive the item and the item can be archived", () => {
       component.setTestCipher({ canBeArchived: true });
       (component as any).userCanArchive$ = of(true);
