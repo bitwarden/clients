@@ -124,4 +124,45 @@ export class PhishingIndexedDbService {
       req.onsuccess = () => resolve(req.result !== undefined);
     });
   }
+
+  /**
+   * Loads all phishing URLs from IndexedDB.
+   *
+   * @returns Array of all stored URLs, or empty array on error
+   */
+  async loadAllUrls(): Promise<string[]> {
+    let db: IDBDatabase | null = null;
+    try {
+      db = await this.openDatabase();
+      return await this.getAllUrls(db);
+    } catch (error) {
+      this.logService.error("[PhishingIndexedDbService] Load failed", error);
+      return [];
+    } finally {
+      db?.close();
+    }
+  }
+
+  /**
+   * Iterates all records using a cursor.
+   */
+  private getAllUrls(db: IDBDatabase): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      const urls: string[] = [];
+      const req = db
+        .transaction(this.STORE_NAME, "readonly")
+        .objectStore(this.STORE_NAME)
+        .openCursor();
+      req.onerror = () => reject(req.error);
+      req.onsuccess = (e) => {
+        const cursor = (e.target as IDBRequest<IDBCursorWithValue | null>).result;
+        if (cursor) {
+          urls.push((cursor.value as PhishingUrlRecord).url);
+          cursor.continue();
+        } else {
+          resolve(urls);
+        }
+      };
+    });
+  }
 }
