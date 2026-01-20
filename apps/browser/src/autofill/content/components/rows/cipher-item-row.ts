@@ -51,6 +51,7 @@ const cipherItemRowStyles = ({ theme }: { theme: Theme }) => css`
   background-color: ${themes[theme].background.DEFAULT};
   padding: ${spacing["2"]} ${spacing["3"]};
   min-height: min-content;
+  min-height: 36px;
   max-height: 52px;
   overflow-x: hidden;
   white-space: nowrap;
