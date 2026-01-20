@@ -204,7 +204,7 @@ export class SendDetailsComponent implements OnInit {
                   .split(",")
                   .map((e) => e.trim())
                   .filter((e) => e.length > 0)
-              : [],
+              : null,
           } as unknown as SendView);
         });
       });
@@ -245,12 +245,8 @@ export class SendDetailsComponent implements OnInit {
         name: this.originalSendView.name,
         selectedDeletionDatePreset: this.originalSendView.deletionDate.toString(),
         password: this.hasPassword ? "************" : null,
-        authType: this.hasPassword
-          ? AuthType.Password
-          : this.originalSendView.emails?.length > 0
-            ? AuthType.Email
-            : AuthType.None,
-        emails: this.originalSendView.emails?.join(", "),
+        authType: this.originalSendView.authType,
+        emails: this.originalSendView.emails?.join(", ") ?? null,
       });
 
       if (this.hasPassword) {

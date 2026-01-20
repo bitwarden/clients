@@ -100,7 +100,7 @@ describe("SendDetailsComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should initialize authType to null if no password or emails", () => {
+  it("should initialize authType to None if no password or emails", () => {
     expect(component.sendDetailsForm.value.authType).toBe(AuthType.None);
   });
 
