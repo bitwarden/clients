@@ -8,7 +8,7 @@ publish.workspace = true
 [target.'cfg(windows)'.dependencies]
 itertools.workspace = true
 mockall = "=0.14.0"
-serial_test = "=3.2.0"
+serial_test = "=3.3.1"
 tracing.workspace = true
 windows = { workspace = true, features = [
     "Win32_UI_Input_KeyboardAndMouse",
