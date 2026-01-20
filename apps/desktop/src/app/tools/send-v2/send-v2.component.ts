@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
-  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   computed,
@@ -54,6 +53,8 @@ const Action = Object.freeze({
 
 type Action = (typeof Action)[keyof typeof Action];
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-v2",
   imports: [
@@ -72,7 +73,6 @@ type Action = (typeof Action)[keyof typeof Action];
     },
   ],
   templateUrl: "./send-v2.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendV2Component {
   protected readonly addEditComponent = viewChild(AddEditComponent);
