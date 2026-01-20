@@ -198,7 +198,7 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private listenForUnlockOptionsChanges() {
-    timer(0, 5000)
+    timer(0, 1000)
       .pipe(
         mergeMap(async () => {
           if (this.activeAccount?.id != null) {
