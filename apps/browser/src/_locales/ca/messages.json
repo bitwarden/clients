@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "Item was unarchived"
   },
@@ -581,6 +584,12 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
@@ -1535,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opcions propietàries de doble factor com ara YubiKey i Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Requisits d'higiene de la contrasenya, salut del compte i informe d'infraccions de dades per mantenir la seguretat de la vostra caixa forta."
@@ -4828,6 +4846,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
   },
   "accountSecurity": {
     "message": "Seguretat del compte"

@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Az elem az archivumba került."
   },
+  "itemWasUnarchived": {
+    "message": "Az elem visszavételre került az archivumból."
+  },
   "itemUnarchived": {
     "message": "Az elemek visszavéelre kerültek az archivumból."
   },
@@ -581,6 +584,12 @@
   },
   "archiveItemConfirmDesc": {
     "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  },
+  "archived": {
+    "message": "Archiválva"
+  },
+  "unarchiveAndSave": {
+    "message": "Archiválás visszavonása és mentés"
   },
   "upgradeToUseArchive": {
     "message": "Az Archívum használatához prémium tagság szükséges."
@@ -1535,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Saját kétlépcsős bejelentkezési lehetőségek mint a YubiKey és a Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "A Prémium előfizetés véget ért."
+  },
+  "archivePremiumRestart": {
+    "message": "Az archívumhoz hozzáférés visszaszerzéséhez indítsuk újra a Prémium előfizetést. Ha az újraindítás előtt szerkesztjük egy archivált elem adatait, akkor az visszakerül a széfbe."
+  },
+  "restartPremium": {
+    "message": "Prémium előfizetés újraindítása"
   },
   "ppremiumSignUpReports": {
     "message": "Jelszó higiénia, fiók biztonság és adatszivárgási jelentések a széf biztonsága érdekében."
@@ -4828,6 +4846,21 @@
   },
   "autoConfirmWarningLink": {
     "message": "További információ a kockázatokról"
+  },
+  "autoConfirmSetup": {
+    "message": "Új felhasználók automatikus megerősítése"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Az új felhasználók automatikusan megerősítésre kerülnek, amíg ez az eszköz fel van oldva."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Melyek a lehetséges biztonsági kockázatok?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Az automatikus megerősítés bekapcsolásra került."
+  },
+  "availableNow": {
+    "message": "Elérhető most"
   },
   "accountSecurity": {
     "message": "Fiókbiztonság"
