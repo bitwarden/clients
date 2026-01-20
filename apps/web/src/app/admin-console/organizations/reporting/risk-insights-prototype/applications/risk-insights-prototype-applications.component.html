@@ -108,42 +108,7 @@
 
                 <!-- Health Status (combined cell) -->
                 <td bitCell colspan="2" class="tw-text-center">
-                  <div class="tw-flex tw-justify-center tw-gap-2">
-                    <!-- Weak -->
-                    @if (cipher.weakPassword === true) {
-                      <span bitBadge variant="warning" title="{{ 'weak' | i18n }}">W</span>
-                    }
-                    <!-- Reused -->
-                    @if (cipher.reusedPassword === true) {
-                      <span bitBadge variant="warning" title="{{ 'reused' | i18n }}">R</span>
-                    }
-                    <!-- Exposed -->
-                    @if (cipher.exposedPassword === true) {
-                      <span
-                        bitBadge
-                        variant="danger"
-                        [title]="cipher.exposedCount + ' ' + ('timesExposed' | i18n)"
-                        >E</span
-                      >
-                    }
-                    <!-- Healthy -->
-                    @if (
-                      cipher.status === RiskInsightsItemStatus.Healthy &&
-                      !cipher.weakPassword &&
-                      !cipher.reusedPassword &&
-                      !cipher.exposedPassword
-                    ) {
-                      <i class="bwi bwi-check tw-text-success-600" aria-hidden="true"></i>
-                    }
-                    <!-- Loading -->
-                    @if (cipher.status === null) {
-                      <i
-                        class="bwi bwi-spinner bwi-spin tw-text-muted"
-                        aria-hidden="true"
-                        title="{{ 'loading' | i18n }}"
-                      ></i>
-                    }
-                  </div>
+                  <app-cipher-health-badges [cipher]="cipher"></app-cipher-health-badges>
                 </td>
 
                 <!-- Member Count -->
@@ -179,6 +144,15 @@
         }
       </tbody>
     </table>
+  } @else if (processingPhase() === ProcessingPhase.Error) {
+    <!-- Error State -->
+    <div class="tw-text-center tw-py-8 tw-text-danger-600">
+      <i class="bwi bwi-error tw-text-4xl tw-mb-4" aria-hidden="true"></i>
+      <p>{{ "errorOccurred" | i18n }}</p>
+      @if (error()) {
+        <p class="tw-text-sm tw-text-muted tw-mt-2">{{ error() }}</p>
+      }
+    </div>
   } @else if (processingPhase() === ProcessingPhase.Idle) {
     <!-- Initial State -->
     <div class="tw-text-center tw-py-8 tw-text-muted">

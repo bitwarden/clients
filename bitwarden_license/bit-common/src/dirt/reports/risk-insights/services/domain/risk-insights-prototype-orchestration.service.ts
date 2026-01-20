@@ -4,6 +4,7 @@ import { from, Observable, of } from "rxjs";
 import { catchError, switchMap, tap, last, map } from "rxjs/operators";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -48,6 +49,7 @@ export class RiskInsightsPrototypeOrchestrationService {
   private readonly cipherAccessMappingService = inject(CipherAccessMappingService);
   private readonly passwordHealthService = inject(PasswordHealthService);
   private readonly riskInsightsService = inject(RiskInsightsPrototypeService);
+  private readonly logService = inject(LogService);
   private readonly destroyRef = inject(DestroyRef);
 
   // ============================================================================
@@ -466,7 +468,8 @@ export class RiskInsightsPrototypeOrchestrationService {
         }),
         last(),
         map((): void => undefined),
-        catchError(() => {
+        catchError((err: unknown) => {
+          this.logService.error("[RiskInsightsPrototype] Error loading member counts:", err);
           return of(undefined);
         }),
       );

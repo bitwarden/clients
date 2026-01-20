@@ -116,6 +116,15 @@
         </td>
       </ng-template>
     </bit-table-scroll>
+  } @else if (processingPhase() === ProcessingPhase.Error) {
+    <!-- Error State -->
+    <div class="tw-text-center tw-py-8 tw-text-danger-600">
+      <i class="bwi bwi-error tw-text-4xl tw-mb-4" aria-hidden="true"></i>
+      <p>{{ "errorOccurred" | i18n }}</p>
+      @if (error()) {
+        <p class="tw-text-sm tw-text-muted tw-mt-2">{{ error() }}</p>
+      }
+    </div>
   } @else if (processingPhase() === ProcessingPhase.Idle) {
     <!-- Initial State -->
     <div class="tw-text-center tw-py-8 tw-text-muted">

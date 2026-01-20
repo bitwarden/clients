@@ -20,6 +20,8 @@ import {
 import { BadgeModule, TableDataSource, TableModule } from "@bitwarden/components";
 /* eslint-enable no-restricted-imports */
 
+import { CipherHealthBadgesComponent } from "../shared/cipher-health-badges.component";
+
 /**
  * Members tab component for the Risk Insights Prototype.
  *
@@ -33,7 +35,7 @@ import { BadgeModule, TableDataSource, TableModule } from "@bitwarden/components
   selector: "app-risk-insights-prototype-members",
   templateUrl: "./risk-insights-prototype-members.component.html",
   standalone: true,
-  imports: [CommonModule, JslibModule, TableModule, BadgeModule],
+  imports: [CommonModule, JslibModule, TableModule, BadgeModule, CipherHealthBadgesComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RiskInsightsPrototypeMembersComponent {
@@ -49,6 +51,7 @@ export class RiskInsightsPrototypeMembersComponent {
   // Processing state
   readonly processingPhase = this.orchestrator.processingPhase;
   readonly memberProgress = this.orchestrator.memberProgress;
+  readonly error = this.orchestrator.error;
 
   // Results
   readonly members = this.orchestrator.members;
@@ -77,9 +80,6 @@ export class RiskInsightsPrototypeMembersComponent {
     return new Map(items.map((item) => [item.cipherId, item]));
   });
 
-  /** Whether we've requested member data to be built (lazy loading trigger) */
-  private hasRequestedMemberData = false;
-
   // ============================================================================
   // Lifecycle
   // ============================================================================
@@ -92,12 +92,14 @@ export class RiskInsightsPrototypeMembersComponent {
     });
 
     // Effect to trigger lazy loading of member aggregations when phase is ready
+    // Check actual state (members array length) instead of a local flag to handle
+    // component re-creation and state resets correctly
     effect(() => {
       const phase = this.processingPhase();
       const isReady = phase === ProcessingPhase.Complete || phase === ProcessingPhase.RunningHibp;
+      const membersEmpty = this.members().length === 0;
 
-      if (isReady && !this.hasRequestedMemberData) {
-        this.hasRequestedMemberData = true;
+      if (isReady && membersEmpty) {
         this.orchestrator.ensureMemberAggregationsBuilt();
       }
     });

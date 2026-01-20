@@ -42,6 +42,7 @@ export class RiskInsightsPrototypeItemsComponent {
 
   // Processing state
   readonly processingPhase = this.orchestrator.processingPhase;
+  readonly error = this.orchestrator.error;
 
   // Results
   readonly items = this.orchestrator.items;

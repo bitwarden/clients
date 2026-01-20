@@ -20,6 +20,8 @@ import {
 import { BadgeModule, TableDataSource, TableModule } from "@bitwarden/components";
 /* eslint-enable no-restricted-imports */
 
+import { CipherHealthBadgesComponent } from "../shared/cipher-health-badges.component";
+
 /**
  * Applications tab component for the Risk Insights Prototype.
  *
@@ -33,7 +35,7 @@ import { BadgeModule, TableDataSource, TableModule } from "@bitwarden/components
   selector: "app-risk-insights-prototype-applications",
   templateUrl: "./risk-insights-prototype-applications.component.html",
   standalone: true,
-  imports: [CommonModule, JslibModule, TableModule, BadgeModule],
+  imports: [CommonModule, JslibModule, TableModule, BadgeModule, CipherHealthBadgesComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RiskInsightsPrototypeApplicationsComponent {
@@ -53,6 +55,7 @@ export class RiskInsightsPrototypeApplicationsComponent {
 
   // Processing state
   readonly processingPhase = this.orchestrator.processingPhase;
+  readonly error = this.orchestrator.error;
 
   // Results
   readonly applications = this.orchestrator.applications;
