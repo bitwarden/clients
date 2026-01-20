@@ -20,8 +20,8 @@
     "@bitwarden/logging": "dist/libs/logging/src",
     "module-alias": "2.2.3",
     "ts-node": "10.9.2",
-    "uuid": "13.0.0",
-    "yargs": "18.0.0"
+    "uuid": "9.0.1",
+    "yargs": "17.7.2"
   },
   "devDependencies": {
     "@types/node": "22.19.3",
@@ -31,6 +31,12 @@
     "@bitwarden/common": "dist/libs/common/src",
     "@bitwarden/node/services/node-crypto-function.service": "dist/libs/node/src/services/node-crypto-function.service",
     "@bitwarden/storage-core": "dist/libs/storage-core/src",
-    "@bitwarden/logging": "dist/libs/logging/src"
+    "@bitwarden/logging": "dist/libs/logging/src",
+    "@bitwarden/client-type": "dist/libs/client-type/src",
+    "@bitwarden/state": "dist/libs/state/src",
+    "@bitwarden/state-internal": "dist/libs/state-internal/src",
+    "@bitwarden/messaging": "dist/libs/messaging/src",
+    "@bitwarden/guid": "dist/libs/guid/src",
+    "@bitwarden/serialization": "dist/libs/serialization/src"
   }
 }
