@@ -87,6 +87,12 @@ export class UserApiLoginStrategy extends LoginStrategy {
       response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
       userId,
     );
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
   }
 
   // Overridden to save client ID and secret to token service
