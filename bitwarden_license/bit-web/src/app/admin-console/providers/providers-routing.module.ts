@@ -2,7 +2,9 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent } from "@bitwarden/components";
 import { FrontendLayoutComponent } from "@bitwarden/web-vault/app/layouts/frontend-layout.component";
 import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layout.component";
@@ -15,8 +17,9 @@ import { ProviderSubscriptionComponent } from "../../billing/providers/subscript
 import { ManageClientsComponent } from "./clients/manage-clients.component";
 import { providerPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
+import { MembersComponent } from "./manage/deprecated_members.component";
 import { EventsComponent } from "./manage/events.component";
-import { MembersComponent } from "./manage/members.component";
+import { vNextMembersComponent } from "./manage/members.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersComponent } from "./providers.component";
 import { AccountComponent } from "./settings/account.component";
@@ -92,16 +95,20 @@ const routes: Routes = [
                 pathMatch: "full",
                 redirectTo: "members",
               },
-              {
-                path: "members",
-                component: MembersComponent,
-                canActivate: [
-                  providerPermissionsGuard((provider: Provider) => provider.canManageUsers),
-                ],
-                data: {
-                  titleId: "members",
+              ...featureFlaggedRoute({
+                defaultComponent: MembersComponent,
+                flaggedComponent: vNextMembersComponent,
+                featureFlag: FeatureFlag.MembersComponentRefactor,
+                routeOptions: {
+                  path: "members",
+                  canActivate: [
+                    providerPermissionsGuard((provider: Provider) => provider.canManageUsers),
+                  ],
+                  data: {
+                    titleId: "members",
+                  },
                 },
-              },
+              }),
               {
                 path: "events",
                 component: EventsComponent,

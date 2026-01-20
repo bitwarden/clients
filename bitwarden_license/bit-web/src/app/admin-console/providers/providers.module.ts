@@ -5,6 +5,7 @@ import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CardComponent, ScrollLayoutDirective, SearchModule } from "@bitwarden/components";
+import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 import {
@@ -26,11 +27,13 @@ import { CreateClientDialogComponent } from "./clients/create-client-dialog.comp
 import { ManageClientNameDialogComponent } from "./clients/manage-client-name-dialog.component";
 import { ManageClientSubscriptionDialogComponent } from "./clients/manage-client-subscription-dialog.component";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
+import { MembersComponent } from "./manage/deprecated_members.component";
 import { AddEditMemberDialogComponent } from "./manage/dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
 import { EventsComponent } from "./manage/events.component";
-import { MembersComponent } from "./manage/members.component";
+import { vNextMembersComponent } from "./manage/members.component";
+import { ProviderActionsService } from "./manage/services/provider-actions/provider-actions.service";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
 import { ProvidersComponent } from "./providers.component";
@@ -64,6 +67,7 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     BulkConfirmDialogComponent,
     BulkRemoveDialogComponent,
     EventsComponent,
+    vNextMembersComponent,
     MembersComponent,
     SetupComponent,
     SetupProviderComponent,
@@ -81,6 +85,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     VerifyRecoverDeleteProviderComponent,
     SetupBusinessUnitComponent,
   ],
-  providers: [WebProviderService],
+  providers: [WebProviderService, ProviderActionsService, MemberActionsService],
 })
 export class ProvidersModule {}

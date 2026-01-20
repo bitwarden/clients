@@ -1,23 +1,33 @@
-import { Injectable } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { inject, Injectable, signal } from "@angular/core";
+import { lastValueFrom, firstValueFrom } from "rxjs";
 
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import {
   OrganizationUserType,
   OrganizationUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
+import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
+import { UserConfirmComponent } from "../../../manage/user-confirm.component";
 
 export const REQUESTS_PER_BATCH = 500;
 
@@ -33,12 +43,26 @@ export interface BulkActionResult {
 
 @Injectable()
 export class MemberActionsService {
-  constructor(
-    private organizationUserApiService: OrganizationUserApiService,
-    private organizationUserService: OrganizationUserService,
-    private configService: ConfigService,
-    private organizationMetadataService: OrganizationMetadataServiceAbstraction,
-  ) {}
+  private organizationUserApiService = inject(OrganizationUserApiService);
+  private organizationUserService = inject(OrganizationUserService);
+  private configService = inject(ConfigService);
+  private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
+  private apiService = inject(ApiService);
+  private dialogService = inject(DialogService);
+  private keyService = inject(KeyService);
+  private logService = inject(LogService);
+  private orgManagementPrefs = inject(OrganizationManagementPreferencesService);
+  private userNamePipe = inject(UserNamePipe);
+
+  readonly isProcessing = signal(false);
+
+  private startProcessing(): void {
+    this.isProcessing.set(true);
+  }
+
+  private endProcessing(): void {
+    this.isProcessing.set(false);
+  }
 
   async inviteUser(
     organization: Organization,
@@ -48,6 +72,7 @@ export class MemberActionsService {
     collections?: any[],
     groups?: string[],
   ): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.postOrganizationUserInvite(organization.id, {
         emails: [email],
@@ -60,55 +85,72 @@ export class MemberActionsService {
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async removeUser(organization: Organization, userId: string): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.removeOrganizationUser(organization.id, userId);
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async revokeUser(organization: Organization, userId: string): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.revokeOrganizationUser(organization.id, userId);
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async restoreUser(organization: Organization, userId: string): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.restoreOrganizationUser(organization.id, userId);
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async deleteUser(organization: Organization, userId: string): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.deleteOrganizationUser(organization.id, userId);
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async reinviteUser(organization: Organization, userId: string): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await this.organizationUserApiService.postOrganizationUserReinvite(organization.id, userId);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
@@ -117,6 +159,7 @@ export class MemberActionsService {
     publicKey: Uint8Array,
     organization: Organization,
   ): Promise<MemberActionResult> {
+    this.startProcessing();
     try {
       await firstValueFrom(
         this.organizationUserService.confirmUser(organization, user.id, publicKey),
@@ -124,27 +167,32 @@ export class MemberActionsService {
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
     }
   }
 
   async bulkReinvite(organization: Organization, userIds: UserId[]): Promise<BulkActionResult> {
-    const increaseBulkReinviteLimitForCloud = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
-    );
-    if (increaseBulkReinviteLimitForCloud) {
-      return await this.vNextBulkReinvite(organization, userIds);
-    } else {
-      try {
+    this.startProcessing();
+    try {
+      const increaseBulkReinviteLimitForCloud = await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
+      );
+      if (increaseBulkReinviteLimitForCloud) {
+        return await this.vNextBulkReinvite(organization, userIds);
+      } else {
         const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
           organization.id,
           userIds,
         );
         return { successful: result, failed: [] };
-      } catch (error) {
-        return {
-          failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
-        };
       }
+    } catch (error) {
+      return {
+        failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
+      };
+    } finally {
+      this.endProcessing();
     }
   }
 
@@ -235,5 +283,51 @@ export class MemberActionsService {
       successful,
       failed: allFailed,
     };
+  }
+
+  /**
+   * Shared dialog workflow that returns the public key when the user accepts the selected confirmation
+   * action.
+   *
+   * @param user - The user to confirm (must implement ConfirmableUser interface)
+   * @param userNamePipe - Pipe to transform user names for display
+   * @param orgManagementPrefs - Service providing organization management preferences
+   * @returns Promise containing the pulic key that resolves when the confirm action is accepted
+   * or undefined when cancelled
+   */
+  async getPublicKeyForConfirm(
+    user: OrganizationUserView | ProviderUser,
+  ): Promise<Uint8Array | undefined> {
+    try {
+      assertNonNullish(user, "Cannot confirm null user.");
+
+      const autoConfirmFingerPrint = await firstValueFrom(
+        this.orgManagementPrefs.autoConfirmFingerPrints.state$,
+      );
+
+      const publicKeyResponse = await this.apiService.getUserPublicKey(user.userId);
+      const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
+
+      if (autoConfirmFingerPrint == null || !autoConfirmFingerPrint) {
+        const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
+        this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
+
+        const confirmed = UserConfirmComponent.open(this.dialogService, {
+          data: {
+            name: this.userNamePipe.transform(user),
+            userId: user.userId,
+            publicKey: publicKey,
+          },
+        });
+
+        if (!(await lastValueFrom(confirmed.closed))) {
+          return;
+        }
+      }
+
+      return publicKey;
+    } catch (e) {
+      this.logService.error(`Handled exception: ${e}`);
+    }
   }
 }
