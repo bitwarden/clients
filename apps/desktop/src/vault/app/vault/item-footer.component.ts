@@ -134,6 +134,16 @@ export class ItemFooterComponent implements OnInit, OnChanges {
     );
   }
 
+  protected get showCloneOption() {
+    return (
+      this.cipher.id &&
+      !this.cipher?.organizationId &&
+      !this.cipher.isDeleted &&
+      this.action === "view" &&
+      !this.cipher.isArchived
+    );
+  }
+
   cancel() {
     this.onCancel.emit(this.cipher);
   }
