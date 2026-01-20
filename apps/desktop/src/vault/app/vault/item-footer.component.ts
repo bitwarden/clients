@@ -9,6 +9,7 @@ import {
   OnChanges,
   SimpleChanges,
   input,
+  inject,
 } from "@angular/core";
 import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 
@@ -36,7 +37,7 @@ import { ArchiveCipherUtilitiesService, PasswordRepromptService } from "@bitward
 export class ItemFooterComponent implements OnInit, OnChanges {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) cipher: CipherView = new CipherView();
+  @Input({ required: true }) cipher: CipherView | null = new CipherView();
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collectionId: string | null = null;
@@ -68,6 +69,17 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
 
+  protected cipherService = inject(CipherService);
+  protected dialogService = inject(DialogService);
+  protected passwordRepromptService = inject(PasswordRepromptService);
+  protected cipherAuthorizationService = inject(CipherAuthorizationService);
+  protected accountService = inject(AccountService);
+  protected toastService = inject(ToastService);
+  protected i18nService = inject(I18nService);
+  protected logService = inject(LogService);
+  protected cipherArchiveService = inject(CipherArchiveService);
+  protected archiveCipherUtilitiesService = inject(ArchiveCipherUtilitiesService);
+
   readonly submitButtonText = input<string>(this.i18nService.t("save"));
 
   activeUserId: UserId | null = null;
@@ -75,19 +87,6 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
   protected showArchiveButton = false;
   protected showUnarchiveButton = false;
-
-  constructor(
-    protected cipherService: CipherService,
-    protected dialogService: DialogService,
-    protected passwordRepromptService: PasswordRepromptService,
-    protected cipherAuthorizationService: CipherAuthorizationService,
-    protected accountService: AccountService,
-    protected toastService: ToastService,
-    protected i18nService: I18nService,
-    protected logService: LogService,
-    protected cipherArchiveService: CipherArchiveService,
-    protected archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
-  ) {}
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -130,7 +129,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
     return (
       this.showArchiveButton ||
       this.showUnarchiveButton ||
-      (this.cipher.permissions?.delete && (this.action === "edit" || this.action === "view"))
+      (this.cipher?.permissions?.delete && (this.action === "edit" || this.action === "view"))
     );
   }
 
@@ -221,6 +220,12 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   private async checkArchiveState() {
+    if (!this.cipher) {
+      this.showArchiveButton = false;
+      this.showUnarchiveButton = false;
+      return;
+    }
+
     const cipherCanBeArchived = !this.cipher.isDeleted;
     const [userCanArchive, hasArchiveFlagEnabled] = await firstValueFrom(
       this.accountService.activeAccount$.pipe(

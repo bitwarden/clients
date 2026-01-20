@@ -13,7 +13,7 @@ import {
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
+// import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -65,8 +65,8 @@ import {
   CipherFormConfigService,
   CipherFormGenerationService,
   CipherFormMode,
-  CipherFormModule,
-  CipherViewComponent,
+  // CipherFormModule,
+  // CipherViewComponent,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
@@ -84,8 +84,9 @@ import { DesktopCredentialGenerationService } from "../../../services/desktop-ci
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
-import { ItemFooterComponent } from "../vault/item-footer.component";
 import { VaultItemsV2Component } from "../vault/vault-items-v2.component";
+
+import { VaultItemDrawerComponent, VaultItemDrawerResult } from "./vault-item-drawer.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
 
@@ -94,18 +95,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
 @Component({
   selector: "app-vault-v3",
   templateUrl: "vault.component.html",
-  imports: [
-    BadgeModule,
-    CommonModule,
-    CipherFormModule,
-    CipherViewComponent,
-    ItemFooterComponent,
-    I18nPipe,
-    ItemModule,
-    ButtonModule,
-    PremiumBadgeComponent,
-    VaultItemsV2Component,
-  ],
+  imports: [BadgeModule, CommonModule, I18nPipe, ItemModule, ButtonModule, VaultItemsV2Component],
   providers: [
     {
       provide: CipherFormConfigService,
@@ -286,20 +276,20 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
                 }
                 break;
               }
-              case "copyTotp": {
-                if (
-                  this.cipher?.login?.hasTotp &&
-                  (this.cipher.organizationUseTotp || this.userHasPremiumAccess)
-                ) {
-                  const value = await firstValueFrom(
-                    this.totpService.getCode$(this.cipher.login.totp),
-                  ).catch((): any => null);
-                  if (value) {
-                    this.copyValue(this.cipher, value.code, "verificationCodeTotp", "TOTP");
-                  }
-                }
-                break;
-              }
+              // case "copyTotp": {
+              //   if (
+              //     this.cipher?.login?.hasTotp &&
+              //     (this.cipher.organizationUseTotp || this.userHasPremiumAccess)
+              //   ) {
+              //     const value = await firstValueFrom(
+              //       this.totpService.getCode$(this.cipher.login.totp),
+              //     ).catch((): any => null);
+              //     if (value) {
+              //       this.copyValue(this.cipher, value.code, "verificationCodeTotp", "TOTP");
+              //     }
+              //   }
+              //   break;
+              // }
               default:
                 detectChanges = false;
                 break;
@@ -416,19 +406,40 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     if (await this.shouldReprompt(cipher, "view")) {
       return;
     }
-    this.cipherId = cipher.id;
-    this.cipher = cipher;
-    this.collections =
-      this.filteredCollections?.filter((c) => cipher.collectionIds.includes(c.id)) ?? null;
-    this.action = "view";
 
-    await this.go().catch(() => {});
+    // Build config for the drawer
+    const config = await this.formConfigService
+      .buildConfig("edit", cipher.id as CipherId, undefined)
+      .catch((): any => null);
+
+    if (!config) {
+      return;
+    }
+
+    // Open drawer in view mode
+    const drawerRef = VaultItemDrawerComponent.openDrawer(this.dialogService, {
+      config,
+      initialMode: "view",
+    });
+
     await this.eventCollectionService.collect(
       EventType.Cipher_ClientViewed,
       cipher.id,
       false,
       cipher.organizationId,
     );
+
+    const result = await lastValueFrom(drawerRef.closed);
+
+    // Refresh list if cipher was modified
+    if (result?.result === VaultItemDrawerResult.Saved) {
+      await this.vaultItemsComponent?.refresh().catch(() => {});
+    } else if (
+      result?.result === VaultItemDrawerResult.Deleted ||
+      result?.result === VaultItemDrawerResult.Restored
+    ) {
+      await this.vaultItemsComponent?.refresh().catch(() => {});
+    }
   }
 
   formStatusChanged(status: "disabled" | "enabled") {
@@ -574,64 +585,64 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
         ) {
           menu.push({ type: "separator" });
         }
-        if (cipher.login.canLaunch) {
-          menu.push({
-            label: this.i18nService.t("launch"),
-            click: () => this.platformUtilsService.launchUri(cipher.login.launchUri),
-          });
-        }
-        if (cipher.login.username != null) {
-          menu.push({
-            label: this.i18nService.t("copyUsername"),
-            click: () => this.copyValue(cipher, cipher.login.username, "username", "Username"),
-          });
-        }
-        if (cipher.login.password != null && cipher.viewPassword) {
-          menu.push({
-            label: this.i18nService.t("copyPassword"),
-            click: () => {
-              this.copyValue(cipher, cipher.login.password, "password", "Password");
-              this.eventCollectionService
-                .collect(EventType.Cipher_ClientCopiedPassword, cipher.id)
-                .catch(() => {});
-            },
-          });
-        }
-        if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremiumAccess)) {
-          menu.push({
-            label: this.i18nService.t("copyVerificationCodeTotp"),
-            click: async () => {
-              const value = await firstValueFrom(
-                this.totpService.getCode$(cipher.login.totp),
-              ).catch((): any => null);
-              if (value) {
-                this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
-              }
-            },
-          });
-        }
+        // if (cipher.login.canLaunch) {
+        //   menu.push({
+        //     label: this.i18nService.t("launch"),
+        //     click: () => this.platformUtilsService.launchUri(cipher.login.launchUri),
+        //   });
+        // }
+        // if (cipher.login.username != null) {
+        //   menu.push({
+        //     label: this.i18nService.t("copyUsername"),
+        //     click: () => this.copyValue(cipher, cipher.login.username, "username", "Username"),
+        //   });
+        // }
+        // if (cipher.login.password != null && cipher.viewPassword) {
+        //   menu.push({
+        //     label: this.i18nService.t("copyPassword"),
+        //     click: () => {
+        //       this.copyValue(cipher, cipher.login.password, "password", "Password");
+        //       this.eventCollectionService
+        //         .collect(EventType.Cipher_ClientCopiedPassword, cipher.id)
+        //         .catch(() => {});
+        //     },
+        //   });
+        // }
+        // if (cipher.login.hasTotp && (cipher.organizationUseTotp || this.userHasPremiumAccess)) {
+        //   menu.push({
+        //     label: this.i18nService.t("copyVerificationCodeTotp"),
+        //     click: async () => {
+        //       const value = await firstValueFrom(
+        //         this.totpService.getCode$(cipher.login.totp),
+        //       ).catch((): any => null);
+        //       if (value) {
+        //         this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
+        //       }
+        //     },
+        //   });
+        // }
         break;
       case CipherType.Card:
         if (cipher.card.number != null || cipher.card.code != null) {
           menu.push({ type: "separator" });
         }
-        if (cipher.card.number != null) {
-          menu.push({
-            label: this.i18nService.t("copyNumber"),
-            click: () => this.copyValue(cipher, cipher.card.number, "number", "Card Number"),
-          });
-        }
-        if (cipher.card.code != null) {
-          menu.push({
-            label: this.i18nService.t("copySecurityCode"),
-            click: () => {
-              this.copyValue(cipher, cipher.card.code, "securityCode", "Security Code");
-              this.eventCollectionService
-                .collect(EventType.Cipher_ClientCopiedCardCode, cipher.id)
-                .catch(() => {});
-            },
-          });
-        }
+        // if (cipher.card.number != null) {
+        //   menu.push({
+        //     label: this.i18nService.t("copyNumber"),
+        //     click: () => this.copyValue(cipher, cipher.card.number, "number", "Card Number"),
+        //   });
+        // }
+        // if (cipher.card.code != null) {
+        //   menu.push({
+        //     label: this.i18nService.t("copySecurityCode"),
+        //     click: () => {
+        //       this.copyValue(cipher, cipher.card.code, "securityCode", "Security Code");
+        //       this.eventCollectionService
+        //         .collect(EventType.Cipher_ClientCopiedCardCode, cipher.id)
+        //         .catch(() => {});
+        //     },
+        //   });
+        // }
         break;
       default:
         break;
@@ -653,25 +664,62 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     if (await this.shouldReprompt(cipher, "edit")) {
       return;
     }
-    this.cipherId = cipher.id;
-    this.cipher = cipher;
-    await this.buildFormConfig("edit");
-    if (!cipher.edit && this.config) {
-      this.config.mode = "partial-edit";
+
+    // Build config for the drawer
+    const config = await this.formConfigService
+      .buildConfig("edit", cipher.id as CipherId, undefined)
+      .catch((): any => null);
+
+    if (!config) {
+      return;
     }
-    this.action = "edit";
-    await this.go().catch(() => {});
+
+    if (!cipher.edit) {
+      config.mode = "partial-edit";
+    }
+
+    // Open drawer in edit mode
+    const drawerRef = VaultItemDrawerComponent.openDrawer(this.dialogService, {
+      config,
+      initialMode: "edit",
+    });
+
+    const result = await lastValueFrom(drawerRef.closed);
+
+    // Refresh list if cipher was modified
+    if (result?.result === VaultItemDrawerResult.Saved) {
+      await this.vaultItemsComponent?.refresh().catch(() => {});
+    } else if (result?.result === VaultItemDrawerResult.Deleted) {
+      await this.vaultItemsComponent?.refresh().catch(() => {});
+    }
   }
 
   async cloneCipher(cipher: CipherView) {
     if (await this.shouldReprompt(cipher, "clone")) {
       return;
     }
-    this.cipherId = cipher.id;
-    this.cipher = cipher;
-    await this.buildFormConfig("clone");
-    this.action = "clone";
-    await this.go().catch(() => {});
+
+    // Build config for the drawer
+    const config = await this.formConfigService
+      .buildConfig("clone", cipher.id as CipherId, undefined)
+      .catch((): any => null);
+
+    if (!config) {
+      return;
+    }
+
+    // Open drawer in clone mode
+    const drawerRef = VaultItemDrawerComponent.openDrawer(this.dialogService, {
+      config,
+      initialMode: "clone",
+    });
+
+    const result = await lastValueFrom(drawerRef.closed);
+
+    // Refresh list if cipher was modified
+    if (result?.result === VaultItemDrawerResult.Saved) {
+      await this.vaultItemsComponent?.refresh().catch(() => {});
+    }
   }
 
   async shareCipher(cipher: CipherView) {
@@ -713,16 +761,25 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   }
 
   async addCipher(type: CipherType) {
-    if (this.action === "add") {
+    this.addType = type || this.activeFilter.cipherType;
+
+    // Build config for the drawer
+    const config = await this.formConfigService
+      .buildConfig("add", undefined, this.addType)
+      .catch((): any => null);
+
+    if (!config) {
       return;
     }
-    this.addType = type || this.activeFilter.cipherType;
-    this.cipher = new CipherView();
-    this.cipherId = null;
-    await this.buildFormConfig("add");
-    this.action = "add";
-    this.prefillCipherFromFilter();
-    await this.go().catch(() => {});
+
+    // Prefill cipher from filter
+    this.prefillCipherConfig(config);
+
+    // Open drawer in add mode
+    const drawerRef = VaultItemDrawerComponent.openDrawer(this.dialogService, {
+      config,
+      initialMode: "add",
+    });
 
     if (type === CipherType.SshKey) {
       this.toastService.showToast({
@@ -730,6 +787,13 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
         title: "",
         message: this.i18nService.t("sshKeyGenerated"),
       });
+    }
+
+    const result = await lastValueFrom(drawerRef.closed);
+
+    // Refresh list if cipher was created
+    if (result?.result === VaultItemDrawerResult.Saved) {
+      await this.vaultItemsComponent?.refresh().catch(() => {});
     }
   }
 
@@ -798,6 +862,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
         };
         return filterFn(proxyCipher as any);
       }
+      return false;
     };
   }
 
@@ -971,9 +1036,45 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
     this.config.initialValues = {
       ...this.config.initialValues,
-      folderId: this.folderId,
+      folderId: this.folderId || undefined,
       organizationId: this.addOrganizationId as OrganizationId,
       collectionIds: this.addCollectionIds as CollectionId[],
+    };
+  }
+
+  /**
+   * Prefill cipher config based on active filter selections
+   */
+  private prefillCipherConfig(config: CipherFormConfig) {
+    if (config == null) {
+      return;
+    }
+
+    let addOrganizationId: string | null = null;
+    let addCollectionIds: string[] | null = null;
+    let folderId: string | null | undefined = null;
+
+    if (this.activeFilter.collectionId != null) {
+      const collections = this.filteredCollections?.filter(
+        (c) => c.id === this.activeFilter.collectionId,
+      );
+      if (collections?.length > 0) {
+        addOrganizationId = collections[0].organizationId;
+        addCollectionIds = [this.activeFilter.collectionId];
+      }
+    } else if (this.activeFilter.organizationId) {
+      addOrganizationId = this.activeFilter.organizationId;
+    }
+
+    if (this.activeFilter.folderId && this.activeFilter.selectedFolderNode) {
+      folderId = this.activeFilter.folderId;
+    }
+
+    config.initialValues = {
+      ...config.initialValues,
+      organizationId: addOrganizationId as OrganizationId,
+      folderId: folderId || undefined,
+      collectionIds: addCollectionIds as CollectionId[],
     };
   }
 

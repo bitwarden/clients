@@ -1,0 +1,45 @@
+<bit-dialog dialogSize="large" background="alt">
+  <span bitDialogTitle>
+    {{ title }}
+  </span>
+
+  <div bitDialogContent>
+    @if (showCipherView) {
+      <app-cipher-view [cipher]="cipher" [collections]="collections"> </app-cipher-view>
+    }
+
+    @if (loadForm) {
+      <vault-cipher-form
+        formId="cipherForm"
+        [config]="formConfig"
+        [submitBtn]="itemFooter?.submitBtn"
+        (formReady)="onFormReady()"
+        (cipherSaved)="onCipherSaved($event)"
+      >
+        <bit-item slot="attachment-button">
+          <button bit-item-content type="button" (click)="openAttachmentsDialog()">
+            <div class="tw-flex tw-items-center tw-gap-2">
+              {{ "attachments" | i18n }}
+              <app-premium-badge></app-premium-badge>
+            </div>
+            <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+          </button>
+        </bit-item>
+      </vault-cipher-form>
+    }
+  </div>
+
+  <ng-container bitDialogFooter>
+    <app-vault-item-footer
+      [cipher]="cipher"
+      [action]="action"
+      (onEdit)="onEdit()"
+      (onClone)="onClone($event)"
+      (onDelete)="onDelete()"
+      (onRestore)="onRestore()"
+      (onCancel)="onCancel()"
+      (onArchiveToggle)="onArchiveToggle()"
+    >
+    </app-vault-item-footer>
+  </ng-container>
+</bit-dialog>

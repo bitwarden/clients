@@ -166,3 +166,14 @@ app-root {
 .vault-v2 > .details {
   flex-direction: column-reverse;
 }
+
+// Vault V3 - Drawer-specific styles
+.vault-v3 {
+  > .items {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    border-right: none;
+  }
+}
