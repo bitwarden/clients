@@ -362,6 +362,7 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -902,6 +903,19 @@ const safeProviders: SafeProvider[] = [
     provide: AccountCryptographicStateService,
     useClass: DefaultAccountCryptographicStateService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: UnlockService,
+    useClass: DefaultUnlockService,
+    deps: [
+      RegisterSdkService,
+      AccountCryptographicStateService,
+      PinStateServiceAbstraction,
+      KdfConfigService,
+      AccountServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+      ApiServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: BroadcasterService,
