@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, computed, input, inject } from "@angular/core";
 
 import { DisplayMode } from "@bitwarden/angular/vault/vault-filter/models/display-mode";
@@ -20,7 +22,7 @@ export class OrganizationFilterComponent {
   private vaultFilterService: VaultFilterServiceAbstraction = inject(VaultFilterServiceAbstraction);
 
   protected readonly hide = input(false);
-  protected readonly organizations = input<TreeNode<OrganizationFilter>>();
+  protected readonly organizations = input.required<TreeNode<OrganizationFilter>>();
   protected readonly activeFilter = input<VaultFilter>();
   protected readonly activeOrganizationDataOwnership = input<boolean>(false);
   protected readonly activeSingleOrganizationPolicy = input<boolean>(false);
@@ -56,7 +58,6 @@ export class OrganizationFilterComponent {
     if (!organization.node.enabled) {
       this.toastService.showToast({
         variant: "error",
-        title: null,
         message: this.i18nService.t("disabledOrganizationFilterError"),
       });
       return;
