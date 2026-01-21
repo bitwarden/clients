@@ -16,8 +16,8 @@ apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
 
 # Web connectors
-apps/web/src/connectors/platform @bitwarden/team-platform-dev
 apps/web/src/connectors @bitwarden/team-auth-dev
+apps/web/src/connectors/platform @bitwarden/team-platform-dev
 
 ## Auth team files ##
 apps/browser/src/auth @bitwarden/team-auth-dev
