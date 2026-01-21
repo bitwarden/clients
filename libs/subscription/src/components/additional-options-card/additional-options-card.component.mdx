@@ -21,6 +21,8 @@ subscription actions.
 - [Examples](#examples)
   - [Default](#default)
   - [Actions Disabled](#actions-disabled)
+  - [Download License Disabled](#download-license-disabled)
+  - [Cancel Subscription Disabled](#cancel-subscription-disabled)
 - [Features](#features)
 - [Do's and Don'ts](#dos-and-donts)
 - [Accessibility](#accessibility)
@@ -44,9 +46,10 @@ import { AdditionalOptionsCardComponent } from "@bitwarden/subscription";
 
 ### Inputs
 
-| Input                   | Type      | Description                                                            |
-| ----------------------- | --------- | ---------------------------------------------------------------------- |
-| `callsToActionDisabled` | `boolean` | Optional. Disables both action buttons when true. Defaults to `false`. |
+| Input                        | Type      | Description                                                                   |
+| ---------------------------- | --------- | ----------------------------------------------------------------------------- |
+| `downloadLicenseDisabled`    | `boolean` | Optional. Disables download license button when true. Defaults to `false`.    |
+| `cancelSubscriptionDisabled` | `boolean` | Optional. Disables cancel subscription button when true. Defaults to `false`. |
 
 ### Outputs
 
@@ -109,14 +112,46 @@ Component with action buttons disabled (useful during async operations):
 
 ```html
 <billing-additional-options-card
-  [callsToActionDisabled]="true"
+  [downloadLicenseDisabled]="true"
+  [cancelSubscriptionDisabled]="true"
   (callToActionClicked)="handleAction($event)"
 >
 </billing-additional-options-card>
 ```
 
-**Note:** Use `callsToActionDisabled` to prevent user interactions during async operations like
-downloading the license or processing subscription cancellation.
+**Note:** Use `downloadLicenseDisabled` and `cancelSubscriptionDisabled` independently to control
+button states during async operations like downloading the license or processing subscription
+cancellation.
+
+### Download License Disabled
+
+Component with only the download license button disabled:
+
+<Canvas of={AdditionalOptionsCardStories.DownloadLicenseDisabled} />
+
+```html
+<billing-additional-options-card
+  [downloadLicenseDisabled]="true"
+  [cancelSubscriptionDisabled]="false"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-additional-options-card>
+```
+
+### Cancel Subscription Disabled
+
+Component with only the cancel subscription button disabled:
+
+<Canvas of={AdditionalOptionsCardStories.CancelSubscriptionDisabled} />
+
+```html
+<billing-additional-options-card
+  [downloadLicenseDisabled]="false"
+  [cancelSubscriptionDisabled]="true"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-additional-options-card>
+```
 
 ## Features
 
@@ -133,9 +168,11 @@ downloading the license or processing subscription cancellation.
 
 - Handle both `download-license` and `cancel-subscription` events in parent components
 - Show appropriate confirmation dialogs before executing destructive actions (cancel subscription)
-- Disable buttons or show loading states during async operations
+- Use `downloadLicenseDisabled` and `cancelSubscriptionDisabled` to control button states during
+  operations
 - Provide clear user feedback after action completion
 - Consider adding additional safety measures for subscription cancellation
+- Control button states independently based on business logic
 
 ### ❌ Don't
 

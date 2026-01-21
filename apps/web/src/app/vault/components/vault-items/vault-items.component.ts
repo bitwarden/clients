@@ -13,7 +13,11 @@ import {
   switchMap,
 } from "rxjs";
 
-import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminView,
+  Unassigned,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -27,7 +31,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
-import { RoutedVaultFilterService } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/services/routed-vault-filter.service";
+import { RoutedVaultFilterService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -272,7 +276,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get bulkArchiveAllowed() {
-    if (this.selection.selected.length === 0 || !this.userCanArchive) {
+    const hasCollectionsSelected = this.selection.selected.some((item) => item.collection);
+    if (
+      this.selection.selected.length === 0 ||
+      !this.userCanArchive ||
+      hasCollectionsSelected ||
+      this.showBulkTrashOptions
+    ) {
       return false;
     }
 
@@ -286,7 +296,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   // Bulk Unarchive button should appear for Archive vault even if user does not have archive permissions
   get bulkUnarchiveAllowed() {
-    if (this.selection.selected.length === 0) {
+    if (this.selection.selected.length === 0 || this.showBulkTrashOptions) {
       return false;
     }
 

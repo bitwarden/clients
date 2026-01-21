@@ -67,14 +67,14 @@ import { SubscriptionCardComponent, BitwardenSubscription } from "@bitwarden/sub
 
 ### Outputs
 
-| Output                | Type             | Description                                                |
-| --------------------- | ---------------- | ---------------------------------------------------------- |
-| `callToActionClicked` | `PlanCardAction` | Emitted when a user clicks an action button in the callout |
+| Output                | Type                     | Description                                                |
+| --------------------- | ------------------------ | ---------------------------------------------------------- |
+| `callToActionClicked` | `SubscriptionCardAction` | Emitted when a user clicks an action button in the callout |
 
-**PlanCardAction Type:**
+**SubscriptionCardAction Type:**
 
 ```typescript
-type PlanCardAction =
+type SubscriptionCardAction =
   | "contact-support"
   | "manage-invoices"
   | "reinstate-subscription"
