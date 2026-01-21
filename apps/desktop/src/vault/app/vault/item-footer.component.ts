@@ -75,6 +75,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
   protected showArchiveButton = false;
   protected showUnarchiveButton = false;
+  protected userCanArchive = false;
 
   constructor(
     protected cipherService: CipherService,
@@ -140,7 +141,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       !this.cipher?.organizationId &&
       !this.cipher.isDeleted &&
       this.action === "view" &&
-      !this.cipher.isArchived
+      (!this.cipher.isArchived || this.userCanArchive)
     );
   }
 
@@ -243,6 +244,8 @@ export class ItemFooterComponent implements OnInit, OnChanges {
         ),
       ),
     );
+
+    this.userCanArchive = userCanArchive;
 
     this.showArchiveButton =
       cipherCanBeArchived && userCanArchive && this.action === "view" && !this.cipher.isArchived;
