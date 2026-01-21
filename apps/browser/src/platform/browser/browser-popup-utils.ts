@@ -10,9 +10,9 @@ import { BrowserApi } from "./browser-api";
  * Value represents width in pixels
  */
 export const PopupWidthOptions = Object.freeze({
-  default: 380,
-  wide: 480,
-  "extra-wide": 600,
+  default: 480,
+  wide: 600,
+  narrow: 380,
 });
 
 type PopupWidthOptions = typeof PopupWidthOptions;
