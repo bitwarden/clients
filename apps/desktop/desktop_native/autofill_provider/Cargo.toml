@@ -24,9 +24,9 @@ tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-uniffi = { workspace = true, features = ["cli"] }
 tracing-oslog = "=0.3.0"
 tracing-subscriber = { workspace = true }
+uniffi = { workspace = true, features = ["cli"] }
 
 [build-dependencies]
 uniffi = { workspace = true, features = ["build"] }
