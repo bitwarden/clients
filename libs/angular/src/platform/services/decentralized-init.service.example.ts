@@ -9,9 +9,11 @@
  * This is NOT production code - it's a reference example.
  */
 
-import { Injectable, Type } from "@angular/core";
+import { Injectable } from "@angular/core";
 
-import { Initializable, INIT_SERVICES } from "../abstractions/decentralized-init.service";
+import { Initializable, Dependency } from "@bitwarden/common/platform/abstractions/initializable";
+
+import { INIT_SERVICES } from "../abstractions/decentralized-init.service";
 
 // ============================================================================
 // STEP 1: Make your services implement Initializable
@@ -23,7 +25,7 @@ import { Initializable, INIT_SERVICES } from "../abstractions/decentralized-init
  */
 @Injectable({ providedIn: "root" })
 export class ExampleConfigService implements Initializable {
-  dependencies: Type<Initializable>[] = []; // No dependencies
+  dependencies: Dependency[] = []; // No dependencies
 
   async init(): Promise<void> {
     // Load config, etc.
@@ -78,9 +80,9 @@ export class ExampleSyncService implements Initializable {
 export const EXAMPLE_LIBRARY_PROVIDERS = [
   // The multi-provider registration prevents tree-shaking
   // while providedIn: 'root' handles the actual service instantiation
-  { provide: INIT_SERVICES, useExisting: ExampleConfigService, multi: true },
-  { provide: INIT_SERVICES, useExisting: ExampleDatabaseService, multi: true },
-  { provide: INIT_SERVICES, useExisting: ExampleSyncService, multi: true },
+  { provide: INIT_SERVICES, useValue: ExampleConfigService, multi: true },
+  { provide: INIT_SERVICES, useValue: ExampleDatabaseService, multi: true },
+  { provide: INIT_SERVICES, useValue: ExampleSyncService, multi: true },
 ];
 
 // ============================================================================
@@ -151,5 +153,5 @@ export const EXAMPLE_LIBRARY_PROVIDERS = [
  * If a service declares a dependency that isn't registered:
  * "ServiceA depends on ServiceB, but ServiceB is not registered in INIT_SERVICES.
  *  Make sure to add it to your providers array:
- *  { provide: INIT_SERVICES, useExisting: ServiceB, multi: true }"
+ *  { provide: INIT_SERVICES, useValue: ServiceB, multi: true }"
  */

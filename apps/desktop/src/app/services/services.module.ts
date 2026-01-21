@@ -564,8 +564,8 @@ const safeProviders: SafeProvider[] = [
   }),
   initializableProvider(InitService),
   initializableProvider(SdkLoadService),
-  // initializableProvider(flagEnabled("sdk") ? DefaultSdkLoadService : NoopSdkLoadService),
   initializableProvider(SshAgentService),
+  initializableProvider(NativeMessagingService),
 ];
 
 @NgModule({

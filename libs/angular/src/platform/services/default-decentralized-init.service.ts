@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@angular/core";
+import { Inject, Injectable, Injector } from "@angular/core";
 
 import { Dependency, Initializable } from "@bitwarden/common/platform/abstractions/initializable";
 
@@ -12,7 +12,8 @@ import {
  * to execute initialization in dependency order.
  *
  * This service:
- * - Discovers all registered Initializable services via the INIT_SERVICES token
+ * - Collects registered service tokens via the INIT_SERVICES token
+ * - Resolves tokens to instances using Angular's Injector
  * - Builds a dependency graph from each service's dependencies property
  * - Performs topological sort to determine execution order
  * - Detects circular dependencies and throws clear errors
@@ -20,14 +21,22 @@ import {
  */
 @Injectable()
 export class DefaultDecentralizedInitService implements DecentralizedInitService {
-  constructor(@Inject(INIT_SERVICES) private initServices: Initializable[]) {}
+  constructor(
+    @Inject(INIT_SERVICES) private initServiceTokens: Dependency[],
+    private injector: Injector,
+  ) {}
 
   async init(): Promise<void> {
-    if (!this.initServices || this.initServices.length === 0) {
+    if (!this.initServiceTokens || this.initServiceTokens.length === 0) {
       return;
     }
 
-    const sorted = this.topologicalSort(this.initServices);
+    // Resolve all tokens to instances using Angular's Injector
+    const services: Initializable[] = this.initServiceTokens.map((token) =>
+      this.injector.get(token),
+    );
+
+    const sorted = this.topologicalSort(services, this.initServiceTokens);
 
     for (const service of sorted) {
       try {
@@ -42,14 +51,17 @@ export class DefaultDecentralizedInitService implements DecentralizedInitService
    * Performs topological sort on services based on their declared dependencies.
    * Returns services in an order where all dependencies come before dependents.
    *
+   * @param services The resolved service instances
+   * @param tokens The tokens used to register these services (parallel array)
    * @throws Error if circular dependencies are detected
    * @throws Error if a dependency is declared but not registered
    */
-  private topologicalSort(services: Initializable[]): Initializable[] {
-    // Build a map from constructor to instance for quick lookup
+  private topologicalSort(services: Initializable[], tokens: Dependency[]): Initializable[] {
+    // Build a map from token to instance
+    // This uses the exact tokens that were registered, so abstract classes work correctly
     const instanceMap = new Map<Dependency, Initializable>();
-    for (const service of services) {
-      instanceMap.set(service.constructor as Dependency, service);
+    for (let i = 0; i < services.length; i++) {
+      instanceMap.set(tokens[i], services[i]);
     }
 
     const sorted: Initializable[] = [];
@@ -79,7 +91,7 @@ export class DefaultDecentralizedInitService implements DecentralizedInitService
           throw new Error(
             `${service.constructor.name} depends on ${depClass.name}, but ${depClass.name} is not registered in INIT_SERVICES. ` +
               `Make sure to add it to your providers array:\n` +
-              `{ provide: INIT_SERVICES, useExisting: ${depClass.name}, multi: true }`,
+              `{ provide: INIT_SERVICES, useValue: ${depClass.name}, multi: true }`,
           );
         }
 

@@ -1,12 +1,12 @@
-import { Type } from "@angular/core";
+import { Injector } from "@angular/core";
 
-import { Initializable } from "../abstractions/decentralized-init.service";
+import { Dependency, Initializable } from "@bitwarden/common/platform/abstractions/initializable";
 
 import { DefaultDecentralizedInitService } from "./default-decentralized-init.service";
 
 // Test service implementations
 class TestService implements Initializable {
-  dependencies: Type<Initializable>[] = [];
+  dependencies: Dependency[] = [];
   initCalled = false;
 
   init(): Promise<void> | void {
@@ -23,6 +23,19 @@ function createTrackingService(name: string, executionOrder: string[]) {
   };
 }
 
+// Helper to create a mock Injector that maps tokens to instances
+function createMockInjector(tokenMap: Map<Dependency, Initializable>): Injector {
+  return {
+    get: (token: Dependency) => {
+      const instance = tokenMap.get(token);
+      if (!instance) {
+        throw new Error(`No provider for ${token.name}!`);
+      }
+      return instance;
+    },
+  } as Injector;
+}
+
 describe("DefaultDecentralizedInitService", () => {
   let executionOrder: string[];
 
@@ -34,7 +47,8 @@ describe("DefaultDecentralizedInitService", () => {
     describe("given no registered services", () => {
       it("completes without error when called", async () => {
         // Arrange
-        const sut = new DefaultDecentralizedInitService([]);
+        const mockInjector = createMockInjector(new Map());
+        const sut = new DefaultDecentralizedInitService([], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).resolves.not.toThrow();
@@ -45,7 +59,9 @@ describe("DefaultDecentralizedInitService", () => {
       it("initializes a single service when called", async () => {
         // Arrange
         const service = new TestService();
-        const sut = new DefaultDecentralizedInitService([service]);
+        const tokenMap = new Map([[TestService, service]]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService([TestService], mockInjector);
 
         // Act
         await sut.init();
@@ -56,10 +72,24 @@ describe("DefaultDecentralizedInitService", () => {
 
       it("initializes all services when called with multiple independent services", async () => {
         // Arrange
-        const service1 = new TestService();
-        const service2 = new TestService();
-        const service3 = new TestService();
-        const sut = new DefaultDecentralizedInitService([service1, service2, service3]);
+        class Service1 extends TestService {}
+        class Service2 extends TestService {}
+        class Service3 extends TestService {}
+
+        const service1 = new Service1();
+        const service2 = new Service2();
+        const service3 = new Service3();
+
+        const tokenMap = new Map([
+          [Service1, service1],
+          [Service2, service2],
+          [Service3, service3],
+        ]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService(
+          [Service1, Service2, Service3],
+          mockInjector,
+        );
 
         // Act
         await sut.init();
@@ -81,7 +111,12 @@ describe("DefaultDecentralizedInitService", () => {
         const serviceB = new ServiceB();
         serviceB.dependencies = [ServiceA];
 
-        const sut = new DefaultDecentralizedInitService([serviceB, serviceA]);
+        const tokenMap = new Map([
+          [ServiceA, serviceA],
+          [ServiceB, serviceB],
+        ]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService([ServiceB, ServiceA], mockInjector);
 
         // Act
         await sut.init();
@@ -107,7 +142,17 @@ describe("DefaultDecentralizedInitService", () => {
         serviceC.dependencies = [ServiceA, ServiceB];
         serviceD.dependencies = [ServiceC];
 
-        const sut = new DefaultDecentralizedInitService([serviceD, serviceB, serviceC, serviceA]);
+        const tokenMap = new Map([
+          [ServiceA, serviceA],
+          [ServiceB, serviceB],
+          [ServiceC, serviceC],
+          [ServiceD, serviceD],
+        ]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService(
+          [ServiceD, ServiceB, ServiceC, ServiceA],
+          mockInjector,
+        );
 
         // Act
         await sut.init();
@@ -139,7 +184,17 @@ describe("DefaultDecentralizedInitService", () => {
         serviceC.dependencies = [ServiceA];
         serviceD.dependencies = [ServiceB, ServiceC];
 
-        const sut = new DefaultDecentralizedInitService([serviceD, serviceC, serviceB, serviceA]);
+        const tokenMap = new Map([
+          [ServiceA, serviceA],
+          [ServiceB, serviceB],
+          [ServiceC, serviceC],
+          [ServiceD, serviceD],
+        ]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService(
+          [ServiceD, ServiceC, ServiceB, ServiceA],
+          mockInjector,
+        );
 
         // Act
         await sut.init();
@@ -166,13 +221,69 @@ describe("DefaultDecentralizedInitService", () => {
         }
 
         const service = new CountingService();
-        const sut = new DefaultDecentralizedInitService([service]);
+        const tokenMap = new Map([[CountingService, service]]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService([CountingService], mockInjector);
 
         // Act
         await sut.init();
 
         // Assert
         expect(initCount).toBe(1);
+      });
+
+      it("resolves dependencies by abstract parent class when called", async () => {
+        // Arrange - Simulates Angular pattern:
+        // { provide: AbstractService, useClass: ConcreteService }
+        // { provide: INIT_SERVICES, useValue: AbstractService, multi: true }
+        abstract class AbstractBaseService extends TestService {
+          abstract someMethod(): void;
+        }
+
+        class ConcreteImplementation extends AbstractBaseService {
+          someMethod(): void {
+            executionOrder.push("method");
+          }
+
+          async init(): Promise<void> {
+            executionOrder.push("concrete");
+            await super.init();
+          }
+        }
+
+        class DependentService extends TestService {
+          // References the abstract class, not the concrete implementation
+          dependencies = [AbstractBaseService as Dependency];
+
+          async init(): Promise<void> {
+            executionOrder.push("dependent");
+            await super.init();
+          }
+        }
+
+        // Register using the abstract token (what's in INIT_SERVICES)
+        // Angular DI provides the concrete implementation
+        const concreteService = new ConcreteImplementation();
+        const dependentService = new DependentService();
+
+        const tokenMap = new Map<Dependency, Initializable>([
+          [AbstractBaseService as Dependency, concreteService], // Token points to concrete instance
+          [DependentService as Dependency, dependentService],
+        ]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService(
+          [DependentService as Dependency, AbstractBaseService as Dependency],
+          mockInjector,
+        );
+
+        // Act
+        await sut.init();
+
+        // Assert
+        // Should resolve AbstractBaseService token to ConcreteImplementation instance
+        expect(executionOrder).toEqual(["concrete", "dependent"]);
+        expect(concreteService.initCalled).toBe(true);
+        expect(dependentService.initCalled).toBe(true);
       });
     });
 
@@ -185,10 +296,15 @@ describe("DefaultDecentralizedInitService", () => {
         const serviceA = new ServiceA();
         const serviceB = new ServiceB();
 
-        serviceA.dependencies = [ServiceB as Type<Initializable>];
-        serviceB.dependencies = [ServiceA as Type<Initializable>];
+        serviceA.dependencies = [ServiceB as Dependency];
+        serviceB.dependencies = [ServiceA as Dependency];
 
-        const sut = new DefaultDecentralizedInitService([serviceA, serviceB]);
+        const tokenMap = new Map([
+          [ServiceA, serviceA],
+          [ServiceB, serviceB],
+        ]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService([ServiceA, ServiceB], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/Circular dependency detected/);
@@ -204,11 +320,20 @@ describe("DefaultDecentralizedInitService", () => {
         const serviceB = new ServiceB();
         const serviceC = new ServiceC();
 
-        serviceA.dependencies = [ServiceB as Type<Initializable>];
-        serviceB.dependencies = [ServiceC as Type<Initializable>];
-        serviceC.dependencies = [ServiceA as Type<Initializable>];
+        serviceA.dependencies = [ServiceB as Dependency];
+        serviceB.dependencies = [ServiceC as Dependency];
+        serviceC.dependencies = [ServiceA as Dependency];
 
-        const sut = new DefaultDecentralizedInitService([serviceA, serviceB, serviceC]);
+        const tokenMap = new Map([
+          [ServiceA, serviceA],
+          [ServiceB, serviceB],
+          [ServiceC, serviceC],
+        ]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService(
+          [ServiceA, ServiceB, ServiceC],
+          mockInjector,
+        );
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/Circular dependency detected/);
@@ -224,7 +349,10 @@ describe("DefaultDecentralizedInitService", () => {
         }
 
         const serviceB = new ServiceB();
-        const sut = new DefaultDecentralizedInitService([serviceB]);
+        const tokenMap = new Map([[ServiceB, serviceB]]);
+        // Note: ServiceA is not in the tokenMap
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService([ServiceB], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/not registered in INIT_SERVICES/);
@@ -238,11 +366,13 @@ describe("DefaultDecentralizedInitService", () => {
         }
 
         const myService = new MyService();
-        const sut = new DefaultDecentralizedInitService([myService]);
+        const tokenMap = new Map([[MyService, myService]]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService([MyService], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow("MyService depends on MyDependency");
-        await expect(sut.init()).rejects.toThrow("useExisting: MyDependency");
+        await expect(sut.init()).rejects.toThrow("useValue: MyDependency");
       });
     });
 
@@ -256,7 +386,9 @@ describe("DefaultDecentralizedInitService", () => {
         }
 
         const service = new FailingService();
-        const sut = new DefaultDecentralizedInitService([service]);
+        const tokenMap = new Map([[FailingService, service]]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService([FailingService], mockInjector);
 
         // Act & Assert
         await expect(sut.init()).rejects.toThrow(/Failed to initialize FailingService/);
@@ -275,7 +407,9 @@ describe("DefaultDecentralizedInitService", () => {
         }
 
         const service = new SyncService();
-        const sut = new DefaultDecentralizedInitService([service]);
+        const tokenMap = new Map([[SyncService, service]]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService([SyncService], mockInjector);
 
         // Act
         await sut.init();
@@ -305,7 +439,13 @@ describe("DefaultDecentralizedInitService", () => {
 
         const syncService = new SyncService();
         const asyncService = new AsyncService();
-        const sut = new DefaultDecentralizedInitService([asyncService, syncService]);
+
+        const tokenMap = new Map([
+          [SyncService, syncService],
+          [AsyncService, asyncService],
+        ]);
+        const mockInjector = createMockInjector(tokenMap);
+        const sut = new DefaultDecentralizedInitService([AsyncService, SyncService], mockInjector);
 
         // Act
         await sut.init();
