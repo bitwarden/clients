@@ -4,7 +4,7 @@ import { APP_INITIALIZER, NgModule } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
-import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { DefaultCollectionAdminService } from "@bitwarden/admin-console/common";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -34,12 +34,24 @@ import {
   LoginEmailService,
   SsoUrlService,
 } from "@bitwarden/auth/common";
+import {
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionAdminService } from "@bitwarden/common/admin-console/abstractions/collections/collection-admin.service";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  OrganizationService,
+  InternalOrganizationServiceAbstraction,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
+import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import {
   PolicyService as PolicyServiceAbstraction,
   InternalPolicyService,
+  PolicyService,
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   AccountService,
@@ -557,6 +569,30 @@ const safeProviders: SafeProvider[] = [
       PendingAuthRequestsStateService,
       I18nServiceAbstraction,
       LogService,
+    ],
+  }),
+  safeProvider({
+    provide: CollectionAdminService,
+    useClass: DefaultCollectionAdminService,
+    deps: [
+      ApiService,
+      KeyServiceAbstraction,
+      EncryptService,
+      CollectionService,
+      OrganizationService,
+    ],
+  }),
+  safeProvider({
+    provide: AutomaticUserConfirmationService,
+    useClass: DefaultAutomaticUserConfirmationService,
+    deps: [
+      ConfigService,
+      ApiService,
+      OrganizationUserService,
+      StateProvider,
+      InternalOrganizationServiceAbstraction,
+      OrganizationUserApiService,
+      PolicyService,
     ],
   }),
 ];

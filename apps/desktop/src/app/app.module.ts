@@ -26,7 +26,6 @@ import { UserVerificationComponent } from "./components/user-verification.compon
 import { AccountSwitcherComponent } from "./layout/account-switcher.component";
 import { HeaderComponent } from "./layout/header.component";
 import { NavComponent } from "./layout/nav.component";
-import { SearchComponent } from "./layout/search/search.component";
 import { SharedModule } from "./shared/shared.module";
 
 @NgModule({
@@ -51,7 +50,6 @@ import { SharedModule } from "./shared/shared.module";
     ColorPasswordCountPipe,
     HeaderComponent,
     PremiumComponent,
-    SearchComponent,
   ],
   providers: [
     SshAgentService,

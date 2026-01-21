@@ -1,0 +1,100 @@
+<td bitCell [ngClass]="RowHeightClass">
+  <div class="tw-flex tw-gap-3">
+    <div aria-hidden="true">
+      <i
+        [class]="
+          'bwi bwi-fw bwi-lg ' +
+          (collection.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared')
+        "
+      ></i>
+    </div>
+    <button
+      bitLink
+      [disabled]="disabled"
+      type="button"
+      class="tw-flex tw-text-start tw-leading-snug tw-truncate"
+      linkType="secondary"
+      title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
+      [routerLink]="[]"
+      [queryParams]="{ collectionId: collection.id }"
+      queryParamsHandling="merge"
+      appStopProp
+    >
+      <span class="tw-truncate tw-mr-1">{{ collection.name }}</span>
+    </button>
+    @if (showAddAccess) {
+      <button
+        bitBadge
+        type="button"
+        (click)="addAccess(CollectionPermission.Manage)"
+        variant="warning"
+      >
+        {{ "addAccess" | i18n }}
+      </button>
+    }
+  </div>
+</td>
+@if (showOwner) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell">
+    <app-org-badge
+      [disabled]="disabled"
+      [organizationId]="collection.organizationId"
+      [organizationName]="collection.organizationId | orgNameFromId: organizations"
+      appStopProp
+    >
+    </app-org-badge>
+  </td>
+}
+@if (showCollections) {
+  <td bitCell [ngClass]="RowHeightClass"></td>
+}
+@if (showPermissionsColumn) {
+  <td bitCell [ngClass]="RowHeightClass">
+    <p class="tw-mb-0 tw-text-muted" [title]="permissionTooltip">
+      {{ permissionText }}
+    </p>
+  </td>
+}
+<td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
+  @if (canEditCollection || canDeleteCollection || canViewCollectionInfo) {
+    <button
+      [disabled]="disabled"
+      [bitMenuTriggerFor]="collectionOptions"
+      size="small"
+      bitIconButton="bwi-ellipsis-v"
+      type="button"
+      label="{{ 'options' | i18n }}"
+      appStopProp
+    ></button>
+  }
+  <bit-menu #collectionOptions>
+    @if (canEditCollection) {
+      <button type="button" bitMenuItem (click)="edit(false)">
+        <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+        {{ "editInfo" | i18n }}
+      </button>
+      <button type="button" bitMenuItem (click)="access(false)">
+        <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+        {{ "editAccess" | i18n }}
+      </button>
+    }
+    @if (!canEditCollection && canViewCollectionInfo) {
+      <button type="button" bitMenuItem (click)="edit(true)">
+        <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+        {{ "viewInfo" | i18n }}
+      </button>
+      <button type="button" bitMenuItem (click)="access(true)">
+        <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+        {{ "viewAccess" | i18n }}
+      </button>
+    }
+    @if (canDeleteCollection) {
+      <button type="button" bitMenuItem (click)="deleteCollection()">
+        <span class="tw-text-danger">
+          <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+          {{ "delete" | i18n }}
+        </span>
+      </button>
+    }
+  </bit-menu>
+</td>
