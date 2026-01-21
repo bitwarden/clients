@@ -16,7 +16,7 @@ async function run(context) {
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
   const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
-  const copyAutofillExtension = ["darwin"].includes(context.electronPlatformName); // Disabled for mas builds
+  const copyAutofillExtension = ["darwin", "mas"].includes(context.electronPlatformName); // Disabled for mas builds
 
   let shouldResign = false;
 
@@ -31,7 +31,6 @@ async function run(context) {
         fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
       }
       fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
-      shouldResign = true;
     }
   }
 

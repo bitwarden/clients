@@ -7,12 +7,12 @@ use crate::{BitwardenError, Callback, Position, UserVerification};
 #[derive(uniffi::Record, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionRequest {
-    rp_id: String,
-    client_data_hash: Vec<u8>,
-    user_verification: UserVerification,
-    allowed_credentials: Vec<Vec<u8>>,
-    window_xy: Position,
-    //extension_input: Vec<u8>, TODO: Implement support for extensions
+    pub(crate) rp_id: String,
+    pub(crate) client_data_hash: Vec<u8>,
+    pub(crate) user_verification: UserVerification,
+    pub(crate) allowed_credentials: Vec<Vec<u8>>,
+    pub(crate) window_xy: Position,
+    // pub(crate) extension_input: Vec<u8>, TODO: Implement support for extensions
 }
 
 #[derive(uniffi::Record, Debug, Serialize, Deserialize)]

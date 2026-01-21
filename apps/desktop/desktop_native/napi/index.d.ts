@@ -9,14 +9,17 @@ export declare namespace autofill {
      * connection and must be the same for both the server and client. @param callback
      * This function will be called whenever a message is received from a client.
      */
-    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void, nativeStatusCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void): Promise<AutofillIpcServer>
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void, nativeStatusCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void, windowHandleQueryCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: WindowHandleQueryRequest) => void): Promise<AutofillIpcServer>
     /** Return the path to the IPC server. */
     getPath(): string
     /** Stop the IPC server. */
     stop(): void
     completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
     completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
+    completeWindowHandleQuery(clientId: number, sequenceNumber: number, response: WindowHandleQueryResponse): number
     completeError(clientId: number, sequenceNumber: number, error: string): number
+    /** Prompt a user for user verification using OS APIs. */
+    verifyUser(request: UserVerificationRequest): Promise<UserVerificationResponse>
   }
   export interface NativeStatus {
     key: string
@@ -28,6 +31,8 @@ export declare namespace autofill {
     userVerification: UserVerification
     allowedCredentials: Array<Array<number>>
     windowXy: Position
+    clientWindowHandle?: Array<number>
+    context?: string
   }
   export interface PasskeyAssertionResponse {
     rpId: string
@@ -46,6 +51,8 @@ export declare namespace autofill {
     clientDataHash: Array<number>
     userVerification: UserVerification
     windowXy: Position
+    clientWindowHandle?: Array<number>
+    context?: string
   }
   export interface PasskeyRegistrationRequest {
     rpId: string
@@ -56,6 +63,8 @@ export declare namespace autofill {
     supportedAlgorithms: Array<number>
     windowXy: Position
     excludedCredentials: Array<Array<number>>
+    clientWindowHandle?: Array<number>
+    context?: string
   }
   export interface PasskeyRegistrationResponse {
     rpId: string
@@ -72,6 +81,22 @@ export declare namespace autofill {
     Preferred = 'preferred',
     Required = 'required',
     Discouraged = 'discouraged'
+  }
+  export interface UserVerificationRequest {
+    transactionId: number
+    displayHint: string
+    username?: string
+  }
+  export interface UserVerificationResponse {
+    userVerified: boolean
+  }
+  export interface WindowHandleQueryRequest {
+    windowHandle: string
+  }
+  export interface WindowHandleQueryResponse {
+    isVisible: boolean
+    isFocused: boolean
+    handle: string
   }
 }
 

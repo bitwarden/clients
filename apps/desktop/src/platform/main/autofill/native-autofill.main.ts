@@ -6,6 +6,7 @@ import { autofill } from "@bitwarden/desktop-napi";
 import { WindowMain } from "../../../main/window.main";
 
 import { CommandDefinition } from "./command";
+import { HostRequestDefinition } from "./request";
 
 type BufferedMessage = {
   channel: string;
@@ -19,6 +20,14 @@ export type RunCommandParams<C extends CommandDefinition> = {
 };
 
 export type RunCommandResult<C extends CommandDefinition> = C["output"];
+
+export type HostRequestParams<R extends HostRequestDefinition> = {
+  namespace: R["namespace"];
+  command: R["name"];
+  params: R["input"];
+};
+
+export type HostRequestResult<R extends HostRequestDefinition> = R["output"];
 
 export class NativeAutofillMain {
   private ipcServer?: autofill.AutofillIpcServer;
@@ -69,6 +78,15 @@ export class NativeAutofillMain {
         return this.runCommand(params);
       },
     );
+
+    ipcMain.handle(
+      "autofill.userVerification",
+      (
+        _event: any,
+        params: autofill.UserVerificationRequest,
+      ): Promise<autofill.UserVerificationResponse> =>{
+        return this.ipcServer.verifyUser(params)
+      });
 
     this.ipcServer = await autofill.AutofillIpcServer.listen(
       "af",
@@ -124,6 +142,19 @@ export class NativeAutofillMain {
           status,
         });
       },
+      // WindowHandleQueryCallback
+      (error, clientId, sequenceNumber, request) => {
+        if (error) {
+          this.logService.error("autofill.IpcServer.windowHandleQuery", error);
+          this.ipcServer.completeError(clientId, sequenceNumber, String(error));
+          return;
+        }
+        this.safeSend("autofill.windowHandleQuery", {
+          clientId,
+          sequenceNumber,
+          request,
+        });
+      },
     );
 
     ipcMain.on("autofill.listenerReady", () => {
@@ -144,6 +175,12 @@ export class NativeAutofillMain {
       this.logService.debug("autofill.completePasskeyAssertion", data);
       const { clientId, sequenceNumber, response } = data;
       this.ipcServer?.completeAssertion(clientId, sequenceNumber, response);
+    });
+
+    ipcMain.on("autofill.completeWindowHandleQuery", (event, data) => {
+      this.logService.debug("autofill.completeWindowHandleQuery", data);
+      const { clientId, sequenceNumber, response } = data;
+      this.ipcServer.completeWindowHandleQuery(clientId, sequenceNumber, response);
     });
 
     ipcMain.on("autofill.completeError", (event, data) => {

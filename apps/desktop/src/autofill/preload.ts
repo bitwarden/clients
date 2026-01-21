@@ -14,6 +14,9 @@ export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
 
+  verifyUser: (request: autofill.UserVerificationRequest): Promise<autofill.UserVerificationResponse> =>
+    ipcRenderer.invoke("autofill.userVerification", request),
+
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
   listenPasskeyRegistration: (
@@ -187,6 +190,44 @@ export default {
           if (vaultData !== null) {
             ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, vaultData);
           }
+        });
+      },
+    );
+  },
+  listenGetWindowHandle: (
+    fn: (
+      clientId: number,
+      sequenceNumber: number,
+      request: autofill.WindowHandleQueryRequest,
+      completeCallback: (error: Error | null, response: autofill.WindowHandleQueryResponse) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.windowHandleQuery",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          request: autofill.WindowHandleQueryRequest;
+        },
+      ) => {
+        const { clientId, sequenceNumber, request } = data;
+        fn(clientId, sequenceNumber, request, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              clientId,
+              sequenceNumber,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completeWindowHandleQuery", {
+            clientId,
+            sequenceNumber,
+            response,
+          });
         });
       },
     );
