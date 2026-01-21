@@ -21,14 +21,17 @@ pub trait BiometricTrait: Send + Sync {
     /// enrollment, this function should do nothing.
     async fn enroll_persistent(&self, user_id: &str, key: &[u8]) -> Result<()>;
     /// Clear the persistent and ephemeral keys
-    async fn unenroll(&self, user_id: &str) -> Result<()>;
+    #[allow(clippy::ptr_arg)] // to allow using user_id as map key type
+    async fn unenroll(&self, user_id: &String) -> Result<()>;
     /// Check if a persistent (survives app restarts and reboots) key is set for a user
     async fn has_persistent(&self, user_id: &str) -> Result<bool>;
     /// Provide a key to be ephemerally held. This should be called on every unlock.
     async fn provide_key(&self, user_id: &str, key: &[u8]);
     /// Perform biometric unlock and return the key
-    async fn unlock(&self, user_id: &str, hwnd: Vec<u8>) -> Result<Vec<u8>>;
+    #[allow(clippy::ptr_arg)] // to allow using user_id as map key type
+    async fn unlock(&self, user_id: &String, hwnd: Vec<u8>) -> Result<Vec<u8>>;
     /// Check if biometric unlock is available based on whether a key is present and whether
     /// authentication is possible
-    async fn unlock_available(&self, user_id: &str) -> Result<bool>;
+    #[allow(clippy::ptr_arg)] // to allow using user_id as map key type
+    async fn unlock_available(&self, user_id: &String) -> Result<bool>;
 }

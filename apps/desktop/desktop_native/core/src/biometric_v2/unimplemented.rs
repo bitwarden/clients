@@ -29,11 +29,11 @@ impl super::BiometricTrait for BiometricLockSystem {
         unimplemented!()
     }
 
-    async fn unlock(&self, _user_id: &str, _hwnd: Vec<u8>) -> Result<Vec<u8>, anyhow::Error> {
+    async fn unlock(&self, _user_id: &String, _hwnd: Vec<u8>) -> Result<Vec<u8>, anyhow::Error> {
         unimplemented!()
     }
 
-    async fn unlock_available(&self, _user_id: &str) -> Result<bool, anyhow::Error> {
+    async fn unlock_available(&self, _user_id: &String) -> Result<bool, anyhow::Error> {
         unimplemented!()
     }
 
@@ -41,7 +41,7 @@ impl super::BiometricTrait for BiometricLockSystem {
         unimplemented!()
     }
 
-    async fn unenroll(&self, _user_id: &str) -> Result<(), anyhow::Error> {
+    async fn unenroll(&self, _user_id: &String) -> Result<(), anyhow::Error> {
         unimplemented!()
     }
 }
