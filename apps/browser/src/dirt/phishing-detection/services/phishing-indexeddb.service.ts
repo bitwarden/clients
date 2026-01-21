@@ -71,8 +71,9 @@ export class PhishingIndexedDbService {
    * Saves URLs in chunks to prevent transaction timeouts and UI freezes.
    */
   private async saveChunked(db: IDBDatabase, urls: string[]): Promise<void> {
-    for (let i = 0; i < urls.length; i += this.CHUNK_SIZE) {
-      await this.saveChunk(db, urls.slice(i, i + this.CHUNK_SIZE));
+    const cleaned = urls.map((u) => u.trim()).filter(Boolean);
+    for (let i = 0; i < cleaned.length; i += this.CHUNK_SIZE) {
+      await this.saveChunk(db, cleaned.slice(i, i + this.CHUNK_SIZE));
       await new Promise((r) => setTimeout(r, 0)); // Yield to event loop
     }
   }
@@ -85,9 +86,7 @@ export class PhishingIndexedDbService {
       const tx = db.transaction(this.STORE_NAME, "readwrite");
       const store = tx.objectStore(this.STORE_NAME);
       for (const url of urls) {
-        if (url.trim()) {
-          store.put({ url: url.trim() } as PhishingUrlRecord);
-        }
+        store.put({ url } as PhishingUrlRecord);
       }
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
@@ -195,31 +194,40 @@ export class PhishingIndexedDbService {
     const reader = stream.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
-    const urls: string[] = [];
+    let urls: string[] = [];
 
     try {
       while (true) {
         const { done, value } = await reader.read();
+
+        // Decode BEFORE done check; stream: !done flushes on final call
+        buffer += decoder.decode(value, { stream: !done });
+
         if (done) {
-          if (buffer.trim()) {
-            urls.push(buffer.trim());
+          const trimmed = buffer.trim();
+          if (trimmed) {
+            urls.push(trimmed);
           }
-          if (urls.length) {
+          if (urls.length > 0) {
             await this.saveChunk(db, urls);
           }
           break;
         }
-        buffer += decoder.decode(value, { stream: true });
+
         const lines = buffer.split("\n");
         buffer = lines.pop() ?? "";
+
         for (const line of lines) {
-          if (line.trim()) {
-            urls.push(line.trim());
+          const trimmed = line.trim();
+          if (trimmed) {
+            urls.push(trimmed);
           }
-        }
-        if (urls.length >= this.CHUNK_SIZE) {
-          await this.saveChunk(db, urls.splice(0, this.CHUNK_SIZE));
-          await new Promise((r) => setTimeout(r, 0));
+
+          if (urls.length >= this.CHUNK_SIZE) {
+            await this.saveChunk(db, urls);
+            urls = [];
+            await new Promise((r) => setTimeout(r, 0));
+          }
         }
       }
     } finally {
