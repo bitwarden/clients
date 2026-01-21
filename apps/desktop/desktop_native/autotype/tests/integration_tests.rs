@@ -18,7 +18,7 @@ use windows::Win32::{
 use windows_core::{s, w, Result, PCSTR, PCWSTR};
 
 struct TestWindow {
-    hwnd: HWND,
+    handle: HWND,
     capture: Option<InputCapture>,
 }
 
@@ -26,12 +26,12 @@ impl Drop for TestWindow {
     fn drop(&mut self) {
         // Clean up the InputCapture pointer
         unsafe {
-            let capture_ptr = GetWindowLongPtrW(self.hwnd, GWLP_USERDATA) as *mut InputCapture;
+            let capture_ptr = GetWindowLongPtrW(self.handle, GWLP_USERDATA) as *mut InputCapture;
             if !capture_ptr.is_null() {
                 let _ = Box::from_raw(capture_ptr);
             }
-            CloseWindow(self.hwnd).expect("window handle should be closeable");
-            DestroyWindow(self.hwnd).expect("window handle should be destroyable");
+            CloseWindow(self.handle).expect("window handle should be closeable");
+            DestroyWindow(self.handle).expect("window handle should be destroyable");
         }
     }
 }
@@ -59,7 +59,7 @@ impl InputCapture {
 
 // Custom window procedure that captures input
 unsafe extern "system" fn capture_input_proc(
-    hwnd: HWND,
+    handle: HWND,
     msg: u32,
     wparam: WPARAM,
     lparam: LPARAM,
@@ -69,12 +69,12 @@ unsafe extern "system" fn capture_input_proc(
             // Store the InputCapture pointer in window data
             let create_struct = lparam.0 as *const CREATESTRUCTW;
             let capture_ptr = (*create_struct).lpCreateParams as *mut InputCapture;
-            SetWindowLongPtrW(hwnd, GWLP_USERDATA, capture_ptr as isize);
+            SetWindowLongPtrW(handle, GWLP_USERDATA, capture_ptr as isize);
             LRESULT(0)
         }
         WM_CHAR => {
             // Get the InputCapture from window data
-            let capture_ptr = GetWindowLongPtrW(hwnd, GWLP_USERDATA) as *mut InputCapture;
+            let capture_ptr = GetWindowLongPtrW(handle, GWLP_USERDATA) as *mut InputCapture;
             if !capture_ptr.is_null() {
                 let capture = &*capture_ptr;
                 if let Some(ch) = char::from_u32(wparam.0 as u32) {
@@ -91,23 +91,25 @@ unsafe extern "system" fn capture_input_proc(
             PostQuitMessage(0);
             LRESULT(0)
         }
-        _ => DefWindowProcW(hwnd, msg, wparam, lparam),
+        _ => DefWindowProcW(handle, msg, wparam, lparam),
     }
 }
 
+// A pointer to the window procedure
 type ProcType = unsafe extern "system" fn(HWND, u32, WPARAM, LPARAM) -> LRESULT;
 
+// <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wndproc>
 extern "system" fn show_window_proc(
-    window: HWND,
-    message: u32,
-    wparam: WPARAM,
-    lparam: LPARAM,
+    handle: HWND,   // the window handle
+    message: u32,   // the system message
+    wparam: WPARAM, // additional message information. The contents of the wParam parameter depend on the value of the message parameter.
+    lparam: LPARAM, // additional message information. The contents of the lParam parameter depend on the value of the message parameter.
 ) -> LRESULT {
     unsafe {
         match message {
             WM_PAINT => {
                 debug!("WM_PAINT");
-                let res = ValidateRect(Some(window), None);
+                let res = ValidateRect(Some(handle), None);
                 debug_assert!(res.ok().is_ok());
                 LRESULT(0)
             }
@@ -116,7 +118,7 @@ extern "system" fn show_window_proc(
                 PostQuitMessage(0);
                 LRESULT(0)
             }
-            _ => DefWindowProcA(window, message, wparam, lparam),
+            _ => DefWindowProcA(handle, message, wparam, lparam),
         }
     }
 }
@@ -124,10 +126,10 @@ extern "system" fn show_window_proc(
 impl TestWindow {
     fn set_foreground(&self) -> Result<()> {
         unsafe {
-            let _ = ShowWindow(self.hwnd, SW_SHOW);
-            let _ = SetForegroundWindow(self.hwnd);
-            let _ = UpdateWindow(self.hwnd);
-            let _ = SetForegroundWindow(self.hwnd);
+            let _ = ShowWindow(self.handle, SW_SHOW);
+            let _ = SetForegroundWindow(self.handle);
+            let _ = UpdateWindow(self.handle);
+            let _ = SetForegroundWindow(self.handle);
         }
         std::thread::sleep(std::time::Duration::from_millis(100));
         Ok(())
@@ -179,7 +181,8 @@ fn create_input_window(title: PCWSTR, proc_type: ProcType) -> Result<TestWindow>
         let capture_ptr = Box::into_raw(Box::new(capture.clone()));
 
         // Create window
-        let hwnd = CreateWindowExW(
+        // <https://learn.microsoft.com/en-us/windows/win32/learnwin32/creating-a-window>
+        let handle = CreateWindowExW(
             WINDOW_EX_STYLE(0),
             window_class,
             title,
@@ -200,7 +203,7 @@ fn create_input_window(title: PCWSTR, proc_type: ProcType) -> Result<TestWindow>
         thread::sleep(Duration::from_millis(100));
 
         Ok(TestWindow {
-            hwnd,
+            handle,
             capture: Some(capture),
         })
     }
@@ -215,6 +218,7 @@ fn create_title_window(title: PCSTR, proc_type: ProcType) -> Result<TestWindow> 
         let window_class = s!("input_window");
 
         // Register window class with our custom proc
+        // <https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassa>
         let wc = WNDCLASSA {
             hCursor: LoadCursorW(None, IDC_ARROW)?,
             hInstance: instance,
@@ -227,7 +231,8 @@ fn create_title_window(title: PCSTR, proc_type: ProcType) -> Result<TestWindow> 
         let _atom = RegisterClassA(&wc);
 
         // Create window
-        let hwnd = CreateWindowExA(
+        // <https://learn.microsoft.com/en-us/windows/win32/learnwin32/creating-a-window>
+        let handle = CreateWindowExA(
             WINDOW_EX_STYLE::default(),
             window_class,
             title,
@@ -244,7 +249,7 @@ fn create_title_window(title: PCSTR, proc_type: ProcType) -> Result<TestWindow> 
         .expect("window should be created");
 
         Ok(TestWindow {
-            hwnd,
+            handle,
             capture: None,
         })
     }
