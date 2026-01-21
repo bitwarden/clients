@@ -4,8 +4,11 @@ import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-a
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
   MasterPasswordUnlockData,
   MasterPasswordSalt,
+  MasterKeyWrappedUserKey,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -96,19 +99,22 @@ describe("DefaultRegistrationFinishService", () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
-      masterPasswordService.emailToSalt.mockReturnValue("salt" as unknown as MasterPasswordSalt);
-      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue({
-        salt: "salt" as unknown as MasterPasswordSalt,
+      const salt = "salt" as unknown as MasterPasswordSalt;
+      const masterPasswordAuthentication: MasterPasswordAuthenticationData = {
+        salt,
         kdf: DEFAULT_KDF_CONFIG,
-        masterPasswordAuthenticationHash: "authHash" as unknown as string,
-      });
-      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(
-        new MasterPasswordUnlockData(
-          "salt" as unknown as MasterPasswordSalt,
-          DEFAULT_KDF_CONFIG,
-          new EncString("wrapped") as unknown as any,
-        ),
+        masterPasswordAuthenticationHash: "authHash" as unknown as MasterPasswordAuthenticationHash,
+      };
+      const masterPasswordUnlock = new MasterPasswordUnlockData(
+        salt,
+        DEFAULT_KDF_CONFIG,
+        "wrappedUserKey" as MasterKeyWrappedUserKey,
       );
+      masterPasswordService.emailToSalt.mockReturnValue(salt);
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        masterPasswordAuthentication,
+      );
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
 
       await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
@@ -125,10 +131,8 @@ describe("DefaultRegistrationFinishService", () => {
             publicKey: userKeyPair[0],
             encryptedPrivateKey: userKeyPair[1].encryptedString,
           },
-          kdf: passwordInputResult.kdfConfig.kdfType,
-          kdfIterations: passwordInputResult.kdfConfig.iterations,
-          kdfMemory: undefined,
-          kdfParallelism: undefined,
+          masterPasswordAuthentication: masterPasswordAuthentication,
+          masterPasswordUnlock: masterPasswordUnlock,
           // Web only fields should be undefined
           orgInviteToken: undefined,
           organizationUserId: undefined,

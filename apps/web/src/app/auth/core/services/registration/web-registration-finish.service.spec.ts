@@ -12,6 +12,11 @@ import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-a
 import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterPasswordUnlockData,
+  MasterPasswordSalt,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -29,6 +34,7 @@ describe("WebRegistrationFinishService", () => {
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let logService: MockProxy<LogService>;
   let policyService: MockProxy<PolicyService>;
+  let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
@@ -38,9 +44,12 @@ describe("WebRegistrationFinishService", () => {
     logService = mock<LogService>();
     policyService = mock<PolicyService>();
 
+    masterPasswordService = mock<MasterPasswordServiceAbstraction>();
+
     service = new WebRegistrationFinishService(
       keyService,
       accountApiService,
+      masterPasswordService,
       organizationInviteService,
       policyApiService,
       logService,
@@ -172,6 +181,10 @@ describe("WebRegistrationFinishService", () => {
     let providerInviteToken: string;
     let providerUserId: string;
 
+    let salt: MasterPasswordSalt;
+    let masterPasswordAuthentication: any;
+    let masterPasswordUnlock: MasterPasswordUnlockData;
+
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
@@ -199,6 +212,18 @@ describe("WebRegistrationFinishService", () => {
       emergencyAccessId = "emergencyAccessId";
       providerInviteToken = "providerInviteToken";
       providerUserId = "providerUserId";
+
+      salt = "salt" as unknown as MasterPasswordSalt;
+      masterPasswordAuthentication = {
+        salt,
+        kdf: DEFAULT_KDF_CONFIG,
+        masterPasswordAuthenticationHash: "authHash" as unknown as string,
+      };
+      masterPasswordUnlock = new MasterPasswordUnlockData(
+        salt,
+        DEFAULT_KDF_CONFIG,
+        new EncString("wrapped") as unknown as any,
+      );
     });
 
     it("throws an error if the user key cannot be created", async () => {
@@ -214,6 +239,11 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+      masterPasswordService.emailToSalt.mockReturnValue(salt);
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        masterPasswordAuthentication,
+      );
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
 
       await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
@@ -230,10 +260,8 @@ describe("WebRegistrationFinishService", () => {
             publicKey: userKeyPair[0],
             encryptedPrivateKey: userKeyPair[1].encryptedString,
           },
-          kdf: passwordInputResult.kdfConfig.kdfType,
-          kdfIterations: passwordInputResult.kdfConfig.iterations,
-          kdfMemory: undefined,
-          kdfParallelism: undefined,
+          masterPasswordAuthentication: masterPasswordAuthentication,
+          masterPasswordUnlock: masterPasswordUnlock,
           orgInviteToken: undefined,
           organizationUserId: undefined,
           orgSponsoredFreeFamilyPlanToken: undefined,
@@ -250,6 +278,11 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      masterPasswordService.emailToSalt.mockReturnValue(salt);
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        masterPasswordAuthentication,
+      );
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
 
       await service.finishRegistration(email, passwordInputResult);
 
@@ -266,10 +299,8 @@ describe("WebRegistrationFinishService", () => {
             publicKey: userKeyPair[0],
             encryptedPrivateKey: userKeyPair[1].encryptedString,
           },
-          kdf: passwordInputResult.kdfConfig.kdfType,
-          kdfIterations: passwordInputResult.kdfConfig.iterations,
-          kdfMemory: undefined,
-          kdfParallelism: undefined,
+          masterPasswordAuthentication: masterPasswordAuthentication,
+          masterPasswordUnlock: masterPasswordUnlock,
           orgInviteToken: orgInvite.token,
           organizationUserId: orgInvite.organizationUserId,
           orgSponsoredFreeFamilyPlanToken: undefined,
@@ -286,6 +317,11 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+      masterPasswordService.emailToSalt.mockReturnValue(salt);
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        masterPasswordAuthentication,
+      );
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
 
       await service.finishRegistration(
         email,
@@ -307,10 +343,8 @@ describe("WebRegistrationFinishService", () => {
             publicKey: userKeyPair[0],
             encryptedPrivateKey: userKeyPair[1].encryptedString,
           },
-          kdf: passwordInputResult.kdfConfig.kdfType,
-          kdfIterations: passwordInputResult.kdfConfig.iterations,
-          kdfMemory: undefined,
-          kdfParallelism: undefined,
+          masterPasswordAuthentication: masterPasswordAuthentication,
+          masterPasswordUnlock: masterPasswordUnlock,
           orgInviteToken: undefined,
           organizationUserId: undefined,
           orgSponsoredFreeFamilyPlanToken: orgSponsoredFreeFamilyPlanToken,
@@ -327,6 +361,11 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+      masterPasswordService.emailToSalt.mockReturnValue(salt);
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        masterPasswordAuthentication,
+      );
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
 
       await service.finishRegistration(
         email,
@@ -350,10 +389,8 @@ describe("WebRegistrationFinishService", () => {
             publicKey: userKeyPair[0],
             encryptedPrivateKey: userKeyPair[1].encryptedString,
           },
-          kdf: passwordInputResult.kdfConfig.kdfType,
-          kdfIterations: passwordInputResult.kdfConfig.iterations,
-          kdfMemory: undefined,
-          kdfParallelism: undefined,
+          masterPasswordAuthentication: masterPasswordAuthentication,
+          masterPasswordUnlock: masterPasswordUnlock,
           orgInviteToken: undefined,
           organizationUserId: undefined,
           orgSponsoredFreeFamilyPlanToken: undefined,
@@ -370,6 +407,11 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+      masterPasswordService.emailToSalt.mockReturnValue(salt);
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        masterPasswordAuthentication,
+      );
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
 
       await service.finishRegistration(
         email,
@@ -395,10 +437,8 @@ describe("WebRegistrationFinishService", () => {
             publicKey: userKeyPair[0],
             encryptedPrivateKey: userKeyPair[1].encryptedString,
           },
-          kdf: passwordInputResult.kdfConfig.kdfType,
-          kdfIterations: passwordInputResult.kdfConfig.iterations,
-          kdfMemory: undefined,
-          kdfParallelism: undefined,
+          masterPasswordAuthentication: masterPasswordAuthentication,
+          masterPasswordUnlock: masterPasswordUnlock,
           orgInviteToken: undefined,
           organizationUserId: undefined,
           orgSponsoredFreeFamilyPlanToken: undefined,
