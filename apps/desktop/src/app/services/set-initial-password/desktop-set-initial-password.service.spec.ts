@@ -2,6 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
   InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
@@ -201,7 +202,7 @@ describe("DesktopSetInitialPasswordService", () => {
 
       const superSpy = jest
         .spyOn(
-          Object.getPrototypeOf(Object.getPrototypeOf(sut)),
+          DefaultSetInitialPasswordService.prototype,
           "initializePasswordJitPasswordUserV2Encryption",
         )
         .mockResolvedValue(undefined);
