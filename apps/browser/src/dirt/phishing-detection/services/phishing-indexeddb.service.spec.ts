@@ -139,11 +139,12 @@ describe("PhishingIndexedDbService", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    delete (global as any).indexedDB;
   });
 
   describe("saveUrls", () => {
     it("stores URLs in IndexedDB and returns true", async () => {
-      const urls = ["phishing.com", "malware.net"];
+      const urls = ["https://phishing.com", "https://malware.net"];
 
       const result = await service.saveUrls(urls);
 
@@ -162,16 +163,16 @@ describe("PhishingIndexedDbService", () => {
     });
 
     it("trims whitespace from URLs", async () => {
-      const urls = ["  example.com  ", "\ntest.org\n"];
+      const urls = ["  https://example.com  ", "\nhttps://test.org\n"];
 
       await service.saveUrls(urls);
 
-      expect(mockObjectStore.put).toHaveBeenCalledWith({ url: "example.com" });
-      expect(mockObjectStore.put).toHaveBeenCalledWith({ url: "test.org" });
+      expect(mockObjectStore.put).toHaveBeenCalledWith({ url: "https://example.com" });
+      expect(mockObjectStore.put).toHaveBeenCalledWith({ url: "https://test.org" });
     });
 
     it("skips empty lines", async () => {
-      const urls = ["example.com", "", "  ", "test.org"];
+      const urls = ["https://example.com", "", "  ", "https://test.org"];
 
       await service.saveUrls(urls);
 
@@ -188,7 +189,7 @@ describe("PhishingIndexedDbService", () => {
         return mockOpenRequest;
       });
 
-      const result = await service.saveUrls(["test.com"]);
+      const result = await service.saveUrls(["https://test.com"]);
 
       expect(result).toBe(false);
       expect(logService.error).toHaveBeenCalledWith(
@@ -200,17 +201,17 @@ describe("PhishingIndexedDbService", () => {
 
   describe("hasUrl", () => {
     it("returns true for existing URL", async () => {
-      mockStore.set("example.com", { url: "example.com" });
+      mockStore.set("https://example.com", { url: "https://example.com" });
 
-      const result = await service.hasUrl("example.com");
+      const result = await service.hasUrl("https://example.com");
 
       expect(result).toBe(true);
       expect(mockDb.transaction).toHaveBeenCalledWith("phishing-urls", "readonly");
-      expect(mockObjectStore.get).toHaveBeenCalledWith("example.com");
+      expect(mockObjectStore.get).toHaveBeenCalledWith("https://example.com");
     });
 
     it("returns false for non-existing URL", async () => {
-      const result = await service.hasUrl("notfound.com");
+      const result = await service.hasUrl("https://notfound.com");
 
       expect(result).toBe(false);
     });
@@ -225,7 +226,7 @@ describe("PhishingIndexedDbService", () => {
         return mockOpenRequest;
       });
 
-      const result = await service.hasUrl("example.com");
+      const result = await service.hasUrl("https://example.com");
 
       expect(result).toBe(false);
       expect(logService.error).toHaveBeenCalledWith(
@@ -237,13 +238,13 @@ describe("PhishingIndexedDbService", () => {
 
   describe("loadAllUrls", () => {
     it("loads all URLs using cursor", async () => {
-      mockStore.set("example.com", { url: "example.com" });
-      mockStore.set("test.org", { url: "test.org" });
+      mockStore.set("https://example.com", { url: "https://example.com" });
+      mockStore.set("https://test.org", { url: "https://test.org" });
 
       const result = await service.loadAllUrls();
 
-      expect(result).toContain("example.com");
-      expect(result).toContain("test.org");
+      expect(result).toContain("https://example.com");
+      expect(result).toContain("https://test.org");
       expect(result.length).toBe(2);
     });
 
@@ -275,7 +276,7 @@ describe("PhishingIndexedDbService", () => {
 
   describe("saveUrlsFromStream", () => {
     it("saves URLs from stream", async () => {
-      const content = "example.com\ntest.org\nphishing.net";
+      const content = "https://example.com\nhttps://test.org\nhttps://phishing.net";
       const stream = new NodeReadableStream({
         start(controller) {
           controller.enqueue(new TextEncoder().encode(content));
@@ -291,7 +292,7 @@ describe("PhishingIndexedDbService", () => {
     });
 
     it("handles chunked stream data", async () => {
-      const content = "url1.com\nurl2.com";
+      const content = "https://url1.com\nhttps://url2.com";
       const encoder = new TextEncoder();
       const encoded = encoder.encode(content);
 
@@ -323,7 +324,7 @@ describe("PhishingIndexedDbService", () => {
 
       const stream = new NodeReadableStream({
         start(controller) {
-          controller.enqueue(new TextEncoder().encode("test.com"));
+          controller.enqueue(new TextEncoder().encode("https://test.com"));
           controller.close();
         },
       }) as unknown as ReadableStream<Uint8Array>;
@@ -350,7 +351,7 @@ describe("PhishingIndexedDbService", () => {
         return mockOpenRequest;
       });
 
-      await service.hasUrl("test.com");
+      await service.hasUrl("https://test.com");
 
       expect(mockDb.createObjectStore).toHaveBeenCalledWith("phishing-urls", { keyPath: "url" });
     });
