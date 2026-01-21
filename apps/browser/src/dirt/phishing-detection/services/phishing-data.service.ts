@@ -64,6 +64,9 @@ export const PHISHING_DOMAINS_BLOB_KEY = new KeyDefinition<string>(
 
 /** Coordinates fetching, caching, and patching of known phishing web addresses */
 export class PhishingDataService {
+  // Track instance count to detect if multiple services are created (potential memory leak)
+  private static _instanceCount = 0;
+
   private _testWebAddresses = this.getTestWebAddresses().concat("phishing.testcategory.com"); // Included for QA to test in prod
   private _phishingMetaState = this.globalStateProvider.get(PHISHING_DOMAINS_META_KEY);
   private _phishingBlobState = this.globalStateProvider.get(PHISHING_DOMAINS_BLOB_KEY);
@@ -101,7 +104,10 @@ export class PhishingDataService {
     private platformUtilsService: PlatformUtilsService,
     private resourceType: PhishingResourceType = PhishingResourceType.Links,
   ) {
-    this.logService.debug("[PhishingDataService] Initializing service...");
+    PhishingDataService._instanceCount++;
+    this.logService.info(
+      `[PhishingDataService] Initializing service instance #${PhishingDataService._instanceCount}`,
+    );
     this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.phishingDomainUpdate, () => {
       this._triggerUpdate$.next();
     });
@@ -120,7 +126,7 @@ export class PhishingDataService {
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
     if (!this._webAddressesSet) {
-      this.logService.debug("[PhishingDataService] Set not loaded; skipping check");
+      this.logService.info("[PhishingDataService] Set not loaded; skipping check");
       return false;
     }
 
@@ -235,7 +241,7 @@ export class PhishingDataService {
 
     const webAddresses = devFlagValue("testPhishingUrls") as unknown[];
     if (webAddresses && webAddresses instanceof Array) {
-      this.logService.debug(
+      this.logService.info(
         "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
         webAddresses,
       );
@@ -339,7 +345,7 @@ export class PhishingDataService {
 
   // Try to load compressed newline blob into an in-memory Set for fast lookups
   private async _loadBlobToMemory(): Promise<void> {
-    this.logService.debug("[PhishingDataService] Loading data blob into memory...");
+    this.logService.info("[PhishingDataService] Loading data blob into memory...");
     try {
       const blobBase64 = await firstValueFrom(this._phishingBlobState.state$);
       if (!blobBase64) {

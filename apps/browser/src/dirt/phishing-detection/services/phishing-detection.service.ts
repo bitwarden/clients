@@ -43,6 +43,7 @@ export class PhishingDetectionService {
   private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
   private static _ignoredHostnames = new Set<string>();
   private static _didInit = false;
+  private static _logService: LogService | null = null;
 
   static initialize(
     logService: LogService,
@@ -51,17 +52,18 @@ export class PhishingDetectionService {
     messageListener: MessageListener,
   ) {
     if (this._didInit) {
-      logService.debug("[PhishingDetectionService] Initialize already called. Aborting.");
+      logService.info("[PhishingDetectionService] Initialize already called. Aborting.");
       return;
     }
 
-    logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
+    logService.info("[PhishingDetectionService] Initialize called. Checking prerequisites...");
+    this._logService = logService;
 
     BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
 
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
       tap((message) =>
-        logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
+        logService.info(`[PhishingDetectionService] user selected continue for ${message.url}`),
       ),
       concatMap(async (message) => {
         const url = new URL(message.url);
@@ -87,7 +89,7 @@ export class PhishingDetectionService {
           prev.tabId === curr.tabId &&
           prev.ignored === curr.ignored,
       ),
-      tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
+      tap((event) => logService.info(`[PhishingDetectionService] processing event:`, event)),
       concatMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
           // The next time this host is visited, block again
@@ -118,12 +120,12 @@ export class PhishingDetectionService {
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
           if (!activeUserHasAccess) {
-            logService.debug(
+            logService.info(
               "[PhishingDetectionService] User does not have access to phishing detection service.",
             );
             return EMPTY;
           } else {
-            logService.debug("[PhishingDetectionService] Enabling phishing detection service");
+            logService.info("[PhishingDetectionService] Enabling phishing detection service");
             return merge(
               phishingDataService.update$,
               onContinueCommand$,
@@ -137,6 +139,9 @@ export class PhishingDetectionService {
 
     this._didInit = true;
     return () => {
+      logService.info(
+        `[PhishingDetectionService] Cleanup called. Observers: ${this._tabUpdated$.observers.length}, Ignored hostnames: ${this._ignoredHostnames.size}`,
+      );
       initSub.unsubscribe();
       this._didInit = false;
 
@@ -155,6 +160,12 @@ export class PhishingDetectionService {
     changeInfo: chrome.tabs.OnUpdatedInfo,
     tab: chrome.tabs.Tab,
   ): boolean {
+    // Log observer count to detect listener leaks (should always be 1)
+    if (this._tabUpdated$.observers.length > 1) {
+      this._logService?.warning(
+        `[PhishingDetectionService] Multiple observers detected: ${this._tabUpdated$.observers.length}`,
+      );
+    }
     this._tabUpdated$.next({ tabId, changeInfo, tab });
 
     // Return value for supporting BrowserApi event listener signature
