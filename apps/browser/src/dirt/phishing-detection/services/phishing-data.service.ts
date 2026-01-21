@@ -3,11 +3,15 @@ import {
   EMPTY,
   first,
   firstValueFrom,
+  from,
+  of,
   share,
+  takeUntil,
   startWith,
   Subject,
   switchMap,
   tap,
+  map,
 } from "rxjs";
 
 import { devFlagEnabled, devFlagValue } from "@bitwarden/browser/platform/flags";
@@ -64,12 +68,20 @@ export const PHISHING_DOMAINS_BLOB_KEY = new KeyDefinition<string>(
 
 /** Coordinates fetching, caching, and patching of known phishing web addresses */
 export class PhishingDataService {
+  // While background scripts do not necessarily need destroying,
+  // processes in PhishingDataService are memory intensive.
+  // We are adding the destroy to guard against accidental leaks.
+  private _destroy$ = new Subject<void>();
+
   private _testWebAddresses = this.getTestWebAddresses().concat("phishing.testcategory.com"); // Included for QA to test in prod
   private _phishingMetaState = this.globalStateProvider.get(PHISHING_DOMAINS_META_KEY);
   private _phishingBlobState = this.globalStateProvider.get(PHISHING_DOMAINS_BLOB_KEY);
 
   // In-memory set loaded from blob for fast lookups without reading large storage repeatedly
   private _webAddressesSet: Set<string> | null = null;
+  // Loading variables for web addresses set
+  // Triggers a load for _webAddressesSet
+  private _loadTrigger$ = new Subject<void>();
 
   // How often are new web addresses added to the remote?
   readonly UPDATE_INTERVAL_DURATION = 24 * 60 * 60 * 1000; // 24 hours
@@ -81,6 +93,10 @@ export class PhishingDataService {
       this._phishingMetaState.state$.pipe(
         first(), // Only take the first value to avoid an infinite loop when updating the cache below
         tap((metaState) => {
+          // Initial loading of web addresses set if not already loaded
+          if (!this._webAddressesSet) {
+            this._loadBlobToMemory();
+          }
           // Perform any updates in the background if needed
           void this._backgroundUpdate(metaState);
         }),
@@ -90,6 +106,8 @@ export class PhishingDataService {
         }),
       ),
     ),
+    // Stop emitting when dispose() is called
+    takeUntil(this._destroy$),
     share(),
   );
 
@@ -109,7 +127,18 @@ export class PhishingDataService {
       ScheduledTaskNames.phishingDomainUpdate,
       this.UPDATE_INTERVAL_DURATION,
     );
-    void this._loadBlobToMemory();
+    this._setupLoadPipeline();
+  }
+
+  dispose(): void {
+    // Signal all pipelines to stop and unsubscribe stored subscriptions
+    this._destroy$.next();
+    this._destroy$.complete();
+
+    // Clear web addresses set from memory
+    if (this._webAddressesSet !== null) {
+      this._webAddressesSet = null;
+    }
   }
 
   /**
@@ -269,7 +298,7 @@ export class PhishingDataService {
         }
         if (next.blob) {
           await this._phishingBlobState.update(() => next!.blob!);
-          await this._loadBlobToMemory();
+          this._loadBlobToMemory();
         }
 
         // Performance logging
@@ -291,6 +320,47 @@ export class PhishingDataService {
         }
       }
     }
+  }
+
+  // Sets up the load pipeline to load the blob into memory when triggered
+  private _setupLoadPipeline(): void {
+    this._loadTrigger$
+      .pipe(
+        switchMap(() =>
+          this._phishingBlobState.state$.pipe(
+            first(),
+            switchMap((blobBase64) => {
+              if (!blobBase64) {
+                return of(undefined);
+              }
+              // Note: _decompressString wraps a promise that cannot be aborted
+              // If performance improvements are needed, consider migrating to a cancellable approach
+              return from(this._decompressString(blobBase64)).pipe(
+                map((text) => {
+                  const lines = text.split(/\r?\n/);
+                  const newWebAddressesSet = new Set(lines);
+                  this._testWebAddresses.forEach((a) => newWebAddressesSet.add(a));
+                  this._webAddressesSet = new Set(newWebAddressesSet);
+                  this.logService.info(
+                    `[PhishingDataService] loaded ${this._webAddressesSet.size} addresses into memory from blob`,
+                  );
+                }),
+              );
+            }),
+            catchError((err: unknown) => {
+              this.logService.error("[PhishingDataService] Failed to load blob into memory", err);
+              return of(undefined);
+            }),
+          ),
+        ),
+        catchError((err: unknown) => {
+          this.logService.error("[PhishingDataService] Load pipeline failed", err);
+          return of(undefined);
+        }),
+        takeUntil(this._destroy$),
+        share(),
+      )
+      .subscribe();
   }
 
   // [FIXME] Move compression helpers to a shared utils library
@@ -337,29 +407,9 @@ export class PhishingDataService {
     }
   }
 
-  // Try to load compressed newline blob into an in-memory Set for fast lookups
-  private async _loadBlobToMemory(): Promise<void> {
-    this.logService.debug("[PhishingDataService] Loading data blob into memory...");
-    try {
-      const blobBase64 = await firstValueFrom(this._phishingBlobState.state$);
-      if (!blobBase64) {
-        return;
-      }
-
-      const text = await this._decompressString(blobBase64);
-      // Split and filter
-      const lines = text.split(/\r?\n/);
-      const newWebAddressesSet = new Set(lines);
-
-      // Add test addresses
-      this._testWebAddresses.forEach((a) => newWebAddressesSet.add(a));
-      this._webAddressesSet = new Set(newWebAddressesSet);
-      this.logService.info(
-        `[PhishingDataService] loaded ${this._webAddressesSet.size} addresses into memory from blob`,
-      );
-    } catch (err) {
-      this.logService.error("[PhishingDataService] Failed to load blob into memory", err);
-    }
+  // Trigger a load of the blob into memory
+  private _loadBlobToMemory(): void {
+    this._loadTrigger$.next();
   }
   private _uint8ToBase64Fallback(bytes: Uint8Array): string {
     const CHUNK_SIZE = 0x8000; // 32KB chunks
