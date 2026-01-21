@@ -35,89 +35,80 @@
             }
           </bit-toggle-group>
         }
-        <bit-table [dataSource]="dataSource">
+        <bit-table-scroll [dataSource]="dataSource" [rowSize]="75">
           @if (!isAdminConsoleActive) {
             <ng-container header>
-              <tr bitRow>
-                <th bitCell></th>
-                <th bitCell>{{ "name" | i18n }}</th>
-                <th bitCell>{{ "owner" | i18n }}</th>
-                <th bitCell></th>
-              </tr>
+              <th bitCell></th>
+              <th bitCell>{{ "name" | i18n }}</th>
+              <th bitCell>{{ "owner" | i18n }}</th>
+              <th bitCell></th>
             </ng-container>
           }
-          <tbody>
-            <ng-template body let-rows$>
-              <!-- prettier-ignore -->
-              @for (r of (rows$ | async); track r) {
-                <tr bitRow>
-                  <td bitCell>
-                    <app-vault-icon [cipher]="r"></app-vault-icon>
-                  </td>
-                  <td bitCell>
-                    @if (!organization || canManageCipher(r)) {
-                      <a
-                        bitLink
-                        href="#"
-                        appStopClick
-                        (click)="selectCipher(r)"
-                        title="{{ 'editItemWithName' | i18n: r.name }}"
-                        >{{ r.name }}</a
-                      >
-                    } @else {
-                      <span>{{ r.name }}</span>
-                    }
-                    @if (!organization && r.organizationId) {
-                      <i
-                        class="bwi bwi-collection-shared tw-ml-1"
-                        appStopProp
-                        title="{{ 'shared' | i18n }}"
-                        aria-hidden="true"
-                      ></i>
-                      <span class="tw-sr-only">{{ "shared" | i18n }}</span>
-                    }
-                    @if (r.hasAttachments) {
-                      <i
-                        class="bwi bwi-paperclip tw-ml-1"
-                        appStopProp
-                        title="{{ 'attachments' | i18n }}"
-                        aria-hidden="true"
-                      ></i>
-                      <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
-                    }
-                    <br />
-                    <small>{{ r.subTitle }}</small>
-                  </td>
-                  <td bitCell>
-                    @if (!organization) {
-                      <app-org-badge
-                        [disabled]="disabled"
-                        [organizationId]="r.organizationId"
-                        [organizationName]="
-                          r.organizationId | orgNameFromId: (organizations$ | async)
-                        "
-                        appStopProp
-                      >
-                      </app-org-badge>
-                    }
-                  </td>
-                  <td bitCell class="tw-text-right">
-                    @if (cipherDocs.has(r.id)) {
-                      <a
-                        bitBadge
-                        href="{{ cipherDocs.get(r.id) }}"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {{ "instructions" | i18n }}</a
-                      >
-                    }
-                  </td>
-                </tr>
+          <ng-template bitRowDef let-row>
+            <td bitCell>
+              <app-vault-icon [cipher]="row"></app-vault-icon>
+            </td>
+            <td bitCell>
+              @if (!organization || canManageCipher(row)) {
+                <ng-container>
+                  <a
+                    bitLink
+                    href="#"
+                    appStopClick
+                    (click)="selectCipher(row)"
+                    title="{{ 'editItemWithName' | i18n: row.name }}"
+                    >{{ row.name }}</a
+                  >
+                </ng-container>
+              } @else {
+                <ng-template>
+                  <span>{{ row.name }}</span>
+                </ng-template>
               }
-            </ng-template>
-          </tbody></bit-table
-        >
+              @if (!organization && row.organizationId) {
+                <ng-container>
+                  <i
+                    class="bwi bwi-collection-shared tw-ml-1"
+                    appStopProp
+                    title="{{ 'shared' | i18n }}"
+                    aria-hidden="true"
+                  ></i>
+                  <span class="tw-sr-only">{{ "shared" | i18n }}</span>
+                </ng-container>
+              }
+              @if (row.hasAttachments) {
+                <ng-container>
+                  <i
+                    class="bwi bwi-paperclip tw-ml-1"
+                    appStopProp
+                    title="{{ 'attachments' | i18n }}"
+                    aria-hidden="true"
+                  ></i>
+                  <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
+                </ng-container>
+              }
+              <br />
+              <small>{{ row.subTitle }}</small>
+            </td>
+            <td bitCell>
+              @if (!organization) {
+                <app-org-badge
+                  [disabled]="disabled"
+                  [organizationId]="row.organizationId"
+                  [organizationName]="row.organizationId | orgNameFromId: (organizations$ | async)"
+                  appStopProp
+                />
+              }
+            </td>
+            <td bitCell class="tw-text-right">
+              @if (cipherDocs.has(row.id)) {
+                <a bitBadge href="{{ cipherDocs.get(row.id) }}" target="_blank" rel="noreferrer">
+                  {{ "instructions" | i18n }}</a
+                >
+              }
+            </td>
+          </ng-template>
+        </bit-table-scroll>
       }
     </div>
   }
