@@ -179,6 +179,22 @@ describe("PhishingIndexedDbService", () => {
       expect(mockObjectStore.put).toHaveBeenCalledTimes(2);
     });
 
+    it("handles duplicate URLs via upsert (keyPath deduplication)", async () => {
+      const urls = [
+        "https://example.com",
+        "https://example.com", // duplicate
+        "https://test.org",
+      ];
+
+      const result = await service.saveUrls(urls);
+
+      expect(result).toBe(true);
+      // put() is called 3 times, but mockStore (using Map with URL as key)
+      // only stores 2 unique entries - demonstrating upsert behavior
+      expect(mockObjectStore.put).toHaveBeenCalledTimes(3);
+      expect(mockStore.size).toBe(2);
+    });
+
     it("logs error and returns false on failure", async () => {
       const error = new Error("IndexedDB error");
       mockOpenRequest.error = error;
