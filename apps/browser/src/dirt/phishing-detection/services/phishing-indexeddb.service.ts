@@ -204,9 +204,13 @@ export class PhishingIndexedDbService {
         buffer += decoder.decode(value, { stream: !done });
 
         if (done) {
-          const trimmed = buffer.trim();
-          if (trimmed) {
-            urls.push(trimmed);
+          // Split remaining buffer by newlines in case it contains multiple URLs
+          const lines = buffer.split("\n");
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed) {
+              urls.push(trimmed);
+            }
           }
           if (urls.length > 0) {
             await this.saveChunk(db, urls);
