@@ -246,6 +246,9 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
     // A user should always be able to unarchive an archived item
     this.showUnarchiveButton =
-      hasArchiveFlagEnabled && this.action === "view" && this.cipher.isArchived;
+      hasArchiveFlagEnabled &&
+      this.action === "view" &&
+      this.cipher.isArchived &&
+      !this.cipher.isDeleted;
   }
 }
