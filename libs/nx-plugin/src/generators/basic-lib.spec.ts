@@ -24,7 +24,7 @@ describe("basic-lib generator", () => {
     expect(tsconfigContent).not.toBeNull();
     const tsconfig = JSON.parse(tsconfigContent?.toString() ?? "");
     expect(tsconfig.compilerOptions.paths[`@bitwarden/${options.name}`]).toEqual([
-      `libs/test/src/index.ts`,
+      `./libs/test/src/index.ts`,
     ]);
   });
 

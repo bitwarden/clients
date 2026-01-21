@@ -551,7 +551,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Preencher automaticamente ao carregar a página?"
+    "message": "Preencher ao carregar a página?"
   },
   "number": {
     "message": "Número"
@@ -1050,7 +1050,7 @@
     "description": "Header for view SSH key item type"
   },
   "new": {
-    "message": "Novo",
+    "message": "Criar",
     "description": "for adding new items"
   },
   "item": {
@@ -1748,6 +1748,9 @@
   },
   "noMembersInList": {
     "message": "Não há membros para listar."
+  },
+  "noMembersToExport": {
+    "message": "Não há membros para exportar."
   },
   "noEventsInList": {
     "message": "Não há eventos para listar."
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "Ativado"
   },
+  "optionEnabled": {
+    "message": "Ativado"
+  },
   "restoreAccess": {
     "message": "Restaurar acesso"
   },
@@ -3145,6 +3151,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Para recuperar o seu acesso ao seu arquivo, retoma sua assinatura Premium. Se editar detalhes de um item arquivado antes de retomar, ele será movido de volta para o seu cofre."
+  },
+  "itemRestored": {
+    "message": "O item foi restaurado"
   },
   "restartPremium": {
     "message": "Retomar Premium"
@@ -5607,6 +5616,37 @@
     "message": "Send salvo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send criado com sucesso!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou pelos próximos $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ horas",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Novo Send de texto",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Novo Send de arquivo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send salvo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5645,6 +5685,9 @@
   },
   "revoked": {
     "message": "Revogados"
+  },
+  "accepted": {
+    "message": "Aceito"
   },
   "sendLink": {
     "message": "Link do Send",
@@ -6303,6 +6346,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Inscrito na recuperação de conta"
+  },
+  "enrolled": {
+    "message": "Inscrito"
+  },
+  "notEnrolled": {
+    "message": "Não inscrito"
   },
   "withdrawAccountRecovery": {
     "message": "Retirar-se da recuperação de conta"
@@ -9780,7 +9829,7 @@
     "message": "Instalar extensão de navegador"
   },
   "installBrowserExtensionDetails": {
-    "message": "Use a extensão para salvar credenciais e preencher automaticamente formulários de forma rápida, sem abrir o aplicativo web."
+    "message": "Use a extensão para salvar credenciais e preencher formulários de forma rápida, sem abrir o aplicativo web."
   },
   "projectAccessUpdated": {
     "message": "Acesso ao projeto atualizado"
@@ -11078,7 +11127,7 @@
     "message": "Use campos ocultos para dados sensíveis como senhas"
   },
   "checkBoxHelpText": {
-    "message": "Use caixas de seleção se gostaria de preencher automaticamente a caixa de seleção de um formulário, como um lembrar e-mail"
+    "message": "Use caixas de seleção se gostaria de preencher a caixa de seleção de um formulário, como um lembrar e-mail"
   },
   "linkedHelpText": {
     "message": "Use um campo vinculado quando estiver enfrentando problemas com o preenchimento automático em um site específico."
@@ -11571,6 +11620,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Esta credencial está em risco e está sem um site. Adicione um site e altere a senha para segurança melhor."
   },
+  "vulnerablePassword": {
+    "message": "Senha vulnerável."
+  },
+  "changeNow": {
+    "message": "Alterar agora"
+  },
   "missingWebsite": {
     "message": "Site ausente"
   },
@@ -11609,6 +11664,9 @@
   "unArchive": {
     "message": "Desarquivar"
   },
+  "archived": {
+    "message": "Arquivados"
+  },
   "unArchiveAndSave": {
     "message": "Desarquivar e salvar"
   },
@@ -11626,6 +11684,9 @@
   },
   "itemsWereSentToArchive": {
     "message": "Itens foram enviados para o arquivo"
+  },
+  "itemWasUnarchived": {
+    "message": "O item foi desarquivado"
   },
   "itemUnarchived": {
     "message": "O item foi desarquivado"
@@ -11746,7 +11807,7 @@
     "message": "Adicionar mais tarde"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "Você não pode preencher senhas automaticamente sem a extensão de navegador"
+    "message": "Você não pode preencher senhas sem a extensão de navegador"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
     "message": "Você tem certeza de que não quer adicionar a extensão agora?"
@@ -12485,5 +12546,88 @@
   },
   "planDescPremium": {
     "message": "Segurança on-line completa"
+  },
+  "updatePayment": {
+    "message": "Atualizar pagamento"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Não pudemos processar seu pagamento. Atualize seu método de pagamento ou entre em contato com a equipe de suporte para assistência."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Sua assinatura expirou. Entre em contato com a equipe de suporte para obter assistência."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Sua assinatura está agendada para ser cancelada em $DATE$. Você pode reestabelecê-la a qualquer momento antes disso.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Compartilhe ainda mais com o Famílias, ou receba segurança poderosa e confiável de senhas com o Equipes ou o Empresarial."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Você tem um período de tolerância de $DAYS$ dias até a data de expiração da sua assinatura. Resolva as faturas atrasadas até $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Gerenciar faturas"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Sua próxima cobrança é de"
+  },
+  "dueOn": {
+    "message": "para"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Sua assinatura será suspensa em"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Sua assinatura foi suspensa em"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Sua assinatura será cancelada em"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Sua assinatura foi cancelada em"
+  },
+  "storageFull": {
+    "message": "Armazenamento cheio"
+  },
+  "storageUsedDescription": {
+    "message": "Você usou $USED$ dos $AVAILABLE$ GB do seu armazenamento de arquivos criptografados.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Você usou todos os $GB$ GB do seu armazenamento criptografado. Para continuar armazenando arquivos, adicione mais armazenamento."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Quando você remover o armazenamento, você receberá um crédito de conta proporcional que irá automaticamente para sua próxima fatura."
+  },
+  "youHavePremium": {
+    "message": "Você tem o Premium"
+  },
+  "emailProtected": {
+    "message": "E-mail protegido"
   }
 }

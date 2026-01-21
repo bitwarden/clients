@@ -188,7 +188,7 @@ describe("SettingsComponent", () => {
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     policyService.policiesByType$.mockReturnValue(of([null]));
     desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
-    desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Shift", "B"]);
+    desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(false));
   });
