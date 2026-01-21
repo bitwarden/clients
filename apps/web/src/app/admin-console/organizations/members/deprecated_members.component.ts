@@ -1,12 +1,9 @@
-import { Component, computed, inject, signal, Signal, WritableSignal } from "@angular/core";
+import { Component, computed, Signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import {
-  BehaviorSubject,
   combineLatest,
   concatMap,
-  debounceTime,
   filter,
   firstValueFrom,
   from,
@@ -18,8 +15,11 @@ import {
   take,
 } from "rxjs";
 
+import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
@@ -40,16 +40,16 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
+import { BaseMembersComponent } from "../../common/base-members.component";
 import {
   CloudBulkReinviteLimit,
   MaxCheckedCount,
-  MembersTableDataSource,
-  peopleFilter,
-  showConfirmBanner,
+  PeopleTableDataSource,
 } from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
@@ -66,91 +66,80 @@ import {
   MemberActionResult,
 } from "./services/member-actions/member-actions.service";
 
-interface BulkMemberFlags {
-  showBulkRestoreUsers: boolean;
-  showBulkRevokeUsers: boolean;
-  showBulkRemoveUsers: boolean;
-  showBulkDeleteUsers: boolean;
-  showBulkConfirmUsers: boolean;
-  showBulkReinviteUsers: boolean;
+class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView> {
+  protected statusType = OrganizationUserStatusType;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  templateUrl: "members.component.html",
+  templateUrl: "deprecated_members.component.html",
   standalone: false,
 })
-export class vNextMembersComponent {
-  protected i18nService = inject(I18nService);
-  protected validationService = inject(ValidationService);
-  protected logService = inject(LogService);
-  protected userNamePipe = inject(UserNamePipe);
-  protected dialogService = inject(DialogService);
-  protected toastService = inject(ToastService);
-  private route = inject(ActivatedRoute);
-  protected deleteManagedMemberWarningService = inject(DeleteManagedMemberWarningService);
-  private organizationWarningsService = inject(OrganizationWarningsService);
-  private memberActionsService = inject(MemberActionsService);
-  private memberDialogManager = inject(MemberDialogManagerService);
-  protected billingConstraint = inject(BillingConstraintService);
-  protected memberService = inject(OrganizationMembersService);
-  private organizationService = inject(OrganizationService);
-  private accountService = inject(AccountService);
-  private policyService = inject(PolicyService);
-  private policyApiService = inject(PolicyApiServiceAbstraction);
-  private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
-  private configService = inject(ConfigService);
-  private environmentService = inject(EnvironmentService);
-  private memberExportService = inject(MemberExportService);
+export class MembersComponent extends BaseMembersComponent<OrganizationUserView> {
+  userType = OrganizationUserType;
+  userStatusType = OrganizationUserStatusType;
+  memberTab = MemberDialogTab;
+  protected dataSource: MembersTableDataSource;
+
+  readonly organization: Signal<Organization | undefined>;
+  status: OrganizationUserStatusType | undefined;
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  protected userType = OrganizationUserType;
-  protected userStatusType = OrganizationUserStatusType;
-  protected memberTab = MemberDialogTab;
-
-  protected searchControl = new FormControl("", { nonNullable: true });
-  protected statusToggle = new BehaviorSubject<OrganizationUserStatusType | undefined>(undefined);
-
-  protected readonly dataSource: Signal<MembersTableDataSource> = signal(
-    new MembersTableDataSource(this.configService, this.environmentService),
-  );
-  protected readonly organization: Signal<Organization | undefined>;
-  protected readonly firstLoaded: WritableSignal<boolean> = signal(false);
-
-  protected bulkMenuOptions$ = this.dataSource()
-    .usersUpdated()
-    .pipe(map((members) => this.bulkMenuOptions(members)));
-
-  protected showConfirmBanner$ = this.dataSource()
-    .usersUpdated()
-    .pipe(map(() => showConfirmBanner(this.dataSource())));
-
-  protected isProcessing = this.memberActionsService.isProcessing;
+  resetPasswordPolicyEnabled$: Observable<boolean>;
 
   protected readonly canUseSecretsManager: Signal<boolean> = computed(
     () => this.organization()?.useSecretsManager ?? false,
   );
-
   protected readonly showUserManagementControls: Signal<boolean> = computed(
     () => this.organization()?.canManageUsers ?? false,
   );
-
   protected billingMetadata$: Observable<OrganizationBillingMetadataResponse>;
-
-  protected resetPasswordPolicyEnabled$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 66;
   protected rowHeightClass = `tw-h-[66px]`;
 
-  constructor() {
-    combineLatest([this.searchControl.valueChanges.pipe(debounceTime(200)), this.statusToggle])
-      .pipe(takeUntilDestroyed())
-      .subscribe(
-        ([searchText, status]) => (this.dataSource().filter = peopleFilter(searchText, status)),
-      );
+  constructor(
+    apiService: ApiService,
+    i18nService: I18nService,
+    organizationManagementPreferencesService: OrganizationManagementPreferencesService,
+    keyService: KeyService,
+    validationService: ValidationService,
+    logService: LogService,
+    userNamePipe: UserNamePipe,
+    dialogService: DialogService,
+    toastService: ToastService,
+    private route: ActivatedRoute,
+    protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
+    private organizationWarningsService: OrganizationWarningsService,
+    private memberActionsService: MemberActionsService,
+    private memberDialogManager: MemberDialogManagerService,
+    protected billingConstraint: BillingConstraintService,
+    protected memberService: OrganizationMembersService,
+    private organizationService: OrganizationService,
+    private accountService: AccountService,
+    private policyService: PolicyService,
+    private policyApiService: PolicyApiServiceAbstraction,
+    private organizationMetadataService: OrganizationMetadataServiceAbstraction,
+    private memberExportService: MemberExportService,
+    private configService: ConfigService,
+    private environmentService: EnvironmentService,
+  ) {
+    super(
+      apiService,
+      i18nService,
+      keyService,
+      validationService,
+      logService,
+      userNamePipe,
+      dialogService,
+      organizationManagementPreferencesService,
+      toastService,
+    );
+
+    this.dataSource = new MembersTableDataSource(this.configService, this.environmentService);
 
     const organization$ = this.route.params.pipe(
       concatMap((params) =>
@@ -193,7 +182,7 @@ export class vNextMembersComponent {
           this.searchControl.setValue(qParams.search);
 
           if (qParams.viewEvents != null) {
-            const user = this.dataSource().data.filter((u) => u.id === qParams.viewEvents);
+            const user = this.dataSource.data.filter((u) => u.id === qParams.viewEvents);
             if (user.length > 0 && user[0].status === OrganizationUserStatusType.Confirmed) {
               this.openEventsDialog(user[0], organization!);
             }
@@ -227,62 +216,80 @@ export class vNextMembersComponent {
     this.billingMetadata$.pipe(take(1), takeUntilDestroyed()).subscribe();
   }
 
-  async load(organization: Organization) {
-    const response = await this.memberService.loadUsers(organization);
-    this.dataSource().data = response;
-    this.firstLoaded.set(true);
+  override async load(organization: Organization) {
+    await super.load(organization);
   }
 
-  async remove(user: OrganizationUserView, organization: Organization) {
-    const confirmed = await this.memberDialogManager.openRemoveUserConfirmationDialog(user);
-
-    if (!confirmed) {
-      return false;
-    }
-
-    const result = await this.memberActionsService.removeUser(organization, user.id);
-    const sideEffect = () => this.dataSource().removeUser(user);
-    await this.handleMemberActionResult(result, "removedUserId", user, sideEffect);
+  async getUsers(organization: Organization): Promise<OrganizationUserView[]> {
+    return await this.memberService.loadUsers(organization);
   }
 
-  async reinvite(user: OrganizationUserView, organization: Organization) {
-    const result = await this.memberActionsService.reinviteUser(organization, user.id);
-    await this.handleMemberActionResult(result, "hasBeenReinvited", user);
+  async removeUser(id: string, organization: Organization): Promise<MemberActionResult> {
+    return await this.memberActionsService.removeUser(organization, id);
   }
 
-  async confirm(user: OrganizationUserView, organization: Organization) {
-    const confirmUserSideEffect = () => {
-      user.status = this.userStatusType.Confirmed;
-      this.dataSource().replaceUser(user);
-    };
+  async revokeUser(id: string, organization: Organization): Promise<MemberActionResult> {
+    return await this.memberActionsService.revokeUser(organization, id);
+  }
 
-    const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(user);
+  async restoreUser(id: string, organization: Organization): Promise<MemberActionResult> {
+    return await this.memberActionsService.restoreUser(organization, id);
+  }
 
-    if (publicKeyResult == null) {
-      this.logService.warning("Public key not found");
-      return;
-    }
+  async reinviteUser(id: string, organization: Organization): Promise<MemberActionResult> {
+    return await this.memberActionsService.reinviteUser(organization, id);
+  }
 
-    const result = await this.memberActionsService.confirmUser(user, publicKeyResult, organization);
-    await this.handleMemberActionResult(result, "hasBeenConfirmed", user, confirmUserSideEffect);
+  async confirmUser(
+    user: OrganizationUserView,
+    publicKey: Uint8Array,
+    organization: Organization,
+  ): Promise<MemberActionResult> {
+    return await this.memberActionsService.confirmUser(user, publicKey, organization);
   }
 
   async revoke(user: OrganizationUserView, organization: Organization) {
-    const confirmed = await this.memberDialogManager.openRevokeUserConfirmationDialog(user);
+    const confirmed = await this.revokeUserConfirmationDialog(user);
 
     if (!confirmed) {
       return false;
     }
 
-    const result = await this.memberActionsService.revokeUser(organization, user.id);
-    const sideEffect = async () => await this.load(organization);
-    await this.handleMemberActionResult(result, "revokedUserId", user, sideEffect);
+    this.actionPromise = this.revokeUser(user.id, organization);
+    try {
+      const result = await this.actionPromise;
+      if (result.success) {
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("revokedUserId", this.userNamePipe.transform(user)),
+        });
+        await this.load(organization);
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e) {
+      this.validationService.showError(e);
+    }
+    this.actionPromise = undefined;
   }
 
   async restore(user: OrganizationUserView, organization: Organization) {
-    const result = await this.memberActionsService.restoreUser(organization, user.id);
-    const sideEffect = async () => await this.load(organization);
-    await this.handleMemberActionResult(result, "restoredUserId", user, sideEffect);
+    this.actionPromise = this.restoreUser(user.id, organization);
+    try {
+      const result = await this.actionPromise;
+      if (result.success) {
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("restoredUserId", this.userNamePipe.transform(user)),
+        });
+        await this.load(organization);
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e) {
+      this.validationService.showError(e);
+    }
+    this.actionPromise = undefined;
   }
 
   allowResetPassword(
@@ -298,7 +305,7 @@ export class vNextMembersComponent {
   }
 
   showEnrolledStatus(
-    orgUser: OrganizationUserView,
+    orgUser: OrganizationUserUserDetailsResponse,
     organization: Organization,
     orgResetPasswordPolicyEnabled: boolean,
   ): boolean {
@@ -309,15 +316,9 @@ export class vNextMembersComponent {
     );
   }
 
-  async invite(organization: Organization) {
+  private async handleInviteDialog(organization: Organization) {
     const billingMetadata = await firstValueFrom(this.billingMetadata$);
-    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
-
-    if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization)) {
-      return;
-    }
-
-    const allUserEmails = this.dataSource().data?.map((user) => user.email) ?? [];
+    const allUserEmails = this.dataSource.data?.map((user) => user.email) ?? [];
 
     const result = await this.memberDialogManager.openInviteDialog(
       organization,
@@ -327,6 +328,14 @@ export class vNextMembersComponent {
 
     if (result === MemberDialogResult.Saved) {
       await this.load(organization);
+    }
+  }
+
+  async invite(organization: Organization) {
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    if (!(await this.billingConstraint.seatLimitReached(seatLimitResult, organization))) {
+      await this.handleInviteDialog(organization);
       this.organizationMetadataService.refreshMetadataCache();
     }
   }
@@ -347,7 +356,7 @@ export class vNextMembersComponent {
 
     switch (result) {
       case MemberDialogResult.Deleted:
-        this.dataSource().removeUser(user);
+        this.dataSource.removeUser(user);
         break;
       case MemberDialogResult.Saved:
       case MemberDialogResult.Revoked:
@@ -358,30 +367,57 @@ export class vNextMembersComponent {
   }
 
   async bulkRemove(organization: Organization) {
-    const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
+    if (this.actionPromise != null) {
+      return;
+    }
+
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
     await this.memberDialogManager.openBulkRemoveDialog(organization, users);
     this.organizationMetadataService.refreshMetadataCache();
     await this.load(organization);
   }
 
   async bulkDelete(organization: Organization) {
-    const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
+    if (this.actionPromise != null) {
+      return;
+    }
+
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
     await this.memberDialogManager.openBulkDeleteDialog(organization, users);
     await this.load(organization);
   }
 
+  async bulkRevoke(organization: Organization) {
+    await this.bulkRevokeOrRestore(true, organization);
+  }
+
+  async bulkRestore(organization: Organization) {
+    await this.bulkRevokeOrRestore(false, organization);
+  }
+
   async bulkRevokeOrRestore(isRevoking: boolean, organization: Organization) {
-    const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
+    if (this.actionPromise != null) {
+      return;
+    }
+
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
     await this.memberDialogManager.openBulkRestoreRevokeDialog(organization, users, isRevoking);
     await this.load(organization);
   }
 
   async bulkReinvite(organization: Organization) {
+    if (this.actionPromise != null) {
+      return;
+    }
+
     let users: OrganizationUserView[];
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
-      users = this.dataSource().getCheckedUsersInVisibleOrder();
+    if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+      users = this.dataSource.getCheckedUsersInVisibleOrder();
     } else {
-      users = this.dataSource().getCheckedUsers();
+      users = this.dataSource.getCheckedUsers();
     }
 
     const allInvitedUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
@@ -391,8 +427,8 @@ export class vNextMembersComponent {
 
     // When feature flag is enabled, limit invited users and uncheck the excess
     let filteredUsers: OrganizationUserView[];
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
-      filteredUsers = this.dataSource().limitAndUncheckExcess(
+    if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+      filteredUsers = this.dataSource.limitAndUncheckExcess(
         allInvitedUsers,
         CloudBulkReinviteLimit,
       );
@@ -409,59 +445,70 @@ export class vNextMembersComponent {
       return;
     }
 
-    const result = await this.memberActionsService.bulkReinvite(
-      organization,
-      filteredUsers.map((user) => user.id as UserId),
-    );
-
-    if (!result.successful) {
-      this.validationService.showError(result.failed);
-    }
-
-    // When feature flag is enabled, show toast instead of dialog
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
-      const selectedCount = originalInvitedCount;
-      const invitedCount = filteredUsers.length;
-
-      if (selectedCount > CloudBulkReinviteLimit) {
-        const excludedCount = selectedCount - CloudBulkReinviteLimit;
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t(
-            "bulkReinviteLimitedSuccessToast",
-            CloudBulkReinviteLimit.toLocaleString(),
-            selectedCount.toLocaleString(),
-            excludedCount.toLocaleString(),
-          ),
-        });
-      } else {
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
-        });
-      }
-    } else {
-      // Feature flag disabled - show legacy dialog
-      await this.memberDialogManager.openBulkStatusDialog(
-        users,
-        filteredUsers,
-        Promise.resolve(result.successful),
-        this.i18nService.t("bulkReinviteMessage"),
+    try {
+      const result = await this.memberActionsService.bulkReinvite(
+        organization,
+        filteredUsers.map((user) => user.id as UserId),
       );
+
+      if (!result.successful) {
+        throw new Error();
+      }
+
+      // When feature flag is enabled, show toast instead of dialog
+      if (this.dataSource.isIncreasedBulkLimitEnabled()) {
+        const selectedCount = originalInvitedCount;
+        const invitedCount = filteredUsers.length;
+
+        if (selectedCount > CloudBulkReinviteLimit) {
+          const excludedCount = selectedCount - CloudBulkReinviteLimit;
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t(
+              "bulkReinviteLimitedSuccessToast",
+              CloudBulkReinviteLimit.toLocaleString(),
+              selectedCount.toLocaleString(),
+              excludedCount.toLocaleString(),
+            ),
+          });
+        } else {
+          this.toastService.showToast({
+            variant: "success",
+            message: this.i18nService.t("bulkReinviteSuccessToast", invitedCount.toString()),
+          });
+        }
+      } else {
+        // Feature flag disabled - show legacy dialog
+        await this.memberDialogManager.openBulkStatusDialog(
+          users,
+          filteredUsers,
+          Promise.resolve(result.successful),
+          this.i18nService.t("bulkReinviteMessage"),
+        );
+      }
+    } catch (e) {
+      this.validationService.showError(e);
     }
+    this.actionPromise = undefined;
   }
 
   async bulkConfirm(organization: Organization) {
-    const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
+    if (this.actionPromise != null) {
+      return;
+    }
+
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
     await this.memberDialogManager.openBulkConfirmDialog(organization, users);
     await this.load(organization);
   }
 
   async bulkEnableSM(organization: Organization) {
-    const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
+    const users = this.dataSource.getCheckedUsersWithLimit(MaxCheckedCount);
+
     await this.memberDialogManager.openBulkEnableSecretsManagerDialog(organization, users);
 
-    this.dataSource().uncheckAllUsers();
+    this.dataSource.uncheckAllUsers();
     await this.load(organization);
   }
 
@@ -489,6 +536,14 @@ export class vNextMembersComponent {
     return;
   }
 
+  protected async removeUserConfirmationDialog(user: OrganizationUserView) {
+    return await this.memberDialogManager.openRemoveUserConfirmationDialog(user);
+  }
+
+  protected async revokeUserConfirmationDialog(user: OrganizationUserView) {
+    return await this.memberDialogManager.openRevokeUserConfirmationDialog(user);
+  }
+
   async deleteUser(user: OrganizationUserView, organization: Organization) {
     const confirmed = await this.memberDialogManager.openDeleteUserConfirmationDialog(
       user,
@@ -499,62 +554,53 @@ export class vNextMembersComponent {
       return false;
     }
 
-    const result = await this.memberActionsService.deleteUser(organization, user.id);
-    await this.handleMemberActionResult(result, "organizationUserDeleted", user, () => {
-      this.dataSource().removeUser(user);
-    });
-  }
-
-  async handleMemberActionResult(
-    result: MemberActionResult,
-    successKey: string,
-    user: OrganizationUserView,
-    sideEffect?: () => void | Promise<void>,
-  ) {
-    if (result.error != null) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t(result.error),
-      });
-      this.logService.error(result.error);
-      return;
-    }
-
-    if (result.success) {
+    this.actionPromise = this.memberActionsService.deleteUser(organization, user.id);
+    try {
+      const result = await this.actionPromise;
+      if (!result.success) {
+        throw new Error(result.error);
+      }
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t(successKey, this.userNamePipe.transform(user)),
+        message: this.i18nService.t("organizationUserDeleted", this.userNamePipe.transform(user)),
       });
-
-      if (sideEffect) {
-        await sideEffect();
-      }
+      this.dataSource.removeUser(user);
+    } catch (e) {
+      this.validationService.showError(e);
     }
+    this.actionPromise = undefined;
   }
 
-  private bulkMenuOptions(members: OrganizationUserView[]): BulkMemberFlags {
+  get showBulkRestoreUsers(): boolean {
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.status == this.userStatusType.Revoked);
+  }
+
+  get showBulkRevokeUsers(): boolean {
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.status != this.userStatusType.Revoked);
+  }
+
+  get showBulkRemoveUsers(): boolean {
+    return this.dataSource.getCheckedUsers().every((member) => !member.managedByOrganization);
+  }
+
+  get showBulkDeleteUsers(): boolean {
     const validStatuses = [
-      OrganizationUserStatusType.Accepted,
-      OrganizationUserStatusType.Confirmed,
-      OrganizationUserStatusType.Revoked,
+      this.userStatusType.Accepted,
+      this.userStatusType.Confirmed,
+      this.userStatusType.Revoked,
     ];
 
-    const result = {
-      showBulkConfirmUsers: members.every((m) => m.status == OrganizationUserStatusType.Accepted),
-      showBulkReinviteUsers: members.every((m) => m.status == OrganizationUserStatusType.Invited),
-      showBulkRestoreUsers: members.every((m) => m.status == OrganizationUserStatusType.Revoked),
-      showBulkRevokeUsers: members.every((m) => m.status != OrganizationUserStatusType.Revoked),
-      showBulkRemoveUsers: members.every((m) => !m.managedByOrganization),
-      showBulkDeleteUsers: members.every(
-        (m) => m.managedByOrganization && validStatuses.includes(m.status),
-      ),
-    };
-
-    return result;
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.managedByOrganization && validStatuses.includes(member.status));
   }
 
   exportMembers = () => {
-    const result = this.memberExportService.getMemberExport(this.dataSource().data);
+    const result = this.memberExportService.getMemberExport(this.dataSource.data);
     if (result.success) {
       this.toastService.showToast({
         variant: "success",
