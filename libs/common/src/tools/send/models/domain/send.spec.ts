@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { emptyGuid, UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -15,7 +16,6 @@ import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
 
-import { Send } from "./send";
 import { SendText } from "./send-text";
 
 describe("Send", () => {
@@ -26,7 +26,6 @@ describe("Send", () => {
       id: "id",
       accessId: "accessId",
       type: SendType.Text,
-      authType: AuthType.None,
       name: "encName",
       notes: "encNotes",
       text: {
@@ -44,6 +43,7 @@ describe("Send", () => {
       emails: null!,
       disabled: false,
       hideEmail: true,
+      authType: AuthType.None,
     };
 
     mockContainerService();
@@ -81,7 +81,6 @@ describe("Send", () => {
       id: "id",
       accessId: "accessId",
       type: SendType.Text,
-      authType: AuthType.None,
       name: { encryptedString: "encName", encryptionType: 0 },
       notes: { encryptedString: "encNotes", encryptionType: 0 },
       text: {
@@ -98,6 +97,7 @@ describe("Send", () => {
       emails: null!,
       disabled: false,
       hideEmail: true,
+      authType: AuthType.None,
     });
   });
 
@@ -123,6 +123,7 @@ describe("Send", () => {
     send.password = "password";
     send.disabled = false;
     send.hideEmail = true;
+    send.authType = AuthType.None;
 
     const encryptService = mock<EncryptService>();
     const keyService = mock<KeyService>();
@@ -150,7 +151,6 @@ describe("Send", () => {
       name: "name",
       notes: "notes",
       type: 0,
-      authType: 2,
       key: expect.anything(),
       cryptoKey: "cryptoKey",
       file: expect.anything(),
@@ -163,6 +163,7 @@ describe("Send", () => {
       password: "password",
       disabled: false,
       hideEmail: true,
+      authType: AuthType.None,
     });
   });
 });
