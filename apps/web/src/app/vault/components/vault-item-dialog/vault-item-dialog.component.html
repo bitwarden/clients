@@ -86,7 +86,7 @@
 
     @if (showActionButtons) {
       <div class="tw-ml-auto">
-        @if (userCanArchive$ | async) {
+        @if ((userCanArchive$ | async) && !params.isAdminConsoleAction) {
           @if (isCipherArchived) {
             <button
               type="button"
@@ -96,7 +96,7 @@
               [label]="'unArchive' | i18n"
             ></button>
           }
-          @if (cipher.canBeArchived) {
+          @if (cipher?.canBeArchived) {
             <button
               type="button"
               class="tw-mr-1"
@@ -106,15 +106,17 @@
             ></button>
           }
         }
-        <button
-          bitIconButton="bwi-trash"
-          type="button"
-          buttonType="danger"
-          [label]="'delete' | i18n"
-          [bitAction]="delete"
-          [disabled]="!canDelete"
-          data-testid="delete-cipher-btn"
-        ></button>
+        @if (cipher) {
+          <button
+            bitIconButton="bwi-trash"
+            type="button"
+            buttonType="danger"
+            [label]="'delete' | i18n"
+            [bitAction]="delete"
+            [disabled]="!canDelete"
+            data-testid="delete-cipher-btn"
+          ></button>
+        }
       </div>
     }
   </ng-container>
