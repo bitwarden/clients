@@ -112,13 +112,12 @@ class KitchenSinkDialogComponent {
 
     <div class="tw-my-6">
       <h1 bitTypography="h1">Bitwarden Kitchen Sink<bit-avatar text="Bit Warden"></bit-avatar></h1>
-      <a bitLink linkType="primary" href="#">This is a link</a>
+      <a bitLink href="#">This is a link</a>
       <p bitTypography="body1" class="tw-inline">
         &nbsp;and this is a link button popover trigger:&nbsp;
       </p>
       <button
         bitLink
-        linkType="primary"
         [bitPopoverTriggerFor]="myPopover"
         #triggerRef="popoverTrigger"
         type="button"

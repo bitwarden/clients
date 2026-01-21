@@ -3,21 +3,34 @@ import { input, HostBinding, Directive, inject, ElementRef, booleanAttribute } f
 import { AriaDisableDirective } from "../a11y";
 import { ariaDisableElement } from "../utils";
 
-export type LinkType = "primary" | "secondary" | "contrast" | "light";
+export const LinkTypes = [
+  "primary",
+  "secondary",
+  "contrast",
+  "light",
+  "default",
+  "subtle",
+  "success",
+  "warning",
+  "danger",
+] as const;
+
+export type LinkType = (typeof LinkTypes)[number];
 
 const linkStyles: Record<LinkType, string[]> = {
-  primary: [
-    "!tw-text-primary-600",
-    "hover:!tw-text-primary-700",
-    "focus-visible:before:tw-ring-primary-600",
-  ],
-  secondary: ["!tw-text-main", "hover:!tw-text-main", "focus-visible:before:tw-ring-primary-600"],
+  primary: ["tw-text-fg-brand", "hover:tw-text-fg-brand-strong"],
+  default: ["tw-text-fg-brand", "hover:tw-text-fg-brand-strong"],
+  secondary: ["tw-text-fg-heading", "hover:tw-text-fg-heading"],
+  light: ["tw-text-fg-white", "hover:tw-text-fg-white", "focus-visible:before:tw-ring-fg-contrast"],
+  subtle: ["!tw-text-fg-heading", "hover:tw-text-fg-heading"],
+  success: ["tw-text-fg-success", "hover:tw-text-fg-success-strong"],
+  warning: ["tw-text-fg-warning", "hover:tw-text-fg-warning-strong"],
+  danger: ["tw-text-fg-danger", "hover:tw-text-fg-danger-strong"],
   contrast: [
-    "!tw-text-contrast",
-    "hover:!tw-text-contrast",
-    "focus-visible:before:tw-ring-text-contrast",
+    "tw-text-fg-contrast",
+    "hover:tw-text-fg-contrast",
+    "focus-visible:before:tw-ring-fg-contrast",
   ],
-  light: ["!tw-text-alt2", "hover:!tw-text-alt2", "focus-visible:before:tw-ring-text-alt2"],
 };
 
 const commonStyles = [
@@ -32,16 +45,18 @@ const commonStyles = [
   "tw-rounded",
   "tw-transition",
   "tw-no-underline",
+  "tw-cursor-pointer",
   "hover:tw-underline",
   "hover:tw-decoration-1",
   "disabled:tw-no-underline",
   "disabled:tw-cursor-not-allowed",
-  "disabled:!tw-text-secondary-300",
-  "disabled:hover:!tw-text-secondary-300",
+  "disabled:!tw-text-fg-disabled",
+  "disabled:hover:!tw-text-fg-disabled",
   "disabled:hover:tw-no-underline",
   "focus-visible:tw-outline-none",
   "focus-visible:tw-underline",
   "focus-visible:tw-decoration-1",
+  "focus-visible:before:tw-ring-border-focus",
 
   // Workaround for html button tag not being able to be set to `display: inline`
   // and at the same time not being able to use `tw-ring-offset` because of box-shadow issue.
@@ -63,14 +78,14 @@ const commonStyles = [
   "focus-visible:tw-z-10",
   "aria-disabled:tw-no-underline",
   "aria-disabled:tw-pointer-events-none",
-  "aria-disabled:!tw-text-secondary-300",
-  "aria-disabled:hover:!tw-text-secondary-300",
+  "aria-disabled:!tw-text-fg-disabled",
+  "aria-disabled:hover:!tw-text-fg-disabled",
   "aria-disabled:hover:tw-no-underline",
 ];
 
 @Directive()
 abstract class LinkDirective {
-  readonly linkType = input<LinkType>("primary");
+  readonly linkType = input<LinkType>("default");
 }
 
 /**
