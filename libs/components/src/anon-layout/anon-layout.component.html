@@ -1,11 +1,7 @@
 <bit-landing-layout [hideBackgroundIllustration]="hideBackgroundIllustration()">
-  @if (!hideLogo()) {
-    <bit-landing-header [hideLogo]="hideLogo()">
-      <div class="tw-ms-auto">
-        <ng-content select="[slot=header-actions]"></ng-content>
-      </div>
-    </bit-landing-header>
-  }
+  <bit-landing-header [hideLogo]="hideLogo()">
+    <ng-content select="[slot=header-actions]"></ng-content>
+  </bit-landing-header>
 
   <bit-landing-content [maxWidth]="maxWidth()">
     <bit-landing-hero [icon]="icon()" [title]="title()" [subtitle]="subtitle()"></bit-landing-hero>
