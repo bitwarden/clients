@@ -35,7 +35,7 @@ export class LandingHeaderComponent implements AfterContentChecked {
       return (
         wrapper &&
         wrapper.childNodes.length > 0 &&
-        [...wrapper.childNodes].some(
+        Array.from(wrapper.childNodes).some(
           (node: Node) =>
             node.nodeType === Node.ELEMENT_NODE ||
             (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()),
