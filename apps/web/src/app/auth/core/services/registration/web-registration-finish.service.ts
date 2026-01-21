@@ -18,7 +18,9 @@ import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 export class WebRegistrationFinishService
@@ -28,12 +30,13 @@ export class WebRegistrationFinishService
   constructor(
     protected keyService: KeyService,
     protected accountApiService: AccountApiService,
+    protected masterPasswordService: MasterPasswordServiceAbstraction,
     private organizationInviteService: OrganizationInviteService,
     private policyApiService: PolicyApiServiceAbstraction,
     private logService: LogService,
     private policyService: PolicyService,
   ) {
-    super(keyService, accountApiService);
+    super(keyService, accountApiService, masterPasswordService);
   }
 
   override async getOrgNameFromOrgInvite(): Promise<string | null> {
@@ -78,6 +81,7 @@ export class WebRegistrationFinishService
 
   // Note: the org invite token and email verification are mutually exclusive. Only one will be present.
   override async buildRegisterRequest(
+    newUserKey: UserKey,
     email: string,
     passwordInputResult: PasswordInputResult,
     encryptedUserKey: EncryptedString,
@@ -90,6 +94,7 @@ export class WebRegistrationFinishService
     providerUserId?: string,
   ): Promise<RegisterFinishRequest> {
     const registerRequest = await super.buildRegisterRequest(
+      newUserKey,
       email,
       passwordInputResult,
       encryptedUserKey,

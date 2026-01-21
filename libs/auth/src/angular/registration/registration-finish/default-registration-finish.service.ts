@@ -7,7 +7,9 @@ import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
@@ -18,6 +20,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
   constructor(
     protected keyService: KeyService,
     protected accountApiService: AccountApiService,
+    protected masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   getOrgNameFromOrgInvite(): Promise<string | null> {
@@ -48,6 +51,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     const userAsymmetricKeys = await this.keyService.makeKeyPair(newUserKey);
 
     const registerRequest = await this.buildRegisterRequest(
+      newUserKey,
       email,
       passwordInputResult,
       newEncUserKey.encryptedString,
@@ -64,6 +68,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
   }
 
   protected async buildRegisterRequest(
+    newUserKey: UserKey,
     email: string,
     passwordInputResult: PasswordInputResult,
     encryptedUserKey: EncryptedString,
@@ -80,14 +85,32 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       userAsymmetricKeys[1].encryptedString,
     );
 
+    // Get salt value, for now we derive it from the email but this could change to be random bytes
+    // in the future once the email and salt are separated.
+    const salt = this.masterPasswordService.emailToSalt(email);
+
+    const masterPasswordAuthentication =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        passwordInputResult.newPassword,
+        passwordInputResult.kdfConfig,
+        salt,
+      );
+
+    const masterPasswordUnlock = await this.masterPasswordService.makeMasterPasswordUnlockData(
+      passwordInputResult.newPassword,
+      passwordInputResult.kdfConfig,
+      salt,
+      newUserKey,
+    );
+
     const registerFinishRequest = new RegisterFinishRequest(
       email,
       passwordInputResult.newServerMasterKeyHash,
       passwordInputResult.newPasswordHint,
       encryptedUserKey,
       userAsymmetricKeysRequest,
-      passwordInputResult.kdfConfig.kdfType,
-      passwordInputResult.kdfConfig.iterations,
+      masterPasswordAuthentication,
+      masterPasswordUnlock,
     );
 
     if (emailVerificationToken) {

@@ -2,6 +2,11 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterPasswordUnlockData,
+  MasterPasswordSalt,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
@@ -16,12 +21,18 @@ describe("DefaultRegistrationFinishService", () => {
 
   let keyService: MockProxy<KeyService>;
   let accountApiService: MockProxy<AccountApiService>;
+  let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
     accountApiService = mock<AccountApiService>();
+    masterPasswordService = mock<MasterPasswordServiceAbstraction>();
 
-    service = new DefaultRegistrationFinishService(keyService, accountApiService);
+    service = new DefaultRegistrationFinishService(
+      keyService,
+      accountApiService,
+      masterPasswordService,
+    );
   });
 
   it("instantiates", () => {
@@ -74,6 +85,7 @@ describe("DefaultRegistrationFinishService", () => {
 
     it("throws an error if the user key cannot be created", async () => {
       keyService.makeUserKey.mockResolvedValue([null, null]);
+      masterPasswordService.emailToSalt.mockReturnValue("salt" as unknown as MasterPasswordSalt);
 
       await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow(
         "User key could not be created",
@@ -84,6 +96,19 @@ describe("DefaultRegistrationFinishService", () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
+      masterPasswordService.emailToSalt.mockReturnValue("salt" as unknown as MasterPasswordSalt);
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue({
+        salt: "salt" as unknown as MasterPasswordSalt,
+        kdf: DEFAULT_KDF_CONFIG,
+        masterPasswordAuthenticationHash: "authHash" as unknown as string,
+      });
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(
+        new MasterPasswordUnlockData(
+          "salt" as unknown as MasterPasswordSalt,
+          DEFAULT_KDF_CONFIG,
+          new EncString("wrapped") as unknown as any,
+        ),
+      );
 
       await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
