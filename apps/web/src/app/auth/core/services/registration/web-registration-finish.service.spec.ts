@@ -213,16 +213,16 @@ describe("WebRegistrationFinishService", () => {
       providerInviteToken = "providerInviteToken";
       providerUserId = "providerUserId";
 
-      salt = "salt" as unknown as MasterPasswordSalt;
+      salt = "salt" as MasterPasswordSalt;
       masterPasswordAuthentication = {
         salt,
         kdf: DEFAULT_KDF_CONFIG,
-        masterPasswordAuthenticationHash: "authHash" as unknown as string,
+        masterPasswordAuthenticationHash: "authHash" as string,
       };
       masterPasswordUnlock = new MasterPasswordUnlockData(
         salt,
         DEFAULT_KDF_CONFIG,
-        new EncString("wrapped") as unknown as any,
+        new EncString("wrapped") as any,
       );
     });
 

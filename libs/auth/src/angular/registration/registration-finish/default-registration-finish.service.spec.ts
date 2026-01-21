@@ -88,7 +88,7 @@ describe("DefaultRegistrationFinishService", () => {
 
     it("throws an error if the user key cannot be created", async () => {
       keyService.makeUserKey.mockResolvedValue([null, null]);
-      masterPasswordService.emailToSalt.mockReturnValue("salt" as unknown as MasterPasswordSalt);
+      masterPasswordService.emailToSalt.mockReturnValue("salt" as MasterPasswordSalt);
 
       await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow(
         "User key could not be created",
@@ -99,11 +99,11 @@ describe("DefaultRegistrationFinishService", () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
-      const salt = "salt" as unknown as MasterPasswordSalt;
+      const salt = "salt" as MasterPasswordSalt;
       const masterPasswordAuthentication: MasterPasswordAuthenticationData = {
         salt,
         kdf: DEFAULT_KDF_CONFIG,
-        masterPasswordAuthenticationHash: "authHash" as unknown as MasterPasswordAuthenticationHash,
+        masterPasswordAuthenticationHash: "authHash" as MasterPasswordAuthenticationHash,
       };
       const masterPasswordUnlock = new MasterPasswordUnlockData(
         salt,
