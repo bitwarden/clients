@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";

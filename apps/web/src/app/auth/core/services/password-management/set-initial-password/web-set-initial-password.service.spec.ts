@@ -1,7 +1,6 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
@@ -13,6 +12,7 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";

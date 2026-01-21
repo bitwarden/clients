@@ -4,6 +4,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { BillingServicesModule } from "@bitwarden/angular/billing/services";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
   PersonalSubscriptionPricingTier,
@@ -11,8 +12,6 @@ import {
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PricingCardComponent } from "@bitwarden/pricing";
-
-import { BillingServicesModule } from "../../../services";
 
 import { UpgradeAccountComponent, UpgradeAccountStatus } from "./upgrade-account.component";
 

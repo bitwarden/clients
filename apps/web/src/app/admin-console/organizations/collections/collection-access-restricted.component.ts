@@ -1,10 +1,9 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { RestrictedView } from "@bitwarden/assets/svg";
-import { ButtonModule, NoItemsModule } from "@bitwarden/components";
+import { ButtonModule, NoItemsModule, CollectionDialogTabType } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
-import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

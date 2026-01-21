@@ -1,13 +1,11 @@
 import { TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 
-import {
-  OrganizationUserConfirmRequest,
-  OrganizationUserBulkConfirmRequest,
-  OrganizationUserApiService,
-  OrganizationUserBulkResponse,
-} from "@bitwarden/admin-console/common";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationUserBulkConfirmRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-bulk-confirm.request";
+import { OrganizationUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-confirm.request";
+import { OrganizationUserBulkResponse } from "@bitwarden/common/admin-console/models/response/organization-user/organization-user-bulk.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";

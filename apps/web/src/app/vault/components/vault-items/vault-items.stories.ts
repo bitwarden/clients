@@ -19,6 +19,7 @@ import {
   Unassigned,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { GroupView } from "@bitwarden/common/admin-console/views/organization/group.view";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -43,7 +44,6 @@ import { LayoutComponent, StorybookGlobalStateProvider } from "@bitwarden/compon
 import { GlobalStateProvider } from "@bitwarden/state";
 import { RoutedVaultFilterService } from "@bitwarden/vault";
 
-import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
 import { VaultItemsComponent } from "./vault-items.component";

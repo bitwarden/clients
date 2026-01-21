@@ -8,12 +8,12 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
-
 import {
+  DialogService,
+  ToastService,
   ChangePlanDialogResultType,
   openChangePlanDialog,
-} from "../../organizations/change-plan-dialog.component";
+} from "@bitwarden/components";
 
 import { BillingConstraintService, SeatLimitResult } from "./billing-constraint.service";
 

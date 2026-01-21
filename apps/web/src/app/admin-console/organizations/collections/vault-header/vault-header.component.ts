@@ -7,8 +7,8 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
-import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { CollectionAdminService } from "@bitwarden/common/admin-console/abstractions/collections/collection-admin.service";
 import {
   CollectionAdminView,
   Unassigned,
@@ -26,12 +26,12 @@ import {
   MenuModule,
   SearchModule,
   SimpleDialogOptions,
+  CollectionDialogTabType,
 } from "@bitwarden/components";
 import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
-import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

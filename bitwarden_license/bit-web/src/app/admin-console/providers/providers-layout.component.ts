@@ -6,6 +6,7 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
+import { TaxIdWarningType } from "@bitwarden/angular/billing/organizations/warnings/types";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BusinessUnitPortalLogo, Icon, ProviderPortalLogo } from "@bitwarden/assets/svg";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -13,10 +14,9 @@ import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { NonIndividualSubscriber } from "@bitwarden/common/billing/types";
 import { IconModule } from "@bitwarden/components";
-import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
-import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.module";
 
 import { ProviderWarningsService } from "../../billing/providers/warnings/services";

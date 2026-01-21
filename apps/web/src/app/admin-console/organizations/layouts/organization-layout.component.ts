@@ -5,6 +5,9 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
 
+import { OrganizationWarningsModule } from "@bitwarden/angular/billing/organizations/warnings";
+import { OrganizationWarningsService } from "@bitwarden/angular/billing/organizations/warnings/services";
+import { TaxIdWarningType } from "@bitwarden/angular/billing/organizations/warnings/types";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AdminConsoleLogo } from "@bitwarden/assets/svg";
 import {
@@ -24,14 +27,11 @@ import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { NonIndividualSubscriber } from "@bitwarden/common/billing/types";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule } from "@bitwarden/components";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
-import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
-import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";

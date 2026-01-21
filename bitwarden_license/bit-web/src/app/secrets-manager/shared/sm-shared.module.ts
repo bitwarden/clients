@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 
+import { CoreOrganizationModule } from "@bitwarden/angular/admin-console/core";
 import {
   CardComponent,
   MultiSelectModule,
@@ -8,7 +9,6 @@ import {
   NoItemsModule,
   FormFieldModule,
 } from "@bitwarden/components";
-import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import { DynamicAvatarComponent } from "@bitwarden/web-vault/app/components/dynamic-avatar.component";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { ProductSwitcherModule } from "@bitwarden/web-vault/app/layouts/product-switcher/product-switcher.module";

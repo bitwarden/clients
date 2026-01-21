@@ -3,7 +3,7 @@
 import * as papa from "papaparse";
 import { filter, firstValueFrom, map } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import {
   CollectionView,
   CollectionDetailsResponse,

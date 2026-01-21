@@ -1,10 +1,8 @@
 import { NgModule } from "@angular/core";
 
-import { SearchModule } from "@bitwarden/components";
+import { AccessSelectorModule, SearchModule } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared/shared.module";
-
-import { AccessSelectorModule } from "./components/access-selector/access-selector.module";
 
 @NgModule({
   imports: [SharedModule, AccessSelectorModule, SearchModule],

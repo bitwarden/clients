@@ -3,14 +3,12 @@
 import { Component, Inject } from "@angular/core";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
-import {
-  OrganizationUserBulkPublicKeyResponse,
-  OrganizationUserBulkResponse,
-} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { ProviderUserBulkConfirmRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk-confirm.request";
 import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
+import { OrganizationUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/organization-user/organization-user-bulk-public-key.response";
+import { OrganizationUserBulkResponse } from "@bitwarden/common/admin-console/models/response/organization-user/organization-user-bulk.response";
 import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";

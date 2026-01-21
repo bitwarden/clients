@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import { SubscriberBillingClient } from "@bitwarden/angular/billing/clients";
 
 import { ProviderWarningsService } from "./services";
 

@@ -2,12 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import {
-  OrganizationUserApiService,
-  OrganizationUserResetPasswordEnrollmentRequest,
-} from "@bitwarden/admin-console/common";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -15,6 +10,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationUserResetPasswordEnrollmentRequest } from "../../admin-console/models/request/organization-user/organization-user-reset-password-enrollment.request";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";

@@ -1,19 +1,16 @@
 import { TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 
-import {
-  CollectionService,
-  OrganizationUserApiService,
-  OrganizationUserUserDetailsResponse,
-} from "@bitwarden/admin-console/common";
+import { GroupApiService } from "@bitwarden/angular/admin-console/services/organization/group-api.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/organization-user.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
-
-import { GroupApiService } from "../../../core";
 
 import { OrganizationMembersService } from "./organization-members.service";
 

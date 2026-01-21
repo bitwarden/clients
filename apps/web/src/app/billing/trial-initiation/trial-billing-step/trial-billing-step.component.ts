@@ -13,14 +13,13 @@ import {
   firstValueFrom,
 } from "rxjs";
 
+import { TaxClient } from "@bitwarden/angular/billing/clients";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ToastService } from "@bitwarden/components";
-import { TaxClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   BillingAddressControls,
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
-} from "@bitwarden/web-vault/app/billing/payment/components";
+ ToastService } from "@bitwarden/components";
 import {
   Cadence,
   Cadences,

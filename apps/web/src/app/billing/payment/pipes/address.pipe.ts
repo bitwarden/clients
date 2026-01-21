@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
-import { BillingAddress } from "../types";
+import { BillingAddress } from "@bitwarden/common/billing/types";
 
 @Pipe({
   name: "address",

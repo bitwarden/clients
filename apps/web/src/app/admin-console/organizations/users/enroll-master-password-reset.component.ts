@@ -2,13 +2,11 @@
 // @ts-strict-ignore
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
-import {
-  OrganizationUserApiService,
-  OrganizationUserResetPasswordEnrollmentRequest,
-} from "@bitwarden/admin-console/common";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationUserResetPasswordEnrollmentRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-reset-password-enrollment.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";

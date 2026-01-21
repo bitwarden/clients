@@ -2,11 +2,9 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, switchMap } from "rxjs";
 
-import {
-  OrganizationUserApiService,
-  OrganizationUserConfirmRequest,
-} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
+import { OrganizationUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-confirm.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";

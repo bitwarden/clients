@@ -3,18 +3,16 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, firstValueFrom, map } from "rxjs";
 
-import {
-  OrganizationUserApiService,
-  OrganizationUserAcceptRequest,
-  OrganizationUserAcceptInitRequest,
-} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
+import { OrganizationUserAcceptInitRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-accept-init.request";
+import { OrganizationUserAcceptRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-accept.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";

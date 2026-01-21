@@ -1,4 +1,4 @@
-import { OrganizationUserResetPasswordWithIdRequest } from "@bitwarden/admin-console/common";
+import { OrganizationUserResetPasswordWithIdRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-reset-password-enrollment.request";
 import { DeviceKeysUpdateRequest } from "@bitwarden/common/auth/models/request/update-devices-trust.request";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 

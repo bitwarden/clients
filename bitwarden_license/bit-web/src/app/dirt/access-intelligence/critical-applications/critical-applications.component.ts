@@ -24,9 +24,9 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import { PipesModule } from "@bitwarden/vault";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
-import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { RiskInsightsTabType } from "../models/risk-insights.models";
 import {

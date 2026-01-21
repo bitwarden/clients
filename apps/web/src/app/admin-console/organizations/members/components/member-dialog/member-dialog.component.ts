@@ -14,14 +14,13 @@ import {
   takeUntil,
 } from "rxjs";
 
-import {
-  CollectionAdminService,
-  OrganizationUserApiService,
-} from "@bitwarden/admin-console/common";
+import { GroupApiService } from "@bitwarden/angular/admin-console/services/organization/group-api.service";
+import { CollectionAdminService } from "@bitwarden/common/admin-console/abstractions/collections/collection-admin.service";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -33,6 +32,14 @@ import {
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import {
+  AccessItemType,
+  AccessItemValue,
+  AccessItemView,
+  convertToPermission,
+  convertToSelectionView,
+} from "@bitwarden/common/admin-console/models/organizations";
+import { GroupDetailsView } from "@bitwarden/common/admin-console/views/organization/group-details.view";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -44,22 +51,10 @@ import {
   DialogRef,
   DialogService,
   ToastService,
+  PermissionMode,
 } from "@bitwarden/components";
 
-import {
-  GroupApiService,
-  GroupDetailsView,
-  OrganizationUserAdminView,
-  UserAdminService,
-} from "../../../core";
-import {
-  AccessItemType,
-  AccessItemValue,
-  AccessItemView,
-  convertToPermission,
-  convertToSelectionView,
-  PermissionMode,
-} from "../../../shared/components/access-selector";
+import { OrganizationUserAdminView, UserAdminService } from "../../../core";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";

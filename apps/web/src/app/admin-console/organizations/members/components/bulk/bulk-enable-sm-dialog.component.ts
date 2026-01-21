@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {

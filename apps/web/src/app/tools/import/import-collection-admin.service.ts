@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { CollectionAdminService } from "@bitwarden/common/admin-console/abstractions/collections/collection-admin.service";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { ImportCollectionServiceAbstraction } from "@bitwarden/importer-core";
 import { UserId } from "@bitwarden/user-core";

@@ -1,6 +1,13 @@
 import { Injectable } from "@angular/core";
 import { defaultIfEmpty, find, map, mergeMap, Observable, switchMap } from "rxjs";
 
+import {
+  AccountBillingClient,
+  SubscriberBillingClient,
+  TaxClient,
+  OrganizationSubscriptionPurchase,
+  TaxAmounts,
+} from "@bitwarden/angular/billing/clients";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
@@ -12,6 +19,14 @@ import {
 } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import {
+  BillingAddress,
+  NonTokenizablePaymentMethods,
+  NonTokenizedPaymentMethod,
+  TokenizedPaymentMethod,
+  mapAccountToSubscriber,
+  tokenizablePaymentMethodToLegacyEnum,
+} from "@bitwarden/common/billing/types";
+import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
@@ -20,22 +35,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { LogService } from "@bitwarden/logging";
-
-import {
-  AccountBillingClient,
-  OrganizationSubscriptionPurchase,
-  SubscriberBillingClient,
-  TaxAmounts,
-  TaxClient,
-} from "../../../../clients";
-import {
-  BillingAddress,
-  NonTokenizablePaymentMethods,
-  NonTokenizedPaymentMethod,
-  tokenizablePaymentMethodToLegacyEnum,
-  TokenizedPaymentMethod,
-} from "../../../../payment/types";
-import { mapAccountToSubscriber } from "../../../../types";
 
 export type PlanDetails = {
   tier: PersonalSubscriptionPricingTierId;

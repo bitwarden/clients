@@ -5,13 +5,11 @@ import { RouterModule } from "@angular/router";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { ScrollLayoutDirective, TableModule } from "@bitwarden/components";
-import { CopyCipherFieldDirective } from "@bitwarden/vault";
+import { CopyCipherFieldDirective, OrganizationBadgeModule, PipesModule } from "@bitwarden/vault";
 
 import { CollectionNameBadgeComponent } from "../../../admin-console/organizations/collections";
 import { GroupBadgeModule } from "../../../admin-console/organizations/collections/group-badge/group-badge.module";
 import { SharedModule } from "../../../shared/shared.module";
-import { OrganizationBadgeModule } from "../../individual-vault/organization-badge/organization-badge.module";
-import { PipesModule } from "../../individual-vault/pipes/pipes.module";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 import { VaultCollectionRowComponent } from "./vault-collection-row.component";

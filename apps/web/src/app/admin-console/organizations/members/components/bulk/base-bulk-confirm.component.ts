@@ -2,10 +2,8 @@
 // @ts-strict-ignore
 import { Directive, OnInit } from "@angular/core";
 
-import {
-  OrganizationUserBulkPublicKeyResponse,
-  OrganizationUserBulkResponse,
-} from "@bitwarden/admin-console/common";
+import { OrganizationUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/organization-user/organization-user-bulk-public-key.response";
+import { OrganizationUserBulkResponse } from "@bitwarden/common/admin-console/models/response/organization-user/organization-user-bulk.response";
 import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";

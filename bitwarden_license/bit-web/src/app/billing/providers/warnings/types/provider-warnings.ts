@@ -1,5 +1,5 @@
+import { TaxIdWarningResponse } from "@bitwarden/angular/billing/organizations/warnings/types";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { TaxIdWarningResponse } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 type ProviderSuspensionResolution =
   | "add_payment_method"

@@ -1,15 +1,14 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
-import { DialogService } from "@bitwarden/components";
-import { EditBillingAddressDialogComponent } from "@bitwarden/web-vault/app/billing/payment/components/edit-billing-address-dialog.component";
-import { AddressPipe } from "@bitwarden/web-vault/app/billing/payment/pipes";
-import { BillingAddress } from "@bitwarden/web-vault/app/billing/payment/types";
-import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import {
   TaxIdWarningType,
   TaxIdWarningTypes,
-} from "@bitwarden/web-vault/app/billing/warnings/types";
+} from "@bitwarden/angular/billing/organizations/warnings/types";
+import { BillingAddress, BitwardenSubscriber } from "@bitwarden/common/billing/types";
+import { DialogService } from "@bitwarden/components";
+import { EditBillingAddressDialogComponent } from "@bitwarden/web-vault/app/billing/payment/components/edit-billing-address-dialog.component";
+import { AddressPipe } from "@bitwarden/web-vault/app/billing/payment/pipes";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

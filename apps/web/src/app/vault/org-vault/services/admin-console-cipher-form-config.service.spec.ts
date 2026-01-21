@@ -1,8 +1,8 @@
 import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
 
-import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionAdminService } from "@bitwarden/common/admin-console/abstractions/collections/collection-admin.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";

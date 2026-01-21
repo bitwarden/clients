@@ -1,10 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import {
-  OrganizationUserApiService,
-  OrganizationUserResetPasswordDetailsResponse,
-} from "@bitwarden/admin-console/common";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
+import { OrganizationUserResetPasswordDetailsResponse } from "@bitwarden/common/admin-console/models/response/organization-user.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";

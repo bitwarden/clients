@@ -6,9 +6,9 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { map } from "rxjs";
 
+import { BillingNotificationService } from "@bitwarden/angular/billing/services";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { InvoiceResponse } from "@bitwarden/common/billing/models/response/invoices.response";
-import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

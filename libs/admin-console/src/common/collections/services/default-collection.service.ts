@@ -12,6 +12,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import {
   CollectionView,
   Collection,
@@ -27,7 +28,6 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { KeyService } from "@bitwarden/key-management";
 
-import { CollectionService } from "../abstractions/collection.service";
 
 import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 

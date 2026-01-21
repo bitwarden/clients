@@ -13,6 +13,7 @@ import {
 } from "rxjs";
 import { debounceTime, first } from "rxjs/operators";
 
+import { BillingNotificationService } from "@bitwarden/angular/billing/services";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
@@ -31,7 +32,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/shared";
-import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { WebProviderService } from "../services/web-provider.service";

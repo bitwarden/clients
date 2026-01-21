@@ -10,18 +10,18 @@ import {
   switchMap,
 } from "rxjs";
 
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { BannerModule, DialogService } from "@bitwarden/components";
-import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
-import { EditBillingAddressDialogComponent } from "@bitwarden/web-vault/app/billing/payment/components";
-import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { SubscriberBillingClient } from "@bitwarden/angular/billing/clients";
 import {
   TaxIdWarningType,
   TaxIdWarningTypes,
-} from "@bitwarden/web-vault/app/billing/warnings/types";
+} from "@bitwarden/angular/billing/organizations/warnings/types";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { NonIndividualSubscriber } from "@bitwarden/common/billing/types";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { BannerModule, DialogService } from "@bitwarden/components";
+import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
+import { EditBillingAddressDialogComponent } from "@bitwarden/web-vault/app/billing/payment/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 type DismissalCounts = {

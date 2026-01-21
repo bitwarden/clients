@@ -9,9 +9,8 @@ import {
   BehaviorSubject,
 } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { CollectionService } from "@bitwarden/admin-console/common";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";

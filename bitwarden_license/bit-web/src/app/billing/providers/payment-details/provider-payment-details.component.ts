@@ -17,27 +17,25 @@ import {
   withLatestFrom,
 } from "rxjs";
 
+import { SubscriberBillingClient } from "@bitwarden/angular/billing/clients";
+import { TaxIdWarningType } from "@bitwarden/angular/billing/organizations/warnings/types";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import {
+  BillingAddress,
+  MaskedPaymentMethod,
+  BitwardenSubscriber,
+  mapProviderToSubscriber,
+} from "@bitwarden/common/billing/types";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UserId } from "@bitwarden/user-core";
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   DisplayAccountCreditComponent,
   DisplayBillingAddressComponent,
   DisplayPaymentMethodComponent,
 } from "@bitwarden/web-vault/app/billing/payment/components";
-import {
-  BillingAddress,
-  MaskedPaymentMethod,
-} from "@bitwarden/web-vault/app/billing/payment/types";
-import {
-  BitwardenSubscriber,
-  mapProviderToSubscriber,
-} from "@bitwarden/web-vault/app/billing/types";
-import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 

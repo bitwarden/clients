@@ -1,13 +1,9 @@
 import { Component, ViewChild } from "@angular/core";
 
+import { SubscriberBillingClient } from "@bitwarden/angular/billing/clients";
+import { MaskedPaymentMethod, BitwardenSubscriber } from "@bitwarden/common/billing/types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogRef, ToastService } from "@bitwarden/components";
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
-
-import { BitwardenSubscriber } from "../../types";
-import { MaskedPaymentMethod } from "../types";
-
-import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
+import { EnterPaymentMethodComponent , DialogRef, ToastService } from "@bitwarden/components";
 
 export type SubmitPaymentMethodDialogResult =
   | { type: "cancelled" }

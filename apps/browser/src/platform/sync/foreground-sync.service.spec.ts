@@ -1,8 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

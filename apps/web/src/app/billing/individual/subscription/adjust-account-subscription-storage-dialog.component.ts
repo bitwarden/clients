@@ -2,6 +2,7 @@ import { CurrencyPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
+import { AccountBillingClient } from "@bitwarden/angular/billing/clients";
 import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -19,7 +20,6 @@ import {
 import { Maybe } from "@bitwarden/pricing";
 import { MAX_STORAGE_GB } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 type RemoveStorage = {
   type: "remove";

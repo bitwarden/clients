@@ -1,11 +1,12 @@
 import { NgModule } from "@angular/core";
 
+import { BillingSharedModule } from "@bitwarden/angular/billing/shared";
+
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { BannerModule } from "../../../../../../libs/components/src/banner/banner.module";
 import { UserVerificationModule } from "../../auth/shared/components/user-verification";
 import { HeaderModule } from "../../layouts/header/header.module";
-import { BillingSharedModule } from "../shared";
 
 import { AdjustSubscription } from "./adjust-subscription.component";
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";

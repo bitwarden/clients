@@ -1,8 +1,9 @@
 import { NgModule } from "@angular/core";
 
+import { CollectionDialogComponent } from "@bitwarden/components";
+import { OrganizationBadgeModule } from "@bitwarden/vault";
+
 import { SharedModule } from "../../../shared/shared.module";
-import { OrganizationBadgeModule } from "../../../vault/individual-vault/organization-badge/organization-badge.module";
-import { CollectionDialogComponent } from "../shared/components/collection-dialog";
 
 import { CollectionNameBadgeComponent } from "./collection-badge";
 import { GroupBadgeModule } from "./group-badge/group-badge.module";

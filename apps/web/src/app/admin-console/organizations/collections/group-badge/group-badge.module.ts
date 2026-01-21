@@ -1,7 +1,8 @@
 import { NgModule } from "@angular/core";
 
+import { PipesModule } from "@bitwarden/vault";
+
 import { SharedModule } from "../../../../shared/shared.module";
-import { PipesModule } from "../../../../vault/individual-vault/pipes/pipes.module";
 
 import { GroupNameBadgeComponent } from "./group-name-badge.component";
 

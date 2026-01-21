@@ -2,11 +2,9 @@
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 
-import {
-  OrganizationUserApiService,
-  OrganizationUserBulkResponse,
-} from "@bitwarden/admin-console/common";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserBulkResponse } from "@bitwarden/common/admin-console/models/response/organization-user/organization-user-bulk.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";

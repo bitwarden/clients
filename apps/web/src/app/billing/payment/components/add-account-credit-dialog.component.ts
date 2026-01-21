@@ -10,14 +10,14 @@ import {
 } from "@angular/forms";
 import { map } from "rxjs";
 
+import { SubscriberBillingClient } from "@bitwarden/angular/billing/clients";
+import { BitwardenSubscriber } from "@bitwarden/common/billing/types";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogConfig, DialogRef, DialogService, ToastService } from "@bitwarden/components";
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { SharedModule } from "../../../shared";
-import { BitwardenSubscriber } from "../../types";
 
 type DialogParams = {
   subscriber: BitwardenSubscriber;

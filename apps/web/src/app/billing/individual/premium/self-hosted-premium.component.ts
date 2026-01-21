@@ -4,6 +4,10 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, map, Observable, of, switchMap } from "rxjs";
 
+import {
+  UpdateLicenseDialogComponent,
+  UpdateLicenseDialogResult,
+} from "@bitwarden/angular/billing/shared";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -18,9 +22,6 @@ import {
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { UpdateLicenseDialogComponent } from "../../shared/update-license-dialog.component";
-import { UpdateLicenseDialogResult } from "../../shared/update-license-types";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

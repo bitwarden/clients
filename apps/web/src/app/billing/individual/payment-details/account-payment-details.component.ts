@@ -1,17 +1,20 @@
 import { Component } from "@angular/core";
 import { BehaviorSubject, filter, merge, Observable, shareReplay, switchMap, tap } from "rxjs";
 
+import { SubscriberBillingClient } from "@bitwarden/angular/billing/clients";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  MaskedPaymentMethod,
+  mapAccountToSubscriber,
+  BitwardenSubscriber,
+} from "@bitwarden/common/billing/types";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
-import { SubscriberBillingClient } from "../../clients";
 import {
   DisplayAccountCreditComponent,
   DisplayPaymentMethodComponent,
 } from "../../payment/components";
-import { MaskedPaymentMethod } from "../../payment/types";
-import { mapAccountToSubscriber, BitwardenSubscriber } from "../../types";
 
 type View = {
   account: BitwardenSubscriber;

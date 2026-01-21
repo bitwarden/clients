@@ -6,13 +6,14 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
-
-import { isFixedSeatPlan } from "../../../admin-console/organizations/members/components/member-dialog/validators/org-seat-limit-reached.validator";
 import {
+  DialogService,
+  ToastService,
   ChangePlanDialogResultType,
   openChangePlanDialog,
-} from "../../organizations/change-plan-dialog.component";
+} from "@bitwarden/components";
+
+import { isFixedSeatPlan } from "../../../admin-console/organizations/members/components/member-dialog/validators/org-seat-limit-reached.validator";
 
 export interface SeatLimitResult {
   canAddUsers: boolean;

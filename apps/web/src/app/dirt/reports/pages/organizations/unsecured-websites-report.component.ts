@@ -4,7 +4,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -18,15 +18,15 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import {
   CipherFormConfigService,
+  OrganizationBadgeModule,
   PasswordRepromptService,
+  PipesModule,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
-import { OrganizationBadgeModule } from "../../../../vault/individual-vault/organization-badge/organization-badge.module";
-import { PipesModule } from "../../../../vault/individual-vault/pipes/pipes.module";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponent } from "../unsecured-websites-report.component";
 

@@ -12,13 +12,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
   getBillingAddressFromForm,
-} from "@bitwarden/web-vault/app/billing/payment/components";
+ ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

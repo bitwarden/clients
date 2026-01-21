@@ -27,11 +27,18 @@ import {
   takeUntil,
 } from "rxjs/operators";
 
-import { CollectionAdminService, CollectionService } from "@bitwarden/admin-console/common";
+import { GroupApiService } from "@bitwarden/angular/admin-console/services/organization/group-api.service";
+import {
+  OrganizationFreeTrialWarningComponent,
+  OrganizationResellerRenewalWarningComponent,
+} from "@bitwarden/angular/billing/organizations/warnings/components";
+import { OrganizationWarningsService } from "@bitwarden/angular/billing/organizations/warnings/services";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { CollectionAdminService } from "@bitwarden/common/admin-console/abstractions/collections/collection-admin.service";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   CollectionView,
@@ -39,10 +46,12 @@ import {
   Unassigned,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { CollectionPermission } from "@bitwarden/common/admin-console/models/organizations";
 import {
   getFlatCollectionTree,
   getNestedCollectionTree,
 } from "@bitwarden/common/admin-console/utils";
+import { GroupView } from "@bitwarden/common/admin-console/views/organization/group.view";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -75,6 +84,9 @@ import {
   DialogService,
   NoItemsModule,
   ToastService,
+  CollectionDialogAction,
+  CollectionDialogTabType,
+  openCollectionDialog,
 } from "@bitwarden/components";
 import {
   AttachmentDialogResult,
@@ -91,12 +103,8 @@ import {
   All,
   RoutedVaultFilterModel,
   VaultFilter,
+  VaultItemEvent,
 } from "@bitwarden/vault";
-import {
-  OrganizationFreeTrialWarningComponent,
-  OrganizationResellerRenewalWarningComponent,
-} from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
 import { SharedModule } from "../../../shared";
@@ -106,21 +114,13 @@ import {
   VaultItemDialogMode,
   VaultItemDialogResult,
 } from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
-import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
 import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
 } from "../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
-import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
-import { CollectionPermission } from "../shared/components/access-selector";
-import {
-  CollectionDialogAction,
-  CollectionDialogTabType,
-  openCollectionDialog,
-} from "../shared/components/collection-dialog";
 
 import {
   BulkCollectionsDialogComponent,

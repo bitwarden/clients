@@ -11,6 +11,7 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { OrganizationWarningsService } from "@bitwarden/angular/billing/organizations/warnings/services";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -39,7 +40,6 @@ import {
   FolderFilter,
   OrganizationFilter,
 } from "@bitwarden/vault";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { OrganizationOptionsComponent } from "./organization-options.component";
 

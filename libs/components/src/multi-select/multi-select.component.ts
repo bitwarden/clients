@@ -23,13 +23,12 @@ import {
 import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SelectItemView } from "@bitwarden/common/types/select-item-view";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BadgeModule } from "../badge";
 import { BitFormFieldControl } from "../form-field/form-field-control";
 import { SpinnerComponent } from "../spinner";
-
-import { SelectItemView } from "./models/select-item-view";
 
 // Increments for each instance of this component
 let nextId = 0;

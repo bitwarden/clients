@@ -3,6 +3,7 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from "@angular/forms";
 
+import { BillingNotificationService } from "@bitwarden/angular/billing/services";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
@@ -12,7 +13,6 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { ProviderPlanResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
-import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 
 type ManageClientSubscriptionDialogParams = {
   organization: ProviderOrganizationOrganizationDetailsResponse;

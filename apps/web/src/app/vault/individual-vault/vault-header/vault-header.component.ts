@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
-import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { CollectionAdminService } from "@bitwarden/common/admin-console/abstractions/collections/collection-admin.service";
 import {
   Unassigned,
   CollectionView,
@@ -23,13 +23,12 @@ import {
   DialogService,
   MenuModule,
   SimpleDialogOptions,
+  CollectionDialogTabType,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import { NewCipherMenuComponent, All, RoutedVaultFilterModel, PipesModule } from "@bitwarden/vault";
 
-import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
-import { PipesModule } from "../pipes/pipes.module";
 
 @Component({
   selector: "app-vault-header",

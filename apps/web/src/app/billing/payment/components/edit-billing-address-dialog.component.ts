@@ -1,7 +1,13 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
+import { SubscriberBillingClient } from "@bitwarden/angular/billing/clients";
+import {
+  TaxIdWarningType,
+  TaxIdWarningTypes,
+} from "@bitwarden/angular/billing/organizations/warnings/types";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { BillingAddress, BitwardenSubscriber } from "@bitwarden/common/billing/types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   CalloutTypes,
@@ -9,20 +15,10 @@ import {
   DialogRef,
   DialogService,
   ToastService,
-} from "@bitwarden/components";
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
-import { BillingAddress } from "@bitwarden/web-vault/app/billing/payment/types";
-import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
-import {
-  TaxIdWarningType,
-  TaxIdWarningTypes,
-} from "@bitwarden/web-vault/app/billing/warnings/types";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
-
-import {
   EnterBillingAddressComponent,
   getBillingAddressFromForm,
-} from "./enter-billing-address.component";
+} from "@bitwarden/components";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 type DialogParams = {
   subscriber: BitwardenSubscriber;

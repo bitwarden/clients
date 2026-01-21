@@ -2,18 +2,16 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of, throwError } from "rxjs";
 
-import {
-  DefaultOrganizationUserService,
-  OrganizationUserApiService,
-  OrganizationUserConfirmRequest,
-} from "@bitwarden/admin-console/common";
+import { DefaultOrganizationUserService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-confirm.request";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";

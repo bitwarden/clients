@@ -9,18 +9,17 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { MenuTriggerForDirective } from "@bitwarden/components";
-
-import { GroupView } from "../../../admin-console/organizations/core";
-
 import {
   CollectionPermission,
   convertToPermission,
   getPermissionList,
-} from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
-import { VaultItemEvent } from "./vault-item-event";
+} from "@bitwarden/common/admin-console/models/organizations";
+import { GroupView } from "@bitwarden/common/admin-console/views/organization/group.view";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { MenuTriggerForDirective } from "@bitwarden/components";
+import { VaultItemEvent } from "@bitwarden/vault";
+
 import { RowHeightClass } from "./vault-items.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

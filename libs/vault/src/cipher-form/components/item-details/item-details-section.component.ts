@@ -21,6 +21,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { SelectItemView } from "@bitwarden/common/types/select-item-view";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -29,7 +30,6 @@ import {
   FormFieldModule,
   IconButtonModule,
   SectionHeaderComponent,
-  SelectItemView,
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";

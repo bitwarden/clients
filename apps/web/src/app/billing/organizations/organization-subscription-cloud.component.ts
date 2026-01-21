@@ -4,7 +4,12 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Subject } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import {
+  AdjustStorageDialogComponent,
+  AdjustStorageDialogResultType,
+  OffboardingSurveyDialogResultType,
+  openOffboardingSurvey,
+} from "@bitwarden/angular/billing/shared";
 import { GearIcon } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -12,6 +17,7 @@ import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import {
   OrganizationApiKeyType,
   OrganizationUserStatusType,
@@ -24,19 +30,14 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService, ToastService } from "@bitwarden/components";
-
 import {
-  AdjustStorageDialogComponent,
-  AdjustStorageDialogResultType,
-} from "../shared/adjust-storage-dialog/adjust-storage-dialog.component";
-import {
-  OffboardingSurveyDialogResultType,
-  openOffboardingSurvey,
-} from "../shared/offboarding-survey.component";
+  DialogService,
+  ToastService,
+  ChangePlanDialogResultType,
+  openChangePlanDialog,
+} from "@bitwarden/components";
 
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
-import { ChangePlanDialogResultType, openChangePlanDialog } from "./change-plan-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
 

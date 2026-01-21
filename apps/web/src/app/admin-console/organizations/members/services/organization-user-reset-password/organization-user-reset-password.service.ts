@@ -3,13 +3,11 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
-import {
-  OrganizationUserApiService,
-  OrganizationUserResetPasswordRequest,
-  OrganizationUserResetPasswordWithIdRequest,
-} from "@bitwarden/admin-console/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
+import { OrganizationUserResetPasswordWithIdRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-reset-password-enrollment.request";
+import { OrganizationUserResetPasswordRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-reset-password.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";

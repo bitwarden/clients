@@ -2,11 +2,11 @@
 // @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 
-import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   ProviderUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserBulkResponse } from "@bitwarden/common/admin-console/models/response/organization-user/organization-user-bulk.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";

@@ -5,8 +5,8 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApplicationHealthReportDetailEnriched } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuModule, TableDataSource, TableModule } from "@bitwarden/components";
+import { PipesModule } from "@bitwarden/vault";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
-import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 export type CipherIcon = CipherViewLike | undefined;
 

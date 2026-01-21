@@ -1,6 +1,8 @@
 import { combineLatest, firstValueFrom, from, map, Observable, of, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionAdminService } from "@bitwarden/common/admin-console/abstractions/collections/collection-admin.service";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -19,7 +21,6 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
-import { CollectionAdminService, CollectionService } from "../abstractions";
 import {
   BulkCollectionAccessRequest,
   BaseCollectionRequest,

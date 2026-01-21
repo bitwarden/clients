@@ -18,6 +18,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import { BitwardenSubscriber, mapAccountToSubscriber } from "@bitwarden/common/billing/types";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
@@ -33,7 +34,6 @@ import {
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitwardenSubscriber, mapAccountToSubscriber } from "../../types";
 import {
   UnifiedUpgradeDialogComponent,
   UnifiedUpgradeDialogParams,

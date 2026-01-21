@@ -3,11 +3,11 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { filter, firstValueFrom, map } from "rxjs";
 
+import { OrganizationFreeTrialWarningComponent } from "@bitwarden/angular/billing/organizations/warnings/components";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { BannerModule } from "@bitwarden/components";
-import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
 import { VerifyEmailComponent } from "../../../auth/settings/verify-email.component";
 import { SharedModule } from "../../../shared";

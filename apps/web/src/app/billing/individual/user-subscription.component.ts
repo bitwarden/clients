@@ -4,6 +4,14 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
+import {
+  AdjustStorageDialogComponent,
+  AdjustStorageDialogResultType,
+  OffboardingSurveyDialogResultType,
+  openOffboardingSurvey,
+  UpdateLicenseDialogComponent,
+  UpdateLicenseDialogResult,
+} from "@bitwarden/angular/billing/shared";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -19,16 +27,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogService, ToastService } from "@bitwarden/components";
 import { Discount, DiscountTypes, Maybe } from "@bitwarden/pricing";
 
-import {
-  AdjustStorageDialogComponent,
-  AdjustStorageDialogResultType,
-} from "../shared/adjust-storage-dialog/adjust-storage-dialog.component";
-import {
-  OffboardingSurveyDialogResultType,
-  openOffboardingSurvey,
-} from "../shared/offboarding-survey.component";
-import { UpdateLicenseDialogComponent } from "../shared/update-license-dialog.component";
-import { UpdateLicenseDialogResult } from "../shared/update-license-types";
 
 // TODO: Remove with deletion of pm-29594-update-individual-subscription-page
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

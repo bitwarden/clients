@@ -30,6 +30,13 @@ export * from "./components/carousel";
 export * from "./components/new-cipher-menu/new-cipher-menu.component";
 export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
 export * from "./components/vault-items-transfer";
+export { VaultItem } from "./components/vault-item";
+export { VaultItemEvent } from "./components/vault-item-event";
+export { OrganizationNameBadgeComponent } from "./components/organization-badge/organization-name-badge.component";
+export { OrganizationBadgeModule } from "./components/organization-badge/organization-badge.module";
+export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
+export { GetGroupNameFromIdPipe } from "./pipes/get-group-name.pipe";
+export { PipesModule } from "./pipes/pipes.module";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";

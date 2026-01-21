@@ -17,8 +17,9 @@ import {
 } from "rxjs";
 import { debounceTime, first } from "rxjs/operators";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
+import { InternalGroupApiService as GroupService } from "@bitwarden/angular/admin-console/services/organization/group-api.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import {
   CollectionView,
   CollectionDetailsResponse,
@@ -26,6 +27,7 @@ import {
   Collection,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
+import { GroupDetailsView } from "@bitwarden/common/admin-console/views/organization/group-details.view";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -33,8 +35,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, TableDataSource, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-
-import { GroupDetailsView, InternalGroupApiService as GroupService } from "../core";
 
 import {
   GroupAddEditDialogResultType,

@@ -3,6 +3,11 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, map } from "rxjs";
 
+import { AccountBillingClient } from "@bitwarden/angular/billing/clients";
+import {
+  OffboardingSurveyDialogResultType,
+  openOffboardingSurvey,
+} from "@bitwarden/angular/billing/shared";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -29,15 +34,10 @@ import {
   SubscriptionStatuses,
 } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   AdjustAccountSubscriptionStorageDialogComponent,
   AdjustAccountSubscriptionStorageDialogParams,
 } from "@bitwarden/web-vault/app/billing/individual/subscription/adjust-account-subscription-storage-dialog.component";
-import {
-  OffboardingSurveyDialogResultType,
-  openOffboardingSurvey,
-} from "@bitwarden/web-vault/app/billing/shared/offboarding-survey.component";
 
 @Component({
   templateUrl: "./account-subscription.component.html",

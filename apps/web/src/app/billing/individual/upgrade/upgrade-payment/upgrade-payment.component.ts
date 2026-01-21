@@ -25,8 +25,16 @@ import {
   defer,
 } from "rxjs";
 
+import { BillingServicesModule } from "@bitwarden/angular/billing/services";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import {
+  BillingAddress,
+  NonTokenizablePaymentMethods,
+  NonTokenizedPaymentMethod,
+  TokenizedPaymentMethod,
+  BitwardenSubscriber,
+} from "@bitwarden/common/billing/types";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
@@ -34,24 +42,17 @@ import {
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
-import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
-import { LogService } from "@bitwarden/logging";
-import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
-
 import {
+  ButtonModule,
+  DialogModule,
+  ToastService,
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
   getBillingAddressFromForm,
-} from "../../../payment/components";
-import {
-  BillingAddress,
-  NonTokenizablePaymentMethods,
-  NonTokenizedPaymentMethod,
-  TokenizedPaymentMethod,
-} from "../../../payment/types";
-import { BillingServicesModule } from "../../../services";
-import { BitwardenSubscriber } from "../../../types";
+} from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
+import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
   PaymentFormValues,

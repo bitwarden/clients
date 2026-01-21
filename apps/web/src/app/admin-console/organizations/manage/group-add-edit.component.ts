@@ -16,17 +16,24 @@ import {
   takeUntil,
 } from "rxjs";
 
-import {
-  CollectionAdminService,
-  OrganizationUserApiService,
-} from "@bitwarden/admin-console/common";
+import { InternalGroupApiService as GroupService } from "@bitwarden/angular/admin-console/services/organization/group-api.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionAdminService } from "@bitwarden/common/admin-console/abstractions/collections/collection-admin.service";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import {
+  AccessItemType,
+  AccessItemValue,
+  AccessItemView,
+  convertToPermission,
+  convertToSelectionView,
+} from "@bitwarden/common/admin-console/models/organizations";
+import { AddEditGroupDetail } from "@bitwarden/common/admin-console/views/organization/add-edit-group-detail";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -41,19 +48,8 @@ import {
   DialogRef,
   DialogService,
   ToastService,
-} from "@bitwarden/components";
-
-import { InternalGroupApiService as GroupService } from "../core";
-import {
-  AccessItemType,
-  AccessItemValue,
-  AccessItemView,
-  convertToPermission,
-  convertToSelectionView,
   PermissionMode,
-} from "../shared/components/access-selector";
-
-import { AddEditGroupDetail } from "./../core/views/add-edit-group-detail";
+} from "@bitwarden/components";
 
 /**
  * Indices for the available tabs in the dialog

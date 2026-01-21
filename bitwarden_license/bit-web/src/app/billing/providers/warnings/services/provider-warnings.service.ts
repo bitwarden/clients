@@ -13,6 +13,7 @@ import {
   tap,
 } from "rxjs";
 
+import { TaxIdWarningType } from "@bitwarden/angular/billing/organizations/warnings/types";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -20,7 +21,6 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { ProviderId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { RequirePaymentMethodDialogComponent } from "@bitwarden/web-vault/app/billing/payment/components";
-import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 import { ProviderWarningsResponse } from "../types/provider-warnings";
 

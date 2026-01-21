@@ -18,31 +18,29 @@ import {
   withLatestFrom,
 } from "rxjs";
 
+import { SubscriberBillingClient } from "@bitwarden/angular/billing/clients";
+import { OrganizationFreeTrialWarningComponent } from "@bitwarden/angular/billing/organizations/warnings/components";
+import { OrganizationWarningsService } from "@bitwarden/angular/billing/organizations/warnings/services";
+import { TaxIdWarningType } from "@bitwarden/angular/billing/organizations/warnings/types";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import {
+  BillingAddress,
+  MaskedPaymentMethod,
+  BitwardenSubscriber,
+  mapOrganizationToSubscriber,
+} from "@bitwarden/common/billing/types";
 import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService } from "@bitwarden/components";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
-import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import {
   ChangePaymentMethodDialogComponent,
   DisplayAccountCreditComponent,
   DisplayBillingAddressComponent,
   DisplayPaymentMethodComponent,
 } from "@bitwarden/web-vault/app/billing/payment/components";
-import {
-  BillingAddress,
-  MaskedPaymentMethod,
-} from "@bitwarden/web-vault/app/billing/payment/types";
-import {
-  BitwardenSubscriber,
-  mapOrganizationToSubscriber,
-} from "@bitwarden/web-vault/app/billing/types";
-import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 

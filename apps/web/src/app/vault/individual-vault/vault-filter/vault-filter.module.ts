@@ -1,8 +1,8 @@
 import { NgModule } from "@angular/core";
 
+import { OrganizationWarningsModule } from "@bitwarden/angular/billing/organizations/warnings";
 import { SearchModule } from "@bitwarden/components";
 import { VaultFilterServiceAbstraction, VaultFilterService } from "@bitwarden/vault";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 
 import { VaultFilterSharedModule } from "../../individual-vault/vault-filter/shared/vault-filter-shared.module";
 

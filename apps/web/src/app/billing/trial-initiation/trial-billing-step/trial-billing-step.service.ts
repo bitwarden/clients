@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { combineLatestWith, firstValueFrom, from, map, shareReplay } from "rxjs";
 
+import { TaxClient } from "@bitwarden/angular/billing/clients";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -10,17 +11,13 @@ import {
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import {
+  TokenizedPaymentMethod,
+  tokenizablePaymentMethodToLegacyEnum,
+} from "@bitwarden/common/billing/types";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { TaxClient } from "@bitwarden/web-vault/app/billing/clients";
-import {
-  BillingAddressControls,
-  getBillingAddressFromControls,
-} from "@bitwarden/web-vault/app/billing/payment/components";
-import {
-  tokenizablePaymentMethodToLegacyEnum,
-  TokenizedPaymentMethod,
-} from "@bitwarden/web-vault/app/billing/payment/types";
+import { BillingAddressControls, getBillingAddressFromControls } from "@bitwarden/components";
 
 export const Tiers = {
   Families: "families",

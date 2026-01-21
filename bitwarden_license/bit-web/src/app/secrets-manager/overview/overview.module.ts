@@ -1,8 +1,10 @@
 import { NgModule } from "@angular/core";
 
+import {
+  OrganizationFreeTrialWarningComponent,
+  OrganizationWarningsModule,
+} from "@bitwarden/angular/billing/organizations/warnings";
 import { BannerModule } from "@bitwarden/components";
-import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OnboardingModule } from "@bitwarden/web-vault/app/shared/components/onboarding/onboarding.module";
 
 import { SecretsManagerSharedModule } from "../shared/sm-shared.module";

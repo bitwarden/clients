@@ -1,5 +1,3 @@
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationUserBulkPublicKeyResponse } from "@bitwarden/admin-console/common";
+import { OrganizationUserBulkPublicKeyResponse } from "../organization-user/organization-user-bulk-public-key.response";
 
 export class ProviderUserBulkPublicKeyResponse extends OrganizationUserBulkPublicKeyResponse {}

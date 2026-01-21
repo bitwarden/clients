@@ -14,6 +14,13 @@ import { Router } from "@angular/router";
 import { firstValueFrom, merge, Subject, takeUntil } from "rxjs";
 import { debounceTime, map, switchMap } from "rxjs/operators";
 
+import {
+  SubscriberBillingClient,
+  TaxClient,
+  OrganizationSubscriptionPlan,
+  OrganizationSubscriptionPurchase,
+} from "@bitwarden/angular/billing/clients";
+import { secretsManagerSubscribeFormFactory , BillingSharedModule } from "@bitwarden/angular/billing/shared";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -36,6 +43,7 @@ import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/commo
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { tokenizablePaymentMethodToLegacyEnum } from "@bitwarden/common/billing/types";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -47,23 +55,16 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
-import {
-  OrganizationSubscriptionPlan,
-  OrganizationSubscriptionPurchase,
-  SubscriberBillingClient,
-  TaxClient,
-} from "@bitwarden/web-vault/app/billing/clients";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
   getBillingAddressFromForm,
-} from "@bitwarden/web-vault/app/billing/payment/components";
-import { tokenizablePaymentMethodToLegacyEnum } from "@bitwarden/web-vault/app/billing/payment/types";
+  ToastService,
+} from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
-import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
+import { HeaderModule } from "../../layouts/header/header.module";
 
 interface OnSuccessArgs {
   organizationId: string;
@@ -86,6 +87,7 @@ const Allowed2020PlansForLegacyProviders = [
     OrganizationCreateModule,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
+    HeaderModule,
   ],
   providers: [SubscriberBillingClient, TaxClient],
 })

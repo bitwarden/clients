@@ -1,8 +1,10 @@
 import { Injectable } from "@angular/core";
 import { combineLatest, firstValueFrom, from, map, switchMap } from "rxjs";
 
-import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { GroupApiService } from "@bitwarden/angular/admin-console/services/organization/group-api.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import {
   CollectionDetailsResponse,
   Collection,
@@ -13,7 +15,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { KeyService } from "@bitwarden/key-management";
 
-import { GroupApiService } from "../../../core";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 
 @Injectable()

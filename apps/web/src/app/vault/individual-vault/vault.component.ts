@@ -25,7 +25,8 @@ import {
   tap,
 } from "rxjs/operators";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationWarningsModule } from "@bitwarden/angular/billing/organizations/warnings";
+import { OrganizationWarningsService } from "@bitwarden/angular/billing/organizations/warnings/services";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import {
   NoResults,
@@ -38,6 +39,7 @@ import {
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -88,7 +90,14 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  DialogRef,
+  DialogService,
+  ToastService,
+  CollectionDialogAction,
+  CollectionDialogTabType,
+  openCollectionDialog,
+} from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AddEditFolderDialogComponent,
@@ -112,21 +121,16 @@ import {
   OrganizationFilter,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
+  VaultItem,
+  VaultItemEvent,
 } from "@bitwarden/vault";
 import { UnifiedUpgradePromptService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import {
   AutoConfirmPolicy,
   AutoConfirmPolicyDialogComponent,
   PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
-import {
-  CollectionDialogAction,
-  CollectionDialogTabType,
-  openCollectionDialog,
-} from "../../admin-console/organizations/shared/components/collection-dialog";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
@@ -134,8 +138,6 @@ import {
   VaultItemDialogMode,
   VaultItemDialogResult,
 } from "../components/vault-item-dialog/vault-item-dialog.component";
-import { VaultItem } from "../components/vault-items/vault-item";
-import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 

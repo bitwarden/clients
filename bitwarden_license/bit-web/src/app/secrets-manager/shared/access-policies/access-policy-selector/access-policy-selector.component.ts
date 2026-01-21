@@ -13,7 +13,7 @@ import { Subject, takeUntil } from "rxjs";
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { FormSelectionList } from "@bitwarden/angular/utils/form-selection-list";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SelectItemView } from "@bitwarden/components";
+import { SelectItemView } from "@bitwarden/common/types/select-item-view";
 
 import { ApItemValueType } from "./models/ap-item-value.type";
 import { ApItemViewType } from "./models/ap-item-view.type";

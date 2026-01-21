@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, switchMap, map, of } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import {
   getOrganizationById,
   OrganizationService,

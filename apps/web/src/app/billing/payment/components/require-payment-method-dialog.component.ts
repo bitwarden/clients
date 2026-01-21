@@ -1,20 +1,19 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
+import { SubscriberBillingClient } from "@bitwarden/angular/billing/clients";
+import { BitwardenSubscriber } from "@bitwarden/common/billing/types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import {
+import { EnterPaymentMethodComponent ,
   CalloutTypes,
   DialogConfig,
   DialogRef,
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { SharedModule } from "../../../shared";
-import { BitwardenSubscriber } from "../../types";
 
-import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
 import {
   SubmitPaymentMethodDialogComponent,
   SubmitPaymentMethodDialogResult,

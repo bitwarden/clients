@@ -4,6 +4,10 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  getPermissionList,
+  convertToPermission,
+} from "@bitwarden/common/admin-console/models/organizations";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -11,10 +15,6 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
-import {
-  getPermissionList,
-  convertToPermission,
-} from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/access-selector";
 
 import { MemberAccessResponse } from "../response/member-access-report.response";
 import { MemberAccessExportItem } from "../view/member-access-export.view";

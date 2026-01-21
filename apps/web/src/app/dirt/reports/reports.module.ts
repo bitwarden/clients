@@ -4,14 +4,14 @@ import { NgModule } from "@angular/core";
 import {
   CipherFormConfigService,
   DefaultCipherFormConfigService,
+  OrganizationBadgeModule,
+  PipesModule,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
-import { OrganizationBadgeModule } from "../../vault/individual-vault/organization-badge/organization-badge.module";
-import { PipesModule } from "../../vault/individual-vault/pipes/pipes.module";
 import { AdminConsoleCipherFormConfigService } from "../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 import { BreachReportComponent } from "./pages/breach-report.component";

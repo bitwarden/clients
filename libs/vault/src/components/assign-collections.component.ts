@@ -24,10 +24,8 @@ import {
   tap,
 } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collections/collection.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -42,6 +40,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { SelectItemView } from "@bitwarden/common/types/select-item-view";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -53,7 +52,6 @@ import {
   DialogModule,
   FormFieldModule,
   MultiSelectModule,
-  SelectItemView,
   SelectModule,
   ToastService,
 } from "@bitwarden/components";

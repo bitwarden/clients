@@ -4,13 +4,9 @@ import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { CardComponent, ScrollLayoutDirective, SearchModule } from "@bitwarden/components";
+import { EnterBillingAddressComponent, EnterPaymentMethodComponent , CardComponent, ScrollLayoutDirective, SearchModule } from "@bitwarden/components";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
-import {
-  EnterBillingAddressComponent,
-  EnterPaymentMethodComponent,
-} from "@bitwarden/web-vault/app/billing/payment/components";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 
 import { InvoicesComponent } from "../../billing/providers/billing-history/invoices.component";

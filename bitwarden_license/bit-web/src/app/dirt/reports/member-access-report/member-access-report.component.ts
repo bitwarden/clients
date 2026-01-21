@@ -6,6 +6,7 @@ import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rxjs";
 
+import { CoreOrganizationModule } from "@bitwarden/angular/admin-console/core";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -18,7 +19,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, SearchModule, TableDataSource } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { ExportHelper } from "@bitwarden/vault-export-core";
-import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
   openUserAddEditDialog,
   MemberDialogResult,

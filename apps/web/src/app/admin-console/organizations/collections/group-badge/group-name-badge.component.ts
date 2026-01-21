@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
+import { GroupView } from "@bitwarden/common/admin-console/views/organization/group.view";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-
-import { GroupView } from "../../core";
 
 @Component({
   selector: "app-group-badge",

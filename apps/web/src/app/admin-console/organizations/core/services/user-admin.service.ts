@@ -1,12 +1,10 @@
 import { Injectable } from "@angular/core";
 
-import {
-  OrganizationUserApiService,
-  OrganizationUserInviteRequest,
-  OrganizationUserUpdateRequest,
-} from "@bitwarden/admin-console/common";
+import { CoreOrganizationModule } from "@bitwarden/angular/admin-console/core";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
+import { OrganizationUserInviteRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-invite.request";
+import { OrganizationUserUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-update.request";
 
-import { CoreOrganizationModule } from "../core-organization.module";
 import { OrganizationUserAdminView } from "../views/organization-user-admin-view";
 
 @Injectable({ providedIn: CoreOrganizationModule })

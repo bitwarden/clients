@@ -2,6 +2,12 @@ import { TestBed } from "@angular/core/testing";
 import { mock, mockReset } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import {
+  AccountBillingClient,
+  SubscriberBillingClient,
+  TaxAmounts,
+  TaxClient,
+} from "@bitwarden/angular/billing/clients";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
@@ -10,25 +16,18 @@ import { OrganizationResponse } from "@bitwarden/common/admin-console/models/res
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import {
+  BillingAddress,
+  NonTokenizablePaymentMethods,
+  NonTokenizedPaymentMethod,
+  TokenizedPaymentMethod,
+} from "@bitwarden/common/billing/types";
 import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
-
-import {
-  AccountBillingClient,
-  SubscriberBillingClient,
-  TaxAmounts,
-  TaxClient,
-} from "../../../../clients";
-import {
-  BillingAddress,
-  NonTokenizablePaymentMethods,
-  NonTokenizedPaymentMethod,
-  TokenizedPaymentMethod,
-} from "../../../../payment/types";
 
 import { UpgradePaymentService, PlanDetails } from "./upgrade-payment.service";
 

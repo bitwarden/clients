@@ -1,26 +1,24 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-
-import { OrganizationUserApiService } from "../abstractions";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
+import { OrganizationUserAcceptInitRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-accept-init.request";
+import { OrganizationUserAcceptRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-accept.request";
+import { OrganizationUserBulkConfirmRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-bulk-confirm.request";
+import { OrganizationUserBulkRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-bulk.request";
+import { OrganizationUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-confirm.request";
+import { OrganizationUserInviteRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-invite.request";
+import { OrganizationUserResetPasswordEnrollmentRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-reset-password-enrollment.request";
+import { OrganizationUserResetPasswordRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-reset-password.request";
+import { OrganizationUserUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-user/organization-user-update.request";
+import { OrganizationUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/organization-user/organization-user-bulk-public-key.response";
+import { OrganizationUserBulkResponse } from "@bitwarden/common/admin-console/models/response/organization-user/organization-user-bulk.response";
+import { OrganizationUserUserMiniResponse } from "@bitwarden/common/admin-console/models/response/organization-user-mini.response";
 import {
-  OrganizationUserAcceptInitRequest,
-  OrganizationUserAcceptRequest,
-  OrganizationUserBulkConfirmRequest,
-  OrganizationUserConfirmRequest,
-  OrganizationUserInviteRequest,
-  OrganizationUserResetPasswordEnrollmentRequest,
-  OrganizationUserResetPasswordRequest,
-  OrganizationUserUpdateRequest,
-  OrganizationUserBulkRequest,
-} from "../models/requests";
-import {
-  OrganizationUserBulkPublicKeyResponse,
-  OrganizationUserBulkResponse,
   OrganizationUserDetailsResponse,
   OrganizationUserResetPasswordDetailsResponse,
   OrganizationUserUserDetailsResponse,
-  OrganizationUserUserMiniResponse,
-} from "../models/responses";
+} from "@bitwarden/common/admin-console/models/response/organization-user.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
+
 
 export class DefaultOrganizationUserApiService implements OrganizationUserApiService {
   constructor(private apiService: ApiService) {}

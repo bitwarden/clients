@@ -4,16 +4,24 @@ import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { combineLatest, of, Subject, switchMap, takeUntil } from "rxjs";
 
-import {
-  CollectionAdminService,
-  OrganizationUserApiService,
-} from "@bitwarden/admin-console/common";
+import { GroupApiService } from "@bitwarden/angular/admin-console/services/organization/group-api.service";
+import { CollectionAdminService } from "@bitwarden/common/admin-console/abstractions/collections/collection-admin.service";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserApiService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user-api.service";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import {
+  AccessItemType,
+  AccessItemValue,
+  AccessItemView,
+  convertToSelectionView,
+  mapGroupToAccessItemView,
+  mapUserToAccessItemView,
+} from "@bitwarden/common/admin-console/models/organizations";
+import { GroupView } from "@bitwarden/common/admin-console/views/organization/group.view";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -23,20 +31,11 @@ import {
   DialogRef,
   DialogService,
   ToastService,
+  AccessSelectorModule,
+  PermissionMode,
 } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
-import { GroupApiService, GroupView } from "../../core";
-import {
-  AccessItemType,
-  AccessItemValue,
-  AccessItemView,
-  AccessSelectorModule,
-  convertToSelectionView,
-  mapGroupToAccessItemView,
-  mapUserToAccessItemView,
-  PermissionMode,
-} from "../../shared/components/access-selector";
 
 export interface BulkCollectionsDialogParams {
   organizationId: string;

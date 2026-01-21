@@ -3,6 +3,8 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Inject, OnInit, signal } from "@angular/core";
 import { Router } from "@angular/router";
 
+import { AccountBillingClient, TaxClient } from "@bitwarden/angular/billing/clients";
+import { BillingServicesModule } from "@bitwarden/angular/billing/services";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { PersonalSubscriptionPricingTierId } from "@bitwarden/common/billing/types/subscription-pricing-tier";
@@ -15,8 +17,6 @@ import {
   DialogService,
 } from "@bitwarden/components";
 
-import { AccountBillingClient, TaxClient } from "../../../clients";
-import { BillingServicesModule } from "../../../services";
 import { UpgradeAccountComponent } from "../upgrade-account/upgrade-account.component";
 import { UpgradePaymentService } from "../upgrade-payment/services/upgrade-payment.service";
 import {

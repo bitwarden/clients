@@ -4,6 +4,7 @@ import { Component, computed, DestroyRef, input, OnInit, output, signal } from "
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { catchError, of } from "rxjs";
 
+import { BillingServicesModule } from "@bitwarden/angular/billing/services";
 import { SubscriptionPricingCardDetails } from "@bitwarden/angular/billing/types/subscription-pricing-card-details";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
@@ -18,7 +19,6 @@ import { ButtonType, DialogModule, ToastService } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 
 import { SharedModule } from "../../../../shared";
-import { BillingServicesModule } from "../../../services";
 
 export const UpgradeAccountStatus = {
   Closed: "closed",
