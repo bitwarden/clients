@@ -27,8 +27,12 @@ import {
   WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import { AUTOFILL_NUDGE_SERVICE } from "@bitwarden/angular/vault";
-import { SingleNudgeService } from "@bitwarden/angular/vault/services/default-single-nudge.service";
+import {
+  AUTOFILL_NUDGE_SERVICE,
+  AUTO_CONFIRM_NUDGE_SERVICE,
+  AutoConfirmNudgeService,
+} from "@bitwarden/angular/vault";
+import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import {
   LoginComponentService,
   TwoFactorAuthComponentService,
@@ -786,9 +790,14 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: AUTOFILL_NUDGE_SERVICE as SafeInjectionToken<SingleNudgeService>,
+    provide: AUTOFILL_NUDGE_SERVICE as SafeInjectionToken<BrowserAutofillNudgeService>,
     useClass: BrowserAutofillNudgeService,
-    deps: [],
+    deps: [StateProvider, VaultProfileService, LogService],
+  }),
+  safeProvider({
+    provide: AUTO_CONFIRM_NUDGE_SERVICE as SafeInjectionToken<AutoConfirmNudgeService>,
+    useClass: AutoConfirmNudgeService,
+    deps: [StateProvider, AutomaticUserConfirmationService],
   }),
 ];
 
