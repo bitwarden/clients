@@ -1083,6 +1083,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
         }
       });
+
+      this.autofillOverlayContentService.refreshMenuLayerPosition();
     }
   };
 
