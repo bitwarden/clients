@@ -116,6 +116,8 @@ apps/web/src/utils/ @bitwarden/team-platform-dev
 apps/web/src/app/core @bitwarden/team-platform-dev
 apps/web/src/app/shared @bitwarden/team-platform-dev
 apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
+# web connectors used for platform
+apps/web/src/connectors/platform @bitwarden/team-platform-dev
 # Workflows
 .github/workflows/automatic-issue-responses.yml @bitwarden/team-platform-dev
 .github/workflows/automatic-pull-request-responses.yml @bitwarden/team-platform-dev
