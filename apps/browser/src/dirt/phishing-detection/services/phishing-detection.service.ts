@@ -137,6 +137,9 @@ export class PhishingDetectionService {
 
     this._didInit = true;
     return () => {
+      // Dispose phishing data service resources
+      phishingDataService.dispose();
+
       initSub.unsubscribe();
       this._didInit = false;
 

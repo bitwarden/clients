@@ -319,7 +319,10 @@ describe("PhishingDataService", () => {
 
       jest.spyOn(service as any, "_decompressString").mockResolvedValue("phish.com\nbadguy.net");
 
-      await service["_loadBlobToMemory"]();
+      // Trigger the load pipeline and allow async RxJS processing to complete
+      service["_loadBlobToMemory"]();
+      await flushPromises();
+
       const set = service["_webAddressesSet"] as Set<string>;
       expect(set).toBeDefined();
       expect(set.has("phish.com")).toBe(true);
