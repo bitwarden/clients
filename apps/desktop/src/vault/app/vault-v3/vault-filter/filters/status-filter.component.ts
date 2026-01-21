@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, viewChild, input, inject } from "@angular/core";
 import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
@@ -23,7 +25,10 @@ export class StatusFilterComponent {
   private cipherArchiveService: CipherArchiveService = inject(CipherArchiveService);
 
   protected readonly hideArchive = input(false);
-  protected readonly activeFilter = input<VaultFilter>();
+  protected readonly activeFilter = input.required<VaultFilter>();
+
+  private readonly premiumBadgeComponent = viewChild(PremiumBadgeComponent);
+
   protected readonly archiveFilter: CipherTypeFilter = {
     id: "archive",
     name: "archiveNoun",
@@ -38,7 +43,7 @@ export class StatusFilterComponent {
   };
 
   protected applyFilter(filterType: CipherStatus) {
-    let filter: CipherTypeFilter = null;
+    let filter: CipherTypeFilter | null = null;
     if (filterType === "archive") {
       filter = this.archiveFilter;
     } else if (filterType === "trash") {
@@ -49,8 +54,6 @@ export class StatusFilterComponent {
       this.activeFilter().selectedCipherTypeNode = new TreeNode<CipherTypeFilter>(filter, null);
     }
   }
-
-  private readonly premiumBadgeComponent = viewChild.required(PremiumBadgeComponent);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected canArchive$ = this.userId$.pipe(
@@ -71,7 +74,7 @@ export class StatusFilterComponent {
     if (canArchive || hasArchivedCiphers) {
       this.applyFilter("archive");
     } else {
-      await this.premiumBadgeComponent().promptForPremium(event);
+      await this.premiumBadgeComponent()?.promptForPremium(event);
     }
   }
 }

@@ -20,7 +20,7 @@ export class TypeFilterComponent {
     RestrictedItemTypesService,
   );
 
-  protected readonly cipherTypes = input<TreeNode<CipherTypeFilter>>();
+  protected readonly cipherTypes = input.required<TreeNode<CipherTypeFilter>>();
   protected readonly activeFilter = input<VaultFilter>();
 
   protected applyTypeFilter(event: Event, cipherType: TreeNode<CipherTypeFilter>) {
