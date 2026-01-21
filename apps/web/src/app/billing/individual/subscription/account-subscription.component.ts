@@ -37,6 +37,7 @@ import {
 import {
   UnifiedUpgradeDialogComponent,
   UnifiedUpgradeDialogStatus,
+  UnifiedUpgradeDialogStep,
 } from "@bitwarden/web-vault/app/billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
 import {
   OffboardingSurveyDialogResultType,
@@ -217,11 +218,23 @@ export class AccountSubscriptionComponent {
           return;
         }
 
+        const currentSubscription = this.subscription.value();
+        const isIncompleteExpired =
+          currentSubscription?.status === SubscriptionStatuses.IncompleteExpired;
+
         const dialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
           data: {
             account,
-            planSelectionStepTitleOverride: "upgradeYourPlan",
-            hideContinueWithoutUpgradingButton: true,
+            ...(isIncompleteExpired
+              ? {
+                  initialStep: UnifiedUpgradeDialogStep.Payment,
+                  selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
+                  redirectOnCompletion: true,
+                }
+              : {
+                  planSelectionStepTitleOverride: "upgradeYourPlan",
+                  hideContinueWithoutUpgradingButton: true,
+                }),
           },
         });
 
