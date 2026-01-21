@@ -100,10 +100,12 @@ type ProcType = unsafe extern "system" fn(HWND, u32, WPARAM, LPARAM) -> LRESULT;
 
 // <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wndproc>
 extern "system" fn show_window_proc(
-    handle: HWND,   // the window handle
-    message: u32,   // the system message
-    wparam: WPARAM, // additional message information. The contents of the wParam parameter depend on the value of the message parameter.
-    lparam: LPARAM, // additional message information. The contents of the lParam parameter depend on the value of the message parameter.
+    handle: HWND, // the window handle
+    message: u32, // the system message
+    wparam: WPARAM, /* additional message information. The contents of the wParam parameter
+                   * depend on the value of the message parameter. */
+    lparam: LPARAM, /* additional message information. The contents of the lParam parameter
+                     * depend on the value of the message parameter. */
 ) -> LRESULT {
     unsafe {
         match message {
