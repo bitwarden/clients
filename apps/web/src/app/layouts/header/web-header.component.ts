@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { Component, input, InputSignal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { map, Observable } from "rxjs";
 
@@ -25,16 +23,17 @@ export class WebHeaderComponent {
   /**
    * Custom title that overrides the route data `titleId`
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() title: string;
+  readonly title: InputSignal<string> = input();
 
   /**
    * Icon to show before the title
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() icon: string;
+  readonly icon: InputSignal<string> = input();
+
+  /**
+   * Utilize the alt background on pages where it is still needed
+   */
+  readonly useAltBackground: InputSignal<boolean> = input(false);
 
   protected routeData$: Observable<{ titleId: string }>;
   protected account$: Observable<User & { id: UserId }>;
