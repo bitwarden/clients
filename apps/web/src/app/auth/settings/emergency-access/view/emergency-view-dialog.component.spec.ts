@@ -166,5 +166,13 @@ describe("EmergencyViewDialogComponent", () => {
 
       expect(component["title"]).toBe("viewItemHeaderNote");
     });
+
+    it("sets ssh key title", () => {
+      mockCipher.type = CipherType.SshKey;
+
+      component["updateTitle"]();
+
+      expect(component["title"]).toBe("viewItemHeaderSshKey");
+    });
   });
 });
