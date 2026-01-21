@@ -55,8 +55,11 @@ export function createFilterFunction(
         return false;
       }
     }
+    const isNoFolderFilter = filter.folderId === Unassigned || filter.folderId === "";
+    const cipherHasFolder = cipher.folderId != null && cipher.folderId !== "";
+
     // No folder
-    if (filter.folderId === Unassigned && cipher.folderId != null) {
+    if (isNoFolderFilter && cipherHasFolder) {
       return false;
     }
     // Folder
@@ -64,6 +67,7 @@ export function createFilterFunction(
       filter.folderId !== undefined &&
       filter.folderId !== All &&
       filter.folderId !== Unassigned &&
+      filter.folderId !== "" &&
       cipher.folderId !== filter.folderId
     ) {
       return false;
