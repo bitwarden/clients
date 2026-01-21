@@ -2479,6 +2479,9 @@
   "permanentlyDeletedItem": {
     "message": "Item permanently deleted"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoreItem": {
     "message": "Restore item"
   },
@@ -5675,6 +5678,9 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."
