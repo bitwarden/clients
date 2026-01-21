@@ -100,6 +100,70 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Private note"
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "New",
     "description": "for adding new items"
@@ -4011,6 +4075,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "כניסה זו נמצאת בסיכון וחסר בה אתר אינטרנט. הוסף אתר אינטרנט ושנה את הסיסמה לאבטחה חזקה יותר."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "לא נמצא אתר אינטרנט"
   },
@@ -4267,8 +4337,8 @@
   "typeShortcut": {
     "message": "הקלד קיצור דרך"
   },
-  "editAutotypeShortcutDescription": {
-    "message": "כלול אחד או שניים ממקשי הצירוף הבאים: Ctrl, Alt, Win, או Shift, ואות."
+  "editAutotypeKeyboardModifiersDescription": {
+    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
   },
   "invalidShortcut": {
     "message": "קיצור דרך לא חוקי"

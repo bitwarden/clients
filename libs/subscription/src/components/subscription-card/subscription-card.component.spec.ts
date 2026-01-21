@@ -14,7 +14,7 @@ describe("SubscriptionCardComponent", () => {
     passwordManager: {
       seats: {
         quantity: 5,
-        name: "members",
+        translationKey: "members",
         cost: 50,
       },
     },

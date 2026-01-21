@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Objektet skickades till arkivet"
   },
+  "itemWasUnarchived": {
+    "message": "Objektet har avarkiverats"
+  },
   "itemUnarchived": {
     "message": "Objektet har avarkiverats"
   },
@@ -582,11 +585,17 @@
   "archiveItemConfirmDesc": {
     "message": "Arkiverade objekt är exkluderade från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
   },
+  "archived": {
+    "message": "Arkiverade"
+  },
+  "unarchiveAndSave": {
+    "message": "Avarkivera och spara"
+  },
   "upgradeToUseArchive": {
     "message": "Ett premium-medlemskap krävs för att använda Arkiv."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Objektet har återställts"
   },
   "edit": {
     "message": "Redigera"
@@ -1535,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Premium-alternativ för tvåstegsverifiering, såsom YubiKey och Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ditt Premium-abonnemang avslutades"
+  },
+  "archivePremiumRestart": {
+    "message": "För att återfå åtkomst till ditt arkiv, starta om Premium-abonnemanget. Om du redigerar detaljer för ett arkiverat objekt innan du startar om kommer det att flyttas tillbaka till ditt valv."
+  },
+  "restartPremium": {
+    "message": "Starta om Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Lösenordshygien, kontohälsa och dataintrångsrapporter för att hålla ditt valv säkert."
@@ -4810,6 +4828,39 @@
   },
   "adminConsole": {
     "message": "Adminkonsol"
+  },
+  "admin": {
+    "message": "Administratör"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatisk bekräftelse av användare"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Bekräfta automatiskt väntande användare medan enheten är olåst"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Spara tid med automatisk användarbekräftelse"
+  },
+  "autoConfirmWarning": {
+    "message": "Detta kan påverka din organisations datasäkerhet. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Läs mer om riskerna"
+  },
+  "autoConfirmSetup": {
+    "message": "Bekräfta nya användare automatiskt"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Nya användare kommer automatiskt att bekräftas när denna enhet är upplåst."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Vilka är de potentiella säkerhetsriskerna?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Aktiverade automatisk bekräftelse"
+  },
+  "availableNow": {
+    "message": "Tillgänglig nu"
   },
   "accountSecurity": {
     "message": "Kontosäkerhet"

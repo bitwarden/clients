@@ -177,6 +177,32 @@ describe("keyService", () => {
     });
   });
 
+  describe("makeUserKey", () => {
+    test.each([null as unknown as MasterKey, undefined as unknown as MasterKey])(
+      "throws when the provided masterKey is %s",
+      async (masterKey) => {
+        await expect(keyService.makeUserKey(masterKey)).rejects.toThrow("MasterKey is required");
+      },
+    );
+
+    it("encrypts the user key with the master key", async () => {
+      const mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
+      const mockEncryptedUserKey = makeEncString("encryptedUserKey");
+
+      keyGenerationService.createKey.mockResolvedValue(mockUserKey);
+      encryptService.wrapSymmetricKey.mockResolvedValue(mockEncryptedUserKey);
+      const stretchedMasterKey = new SymmetricCryptoKey(new Uint8Array(64));
+      keyGenerationService.stretchKey.mockResolvedValue(stretchedMasterKey);
+
+      const result = await keyService.makeUserKey(makeSymmetricCryptoKey<MasterKey>(32));
+
+      expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockUserKey, stretchedMasterKey);
+      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(result[0]).toBe(mockUserKey);
+      expect(result[1]).toBe(mockEncryptedUserKey);
+    });
+  });
+
   describe("everHadUserKey$", () => {
     let everHadUserKeyState: FakeSingleUserState<boolean>;
 
@@ -411,14 +437,13 @@ describe("keyService", () => {
       );
     });
 
-    it("throws an error if unwrapping encrypted private key fails", async () => {
+    it("emits null if unwrapping encrypted private key fails", async () => {
       encryptService.unwrapDecapsulationKey.mockImplementationOnce(() => {
         throw new Error("Unwrapping failed");
       });
 
-      await expect(firstValueFrom(keyService.userPrivateKey$(mockUserId))).rejects.toThrow(
-        "Unwrapping failed",
-      );
+      const result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
+      expect(result).toBeNull();
     });
 
     it("returns null if user key is not set", async () => {

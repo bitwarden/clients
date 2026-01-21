@@ -11,6 +11,7 @@ import {
   DestroyRef,
   computed,
   signal,
+  AfterViewInit,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, switchMap } from "rxjs";
@@ -62,8 +63,10 @@ const drawerSizeToWidth = {
     SpinnerComponent,
   ],
 })
-export class DialogComponent {
+export class DialogComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogHeader =
+    viewChild.required<ElementRef<HTMLHeadingElement>>("dialogHeader");
   private readonly scrollableBody = viewChild.required(CdkScrollable);
   private readonly scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
 
@@ -140,6 +143,22 @@ export class DialogComponent {
 
     return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
+
+  ngAfterViewInit() {
+    /**
+     * Wait a tick for any focus management to occur on the trigger element before moving focus to
+     * the dialog header. We choose the dialog header because it is always present, unlike possible
+     * interactive elements.
+     *
+     * We are doing this manually instead of using `cdkTrapFocusAutoCapture` and `cdkFocusInitial`
+     * because we need this delay behavior.
+     */
+    const headerFocusTimeout = setTimeout(() => {
+      this.dialogHeader().nativeElement.focus();
+    }, 0);
+
+    this.destroyRef.onDestroy(() => clearTimeout(headerFocusTimeout));
+  }
 
   handleEsc(event: Event) {
     if (!this.dialogRef?.disableClose) {
