@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Inject, OnDestroy, ViewChild } from "@angular/core";
+import { Component, computed, inject, OnDestroy, signal, ViewChild } from "@angular/core";
 import { firstValueFrom, Subject } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -31,27 +31,43 @@ import {
 
 import { ItemFooterComponent } from "../vault/item-footer.component";
 
-export interface VaultItemDrawerParams {
-  /**
-   * The configuration object for the cipher form.
-   */
-  config: CipherFormConfig;
+/**
+ * Translation keys for cipher title based on mode and type.
+ */
+const CIPHER_TITLE_TRANSLATIONS = {
+  view: {
+    [CipherType.Login]: "viewItemHeaderLogin",
+    [CipherType.Card]: "viewItemHeaderCard",
+    [CipherType.Identity]: "viewItemHeaderIdentity",
+    [CipherType.SecureNote]: "viewItemHeaderNote",
+    [CipherType.SshKey]: "viewItemHeaderSshKey",
+  },
+  new: {
+    [CipherType.Login]: "newItemHeaderLogin",
+    [CipherType.Card]: "newItemHeaderCard",
+    [CipherType.Identity]: "newItemHeaderIdentity",
+    [CipherType.SecureNote]: "newItemHeaderNote",
+    [CipherType.SshKey]: "newItemHeaderSshKey",
+  },
+  edit: {
+    [CipherType.Login]: "editItemHeaderLogin",
+    [CipherType.Card]: "editItemHeaderCard",
+    [CipherType.Identity]: "editItemHeaderIdentity",
+    [CipherType.SecureNote]: "editItemHeaderNote",
+    [CipherType.SshKey]: "editItemHeaderSshKey",
+  },
+} as const;
 
-  /**
-   * The initial mode for the drawer: 'view' | 'add' | 'edit' | 'clone'
-   */
+export interface VaultItemDrawerParams {
+  config: CipherFormConfig;
   initialMode: "view" | "add" | "edit" | "clone";
 }
 
 /** A result of the vault item drawer. */
 export const VaultItemDrawerResult = Object.freeze({
-  /** The cipher was saved. */
   Saved: "saved",
-  /** The cipher was deleted. */
   Deleted: "deleted",
-  /** The cipher was archived/unarchived. */
   Archived: "archived",
-  /** The cipher was restored. */
   Restored: "restored",
 } as const);
 
@@ -93,64 +109,42 @@ export class VaultItemDrawerComponent implements OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CipherFormComponent) cipherFormComponent!: CipherFormComponent;
 
-  /**
-   * The title of the drawer.
-   */
-  protected title: string;
+  protected readonly params = inject<VaultItemDrawerParams>(DIALOG_DATA);
+  private readonly dialogRef = inject<DialogRef<VaultItemDrawerResult>>(DialogRef);
+  private readonly i18nService = inject(I18nService);
+  private readonly dialogService = inject(DialogService);
 
-  /**
-   * Current mode of the drawer: 'view' or 'form'
-   */
-  protected mode: DrawerMode;
-
-  /**
-   * Flag to initialize/attach the form component.
-   */
-  protected loadForm: boolean;
-
-  /**
-   * Flag to indicate the form is ready to be displayed.
-   */
-  protected formReady = false;
-
-  /**
-   * The configuration for the cipher form.
-   */
+  protected readonly title = signal<string>("");
+  protected readonly mode = signal<DrawerMode>("view");
+  protected readonly loadForm = signal<boolean>(false);
+  protected readonly formReady = signal(false);
   protected formConfig: CipherFormConfig;
-
-  /**
-   * The cipher being viewed or edited.
-   */
-  protected cipher: CipherView | null = null;
-
-  /**
-   * Collections the cipher is assigned to.
-   */
-  protected collections: CollectionView[] = [];
+  protected readonly cipher = signal<CipherView | null>(null);
+  protected readonly collections = signal<CollectionView[]>([]);
 
   /**
    * The action to pass to ItemFooterComponent ('view', 'add', 'edit', 'clone')
    */
-  protected get action(): string {
-    if (this.mode === "view") {
+  protected readonly action = computed(() => {
+    if (this.mode() === "view") {
       return "view";
     }
     return this.formConfig.mode;
-  }
+  });
 
   /**
    * Whether to show the cipher view component.
    */
-  protected get showCipherView(): boolean {
-    return this.cipher != null && this.mode === "view";
-  }
+  protected readonly showCipherView = computed(() => {
+    return this.cipher() != null && this.mode() === "view";
+  });
 
   /**
    * Whether the form is loading (initialized but not ready).
    */
-  protected get loadingForm(): boolean {
-    return this.loadForm && !this.formReady;
-  }
+  protected readonly loadingForm = computed(() => {
+    return this.loadForm() && !this.formReady();
+  });
 
   /**
    * Tracks if the cipher was ever modified while the drawer was open.
@@ -170,26 +164,21 @@ export class VaultItemDrawerComponent implements OnDestroy {
    */
   private _initialMode = this.params.initialMode;
 
-  constructor(
-    @Inject(DIALOG_DATA) protected params: VaultItemDrawerParams,
-    private dialogRef: DialogRef<VaultItemDrawerResult>,
-    private i18nService: I18nService,
-    private dialogService: DialogService,
-  ) {
-    this.formConfig = params.config;
-    this.cipher = params.config.originalCipher
-      ? new CipherView(params.config.originalCipher)
-      : null;
+  constructor() {
+    this.formConfig = this.params.config;
+    const originalCipher = this.params.config.originalCipher;
+    this.cipher.set(originalCipher ? new CipherView(originalCipher) : null);
 
-    if (this.cipher && this.formConfig.collections) {
-      this.collections = this.formConfig.collections.filter((c) =>
-        this.cipher.collectionIds?.includes(c.id),
+    if (this.cipher() && this.formConfig.collections) {
+      this.collections.set(
+        this.formConfig.collections.filter((c) => this.cipher()?.collectionIds?.includes(c.id)),
       );
     }
 
     // Set initial mode
-    this.mode = params.initialMode === "view" ? "view" : "form";
-    this.loadForm = this.mode === "form";
+    const initialMode = this.params.initialMode === "view" ? "view" : "form";
+    this.mode.set(initialMode);
+    this.loadForm.set(initialMode === "form");
 
     this.updateTitle();
   }
@@ -205,12 +194,12 @@ export class VaultItemDrawerComponent implements OnDestroy {
    * Called by the CipherFormComponent when the cipher is saved successfully.
    */
   protected async onCipherSaved(cipherView: CipherView) {
-    this.cipher = cipherView;
+    this.cipher.set(cipherView);
     this._cipherModified = true;
 
     if (this.formConfig.collections) {
-      this.collections = this.formConfig.collections.filter((c) =>
-        cipherView.collectionIds?.includes(c.id),
+      this.collections.set(
+        this.formConfig.collections.filter((c) => cipherView.collectionIds?.includes(c.id)),
       );
     }
 
@@ -228,7 +217,7 @@ export class VaultItemDrawerComponent implements OnDestroy {
    * Called by the CipherFormComponent when the form is ready to be displayed.
    */
   protected onFormReady() {
-    this.formReady = true;
+    this.formReady.set(true);
     this._formReadySubject.next();
   }
 
@@ -271,8 +260,8 @@ export class VaultItemDrawerComponent implements OnDestroy {
   protected async onCancel() {
     // We're in View mode, we don't have a cipher, or we were adding/cloning, close the drawer.
     if (
-      this.mode === "view" ||
-      this.cipher == null ||
+      this.mode() === "view" ||
+      this.cipher() == null ||
       this._initialMode === "add" ||
       this._initialMode === "clone"
     ) {
@@ -334,18 +323,18 @@ export class VaultItemDrawerComponent implements OnDestroy {
    * @private
    */
   private async changeMode(mode: DrawerMode) {
-    this.formReady = false;
+    this.formReady.set(false);
 
     if (mode === "form") {
-      this.loadForm = true;
+      this.loadForm.set(true);
       // Wait for the formReadySubject to emit before continuing.
       // This helps prevent flashing an empty dialog while the form is initializing.
       await firstValueFrom(this._formReadySubject);
     } else {
-      this.loadForm = false;
+      this.loadForm.set(false);
     }
 
-    this.mode = mode;
+    this.mode.set(mode);
     this.updateTitle();
   }
 
@@ -354,40 +343,16 @@ export class VaultItemDrawerComponent implements OnDestroy {
    * @private
    */
   private updateTitle(): void {
-    const translation: { [key: string]: { [key: number]: string } } = {
-      view: {
-        [CipherType.Login]: "viewItemHeaderLogin",
-        [CipherType.Card]: "viewItemHeaderCard",
-        [CipherType.Identity]: "viewItemHeaderIdentity",
-        [CipherType.SecureNote]: "viewItemHeaderNote",
-        [CipherType.SshKey]: "viewItemHeaderSshKey",
-      },
-      new: {
-        [CipherType.Login]: "newItemHeaderLogin",
-        [CipherType.Card]: "newItemHeaderCard",
-        [CipherType.Identity]: "newItemHeaderIdentity",
-        [CipherType.SecureNote]: "newItemHeaderNote",
-        [CipherType.SshKey]: "newItemHeaderSshKey",
-      },
-      edit: {
-        [CipherType.Login]: "editItemHeaderLogin",
-        [CipherType.Card]: "editItemHeaderCard",
-        [CipherType.Identity]: "editItemHeaderIdentity",
-        [CipherType.SecureNote]: "editItemHeaderNote",
-        [CipherType.SshKey]: "editItemHeaderSshKey",
-      },
-    };
-
-    const type = this.cipher?.type ?? this.formConfig.cipherType;
+    const type = this.cipher()?.type ?? this.formConfig.cipherType;
     let titleMode: "view" | "edit" | "new" = "view";
 
-    if (this.mode === "form") {
+    if (this.mode() === "form") {
       titleMode =
         this.formConfig.mode === "edit" || this.formConfig.mode === "partial-edit" ? "edit" : "new";
     }
 
-    const fullTranslation = translation[titleMode][type];
-    this.title = this.i18nService.t(fullTranslation);
+    const translationKey = CIPHER_TITLE_TRANSLATIONS[titleMode][type];
+    this.title.set(this.i18nService.t(translationKey));
   }
 
   /**

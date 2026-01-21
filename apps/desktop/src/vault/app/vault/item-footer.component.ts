@@ -69,16 +69,16 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
 
-  protected cipherService = inject(CipherService);
-  protected dialogService = inject(DialogService);
-  protected passwordRepromptService = inject(PasswordRepromptService);
-  protected cipherAuthorizationService = inject(CipherAuthorizationService);
-  protected accountService = inject(AccountService);
-  protected toastService = inject(ToastService);
-  protected i18nService = inject(I18nService);
-  protected logService = inject(LogService);
-  protected cipherArchiveService = inject(CipherArchiveService);
-  protected archiveCipherUtilitiesService = inject(ArchiveCipherUtilitiesService);
+  protected readonly cipherService = inject(CipherService);
+  protected readonly dialogService = inject(DialogService);
+  protected readonly passwordRepromptService = inject(PasswordRepromptService);
+  protected readonly cipherAuthorizationService = inject(CipherAuthorizationService);
+  protected readonly accountService = inject(AccountService);
+  protected readonly toastService = inject(ToastService);
+  protected readonly i18nService = inject(I18nService);
+  protected readonly logService = inject(LogService);
+  protected readonly cipherArchiveService = inject(CipherArchiveService);
+  protected readonly archiveCipherUtilitiesService = inject(ArchiveCipherUtilitiesService);
 
   readonly submitButtonText = input<string>(this.i18nService.t("save"));
 

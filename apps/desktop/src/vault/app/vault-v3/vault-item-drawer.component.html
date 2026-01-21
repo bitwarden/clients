@@ -1,14 +1,14 @@
 <bit-dialog dialogSize="large" background="alt">
   <span bitDialogTitle>
-    {{ title }}
+    {{ title() }}
   </span>
 
   <div bitDialogContent>
-    @if (showCipherView) {
-      <app-cipher-view [cipher]="cipher" [collections]="collections"> </app-cipher-view>
+    @if (showCipherView()) {
+      <app-cipher-view [cipher]="cipher()" [collections]="collections()"> </app-cipher-view>
     }
 
-    @if (loadForm) {
+    @if (loadForm()) {
       <vault-cipher-form
         formId="cipherForm"
         [config]="formConfig"
@@ -31,8 +31,8 @@
 
   <ng-container bitDialogFooter>
     <app-vault-item-footer
-      [cipher]="cipher"
-      [action]="action"
+      [cipher]="cipher()"
+      [action]="action()"
       (onEdit)="onEdit()"
       (onClone)="onClone($event)"
       (onDelete)="onDelete()"
