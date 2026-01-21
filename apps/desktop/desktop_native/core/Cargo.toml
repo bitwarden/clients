@@ -13,7 +13,7 @@ default = [
     "dep:security-framework",
     "dep:security-framework-sys",
     "dep:zbus",
-    "dep:zbus_polkit",
+    "dep:zbus_polkit"
 ]
 manual_test = []
 
