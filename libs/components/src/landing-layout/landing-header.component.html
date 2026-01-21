@@ -1,14 +1,14 @@
-<header class="tw-flex tw-w-full tw-bg-background-alt">
+<header class="tw-flex tw-w-full tw-bg-background-alt tw-px-5">
   @if (!hideLogo()) {
     <!-- CSS calc on width to account for horizontal padding of the logo -->
     <a
       [routerLink]="['/']"
-      class="tw-w-[calc(theme(spacing.32)_+_2_*_theme(spacing.5))] tw-p-5 sm:tw-w-[calc(200px_+_2_*_theme(spacing.5))] tw-self-center sm:tw-self-start tw-block [&>*]:tw-align-top"
+      class="tw-w-32 tw-py-5 sm:tw-w-[200px] tw-self-center sm:tw-self-start tw-block [&>*]:tw-align-top"
     >
       <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
     </a>
   }
-  <div [class]="(hasContent$ | async) ? 'tw-ms-auto tw-p-5' : 'tw-ms-auto'" #contentWrapper>
+  <div class="[&:has(*)]:tw-ms-auto [&:has(*)]:tw-p-5">
     <ng-content></ng-content>
   </div>
 </header>
