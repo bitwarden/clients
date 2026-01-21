@@ -4,6 +4,7 @@ import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
+  filter,
   firstValueFrom,
   from,
   map,
@@ -20,10 +21,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -41,6 +39,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -204,10 +203,11 @@ export class MemberDialogComponent implements OnDestroy {
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
       switchMap((account) =>
-        organizationService
-          .organizations$(account?.id)
-          .pipe(getOrganizationById(this.params.organizationId))
-          .pipe(shareReplay({ refCount: true, bufferSize: 1 })),
+        organizationService.organizations$(account?.id).pipe(
+          getById(this.params.organizationId),
+          filter((organization) => organization != null),
+          shareReplay({ refCount: true, bufferSize: 1 }),
+        ),
       ),
     );
 

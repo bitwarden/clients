@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
-import { combineLatest, firstValueFrom, from, Observable, switchMap } from "rxjs";
+import { combineLatest, filter, firstValueFrom, from, Observable, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -64,7 +64,10 @@ export class BulkRestoreRevokeComponent {
 
     this.organization$ = accountService.activeAccount$.pipe(
       switchMap((account) =>
-        organizationService.organizations$(account?.id).pipe(getById(this.organizationId)),
+        organizationService.organizations$(account?.id).pipe(
+          getById(this.organizationId),
+          filter((org): org is Organization => org != null),
+        ),
       ),
     );
   }
