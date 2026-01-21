@@ -83,7 +83,7 @@ export class PopupSizeService {
     }
     const pxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
 
-    document.body.style.minWidth = `${pxWidth}px`;
+    document.body.style.width = `${pxWidth}px`;
   }
 
   /**
