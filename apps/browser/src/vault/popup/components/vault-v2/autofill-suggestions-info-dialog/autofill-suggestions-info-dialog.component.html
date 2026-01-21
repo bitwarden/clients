@@ -1,0 +1,13 @@
+<bit-dialog [title]="'simplifiedAutofill' | i18n">
+  <div bitDialogContent>
+    <p bitTypography="body2">
+      {{ "autofillSelectInfoWithoutCommand" | i18n }}
+    </p>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" (click)="close()">
+      {{ "gotIt" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

@@ -33,9 +33,52 @@
 
 <ng-template #sectionHeader>
   <bit-section-header class="tw-p-0.5 -tw-mx-0.5">
-    <h2 bitTypography="h6">
-      {{ title() }}
-    </h2>
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <h2 bitTypography="h6" class="!tw-mb-0">
+        {{ title() }}
+      </h2>
+
+      @if (showInfoIcon()) {
+        <ng-container>
+          <button
+            type="button"
+            class="tw-relative tw-inline-flex tw-items-center tw-justify-center tw-w-6 tw-h-6 tw-rounded-md hover:tw-bg-secondary-100 focus-visible:tw-outline-none focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
+            [bitPopoverTriggerFor]="autofillSuggestionsInfoPopover"
+            [position]="'below-center'"
+            #autofillSuggestionsInfoTrigger="popoverTrigger"
+            (click)="$event.stopPropagation(); onInfoIconClick.emit()"
+            [attr.aria-label]="'learnMore' | i18n"
+            [title]="'learnMore' | i18n"
+          >
+            @if (pingInfoIcon()) {
+              <span
+                class="tw-absolute tw-inline-flex tw-h-6 tw-w-6 tw-rounded-full tw-bg-primary-600/20 tw-animate-ping tw-[animation-iteration-count:4]"
+                aria-hidden="true"
+              ></span>
+            }
+            <i class="bwi bwi-info-circle tw-text-muted" aria-hidden="true"></i>
+          </button>
+
+          <bit-popover
+            [title]="'simplifiedAutofill' | i18n"
+            #autofillSuggestionsInfoPopover
+            (closed)="onInfoIconDismissed.emit()"
+          >
+            <p class="tw-mb-0">{{ "simplifiedAutofillDesc" | i18n }}</p>
+            <div class="tw-mt-4 tw-flex tw-justify-start">
+              <button
+                type="button"
+                bitButton
+                buttonType="primary"
+                (click)="autofillSuggestionsInfoTrigger.closePopover(); onInfoIconDismissed.emit()"
+              >
+                {{ "gotIt" | i18n }}
+              </button>
+            </div>
+          </bit-popover>
+        </ng-container>
+      }
+    </div>
     <button
       *ngIf="showRefresh()"
       bitIconButton="bwi-refresh"

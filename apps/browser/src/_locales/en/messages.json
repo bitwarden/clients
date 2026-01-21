@@ -3765,6 +3765,12 @@
   "autofillSelectInfoWithoutCommand": {
     "message": "Select an item from this screen, or explore other options in settings."
   },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDesc": {
+    "message": "Now, when you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
   "gotIt": {
     "message": "Got it"
   },

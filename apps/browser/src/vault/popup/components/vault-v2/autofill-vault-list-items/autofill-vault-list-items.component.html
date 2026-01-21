@@ -5,6 +5,10 @@
   [showRefresh]="showRefresh"
   (onRefresh)="refreshCurrentTab()"
   [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : undefined"
+  [showInfoIcon]="showInfoIcon$ | async"
+  [pingInfoIcon]="pingInfoIcon()"
+  (onInfoIconClick)="openAutofillSuggestionsInfo()"
+  (onInfoIconDismissed)="dismissAutofillSuggestionsInfo()"
   showAutofillButton
   [disableDescriptionMargin]="showEmptyAutofillTip$ | async"
   [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
