@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { BitwardenSubscriptionResponse } from "@bitwarden/common/billing/models/response/bitwarden-subscription.response";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { Maybe } from "@bitwarden/pricing";
 import { BitwardenSubscription } from "@bitwarden/subscription";
 
 import {
@@ -21,11 +23,18 @@ export class AccountBillingClient {
     return this.apiService.send("GET", path, null, true, true);
   };
 
-  getSubscription = async (): Promise<BitwardenSubscription> => {
+  getSubscription = async (): Promise<Maybe<BitwardenSubscription>> => {
     const path = `${this.endpoint}/subscription`;
-    const json = await this.apiService.send("GET", path, null, true, true);
-    const response = new BitwardenSubscriptionResponse(json);
-    return response.toDomain();
+    try {
+      const json = await this.apiService.send("GET", path, null, true, true);
+      const response = new BitwardenSubscriptionResponse(json);
+      return response.toDomain();
+    } catch (error: any) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        return null;
+      }
+      throw error;
+    }
   };
 
   purchaseSubscription = async (

@@ -3263,6 +3263,15 @@
   "reinstated": {
     "message": "The subscription has been reinstated."
   },
+  "resubscribe": {
+    "message": "Resubscribe"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Your subscription is expired. Please resubscribe to continue using premium features."
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Your subscription is canceled. Please resubscribe to continue using premium features."
+  },
   "cancelConfirmation": {
     "message": "Are you sure you want to cancel? You will lose access to all of this subscription's features at the end of this billing cycle."
   },

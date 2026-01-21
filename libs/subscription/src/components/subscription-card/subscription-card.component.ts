@@ -20,6 +20,7 @@ export const SubscriptionCardActions = {
   ContactSupport: "contact-support",
   ManageInvoices: "manage-invoices",
   ReinstateSubscription: "reinstate-subscription",
+  Resubscribe: "resubscribe",
   UpdatePayment: "update-payment",
   UpgradePlan: "upgrade-plan",
 } as const;
@@ -154,12 +155,12 @@ export class SubscriptionCardComponent {
         return {
           title: this.i18nService.t("expired"),
           type: "danger",
-          description: this.i18nService.t("yourSubscriptionHasExpired"),
+          description: this.i18nService.t("yourSubscriptionIsExpired"),
           callsToAction: [
             {
-              text: this.i18nService.t("contactSupportShort"),
+              text: this.i18nService.t("resubscribe"),
               buttonType: "unstyled",
-              action: SubscriptionCardActions.ContactSupport,
+              action: SubscriptionCardActions.Resubscribe,
             },
           ],
         };
@@ -218,7 +219,18 @@ export class SubscriptionCardComponent {
         };
       }
       case SubscriptionStatuses.Canceled: {
-        return null;
+        return {
+          title: this.i18nService.t("canceled"),
+          type: "danger",
+          description: this.i18nService.t("yourSubscriptionIsCanceled"),
+          callsToAction: [
+            {
+              text: this.i18nService.t("resubscribe"),
+              buttonType: "unstyled",
+              action: SubscriptionCardActions.Resubscribe,
+            },
+          ],
+        };
       }
       case SubscriptionStatuses.Unpaid: {
         return {

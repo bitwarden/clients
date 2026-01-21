@@ -35,6 +35,10 @@ import {
   AdjustAccountSubscriptionStorageDialogParams,
 } from "@bitwarden/web-vault/app/billing/individual/subscription/adjust-account-subscription-storage-dialog.component";
 import {
+  UnifiedUpgradeDialogComponent,
+  UnifiedUpgradeDialogStatus,
+} from "@bitwarden/web-vault/app/billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
+import {
   OffboardingSurveyDialogResultType,
   openOffboardingSurvey,
 } from "@bitwarden/web-vault/app/billing/shared/offboarding-survey.component";
@@ -75,13 +79,11 @@ export class AccountSubscriptionComponent {
       if (!account) {
         return await redirectToPremiumPage();
       }
-      const hasPremiumPersonally = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
-      );
-      if (!hasPremiumPersonally) {
+      const subscription = await this.accountBillingClient.getSubscription();
+      if (!subscription) {
         return await redirectToPremiumPage();
       }
-      return await this.accountBillingClient.getSubscription();
+      return subscription;
     },
   });
 
@@ -91,6 +93,7 @@ export class AccountSubscriptionComponent {
     const subscription = this.subscription.value();
     if (subscription) {
       return (
+        subscription.status === SubscriptionStatuses.Incomplete ||
         subscription.status === SubscriptionStatuses.IncompleteExpired ||
         subscription.status === SubscriptionStatuses.Canceled ||
         subscription.status === SubscriptionStatuses.Unpaid
@@ -208,6 +211,27 @@ export class AccountSubscriptionComponent {
       case SubscriptionCardActions.UpdatePayment:
         await this.router.navigate(["../payment-details"], { relativeTo: this.activatedRoute });
         break;
+      case SubscriptionCardActions.Resubscribe: {
+        const account = await firstValueFrom(this.accountService.activeAccount$);
+        if (!account) {
+          return;
+        }
+
+        const dialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
+          data: {
+            account,
+            planSelectionStepTitleOverride: "upgradeYourPlan",
+            hideContinueWithoutUpgradingButton: true,
+          },
+        });
+
+        const result = await lastValueFrom(dialogRef.closed);
+
+        if (result?.status === UnifiedUpgradeDialogStatus.UpgradedToPremium) {
+          this.subscription.reload();
+        }
+        break;
+      }
       case SubscriptionCardActions.UpgradePlan:
         // TODO: Implement upgrade plan navigation
         break;
