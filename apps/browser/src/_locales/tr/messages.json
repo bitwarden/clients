@@ -583,7 +583,13 @@
     "message": "Kaydı arşivle"
   },
   "archiveItemConfirmDesc": {
-    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğine emin misin?"
+    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğinizden emin misiniz?"
+  },
+  "archived": {
+    "message": "Arşivlendi"
+  },
+  "unarchiveAndSave": {
+    "message": "Arşivden çıkar ve kaydet"
   },
   "upgradeToUseArchive": {
     "message": "Arşivi kullanmak için premium üyelik gereklidir."
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey ve Duo gibi marka bazlı iki aşamalı giriş seçenekleri."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Premium aboneliğiniz sona erdi"
+  },
+  "archivePremiumRestart": {
+    "message": "Arşivinize yeniden erişebilmek için Premium aboneliğinizi yeniden başlatın. Yeniden başlatmadan önce arşivlenmiş bir kaydın ayrıntılarını düzenlerseniz kayıt tekrar kasanıza taşınır."
+  },
+  "restartPremium": {
+    "message": "Premium’u yeniden başlat"
   },
   "ppremiumSignUpReports": {
     "message": "Kasanızı güvende tutmak için parola hijyeni, hesap sağlığı ve veri ihlali raporları."
@@ -4818,7 +4833,7 @@
     "message": "Yönetici"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Otomatik kullanıcı onayı"
   },
   "automaticUserConfirmationHint": {
     "message": "Automatically confirm pending users while this device is unlocked"
@@ -5255,7 +5270,7 @@
     "message": "Web sitesi URI'sini yeniden sıralayın. Kayıtı yukarı veya aşağı taşımak için ok tuşunu kullanın."
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ yukarı taşındı, konum: $LENGTH$'in $INDEX$'i",
+    "message": "$LABEL$ yukarı taşındı. Konum: $LENGTH$/$INDEX$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5707,7 +5722,7 @@
     "message": "Vulnerable password."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Şimdi değiştir"
   },
   "missingWebsite": {
     "message": "Web sitesi eksik"
@@ -5784,7 +5799,7 @@
     "message": "Oltalama tespiti hakkında daha fazla bilgi edinin"
   },
   "protectedBy": {
-    "message": "$PRODUCT$ tarafından korunuyor",
+    "message": "$PRODUCT$ ile korunuyor",
     "placeholders": {
       "product": {
         "content": "$1",
