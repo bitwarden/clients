@@ -3,7 +3,10 @@ import { firstValueFrom, of, timeout, TimeoutError } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  UserDecryptionOptions,
+} from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { SetKeyConnectorKeyRequest } from "@bitwarden/common/key-management/key-connector/models/set-key-connector-key.request";
@@ -273,7 +276,7 @@ describe("KeyConnectorService", () => {
       const mockUserDecryptionOptions = {
         hasMasterPassword: true,
         keyConnectorOption: undefined,
-      };
+      } as UserDecryptionOptions;
 
       jest.spyOn(apiService, "postUserKeyToKeyConnector").mockResolvedValue();
       userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
