@@ -1,6 +1,9 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of, timeout, TimeoutError } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { SetKeyConnectorKeyRequest } from "@bitwarden/common/key-management/key-connector/models/set-key-connector-key.request";
@@ -53,6 +56,7 @@ describe("KeyConnectorService", () => {
   const registerSdkService = mock<RegisterSdkService>();
   const securityStateService = mock<SecurityStateService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
+  const userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
 
   let stateProvider: FakeStateProvider;
 
@@ -97,6 +101,7 @@ describe("KeyConnectorService", () => {
       registerSdkService,
       securityStateService,
       accountCryptographicStateService,
+      userDecryptionOptionsService,
     );
   });
 
@@ -265,7 +270,15 @@ describe("KeyConnectorService", () => {
         Utils.fromBufferToB64(masterKey.inner().encryptionKey),
       );
 
+      const mockUserDecryptionOptions = {
+        hasMasterPassword: true,
+        keyConnectorOption: undefined,
+      };
+
       jest.spyOn(apiService, "postUserKeyToKeyConnector").mockResolvedValue();
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        of(mockUserDecryptionOptions),
+      );
 
       // Act
       await keyConnectorService.migrateUser(keyConnectorUrl, mockUserId);
@@ -276,6 +289,22 @@ describe("KeyConnectorService", () => {
         keyConnectorRequest,
       );
       expect(apiService.postConvertToKeyConnector).toHaveBeenCalled();
+      expect(masterPasswordService.mock.clearMasterKeyHash).toHaveBeenCalledWith(mockUserId);
+      expect(masterPasswordService.mock.clearMasterPasswordUnlockData).toHaveBeenCalledWith(
+        mockUserId,
+      );
+      expect(userDecryptionOptionsService.userDecryptionOptionsById$).toHaveBeenCalledWith(
+        mockUserId,
+      );
+      expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
+        mockUserId,
+        {
+          hasMasterPassword: false,
+          keyConnectorOption: {
+            keyConnectorUrl,
+          },
+        },
+      );
     });
 
     it("should handle errors thrown during migration", async () => {
@@ -299,6 +328,10 @@ describe("KeyConnectorService", () => {
           keyConnectorUrl,
           keyConnectorRequest,
         );
+        // Verify state clearing operations were not called due to error
+        expect(masterPasswordService.mock.clearMasterKeyHash).not.toHaveBeenCalled();
+        expect(masterPasswordService.mock.clearMasterPasswordUnlockData).not.toHaveBeenCalled();
+        expect(userDecryptionOptionsService.setUserDecryptionOptionsById).not.toHaveBeenCalled();
       }
     });
   });

@@ -338,6 +338,12 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       .update(() => masterPasswordUnlockData.toJSON());
   }
 
+  async clearMasterPasswordUnlockData(userId: UserId): Promise<void> {
+    assertNonNullish(userId, "userId");
+
+    await this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).update(() => null);
+  }
+
   masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null> {
     assertNonNullish(userId, "userId");
 
