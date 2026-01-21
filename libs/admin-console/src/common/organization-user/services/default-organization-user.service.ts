@@ -88,9 +88,7 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
 
   buildRestoreUserRequest(organization: Organization): Observable<OrganizationUserRestoreRequest> {
     return this.getEncryptedDefaultCollectionName$(organization).pipe(
-      map((collectionName) => ({
-        defaultUserCollectionName: collectionName.encryptedString,
-      })),
+      map((collectionName) => new OrganizationUserRestoreRequest(collectionName.encryptedString)),
     );
   }
 
