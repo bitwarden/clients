@@ -49,7 +49,6 @@
                 {{ "reviewAtRiskPasswords" | i18n }}
               </div>
             }
-            @let isRunningReport = dataService.isGeneratingReport$ | async;
             <div
               class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-items-center"
             >
@@ -63,26 +62,16 @@
                 }}</span>
               }
               <span class="tw-flex tw-justify-center">
-                @if (!isRunningReport) {
-                  <button
-                    type="button"
-                    bitButton
-                    buttonType="secondary"
-                    class="tw-border-none !tw-font-normal tw-cursor-pointer !tw-py-0"
-                    tabindex="0"
-                    [bitAction]="generateReport.bind(this)"
-                  >
-                    {{ "riskInsightsRunReport" | i18n }}
-                  </button>
-                }
-                <span>
-                  @if (isRunningReport) {
-                    <i
-                      class="bwi bwi-spinner bwi-spin tw-text-muted tw-text-[1.2rem]"
-                      aria-hidden="true"
-                    ></i>
-                  }
-                </span>
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="secondary"
+                  class="tw-border-none !tw-font-normal tw-cursor-pointer !tw-py-0"
+                  tabindex="0"
+                  [bitAction]="generateReport.bind(this)"
+                >
+                  {{ "riskInsightsRunReport" | i18n }}
+                </button>
               </span>
             </div>
           </div>
