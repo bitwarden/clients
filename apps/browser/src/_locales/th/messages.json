@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "รายการที่จัดเก็บถาวรจะไม่ถูกรวมในผลการค้นหาทั่วไปและคำแนะนำการป้อนอัตโนมัติ ยืนยันที่จะจัดเก็บรายการนี้ถาวรหรือไม่"
   },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "upgradeToUseArchive": {
     "message": "ต้องเป็นสมาชิกพรีเมียมจึงจะใช้งานฟีเจอร์จัดเก็บถาวรได้"
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "ตัวเลือกการเข้าสู่ระบบ 2 ขั้นตอนแบบพิเศษ เช่น YubiKey และ Duo"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "รายงานความปลอดภัยของรหัสผ่าน สุขภาพบัญชี และข้อมูลรั่วไหล เพื่อรักษาตู้นิรภัยให้ปลอดภัย"
