@@ -162,6 +162,7 @@ module.exports = {
         "accent-tertiary-soft": "var(--color-fg-accent-tertiary-soft)",
         "accent-tertiary": "var(--color-fg-accent-tertiary)",
         "accent-tertiary-strong": "var(--color-fg-accent-tertiary-strong)",
+        "sidenav-text": "var(--color-sidenav-text)",
       },
       border: {
         muted: "var(--color-border-muted)",
