@@ -1,9 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
-  catchError,
   combineLatest,
-  EMPTY,
   filter,
   firstValueFrom,
   map,
@@ -19,7 +17,7 @@ import { MessageSender } from "@bitwarden/common/platform/messaging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
-import { CipherListView, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -34,7 +32,7 @@ import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { asUuid, SdkService, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
@@ -44,6 +42,7 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
+import { CipherSdkService } from "../abstractions/cipher-sdk.service";
 import {
   CipherService as CipherServiceAbstraction,
   EncryptionContext,
@@ -122,7 +121,7 @@ export class CipherService implements CipherServiceAbstraction {
     private logService: LogService,
     private cipherEncryptionService: CipherEncryptionService,
     private messageSender: MessageSender,
-    private sdkService: SdkService,
+    private cipherSdkService: CipherSdkService,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -910,45 +909,30 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+    const useSdk = await this.configService.getFeatureFlag(
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
 
-    if (sdkCipherEncryptionEnabled) {
-      return (await this.createWithServer_sdk(cipherView, userId, orgAdmin)) || new CipherView();
-    } else {
-      const encrypted = await this.encrypt(cipherView, userId);
-      const result = await this.createWithServer_legacy(encrypted, orgAdmin);
-      return await this.decrypt(result, userId);
+    if (useSdk) {
+      return (
+        (await this.createWithServerUsingSdk(cipherView, userId, orgAdmin)) || new CipherView()
+      );
     }
+
+    const encrypted = await this.encrypt(cipherView, userId);
+    const result = await this.createWithServer_legacy(encrypted, orgAdmin);
+    return await this.decrypt(result, userId);
   }
 
-  private async createWithServer_sdk(
+  private async createWithServerUsingSdk(
     cipherView: CipherView,
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView | void> {
-    const resultCipherView = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          const sdkCreateRequest = cipherView.toSdkCreateCipherRequest();
-          let result: SdkCipherView;
-          if (orgAdmin) {
-            result = await ref.value.vault().ciphers().admin().create(sdkCreateRequest);
-          } else {
-            result = await ref.value.vault().ciphers().create(sdkCreateRequest);
-          }
-          return CipherView.fromSdkCipherView(result);
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to create cipher: ${error}`);
-          return EMPTY;
-        }),
-      ),
+    const resultCipherView = await this.cipherSdkService.createWithServer(
+      cipherView,
+      userId,
+      orgAdmin,
     );
     await this.clearCache(userId);
     return resultCipherView;
@@ -986,51 +970,31 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+    const useSdk = await this.configService.getFeatureFlag(
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
 
-    if (sdkCipherEncryptionEnabled) {
-      return await this.updateWithServer_sdk(cipherView, userId, originalCipherView, orgAdmin);
-    } else {
-      const encrypted = await this.encrypt(cipherView, userId);
-      const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
-      const updatedCipherView = this.decrypt(updatedCipher, userId);
-      return updatedCipherView;
+    if (useSdk) {
+      return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
     }
+
+    const encrypted = await this.encrypt(cipherView, userId);
+    const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
+    const updatedCipherView = await this.decrypt(updatedCipher, userId);
+    return updatedCipherView;
   }
 
-  async updateWithServer_sdk(
+  async updateWithServerUsingSdk(
     cipher: CipherView,
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const resultCipherView = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest();
-          let result: SdkCipherView;
-          if (orgAdmin) {
-            result = await ref.value
-              .vault()
-              .ciphers()
-              .admin()
-              .edit(sdkUpdateRequest, originalCipherView?.toSdkCipherView());
-          } else {
-            result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
-          }
-          return CipherView.fromSdkCipherView(result);
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to update cipher: ${error}`);
-          return EMPTY;
-        }),
-      ),
+    const resultCipherView = await this.cipherSdkService.updateWithServer(
+      cipher,
+      userId,
+      originalCipherView,
+      orgAdmin,
     );
     await this.clearCache(userId);
     return resultCipherView;
