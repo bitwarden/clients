@@ -72,6 +72,7 @@
     },
     "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
+    "x64ArchFiles": "**/bufferutil/**/darwin-*/*.node",
     "extraFiles": [
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
