@@ -6,14 +6,22 @@
       <bit-callout type="warning" title="{{ 'warning' | i18n }}">
         {{ "deleteAccountWarning" | i18n }}
       </bit-callout>
-      <!-- Temporary border styles. TODO: Remove when app-user-verification is migrated to the CL. -->
-      <div class="tw-mb-2 tw-rounded tw-border tw-border-solid tw-border-info-600/25">
-        <app-user-verification
-          ngDefaultControl
+      @if (migrationMilestone3) {
+        <app-user-verification-form-input
           formControlName="verification"
-          name="verification"
-        ></app-user-verification>
-      </div>
+          verificationType="server"
+          [invalidSecret]="invalidSecret"
+        ></app-user-verification-form-input>
+      } @else {
+        <!-- Temporary border styles. TODO: Remove when app-user-verification is migrated to the CL. -->
+        <div class="tw-mb-2 tw-rounded tw-border tw-border-solid tw-border-info-600/25">
+          <app-user-verification
+            ngDefaultControl
+            formControlName="verification"
+            name="verification"
+          ></app-user-verification>
+        </div>
+      }
       <div id="confirmIdentityHelp">
         <p>{{ "confirmIdentity" | i18n }}</p>
       </div>
