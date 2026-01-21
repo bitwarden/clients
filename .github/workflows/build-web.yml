@@ -112,7 +112,7 @@ jobs:
             npm_command: dist:bit:selfhost
           - artifact_name: selfhosted-DEV
             license_type: "commercial"
-            image_name: web
+            image_name: web-dev
             npm_command: build:bit:selfhost:dev
             git_metadata: true
           - artifact_name: cloud-QA

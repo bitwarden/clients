@@ -14,6 +14,7 @@ export enum FeatureFlag {
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
+  MembersComponentRefactor = "pm-29503-refactor-members-inheritance",
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
@@ -22,6 +23,7 @@ export enum FeatureFlag {
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
+  SSHAgentV2 = "ssh-agent-v2",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
@@ -99,11 +101,13 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
   [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
+  [FeatureFlag.MembersComponentRefactor]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
+  [FeatureFlag.SSHAgentV2]: FALSE,
 
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
