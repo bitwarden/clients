@@ -161,7 +161,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
       return false;
     }
 
-    return CipherViewLikeUtils.isArchived(this.cipher);
+    return (
+      CipherViewLikeUtils.isArchived(this.cipher) && !CipherViewLikeUtils.isDeleted(this.cipher)
+    );
   }
 
   protected get clickAction() {
@@ -191,7 +193,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // Do not show attachments button if:
   // item is archived AND user is not premium user
   protected get showAttachments() {
-    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+    if ((CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) || this.isDeleted) {
       return false;
     }
     return this.canEditCipher || this.hasAttachments;
@@ -387,7 +389,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get showFavorite() {
-    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+    if (
+      (!this.viewingOrgVault &&
+        CipherViewLikeUtils.isArchived(this.cipher) &&
+        !this.userCanArchive) ||
+      CipherViewLikeUtils.isDeleted(this.cipher)
+    ) {
       return false;
     }
     return true;
