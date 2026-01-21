@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Item permanently deleted"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoredItem": {
     "message": "Item restored"
   },
