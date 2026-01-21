@@ -50,6 +50,12 @@ export interface PickCredentialParams {
    * Identifies whether a cipher requires a master password reprompt when getting a credential.
    */
   masterPasswordRepromptRequired?: boolean;
+
+  /** Signals whether an error should be thrown if an assertion cannot be obtained without showing Bitwarden UI.
+   *
+   * Note that OS user verification prompts are allowed in silent requests.
+   */
+  isSilent?: boolean;
 }
 
 /**
@@ -65,12 +71,15 @@ export abstract class Fido2UserInterfaceService<ParentWindowReference> {
    * Note: This will not necessarily open a window until it is needed to request something from the user.
    *
    * @param fallbackSupported Whether or not the browser natively supports WebAuthn.
+   * @param window A reference to the window of the WebAuthn client.
    * @param abortController An abort controller that can be used to cancel/close the session.
+   * @param transactionContext Context from the original WebAuthn request used for callbacks back to the WebAuthn client for user verification.
    */
   abstract newSession(
     fallbackSupported: boolean,
     window: ParentWindowReference,
     abortController?: AbortController,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<Fido2UserInterfaceSession>;
 }
 
@@ -79,7 +88,6 @@ export abstract class Fido2UserInterfaceSession {
    * Ask the user to pick a credential from a list of existing credentials.
    *
    * @param params The parameters to use when asking the user to pick a credential.
-   * @param abortController An abort controller that can be used to cancel/close the session.
    * @returns The ID of the cipher that contains the credentials the user picked. If not cipher was picked, return cipherId = undefined to to let the authenticator throw the error.
    */
   abstract pickCredential(
@@ -90,7 +98,6 @@ export abstract class Fido2UserInterfaceSession {
    * Ask the user to confirm the creation of a new credential.
    *
    * @param params The parameters to use when asking the user to confirm the creation of a new credential.
-   * @param abortController An abort controller that can be used to cancel/close the session.
    * @returns The ID of the cipher where the new credential should be saved.
    */
   abstract confirmNewCredential(
@@ -119,4 +126,14 @@ export abstract class Fido2UserInterfaceSession {
    * Close the session, including any windows that may be open.
    */
   abstract close(): void;
+}
+
+/** Thrown when user interaction is required during a request for a silent assertion. */
+export class UserInteractionRequired extends Error {}
+
+export interface Fido2UserVerificationService {
+  promptForUserVerification(
+    operation: "registration" | "overwrite" | "assertion",
+    username: string,
+  ): Promise<boolean>;
 }

@@ -124,6 +124,19 @@ export class NativeAutofillMain {
           status,
         });
       },
+      // WindowHandleQueryCallback
+      (error, clientId, sequenceNumber, request) => {
+        if (error) {
+          this.logService.error("autofill.IpcServer.windowHandleQuery", error);
+          this.ipcServer.completeError(clientId, sequenceNumber, String(error));
+          return;
+        }
+        this.safeSend("autofill.windowHandleQuery", {
+          clientId,
+          sequenceNumber,
+          request,
+        });
+      },
     );
 
     ipcMain.on("autofill.listenerReady", () => {
@@ -144,6 +157,12 @@ export class NativeAutofillMain {
       this.logService.debug("autofill.completePasskeyAssertion", data);
       const { clientId, sequenceNumber, response } = data;
       this.ipcServer?.completeAssertion(clientId, sequenceNumber, response);
+    });
+
+    ipcMain.on("autofill.completeWindowHandleQuery", (event, data) => {
+      this.logService.debug("autofill.completeWindowHandleQuery", data);
+      const { clientId, sequenceNumber, response } = data;
+      this.ipcServer.completeWindowHandleQuery(clientId, sequenceNumber, response);
     });
 
     ipcMain.on("autofill.completeError", (event, data) => {

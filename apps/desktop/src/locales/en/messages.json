@@ -4587,5 +4587,14 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "verify it's you to create a new passkey"
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "verify it's you to overwrite a passkey"
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "verify it's you to log in with a passkey"
   }
 }

@@ -23,7 +23,10 @@ import {
   Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction,
   PublicKeyCredentialDescriptor,
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
-import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
+import {
+  Fido2UserInterfaceService,
+  Fido2UserVerificationService,
+} from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
 
@@ -61,11 +64,13 @@ export class Fido2AuthenticatorService<
     params: Fido2AuthenticatorMakeCredentialsParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
       window,
       abortController,
+      userVerificationService,
     );
 
     try {
@@ -128,6 +133,7 @@ export class Fido2AuthenticatorService<
       let userVerified = false;
       let credentialId: string;
       let pubKeyDer: ArrayBuffer;
+
       const response = await userInterfaceSession.confirmNewCredential({
         credentialName: params.rpEntity.name,
         userName: params.userEntity.name,
@@ -189,7 +195,6 @@ export class Fido2AuthenticatorService<
         }
         const reencrypted = await this.cipherService.encrypt(cipher, activeUserId);
         await this.cipherService.updateWithServer(reencrypted);
-        await this.cipherService.clearCache(activeUserId);
         credentialId = fido2Credential.credentialId;
       } catch (error) {
         this.logService?.error(
@@ -230,11 +235,13 @@ export class Fido2AuthenticatorService<
     params: Fido2AuthenticatorGetAssertionParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<Fido2AuthenticatorGetAssertionResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
       window,
       abortController,
+      userVerificationService,
     );
     try {
       if (
@@ -287,6 +294,7 @@ export class Fido2AuthenticatorService<
           userVerification: params.requireUserVerification,
           assumeUserPresence: params.assumeUserPresence,
           masterPasswordRepromptRequired,
+          isSilent: params.isSilent,
         });
       }
 
@@ -330,7 +338,6 @@ export class Fido2AuthenticatorService<
           );
           const encrypted = await this.cipherService.encrypt(selectedCipher, activeUserId);
           await this.cipherService.updateWithServer(encrypted);
-          await this.cipherService.clearCache(activeUserId);
         }
 
         const authenticatorData = await generateAuthData({

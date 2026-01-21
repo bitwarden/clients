@@ -10,6 +10,7 @@ import {
   mergeMap,
   switchMap,
   takeUntil,
+  tap,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -27,6 +28,8 @@ import {
   Fido2AuthenticatorMakeCredentialsParams,
   Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
+import { Fido2UserVerificationService } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -47,11 +50,15 @@ import {
 } from "../../platform/main/autofill/sync.command";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
+import { MacOsFido2UserVerificationService } from "./desktop-fido2-user-verification.service";
 
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
   private registrationRequest: autofill.PasskeyRegistrationRequest;
+  private featureFlag?: FeatureFlag;
+  private isEnabled: boolean = false;
+  private inFlightRequests: Record<string, AbortController> = {};
 
   constructor(
     private logService: LogService,
@@ -60,19 +67,27 @@ export class DesktopAutofillService implements OnDestroy {
     private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<NativeWindowObject>,
     private accountService: AccountService,
     private authService: AuthService,
-    private platformUtilsService: PlatformUtilsService,
-  ) {}
+    platformUtilsService: PlatformUtilsService,
+    private i18nService: I18nService,
+  ) {
+    const deviceType = platformUtilsService.getDevice();
+    if (deviceType === DeviceType.MacOsDesktop) {
+      this.featureFlag = FeatureFlag.MacOsNativeCredentialSync;
+    }
+  }
 
   async init() {
-    // Currently only supported for MacOS
-    if (this.platformUtilsService.getDevice() !== DeviceType.MacOsDesktop) {
+    this.isEnabled =
+      this.featureFlag && (await this.configService.getFeatureFlag(this.featureFlag));
+    if (!this.isEnabled) {
       return;
     }
 
     this.configService
-      .getFeatureFlag$(FeatureFlag.MacOsNativeCredentialSync)
+      .getFeatureFlag$(this.featureFlag)
       .pipe(
         distinctUntilChanged(),
+        tap((enabled) => (this.isEnabled = enabled)),
         filter((enabled) => enabled === true), // Only proceed if feature is enabled
         switchMap(() => {
           return combineLatest([
@@ -88,9 +103,9 @@ export class DesktopAutofillService implements OnDestroy {
             switchMap(([userId]) => this.cipherService.cipherViews$(userId)),
           );
         }),
-        debounceTime(100), // just a precaution to not spam the sync if there are multiple changes (we typically observe a null change)
         // No filter for empty arrays here - we want to sync even if there are 0 items
         filter((cipherViewMap) => cipherViewMap !== null),
+        debounceTime(100), // just a precaution to not spam the sync if there are multiple changes (we typically observe a null change)
 
         mergeMap((cipherViewMap) => this.sync(Object.values(cipherViewMap ?? []))),
         takeUntil(this.destroy$),
@@ -135,8 +150,8 @@ export class DesktopAutofillService implements OnDestroy {
       return;
     }
 
-    let fido2Credentials: NativeAutofillFido2Credential[];
-    let passwordCredentials: NativeAutofillPasswordCredential[];
+    let fido2Credentials: NativeAutofillFido2Credential[] = [];
+    let passwordCredentials: NativeAutofillPasswordCredential[] = [];
 
     if (status.value.support.password) {
       passwordCredentials = cipherViews
@@ -199,11 +214,11 @@ export class DesktopAutofillService implements OnDestroy {
 
   listenIpc() {
     ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
-      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+      if (!this.isEnabled) {
         this.logService.debug(
-          "listenPasskeyRegistration: MacOsNativeCredentialSync feature flag is disabled",
+          "listenPasskeyRegistration: Native credential sync feature flag is disabled",
         );
-        callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+        callback(new Error("Native credential sync feature flag is disabled"), null);
         return;
       }
 
@@ -213,28 +228,40 @@ export class DesktopAutofillService implements OnDestroy {
       this.logService.debug("listenPasskeyRegistration2", this.convertRegistrationRequest(request));
 
       const controller = new AbortController();
+      if (request.context) {
+        this.inFlightRequests[request.context] = controller;
+      }
 
+      const clientHandle = request.clientWindowHandle
+        ? new Uint8Array(request.clientWindowHandle)
+        : null;
+      const uvService = this.getUserVerificationService(request);
       try {
         const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
-          { windowXy: normalizePosition(request.windowXy) },
+          { windowXy: request.windowXy, handle: clientHandle },
           controller,
+          uvService,
         );
 
         callback(null, this.convertRegistrationResponse(request, response));
       } catch (error) {
         this.logService.error("listenPasskeyRegistration error", error);
         callback(error, null);
+      } finally {
+        if (request.context) {
+          delete this.inFlightRequests[request.context];
+        }
       }
     });
 
     ipc.autofill.listenPasskeyAssertionWithoutUserInterface(
       async (clientId, sequenceNumber, request, callback) => {
-        if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+        if (!this.isEnabled) {
           this.logService.debug(
-            "listenPasskeyAssertionWithoutUserInterface: MacOsNativeCredentialSync feature flag is disabled",
+            "listenPasskeyAssertionWithoutUserInterface: Native credential sync feature flag is disabled",
           );
-          callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+          callback(new Error("Native credential sync feature flag is disabled"), null);
           return;
         }
 
@@ -246,6 +273,13 @@ export class DesktopAutofillService implements OnDestroy {
         );
 
         const controller = new AbortController();
+        if (request.context) {
+          this.inFlightRequests[request.context] = controller;
+        }
+
+        const clientHandle = request.clientWindowHandle
+          ? new Uint8Array(request.clientWindowHandle)
+          : null;
 
         try {
           // For some reason the credentialId is passed as an empty array in the request, so we need to
@@ -280,11 +314,13 @@ export class DesktopAutofillService implements OnDestroy {
               new Uint8Array(parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId)),
             );
           }
+          const uvService = this.getUserVerificationService(request);
 
           const response = await this.fido2AuthenticatorService.getAssertion(
-            this.convertAssertionRequest(request, true),
-            { windowXy: normalizePosition(request.windowXy) },
+            this.convertAssertionRequest(request, { assumeUserPresence: true, isSilent: true }),
+            { windowXy: request.windowXy, handle: clientHandle },
             controller,
+            uvService,
           );
 
           callback(null, this.convertAssertionResponse(request, response));
@@ -292,41 +328,58 @@ export class DesktopAutofillService implements OnDestroy {
           this.logService.error("listenPasskeyAssertion error", error);
           callback(error, null);
           return;
+        } finally {
+          if (request.context) {
+            delete this.inFlightRequests[request.context];
+          }
         }
       },
     );
 
     ipc.autofill.listenPasskeyAssertion(async (clientId, sequenceNumber, request, callback) => {
-      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+      if (!(await this.isEnabled)) {
         this.logService.debug(
-          "listenPasskeyAssertion: MacOsNativeCredentialSync feature flag is disabled",
+          "listenPasskeyAssertion: Native credential sync feature flag is disabled",
         );
-        callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+        callback(new Error("Native credential sync feature flag is disabled"), null);
         return;
       }
 
       this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
 
       const controller = new AbortController();
+      if (request.context) {
+        this.inFlightRequests[request.context] = controller;
+      }
+
+      const clientHandle = request.clientWindowHandle
+        ? new Uint8Array(request.clientWindowHandle)
+        : null;
+      const uvService = this.getUserVerificationService(request);
       try {
         const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
-          { windowXy: normalizePosition(request.windowXy) },
+          { windowXy: request.windowXy, handle: clientHandle },
           controller,
+          uvService,
         );
 
         callback(null, this.convertAssertionResponse(request, response));
       } catch (error) {
         this.logService.error("listenPasskeyAssertion error", error);
         callback(error, null);
+      } finally {
+        if (request.context) {
+          delete this.inFlightRequests[request.context];
+        }
       }
     });
 
     // Listen for native status messages
     ipc.autofill.listenNativeStatus(async (clientId, sequenceNumber, status) => {
-      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+      if (!(await this.isEnabled)) {
         this.logService.debug(
-          "listenNativeStatus: MacOsNativeCredentialSync feature flag is disabled",
+          "listenNativeStatus: Native credential sync feature flag is disabled",
         );
         return;
       }
@@ -335,7 +388,32 @@ export class DesktopAutofillService implements OnDestroy {
       if (status.key === "request-sync") {
         // perform ad-hoc sync
         await this.adHocSync();
+      } else if (status.key === "cancel-operation" && status.value) {
+        const requestId = status.value;
+        const controller = this.inFlightRequests[requestId];
+        if (controller) {
+          this.logService.debug(`Cancelling request ${requestId}`);
+          controller.abort("Operation cancelled");
+        } else {
+          this.logService.debug(`Unknown request: ${requestId}`);
+        }
       }
+    });
+
+    ipc.autofill.listenGetWindowHandle(async (clientId, sequenceNumber, request, callback) => {
+      if (!this.isEnabled) {
+        this.logService.debug(
+          `listenGetWindowHandle: Native credential sync feature flag is disabled`,
+        );
+        return;
+      }
+
+      this.logService.debug("listenGetWindowHandle", clientId, sequenceNumber, request);
+      const windowDetails = await ipc.platform.getNativeWindowDetails();
+      const handle = Utils.fromBufferToB64(windowDetails.handle);
+      const response = { ...windowDetails, handle };
+      this.logService.debug("listenGetWindowHandle: sending", response);
+      callback(null, response);
     });
 
     ipc.autofill.listenerReady();
@@ -388,15 +466,19 @@ export class DesktopAutofillService implements OnDestroy {
   /**
    *
    * @param request
-   * @param assumeUserPresence For WithoutUserInterface requests, we assume the user is present
+   * @param options For WithoutUserInterface requests, we assume user presence and throw errors if we cannot fulfill the request silently.
    * @returns
    */
   private convertAssertionRequest(
     request:
       | autofill.PasskeyAssertionRequest
       | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
-    assumeUserPresence: boolean = false,
+    options?: {
+      assumeUserPresence?: boolean;
+      isSilent?: boolean;
+    },
   ): Fido2AuthenticatorGetAssertionParams {
+    const { assumeUserPresence, isSilent } = options ?? {};
     let allowedCredentials;
     if ("credentialId" in request) {
       allowedCredentials = [
@@ -421,6 +503,7 @@ export class DesktopAutofillService implements OnDestroy {
         request.userVerification === "required" || request.userVerification === "preferred",
       fallbackSupported: false,
       assumeUserPresence,
+      isSilent,
     };
   }
 
@@ -440,18 +523,22 @@ export class DesktopAutofillService implements OnDestroy {
     };
   }
 
+  private getUserVerificationService(
+    request:
+      | autofill.PasskeyAssertionRequest
+      | autofill.PasskeyAssertionWithoutUserInterfaceRequest
+      | autofill.PasskeyRegistrationRequest,
+  ): Fido2UserVerificationService {
+    switch (ipc.platform.deviceType) {
+      case DeviceType.MacOsDesktop:
+        return new MacOsFido2UserVerificationService(this.i18nService, this.logService);
+      default:
+        throw new Error("No platform user verification service defined");
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-}
-
-function normalizePosition(position: { x: number; y: number }): { x: number; y: number } {
-  // Add 100 pixels to the x-coordinate to offset the native OS dialog positioning.
-  const xPositionOffset = 100;
-
-  return {
-    x: Math.round(position.x + xPositionOffset),
-    y: Math.round(position.y),
-  };
 }

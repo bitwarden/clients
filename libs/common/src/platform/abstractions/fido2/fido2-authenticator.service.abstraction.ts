@@ -1,5 +1,7 @@
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 
+import { Fido2UserVerificationService } from "./fido2-user-interface.service.abstraction";
+
 /**
  * This class represents an abstraction of the WebAuthn Authenticator model as described by W3C:
  * https://www.w3.org/TR/webauthn-3/#sctn-authenticator-model
@@ -12,13 +14,16 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
    * https://www.w3.org/TR/webauthn-3/#sctn-op-make-cred
    *
    * @param params Parameters for creating a new credential
+   * @param window A reference to the window of the WebAuthn client.
    * @param abortController An AbortController that can be used to abort the operation.
+   * @param userVerificationService A service that can perform user verification for the current WebAuthn request.
    * @returns A promise that resolves with the new credential and an attestation signature.
    **/
   abstract makeCredential(
     params: Fido2AuthenticatorMakeCredentialsParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<Fido2AuthenticatorMakeCredentialResult>;
 
   /**
@@ -26,13 +31,16 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
    * https://www.w3.org/TR/webauthn-3/#sctn-op-get-assertion
    *
    * @param params Parameters for generating an assertion
+   * @param window A reference to the window of the WebAuthn client.
    * @param abortController An AbortController that can be used to abort the operation.
+   * @param userVerificationService A service that can perform user verification for the current WebAuthn request.
    * @returns A promise that resolves with the asserted credential and an assertion signature.
    */
   abstract getAssertion(
     params: Fido2AuthenticatorGetAssertionParams,
     window: ParentWindowReference,
     abortController?: AbortController,
+    userVerificationService?: Fido2UserVerificationService,
   ): Promise<Fido2AuthenticatorGetAssertionResult>;
 
   /**
@@ -147,8 +155,14 @@ export interface Fido2AuthenticatorGetAssertionParams {
   /** Forwarded to user interface */
   fallbackSupported: boolean;
 
-  // Bypass the UI and assume that the user has already interacted with the authenticator
+  /** Bypass the UI and assume that the user has already interacted with the authenticator */
   assumeUserPresence?: boolean;
+
+  /** Signals whether an error should be thrown if an assertion cannot be obtained without showing Bitwarden UI.
+   *
+   * Note that OS user verification prompts are allowed in silent requests.
+   */
+  isSilent?: boolean;
 }
 
 export interface Fido2AuthenticatorGetAssertionResult {

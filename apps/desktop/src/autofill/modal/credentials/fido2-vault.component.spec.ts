@@ -50,6 +50,7 @@ describe("Fido2VaultComponent", () => {
     mockAccountService.activeAccount$ = of(mockActiveAccount as Account);
     mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(mockSession);
     mockSession.availableCipherIds$ = of(mockCipherIds);
+    mockSession.promptForUserVerification.mockResolvedValue(true);
     mockCipherService.cipherListViews$ = jest.fn().mockReturnValue(of([]));
 
     await TestBed.configureTestingModule({
