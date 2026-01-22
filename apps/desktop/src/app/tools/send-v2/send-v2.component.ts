@@ -1,11 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
-  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   inject,
+  signal,
+  viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
@@ -15,6 +17,8 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -36,12 +40,27 @@ import {
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
+import { AddEditComponent } from "../send/add-edit.component";
 
+const Action = Object.freeze({
+  /** No action is currently active. */
+  None: "",
+  /** The user is adding a new Send. */
+  Add: "add",
+  /** The user is editing an existing Send. */
+  Edit: "edit",
+} as const);
+
+type Action = (typeof Action)[keyof typeof Action];
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-v2",
   imports: [
     JslibModule,
     ButtonModule,
+    AddEditComponent,
     SendListComponent,
     NewSendDropdownV2Component,
     DesktopHeaderComponent,
@@ -54,13 +73,19 @@ import { DesktopHeaderComponent } from "../../layout/header";
     },
   ],
   templateUrl: "./send-v2.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendV2Component {
+  protected readonly addEditComponent = viewChild(AddEditComponent);
+
+  protected readonly sendId = signal<string | null>(null);
+  protected readonly action = signal<Action>(Action.None);
+  private readonly selectedSendTypeOverride = signal<SendType | undefined>(undefined);
+
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
   private policyService = inject(PolicyService);
   private accountService = inject(AccountService);
+  private configService = inject(ConfigService);
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
   private environmentService = inject(EnvironmentService);
@@ -69,6 +94,11 @@ export class SendV2Component {
   private toastService = inject(ToastService);
   private logService = inject(LogService);
   private cdr = inject(ChangeDetectorRef);
+
+  protected readonly useDrawerEditMode = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone2),
+    { initialValue: false },
+  );
 
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
@@ -119,28 +149,79 @@ export class SendV2Component {
     });
   }
 
+  protected readonly selectedSendType = computed(() => {
+    const action = this.action();
+    const typeOverride = this.selectedSendTypeOverride();
+
+    if (action === Action.Add && typeOverride !== undefined) {
+      return typeOverride;
+    }
+
+    const sendId = this.sendId();
+    return this.filteredSends().find((s) => s.id === sendId)?.type;
+  });
+
   protected async addSend(type: SendType): Promise<void> {
-    const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
+    if (this.useDrawerEditMode()) {
+      const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
 
-    const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
-      formConfig,
-    });
+      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+        formConfig,
+      });
 
-    await lastValueFrom(dialogRef.closed);
+      await lastValueFrom(dialogRef.closed);
+    } else {
+      this.action.set(Action.Add);
+      this.sendId.set(null);
+      this.selectedSendTypeOverride.set(type);
+
+      const component = this.addEditComponent();
+      if (component) {
+        await component.resetAndLoad();
+      }
+    }
   }
 
-  protected async selectSend(sendId: SendId): Promise<void> {
-    const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId);
+  /** Used by old UI to add a send without specifying type (defaults to Text) */
+  protected async addSendWithoutType(): Promise<void> {
+    await this.addSend(SendType.Text);
+  }
 
-    const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
-      formConfig,
-    });
+  protected closeEditPanel(): void {
+    this.action.set(Action.None);
+    this.sendId.set(null);
+    this.selectedSendTypeOverride.set(undefined);
+  }
 
-    await lastValueFrom(dialogRef.closed);
+  protected async savedSend(send: SendView): Promise<void> {
+    await this.selectSend(send.id);
+  }
+
+  protected async selectSend(sendId: string): Promise<void> {
+    if (this.useDrawerEditMode()) {
+      const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId as SendId);
+
+      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+        formConfig,
+      });
+
+      await lastValueFrom(dialogRef.closed);
+    } else {
+      if (sendId === this.sendId() && this.action() === Action.Edit) {
+        return;
+      }
+      this.action.set(Action.Edit);
+      this.sendId.set(sendId);
+      const component = this.addEditComponent();
+      if (component) {
+        component.sendId = sendId;
+        await component.refresh();
+      }
+    }
   }
 
   protected async onEditSend(send: SendView): Promise<void> {
-    await this.selectSend(send.id as SendId);
+    await this.selectSend(send.id);
   }
 
   protected async onCopySend(send: SendView): Promise<void> {
@@ -176,6 +257,11 @@ export class SendV2Component {
         title: null,
         message: this.i18nService.t("removedPassword"),
       });
+
+      if (!this.useDrawerEditMode() && this.sendId() === send.id) {
+        this.sendId.set(null);
+        await this.selectSend(send.id);
+      }
     } catch (e) {
       this.logService.error(e);
     }
@@ -199,5 +285,9 @@ export class SendV2Component {
       title: null,
       message: this.i18nService.t("deletedSend"),
     });
+
+    if (!this.useDrawerEditMode()) {
+      this.closeEditPanel();
+    }
   }
 }
