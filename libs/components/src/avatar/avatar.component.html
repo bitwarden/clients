@@ -1,0 +1,24 @@
+<span [title]="title() || text()">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    pointer-events="none"
+    [style.backgroundColor]="customBackgroundColor()"
+    [class]="svgClass()"
+    attr.viewBox="0 0 {{ svgSize }} {{ svgSize }}"
+  >
+    <text
+      text-anchor="middle"
+      y="50%"
+      x="50%"
+      dy="0.35em"
+      pointer-events="auto"
+      [attr.fill]="textColor()"
+      [style.fontWeight]="svgFontWeight"
+      [style.fontSize.px]="svgFontSize"
+      [style.lineHeight.px]="16"
+      font-family='Inter,"Helvetica Neue",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
+    >
+      {{ displayChars() }}
+    </text>
+  </svg>
+</span>

@@ -47,6 +47,8 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
   @ViewChild("colorPicker") colorPickerElement: ElementRef<HTMLElement>;
 
   loading = false;
+
+  // change palette to new colors
   defaultColorPalette: NamedAvatarColor[] = [
     { name: "brightBlue", color: "#16cbfc" },
     { name: "green", color: "#94cc4b" },
@@ -102,6 +104,7 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
     this.setSelection(this.customColor$.value);
   }
 
+  // does this get used anywhere?
   async generateAvatarColor() {
     Utils.stringToColor(this.profile.name.toString());
   }

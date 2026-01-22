@@ -4,10 +4,10 @@ import { Component, Input, OnDestroy } from "@angular/core";
 import { Subject } from "rxjs";
 
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { AvatarSizes } from "@bitwarden/components";
 
 import { SharedModule } from "../shared";
 
-type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -19,7 +19,6 @@ type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
       [text]="text"
       [size]="size"
       [color]="color$ | async"
-      [border]="border"
       [id]="id"
       [title]="title"
     >
@@ -27,9 +26,6 @@ type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
   </span>`,
 })
 export class DynamicAvatarComponent implements OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() border = false;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() id: string;
@@ -41,7 +37,7 @@ export class DynamicAvatarComponent implements OnDestroy {
   @Input() title: string;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() size: SizeTypes = "default";
+  @Input() size: AvatarSizes = "base";
   private destroy$ = new Subject<void>();
 
   color$ = this.avatarService.avatarColor$;

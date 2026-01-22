@@ -50,7 +50,6 @@
               [text]="c | userName"
               [id]="c.granteeId"
               [color]="c.avatarColor"
-              size="small"
             ></bit-avatar>
             <span class="tw-inline-flex tw-gap-2">
               <a bitLink href="#" appStopClick (click)="edit(c)">{{ c.email }}</a>
@@ -173,7 +172,6 @@
               [text]="c | userName"
               [id]="c.grantorId"
               [color]="c.avatarColor"
-              size="small"
             ></bit-avatar>
             <span class="tw-inline-flex tw-gap-2">
               <span>{{ c.email }}</span>

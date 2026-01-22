@@ -19,12 +19,10 @@ import { AvatarModule } from "@bitwarden/components";
     <bit-avatar
       appStopClick
       [text]="text"
-      size="xlarge"
+      size="2xlarge"
       [text]="text"
       [color]="color"
-      [border]="false"
       [id]="id"
-      [border]="border"
       [title]="title"
     >
     </bit-avatar>
@@ -44,9 +42,6 @@ export class SelectableAvatarComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() color: string;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() border = false;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() selected = false;

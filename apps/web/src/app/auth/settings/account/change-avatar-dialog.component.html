@@ -14,7 +14,6 @@
           [title]="c.name"
           text="{{ profile | userName }}"
           [color]="c.color"
-          [border]="true"
         >
         </selectable-avatar>
       </ng-container>
@@ -28,7 +27,7 @@
             '!tw-outline-[3px] tw-outline-primary-600 hover:tw-outline-[3px] hover:tw-outline-primary-600':
               customColorSelected,
           }"
-          class="tw-relative tw-flex tw-size-24 tw-cursor-pointer tw-place-content-center tw-rounded-full tw-border tw-border-solid tw-border-secondary-600 tw-outline tw-outline-0 tw-outline-offset-1 hover:tw-outline-1 hover:tw-outline-primary-300 focus:tw-outline-2 focus:tw-outline-primary-600"
+          class="tw-relative tw-flex tw-size-16 tw-cursor-pointer tw-place-content-center tw-rounded-full tw-border tw-border-solid tw-border-secondary-600 tw-outline tw-outline-0 tw-outline-offset-1 hover:tw-outline-1 hover:tw-outline-primary-300 focus:tw-outline-2 focus:tw-outline-primary-600"
           [style.background-color]="customColor$ | async"
         >
           <i

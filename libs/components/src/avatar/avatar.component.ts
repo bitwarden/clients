@@ -1,73 +1,92 @@
 import { NgClass } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+} from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
+export type AvatarSizes = "2xlarge" | "xlarge" | "large" | "base" | "small";
 
-const SizeClasses: Record<SizeTypes, string[]> = {
-  xlarge: ["tw-h-24", "tw-w-24", "tw-min-w-24"],
-  large: ["tw-h-16", "tw-w-16", "tw-min-w-16"],
-  default: ["tw-h-10", "tw-w-10", "tw-min-w-10"],
-  small: ["tw-h-7", "tw-w-7", "tw-min-w-7"],
-  xsmall: ["tw-h-6", "tw-w-6", "tw-min-w-6"],
+export type AvatarColors = "teal" | "coral" | "brand" | "green" | "purple";
+
+const SizeClasses: Record<AvatarSizes, string[]> = {
+  "2xlarge": ["tw-h-16", "tw-w-16", "tw-min-w-16"],
+  xlarge: ["tw-h-14", "tw-w-14", "tw-min-w-14"],
+  large: ["tw-h-11", "tw-w-11", "tw-min-w-11"],
+  base: ["tw-h-8", "tw-w-8", "tw-min-w-8"],
+  small: ["tw-h-6", "tw-w-6", "tw-min-w-6"],
 };
 
 /**
- * Avatars display a unique color that helps a user visually recognize their logged in account.
+ * Palette avatar color options. Prefer using these over custom colors. These are chosen for
+ * cohesion with the rest of our Bitwarden color palette and for accessibility color contrast.
+ * We reference color variables defined in tw-theme.css to ensure the avatar color handles light and
+ * dark mode.
+ */
+export const DefaultAvatarColors: Record<AvatarColors, string> = {
+  teal: "tw-bg-bg-avatar-teal",
+  coral: "tw-bg-bg-avatar-coral",
+  brand: "tw-bg-bg-avatar-brand",
+  green: "tw-bg-bg-avatar-green",
+  purple: "tw-bg-bg-avatar-purple",
+};
+
+/**
+ * Hover colors for each default avatar color, for use when the avatar is interactive. We reference
+ * color variables defined in tw-theme.css to ensure the avatar color handles light and
+ * dark mode.
+ */
+const DefaultAvatarHoverColors: Record<AvatarColors, string> = {
+  teal: "group-hover/avatar:tw-bg-bg-avatar-teal-hover",
+  coral: "group-hover/avatar:tw-bg-bg-avatar-coral-hover",
+  brand: "group-hover/avatar:tw-bg-bg-avatar-brand-hover",
+  green: "group-hover/avatar:tw-bg-bg-avatar-green-hover",
+  purple: "group-hover/avatar:tw-bg-bg-avatar-purple-hover",
+};
+
+/**
+ * Avatars display a background color that helps a user visually recognize their logged in account.
  *
- * A variance in color across the avatar component is important as it is used in Account Switching as a
- * visual indicator to recognize which of a personal or work account a user is logged into.
+ * Color options include a pre-defined set of palette-approved colors, or users can select a
+ * custom color. A variance in color across the avatar component is important as it is used in
+ * Account Switching as a visual indicator to recognize which of a personal or work account a user
+ * is logged into.
+ *
+ * Avatars can be static or interactive.
  */
 @Component({
-  selector: "bit-avatar",
-  template: `
-    <span [title]="title() || text()">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        pointer-events="none"
-        [style.backgroundColor]="backgroundColor()"
-        [ngClass]="classList()"
-        attr.viewBox="0 0 {{ svgSize }} {{ svgSize }}"
-      >
-        <text
-          text-anchor="middle"
-          y="50%"
-          x="50%"
-          dy="0.35em"
-          pointer-events="auto"
-          [attr.fill]="textColor()"
-          [style.fontWeight]="svgFontWeight"
-          [style.fontSize.px]="svgFontSize"
-          font-family='Inter,"Helvetica Neue",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
-        >
-          {{ displayChars() }}
-        </text>
-      </svg>
-    </span>
-  `,
+  selector: "bit-avatar, button[bit-avatar], a[bit-avatar]",
+  templateUrl: "avatar.component.html",
   imports: [NgClass],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "tw-group/avatar",
+  },
+  // host directive for aria disabled states? check figma for disabled styles
 })
 export class AvatarComponent {
+  private el = inject(ElementRef);
   /**
-   * Whether to display a border around the avatar.
+   * Background color for the avatar. Provide one of the AvatarColors, or a custom hex code.
+   *
+   * If no color is provided, a color will be generated based on the id or text.
    */
-  readonly border = input(false);
+  readonly color = input<AvatarColors | string>();
 
   /**
-   * Custom background color for the avatar. If not provided, a color will be generated based on the id or text.
-   */
-  readonly color = input<string>();
-
-  /**
-   * Unique identifier used to generate a consistent background color. Takes precedence over text for color generation.
+   * Unique identifier used to generate a consistent background color. Takes precedence over text
+   * for color generation when a color is not provided.
    */
   readonly id = input<string>();
 
   /**
    * Text to display in the avatar. The first letters of words (up to 2 characters) will be shown.
-   * Also used to generate background color if id is not provided.
+   * Also used to generate background color if color and id are not provided.
    */
   readonly text = input<string>();
 
@@ -79,36 +98,67 @@ export class AvatarComponent {
   /**
    * Size of the avatar.
    */
-  readonly size = input<SizeTypes>("default");
+  readonly size = input<AvatarSizes>("base");
 
   protected readonly svgCharCount = 2;
-  protected readonly svgFontSize = 20;
-  protected readonly svgFontWeight = 300;
-  protected readonly svgSize = 48;
+  protected readonly svgFontSize = 12;
+  protected readonly svgFontWeight = 400;
+  protected readonly svgSize = 32;
 
-  protected readonly classList = computed(() => {
-    return ["tw-rounded-full"]
+  protected readonly svgClass = computed(() => {
+    return ["tw-rounded-full", "tw-border-solid", this.backgroundColorClass()]
       .concat(SizeClasses[this.size()] ?? [])
-      .concat(this.border() ? ["tw-border", "tw-border-solid", "tw-border-secondary-600"] : []);
+      .concat(this.hasHoverEffects() ? this.interactiveSvgClasses() : []);
   });
 
-  protected readonly backgroundColor = computed(() => {
-    const id = this.id();
-    const upperCaseText = this.text()?.toUpperCase() ?? "";
+  protected readonly hasHoverEffects = computed(() => {
+    return this.el.nativeElement.nodeName === "BUTTON" || this.el.nativeElement.nodeName === "A";
+  });
 
-    if (!Utils.isNullOrWhitespace(this.color())) {
+  protected readonly usingCustomColor = computed(() => {
+    if (Utils.isNullOrWhitespace(this.color())) {
+      return false;
+    }
+
+    const defaultColorKeys = Object.keys(DefaultAvatarColors) as AvatarColors[];
+    return !defaultColorKeys.includes(this.color() as AvatarColors);
+  });
+
+  protected readonly customBackgroundColor = computed(() => {
+    if (this.usingCustomColor()) {
       return this.color()!;
     }
 
-    if (!Utils.isNullOrWhitespace(id)) {
-      return Utils.stringToColor(id!.toString());
+    return undefined;
+  });
+
+  protected readonly backgroundColorClass = computed(() => {
+    if (!this.usingCustomColor()) {
+      return DefaultAvatarColors[(this.color() as AvatarColors) ?? this.avatarDefaultColorKey()];
     }
 
-    return Utils.stringToColor(upperCaseText);
+    return "";
+  });
+
+  protected readonly interactiveSvgClasses = computed(() => {
+    if (!this.usingCustomColor()) {
+      return [
+        DefaultAvatarHoverColors[(this.color() as AvatarColors) ?? this.avatarDefaultColorKey()],
+      ];
+    }
+
+    // awaiting design choice for custom color hover state
+    return "";
   });
 
   protected readonly textColor = computed(() => {
-    return Utils.pickTextColorBasedOnBgColor(this.backgroundColor(), 135, true);
+    const customBg = this.customBackgroundColor();
+
+    if (customBg) {
+      return Utils.pickTextColorBasedOnBgColor(customBg, 135, true);
+    } else {
+      return "white";
+    }
   });
 
   protected readonly displayChars = computed(() => {
@@ -144,4 +194,25 @@ export class AvatarComponent {
     const characters = str.match(/./gu);
     return characters != null ? characters.slice(0, count).join("") : "";
   }
+
+  readonly avatarDefaultColorKey = computed(() => {
+    let magicString = "";
+    const id = this.id();
+
+    if (!Utils.isNullOrWhitespace(id)) {
+      magicString = id!.toString();
+    } else {
+      magicString = this.text()?.toUpperCase() ?? "";
+    }
+
+    const colorKeys = Object.keys(DefaultAvatarColors) as AvatarColors[];
+
+    let hash = 0;
+    for (let i = 0; i < magicString.length; i++) {
+      hash = magicString.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const index = Math.abs(hash) % colorKeys.length;
+    return colorKeys[index];
+  });
 }

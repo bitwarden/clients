@@ -10,7 +10,7 @@ export default {
   args: {
     id: undefined,
     text: "Walt Walterson",
-    size: "default",
+    size: "base",
   },
   parameters: {
     design: {
@@ -32,7 +32,21 @@ export const Default: Story = {
     };
   },
   args: {
-    color: "#175ddc",
+    color: "brand",
+  },
+};
+
+export const XXLarge: Story = {
+  ...Default,
+  args: {
+    size: "2xlarge",
+  },
+};
+
+export const XLarge: Story = {
+  ...Default,
+  args: {
+    size: "xlarge",
   },
 };
 
@@ -50,20 +64,6 @@ export const Small: Story = {
   },
 };
 
-export const LightBackground: Story = {
-  ...Default,
-  args: {
-    color: "#d2ffcf",
-  },
-};
-
-export const Border: Story = {
-  ...Default,
-  args: {
-    border: true,
-  },
-};
-
 export const ColorByID: Story = {
   ...Default,
   args: {
@@ -75,5 +75,42 @@ export const ColorByText: Story = {
   ...Default,
   args: {
     text: "Jason Doe",
+  },
+};
+
+export const CustomColor: Story = {
+  ...Default,
+  args: {
+    color: "#fbd9ff",
+  },
+};
+
+export const Button: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: `
+        <button bit-avatar ${formatArgsForCodeSnippet<AvatarComponent>(args)}></button>
+      `,
+    };
+  },
+  args: {
+    color: "brand",
+  },
+};
+
+// color by text or id button story?
+
+export const CustomColorButton: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: `
+        <button bit-avatar ${formatArgsForCodeSnippet<AvatarComponent>(args)}></button>
+      `,
+    };
+  },
+  args: {
+    color: "#fbd9ff",
   },
 };

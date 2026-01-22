@@ -16,15 +16,23 @@ import { AvatarModule } from "@bitwarden/components";
 
 ## Size
 
-### Large: 64px
+### 2XLarge
+
+<Canvas of={stories.XXLarge} />
+
+### XLarge
+
+<Canvas of={stories.XLarge} />
+
+### Large
 
 <Canvas of={stories.Large} />
 
-### Default: 48px
+### Base
 
 <Canvas of={stories.Default} />
 
-### Small 28px
+### Small
 
 <Canvas of={stories.Small} />
 
@@ -41,14 +49,6 @@ priority:
 Use the user 'ID' field if `Name` is not defined.
 <Canvas of={stories.ColorByID} />
 
-## Outline
-
-If the avatar is displayed on one of the theme's `background` color variables or is interactive,
-display the avatar with a 1 pixel `secondary-600` border to meet WCAG AA graphic contrast guidelines
-for interactive elements.
-
-<Canvas of={stories.Border} />
-
 ## Avatar as a button
 
 The Avatar can be used as a button.
@@ -63,5 +63,4 @@ When the avatar is used as a button, the following states should be used:
 
 ## Accessibility
 
-Avatar background color should have 3.1:1 contrast with it’s background; or include the
-`secondary-600` border Avatar text should have 4.5:1 contrast with the avatar background color
+Avatar background color should have 3.1:1 contrast with its background.

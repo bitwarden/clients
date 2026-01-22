@@ -312,6 +312,18 @@
   --color-bg-accent-tertiary-medium: var(--color-purple-100);
   --color-bg-accent-tertiary: var(--color-purple-600);
 
+  /* Avatar Background */
+  --color-bg-avatar-teal: var(--color-teal-700);
+  --color-bg-avatar-teal-hover: var(--color-teal-800);
+  --color-bg-avatar-coral: var(--color-coral-700);
+  --color-bg-avatar-coral-hover: var(--color-coral-800);
+  --color-bg-avatar-brand: var(--color-brand-700);
+  --color-bg-avatar-brand-hover: var(--color-brand-800);
+  --color-bg-avatar-green: var(--color-green-700);
+  --color-bg-avatar-green-hover: var(--color-green-800);
+  --color-bg-avatar-purple: var(--color-purple-700);
+  --color-bg-avatar-purple-hover: var(--color-purple-800);
+
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.3);
@@ -501,6 +513,18 @@
   --color-bg-accent-tertiary-soft: var(--color-purple-950);
   --color-bg-accent-tertiary-medium: var(--color-purple-900);
   --color-bg-accent-tertiary: var(--color-purple-600);
+
+  /* Avatar Background */
+  --color-bg-avatar-teal: var(--color-teal-700);
+  --color-bg-avatar-teal-hover: var(--color-teal-600);
+  --color-bg-avatar-coral: var(--color-coral-700);
+  --color-bg-avatar-coral-hover: var(--color-coral-600);
+  --color-bg-avatar-brand: var(--color-brand-700);
+  --color-bg-avatar-brand-hover: var(--color-brand-600);
+  --color-bg-avatar-green: var(--color-green-700);
+  --color-bg-avatar-green-hover: var(--color-green-600);
+  --color-bg-avatar-purple: var(--color-purple-700);
+  --color-bg-avatar-purple-hover: var(--color-purple-600);
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
