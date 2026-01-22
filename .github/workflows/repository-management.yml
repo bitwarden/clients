@@ -72,7 +72,6 @@ jobs:
     permissions:
       id-token: write
       contents: write
-      pull-requests: write
 
     steps:
       - name: Validate version input format
@@ -111,8 +110,7 @@ jobs:
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
-          permission-contents: write      # for creating, committing to, and pushing new branches
-          permission-pull-requests: write # for generating pull requests
+          permission-contents: write # for committing and pushing to main (bypasses rulesets)
 
       - name: Check out branch
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -448,53 +446,15 @@ jobs:
             echo "No changes to commit!";
           fi
 
-      - name: Create version bump branch
-        if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        run: |
-          BRANCH_NAME="version-bump-$(date +%s)"
-          git checkout -b "$BRANCH_NAME"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
       - name: Commit version bumps with GPG signature
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
         run: |
           git commit -m "Bumped client version(s)" -a
 
-      - name: Push version bump branch
+      - name: Push changes to main
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
         run: |
-          git push --set-upstream origin "$BRANCH_NAME"
-
-      - name: Create Pull Request for version bump
-        if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-        env:
-          VERSION_BROWSER: ${{ steps.set-final-version-output.outputs.version_browser }}
-          VERSION_CLI: ${{ steps.set-final-version-output.outputs.version_cli }}
-          VERSION_DESKTOP: ${{ steps.set-final-version-output.outputs.version_desktop }}
-          VERSION_WEB: ${{ steps.set-final-version-output.outputs.version_web }}
-        with:
-          github-token: ${{ steps.app-token.outputs.token }}
-          script: |
-            const versions = [];
-            if (process.env.VERSION_BROWSER) versions.push(`- Browser: ${process.env.VERSION_BROWSER}`);
-            if (process.env.VERSION_CLI) versions.push(`- CLI: ${process.env.VERSION_CLI}`);
-            if (process.env.VERSION_DESKTOP) versions.push(`- Desktop: ${process.env.VERSION_DESKTOP}`);
-            if (process.env.VERSION_WEB) versions.push(`- Web: ${process.env.VERSION_WEB}`);
-
-            const body = versions.length > 0
-              ? `Automated version bump:\n\n${versions.join('\n')}`
-              : 'Automated version bump';
-
-            const { data: pr } = await github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Bumped client version(s)',
-              body: body,
-              head: process.env.BRANCH_NAME,
-              base: context.ref.replace('refs/heads/', '')
-            });
-            console.log(`Created PR #${pr.number}: ${pr.html_url}`);
+          git push
 
   cut_branch:
     name: Cut branch
