@@ -12,12 +12,13 @@
             @if (!attachment.hasDecryptionError) {
               <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
             }
-            <i
-              *ngIf="attachment.key == null"
-              slot="default-trailing"
-              class="bwi bwi-exclamation-triangle bwi-sm tw-text-muted"
-              [appA11yTitle]="'fixEncryptionTooltip' | i18n"
-            ></i>
+            @if (!attachment.hasDecryptionError && attachment.key == null) {
+              <i
+                slot="default-trailing"
+                class="bwi bwi-exclamation-triangle bwi-sm tw-text-muted"
+                [appA11yTitle]="'fixEncryptionTooltip' | i18n"
+              ></i>
+            }
           </bit-item-content>
 
           <ng-container slot="end">
@@ -28,7 +29,7 @@
                   [cipher]="cipher()"
                   [attachment]="attachment"
                 ></app-download-attachment>
-              } @else {
+              } @else if (!attachment.hasDecryptionError) {
                 <button
                   [bitAction]="fixOldAttachment(attachment)"
                   bitButton
