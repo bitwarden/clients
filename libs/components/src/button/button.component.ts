@@ -1,7 +1,6 @@
 import { NgClass } from "@angular/common";
 import {
   input,
-  HostBinding,
   Component,
   model,
   computed,
@@ -156,28 +155,30 @@ const getButtonStyles = (buttonType: ButtonType, size: ButtonSize): string[] => 
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
   imports: [NgClass, SpinnerComponent],
   hostDirectives: [AriaDisableDirective],
+  host: {
+    "[class]": "classList()",
+  },
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
-  @HostBinding("class") get classList() {
-    return []
-      .concat(this.block() ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(
-        this.showDisabledStyles() || this.disabled()
-          ? [
-              "aria-disabled:!tw-bg-bg-disabled",
-              "hover:tw-bg-bg-hover",
-              "aria-disabled:tw-border-border-base",
-              "aria-disabled:hover:tw-border-border-base",
-              "hover:tw-border-border-disabled",
-              "aria-disabled:!tw-text-fg-disabled",
-              "hover:!tw-text-fg-disabled",
-              "aria-disabled:tw-cursor-not-allowed",
-              "hover:tw-no-underline",
-            ]
-          : [],
-      )
-      .concat(getButtonStyles(this.buttonType() || "secondary", this.size() || "default"));
-  }
+  protected readonly classList = computed(() => {
+    return [
+      ...(this.block() ? ["tw-w-full", "tw-block"] : ["tw-inline-block"]),
+      ...(this.showDisabledStyles() || this.disabled()
+        ? [
+            "aria-disabled:!tw-bg-bg-disabled",
+            "hover:tw-bg-bg-hover",
+            "aria-disabled:tw-border-border-base",
+            "aria-disabled:hover:tw-border-border-base",
+            "hover:tw-border-border-disabled",
+            "aria-disabled:!tw-text-fg-disabled",
+            "hover:!tw-text-fg-disabled",
+            "aria-disabled:tw-cursor-not-allowed",
+            "hover:tw-no-underline",
+          ]
+        : []),
+      ...getButtonStyles(this.buttonType() || "secondary", this.size() || "default"),
+    ];
+  });
 
   protected readonly disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
