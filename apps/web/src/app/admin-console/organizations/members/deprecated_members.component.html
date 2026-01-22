@@ -32,7 +32,7 @@
       [attr.aria-label]="'memberStatusFilter' | i18n"
       *ngIf="showUserManagementControls()"
     >
-      <bit-toggle [value]="null">
+      <bit-toggle [value]="undefined">
         {{ "all" | i18n }}
         <span bitBadge variant="info" *ngIf="dataSource.activeUserCount as allCount">{{
           allCount
