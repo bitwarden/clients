@@ -674,7 +674,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId) {
     switch (keySuffix) {
       case KeySuffixOptions.Auto: {
-        // Cli have fixed Never vault timeout, and it should not be affected by a policy.
+        // Cli has fixed Never vault timeout, and it should not be affected by a policy.
         if (this.platformUtilService.getClientType() == ClientType.Cli) {
           return true;
         }
