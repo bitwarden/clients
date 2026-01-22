@@ -14,5 +14,5 @@ import { SharedModule } from "../shared";
 })
 export class LandingHeaderComponent {
   readonly hideLogo = input<boolean>(false);
-  protected logo = BitwardenLogo;
+  protected readonly logo = BitwardenLogo;
 }
