@@ -41,20 +41,15 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { SharedModule } from "../../../shared";
-
-import { AutoConfirmPolicyEditComponent } from "./policy-edit-definitions/auto-confirm-policy.component";
+import { SharedModule } from "../../../../shared";
+import { AutoConfirmPolicyEditComponent } from "../policy-edit-definitions/auto-confirm-policy.component";
 import {
   PolicyEditDialogComponent,
   PolicyEditDialogData,
   PolicyEditDialogResult,
-} from "./policy-edit-dialog.component";
+} from "../policy-edit-dialog.component";
 
-export type MultiStepSubmit = {
-  sideEffect: () => Promise<void>;
-  footerContent: Signal<TemplateRef<unknown> | undefined>;
-  titleContent: Signal<TemplateRef<unknown> | undefined>;
-};
+import { MultiStepSubmit } from "./models";
 
 export type AutoConfirmPolicyDialogData = PolicyEditDialogData & {
   firstTimeDialog?: boolean;
@@ -202,6 +197,7 @@ export class AutoConfirmPolicyDialogComponent
     }
 
     const autoConfirmRequest = await this.policyComponent.buildRequest();
+
     await this.policyApiService.putPolicy(
       this.data.organizationId,
       this.data.policy.type,
@@ -235,7 +231,7 @@ export class AutoConfirmPolicyDialogComponent
       data: null,
     };
 
-    await this.policyApiService.putPolicy(
+    await this.policyApiService.putPolicyVNext(
       this.data.organizationId,
       PolicyType.SingleOrg,
       singleOrgRequest,
@@ -260,7 +256,10 @@ export class AutoConfirmPolicyDialogComponent
 
     try {
       const multiStepSubmit = await firstValueFrom(this.multiStepSubmit);
-      await multiStepSubmit[this.currentStep()].sideEffect();
+      const sideEffect = multiStepSubmit[this.currentStep()].sideEffect;
+      if (sideEffect) {
+        await sideEffect();
+      }
 
       if (this.currentStep() === multiStepSubmit.length - 1) {
         this.dialogRef.close("saved");
