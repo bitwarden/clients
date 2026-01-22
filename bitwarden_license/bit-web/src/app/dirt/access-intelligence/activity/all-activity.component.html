@@ -2,9 +2,12 @@
   <dirt-report-loading></dirt-report-loading>
 } @else {
   <ul
-    class="tw-inline-grid tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none"
+    class="tw-inline-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none"
   >
-    <li class="tw-col-span-1" [ngClass]="{ 'tw-col-span-2': extendPasswordChangeWidget }">
+    <li
+      class="tw-col-span-1 md:tw-col-span-1 lg:tw-col-span-1"
+      [ngClass]="{ 'md:tw-col-span-2 lg:tw-col-span-2': extendPasswordChangeWidget }"
+    >
       <dirt-password-change-metric
         [organizationId]="this.organizationId()"
       ></dirt-password-change-metric>
@@ -62,7 +65,7 @@
     }
     <!-- Needs Review State (No apps have been reviewed) -->
     @else if (showNeedsReviewState) {
-      <li class="tw-col-span-2">
+      <li class="tw-col-span-1 md:tw-col-span-2 lg:tw-col-span-2">
         <dirt-activity-card
           [title]="'applicationsNeedingReview' | i18n"
           [cardMetrics]="'organizationHasItemsSavedForApplications' | i18n: totalApplicationCount"
