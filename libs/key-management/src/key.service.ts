@@ -204,26 +204,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) != null;
   }
 
-  async makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]> {
-    if (masterKey == null) {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (userId == null) {
-        throw new Error("No active user id found.");
-      }
-
-      masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    }
-    if (masterKey == null) {
-      throw new Error("No Master Key found.");
+  async makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]> {
+    if (!masterKey) {
+      throw new Error("MasterKey is required");
     }
 
     const newUserKey = await this.keyGenerationService.createKey(512);
     return this.buildProtectedSymmetricKey(masterKey, newUserKey);
-  }
-
-  async makeUserKeyV1(): Promise<UserKey> {
-    const newUserKey = await this.keyGenerationService.createKey(512);
-    return newUserKey as UserKey;
   }
 
   /**
@@ -691,7 +678,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         // the VaultTimeoutSettingsSvc and this service.
         // This should be fixed as part of the PM-7082 - Auto Key Service work.
         const vaultTimeout = await firstValueFrom(
-          this.stateProvider.getUserState$(VAULT_TIMEOUT, userId),
+          this.stateProvider
+            .getUserState$(VAULT_TIMEOUT, userId)
+            .pipe(filter((timeout) => timeout != null)),
         );
 
         shouldStoreKey = vaultTimeout == VaultTimeoutStringType.Never;
@@ -802,7 +791,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$;
   }
 
-  private userPrivateKeyHelper$(userId: UserId) {
+  private userPrivateKeyHelper$(userId: UserId): Observable<{
+    userKey: UserKey;
+    userPrivateKey: UserPrivateKey | null;
+  } | null> {
     const userKey$ = this.userKey$(userId);
     return userKey$.pipe(
       switchMap((userKey) => {
@@ -812,18 +804,20 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
         return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$.pipe(
           switchMap(async (encryptedPrivateKey) => {
-            try {
-              return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
-            } catch (e) {
-              this.logService.error("Failed to decrypt private key for user ", userId, e);
-              throw e;
-            }
+            return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
           }),
           // Combine outerscope info with user private key
           map((userPrivateKey) => ({
             userKey,
             userPrivateKey,
           })),
+          catchError((err: unknown) => {
+            this.logService.error(`Failed to decrypt private key for user ${userId}`);
+            return of({
+              userKey,
+              userPrivateKey: null,
+            });
+          }),
         );
       }),
     );

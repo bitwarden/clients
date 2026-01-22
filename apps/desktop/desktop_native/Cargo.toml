@@ -9,7 +9,7 @@ members = [
     "napi",
     "process_isolation",
     "proxy",
-    "windows_plugin_authenticator"
+    "windows_plugin_authenticator",
 ]
 
 [workspace.package]
@@ -23,7 +23,7 @@ aes = "=0.8.4"
 aes-gcm = "=0.10.3"
 anyhow = "=1.0.100"
 arboard = { version = "=3.6.1", default-features = false }
-ashpd = "=0.11.0"
+ashpd = "=0.12.0"
 base64 = "=0.22.1"
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "a641316227227f8777fdf56ac9fa2d6b5f7fe662" }
 byteorder = "=1.5.0"
@@ -39,6 +39,7 @@ futures = "=0.3.31"
 hex = "=0.4.3"
 homedir = "=0.3.6"
 interprocess = "=2.2.1"
+itertools = "=0.14.0"
 libc = "=0.2.178"
 linux-keyutils = "=0.2.4"
 memsec = "=0.7.0"
@@ -48,8 +49,8 @@ napi-derive = "=3.2.5"
 oo7 = "=0.5.0"
 pin-project = "=1.1.10"
 pkcs8 = "=0.10.2"
-rand = "=0.9.1"
-rsa = "=0.9.6"
+rand = "=0.9.2"
+rsa = "=0.9.10"
 russh-cryptovec = "=0.7.3"
 scopeguard = "=1.2.0"
 secmem-proc = "=0.3.7"
@@ -57,7 +58,7 @@ security-framework = "=3.5.1"
 security-framework-sys = "=2.15.0"
 serde = "=1.0.209"
 serde_json = "=1.0.127"
-sha2 = "=0.10.8"
+sha2 = "=0.10.9"
 ssh-encoding = "=0.2.0"
 ssh-key = { version = "=0.6.7", default-features = false }
 sysinfo = "=0.37.2"

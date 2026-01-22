@@ -20,7 +20,13 @@
             {{ "emptyVaultDescription" | i18n }}
           </p>
         </ng-container>
-        <a slot="button" bitButton buttonType="secondary" [routerLink]="['/add-cipher']">
+        <a
+          slot="button"
+          bitButton
+          buttonType="secondary"
+          [routerLink]="['/add-cipher']"
+          [queryParams]="{ prefillNameAndURIFromTab: true }"
+        >
           {{ "newLogin" | i18n }}
         </a>
       </bit-no-items>
@@ -108,7 +114,7 @@
     </div>
 
     <ng-template #vaultContentTemplate>
-      <ng-container *ngIf="vaultState === null">
+      <ng-container *ngIf="vaultState === null && !(loading$ | async)">
         <app-autofill-vault-list-items></app-autofill-vault-list-items>
         <app-vault-list-items-container
           [title]="'favorites' | i18n"
