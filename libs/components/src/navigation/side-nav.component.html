@@ -8,14 +8,14 @@
   <div class="tw-relative tw-h-full">
     <nav
       id="bit-side-nav"
-      class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-background-alt3 tw-outline-none"
+      class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-bg-sidenav tw-text-fg-sidenav-text tw-outline-none"
       [style.width.rem]="data.open ? (sideNavService.width$ | async) : undefined"
       [ngStyle]="
         variant() === 'secondary' && {
-          '--color-text-alt2': 'var(--color-text-main)',
-          '--color-background-alt3': 'var(--color-secondary-100)',
-          '--color-background-alt4': 'var(--color-secondary-300)',
-          '--color-hover-contrast': 'var(--color-hover-default)',
+          '--color-sidenav-text': 'var(--color-admin-sidenav-text)',
+          '--color-sidenav-background': 'var(--color-admin-sidenav-background)',
+          '--color-sidenav-active-item': 'var(--color-admin-sidenav-active-item)',
+          '--color-sidenav-item-hover': 'var(--color-admin-sidenav-item-hover)',
         }
       "
       [cdkTrapFocus]="data.isOverlay"
@@ -27,7 +27,7 @@
       <!-- 53rem = ~850px -->
       <!-- This is a magic number. This number was selected by going to the UI and finding the number that felt the best to me and design. No real rhyme or reason :) -->
       <div
-        class="[@media(min-height:53rem)]:tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full tw-bg-background-alt3"
+        class="[@media(min-height:53rem)]:tw-sticky tw-bottom-0 tw-left-0 tw-z-20 tw-mt-auto tw-w-full"
       >
         <bit-nav-divider></bit-nav-divider>
         @if (data.open) {
