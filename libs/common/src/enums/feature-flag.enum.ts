@@ -76,6 +76,7 @@ export enum FeatureFlag {
 
   /* Desktop */
   DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
+  DesktopUiMigrationMilestone2 = "desktop-ui-migration-milestone-2",
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
@@ -164,6 +165,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
+  [FeatureFlag.DesktopUiMigrationMilestone2]: FALSE,
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
