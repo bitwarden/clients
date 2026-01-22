@@ -12626,5 +12626,8 @@
   },
   "youHavePremium": {
     "message": "Prémium felhasználó vagyunk"
+  },
+  "emailProtected": {
+    "message": "Email protected"
   }
 }
