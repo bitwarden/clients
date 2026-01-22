@@ -19,5 +19,14 @@ windows-core = { workspace = true }
 [dependencies]
 anyhow = { workspace = true }
 
+[target.'cfg(windows)'.dev-dependencies]
+windows = { workspace = true, features = [
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_Foundation",
+    "Win32_System_LibraryLoader",
+    "Win32_Graphics_Gdi",
+] }
+
 [lints]
 workspace = true
