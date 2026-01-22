@@ -113,7 +113,6 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
 
       const registerFinishRequest = new RegisterFinishV2Request(
         email,
-        passwordInputResult.newServerMasterKeyHash,
         passwordInputResult.newPasswordHint,
         encryptedUserKey,
         userAsymmetricKeysRequest,

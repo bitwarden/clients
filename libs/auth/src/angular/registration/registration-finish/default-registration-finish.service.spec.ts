@@ -192,7 +192,6 @@ describe("DefaultRegistrationFinishService", () => {
           expect.objectContaining({
             email,
             emailVerificationToken: emailVerificationToken,
-            masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
             masterPasswordHint: passwordInputResult.newPasswordHint,
             userSymmetricKey: userKeyEncString.encryptedString,
             userAsymmetricKeys: {
@@ -212,7 +211,8 @@ describe("DefaultRegistrationFinishService", () => {
         ).toBeDefined();
         expect((registerCall as RegisterFinishV2Request).masterPasswordUnlock).toBeDefined();
 
-        // Verify old API fields are NOT present
+        // Verify old API fields are NOT present (including masterPasswordHash which is in masterPasswordAuthentication)
+        expect((registerCall as any).masterPasswordHash).toBeUndefined();
         expect((registerCall as any).kdf).toBeUndefined();
         expect((registerCall as any).kdfIterations).toBeUndefined();
       });

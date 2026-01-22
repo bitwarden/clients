@@ -135,6 +135,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
+  [FeatureFlag.PM27044_UpdateRegistrationApis]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,

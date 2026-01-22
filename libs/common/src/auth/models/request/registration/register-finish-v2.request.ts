@@ -8,8 +8,6 @@ import { KeysRequest } from "../../../../models/request/keys.request";
 export class RegisterFinishV2Request {
   constructor(
     public email: string,
-
-    public masterPasswordHash: string,
     public masterPasswordHint: string,
 
     public userSymmetricKey: EncryptedString,
