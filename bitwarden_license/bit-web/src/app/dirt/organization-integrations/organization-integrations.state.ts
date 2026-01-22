@@ -1,29 +1,27 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { Injectable, signal } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
 @Injectable({ providedIn: "root" })
 export class OrganizationIntegrationsState {
-  private integrationsSource = new BehaviorSubject<Integration[]>([]);
-  private organizationSource = new BehaviorSubject<Organization>(null);
-  integrations$ = this.integrationsSource.asObservable();
-  organization$ = this.organizationSource.asObservable();
+  private readonly _integrations = signal<Integration[]>([]);
+  private readonly _organization = signal<Organization | null>(null);
 
-  setOrganization(val: Organization) {
-    this.organizationSource.next(val);
+  // Signals
+  integrations = this._integrations.asReadonly();
+  organization = this._organization.asReadonly();
+
+  // Observables for backward compatibility
+  integrations$ = toObservable(this._integrations);
+  organization$ = toObservable(this._organization);
+
+  setOrganization(val: Organization | null) {
+    this._organization.set(val);
   }
 
   setIntegrations(val: Integration[]) {
-    this.integrationsSource.next(val);
-  }
-
-  get organization() {
-    return this.organizationSource.value;
-  }
-
-  get integrations() {
-    return this.integrationsSource.value;
+    this._integrations.set(val);
   }
 }

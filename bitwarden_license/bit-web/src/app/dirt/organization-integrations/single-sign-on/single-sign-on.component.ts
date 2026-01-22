@@ -6,6 +6,8 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { IntegrationGridComponent } from "../integration-grid/integration-grid.component";
 import { FilterIntegrationsPipe } from "../integrations.pipe";
 import { OrganizationIntegrationsState } from "../organization-integrations.state";
+import { tap } from "rxjs/operators";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -15,13 +17,20 @@ import { OrganizationIntegrationsState } from "../organization-integrations.stat
   imports: [SharedModule, IntegrationGridComponent, FilterIntegrationsPipe],
 })
 export class SingleSignOnComponent implements OnInit {
-  integrationsList = this.state.integrations;
+  integrationsList$ = this.state.integrations$;
+  IntegrationType = IntegrationType;
 
   constructor(private state: OrganizationIntegrationsState) {}
 
-  ngOnInit() {}
-
-  get IntegrationType(): typeof IntegrationType {
-    return IntegrationType;
+  ngOnInit() {
+    // eslint-disable-next-line no-console
+    this.state.integrations$
+      .pipe(
+        tap((integrations) =>
+          console.log("[DEBUG] integrations in single-sign-on.component.ts =>", integrations),
+        ),
+      )
+      .pipe(takeUntilDestroyed())
+      .subscribe();
   }
 }

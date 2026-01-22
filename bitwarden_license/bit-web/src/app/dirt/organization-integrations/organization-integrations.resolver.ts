@@ -264,6 +264,9 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
 
     this.state.setIntegrations(merged);
 
+    // eslint-disable-next-line no-console
+    console.log("[DEBUG] Loaded integrations:", merged);
+
     return true;
   }
 }

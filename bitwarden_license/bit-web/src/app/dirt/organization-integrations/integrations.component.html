@@ -1,3 +1,6 @@
+@let organization = organization$ | async;
+@let integrations = integrations$ | async;
+
 <app-header>
   @if (organization) {
     <bit-tab-nav-bar slot="tabs">
