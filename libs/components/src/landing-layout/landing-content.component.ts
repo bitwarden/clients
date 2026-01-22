@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 export const LandingContentMaxWidth = {
   Md: "md",
@@ -28,31 +28,17 @@ export class LandingContentComponent {
    */
   readonly maxWidth = input<LandingContentMaxWidthType>(LandingContentMaxWidth.Md);
 
-  get maxWidthClasses(): string {
-    const maxWidth = this.maxWidth();
-    let maxWidthClass = "";
+  private readonly maxWidthClassMap: Record<LandingContentMaxWidthType, string> = {
+    md: "tw-max-w-md",
+    lg: "tw-max-w-lg",
+    xl: "tw-max-w-xl",
+    "2xl": "tw-max-w-2xl",
+    "3xl": "tw-max-w-3xl",
+    "4xl": "tw-max-w-4xl",
+  };
 
-    switch (maxWidth) {
-      case "md":
-        maxWidthClass = "tw-max-w-md";
-        break;
-      case "lg":
-        maxWidthClass = "tw-max-w-lg";
-        break;
-      case "xl":
-        maxWidthClass = "tw-max-w-xl";
-        break;
-      case "2xl":
-        maxWidthClass = "tw-max-w-2xl";
-        break;
-      case "3xl":
-        maxWidthClass = "tw-max-w-3xl";
-        break;
-      case "4xl":
-        maxWidthClass = "tw-max-w-4xl";
-        break;
-    }
-
+  readonly maxWidthClasses = computed(() => {
+    const maxWidthClass = this.maxWidthClassMap[this.maxWidth()];
     return `tw-flex tw-flex-col tw-w-full ${maxWidthClass}`;
-  }
+  });
 }
