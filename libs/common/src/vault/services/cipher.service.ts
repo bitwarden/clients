@@ -1,9 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
-  catchError,
   combineLatest,
-  EMPTY,
   filter,
   firstValueFrom,
   map,
@@ -20,7 +18,7 @@ import { MessageSender } from "@bitwarden/common/platform/messaging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
-import { CipherListView, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -35,7 +33,7 @@ import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { asUuid, SdkService, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
@@ -45,6 +43,7 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
+import { CipherSdkService } from "../abstractions/cipher-sdk.service";
 import {
   CipherService as CipherServiceAbstraction,
   EncryptionContext,
@@ -123,7 +122,7 @@ export class CipherService implements CipherServiceAbstraction {
     private logService: LogService,
     private cipherEncryptionService: CipherEncryptionService,
     private messageSender: MessageSender,
-    private sdkService: SdkService,
+    private cipherSdkService: CipherSdkService,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -1015,45 +1014,30 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+    const useSdk = await this.configService.getFeatureFlag(
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
 
-    if (sdkCipherEncryptionEnabled) {
-      return (await this.createWithServer_sdk(cipherView, userId, orgAdmin)) || new CipherView();
-    } else {
-      const encrypted = await this.encrypt(cipherView, userId);
-      const result = await this.createWithServer_legacy(encrypted, orgAdmin);
-      return await this.decrypt(result, userId);
+    if (useSdk) {
+      return (
+        (await this.createWithServerUsingSdk(cipherView, userId, orgAdmin)) || new CipherView()
+      );
     }
+
+    const encrypted = await this.encrypt(cipherView, userId);
+    const result = await this.createWithServer_legacy(encrypted, orgAdmin);
+    return await this.decrypt(result, userId);
   }
 
-  private async createWithServer_sdk(
+  private async createWithServerUsingSdk(
     cipherView: CipherView,
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView | void> {
-    const resultCipherView = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          const sdkCreateRequest = cipherView.toSdkCreateCipherRequest();
-          let result: SdkCipherView;
-          if (orgAdmin) {
-            result = await ref.value.vault().ciphers().admin().create(sdkCreateRequest);
-          } else {
-            result = await ref.value.vault().ciphers().create(sdkCreateRequest);
-          }
-          return CipherView.fromSdkCipherView(result);
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to create cipher: ${error}`);
-          return EMPTY;
-        }),
-      ),
+    const resultCipherView = await this.cipherSdkService.createWithServer(
+      cipherView,
+      userId,
+      orgAdmin,
     );
     await this.clearCache(userId);
     return resultCipherView;
@@ -1091,51 +1075,31 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+    const useSdk = await this.configService.getFeatureFlag(
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
 
-    if (sdkCipherEncryptionEnabled) {
-      return await this.updateWithServer_sdk(cipherView, userId, originalCipherView, orgAdmin);
-    } else {
-      const encrypted = await this.encrypt(cipherView, userId);
-      const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
-      const updatedCipherView = this.decrypt(updatedCipher, userId);
-      return updatedCipherView;
+    if (useSdk) {
+      return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
     }
+
+    const encrypted = await this.encrypt(cipherView, userId);
+    const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
+    const updatedCipherView = await this.decrypt(updatedCipher, userId);
+    return updatedCipherView;
   }
 
-  async updateWithServer_sdk(
+  async updateWithServerUsingSdk(
     cipher: CipherView,
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const resultCipherView = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest();
-          let result: SdkCipherView;
-          if (orgAdmin) {
-            result = await ref.value
-              .vault()
-              .ciphers()
-              .admin()
-              .edit(sdkUpdateRequest, originalCipherView?.toSdkCipherView());
-          } else {
-            result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
-          }
-          return CipherView.fromSdkCipherView(result);
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to update cipher: ${error}`);
-          return EMPTY;
-        }),
-      ),
+    const resultCipherView = await this.cipherSdkService.updateWithServer(
+      cipher,
+      userId,
+      originalCipherView,
+      orgAdmin,
     );
     await this.clearCache(userId);
     return resultCipherView;
@@ -1535,7 +1499,7 @@ export class CipherService implements CipherServiceAbstraction {
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
     if (useSdk) {
-      return this.deleteWithServer_sdk(id, userId, asAdmin);
+      return this.deleteWithServerUsingSdk(id, userId, asAdmin);
     }
 
     if (asAdmin) {
@@ -1547,26 +1511,12 @@ export class CipherService implements CipherServiceAbstraction {
     await this.delete(id, userId);
   }
 
-  private async deleteWithServer_sdk(id: string, userId: UserId, asAdmin = false): Promise<any> {
-    await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          if (asAdmin) {
-            await ref.value.vault().ciphers().admin().delete(asUuid(id));
-          } else {
-            await ref.value.vault().ciphers().delete(asUuid(id));
-          }
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to delete cipher: ${error}`);
-          return EMPTY;
-        }),
-      ),
-    );
+  private async deleteWithServerUsingSdk(
+    id: string,
+    userId: UserId,
+    asAdmin = false,
+  ): Promise<any> {
+    await this.cipherSdkService.deleteWithServer(id, userId, asAdmin);
     await this.clearCache(userId);
   }
 
@@ -1580,7 +1530,7 @@ export class CipherService implements CipherServiceAbstraction {
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
     if (useSdk) {
-      return this.deleteManyWithServer_sdk(ids, userId, asAdmin, orgId);
+      return this.deleteManyWithServerUsingSdk(ids, userId, asAdmin, orgId);
     }
 
     const request = new CipherBulkDeleteRequest(ids);
@@ -1592,44 +1542,13 @@ export class CipherService implements CipherServiceAbstraction {
     await this.delete(ids, userId);
   }
 
-  private async deleteManyWithServer_sdk(
+  private async deleteManyWithServerUsingSdk(
     ids: string[],
     userId: UserId,
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<any> {
-    await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          if (asAdmin) {
-            if (orgId == null) {
-              throw new Error("Organization ID is required for admin delete.");
-            }
-            await ref.value
-              .vault()
-              .ciphers()
-              .admin()
-              .delete_many(
-                ids.map((id) => asUuid(id)),
-                asUuid(orgId),
-              );
-          } else {
-            await ref.value
-              .vault()
-              .ciphers()
-              .delete_many(ids.map((id) => asUuid(id)));
-          }
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to delete multiple ciphers: ${error}`);
-          return EMPTY;
-        }),
-      ),
-    );
+    await this.cipherSdkService.deleteManyWithServer(ids, userId, asAdmin, orgId);
     await this.clearCache(userId);
   }
 
@@ -1796,7 +1715,7 @@ export class CipherService implements CipherServiceAbstraction {
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
     if (useSdk) {
-      return this.softDeleteWithServer_sdk(id, userId, asAdmin);
+      return this.softDeleteWithServerUsingSdk(id, userId, asAdmin);
     }
 
     if (asAdmin) {
@@ -1808,26 +1727,12 @@ export class CipherService implements CipherServiceAbstraction {
     await this.softDelete(id, userId);
   }
 
-  async softDeleteWithServer_sdk(id: string, userId: UserId, asAdmin = false): Promise<any> {
-    await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          if (asAdmin) {
-            await ref.value.vault().ciphers().admin().soft_delete(asUuid(id));
-          } else {
-            await ref.value.vault().ciphers().soft_delete(asUuid(id));
-          }
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to soft delete cipher: ${error}`);
-          return EMPTY;
-        }),
-      ),
-    );
+  private async softDeleteWithServerUsingSdk(
+    id: string,
+    userId: UserId,
+    asAdmin = false,
+  ): Promise<any> {
+    await this.cipherSdkService.softDeleteWithServer(id, userId, asAdmin);
     await this.clearCache(userId);
   }
 
@@ -1841,7 +1746,7 @@ export class CipherService implements CipherServiceAbstraction {
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
     if (useSdk) {
-      return this.softDeleteManyWithServer_sdk(ids, userId, asAdmin, orgId);
+      return this.softDeleteManyWithServerUsingSdk(ids, userId, asAdmin, orgId);
     }
 
     const request = new CipherBulkDeleteRequest(ids);
@@ -1854,41 +1759,13 @@ export class CipherService implements CipherServiceAbstraction {
     await this.softDelete(ids, userId);
   }
 
-  async softDeleteManyWithServer_sdk(
+  private async softDeleteManyWithServerUsingSdk(
     ids: string[],
     userId: UserId,
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<any> {
-    await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          if (asAdmin) {
-            await ref.value
-              .vault()
-              .ciphers()
-              .admin()
-              .soft_delete_many(
-                ids.map((id) => asUuid(id)),
-                asUuid(orgId),
-              );
-          } else {
-            await ref.value
-              .vault()
-              .ciphers()
-              .soft_delete_many(ids.map((id) => asUuid(id)));
-          }
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to soft delete multiple ciphers: ${error}`);
-          return EMPTY;
-        }),
-      ),
-    );
+    await this.cipherSdkService.softDeleteManyWithServer(ids, userId, asAdmin, orgId);
     await this.clearCache(userId);
   }
 
@@ -1930,7 +1807,7 @@ export class CipherService implements CipherServiceAbstraction {
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
     if (useSdk) {
-      return await this.restoreWithServer_sdk(id, userId, asAdmin);
+      return await this.restoreWithServerUsingSdk(id, userId, asAdmin);
     }
 
     let response;
@@ -1943,26 +1820,12 @@ export class CipherService implements CipherServiceAbstraction {
     await this.restore({ id: id, revisionDate: response.revisionDate }, userId);
   }
 
-  private async restoreWithServer_sdk(id: string, userId: UserId, asAdmin = false): Promise<any> {
-    await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          if (asAdmin) {
-            await ref.value.vault().ciphers().admin().restore(asUuid(id));
-          } else {
-            await ref.value.vault().ciphers().restore(asUuid(id));
-          }
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to restore cipher: ${error}`);
-          return EMPTY;
-        }),
-      ),
-    );
+  private async restoreWithServerUsingSdk(
+    id: string,
+    userId: UserId,
+    asAdmin = false,
+  ): Promise<any> {
+    await this.cipherSdkService.restoreWithServer(id, userId, asAdmin);
     await this.clearCache(userId);
   }
 
@@ -1975,7 +1838,7 @@ export class CipherService implements CipherServiceAbstraction {
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
     if (useSdk) {
-      return await this.restoreManyWithServer_sdk(ids, userId, orgId);
+      return await this.restoreManyWithServerUsingSdk(ids, userId, orgId);
     }
 
     let response;
@@ -1995,43 +1858,12 @@ export class CipherService implements CipherServiceAbstraction {
     await this.restore(restores, userId);
   }
 
-  private async restoreManyWithServer_sdk(
+  private async restoreManyWithServerUsingSdk(
     ids: string[],
     userId: UserId,
     orgId?: string,
   ): Promise<void> {
-    await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-
-          // No longer using an asAdmin Param. Org Vault bulkRestore will assess if an item is unassigned or editable
-          // The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
-          if (orgId) {
-            await ref.value
-              .vault()
-              .ciphers()
-              .admin()
-              .restore_many(
-                ids.map((id) => asUuid(id)),
-                asUuid(orgId),
-              );
-          } else {
-            await ref.value
-              .vault()
-              .ciphers()
-              .restore_many(ids.map((id) => asUuid(id)));
-          }
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to restore multiple ciphers: ${error}`);
-          return EMPTY;
-        }),
-      ),
-    );
+    await this.cipherSdkService.restoreManyWithServer(ids, userId, orgId);
     await this.clearCache(userId);
   }
 
