@@ -17,16 +17,16 @@
         [text]="organization.node.name"
         [appA11yTitle]="organization.node.name"
         (click)="applyFilter($event, organization)"
-      />
-      @if (!organization.node.enabled) {
-        <span class="tw-ml-auto">
+      >
+        @if (!organization.node.enabled) {
           <i
+            slot="end"
             class="bwi bwi-fw bwi-exclamation-triangle text-danger mr-auto"
             [attr.aria-label]="'organizationIsDisabled' | i18n"
             [appA11yTitle]="'organizationIsDisabled' | i18n"
           ></i>
-        </span>
-      }
+        }
+      </bit-nav-item>
     }
   </bit-nav-group>
 }
