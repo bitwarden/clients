@@ -3,11 +3,11 @@ import { FormControl } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
@@ -23,7 +23,7 @@ describe("ChangeKdfConfirmationComponent", () => {
 
   // Mock Services
   let mockI18nService: MockProxy<I18nService>;
-  let mockMessagingService: MockProxy<MessagingService>;
+  let mockLogoutService: MockProxy<LogoutService>;
   let mockToastService: MockProxy<ToastService>;
   let mockDialogRef: MockProxy<DialogRef<ChangeKdfConfirmationComponent>>;
   let mockConfigService: MockProxy<ConfigService>;
@@ -38,7 +38,7 @@ describe("ChangeKdfConfirmationComponent", () => {
 
   beforeEach(() => {
     mockI18nService = mock<I18nService>();
-    mockMessagingService = mock<MessagingService>();
+    mockLogoutService = mock<LogoutService>();
     mockToastService = mock<ToastService>();
     mockDialogRef = mock<DialogRef<ChangeKdfConfirmationComponent>>();
     mockConfigService = mock<ConfigService>();
@@ -60,7 +60,7 @@ describe("ChangeKdfConfirmationComponent", () => {
       imports: [SharedModule],
       providers: [
         { provide: I18nService, useValue: mockI18nService },
-        { provide: MessagingService, useValue: mockMessagingService },
+        { provide: LogoutService, useValue: mockLogoutService },
         { provide: AccountService, useValue: accountService },
         { provide: ToastService, useValue: mockToastService },
         { provide: DialogRef, useValue: mockDialogRef },
@@ -211,7 +211,7 @@ describe("ChangeKdfConfirmationComponent", () => {
           message: "encKeySettingsChanged-used-i18n",
         });
         expect(mockDialogRef.close).toHaveBeenCalled();
-        expect(mockMessagingService.send).not.toHaveBeenCalled();
+        expect(mockLogoutService.logout).not.toHaveBeenCalled();
       });
 
       it("sends a logout and displays a log back in toast when feature flag is disabled", async () => {
@@ -235,7 +235,7 @@ describe("ChangeKdfConfirmationComponent", () => {
           title: "encKeySettingsChanged-used-i18n",
           message: "logBackIn-used-i18n",
         });
-        expect(mockMessagingService.send).toHaveBeenCalledWith("logout");
+        expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId, "kdfSettingsChanged");
         expect(mockDialogRef.close).not.toHaveBeenCalled();
       });
     });

@@ -197,7 +197,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       message: this.i18nService.t("activeUserEmailNotFoundLoggingYouOut"),
     });
 
-    await this.logoutService.logout(this.activeAccountId);
+    await this.logoutService.logout(this.activeAccountId, "missingEmailError");
     // navigate to root so redirect guard can properly route next active user or null user to correct page
     await this.router.navigate(["/"]);
   }
@@ -413,7 +413,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
 
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (confirmed) {
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "userInitiated");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     }

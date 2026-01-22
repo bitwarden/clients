@@ -25,7 +25,6 @@ import { assertTruthy, assertNonNullish } from "@bitwarden/common/auth/utils";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -76,7 +75,6 @@ export class SetInitialPasswordComponent implements OnInit {
     private logoutService: LogoutService,
     private logService: LogService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private messagingService: MessagingService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyService: PolicyService,
@@ -275,7 +273,7 @@ export class SetInitialPasswordComponent implements OnInit {
 
       this.showSuccessToastByUserType();
 
-      await this.logoutService.logout(this.userId);
+      await this.logoutService.logout(this.userId, "setInitialPassword");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     } catch (e) {
@@ -317,7 +315,9 @@ export class SetInitialPasswordComponent implements OnInit {
     });
 
     if (confirmed) {
-      this.messagingService.send("logout");
+      const ctx = "Cannot log out a user without a userId.";
+      assertTruthy(this.userId, "userId", ctx);
+      await this.logoutService.logout(this.userId, "userInitiated");
     }
   }
 }

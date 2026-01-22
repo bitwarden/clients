@@ -2,9 +2,10 @@
 // @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { map, Observable } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { User } from "@bitwarden/angular/pipes/user-name.pipe";
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   VaultTimeoutAction,
@@ -48,6 +49,7 @@ export class WebHeaderComponent {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private messagingService: MessagingService,
     private accountService: AccountService,
+    private logoutService: LogoutService,
   ) {
     this.routeData$ = this.route.data.pipe(
       map((params) => {
@@ -69,7 +71,10 @@ export class WebHeaderComponent {
     this.messagingService.send("lockVault");
   }
 
-  protected logout() {
-    this.messagingService.send("logout");
+  protected async logout() {
+    const account = await firstValueFrom(this.account$);
+    if (account?.id) {
+      await this.logoutService.logout(account.id, "userInitiated");
+    }
   }
 }

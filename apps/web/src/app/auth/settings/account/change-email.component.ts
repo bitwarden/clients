@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
+import { LogoutService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -10,7 +11,6 @@ import { EmailRequest } from "@bitwarden/common/auth/models/request/email.reques
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -43,10 +43,10 @@ export class ChangeEmailComponent implements OnInit {
     private twoFactorService: TwoFactorService,
     private i18nService: I18nService,
     private keyService: KeyService,
-    private messagingService: MessagingService,
     private formBuilder: FormBuilder,
     private kdfConfigService: KdfConfigService,
     private toastService: ToastService,
+    private logoutService: LogoutService,
   ) {}
 
   async ngOnInit() {
@@ -132,7 +132,7 @@ export class ChangeEmailComponent implements OnInit {
         title: this.i18nService.t("emailChanged"),
         message: this.i18nService.t("logBackIn"),
       });
-      this.messagingService.send("logout");
+      await this.logoutService.logout(this.userId, "emailChanged");
     }
   };
 

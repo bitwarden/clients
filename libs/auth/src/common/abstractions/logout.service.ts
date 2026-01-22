@@ -12,8 +12,8 @@ export abstract class LogoutService {
   /**
    * Logs out the user.
    * @param userId The user id.
-   * @param logoutReason The optional reason for logging out.
+   * @param logoutReason The reason for logging out.
    * @returns The new active user or undefined if there isn't a new active account.
    */
-  abstract logout(userId: UserId, logoutReason?: LogoutReason): Promise<NewActiveUser | undefined>;
+  abstract logout(userId: UserId, logoutReason: LogoutReason): Promise<NewActiveUser | undefined>;
 }

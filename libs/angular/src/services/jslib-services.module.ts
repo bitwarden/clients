@@ -1752,7 +1752,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogoutService,
     useClass: DefaultLogoutService,
-    deps: [MessagingServiceAbstraction],
+    deps: [MessagingServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: DocumentLangSetter,

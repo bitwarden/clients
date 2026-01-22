@@ -7,7 +7,7 @@ import { firstValueFrom, of, BehaviorSubject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { NudgesService } from "@bitwarden/angular/vault";
-import { LockService } from "@bitwarden/auth/common";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -75,6 +75,7 @@ describe("AccountSecurityComponent", () => {
   const dialogService = mock<DialogService>();
   const keyService = mock<KeyService>();
   const lockService = mock<LockService>();
+  const logoutService = mock<LogoutService>();
   const policyService = mock<PolicyService>();
   const phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>();
   const pinServiceAbstraction = mock<PinServiceAbstraction>();
@@ -109,6 +110,7 @@ describe("AccountSecurityComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: KeyService, useValue: keyService },
         { provide: LockService, useValue: lockService },
+        { provide: LogoutService, useValue: logoutService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: MessageSender, useValue: mock<MessageSender>() },
         { provide: NudgesService, useValue: vaultNudgesService },
