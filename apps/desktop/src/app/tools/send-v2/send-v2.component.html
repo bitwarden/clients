@@ -1,21 +1,47 @@
-<div id="sends" class="vault">
-  <div class="send-items-panel tw-w-2/5">
-    <div class="content">
+@if (useDrawerEditMode()) {
+  <div class="tw-m-4 tw-p-4">
+    <!-- New dialog-based layout (feature flag enabled) -->
+    <!-- Header with Send title and New button -->
+    <app-header>
+      @if (!disableSend()) {
+        <tools-new-send-dropdown-v2 buttonType="primary" (addSend)="addSend($event)" />
+      }
+    </app-header>
+    <!-- Send List Component -->
+    <tools-send-list
+      [sends]="filteredSends()"
+      [loading]="loading()"
+      [disableSend]="disableSend()"
+      [listState]="listState()"
+      [searchText]="currentSearchText()"
+      (editSend)="onEditSend($event)"
+      (copySend)="onCopySend($event)"
+      (deleteSend)="onDeleteSend($event)"
+      (removePassword)="onRemovePassword($event)"
+    >
+      <tools-new-send-dropdown-v2
+        slot="empty-button"
+        [hideIcon]="true"
+        buttonType="primary"
+        (addSend)="addSend($event)"
+      />
+    </tools-send-list>
+  </div>
+} @else {
+  <!-- Old split-panel layout (feature flag disabled) -->
+  <div id="sends" class="vault">
+    <div class="send-items-panel tw-w-2/5">
       <!-- Header with Send title and New button -->
-      <div
-        class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3 tw-border-b tw-border-secondary-300"
-      >
-        <h1 class="tw-text-base tw-font-semibold tw-m-0">{{ "send" | i18n }}</h1>
+      <app-header class="tw-block tw-pt-6 tw-px-6">
         @if (!disableSend()) {
-          <tools-new-send-dropdown-v2
-            [buttonType]="'primary'"
-            (addSend)="addSend($event)"
-          ></tools-new-send-dropdown-v2>
+          <button type="button" bitButton buttonType="primary" (click)="addSendWithoutType()">
+            <i class="bwi bwi-plus" aria-hidden="true"></i>
+            {{ "new" | i18n }}
+          </button>
         }
-      </div>
-
-      <!-- Send List Component -->
-      <div class="tw-my-4 tw-px-4">
+      </app-header>
+      <div class="tw-mb-4 tw-px-6">
+        <!-- Send List Component -->
         <tools-send-list
           [sends]="filteredSends()"
           [loading]="loading()"
@@ -27,38 +53,41 @@
           (deleteSend)="onDeleteSend($event)"
           (removePassword)="onRemovePassword($event)"
         >
-          <tools-new-send-dropdown-v2
+          <button
             slot="empty-button"
-            [hideIcon]="true"
+            type="button"
+            bitButton
             buttonType="primary"
-            (addSend)="addSend($event)"
-          />
+            (click)="addSendWithoutType()"
+          >
+            {{ "newSend" | i18n }}
+          </button>
         </tools-send-list>
       </div>
     </div>
-  </div>
 
-  <!-- Edit/Add panel (right side) -->
-  @if (action() == "add" || action() == "edit") {
-    <app-send-add-edit
-      id="addEdit"
-      class="details"
-      [sendId]="sendId()"
-      [type]="selectedSendType()"
-      (onSavedSend)="savedSend($event)"
-      (onCancelled)="closeEditPanel()"
-      (onDeletedSend)="closeEditPanel()"
-    ></app-send-add-edit>
-  }
+    <!-- Edit/Add panel (right side) -->
+    @if (action() == "add" || action() == "edit") {
+      <app-send-add-edit
+        id="addEdit"
+        class="details"
+        [sendId]="sendId()"
+        [type]="selectedSendType()"
+        (onSavedSend)="savedSend($event)"
+        (onCancelled)="closeEditPanel()"
+        (onDeletedSend)="closeEditPanel()"
+      ></app-send-add-edit>
+    }
 
-  <!-- Bitwarden logo (shown when no send is selected) -->
-  @if (!action()) {
-    <div class="logo tw-w-1/2">
-      <div class="content">
-        <div class="inner-content">
-          <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+    <!-- Bitwarden logo (shown when no send is selected) -->
+    @if (!action()) {
+      <div class="logo tw-w-1/2">
+        <div class="content">
+          <div class="inner-content">
+            <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+          </div>
         </div>
       </div>
-    </div>
-  }
-</div>
+    }
+  </div>
+}

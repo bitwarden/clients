@@ -30,14 +30,14 @@
       </span>
     </li>
     <li
-      class="filter-option tw-flex tw-items-center tw-gap-2 [&>span]:tw-w-min"
+      class="filter-option tw-flex tw-items-center tw-gap-2 [&>span]:tw-w-fit"
       [ngClass]="{ active: activeFilter.status === 'archive' }"
       *ngIf="!hideArchive"
     >
       <span class="filter-buttons">
         <button
           type="button"
-          class="filter-button"
+          class="filter-button !tw-max-w-none"
           (click)="handleArchiveFilter($event)"
           [attr.aria-pressed]="activeFilter.status === 'archive'"
         >

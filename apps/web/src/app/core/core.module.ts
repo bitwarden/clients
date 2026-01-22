@@ -6,13 +6,11 @@ import { Router } from "@angular/router";
 
 import {
   CollectionAdminService,
-  DefaultCollectionAdminService,
-  OrganizationUserApiService,
   CollectionService,
-  AutomaticUserConfirmationService,
-  DefaultAutomaticUserConfirmationService,
-  OrganizationUserService,
+  DefaultCollectionAdminService,
   DefaultOrganizationUserService,
+  OrganizationUserApiService,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
@@ -29,23 +27,27 @@ import {
   OBSERVABLE_DISK_LOCAL_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
+  SafeInjectionToken,
   SECURE_STORAGE,
   SYSTEM_LANGUAGE,
-  SafeInjectionToken,
   WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
-  RegistrationFinishService as RegistrationFinishServiceAbstraction,
   LoginComponentService,
-  SsoComponentService,
   LoginDecryptionOptionsService,
+  RegistrationFinishService as RegistrationFinishServiceAbstraction,
+  SsoComponentService,
   TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
+import {
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -88,6 +90,7 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -118,9 +121,9 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
+  BiometricsService,
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
-  BiometricsService,
 } from "@bitwarden/key-management";
 import {
   LockComponentService,
@@ -133,17 +136,17 @@ import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/va
 
 import { flagEnabled } from "../../utils/flags";
 import {
-  POLICY_EDIT_REGISTER,
   ossPolicyEditRegister,
+  POLICY_EDIT_REGISTER,
 } from "../admin-console/organizations/policies";
 import {
+  LinkSsoService,
   WebChangePasswordService,
-  WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
-  WebTwoFactorAuthDuoComponentService,
-  LinkSsoService,
+  WebRegistrationFinishService,
   WebSetInitialPasswordService,
+  WebTwoFactorAuthDuoComponentService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { WebPremiumInterestStateService } from "../billing/services/premium-interest/web-premium-interest-state.service";
@@ -318,6 +321,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationInviteService,
       RouterService,
       AccountCryptographicStateService,
+      RegisterSdkService,
     ],
   }),
   safeProvider({
@@ -376,6 +380,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       InternalOrganizationServiceAbstraction,
       OrganizationUserApiService,
+      PolicyService,
     ],
   }),
   safeProvider({
