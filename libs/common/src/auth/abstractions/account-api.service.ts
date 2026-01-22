@@ -1,3 +1,4 @@
+import { RegisterFinishV2Request } from "../models/request/registration/register-finish-v2.request";
 import { RegisterFinishRequest } from "../models/request/registration/register-finish.request";
 import { RegisterSendVerificationEmailRequest } from "../models/request/registration/register-send-verification-email.request";
 import { RegisterVerificationEmailClickedRequest } from "../models/request/registration/register-verification-email-clicked.request";
@@ -49,7 +50,7 @@ export abstract class AccountApiService {
    * with the KDF information used during the process.
    * @returns A promise that resolves when the registration process is successfully completed.
    */
-  abstract registerFinish(request: RegisterFinishRequest): Promise<void>;
+  abstract registerFinish(request: RegisterFinishRequest | RegisterFinishV2Request): Promise<void>;
 
   /**
    * Sets the [dbo].[User].[VerifyDevices] flag to true or false.

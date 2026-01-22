@@ -46,6 +46,7 @@ export enum FeatureFlag {
   ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
+  PM27044_UpdateRegistrationApis = "pm-27044-update-registration-apis",
 
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
@@ -153,6 +154,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
+  [FeatureFlag.PM27044_UpdateRegistrationApis]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
