@@ -79,9 +79,14 @@ export class VaultFilterComponent implements OnInit {
   protected collections$: Observable<TreeNode<CollectionFilter>>;
   protected folders$: Observable<TreeNode<FolderFilter>>;
   protected cipherTypes$: Observable<TreeNode<CipherTypeFilter>>;
+  protected readonly allOrganizationsDisabled = signal<boolean>(false);
 
   protected readonly showCollectionsFilter = computed<boolean>(() => {
-    return this.organizations$ != null && !this.activeFilter()?.isMyVaultSelected;
+    return (
+      this.organizations$ != null &&
+      !this.activeFilter()?.isMyVaultSelected &&
+      !this.allOrganizationsDisabled()
+    );
   });
 
   private async setActivePolicies() {
@@ -99,11 +104,16 @@ export class VaultFilterComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.organizations$ = this.vaultFilterService.organizationTree$;
-    if (
-      this.organizations$ != null &&
-      (await firstValueFrom(this.organizations$)).children.length > 0
-    ) {
-      await this.setActivePolicies();
+    if (this.organizations$ != null) {
+      const tree = await firstValueFrom(this.organizations$);
+      if (tree.children.length > 0) {
+        await this.setActivePolicies();
+      }
+      this.organizations$.pipe(takeUntil(this.componentIsDestroyed$)).subscribe((orgTree) => {
+        this.allOrganizationsDisabled.set(
+          orgTree.children.length > 0 && orgTree.children.every((org) => !org.node.enabled),
+        );
+      });
     }
     this.cipherTypes$ = this.vaultFilterService.cipherTypeTree$;
     this.folders$ = this.vaultFilterService.folderTree$;
