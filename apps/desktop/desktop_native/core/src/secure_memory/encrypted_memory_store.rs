@@ -40,6 +40,7 @@ where
     /// # Returns
     ///
     /// An array of all decrypted values.
+    /// Due to the usage of `BtreeMap`, the order is deterministic.
     ///
     /// # Errors
     ///
@@ -141,5 +142,74 @@ mod tests {
         assert_eq!(store.get(&key).expect("entry in map for key"), Some(value));
         store.remove(&key);
         assert!(!store.has(&key));
+    }
+
+    #[test]
+    fn test_to_vec_contains_all() {
+        let mut store = EncryptedMemoryStore::default();
+
+        for size in 0..=2048 {
+            let key = format!("test_key_{size}");
+            let value: Vec<u8> = (0..size).map(|i| (i % 256) as u8).collect();
+            store.put(key.clone(), &value);
+        }
+        let vec_values = store.to_vec().expect("decryption to not fail");
+
+        // to_vec() should contain same number of values as inserted
+        assert_eq!(vec_values.len(), 2049);
+
+        // the value from the store should match the value in the vec
+        let keys: Vec<_> = store.map.keys().cloned().collect();
+        for (store_key, vec_value) in keys.iter().zip(vec_values.iter()) {
+            let store_value = store.get(store_key).expect("entry in map for key").unwrap();
+            assert_eq!(&store_value, vec_value);
+            store.remove(store_key);
+        }
+
+        // all values were present
+        assert!(store.map.is_empty());
+    }
+
+    #[test]
+    fn test_to_vec_preserves_sorted_key_order() {
+        let mut store = EncryptedMemoryStore::new();
+
+        // insert in non-sorted order
+        store.put("morpheus", &[4, 5, 6]);
+        store.put("trinity", &[1, 2, 3]);
+        store.put("dozer", &[7, 8, 9]);
+        store.put("neo", &[10, 11, 12]);
+
+        let vec = store.to_vec().expect("decryption to not fail");
+
+        assert_eq!(
+            vec,
+            vec![
+                vec![7, 8, 9],    // dozer
+                vec![4, 5, 6],    // morpheus
+                vec![10, 11, 12], // neo
+                vec![1, 2, 3],    // trinity
+            ]
+        );
+    }
+
+    #[test]
+    fn test_to_vec_order_after_remove() {
+        let mut store = EncryptedMemoryStore::new();
+
+        // insert in non-sorted order
+        store.put("trinity", &[3]);
+        store.put("morpheus", &[1]);
+        store.put("neo", &[2]);
+
+        let vec = store.to_vec().expect("decryption to not fail");
+
+        assert_eq!(vec, vec![vec![1], vec![2], vec![3]]);
+
+        store.remove(&"neo");
+
+        let vec = store.to_vec().expect("decryption to not fail");
+
+        assert_eq!(vec, vec![vec![1], vec![3]]);
     }
 }
