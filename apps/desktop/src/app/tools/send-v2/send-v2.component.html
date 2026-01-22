@@ -53,15 +53,12 @@
           (deleteSend)="onDeleteSend($event)"
           (removePassword)="onRemovePassword($event)"
         >
-          <button
+          <tools-new-send-dropdown-v2
             slot="empty-button"
-            type="button"
-            bitButton
+            [hideIcon]="true"
             buttonType="primary"
-            (click)="addSendWithoutType()"
-          >
-            {{ "newSend" | i18n }}
-          </button>
+            (addSend)="addSendWithoutType()"
+          />
         </tools-send-list>
       </div>
     </div>
