@@ -275,11 +275,14 @@ export class CipherView implements View, InitializerMetadata {
       return undefined;
     }
 
-    const attachments = obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)) ?? [];
+    const attachments = obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)!) ?? [];
 
     if (obj.attachmentDecryptionFailures?.length) {
       obj.attachmentDecryptionFailures.forEach((attachment) => {
-        attachments.push(AttachmentView.fromSdkAttachmentView(attachment, true)!);
+        const attachmentView = AttachmentView.fromSdkAttachmentView(attachment, true);
+        if (attachmentView) {
+          attachments.push(attachmentView);
+        }
       });
     }
 
