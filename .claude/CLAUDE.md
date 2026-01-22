@@ -97,6 +97,88 @@ enum CipherType {
 
 Example: `/libs/common/src/vault/enums/cipher-type.ts`
 
+## Library Dependencies
+
+**Dependency Rules:**
+
+- `libs/common` - Core library that CANNOT depend on Angular or platform-specific code
+- `libs/angular` - Angular-specific utilities that depend on `@angular/*`
+- `libs/components` - UI component library built with Angular standalone components
+- Apps can depend on libs, but libs SHOULD NOT depend on apps
+- Circular dependencies are blocked by ESLint rules in `eslint.config.mjs`
+
+When adding imports:
+
+1. Check if the import violates dependency boundaries (ESLint will error)
+2. Consider if code should be moved to a different library
+3. Use dependency injection rather than direct imports when possible
+
+## Testing Patterns
+
+**Unit Tests:**
+
+- Place test files next to source files: `foo.service.ts` → `foo.service.spec.ts`
+- Use `jest-mock-extended` for type-safe mocks
+- Use `BehaviorSubject` for testing Observable streams
+- For Angular components, use `ComponentFixture` from `@angular/core/testing`
+
+**Test Utilities:**
+
+- `libs/core-test-utils` - Core testing utilities
+- `libs/state-test-utils` - State management testing utilities
+- `libs/storage-test-utils` - Storage testing utilities
+
+**Coverage:**
+
+- Coverage is collected automatically in CI
+- Aim for meaningful tests, not just coverage metrics
+- Don't test framework code (Angular lifecycle, etc.)
+
+## App-Specific and Lib-Specific Notes
+
+Apps and libs may have their own CLAUDE.md with specific rules:
+
+- `apps/browser/CLAUDE.md` - Browser extension (cross-browser compatibility, MV3)
+- `apps/web/CLAUDE.md` - Web vault (multi-tenant, no extension APIs)
+- `apps/desktop/CLAUDE.md` - Electron app (main vs renderer process)
+- `apps/cli/CLAUDE.md` - CLI (JSON output, environment variables)
+- `libs/components/CLAUDE.md` - Component Library (UI components and shared utilities)
+
+**Always check the app- or lib-specific CLAUDE.md when working in that directory.**
+
+## Using the Component Library in Feature Code
+
+**When building features that consume the Component Library:**
+
+### Storybook for Custom Components
+
+- Add Storybook stories for custom components owned by feature teams
+- Add stories for larger UI compositions that combine multiple CL components
+- Custom feature team components should **NOT** use the `bit-` prefix
+- Example: `app-user-settings`, `vault-item-card`, `send-form`
+
+### Component Library Usage Guidelines
+
+**DO:**
+
+- Use existing CL components instead of writing bespoke HTML/CSS
+- Read the component library documentation in Storybook for usage guidelines and examples
+- Compose CL components together to build feature-specific UI
+- Follow the component API contracts (inputs, outputs, content projection)
+
+**DO NOT:**
+
+- Add custom CSS classes to override CL component styles
+- Copy/paste CL component markup to create variations
+- Modify CL component internals from feature code
+- Create duplicate components when a CL component already exists
+
+If a CL component doesn't meet your needs:
+
+1. Check if composition can solve the problem
+2. Consult with the UIF team about extending the CL component
+3. Propose a new component or variant through the proper channels
+
 ## References
 
 - [Web Clients Architecture](https://contributing.bitwarden.com/architecture/clients)
