@@ -146,6 +146,14 @@ export const AllVariants: Story = {
       </div>
     `,
   }),
+  parameters: {
+    chromatic: {
+      modes: {
+        light: { theme: "light" },
+        dark: { theme: "dark" },
+      },
+    },
+  },
 };
 
 const sizeTemplate = /*html*/ `
@@ -281,23 +289,225 @@ export const InteractionStates: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <div class="tw-flex tw-gap-4 tw-mb-6 tw-items-center">
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block">Button</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
-      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
-    </div>
-    <div class="tw-flex tw-gap-4 tw-items-center">
-      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block">Anchor</a>
-      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
-      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
-      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
-      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+    <div class="tw-flex tw-flex-col tw-gap-8">
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="secondary" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtle" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleOutline" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warning" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningOutline" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="warningGhost" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="success" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successOutline" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
     </div>
     `,
   }),
-  args: {
-    buttonType: "primary",
+  parameters: {
+    chromatic: {
+      modes: {
+        light: { theme: "light" },
+        dark: { theme: "dark" },
+      },
+    },
   },
 };
