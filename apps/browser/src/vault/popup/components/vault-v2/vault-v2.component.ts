@@ -137,8 +137,17 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   activeUserId: UserId | null = null;
 
+  /**
+   * Subject that indicates whether the vault is ready to render
+   * and that all initialization tasks have been completed (ngOnInit).
+   * @private
+   */
   private readySubject = new BehaviorSubject(false);
 
+  /**
+   * Indicates whether the vault is loading and not yet ready to be displayed.
+   * @protected
+   */
   protected loading$ = combineLatest([
     this.vaultPopupLoadingService.loading$,
     this.readySubject.asObservable(),
