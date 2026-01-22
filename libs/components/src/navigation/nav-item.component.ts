@@ -90,7 +90,7 @@ export class NavItemComponent extends NavBaseComponent {
   protected focusVisibleWithin$ = new BehaviorSubject(false);
   protected fvwStyles$ = this.focusVisibleWithin$.pipe(
     map((value) =>
-      value ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-text-alt2" : "",
+      value ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-focus" : "",
     ),
   );
   @HostListener("focusin", ["$event.target"])

@@ -8,7 +8,7 @@
   <!-- absolutely position the link svg to avoid shifting layout when sidenav is closed -->
   <a
     [routerLink]="route()"
-    class="tw-relative tw-p-3 tw-block tw-rounded-md tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2 hover:tw-bg-hover-contrast tw-h-[73px] [&_svg]:tw-absolute [&_svg]:tw-inset-[.6875rem] [&_svg]:tw-w-[200px]"
+    class="tw-relative tw-p-3 tw-block tw-rounded-md tw-bg-bg-sidenav tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus hover:tw-bg-bg-sidenav-item-hover tw-h-[73px] [&_svg]:tw-absolute [&_svg]:tw-inset-[.6875rem] [&_svg]:tw-w-[200px]"
     [ngClass]="{
       '!tw-h-[55px] [&_svg]:!tw-w-[26px]': !sideNavService.open,
     }"

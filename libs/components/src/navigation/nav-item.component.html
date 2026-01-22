@@ -4,15 +4,15 @@
     <div
       [style.padding-inline-start]="navItemIndentationPadding()"
       class="tw-relative tw-rounded-md tw-h-10"
-      [class.tw-bg-background-alt4]="showActiveStyles"
-      [class.tw-bg-background-alt3]="!showActiveStyles"
-      [class.hover:tw-bg-hover-contrast]="!showActiveStyles"
+      [class.tw-bg-bg-sidenav-active-item]="showActiveStyles"
+      [class.tw-bg-bg-sidenav-background]="!showActiveStyles"
+      [class.hover:tw-bg-bg-sidenav-item-hover]="!showActiveStyles"
       [class]="fvwStyles$ | async"
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {
           <div
-            class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)] [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2"
+            class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)] [&>*:focus-visible::before]:!tw-ring-border-focus [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2"
           >
             <ng-content select="[slot=start]"></ng-content>
           </div>
@@ -31,7 +31,7 @@
           >
             @if (icon()) {
               <i
-                class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-alt2 {{ icon() }}"
+                class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-fg-sidenav-text {{ icon() }}"
                 [attr.aria-hidden]="open"
                 [attr.aria-label]="text()"
               ></i>
@@ -47,7 +47,7 @@
           <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin$` -->
           <!-- The following `class` field should match the `#isButton` class field below -->
           <a
-            class="tw-size-full tw-px-4 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
+            class="tw-size-full tw-px-4 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-sidenav-text hover:tw-text-fg-sidenav-text hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
             [class.!tw-ps-0]="variant() === 'tree' || treeDepth() > 0"
             data-fvw
             [routerLink]="route()"
@@ -68,7 +68,7 @@
           <!-- Class field should match `#isAnchor` class field above -->
           <button
             type="button"
-            class="tw-size-full tw-px-4 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
+            class="tw-size-full tw-px-4 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-sidenav-text hover:tw-text-fg-sidenav-text hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
             [class.!tw-ps-0]="variant() === 'tree' || treeDepth() > 0"
             data-fvw
             (click)="mainContentClicked.emit()"
@@ -79,7 +79,7 @@
 
         @if (open) {
           <div
-            class="tw-flex tw-items-center tw-pe-1 tw-gap-1 [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2 empty:tw-hidden"
+            class="tw-flex tw-items-center tw-pe-1 tw-gap-1 [&>*:focus-visible::before]:!tw-ring-border-focus [&>*:hover]:!tw-border-border-focus [&>*]:tw-text-fg-sidenav-text empty:tw-hidden"
           >
             <ng-content select="[slot=end]"></ng-content>
           </div>
