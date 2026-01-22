@@ -1,7 +1,7 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrolling";
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
@@ -47,6 +47,7 @@ import {
   ButtonModule,
   DialogService,
   NoItemsModule,
+  ScrollLayoutService,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -119,11 +120,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
   ],
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
-export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
-
+export class VaultV2Component implements OnInit, OnDestroy {
   NudgeType = NudgeType;
   cipherType = CipherType;
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -308,16 +305,21 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  ngAfterViewInit(): void {
-    if (this.virtualScrollElement) {
-      // The filters component can cause the size of the virtual scroll element to change,
-      // which can cause the scroll position to be land in the wrong spot. To fix this,
-      // wait until all filters are populated before restoring the scroll position.
-      this.allFilters$.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-        this.vaultScrollPositionService.start(this.virtualScrollElement!);
+  private readonly scrollLayout = inject(ScrollLayoutService);
+
+  private readonly _scrollPositionEffect = effect((onCleanup) => {
+    const sub = combineLatest([this.scrollLayout.scrollableRef$, this.allFilters$, this.loading$])
+      .pipe(
+        filter(([ref, _filters, loading]) => !!ref && !loading),
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(([ref]) => {
+        this.vaultScrollPositionService.start(ref!.nativeElement);
       });
-    }
-  }
+
+    onCleanup(() => sub.unsubscribe());
+  });
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
