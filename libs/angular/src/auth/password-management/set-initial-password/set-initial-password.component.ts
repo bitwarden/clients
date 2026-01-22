@@ -131,19 +131,14 @@ export class SetInitialPasswordComponent implements OnInit {
           FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration,
         );
 
-        // // Scenario 1: KM flag ON
+        // Scenario 1: KM flag ON
         if (accountEncryptionV2) {
           await this.setInitialPasswordJitMPUserV2Encryption(passwordInputResult);
           return;
         }
 
         // Scenario 2: KM flag OFF, Auth flag ON
-        if (
-          passwordInputResult.newApisWithInputPasswordFlagEnabled &&
-          !passwordInputResult.newMasterKey &&
-          !passwordInputResult.newServerMasterKeyHash &&
-          !passwordInputResult.newLocalMasterKeyHash
-        ) {
+        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
           /**
            * If the Auth flag is enabled, it means the InputPasswordComponent will not emit a newMasterKey,
            * newServerMasterKeyHash, and newLocalMasterKeyHash. So we must create them here and add them late
