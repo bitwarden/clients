@@ -14,6 +14,8 @@ import { StorybookGlobalStateProvider } from "../utils/state-mock";
 import { LayoutComponent } from "./layout.component";
 import { mockLayoutI18n } from "./mocks";
 
+import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
+
 export default {
   title: "Component Library/Layout",
   component: LayoutComponent,
@@ -63,7 +65,7 @@ export const WithContent: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <bit-layout>
+      <bit-layout ${formatArgsForCodeSnippet<LayoutComponent>(args)}>
         <bit-side-nav>
           <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter">
             <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
@@ -110,4 +112,11 @@ export const Secondary: Story = {
       </bit-layout>
     `,
   }),
+};
+
+export const Rounded: Story = {
+  ...WithContent,
+  args: {
+    rounded: true,
+  },
 };

@@ -74,7 +74,14 @@ export class ArchiveCipherUtilitiesService {
    * @param cipher The cipher to unarchive
    * @returns The unarchived cipher on success, or undefined on failure
    */
-  async unarchiveCipher(cipher: CipherView) {
+  async unarchiveCipher(cipher: CipherView, skipReprompt = false) {
+    if (!skipReprompt) {
+      const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+      if (!repromptPassed) {
+        return;
+      }
+    }
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     try {
       const cipherResponse = await this.cipherArchiveService.unarchiveWithServer(
