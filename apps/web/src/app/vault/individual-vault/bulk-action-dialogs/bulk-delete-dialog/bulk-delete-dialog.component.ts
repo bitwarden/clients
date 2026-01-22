@@ -3,8 +3,9 @@
 import { Component, Inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -146,17 +147,13 @@ export class BulkDeleteDialogComponent {
   }
 
   private async deleteCiphersAdmin(ciphers: string[]): Promise<any> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.permanent) {
-      await this.cipherService.deleteManyWithServer(
-        ciphers,
-        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
-        true,
-        this.organization.id,
-      );
+      await this.cipherService.deleteManyWithServer(ciphers, userId, true, this.organization.id);
     } else {
       await this.cipherService.softDeleteManyWithServer(
         ciphers,
-        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+        userId,
         true,
         this.organization.id,
       );
