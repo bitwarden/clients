@@ -4,6 +4,9 @@ import { Directive, HostBinding, OnInit, Optional, input } from "@angular/core";
 // Increments for each instance of this component
 let nextId = 0;
 
+/**
+ * Directive that marks a dialog title element and connects it to ARIA labelling.
+ */
 @Directive({
   selector: "[bitDialogTitleContainer]",
 })

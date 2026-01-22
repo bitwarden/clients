@@ -21,6 +21,9 @@ const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, 
   deserializer: (s) => s,
 });
 
+/**
+ * Service managing the side navigation state, width, and responsive behavior.
+ */
 @Injectable({
   providedIn: "root",
 })

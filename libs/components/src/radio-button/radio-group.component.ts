@@ -8,6 +8,9 @@ import { BitLabelComponent } from "../form-control/label.component";
 
 let nextId = 0;
 
+/**
+ * Radio group container that manages a collection of radio buttons with form integration.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

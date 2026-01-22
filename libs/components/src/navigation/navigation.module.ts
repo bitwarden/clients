@@ -6,6 +6,9 @@ import { NavItemComponent } from "./nav-item.component";
 import { NavLogoComponent } from "./nav-logo.component";
 import { SideNavComponent } from "./side-nav.component";
 
+/**
+ * Module providing navigation components for side navigation menus.
+ */
 @NgModule({
   imports: [
     NavDividerComponent,

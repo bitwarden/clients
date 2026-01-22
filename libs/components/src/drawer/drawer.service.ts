@@ -1,6 +1,9 @@
 import { Portal } from "@angular/cdk/portal";
 import { Injectable, signal } from "@angular/core";
 
+/**
+ * Service for managing drawer panel display and lifecycle.
+ */
 @Injectable({ providedIn: "root" })
 export class DrawerService {
   private readonly _portal = signal<Portal<unknown> | undefined>(undefined);

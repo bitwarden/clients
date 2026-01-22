@@ -11,6 +11,9 @@ import { BitPasswordInputToggleDirective } from "./password-input-toggle.directi
 import { BitPrefixDirective } from "./prefix.directive";
 import { BitSuffixDirective } from "./suffix.directive";
 
+/**
+ * Module providing form field components for structured input layouts with labels, errors, and hints.
+ */
 @NgModule({
   imports: [
     FormControlModule,

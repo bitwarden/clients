@@ -36,6 +36,9 @@ import { TabsModule } from "../../tabs";
 import { ToggleGroupModule } from "../../toggle-group";
 import { TypographyModule } from "../../typography";
 
+/**
+ * Shared module for Kitchen Sink stories that imports all component library modules.
+ */
 @NgModule({
   imports: [
     AsyncActionsModule,

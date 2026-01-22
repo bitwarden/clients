@@ -4,11 +4,17 @@ import { TypographyDirective } from "../../typography/typography.directive";
 import { fadeIn } from "../animations";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 
+/**
+ * Directive that marks an icon element for use within a simple dialog.
+ */
 @Directive({
   selector: "[bitDialogIcon]",
 })
 export class IconDirective {}
 
+/**
+ * Simple dialog component with optional icon and content projection.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

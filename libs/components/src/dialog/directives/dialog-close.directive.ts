@@ -1,6 +1,9 @@
 import { DialogRef } from "@angular/cdk/dialog";
 import { Directive, HostBinding, HostListener, Optional, input } from "@angular/core";
 
+/**
+ * Directive that closes a dialog when clicked, optionally passing a result value.
+ */
 @Directive({
   selector: "[bitDialogClose]",
 })

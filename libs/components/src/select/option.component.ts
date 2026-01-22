@@ -2,6 +2,9 @@ import { Component, booleanAttribute, input } from "@angular/core";
 
 import { MappedOptionComponent } from "./option";
 
+/**
+ * Option item for use within a select component to define selectable choices.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

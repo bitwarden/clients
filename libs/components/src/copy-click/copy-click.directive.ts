@@ -22,6 +22,9 @@ export interface CopyClickListener {
 
 export const COPY_CLICK_LISTENER = new InjectionToken<CopyClickListener>("CopyClickListener");
 
+/**
+ * Directive that copies text to clipboard on click with optional toast notification.
+ */
 @Directive({
   selector: "[appCopyClick]",
 })

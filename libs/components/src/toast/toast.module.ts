@@ -4,6 +4,9 @@ import { DefaultNoComponentGlobalConfig, GlobalConfig, TOAST_CONFIG } from "ngx-
 import { ToastContainerComponent } from "./toast-container.component";
 import { BitwardenToastrComponent } from "./toastr.component";
 
+/**
+ * Module providing toast notification components and services.
+ */
 @NgModule({
   imports: [BitwardenToastrComponent, ToastContainerComponent],
   exports: [BitwardenToastrComponent, ToastContainerComponent],
