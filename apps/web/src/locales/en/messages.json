@@ -6891,7 +6891,7 @@
   "activateAutofill": {
     "message": "Activate auto-fill"
   },
-  "activeAutofillPolicyDescription": {
+  "activateAutofillPolicyDescription": {
     "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
   "experimentalFeature": {
