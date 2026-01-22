@@ -106,6 +106,13 @@ export class CipherService implements CipherServiceAbstraction {
    */
   private clearCipherViewsForUser$: Subject<UserId> = new Subject<UserId>();
 
+  /**
+   * Observable exposing the feature flag status for using the SDK for cipher CRUD operations.
+   */
+  private readonly sdkCipherCrudEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.PM27632_SdkCipherCrudOperations,
+  );
+
   constructor(
     private keyService: KeyService,
     private domainSettingsService: DomainSettingsService,
@@ -909,9 +916,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const useSdk = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27632_SdkCipherCrudOperations,
-    );
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
 
     if (useSdk) {
       return (
@@ -970,9 +975,7 @@ export class CipherService implements CipherServiceAbstraction {
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const useSdk = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27632_SdkCipherCrudOperations,
-    );
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
 
     if (useSdk) {
       return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
@@ -1390,9 +1393,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<any> {
-    const useSdk = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27632_SdkCipherCrudOperations,
-    );
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       return this.deleteWithServerUsingSdk(id, userId, asAdmin);
     }
@@ -1421,9 +1422,7 @@ export class CipherService implements CipherServiceAbstraction {
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<any> {
-    const useSdk = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27632_SdkCipherCrudOperations,
-    );
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       return this.deleteManyWithServerUsingSdk(ids, userId, asAdmin, orgId);
     }
@@ -1606,9 +1605,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async softDeleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<any> {
-    const useSdk = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27632_SdkCipherCrudOperations,
-    );
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       return this.softDeleteWithServerUsingSdk(id, userId, asAdmin);
     }
@@ -1637,9 +1634,7 @@ export class CipherService implements CipherServiceAbstraction {
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<any> {
-    const useSdk = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27632_SdkCipherCrudOperations,
-    );
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       return this.softDeleteManyWithServerUsingSdk(ids, userId, asAdmin, orgId);
     }
@@ -1698,9 +1693,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async restoreWithServer(id: string, userId: UserId, asAdmin = false): Promise<any> {
-    const useSdk = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27632_SdkCipherCrudOperations,
-    );
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       return await this.restoreWithServerUsingSdk(id, userId, asAdmin);
     }
@@ -1729,9 +1722,7 @@ export class CipherService implements CipherServiceAbstraction {
    * The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
    */
   async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
-    const useSdk = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27632_SdkCipherCrudOperations,
-    );
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       return await this.restoreManyWithServerUsingSdk(ids, userId, orgId);
     }

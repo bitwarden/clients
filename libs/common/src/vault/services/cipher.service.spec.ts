@@ -117,6 +117,8 @@ describe("Cipher Service", () => {
 
   let cipherService: CipherService;
   let encryptionContext: EncryptionContext;
+  // BehaviorSubject for SDK feature flag - allows tests to change the value after service instantiation
+  let sdkCrudFeatureFlag$: BehaviorSubject<boolean>;
 
   beforeEach(() => {
     encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
@@ -131,6 +133,10 @@ describe("Cipher Service", () => {
     } as any;
 
     (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+
+    // Create BehaviorSubject for SDK feature flag - tests can update this to change behavior
+    sdkCrudFeatureFlag$ = new BehaviorSubject<boolean>(false);
+    configService.getFeatureFlag$.mockReturnValue(sdkCrudFeatureFlag$.asObservable());
 
     cipherService = new CipherService(
       keyService,
@@ -218,9 +224,6 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.postCipherAdmin when orgAdmin param is true and the cipher orgId != null", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
       const spy = jest
         .spyOn(apiService, "postCipherAdmin")
         .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));
@@ -233,9 +236,6 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.postCipher when orgAdmin param is true and the cipher orgId is null", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
       encryptionContext.cipher.organizationId = null!;
       const spy = jest
         .spyOn(apiService, "postCipher")
@@ -249,9 +249,6 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.postCipherCreate if collectionsIds != null", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
       encryptionContext.cipher.collectionIds = ["123"];
       const spy = jest
         .spyOn(apiService, "postCipherCreate")
@@ -265,9 +262,6 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.postCipher when orgAdmin and collectionIds logic is false", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
       const spy = jest
         .spyOn(apiService, "postCipher")
         .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));
@@ -280,9 +274,7 @@ describe("Cipher Service", () => {
     });
 
     it("should delegate to cipherSdkService when feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const cipherView = new CipherView(encryptionContext.cipher);
       const expectedResult = new CipherView(encryptionContext.cipher);
@@ -315,9 +307,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.putCipherAdmin when orgAdmin param is true", async () => {
-      configService.getFeatureFlag
+      configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
+        .mockReturnValue(of(false));
 
       const testCipher = new Cipher(cipherData);
       testCipher.organizationId = orgId;
@@ -336,9 +328,6 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.putCipher if cipher.edit is true", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
       encryptionContext.cipher.edit = true;
       const spy = jest
         .spyOn(apiService, "putCipher")
@@ -352,9 +341,6 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.putPartialCipher when orgAdmin, and edit are false", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
       encryptionContext.cipher.edit = false;
       const spy = jest
         .spyOn(apiService, "putPartialCipher")
@@ -368,9 +354,7 @@ describe("Cipher Service", () => {
     });
 
     it("should delegate to cipherSdkService when feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const testCipher = new Cipher(cipherData);
       const cipherView = new CipherView(testCipher);
@@ -392,9 +376,7 @@ describe("Cipher Service", () => {
     });
 
     it("should delegate to cipherSdkService with orgAdmin when feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const testCipher = new Cipher(cipherData);
       const cipherView = new CipherView(testCipher);
@@ -1013,9 +995,9 @@ describe("Cipher Service", () => {
     const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
 
     it("should call apiService.deleteCipher when feature flag is disabled", async () => {
-      configService.getFeatureFlag
+      configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
+        .mockReturnValue(of(false));
 
       const apiSpy = jest.spyOn(apiService, "deleteCipher").mockResolvedValue(undefined);
 
@@ -1025,9 +1007,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.deleteCipherAdmin when feature flag is disabled and asAdmin is true", async () => {
-      configService.getFeatureFlag
+      configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
+        .mockReturnValue(of(false));
 
       const apiSpy = jest.spyOn(apiService, "deleteCipherAdmin").mockResolvedValue(undefined);
 
@@ -1037,9 +1019,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK to delete cipher when feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "deleteWithServer")
@@ -1053,9 +1033,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK admin delete when feature flag is enabled and asAdmin is true", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "deleteWithServer")
@@ -1076,9 +1054,9 @@ describe("Cipher Service", () => {
     ];
 
     it("should call apiService.deleteManyCiphers when feature flag is disabled", async () => {
-      configService.getFeatureFlag
+      configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
+        .mockReturnValue(of(false));
 
       const apiSpy = jest.spyOn(apiService, "deleteManyCiphers").mockResolvedValue(undefined);
 
@@ -1088,9 +1066,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.deleteManyCiphersAdmin when feature flag is disabled and asAdmin is true", async () => {
-      configService.getFeatureFlag
+      configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
+        .mockReturnValue(of(false));
 
       const apiSpy = jest.spyOn(apiService, "deleteManyCiphersAdmin").mockResolvedValue(undefined);
 
@@ -1100,9 +1078,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK to delete multiple ciphers when feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "deleteManyWithServer")
@@ -1116,9 +1092,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK admin delete many when feature flag is enabled and asAdmin is true", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "deleteManyWithServer")
@@ -1136,9 +1110,9 @@ describe("Cipher Service", () => {
     const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
 
     it("should call apiService.putDeleteCipher when feature flag is disabled", async () => {
-      configService.getFeatureFlag
+      configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
+        .mockReturnValue(of(false));
 
       const apiSpy = jest.spyOn(apiService, "putDeleteCipher").mockResolvedValue(undefined);
 
@@ -1148,9 +1122,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.putDeleteCipherAdmin when feature flag is disabled and asAdmin is true", async () => {
-      configService.getFeatureFlag
+      configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
+        .mockReturnValue(of(false));
 
       const apiSpy = jest.spyOn(apiService, "putDeleteCipherAdmin").mockResolvedValue(undefined);
 
@@ -1160,9 +1134,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK to soft delete cipher when feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "softDeleteWithServer")
@@ -1176,9 +1148,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK admin soft delete when feature flag is enabled and asAdmin is true", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "softDeleteWithServer")
@@ -1199,9 +1169,9 @@ describe("Cipher Service", () => {
     ];
 
     it("should call apiService.putDeleteManyCiphers when feature flag is disabled", async () => {
-      configService.getFeatureFlag
+      configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
+        .mockReturnValue(of(false));
 
       const apiSpy = jest.spyOn(apiService, "putDeleteManyCiphers").mockResolvedValue(undefined);
 
@@ -1211,9 +1181,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.putDeleteManyCiphersAdmin when feature flag is disabled and asAdmin is true", async () => {
-      configService.getFeatureFlag
+      configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
+        .mockReturnValue(of(false));
 
       const apiSpy = jest
         .spyOn(apiService, "putDeleteManyCiphersAdmin")
@@ -1225,9 +1195,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK to soft delete multiple ciphers when feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "softDeleteManyWithServer")
@@ -1241,9 +1209,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK admin soft delete many when feature flag is enabled and asAdmin is true", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "softDeleteManyWithServer")

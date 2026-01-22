@@ -146,17 +146,13 @@ export class BulkDeleteDialogComponent {
   }
 
   private async deleteCiphersAdmin(ciphers: string[]): Promise<any> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.permanent) {
-      await this.cipherService.deleteManyWithServer(
-        ciphers,
-        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
-        true,
-        this.organization.id,
-      );
+      await this.cipherService.deleteManyWithServer(ciphers, userId, true, this.organization.id);
     } else {
       await this.cipherService.softDeleteManyWithServer(
         ciphers,
-        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+        userId,
         true,
         this.organization.id,
       );
