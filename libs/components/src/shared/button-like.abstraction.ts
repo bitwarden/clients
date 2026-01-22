@@ -1,23 +1,26 @@
 import { ModelSignal } from "@angular/core";
 
-export type ButtonType =
-  | "primary"
-  | "primaryOutline"
-  | "primaryGhost"
-  | "secondary"
-  | "subtle"
-  | "subtleOutline"
-  | "subtleGhost"
-  | "danger"
-  | "dangerOutline"
-  | "dangerGhost"
-  | "warning"
-  | "warningOutline"
-  | "warningGhost"
-  | "success"
-  | "successOutline"
-  | "successGhost"
-  | "unstyled";
+export const ButtonTypes = {
+  Primary: "primary",
+  PrimaryOutline: "primaryOutline",
+  PrimaryGhost: "primaryGhost",
+  Secondary: "secondary",
+  Subtle: "subtle",
+  SubtleOutline: "subtleOutline",
+  SubtleGhost: "subtleGhost",
+  Danger: "danger",
+  DangerOutline: "dangerOutline",
+  DangerGhost: "dangerGhost",
+  Warning: "warning",
+  WarningOutline: "warningOutline",
+  WarningGhost: "warningGhost",
+  Success: "success",
+  SuccessOutline: "successOutline",
+  SuccessGhost: "successGhost",
+  Unstyled: "unstyled",
+} as const;
+
+export type ButtonType = (typeof ButtonTypes)[keyof typeof ButtonTypes];
 
 export type ButtonSize = "default" | "small" | "large";
 
