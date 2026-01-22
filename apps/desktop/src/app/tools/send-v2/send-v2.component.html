@@ -1,25 +1,93 @@
-<!-- Header with Send title and New button -->
-<app-header>
-  @if (!disableSend()) {
-    <tools-new-send-dropdown-v2 buttonType="primary" (addSend)="addSend($event)" />
-  }
-</app-header>
-<!-- Send List Component -->
-<tools-send-list
-  [sends]="filteredSends()"
-  [loading]="loading()"
-  [disableSend]="disableSend()"
-  [listState]="listState()"
-  [searchText]="currentSearchText()"
-  (editSend)="onEditSend($event)"
-  (copySend)="onCopySend($event)"
-  (deleteSend)="onDeleteSend($event)"
-  (removePassword)="onRemovePassword($event)"
->
-  <tools-new-send-dropdown-v2
-    slot="empty-button"
-    [hideIcon]="true"
-    buttonType="primary"
-    (addSend)="addSend($event)"
-  />
-</tools-send-list>
+@if (useDrawerEditMode()) {
+  <div class="tw-m-4 tw-p-4">
+    <!-- New dialog-based layout (feature flag enabled) -->
+    <!-- Header with Send title and New button -->
+    <app-header>
+      @if (!disableSend()) {
+        <tools-new-send-dropdown-v2 buttonType="primary" (addSend)="addSend($event)" />
+      }
+    </app-header>
+    <!-- Send List Component -->
+    <tools-send-list
+      [sends]="filteredSends()"
+      [loading]="loading()"
+      [disableSend]="disableSend()"
+      [listState]="listState()"
+      [searchText]="currentSearchText()"
+      (editSend)="onEditSend($event)"
+      (copySend)="onCopySend($event)"
+      (deleteSend)="onDeleteSend($event)"
+      (removePassword)="onRemovePassword($event)"
+    >
+      <tools-new-send-dropdown-v2
+        slot="empty-button"
+        [hideIcon]="true"
+        buttonType="primary"
+        (addSend)="addSend($event)"
+      />
+    </tools-send-list>
+  </div>
+} @else {
+  <!-- Old split-panel layout (feature flag disabled) -->
+  <div id="sends" class="vault">
+    <div class="send-items-panel tw-w-2/5">
+      <!-- Header with Send title and New button -->
+      <app-header class="tw-block tw-pt-6 tw-px-6">
+        @if (!disableSend()) {
+          <button type="button" bitButton buttonType="primary" (click)="addSendWithoutType()">
+            <i class="bwi bwi-plus" aria-hidden="true"></i>
+            {{ "new" | i18n }}
+          </button>
+        }
+      </app-header>
+      <div class="tw-mb-4 tw-px-6">
+        <!-- Send List Component -->
+        <tools-send-list
+          [sends]="filteredSends()"
+          [loading]="loading()"
+          [disableSend]="disableSend()"
+          [listState]="listState()"
+          [searchText]="currentSearchText()"
+          (editSend)="onEditSend($event)"
+          (copySend)="onCopySend($event)"
+          (deleteSend)="onDeleteSend($event)"
+          (removePassword)="onRemovePassword($event)"
+        >
+          <button
+            slot="empty-button"
+            type="button"
+            bitButton
+            buttonType="primary"
+            (click)="addSendWithoutType()"
+          >
+            {{ "newSend" | i18n }}
+          </button>
+        </tools-send-list>
+      </div>
+    </div>
+
+    <!-- Edit/Add panel (right side) -->
+    @if (action() == "add" || action() == "edit") {
+      <app-send-add-edit
+        id="addEdit"
+        class="details"
+        [sendId]="sendId()"
+        [type]="selectedSendType()"
+        (onSavedSend)="savedSend($event)"
+        (onCancelled)="closeEditPanel()"
+        (onDeletedSend)="closeEditPanel()"
+      ></app-send-add-edit>
+    }
+
+    <!-- Bitwarden logo (shown when no send is selected) -->
+    @if (!action()) {
+      <div class="logo tw-w-1/2">
+        <div class="content">
+          <div class="inner-content">
+            <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
