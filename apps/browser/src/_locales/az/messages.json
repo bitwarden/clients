@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
   },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
+  },
   "upgradeToUseArchive": {
     "message": "Arxivi istifadə etmək üçün premium üzvlük tələb olunur."
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey və Duo kimi mülkiyyətçi iki addımlı giriş seçimləri."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Seyfinizi güvəndə saxlamaq üçün parol gigiyenası, hesab sağlamlığı və veri pozuntusu hesabatları."

@@ -14,17 +14,17 @@ import {
   take,
 } from "rxjs";
 
-import {
-  CollectionService,
-  CollectionTypes,
-  CollectionView,
-} from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
 import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
