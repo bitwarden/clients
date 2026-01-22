@@ -8,6 +8,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";
+import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
@@ -19,6 +20,7 @@ export class Send extends Domain {
   id: string;
   accessId: string;
   type: SendType;
+  authType: AuthType;
   name: EncString;
   notes: EncString;
   file: SendFile;
@@ -54,6 +56,7 @@ export class Send extends Domain {
     );
 
     this.type = obj.type;
+    this.authType = obj.authType;
     this.maxAccessCount = obj.maxAccessCount;
     this.accessCount = obj.accessCount;
     this.password = obj.password;

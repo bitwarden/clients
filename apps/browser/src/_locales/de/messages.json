@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
   },
+  "archived": {
+    "message": "Archiviert"
+  },
+  "unarchiveAndSave": {
+    "message": "Nicht mehr archivieren und speichern"
+  },
   "upgradeToUseArchive": {
     "message": "Für die Nutzung des Archivs ist eine Premium-Mitgliedschaft erforderlich."
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Dein Premium-Abonnement ist abgelaufen"
+  },
+  "archivePremiumRestart": {
+    "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
+  },
+  "restartPremium": {
+    "message": "Premium neu starten"
   },
   "ppremiumSignUpReports": {
     "message": "Berichte über Kennworthygiene, Kontostatus und Datenschutzverletzungen, um deinen Tresor sicher zu halten."

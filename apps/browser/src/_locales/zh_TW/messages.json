@@ -585,6 +585,12 @@
   "archiveItemConfirmDesc": {
     "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
   },
+  "archived": {
+    "message": "已封存"
+  },
+  "unarchiveAndSave": {
+    "message": "取消封存並儲存"
+  },
   "upgradeToUseArchive": {
     "message": "需要進階版會員才能使用封存功能。"
   },
@@ -1538,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "專有的兩步驟登入選項，例如 YubiKey 和 Duo。"
+  },
+  "premiumSubscriptionEnded": {
+    "message": "您的進階版訂閱已到期"
+  },
+  "archivePremiumRestart": {
+    "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
+  },
+  "restartPremium": {
+    "message": "重新啟用進階版"
   },
   "ppremiumSignUpReports": {
     "message": "密碼健康度檢查、提供帳戶體檢以及資料外洩報告，以保障您的密碼庫安全。"
