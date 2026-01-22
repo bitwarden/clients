@@ -1,3 +1,6 @@
+@let organization = organization$ | async;
+@let integrationsList = integrations$ | async;
+
 <section class="tw-mb-9" *ngIf="organization?.useScim">
   <h2 bitTypography="h2">
     {{ "scimIntegration" | i18n }}
