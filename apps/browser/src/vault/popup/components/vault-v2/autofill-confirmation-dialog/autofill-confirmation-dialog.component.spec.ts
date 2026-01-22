@@ -91,10 +91,18 @@ describe("AutofillConfirmationDialogComponent", () => {
     jest.resetAllMocks();
   });
 
-  const findShowAll = (inFx?: ComponentFixture<AutofillConfirmationDialogComponent>) =>
-    (inFx || fixture).nativeElement.querySelector(
-      "button.tw-text-sm.tw-font-medium.tw-cursor-pointer",
-    ) as HTMLButtonElement | null;
+  const findShowAll = (inFx?: ComponentFixture<AutofillConfirmationDialogComponent>) => {
+    // Find the button by its text content (showAll or showLess)
+    const buttons = Array.from(
+      (inFx || fixture).nativeElement.querySelectorAll("button"),
+    ) as HTMLButtonElement[];
+    return (
+      buttons.find((btn) => {
+        const text = btn.textContent?.trim() || "";
+        return text === "showAll" || text === "showLess";
+      }) || null
+    );
+  };
 
   it("normalizes currentUrl and savedUrls via Utils.getHostname", () => {
     expect(Utils.getHostname).toHaveBeenCalledTimes(1 + (params.savedUrls?.length ?? 0));

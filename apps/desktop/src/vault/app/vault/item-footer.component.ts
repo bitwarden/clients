@@ -173,8 +173,15 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   async restore(): Promise<boolean> {
+    let toastMessage;
     if (!this.cipher.isDeleted) {
       return false;
+    }
+
+    if (this.cipher.isArchived) {
+      toastMessage = this.i18nService.t("archivedItemRestored");
+    } else {
+      toastMessage = this.i18nService.t("restoredItem");
     }
 
     try {
@@ -182,7 +189,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       await this.restoreCipher(activeUserId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("restoredItem"),
+        message: toastMessage,
       });
       this.onRestore.emit(this.cipher);
     } catch (e) {
@@ -239,6 +246,9 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
     // A user should always be able to unarchive an archived item
     this.showUnarchiveButton =
-      hasArchiveFlagEnabled && this.action === "view" && this.cipher.isArchived;
+      hasArchiveFlagEnabled &&
+      this.action === "view" &&
+      this.cipher.isArchived &&
+      !this.cipher.isDeleted;
   }
 }

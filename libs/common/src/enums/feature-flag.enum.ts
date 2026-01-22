@@ -23,6 +23,7 @@ export enum FeatureFlag {
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
+  SSHAgentV2 = "ssh-agent-v2",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
@@ -107,6 +108,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
+  [FeatureFlag.SSHAgentV2]: FALSE,
 
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
