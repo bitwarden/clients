@@ -17,7 +17,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { IconModule } from "../icon";
-import { LandingContentMaxWidth, LandingContentMaxWidthType } from "../landing-layout";
+import { LandingContentMaxWidthType } from "../landing-layout";
 import { LandingLayoutModule } from "../landing-layout/landing-layout.module";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
@@ -57,7 +57,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    *
    * @default 'md'
    */
-  readonly maxWidth = model<LandingContentMaxWidthType>(LandingContentMaxWidth.Md);
+  readonly maxWidth = model<LandingContentMaxWidthType>("md");
 
   protected logo = BitwardenLogo;
   protected year: string;
