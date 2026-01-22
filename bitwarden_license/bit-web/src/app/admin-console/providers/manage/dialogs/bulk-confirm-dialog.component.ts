@@ -36,6 +36,7 @@ type BulkConfirmDialogParams = {
 @Component({
   templateUrl:
     "../../../../../../../../apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-confirm-dialog.component.html",
+  selector: "provider-bulk-comfirm-dialog",
   standalone: false,
 })
 export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {

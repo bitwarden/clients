@@ -611,7 +611,7 @@ export class VaultV2Component<C extends CipherViewLike>
       });
     }
 
-    if (cipher.isArchived) {
+    if (cipher.isArchived && !cipher.isDeleted) {
       menu.push({
         label: this.i18nService.t("unArchive"),
         click: async () => {
