@@ -1,6 +1,7 @@
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
+  InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
@@ -14,6 +15,7 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { RouterService } from "@bitwarden/web-vault/app/core";
@@ -36,6 +38,7 @@ export class WebSetInitialPasswordService
     private organizationInviteService: OrganizationInviteService,
     private routerService: RouterService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
+    protected registerSdkService: RegisterSdkService,
   ) {
     super(
       apiService,
@@ -49,6 +52,7 @@ export class WebSetInitialPasswordService
       organizationUserApiService,
       userDecryptionOptionsService,
       accountCryptographicStateService,
+      registerSdkService,
     );
   }
 
@@ -80,6 +84,17 @@ export class WebSetInitialPasswordService
      * at which point we must remember to clear the deep linked URL used for accepting the org invite, as well
      * as clear the org invite itself that was originally set in state by the AcceptOrganizationComponent.
      */
+    await this.routerService.getAndClearLoginRedirectUrl();
+    await this.organizationInviteService.clearOrganizationInvitation();
+  }
+
+  override async initializePasswordJitPasswordUserV2Encryption(
+    credentials: InitializeJitPasswordCredentials,
+    userId: UserId,
+  ): Promise<void> {
+    await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+    // TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
     await this.routerService.getAndClearLoginRedirectUrl();
     await this.organizationInviteService.clearOrganizationInvitation();
   }
