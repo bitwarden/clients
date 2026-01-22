@@ -6,7 +6,6 @@ import {
   firstValueFrom,
   map,
   Observable,
-  of,
   Subject,
   switchMap,
   tap,
@@ -26,7 +25,7 @@ import { AutofillSettingsServiceAbstraction } from "../../autofill/services/auto
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { DECRYPT_ERROR, EncString } from "../../key-management/crypto/models/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
@@ -490,7 +489,7 @@ export class CipherService implements CipherServiceAbstraction {
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
     if (useSdk) {
-      return this.getAllDecrypted_sdk(userId);
+      return this.getAllDecryptedUsingSdk(userId);
     }
 
     const decCiphers = await this.getDecryptedCiphers(userId);
@@ -514,53 +513,18 @@ export class CipherService implements CipherServiceAbstraction {
     return newDecCiphers;
   }
 
-  private async getAllDecrypted_sdk(userId: UserId): Promise<CipherView[]> {
-    // Use SDK to list and decrypt all ciphers from state
-    const result = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
+  private async getAllDecryptedUsingSdk(userId: UserId): Promise<CipherView[]> {
+    try {
+      const result = await this.cipherSdkService.getAllDecrypted(userId);
 
-          const decryptResult = await ref.value.vault().ciphers().list();
+      await this.setDecryptedCipherCache(result.successes, userId);
+      await this.setFailedDecryptedCiphers(result.failures, userId);
 
-          // Convert successes - SDK returns array of SdkCipherView
-          const successArray = Array.isArray(decryptResult.successes)
-            ? decryptResult.successes
-            : Array.from(decryptResult.successes ?? []);
-
-          const successViews = successArray.map((sdkCipherView: any) =>
-            CipherView.fromSdkCipherView(sdkCipherView),
-          );
-
-          // Convert failures to CipherView with error markers
-          const failureArray = Array.isArray(decryptResult.failures)
-            ? decryptResult.failures
-            : Array.from(decryptResult.failures ?? []);
-
-          const failureViews: CipherView[] = failureArray.map((failure: any) => {
-            const cipher = Cipher.fromSdkCipher(failure);
-            const cipherView = new CipherView(cipher);
-            cipherView.name = DECRYPT_ERROR;
-            cipherView.decryptionFailure = true;
-            return cipherView;
-          });
-
-          await this.setDecryptedCipherCache(successViews, userId);
-          await this.setFailedDecryptedCiphers(failureViews, userId);
-
-          return successViews;
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to list and decrypt ciphers: ${error}`);
-          return of([]);
-        }),
-      ),
-    );
-
-    return result;
+      return result.successes;
+    } catch {
+      // Return empty array on error to maintain existing behavior
+      return [];
+    }
   }
 
   private async getDecryptedCiphers(userId: UserId) {
@@ -801,7 +765,7 @@ export class CipherService implements CipherServiceAbstraction {
       FeatureFlag.PM27632_SdkCipherCrudOperations,
     );
     if (useSdk) {
-      return this.getAllFromApiForOrganization_sdk(organizationId, includeMemberItems ?? false);
+      return this.getAllFromApiForOrganizationUsingSdk(organizationId, includeMemberItems ?? false);
     }
 
     const response = await this.apiService.getCiphersOrganization(
@@ -811,7 +775,7 @@ export class CipherService implements CipherServiceAbstraction {
     return await this.decryptOrganizationCiphersResponse(response, organizationId);
   }
 
-  private async getAllFromApiForOrganization_sdk(
+  private async getAllFromApiForOrganizationUsingSdk(
     organizationId: string,
     includeMemberItems: boolean,
   ): Promise<CipherView[]> {
@@ -820,36 +784,21 @@ export class CipherService implements CipherServiceAbstraction {
       throw new Error("User ID is required");
     }
 
-    const result = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          const decryptResult = await ref.value
-            .vault()
-            .ciphers()
-            .admin()
-            .list_org_ciphers(asUuid(organizationId), includeMemberItems);
+    try {
+      const cipherViews = await this.cipherSdkService.getAllFromApiForOrganization(
+        organizationId,
+        userId,
+        includeMemberItems,
+      );
 
-          const cipherViews = decryptResult.successes.map((sdkCipherView: any) =>
-            CipherView.fromSdkCipherView(sdkCipherView),
-          );
+      // Sort by locale (matching existing behavior)
+      cipherViews.sort(this.getLocaleSortingFunction());
 
-          // Sort by locale (matching existing behavior)
-          cipherViews.sort(this.getLocaleSortingFunction());
-
-          return cipherViews;
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to list organization ciphers: ${error}`);
-          return of([]);
-        }),
-      ),
-    );
-
-    return result;
+      return cipherViews;
+    } catch {
+      // Return empty array on error to maintain existing behavior
+      return [];
+    }
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
