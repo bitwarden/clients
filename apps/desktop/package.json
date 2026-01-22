@@ -46,7 +46,7 @@
     "pack:mac:with-extension": "npm run clean:dist && npm run build:macos-extension:mac && electron-builder --mac --universal -p never",
     "pack:mac:arm64": "npm run clean:dist && electron-builder --mac --arm64 -p never",
     "pack:mac:mas": "npm run clean:dist && npm run build:macos-extension:mas && electron-builder --mac mas --universal -p never",
-    "pack:mac:masdev": "npm run clean:dist && npm run build:macos-extension:masdev && electron-builder --mac mas-dev --universal -p never",
+    "pack:mac:masdev": "npm run clean:dist && electron-builder --mac mas-dev --universal -p never -c.mac.identity=null -c.mas.identity=$CSC_NAME -c.mas.provisioningProfile=bitwarden_desktop_developer_id.provisionprofile -c.mas.entitlements=resources/entitlements.mas.autofill-enabled.plist",
     "pack:local:mac": "npm run clean:dist && npm run build:macos-extension:masdev && electron-builder --mac mas-dev --universal -p never -c.mac.provisioningProfile=\"\" -c.mas.provisioningProfile=\"\"",
     "pack:win": "npm run clean:dist && electron-builder --win --x64 --arm64 --ia32 -p never",
     "pack:win:beta": "npm run clean:dist && electron-builder --config electron-builder.beta.json --win --x64 --arm64 --ia32 -p never",
