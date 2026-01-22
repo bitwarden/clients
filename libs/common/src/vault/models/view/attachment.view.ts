@@ -85,7 +85,10 @@ export class AttachmentView implements View {
   /**
    * Converts the SDK AttachmentView to a AttachmentView.
    */
-  static fromSdkAttachmentView(obj: SdkAttachmentView): AttachmentView | undefined {
+  static fromSdkAttachmentView(
+    obj: SdkAttachmentView,
+    failure = false,
+  ): AttachmentView | undefined {
     if (!obj) {
       return undefined;
     }
@@ -99,7 +102,7 @@ export class AttachmentView implements View {
     // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
     view.key = obj.decryptedKey ? SymmetricCryptoKey.fromString(obj.decryptedKey) : undefined;
     view.encryptedKey = obj.key ? new EncString(obj.key) : undefined;
-    view._hasDecryptionError = obj.decryptionFailure;
+    view._hasDecryptionError = failure;
 
     return view;
   }
