@@ -277,7 +277,12 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   get bulkArchiveAllowed() {
     const hasCollectionsSelected = this.selection.selected.some((item) => item.collection);
-    if (this.selection.selected.length === 0 || !this.userCanArchive || hasCollectionsSelected) {
+    if (
+      this.selection.selected.length === 0 ||
+      !this.userCanArchive ||
+      hasCollectionsSelected ||
+      this.showBulkTrashOptions
+    ) {
       return false;
     }
 
@@ -291,7 +296,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   // Bulk Unarchive button should appear for Archive vault even if user does not have archive permissions
   get bulkUnarchiveAllowed() {
-    if (this.selection.selected.length === 0) {
+    if (this.selection.selected.length === 0 || this.showBulkTrashOptions) {
       return false;
     }
 
