@@ -5,3 +5,12 @@ export enum SshAgentPromptType {
   Never = "never",
   RememberUntilLock = "rememberUntilLock",
 }
+
+export const SshAgentKeySelectionMode = Object.freeze({
+  AllKeys: "allKeys",
+  SelectKey: "selectKey",
+  LoadSomeKeys: "loadSomeKeys",
+} as const);
+
+export type SshAgentKeySelectionMode =
+  (typeof SshAgentKeySelectionMode)[keyof typeof SshAgentKeySelectionMode];

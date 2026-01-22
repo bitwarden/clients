@@ -18,7 +18,10 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
+import {
+  SshAgentKeySelectionMode,
+  SshAgentPromptType,
+} from "../../autofill/models/ssh-agent-setting";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
@@ -86,6 +89,24 @@ const SSH_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<SshAgentPromptType>(
   "sshAgentRememberAuthorizations",
   {
     deserializer: (b) => b,
+    clearOn: [],
+  },
+);
+
+const SSH_AGENT_KEY_SELECTION_MODE = new UserKeyDefinition<SshAgentKeySelectionMode>(
+  DESKTOP_SETTINGS_DISK,
+  "sshAgentKeySelectionMode",
+  {
+    deserializer: (b) => b,
+    clearOn: [],
+  },
+);
+
+const SSH_AGENT_SELECTED_KEY_IDS = new UserKeyDefinition<string[]>(
+  DESKTOP_SETTINGS_DISK,
+  "sshAgentSelectedKeyIds",
+  {
+    deserializer: (ids) => ids ?? [],
     clearOn: [],
   },
 );
@@ -182,6 +203,20 @@ export class DesktopSettingsService {
   private readonly sshAgentPromptBehavior = this.stateProvider.getActive(SSH_AGENT_PROMPT_BEHAVIOR);
   sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
     map((v) => v ?? SshAgentPromptType.Always),
+  );
+
+  private readonly sshAgentKeySelectionModeState = this.stateProvider.getActive(
+    SSH_AGENT_KEY_SELECTION_MODE,
+  );
+  sshAgentKeySelectionMode$ = this.sshAgentKeySelectionModeState.state$.pipe(
+    map((v) => v ?? SshAgentKeySelectionMode.AllKeys),
+  );
+
+  private readonly sshAgentSelectedKeyIdsState = this.stateProvider.getActive(
+    SSH_AGENT_SELECTED_KEY_IDS,
+  );
+  readonly sshAgentSelectedKeyIds$ = this.sshAgentSelectedKeyIdsState.state$.pipe(
+    map((v) => v ?? []),
   );
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
@@ -319,6 +354,14 @@ export class DesktopSettingsService {
 
   async setSshAgentPromptBehavior(value: SshAgentPromptType) {
     await this.sshAgentPromptBehavior.update(() => value);
+  }
+
+  async setSshAgentKeySelectionMode(value: SshAgentKeySelectionMode) {
+    await this.sshAgentKeySelectionModeState.update(() => value);
+  }
+
+  async setSshAgentSelectedKeyIds(value: string[]): Promise<void> {
+    await this.sshAgentSelectedKeyIdsState.update(() => value);
   }
 
   /**

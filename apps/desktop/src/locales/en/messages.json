@@ -332,6 +332,48 @@
   "sshAgentPromptBehaviorRememberUntilLock": {
     "message": "Remember until vault is locked"
   },
+  "sshAgentKeySelectionMode": {
+    "message": "SSH key selection mode"
+  },
+  "sshAgentKeySelectionModeDesc": {
+    "message": "Choose whether to send all SSH keys to the agent, select a specific key for each request, or pre-load specific keys to keep in memory."
+  },
+  "sshAgentKeySelectionModeAllKeys": {
+    "message": "Send all SSH keys"
+  },
+  "sshAgentKeySelectionModeSelectKey": {
+    "message": "Select key for each request"
+  },
+  "sshAgentKeySelectionModeLoadSomeKeys": {
+    "message": "Load some keys"
+  },
+  "loadSomeKeysTitle": {
+    "message": "Select SSH Keys to Load"
+  },
+  "loadSomeKeysMessage": {
+    "message": "Select one or more SSH keys to keep loaded in the agent. These keys will remain available until you lock your vault or disable the SSH agent."
+  },
+  "selectSshKeys": {
+    "message": "SSH Keys"
+  },
+  "loadSomeKeysHelp": {
+    "message": "Selected keys will be kept in the agent memory and automatically provided to SSH clients without prompts."
+  },
+  "loadKeys": {
+    "message": "Load Keys"
+  },
+  "selectSshKeyTitle": {
+    "message": "Select SSH Key"
+  },
+  "selectSshKeyMessageInfix": {
+    "message": "is requesting to use an SSH key. Please select which key to use:"
+  },
+  "selectSshKeyLabel": {
+    "message": "SSH Key"
+  },
+  "selectSshKeyHelp": {
+    "message": "The selected key will be used for this request only and removed from the agent after use."
+  },
   "premiumRequired": {
     "message": "Premium required"
   },

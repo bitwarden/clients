@@ -1,0 +1,57 @@
+<form [bitSubmit]="submit" [formGroup]="selectSshKeyForm">
+  <bit-dialog dialogSize="large">
+    <span bitDialogTitle>{{ "selectSshKeyTitle" | i18n }}</span>
+    <div bitDialogContent>
+      <p class="tw-mb-4">
+        <b>{{ params.applicationName }}</b> {{ "selectSshKeyMessageInfix" | i18n }}
+      </p>
+
+      <bit-search
+        class="tw-mb-4"
+        formControlName="searchText"
+        [placeholder]="'searchVault' | i18n"
+      ></bit-search>
+
+      <div class="tw-flex tw-flex-col tw-gap-2">
+        <label class="tw-font-semibold tw-text-sm">{{ "selectSshKeyLabel" | i18n }}</label>
+        <bit-radio-group formControlName="selectedKeyId">
+          @for (key of filteredSshKeys; track key.id) {
+          <label
+            class="tw-flex tw-items-start tw-gap-3 tw-p-3 tw-rounded tw-border tw-border-secondary-300 hover:tw-bg-secondary-100 tw-cursor-pointer"
+          >
+            <bit-radio-button [value]="key.id"></bit-radio-button>
+            <div class="tw-flex-1">
+              <div class="tw-font-semibold">{{ key.name }}</div>
+              @if (getKeyFingerprint(key)) {
+              <div class="tw-text-sm tw-text-muted tw-mt-1">
+                <span class="tw-font-medium">{{ "sshFingerprint" | i18n }}:</span> {{
+                getKeyFingerprint(key) }}
+              </div>
+              }
+            </div>
+          </label>
+          }
+        </bit-radio-group>
+        @if (filteredSshKeys.length === 0) {
+        <p class="tw-text-muted tw-text-center tw-py-4">{{ "noItemsFound" | i18n }}</p>
+        }
+      </div>
+
+      <small class="tw-text-muted tw-block tw-mt-4">{{ "selectSshKeyHelp" | i18n }}</small>
+    </div>
+    <ng-container bitDialogFooter>
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [disabled]="!selectSshKeyForm.value.selectedKeyId"
+      >
+        <span>{{ "select" | i18n }}</span>
+      </button>
+      <button type="button" bitButton bitFormButton buttonType="secondary" (click)="cancel()">
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

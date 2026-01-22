@@ -62,7 +62,10 @@ import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
-import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
+import {
+  SshAgentKeySelectionMode,
+  SshAgentPromptType,
+} from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
@@ -112,6 +115,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   themeOptions: any[];
   clearClipboardOptions: any[];
   sshAgentPromptBehaviorOptions: any[];
+  sshAgentKeySelectionModeOptions: any[];
   supportsBiometric: boolean;
   private timerId: any;
   showAlwaysShowDock = false;
@@ -178,6 +182,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
+    sshAgentKeySelectionMode: [SshAgentKeySelectionMode.AllKeys as SshAgentKeySelectionMode],
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
     enableAutotype: this.formBuilder.control<boolean>({
@@ -285,6 +290,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
       {
         name: this.i18nService.t("sshAgentPromptBehaviorRememberUntilLock"),
         value: SshAgentPromptType.RememberUntilLock,
+      },
+    ];
+
+    this.sshAgentKeySelectionModeOptions = [
+      {
+        name: this.i18nService.t("sshAgentKeySelectionModeAllKeys"),
+        value: SshAgentKeySelectionMode.AllKeys,
+      },
+      {
+        name: this.i18nService.t("sshAgentKeySelectionModeSelectKey"),
+        value: SshAgentKeySelectionMode.SelectKey,
+      },
+      {
+        name: this.i18nService.t("sshAgentKeySelectionModeLoadSomeKeys"),
+        value: SshAgentKeySelectionMode.LoadSomeKeys,
       },
     ];
 
@@ -414,6 +434,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       enableSshAgent: await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$),
       sshAgentPromptBehavior: await firstValueFrom(
         this.desktopSettingsService.sshAgentPromptBehavior$,
+      ),
+      sshAgentKeySelectionMode: await firstValueFrom(
+        this.desktopSettingsService.sshAgentKeySelectionMode$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
@@ -928,6 +951,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.desktopSettingsService.setSshAgentPromptBehavior(
       this.form.value.sshAgentPromptBehavior,
     );
+  }
+
+  async saveSshAgentKeySelectionMode() {
+    const newMode = this.form.value.sshAgentKeySelectionMode;
+    const oldMode = await firstValueFrom(this.desktopSettingsService.sshAgentKeySelectionMode$);
+
+    await this.desktopSettingsService.setSshAgentKeySelectionMode(newMode);
+
+    // Clear selected keys when switching away from LoadSomeKeys
+    if (
+      oldMode === SshAgentKeySelectionMode.LoadSomeKeys &&
+      newMode !== SshAgentKeySelectionMode.LoadSomeKeys
+    ) {
+      await this.desktopSettingsService.setSshAgentSelectedKeyIds([]);
+    }
   }
 
   async savePreventScreenshots() {
