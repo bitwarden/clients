@@ -190,6 +190,7 @@ export abstract class CipherReportComponent implements OnDestroy {
       formConfig,
       activeCollectionId,
       disableForm,
+      isAdminConsoleAction: true,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
