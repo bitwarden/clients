@@ -101,7 +101,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "CHROMATIC-PROJECT-TOKEN,CHROMATIC_PROJECT_TOKEN_AUTOFILL"
+          secrets: "CHROMATIC-PROJECT-TOKEN,CHROMATIC-PROJECT-TOKEN-AUTOFILL"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
@@ -125,7 +125,7 @@ jobs:
         uses: chromaui/action@ac86f2ff0a458ffbce7b40698abd44c0fa34d4b6 # v13.3.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC_PROJECT_TOKEN_AUTOFILL }}
+          projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN-AUTOFILL }}
           storybookBuildDir: ./apps/browser/src/autofill/content/components/storybook-static
           exitOnceUploaded: true
           onlyChanged: true
