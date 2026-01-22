@@ -21,6 +21,11 @@ export interface OrgIntegrationTemplate {
   toString(): string;
 }
 
+export const Schemas = {
+  Bearer: "Bearer",
+  Splunk: "Splunk",
+} as const;
+
 /**
  * Builder class for creating organization integration configurations and templates
  */
@@ -29,7 +34,7 @@ export class OrgIntegrationBuilder {
     uri: string,
     token: string,
     bw_serviceName: OrganizationIntegrationServiceName,
-    scheme: string = "Bearer",
+    scheme: string = Schemas.Bearer,
   ): OrgIntegrationConfiguration {
     return new HecConfiguration(uri, token, bw_serviceName, scheme);
   }

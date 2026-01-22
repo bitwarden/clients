@@ -16,6 +16,7 @@ import {
   OrgIntegrationBuilder,
   OrgIntegrationConfiguration,
   OrgIntegrationTemplate,
+  Schemas,
 } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration-builder";
 import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
@@ -366,7 +367,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       result.url,
       result.token,
       OrganizationIntegrationServiceName.Huntress,
-      "Splunk",
+      Schemas.Splunk,
     );
     // Huntress SIEM doesn't require the index field
     const template = OrgIntegrationBuilder.buildHecTemplate(
