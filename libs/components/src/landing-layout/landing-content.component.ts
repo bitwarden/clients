@@ -1,16 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-export const LandingContentMaxWidth = {
-  Md: "md",
-  Lg: "lg",
-  Xl: "xl",
-  "2Xl": "2xl",
-  "3Xl": "3xl",
-  "4Xl": "4xl",
-} as const;
+export const LandingContentMaxWidth = ["md", "lg", "xl", "2xl", "3xl", "4xl"] as const;
 
-export type LandingContentMaxWidthType =
-  (typeof LandingContentMaxWidth)[keyof typeof LandingContentMaxWidth];
+export type LandingContentMaxWidthType = (typeof LandingContentMaxWidth)[number];
 
 @Component({
   selector: "bit-landing-content",
@@ -24,9 +16,9 @@ export class LandingContentComponent {
   /**
    * Max width of the landing layout container.
    *
-   * @default LandingContentMaxWidth.Md
+   * @default "md"
    */
-  readonly maxWidth = input<LandingContentMaxWidthType>(LandingContentMaxWidth.Md);
+  readonly maxWidth = input<LandingContentMaxWidthType>("md");
 
   private readonly maxWidthClassMap: Record<LandingContentMaxWidthType, string> = {
     md: "tw-max-w-md",
