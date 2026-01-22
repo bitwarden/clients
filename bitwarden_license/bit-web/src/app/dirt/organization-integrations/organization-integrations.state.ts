@@ -4,7 +4,7 @@ import { toObservable } from "@angular/core/rxjs-interop";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
-@Injectable({ providedIn: "root" })
+@Injectable()
 export class OrganizationIntegrationsState {
   private readonly _integrations = signal<Integration[]>([]);
   private readonly _organization = signal<Organization | null>(null);

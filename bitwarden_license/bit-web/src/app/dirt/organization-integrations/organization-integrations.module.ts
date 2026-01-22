@@ -24,6 +24,7 @@ import { UserProvisioningComponent } from "./user-provisioning/user-provisioning
     EventManagementComponent,
   ],
   providers: [
+    OrganizationIntegrationsResolver,
     safeProvider({
       provide: OrganizationIntegrationService,
       useClass: OrganizationIntegrationService,
@@ -39,7 +40,6 @@ import { UserProvisioningComponent } from "./user-provisioning/user-provisioning
       useClass: OrganizationIntegrationConfigurationApiService,
       deps: [ApiService],
     }),
-    OrganizationIntegrationsResolver,
   ],
 })
 export class OrganizationIntegrationsModule {}
