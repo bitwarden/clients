@@ -108,6 +108,28 @@ describe("VaultPopupScrollPositionService", () => {
         });
         expect((scrollElement as any).scrollTop).toBe(500);
       }));
+
+      it("forces scroll to top on next start when requested", fakeAsync(() => {
+        service["scrollPosition"] = 500;
+        service.forceTopOnNextVaultStart();
+
+        service.start(scrollElement);
+
+        tick();
+        expect((scrollElement as any).scrollTo).toHaveBeenCalledWith({
+          behavior: "instant",
+          top: 0,
+        });
+        expect((scrollElement as any).scrollTop).toBe(0);
+
+        // A follow-up scroll is scheduled to defeat Firefox scroll restoration.
+        ((scrollElement as any).scrollTo as jest.Mock).mockClear();
+        tick(50);
+        expect((scrollElement as any).scrollTo).toHaveBeenCalledWith({
+          behavior: "instant",
+          top: 0,
+        });
+      }));
     });
 
     describe("scroll listener", () => {
