@@ -30,11 +30,6 @@ export class WebHeaderComponent {
    */
   readonly icon: InputSignal<string> = input();
 
-  /**
-   * Utilize the alt background on pages where it is still needed
-   */
-  readonly useAltBackground: InputSignal<boolean> = input(false);
-
   protected routeData$: Observable<{ titleId: string }>;
   protected account$: Observable<User & { id: UserId }>;
   protected canLock$: Observable<boolean>;
