@@ -111,7 +111,7 @@ jobs:
         working-directory: ./apps/desktop/desktop_native
         run: cargo build
 
-      - name: Test Ubuntu
+      - name: Linux unit tests
         if: ${{ matrix.os=='ubuntu-22.04' }}
         working-directory: ./apps/desktop/desktop_native
         run: |
@@ -120,17 +120,21 @@ jobs:
           mkdir -p ~/.local/share/keyrings
           eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
           eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
-          cargo test -- --test-threads=1
+          cargo test --lib -- --test-threads=1
 
-      - name: Test macOS
+      - name: MacOS unit tests
         if: ${{ matrix.os=='macos-14' }}
         working-directory: ./apps/desktop/desktop_native
-        run: cargo test -- --test-threads=1
+        run: cargo test --lib -- --test-threads=1
 
-      - name: Test Windows
+      - name: Windows unit tests
         if: ${{ matrix.os=='windows-2022'}}
         working-directory: ./apps/desktop/desktop_native
-        run: cargo test --workspace --exclude=desktop_napi -- --test-threads=1
+        run: cargo test --lib --workspace --exclude=desktop_napi -- --test-threads=1
+
+      - name: Doc tests
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo test --doc
 
   rust-coverage:
     name: Rust Coverage
