@@ -71,9 +71,9 @@ const styles: Record<IconButtonType, string[]> = {
   primary: ["!tw-text-primary-600", "focus-visible:before:tw-ring-primary-600", ...focusRing],
   danger: ["!tw-text-danger-600", "focus-visible:before:tw-ring-primary-600", ...focusRing],
   "nav-contrast": [
-    "!tw-text-alt2",
+    "!tw-text-fg-sidenav-text",
     "hover:!tw-bg-hover-contrast",
-    "focus-visible:before:tw-ring-text-alt2",
+    "focus-visible:before:tw-ring-border-focus",
     ...focusRing,
   ],
 };
