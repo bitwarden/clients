@@ -1,5 +1,8 @@
-import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+// Polyfill for Symbol.dispose required by the service's use of `using` keyword
+import "core-js/proposals/explicit-resource-management";
+
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -27,17 +30,35 @@ import {
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { Rc } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey, UserPrivateKey, UserPublicKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import {
+  DEFAULT_KDF_CONFIG,
+  fromSdkKdfConfig,
+  KdfConfigService,
+  KeyService,
+} from "@bitwarden/key-management";
+import {
+  AuthClient,
+  BitwardenClient,
+  WrappedAccountCryptographicState,
+} from "@bitwarden/sdk-internal";
 
 import { DefaultSetInitialPasswordService } from "./default-set-initial-password.service.implementation";
 import {
+  InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
@@ -58,6 +79,7 @@ describe("DefaultSetInitialPasswordService", () => {
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  const registerSdkService = mock<RegisterSdkService>();
 
   let userId: UserId;
   let userKey: UserKey;
@@ -94,6 +116,7 @@ describe("DefaultSetInitialPasswordService", () => {
       organizationUserApiService,
       userDecryptionOptionsService,
       accountCryptographicStateService,
+      registerSdkService,
     );
   });
 
@@ -832,6 +855,248 @@ describe("DefaultSetInitialPasswordService", () => {
           "newMasterKeyEncryptedUserKey not found. Could not set password.",
         );
       });
+    });
+  });
+
+  describe("initializePasswordJitPasswordUserV2Encryption()", () => {
+    let mockSdkRef: {
+      value: MockProxy<BitwardenClient>;
+      [Symbol.dispose]: jest.Mock;
+    };
+    let mockSdk: {
+      take: jest.Mock;
+    };
+    let mockRegistration: jest.Mock;
+
+    const userId = "d4e2e3a1-1b5e-4c3b-8d7a-9f8e7d6c5b4a" as UserId;
+    const orgId = "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d" as OrganizationId;
+
+    const credentials: InitializeJitPasswordCredentials = {
+      newPasswordHint: "test-hint",
+      orgSsoIdentifier: "org-sso-id",
+      orgId: orgId,
+      resetPasswordAutoEnroll: false,
+      newPassword: "Test@Password123!",
+      salt: "user@example.com" as unknown as MasterPasswordSalt,
+    };
+
+    const orgKeys: OrganizationKeysResponse = {
+      publicKey: "org-public-key-base64",
+      privateKey: "org-private-key-encrypted",
+    } as OrganizationKeysResponse;
+
+    const sdkRegistrationResult = {
+      account_cryptographic_state: {
+        V2: {
+          private_key: makeEncString().encryptedString!,
+          signed_public_key: "test-signed-public-key",
+          signing_key: makeEncString().encryptedString!,
+          security_state: "test-security-state",
+        },
+      },
+      master_password_unlock: {
+        kdf: {
+          pBKDF2: {
+            iterations: 600000,
+          },
+        },
+        masterKeyWrappedUserKey: makeEncString().encryptedString!,
+        salt: "user@example.com" as unknown as MasterPasswordSalt,
+      },
+      user_key: makeSymmetricCryptoKey(64).keyB64,
+    };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+
+      mockSdkRef = {
+        value: mock<BitwardenClient>(),
+        [Symbol.dispose]: jest.fn(),
+      };
+
+      mockSdkRef.value.auth.mockReturnValue({
+        registration: jest.fn().mockReturnValue({
+          post_keys_for_jit_password_registration: jest.fn(),
+        }),
+      } as unknown as AuthClient);
+
+      mockSdk = {
+        take: jest.fn().mockReturnValue(mockSdkRef),
+      };
+
+      registerSdkService.registerClient$.mockReturnValue(
+        of(mockSdk) as unknown as Observable<Rc<BitwardenClient>>,
+      );
+
+      organizationApiService.getKeys.mockResolvedValue(orgKeys);
+
+      mockRegistration = mockSdkRef.value.auth().registration()
+        .post_keys_for_jit_password_registration as unknown as jest.Mock;
+      mockRegistration.mockResolvedValue(sdkRegistrationResult);
+
+      const mockUserDecryptionOpts = new UserDecryptionOptions({ hasMasterPassword: false });
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        of(mockUserDecryptionOpts),
+      );
+    });
+
+    it("should successfully initialize JIT password user", async () => {
+      await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      expect(organizationApiService.getKeys).toHaveBeenCalledWith(credentials.orgId);
+
+      expect(registerSdkService.registerClient$).toHaveBeenCalledWith(userId);
+      expect(mockRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({
+          org_id: credentials.orgId,
+          org_public_key: orgKeys.publicKey,
+          master_password: credentials.newPassword,
+          master_password_hint: credentials.newPasswordHint,
+          salt: credentials.salt,
+          organization_sso_identifier: credentials.orgSsoIdentifier,
+          user_id: userId,
+          reset_password_enroll: credentials.resetPasswordAutoEnroll,
+        }),
+      );
+
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+        sdkRegistrationResult.account_cryptographic_state,
+        userId,
+      );
+
+      expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
+        ForceSetPasswordReason.None,
+        userId,
+      );
+
+      expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+        MasterPasswordUnlockData.fromSdk(sdkRegistrationResult.master_password_unlock),
+        userId,
+      );
+
+      expect(keyService.setUserKey).toHaveBeenCalledWith(
+        SymmetricCryptoKey.fromString(sdkRegistrationResult.user_key) as UserKey,
+        userId,
+      );
+
+      // Verify legacy state updates below
+      expect(userDecryptionOptionsService.userDecryptionOptionsById$).toHaveBeenCalledWith(userId);
+      expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({ hasMasterPassword: true }),
+      );
+
+      expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(
+        userId,
+        fromSdkKdfConfig(sdkRegistrationResult.master_password_unlock.kdf),
+      );
+
+      expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+        new EncString(sdkRegistrationResult.master_password_unlock.masterKeyWrappedUserKey),
+        userId,
+      );
+
+      expect(masterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
+        credentials.newPassword,
+        MasterPasswordUnlockData.fromSdk(sdkRegistrationResult.master_password_unlock),
+        userId,
+      );
+    });
+
+    describe("input validation", () => {
+      it.each([
+        "newPasswordHint",
+        "orgSsoIdentifier",
+        "orgId",
+        "resetPasswordAutoEnroll",
+        "newPassword",
+        "salt",
+      ])("should throw error when %s is null", async (field) => {
+        const invalidCredentials = {
+          ...credentials,
+          [field]: null,
+        } as unknown as InitializeJitPasswordCredentials;
+
+        const promise = sut.initializePasswordJitPasswordUserV2Encryption(
+          invalidCredentials,
+          userId,
+        );
+
+        await expect(promise).rejects.toThrow(`${field} is required.`);
+
+        expect(organizationApiService.getKeys).not.toHaveBeenCalled();
+        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+      });
+
+      it("should throw error when userId is null", async () => {
+        const nullUserId = null as unknown as UserId;
+
+        const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, nullUserId);
+
+        await expect(promise).rejects.toThrow("User ID is required.");
+        expect(organizationApiService.getKeys).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("organization API error handling", () => {
+      it("should throw when organizationApiService.getKeys returns null", async () => {
+        organizationApiService.getKeys.mockResolvedValue(
+          null as unknown as OrganizationKeysResponse,
+        );
+
+        const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+        await expect(promise).rejects.toThrow("Organization keys response is null.");
+        expect(organizationApiService.getKeys).toHaveBeenCalledWith(credentials.orgId);
+        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+      });
+
+      it("should throw when organizationApiService.getKeys rejects", async () => {
+        const apiError = new Error("API network error");
+        organizationApiService.getKeys.mockRejectedValue(apiError);
+
+        const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+        await expect(promise).rejects.toThrow("API network error");
+        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("SDK error handling", () => {
+      it("should throw when SDK is not available", async () => {
+        organizationApiService.getKeys.mockResolvedValue(orgKeys);
+        registerSdkService.registerClient$.mockReturnValue(
+          of(null) as unknown as Observable<Rc<BitwardenClient>>,
+        );
+
+        const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+        await expect(promise).rejects.toThrow("SDK not available");
+      });
+
+      it("should throw when SDK registration fails", async () => {
+        const sdkError = new Error("SDK crypto operation failed");
+
+        organizationApiService.getKeys.mockResolvedValue(orgKeys);
+        mockRegistration.mockRejectedValue(sdkError);
+
+        const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+        await expect(promise).rejects.toThrow("SDK crypto operation failed");
+      });
+    });
+
+    it("should throw when account_cryptographic_state is not V2", async () => {
+      const invalidResult = {
+        ...sdkRegistrationResult,
+        account_cryptographic_state: { V1: {} } as unknown as WrappedAccountCryptographicState,
+      };
+
+      mockRegistration.mockResolvedValue(invalidResult);
+
+      const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      await expect(promise).rejects.toThrow("Unexpected V2 account cryptographic state");
     });
   });
 });

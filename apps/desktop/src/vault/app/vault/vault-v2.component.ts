@@ -27,6 +27,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
+import { ItemTypes } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -69,6 +70,7 @@ import {
   ToastService,
   CopyClickListener,
   COPY_CLICK_LISTENER,
+  NoItemsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -124,6 +126,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
     NavComponent,
     VaultFilterModule,
     VaultItemsV2Component,
+    NoItemsModule,
   ],
   providers: [
     {
@@ -203,6 +206,7 @@ export class VaultV2Component<C extends CipherViewLike>
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
   readonly userHasPremium = signal<boolean>(false);
+  protected itemTypesIcon = ItemTypes;
 
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
@@ -220,6 +224,12 @@ export class VaultV2Component<C extends CipherViewLike>
       ? this.i18nService.t("unArchiveAndSave")
       : this.i18nService.t("save");
   });
+
+  protected hasArchivedCiphers$ = this.userId$.pipe(
+    switchMap((userId) =>
+      this.cipherArchiveService.archivedCiphers$(userId).pipe(map((ciphers) => ciphers.length > 0)),
+    ),
+  );
 
   private componentIsDestroyed$ = new Subject<boolean>();
   private allOrganizations: Organization[] = [];
