@@ -8,12 +8,18 @@ import { IconButtonModule } from "../icon-button";
 import { NavBaseComponent } from "./nav-base.component";
 import { SideNavService } from "./side-nav.service";
 
-// Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
+/**
+ * Abstract base class for navigation group functionality.
+ * Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
+ */
 export abstract class NavGroupAbstraction {
   abstract setOpen(open: boolean): void;
   abstract treeDepth: ReturnType<typeof model<number>>;
 }
 
+/**
+ * Navigation item component with tree depth support and focus management.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

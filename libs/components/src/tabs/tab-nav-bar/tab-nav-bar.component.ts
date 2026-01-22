@@ -6,6 +6,9 @@ import { TabListContainerDirective } from "../shared/tab-list-container.directiv
 
 import { TabLinkComponent } from "./tab-link.component";
 
+/**
+ * Navigation bar component that manages a collection of router-based tab links.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

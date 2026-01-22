@@ -176,7 +176,7 @@ export default tseslint.config(
   // JSDoc requirements for components library
   {
     files: ["libs/components/src/**/*.ts"],
-    ignores: ["**/*.spec.ts", "**/*.stories.ts"],
+    ignores: ["**/*.spec.ts", "**/*.stories.ts", "**/stories/**/*.ts", "**/kitchen-sink/**/*.ts"],
     plugins: {
       jsdoc: jsdoc,
     },

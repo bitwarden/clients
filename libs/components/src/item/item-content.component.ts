@@ -11,6 +11,9 @@ import {
 
 import { TypographyModule } from "../typography";
 
+/**
+ * Component for rendering the main content area of an item with support for text truncation.
+ */
 @Component({
   selector: "bit-item-content, [bit-item-content]",
   imports: [TypographyModule, NgClass],

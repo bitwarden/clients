@@ -1,5 +1,8 @@
 import { Directive, HostBinding, input } from "@angular/core";
 
+/**
+ * Directive for styling table rows with consistent borders and hover effects.
+ */
 @Directive({
   selector: "tr[bitRow]",
 })

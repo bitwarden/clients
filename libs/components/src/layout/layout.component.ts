@@ -12,6 +12,9 @@ import { SharedModule } from "../shared";
 
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
+/**
+ * Main layout component providing page structure with side navigation and drawer support.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

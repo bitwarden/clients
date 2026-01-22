@@ -13,6 +13,9 @@ import { Observable } from "rxjs";
 
 import { TableDataSource } from "./table-data-source";
 
+/**
+ * Directive for defining the table body template.
+ */
 @Directive({
   selector: "ng-template[body]",
 })
@@ -21,6 +24,9 @@ export class TableBodyDirective {
   constructor(public readonly template: TemplateRef<any>) {}
 }
 
+/**
+ * Table component with support for custom data sources and configurable layouts.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

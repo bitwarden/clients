@@ -2,6 +2,9 @@ import { Directive, OnInit, Optional } from "@angular/core";
 
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
+/**
+ * Directive for adding suffix content to form fields.
+ */
 @Directive({
   selector: "[bitSuffix]",
   host: {

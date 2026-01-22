@@ -26,6 +26,9 @@ const margins: Record<TypographyType, string[]> = {
   helper: [],
 };
 
+/**
+ * Directive for applying typography styles and margins based on the typography type.
+ */
 @Directive({
   selector: "[bitTypography]",
 })

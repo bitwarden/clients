@@ -1,5 +1,8 @@
 import { Directive, HostBinding } from "@angular/core";
 
+/**
+ * Directive for styling table cells with consistent padding.
+ */
 @Directive({
   selector: "th[bitCell], td[bitCell]",
 })

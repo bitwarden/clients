@@ -1,6 +1,9 @@
 import { CdkStep, CdkStepper } from "@angular/cdk/stepper";
 import { Component, input } from "@angular/core";
 
+/**
+ * Individual step component for use within a stepper, extending Angular CDK's CdkStep.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

@@ -50,6 +50,9 @@ const CONTEXT_MENU_POSITIONS: ConnectedPosition[] = [
   },
 ];
 
+/**
+ * Directive that creates a trigger for opening and positioning menu overlays.
+ */
 @Directive({
   selector: "[bitMenuTriggerFor]",
   exportAs: "menuTrigger",

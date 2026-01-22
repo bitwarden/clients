@@ -3,6 +3,9 @@ import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
 import { Component, ElementRef, HostBinding, Input } from "@angular/core";
 
+/**
+ * Individual menu item component with keyboard navigation and focus management support.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

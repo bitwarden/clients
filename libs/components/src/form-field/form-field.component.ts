@@ -22,6 +22,9 @@ import { inputBorderClasses } from "../input/input.directive";
 import { BitErrorComponent } from "./error.component";
 import { BitFormFieldControl } from "./form-field-control";
 
+/**
+ * Container component that manages form field layout with labels, inputs, errors, and hints.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

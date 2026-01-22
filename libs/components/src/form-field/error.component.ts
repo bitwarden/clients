@@ -5,6 +5,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 // Increments for each instance of this component
 let nextId = 0;
 
+/**
+ * Component that displays validation error messages for form fields.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

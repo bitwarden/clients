@@ -6,6 +6,9 @@ import { skip, filter, combineLatestWith, tap } from "rxjs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
+/**
+ * Service that manages focus after SPA route navigation for accessibility.
+ */
 @Injectable({ providedIn: "root" })
 export class RouterFocusManagerService {
   private router = inject(Router);

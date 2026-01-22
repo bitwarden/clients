@@ -46,6 +46,9 @@ class CustomBlockScrollStrategy implements ScrollStrategy {
   detach() {}
 }
 
+/**
+ * Abstract base class for dialog references that provides a consistent interface for both dialogs and drawers.
+ */
 export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
   CdkDialogRef<R, C>,
   "close" | "closed" | "disableClose" | "componentInstance"

@@ -17,6 +17,9 @@ import { ToggleGroupComponent } from "./toggle-group.component";
 
 let nextId = 0;
 
+/**
+ * Individual toggle button component for use within a toggle group.
+ */
 @Component({
   selector: "bit-toggle",
   templateUrl: "./toggle.component.html",

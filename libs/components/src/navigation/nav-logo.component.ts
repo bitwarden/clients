@@ -8,6 +8,9 @@ import { BitIconComponent } from "../icon/icon.component";
 
 import { SideNavService } from "./side-nav.service";
 
+/**
+ * Navigation logo component that displays different icons based on side nav state.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
