@@ -724,7 +724,7 @@ export default class NotificationBackground {
     const ciphersByInputMatchCategory = ciphersForURL.reduce(
       (acc, { id, login }) => {
         const usernameInputMatchesCipher =
-          usernameFieldHasValue && login.username.toLowerCase() === normalizedUsername;
+          usernameFieldHasValue && login.username?.toLowerCase() === normalizedUsername;
         const passwordInputMatchesCipher =
           currentPasswordFieldHasValue && login.password === currentPasswordFieldValue;
         const newPasswordInputMatchesCipher =
