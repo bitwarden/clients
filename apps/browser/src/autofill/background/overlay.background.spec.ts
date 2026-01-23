@@ -1,5 +1,7 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
+import { map } from "rxjs/operators";
+
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -39,6 +41,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
+import { GeneratedCredential } from "@bitwarden/generator-history";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
@@ -83,7 +86,11 @@ import { OverlayBackground } from "./overlay.background";
 
 describe("OverlayBackground", () => {
   const generatedPassword = "generated-password";
-  const generatedPasswordCallbackMock = jest.fn().mockResolvedValue(generatedPassword);
+  const generatedPasswordCallbackMock = jest
+    .fn()
+    .mockImplementation(($on: Observable<any>) =>
+      $on.pipe(map(() => new GeneratedCredential(generatedPassword, "password", new Date()))),
+    );
   const addPasswordCallbackMock = jest.fn();
   const mockUserId = Utils.newGuid() as UserId;
   const sendResponse = jest.fn();
