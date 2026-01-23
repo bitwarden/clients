@@ -77,8 +77,9 @@ export enum FeatureFlag {
 
   /* Desktop */
   DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
-  DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
   DesktopUiMigrationMilestone2 = "desktop-ui-migration-milestone-2",
+  DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
+  DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
@@ -168,8 +169,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
-  [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone2]: FALSE,
+  [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
+  [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,
@@ -186,12 +188,6 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
-  if (flag === FeatureFlag.DesktopUiMigrationMilestone1) {
-    return true;
-  }
-  if (flag === FeatureFlag.DesktopUiMigrationMilestone3) {
-    return true;
-  }
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
   }

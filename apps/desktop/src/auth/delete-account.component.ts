@@ -50,9 +50,9 @@ export class DeleteAccountComponent implements OnInit {
   protected invalidSecret = false;
 
   /**
-   * Feature flag for UI Migration Milestone 3
+   * Feature flag for UI Migration Milestone 4
    */
-  protected migrationMilestone3 = false;
+  protected migrationMilestone4 = false;
 
   constructor(
     private i18nService: I18nService,
@@ -63,8 +63,8 @@ export class DeleteAccountComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.migrationMilestone3 = await this.configService.getFeatureFlag(
-      FeatureFlag.DesktopUiMigrationMilestone3,
+    this.migrationMilestone4 = await this.configService.getFeatureFlag(
+      FeatureFlag.DesktopUiMigrationMilestone4,
     );
   }
 
@@ -78,8 +78,8 @@ export class DeleteAccountComponent implements OnInit {
 
   submit = async () => {
     try {
-      if (this.migrationMilestone3) {
-        this.invalidSecret = false; // Reset error state before attempting
+      if (this.migrationMilestone4) {
+        this.invalidSecret = false;
       }
       const verification = this.deleteForm.get("verification").value;
       await this.accountApiService.deleteAccount(verification);
@@ -89,7 +89,7 @@ export class DeleteAccountComponent implements OnInit {
         message: this.i18nService.t("accountDeletedDesc"),
       });
     } catch {
-      if (this.migrationMilestone3) {
+      if (this.migrationMilestone4) {
         this.invalidSecret = true;
       }
     }
