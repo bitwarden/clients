@@ -19,8 +19,9 @@
     </span>
     <div bitDialogContent>
       <div *ngIf="data?.orgDomain && !data?.orgDomain?.verifiedDate" class="tw-space-y-2 tw-pb-4">
+        <p bitTypography="body1">{{ "automaticDomainClaimProcess1" | i18n }}</p>
         <p bitTypography="body1">
-          {{ "automaticDomainClaimProcessPart1" | i18n }}
+          {{ "automaticDomainClaimProcess2" | i18n }}
           <a
             bitLink
             target="_blank"
@@ -31,10 +32,8 @@
             {{ "accountOwnershipChange" | i18n }}
             <i class="bwi bwi-external-link tw-text-xs" aria-hidden="true"></i>
           </a>
-          {{ "automaticDomainClaimProcessPart1End" | i18n }}
+          {{ "automaticDomainClaimProcessEnd" | i18n }}
         </p>
-        <p bitTypography="body1">{{ "automaticDomainClaimProcessPart2" | i18n }}</p>
-        <p bitTypography="body1">{{ "automaticDomainClaimProcessPart3" | i18n }}</p>
       </div>
       <bit-form-field>
         <bit-label>{{ "domainName" | i18n }}</bit-label>
