@@ -67,7 +67,7 @@ export class SessionKeyResolveService {
       "ephemeral",
       "bitwarden-ephemeral",
     );
-    await sessionStorage.save("session-key", derivedKey.toJSON());
+    await this.storageService.save("session-key", derivedKey.toJSON());
     return derivedKey;
   }
 }
