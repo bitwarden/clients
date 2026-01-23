@@ -94,7 +94,7 @@
           <button
             bit-item-content
             type="button"
-            (click)="primaryActionOnSelect(cipher)"
+            (click)="onCipherSelect(cipher)"
             (dblclick)="launchCipher(cipher)"
             [appA11yTitle]="
               cipherItemTitleKey()(cipher)
@@ -125,14 +125,14 @@
           </button>
 
           <ng-container slot="end">
-            <bit-item-action *ngIf="!hideAutofillButton()">
+            <bit-item-action *ngIf="isAutofillList()">
               <span
                 class="tw-opacity-0 tw-text-sm tw-text-primary-600 tw-px-2 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100"
               >
                 {{ "fill" | i18n }}
               </span>
             </bit-item-action>
-            <bit-item-action *ngIf="!showAutofillButton() && CipherViewLikeUtils.canLaunch(cipher)">
+            <bit-item-action *ngIf="!isAutofillList() && CipherViewLikeUtils.canLaunch(cipher)">
               <button
                 type="button"
                 bitIconButton="bwi-external-link"
@@ -144,7 +144,7 @@
             <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
             <app-item-more-options
               [cipher]="cipher"
-              [hideAutofillOptions]="hideAutofillMenuOptions()"
+              [showAutofill]="!isAutofillList()"
             ></app-item-more-options>
           </ng-container>
         </bit-item>
