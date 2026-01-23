@@ -2060,12 +2060,15 @@ export default class MainBackground {
     );
   };
 
-  generatePasswordToClipboard = async () => {
-    const { credential: password } = await firstValueFrom(
-      this.yieldGeneratedPassword(of({ source: "clipboard", type: Type.password })),
+  generatePasswordToClipboard = () => {
+    return this.yieldGeneratedPassword(of({ source: "clipboard", type: Type.password })).pipe(
+      concatMap(async (generated) => {
+        this.platformUtilsService.copyToClipboard(generated.credential);
+        await this.addPasswordToHistory(generated.credential);
+
+        return generated.credential;
+      }),
     );
-    this.platformUtilsService.copyToClipboard(password);
-    await this.addPasswordToHistory(password);
   };
 
   addPasswordToHistory = async (password: string) => {

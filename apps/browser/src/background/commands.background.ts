@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { LockService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -26,7 +26,7 @@ export default class CommandsBackground {
     private main: MainBackground,
     private platformUtilsService: PlatformUtilsService,
     private authService: AuthService,
-    private generatePasswordToClipboard: () => Promise<void>,
+    private generatePasswordToClipboard: () => Observable<string>,
     private accountService: AccountService,
     private lockService: LockService,
   ) {
@@ -53,8 +53,8 @@ export default class CommandsBackground {
 
   private async processCommand(command: string, sender?: chrome.runtime.MessageSender) {
     switch (command) {
-      case "generate_password":
-        await this.generatePasswordToClipboard();
+      case ExtensionCommand.GeneratePassword:
+        this.generatePasswordToClipboard();
         break;
       case ExtensionCommand.AutofillLogin:
         await this.triggerAutofillCommand(
@@ -74,10 +74,10 @@ export default class CommandsBackground {
           ExtensionCommand.AutofillIdentity,
         );
         break;
-      case "open_popup":
+      case ExtensionCommand.OpenPopup:
         await this.openPopup();
         break;
-      case "lock_vault": {
+      case ExtensionCommand.LockVault: {
         const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         await this.lockService.lock(activeUserId);
         break;
