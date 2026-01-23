@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Restaurar selecionados"
   },
+  "archivedItemRestored": {
+    "message": "Item arquivado restaurado"
+  },
+  "archivedItemsRestored": {
+    "message": "Itens arquivados restaurados"
+  },
   "restoredItem": {
     "message": "Item restaurado"
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralizar propriedade da organização"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Todos os itens dos membros serão propriedade e gerenciados pela organização. Os administradores e proprietários estão isentos. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Saiba mais sobre a propriedade centralizada",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Benefícios"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Tenha visibilidade total na saúde das credenciais, incluindo itens compartilhados ou não."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Transfira itens com facilidade na remoção de um membro, garantindo que não haverão problemas com o acesso."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Dê a todos os usuários um espaço dedicado de \"Meus itens\" para que gerenciem suas próprias credenciais."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Solicitar transferência dos itens dos membros"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Se os membros tiverem itens no seu cofre individual, eles terão que transferi-los para a organização ou sair. Se saírem, seu acesso será revogado mas pode ser restaurado a qualquer momento."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Saiba mais sobre a transferência"
   },
   "organizationDataOwnership": {
     "message": "Aplicar propriedade de dados da organização"
@@ -11701,8 +11738,8 @@
     "message": "Arquivar item",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Itens arquivados são excluídos dos resultados gerais de busca e das sugestões de preenchimento automático. Tem certeza de que deseja arquivar este item?"
+  "archiveItemDialogContent": {
+    "message": "Ao arquivar, o item será excluído dos resultados de busca e sugestões de preenchimento automático."
   },
   "archiveBulkItems": {
     "message": "Arquivar itens",
