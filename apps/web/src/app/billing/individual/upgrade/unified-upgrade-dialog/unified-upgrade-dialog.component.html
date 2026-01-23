@@ -1,15 +1,31 @@
 @if (step() == PlanSelectionStep) {
-  <app-upgrade-account
-    [dialogTitleMessageOverride]="planSelectionStepTitleOverride()"
-    [hideContinueWithoutUpgradingButton]="hideContinueWithoutUpgradingButton()"
-    (planSelected)="onPlanSelected($event)"
-    (closeClicked)="onCloseClicked()"
-  />
+  @if (hasPremiumPersonally()) {
+    <app-premium-org-upgrade
+      (planSelected)="onPlanSelected($event)"
+      (closeClicked)="onCloseClicked()"
+    />
+  } @else {
+    <app-upgrade-account
+      [dialogTitleMessageOverride]="planSelectionStepTitleOverride()"
+      [hideContinueWithoutUpgradingButton]="hideContinueWithoutUpgradingButton()"
+      (planSelected)="onPlanSelected($event)"
+      (closeClicked)="onCloseClicked()"
+    />
+  }
 } @else if (step() == PaymentStep && selectedPlan() !== null && account() !== null) {
-  <app-upgrade-payment
-    [selectedPlanId]="selectedPlan()"
-    [account]="account()"
-    (goBack)="previousStep()"
-    (complete)="onComplete($event)"
-  />
+  @if (hasPremiumPersonally()) {
+    <app-premium-org-upgrade-payment
+      [selectedPlanId]="selectedPlan()"
+      [account]="account()"
+      (goBack)="previousStep()"
+      (complete)="onComplete($event)"
+    />
+  } @else {
+    <app-upgrade-payment
+      [selectedPlanId]="selectedPersonalPlanId()"
+      [account]="account()"
+      (goBack)="previousStep()"
+      (complete)="onComplete($event)"
+    />
+  }
 }
