@@ -6,6 +6,9 @@ import { DialogService } from "./dialog.service";
 import { DialogCloseDirective } from "./directives/dialog-close.directive";
 import { IconDirective, SimpleDialogComponent } from "./simple-dialog/simple-dialog.component";
 
+/**
+ * Module providing dialog components and services for modal interactions.
+ */
 @NgModule({
   imports: [
     CdkDialogModule,

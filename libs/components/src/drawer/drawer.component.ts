@@ -39,9 +39,9 @@ export class DrawerComponent {
    * The ARIA role of the drawer.
    *
    * - [complementary](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/complementary_role)
-   *    - For drawers that contain content that is complementary to the page's main content. (default)
+   * - For drawers that contain content that is complementary to the page's main content. (default)
    * - [navigation](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/navigation_role)
-   *    - For drawers that primary contain links to other content.
+   * - For drawers that primary contain links to other content.
    */
   readonly role = input<"complementary" | "navigation">("complementary");
 

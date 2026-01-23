@@ -8,7 +8,6 @@ import { AnonLayoutWrapperData } from "./anon-layout-wrapper.component";
  */
 export abstract class AnonLayoutWrapperDataService {
   /**
-   *
    * @param data - The data to set on the AnonLayoutWrapperComponent to feed into the AnonLayoutComponent.
    */
   abstract setAnonLayoutWrapperData(data: Partial<AnonLayoutWrapperData>): void;

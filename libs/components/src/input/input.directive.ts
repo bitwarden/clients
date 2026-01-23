@@ -27,6 +27,9 @@ export function inputBorderClasses(error: boolean) {
   ];
 }
 
+/**
+ * Directive for styling form inputs, selects, and textareas with consistent design system appearance.
+ */
 @Directive({
   selector: "input[bitInput], select[bitInput], textarea[bitInput]",
   providers: [{ provide: BitFormFieldControl, useExisting: BitInputDirective }],

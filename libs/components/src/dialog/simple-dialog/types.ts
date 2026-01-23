@@ -5,7 +5,6 @@ export interface Translation {
 
 // Using type lets devs skip optional params w/out having to pass undefined.
 /**
- *
  * @typedef {Object} SimpleDialogOptions - A configuration type for the Simple Dialog component
  */
 export type SimpleDialogOptions = {

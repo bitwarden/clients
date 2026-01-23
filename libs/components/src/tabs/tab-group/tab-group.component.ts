@@ -27,6 +27,9 @@ import { TabComponent } from "./tab.component";
 /** Used to generate unique ID's for each tab component */
 let nextId = 0;
 
+/**
+ * Tab group component that manages multiple tabs with keyboard navigation and accessibility.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

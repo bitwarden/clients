@@ -8,6 +8,9 @@ import {
 
 import { ItemActionComponent } from "./item-action.component";
 
+/**
+ * List item component with support for hover states and focus-visible styling.
+ */
 @Component({
   selector: "bit-item",
   imports: [ItemActionComponent],

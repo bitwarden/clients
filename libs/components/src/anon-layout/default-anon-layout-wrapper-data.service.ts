@@ -3,6 +3,9 @@ import { Observable, Subject } from "rxjs";
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
 import { AnonLayoutWrapperData } from "./anon-layout-wrapper.component";
 
+/**
+ * Default implementation for managing anonymous layout wrapper data.
+ */
 export class DefaultAnonLayoutWrapperDataService implements AnonLayoutWrapperDataService {
   protected anonLayoutWrapperDataSubject = new Subject<Partial<AnonLayoutWrapperData>>();
 

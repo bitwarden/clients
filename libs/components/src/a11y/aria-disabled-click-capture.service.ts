@@ -1,5 +1,8 @@
 import { Injectable, Inject, NgZone, OnDestroy, DOCUMENT } from "@angular/core";
 
+/**
+ * Service that captures and prevents clicks on elements marked with aria-disabled.
+ */
 @Injectable({ providedIn: "root" })
 export class AriaDisabledClickCaptureService implements OnDestroy {
   private listener!: (e: MouseEvent | KeyboardEvent) => void;

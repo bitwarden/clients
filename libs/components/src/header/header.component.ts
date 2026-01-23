@@ -2,6 +2,9 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { TypographyDirective } from "../typography/typography.directive";
 
+/**
+ * Header component that displays a page title with an optional icon.
+ */
 @Component({
   selector: "bit-header",
   templateUrl: "./header.component.html",

@@ -2,6 +2,9 @@ import { Directive, effect, ElementRef, input } from "@angular/core";
 
 import { setA11yTitleAndAriaLabel } from "./set-a11y-title-and-aria-label";
 
+/**
+ * Directive that applies accessibility title and aria-label attributes to elements.
+ */
 @Directive({
   selector: "[appA11yTitle]",
 })

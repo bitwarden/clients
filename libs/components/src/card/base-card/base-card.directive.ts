@@ -1,5 +1,8 @@
 import { Directive } from "@angular/core";
 
+/**
+ * Directive that applies standard card styling with border, shadow, and rounded corners.
+ */
 @Directive({
   host: {
     class:

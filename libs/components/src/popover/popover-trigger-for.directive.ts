@@ -15,6 +15,9 @@ import { Observable, Subscription, filter, mergeWith } from "rxjs";
 import { defaultPositions } from "./default-positions";
 import { PopoverComponent } from "./popover.component";
 
+/**
+ * Directive that creates a trigger for opening and positioning popover overlays.
+ */
 @Directive({
   selector: "[bitPopoverTriggerFor]",
   exportAs: "popoverTrigger",

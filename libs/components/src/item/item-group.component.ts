@@ -1,5 +1,8 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
+/**
+ * Container component for grouping multiple items together.
+ */
 @Component({
   selector: "bit-item-group",
   imports: [],

@@ -2,6 +2,9 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { BaseCardDirective } from "./base-card/base-card.directive";
 
+/**
+ * Card container component with responsive padding.
+ */
 @Component({
   selector: "bit-card",
   template: `<ng-content></ng-content>`,

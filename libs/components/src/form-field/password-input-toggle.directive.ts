@@ -16,6 +16,9 @@ import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
 import { BitFormFieldComponent } from "./form-field.component";
 
+/**
+ * Directive for toggling password visibility in password input fields.
+ */
 @Directive({
   selector: "[bitPasswordInputToggle]",
   host: {

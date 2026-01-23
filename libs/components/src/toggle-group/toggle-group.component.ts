@@ -9,6 +9,9 @@ import {
 
 let nextId = 0;
 
+/**
+ * Toggle group component that manages a set of toggle buttons with radio group behavior.
+ */
 @Component({
   selector: "bit-toggle-group",
   templateUrl: "./toggle-group.component.html",

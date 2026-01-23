@@ -8,6 +8,9 @@ import { SortableComponent } from "./sortable.component";
 import { BitRowDefDirective, TableScrollComponent } from "./table-scroll.component";
 import { TableBodyDirective, TableComponent } from "./table.component";
 
+/**
+ * Module providing table components for displaying structured data with sorting and virtual scrolling.
+ */
 @NgModule({
   imports: [
     CommonModule,

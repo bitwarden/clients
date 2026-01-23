@@ -10,6 +10,7 @@ import eslintPluginTailwindCSS from "eslint-plugin-tailwindcss";
 import rxjs from "eslint-plugin-rxjs";
 import angularRxjs from "eslint-plugin-rxjs-angular";
 import storybook from "eslint-plugin-storybook";
+import jsdoc from "eslint-plugin-jsdoc";
 
 import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
@@ -170,6 +171,41 @@ export default tseslint.config(
         },
       ],
       "import/no-unresolved": "off", // TODO: Look into turning off once each package is an actual package.,
+    },
+  },
+  // JSDoc requirements for components library
+  {
+    files: ["libs/components/src/**/*.ts"],
+    ignores: ["**/*.spec.ts", "**/*.stories.ts", "**/stories/**/*.ts", "**/kitchen-sink/**/*.ts"],
+    plugins: {
+      jsdoc: jsdoc,
+    },
+    rules: {
+      // Require JSDoc comments on exported classes
+      "jsdoc/require-jsdoc": [
+        "error",
+        {
+          require: {
+            ClassDeclaration: true,
+            MethodDefinition: false,
+            FunctionDeclaration: false,
+          },
+          contexts: ["ExportNamedDeclaration > ClassDeclaration"],
+          enableFixer: false,
+        },
+      ],
+      // Require description in JSDoc
+      "jsdoc/require-description": [
+        "error",
+        {
+          contexts: ["ClassDeclaration"],
+        },
+      ],
+      // Check JSDoc formatting
+      "jsdoc/check-alignment": "error",
+      "jsdoc/check-indentation": "warn",
+      "jsdoc/no-blank-block-descriptions": "error",
+      "jsdoc/require-asterisk-prefix": "error",
     },
   },
   {

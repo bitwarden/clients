@@ -83,18 +83,21 @@ const commonStyles = [
   "aria-disabled:hover:tw-no-underline",
 ];
 
+/**
+ * Base directive for link styling.
+ */
 @Directive()
 abstract class LinkDirective {
   readonly linkType = input<LinkType>("default");
 }
 
 /**
-  * Text Links and Buttons can use either the `<a>` or `<button>` tags. Choose which based on the action the button takes:
-
-  * - if navigating to a new page, use a `<a>`
-  * - if taking an action on the current page, use a `<button>`
-
-  * Text buttons or links are most commonly used in paragraphs of text or in forms to customize actions or show/hide additional form options.
+ * Text Links and Buttons can use either the `<a>` or `<button>` tags. Choose which based on the action the button takes:
+ *
+ * - if navigating to a new page, use a `<a>`
+ * - if taking an action on the current page, use a `<button>`
+ *
+ * Text buttons or links are most commonly used in paragraphs of text or in forms to customize actions or show/hide additional form options.
  */
 @Directive({
   selector: "a[bitLink]",
@@ -107,6 +110,9 @@ export class AnchorLinkDirective extends LinkDirective {
   }
 }
 
+/**
+ * Directive for styling button elements as links with support for disabled state.
+ */
 @Directive({
   selector: "button[bitLink]",
   hostDirectives: [AriaDisableDirective],

@@ -7,6 +7,9 @@ import {
   KeyDefinition,
 } from "@bitwarden/state";
 
+/**
+ * Mock implementation of GlobalState for Storybook stories.
+ */
 export class StorybookGlobalState<T> implements GlobalState<T> {
   private _state$ = new BehaviorSubject<T | null>(null);
 
@@ -33,6 +36,9 @@ export class StorybookGlobalState<T> implements GlobalState<T> {
   }
 }
 
+/**
+ * Mock implementation of GlobalStateProvider for Storybook stories.
+ */
 export class StorybookGlobalStateProvider implements GlobalStateProvider {
   private states = new Map<string, StorybookGlobalState<any>>();
 

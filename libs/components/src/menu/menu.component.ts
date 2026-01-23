@@ -12,6 +12,9 @@ import {
 
 import { MenuItemComponent } from "./menu-item.component";
 
+/**
+ * Menu component container with keyboard navigation and accessibility support.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

@@ -8,6 +8,9 @@ import { TabComponent } from "./tab-group/tab.component";
 import { TabLinkComponent } from "./tab-nav-bar/tab-link.component";
 import { TabNavBarComponent } from "./tab-nav-bar/tab-nav-bar.component";
 
+/**
+ * Module providing tab components for organizing content into switchable panels.
+ */
 @NgModule({
   imports: [
     CommonModule,

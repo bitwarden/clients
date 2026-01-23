@@ -1,5 +1,8 @@
 import { Directive, ElementRef, EventEmitter, Output, OnDestroy } from "@angular/core";
 
+/**
+ * Directive that observes element resize events using the ResizeObserver API.
+ */
 @Directive({
   selector: "[resizeObserver]",
   standalone: true,

@@ -11,6 +11,9 @@ import {
 
 import { TabLabelDirective } from "./tab-label.directive";
 
+/**
+ * Individual tab component that renders a tab panel within a tab group.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

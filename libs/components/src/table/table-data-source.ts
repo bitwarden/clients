@@ -12,6 +12,9 @@ export type Sort = {
 
 export type FilterFn<T> = (data: T) => boolean;
 
+/**
+ * Data source for tables with built-in sorting and filtering capabilities.
+ */
 // Loosely based on CDK TableDataSource
 //  https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
 export class TableDataSource<T> extends DataSource<T> {

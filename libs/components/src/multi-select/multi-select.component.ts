@@ -34,6 +34,9 @@ import { SelectItemView } from "./models/select-item-view";
 // Increments for each instance of this component
 let nextId = 0;
 
+/**
+ * Multi-select dropdown component with search and item management capabilities.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -52,9 +55,6 @@ let nextId = 0;
     "[id]": "this.id()",
   },
 })
-/**
- * This component has been implemented to only support Multi-select list events
- */
 export class MultiSelectComponent implements OnInit, BitFormFieldControl, ControlValueAccessor {
   readonly select = viewChild.required(NgSelectComponent);
 

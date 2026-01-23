@@ -12,6 +12,9 @@ export type InputTypes =
   | "date"
   | "time";
 
+/**
+ * Abstract class defining the interface for form field control elements.
+ */
 export abstract class BitFormFieldControl {
   abstract ariaDescribedBy?: string;
   abstract id: Signal<string>;

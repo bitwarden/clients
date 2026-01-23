@@ -1,5 +1,8 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+/**
+ * Mock implementation of I18nService for testing and storybook purposes.
+ */
 export class I18nMockService implements Pick<I18nService, "t" | "translate"> {
   constructor(
     private lookupTable: Record<string, string | ((...args: (string | undefined)[]) => string)>,

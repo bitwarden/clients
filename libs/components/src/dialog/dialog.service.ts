@@ -27,6 +27,9 @@ import { SimpleDialogOptions } from "./simple-dialog/types";
  *
  * https://github.com/angular/components/issues/7390
  */
+/**
+ * Custom scroll strategy that blocks body scrolling for dialogs with virtual scrolling support.
+ */
 class CustomBlockScrollStrategy implements ScrollStrategy {
   enable() {
     document.body.classList.add("tw-overflow-hidden");
@@ -43,6 +46,9 @@ class CustomBlockScrollStrategy implements ScrollStrategy {
   detach() {}
 }
 
+/**
+ * Abstract base class for dialog references that provides a consistent interface for both dialogs and drawers.
+ */
 export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
   CdkDialogRef<R, C>,
   "close" | "closed" | "disableClose" | "componentInstance"
@@ -127,6 +133,9 @@ export class CenterPositionStrategy extends GlobalPositionStrategy {
   }
 }
 
+/**
+ * Dialog reference implementation for drawer-style dialogs.
+ */
 class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = true;
 
@@ -183,6 +192,9 @@ export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   }
 }
 
+/**
+ * Service for opening and managing modal dialogs and drawer panels.
+ */
 @Injectable()
 export class DialogService {
   private dialog = inject(CdkDialog);

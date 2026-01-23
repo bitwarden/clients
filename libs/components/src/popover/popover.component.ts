@@ -5,6 +5,9 @@ import { IconButtonModule } from "../icon-button/icon-button.module";
 import { SharedModule } from "../shared/shared.module";
 import { TypographyModule } from "../typography";
 
+/**
+ * Popover component for displaying overlay content with an optional title and close button.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

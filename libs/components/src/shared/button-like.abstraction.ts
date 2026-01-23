@@ -4,6 +4,9 @@ export type ButtonType = "primary" | "secondary" | "danger" | "dangerPrimary" | 
 
 export type ButtonSize = "default" | "small";
 
+/**
+ * Abstract class defining the common interface for button-like components.
+ */
 export abstract class ButtonLikeAbstraction {
   abstract loading: ModelSignal<boolean>;
   abstract disabled: ModelSignal<boolean>;

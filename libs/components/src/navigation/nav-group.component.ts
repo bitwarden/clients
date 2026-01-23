@@ -22,6 +22,9 @@ import { NavBaseComponent } from "./nav-base.component";
 import { NavGroupAbstraction, NavItemComponent } from "./nav-item.component";
 import { SideNavService } from "./side-nav.service";
 
+/**
+ * Navigation group component with collapsible functionality and nested navigation support.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

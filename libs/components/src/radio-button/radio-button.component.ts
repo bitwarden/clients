@@ -7,6 +7,9 @@ import { RadioInputComponent } from "./radio-input.component";
 
 let nextId = 0;
 
+/**
+ * Radio button component that integrates with a parent radio group for single-choice selection.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
