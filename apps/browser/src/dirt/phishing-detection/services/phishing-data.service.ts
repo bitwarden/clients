@@ -13,6 +13,7 @@ import {
   of,
   retry,
   share,
+  takeUntil,
   startWith,
   Subject,
   switchMap,
@@ -77,6 +78,11 @@ export const PHISHING_DOMAINS_BLOB_KEY = new KeyDefinition<string>(
 
 /** Coordinates fetching, caching, and patching of known phishing web addresses */
 export class PhishingDataService {
+  // While background scripts do not necessarily need destroying,
+  // processes in PhishingDataService are memory intensive.
+  // We are adding the destroy to guard against accidental leaks.
+  private _destroy$ = new Subject<void>();
+
   private _testWebAddresses = this.getTestWebAddresses().concat("phishing.testcategory.com"); // Included for QA to test in prod
   private _phishingMetaState = this.globalStateProvider.get(PHISHING_DOMAINS_META_KEY);
 
@@ -103,6 +109,7 @@ export class PhishingDataService {
         }),
       ),
     ),
+    takeUntil(this._destroy$),
     share(),
   );
 
@@ -128,8 +135,15 @@ export class PhishingDataService {
         exhaustMap((currentMeta) => {
           return this._backgroundUpdate(currentMeta);
         }),
+        takeUntil(this._destroy$),
       )
       .subscribe();
+  }
+
+  dispose(): void {
+    // Signal all pipelines to stop and unsubscribe stored subscriptions
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 
   /**

@@ -34,7 +34,7 @@
 		<string>/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/Vivaldi/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/Zen/NativeMessagingHosts/</string>
-		<string>/Library/Application Support/net.imput.helium</string>
+		<string>/Library/Application Support/net.imput.helium/NativeMessagingHosts/</string>
 	</array>
 </dict>
 </plist>

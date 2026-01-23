@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "உருப்படியைக் காப்பகப்படுத்து"
   },
-  "archiveItemConfirmDesc": {
-    "message": "காப்பகப்படுத்தப்பட்ட உருப்படிகள் பொதுவான தேடல் முடிவுகள் மற்றும் தானியங்குநிரப்பு பரிந்துரைகளிலிருந்து விலக்கப்பட்டுள்ளன. இந்த உருப்படியை காப்பகப்படுத்த விரும்புகிறீர்களா?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "பொருள் நிரந்தரமாக நீக்கப்பட்டது"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "பொருளை மீட்டமை"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "மேலும் விருப்பத்தேர்வுகள் - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "பொருத்தமான கண்டறிதலை மறை $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "பக்கத்தை ஏற்றும்போது தானாக நிரப்ப வேண்டுமா?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "அதிக அகலமானது"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "நீங்கள் உள்ளிடப்பட்ட கடவுச்சொல் தவறானது."
