@@ -61,7 +61,7 @@
     "@storybook/addon-links": "9.1.16",
     "@storybook/addon-themes": "9.1.16",
     "@storybook/angular": "9.1.16",
-    "@storybook/test-runner": "0.22.0",
+    "@storybook/test-runner": "0.24.2",
     "@storybook/web-components-vite": "9.1.16",
     "@tailwindcss/container-queries": "0.1.1",
     "@types/chrome": "0.1.28",
