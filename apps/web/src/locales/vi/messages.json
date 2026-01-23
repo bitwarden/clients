@@ -1973,11 +1973,11 @@
     "message": "Khóa mã hóa tài khoản là duy nhất cho mỗi tài khoản Bitwarden, vì vậy bạn không thể nhập tệp xuất được mã hóa vào một tài khoản khác."
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Xuất",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Xuất",
     "description": "The verb form of the word Export"
   },
   "exportFrom": {
@@ -2306,11 +2306,11 @@
     "message": "Công cụ"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Nhập",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Nhập",
     "description": "The verb form of the word Import"
   },
   "importData": {
@@ -2541,7 +2541,7 @@
     "message": "Kích hoạt"
   },
   "optionEnabled": {
-    "message": "Enabled"
+    "message": "Kích hoạt"
   },
   "restoreAccess": {
     "message": "Khôi phục quyền truy cập"
@@ -3153,7 +3153,7 @@
     "message": "Để lấy lại quyền truy cập vào lưu trữ của bạn, hãy khởi động lại gói đăng ký Cao cấp. Nếu bạn chỉnh sửa chi tiết cho một mục đã lưu trữ trước khi khởi động lại, mục đó sẽ được chuyển trở lại kho của bạn."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Mục đã được khôi phục"
   },
   "restartPremium": {
     "message": "Khởi động lại gói Cao cấp"
@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Khôi phục những mục đã chọn"
   },
+  "archivedItemRestored": {
+    "message": "Mục lưu trữ đã được khôi phục"
+  },
+  "archivedItemsRestored": {
+    "message": "Mục lưu trữ đã được khôi phục"
+  },
   "restoredItem": {
     "message": "Mục đã được khôi phục"
   },
@@ -5617,7 +5623,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedSuccessfully": {
-    "message": "Send created successfully!",
+    "message": "Đã tạo Send thành công!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescription": {
@@ -5640,11 +5646,11 @@
     }
   },
   "newTextSend": {
-    "message": "New Text Send",
+    "message": "Send văn bản mới",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newFileSend": {
-    "message": "New File Send",
+    "message": "Send tập tin mới",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -5687,7 +5693,7 @@
     "message": "Đã thu hồi"
   },
   "accepted": {
-    "message": "Accepted"
+    "message": "Đã chấp nhận"
   },
   "sendLink": {
     "message": "Liên kết Send",
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Lợi ích"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Thực thi quyền sở hữu dữ liệu của tổ chức"
@@ -11621,10 +11658,10 @@
     "message": "Mục đăng nhập này có nguy cơ bị lộ và thiếu trang web. Thêm trang web và thay đổi mật khẩu để tăng cường bảo mật."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Mật khẩu dễ bị tấn công."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Thay đổi ngay"
   },
   "missingWebsite": {
     "message": "Thiếu trang web"
@@ -11665,10 +11702,10 @@
     "message": "Hủy lưu trữ"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Đã lưu trữ"
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Bỏ lưu trữ và lưu"
   },
   "itemsInArchive": {
     "message": "Các mục trong kho lưu trữ"
@@ -11686,7 +11723,7 @@
     "message": "Các mục đã được chuyển vào lưu trữ"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Mục đã được bỏ lưu trữ"
   },
   "itemUnarchived": {
     "message": "Mục đã được bỏ lưu trữ"
@@ -11701,8 +11738,8 @@
     "message": "Lưu trữ mục",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  "archiveItemDialogContent": {
+    "message": "Khi đã lưu trữ, mục này sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
   "archiveBulkItems": {
     "message": "Lưu trữ các mục",
@@ -12315,40 +12352,40 @@
     }
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "Tổ chức của bạn không còn sử dụng mật khẩu chính để đăng nhập vào Bitwarden. Để tiếp tục, hãy xác minh tổ chức và tên miền."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Tiếp tục đăng nhập"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Không tiếp tục"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Tên miền"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Tên miền này sẽ lưu trữ các khóa mã hóa tài khoản của bạn, vì vậy hãy đảm bảo bạn tin tưởng nó. Nếu bạn không chắc chắn, hãy kiểm tra với quản trị viên của bạn."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Xác minh tổ chức của bạn để đăng nhập"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Tổ chức đã được xác minh"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Tên miền đã được xác minh"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Nếu bạn không xác minh tổ chức của mình, quyền truy cập vào tổ chức sẽ bị thu hồi."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Rời khỏi ngay"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Xác minh tên miền của bạn để đăng nhập"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Để tiếp tục đăng nhập, hãy xác minh tên miền này."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
     "message": "To continue with log in, verify the organization and domain."
