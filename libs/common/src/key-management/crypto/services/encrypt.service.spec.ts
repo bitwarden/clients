@@ -163,7 +163,7 @@ describe("EncryptService", () => {
   describe("decryptString", () => {
     it("is a proxy to PureCrypto", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString("encrypted_string");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "encrypted_string");
       const result = await encryptService.decryptString(encString, key);
       expect(result).toEqual("decrypted_string");
       expect(PureCrypto.symmetric_decrypt_string).toHaveBeenCalledWith(
@@ -172,8 +172,7 @@ describe("EncryptService", () => {
       );
     });
 
-    it("throws if disableType0Decryption is enabled and type is AesCbc256_B64", async () => {
-      encryptService.setDisableType0Decryption(true);
+    it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const encString = new EncString(EncryptionType.AesCbc256_B64, "encrypted_string");
       await expect(encryptService.decryptString(encString, key)).rejects.toThrow(
@@ -185,7 +184,7 @@ describe("EncryptService", () => {
   describe("decryptBytes", () => {
     it("is a proxy to PureCrypto", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString("encrypted_bytes");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "encrypted_bytes");
       const result = await encryptService.decryptBytes(encString, key);
       expect(result).toEqual(new Uint8Array(3));
       expect(PureCrypto.symmetric_decrypt_bytes).toHaveBeenCalledWith(
@@ -194,8 +193,7 @@ describe("EncryptService", () => {
       );
     });
 
-    it("throws if disableType0Decryption is enabled and type is AesCbc256_B64", async () => {
-      encryptService.setDisableType0Decryption(true);
+    it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const encString = new EncString(EncryptionType.AesCbc256_B64, "encrypted_bytes");
       await expect(encryptService.decryptBytes(encString, key)).rejects.toThrow(
@@ -216,8 +214,7 @@ describe("EncryptService", () => {
       );
     });
 
-    it("throws if disableType0Decryption is enabled and type is AesCbc256_B64", async () => {
-      encryptService.setDisableType0Decryption(true);
+    it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const encBuffer = EncArrayBuffer.fromParts(
         EncryptionType.AesCbc256_B64,
@@ -234,7 +231,10 @@ describe("EncryptService", () => {
   describe("unwrapDecapsulationKey", () => {
     it("is a proxy to PureCrypto", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString("wrapped_decapsulation_key");
+      const encString = new EncString(
+        EncryptionType.AesCbc256_HmacSha256_B64,
+        "wrapped_decapsulation_key",
+      );
       const result = await encryptService.unwrapDecapsulationKey(encString, key);
       expect(result).toEqual(new Uint8Array(4));
       expect(PureCrypto.unwrap_decapsulation_key).toHaveBeenCalledWith(
@@ -242,8 +242,7 @@ describe("EncryptService", () => {
         key.toEncoded(),
       );
     });
-    it("throws if disableType0Decryption is enabled and type is AesCbc256_B64", async () => {
-      encryptService.setDisableType0Decryption(true);
+    it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const encString = new EncString(EncryptionType.AesCbc256_B64, "wrapped_decapsulation_key");
       await expect(encryptService.unwrapDecapsulationKey(encString, key)).rejects.toThrow(
@@ -267,7 +266,10 @@ describe("EncryptService", () => {
   describe("unwrapEncapsulationKey", () => {
     it("is a proxy to PureCrypto", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString("wrapped_encapsulation_key");
+      const encString = new EncString(
+        EncryptionType.AesCbc256_HmacSha256_B64,
+        "wrapped_encapsulation_key",
+      );
       const result = await encryptService.unwrapEncapsulationKey(encString, key);
       expect(result).toEqual(new Uint8Array(5));
       expect(PureCrypto.unwrap_encapsulation_key).toHaveBeenCalledWith(
@@ -275,8 +277,7 @@ describe("EncryptService", () => {
         key.toEncoded(),
       );
     });
-    it("throws if disableType0Decryption is enabled and type is AesCbc256_B64", async () => {
-      encryptService.setDisableType0Decryption(true);
+    it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const encString = new EncString(EncryptionType.AesCbc256_B64, "wrapped_encapsulation_key");
       await expect(encryptService.unwrapEncapsulationKey(encString, key)).rejects.toThrow(
@@ -300,7 +301,10 @@ describe("EncryptService", () => {
   describe("unwrapSymmetricKey", () => {
     it("is a proxy to PureCrypto", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString("wrapped_symmetric_key");
+      const encString = new EncString(
+        EncryptionType.AesCbc256_HmacSha256_B64,
+        "wrapped_symmetric_key",
+      );
       const result = await encryptService.unwrapSymmetricKey(encString, key);
       expect(result).toEqual(new SymmetricCryptoKey(new Uint8Array(64)));
       expect(PureCrypto.unwrap_symmetric_key).toHaveBeenCalledWith(
@@ -308,8 +312,7 @@ describe("EncryptService", () => {
         key.toEncoded(),
       );
     });
-    it("throws if disableType0Decryption is enabled and type is AesCbc256_B64", async () => {
-      encryptService.setDisableType0Decryption(true);
+    it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const encString = new EncString(EncryptionType.AesCbc256_B64, "wrapped_symmetric_key");
       await expect(encryptService.unwrapSymmetricKey(encString, key)).rejects.toThrow(
