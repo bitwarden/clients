@@ -68,6 +68,7 @@ import {
   AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
   AddLoginMessageData,
+  AtRiskPasswordQueueMessage,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
