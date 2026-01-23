@@ -69,11 +69,42 @@ describe("PhishingDataService", () => {
       expect(service["indexedDbService"]).toBeDefined();
     });
 
-    it("should detect QA test addresses", async () => {
-      // The QA test address should always return true
-      const QAurl = new URL("http://phishing.testcategory.com");
-      expect(await service.isPhishingWebAddress(QAurl)).toBe(true);
+    it("should detect QA test addresses - http protocol", async () => {
+      const url = new URL("http://phishing.testcategory.com");
+      expect(await service.isPhishingWebAddress(url)).toBe(true);
       // IndexedDB should not be called for test addresses
+      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
+    });
+
+    it("should detect QA test addresses - https protocol", async () => {
+      const url = new URL("https://phishing.testcategory.com");
+      expect(await service.isPhishingWebAddress(url)).toBe(true);
+      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
+    });
+
+    it("should detect QA test addresses - specific subpath /block", async () => {
+      const url = new URL("https://phishing.testcategory.com/block");
+      expect(await service.isPhishingWebAddress(url)).toBe(true);
+      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
+    });
+
+    it("should NOT detect QA test addresses - different subpath", async () => {
+      mockIndexedDbService.hasUrl.mockResolvedValue(false);
+      mockIndexedDbService.loadAllUrls.mockResolvedValue([]);
+
+      const url = new URL("https://phishing.testcategory.com/other");
+      const result = await service.isPhishingWebAddress(url);
+
+      // This should NOT be detected as a test address since only /block subpath is hardcoded
+      expect(result).toBe(false);
+    });
+
+    it("should detect QA test addresses - root path with trailing slash", async () => {
+      const url = new URL("https://phishing.testcategory.com/");
+      const result = await service.isPhishingWebAddress(url);
+
+      // This SHOULD be detected since URLs are normalized (trailing slash added to root URLs)
+      expect(result).toBe(true);
       expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
     });
   });

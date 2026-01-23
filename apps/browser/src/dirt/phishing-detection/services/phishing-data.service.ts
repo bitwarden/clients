@@ -83,7 +83,7 @@ export class PhishingDataService {
   // We are adding the destroy to guard against accidental leaks.
   private _destroy$ = new Subject<void>();
 
-  private _testWebAddresses = this.getTestWebAddresses().concat("phishing.testcategory.com"); // Included for QA to test in prod
+  private _testWebAddresses = this.getTestWebAddresses();
   private _phishingMetaState = this.globalStateProvider.get(PHISHING_DOMAINS_META_KEY);
 
   private indexedDbService: PhishingIndexedDbService;
@@ -154,7 +154,7 @@ export class PhishingDataService {
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
     // Quick check for QA/dev test addresses
-    if (this._testWebAddresses.includes(url.hostname)) {
+    if (this._testWebAddresses.includes(url.href)) {
       return true;
     }
 
@@ -223,8 +223,14 @@ export class PhishingDataService {
 
   private getTestWebAddresses() {
     const flag = devFlagEnabled("testPhishingUrls");
+    // Normalize URLs by converting to URL object and back to ensure consistent format (e.g., trailing slashes)
+    const testWebAddresses: string[] = [
+      new URL("http://phishing.testcategory.com").href,
+      new URL("https://phishing.testcategory.com").href,
+      new URL("https://phishing.testcategory.com/block").href,
+    ];
     if (!flag) {
-      return [];
+      return testWebAddresses;
     }
 
     const webAddresses = devFlagValue("testPhishingUrls") as unknown[];
@@ -233,9 +239,11 @@ export class PhishingDataService {
         "[PhishingDataService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
         webAddresses,
       );
-      return webAddresses as string[];
+      // Normalize dev flag URLs as well
+      const normalizedDevAddresses = (webAddresses as string[]).map((addr) => new URL(addr).href);
+      return testWebAddresses.concat(normalizedDevAddresses);
     }
-    return [];
+    return testWebAddresses;
   }
 
   private _getUpdatedMeta(): Observable<PhishingDataMeta> {
