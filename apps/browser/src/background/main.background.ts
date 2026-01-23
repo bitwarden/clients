@@ -123,6 +123,7 @@ import { Fido2ClientService as Fido2ClientServiceAbstraction } from "@bitwarden/
 import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Dependency } from "@bitwarden/common/platform/abstractions/initializable";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
@@ -155,6 +156,7 @@ import { ConfigApiService } from "@bitwarden/common/platform/services/config/con
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { DefaultDecentralizedInitService } from "@bitwarden/common/platform/services/default-decentralized-init.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
@@ -319,6 +321,7 @@ import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender
 import { OffscreenDocumentService } from "../platform/offscreen-document/abstractions/offscreen-document";
 import { DefaultOffscreenDocumentService } from "../platform/offscreen-document/offscreen-document.service";
 import { BrowserTaskSchedulerService } from "../platform/services/abstractions/browser-task-scheduler.service";
+import { BackgroundInjector } from "../platform/services/background-injector";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
@@ -467,6 +470,7 @@ export default class MainBackground {
   sdkService: SdkService;
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
+  decentralizedInitService: DefaultDecentralizedInitService;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -1557,12 +1561,27 @@ export default class MainBackground {
     // Putting this here so that all other services are initialized prior to trying to hook up
     // subscriptions to the notification chrome events.
     this.initNotificationSubscriptions();
+
+    // Setup decentralized initialization for background services
+    const backgroundInjector = new BackgroundInjector();
+
+    // Register Phase 1 services for decentralized initialization
+    backgroundInjector.register(SdkLoadService, this.sdkLoadService);
+
+    const initServiceTokens: Dependency[] = [SdkLoadService];
+
+    this.decentralizedInitService = new DefaultDecentralizedInitService(
+      initServiceTokens,
+      backgroundInjector,
+    );
   }
 
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
-    await this.sdkLoadService.init();
+    // Initialize services registered with DecentralizedInitService
+    await this.decentralizedInitService.init();
+
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
     this.encryptService.init(this.configService);

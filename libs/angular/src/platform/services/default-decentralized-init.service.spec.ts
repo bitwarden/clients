@@ -1,8 +1,6 @@
-import { Injector } from "@angular/core";
-
 import { Dependency, Initializable } from "@bitwarden/common/platform/abstractions/initializable";
-
-import { DefaultDecentralizedInitService } from "./default-decentralized-init.service";
+import { Injector } from "@bitwarden/common/platform/abstractions/injector";
+import { DefaultDecentralizedInitService } from "@bitwarden/common/platform/services/default-decentralized-init.service";
 
 // Test service implementations
 class TestService implements Initializable {
@@ -26,14 +24,14 @@ function createTrackingService(name: string, executionOrder: string[]) {
 // Helper to create a mock Injector that maps tokens to instances
 function createMockInjector(tokenMap: Map<Dependency, Initializable>): Injector {
   return {
-    get: (token: Dependency) => {
+    get: <T>(token: Dependency): T => {
       const instance = tokenMap.get(token);
       if (!instance) {
         throw new Error(`No provider for ${token.name}!`);
       }
-      return instance;
+      return instance as T;
     },
-  } as Injector;
+  };
 }
 
 describe("DefaultDecentralizedInitService", () => {
@@ -355,7 +353,7 @@ describe("DefaultDecentralizedInitService", () => {
         const sut = new DefaultDecentralizedInitService([ServiceB], mockInjector);
 
         // Act & Assert
-        await expect(sut.init()).rejects.toThrow(/not registered in INIT_SERVICES/);
+        await expect(sut.init()).rejects.toThrow(/not registered/);
       });
 
       it("includes dependency name and registration instructions in error when called", async () => {

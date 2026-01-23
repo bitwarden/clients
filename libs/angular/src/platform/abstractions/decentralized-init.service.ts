@@ -1,7 +1,6 @@
-import { InjectionToken } from "@angular/core";
-
 import { Dependency } from "@bitwarden/common/platform/abstractions/initializable";
 
+import { SafeInjectionToken } from "../utils/safe-injection-token";
 import { SafeProvider } from "../utils/safe-provider";
 
 /**
@@ -19,7 +18,7 @@ import { SafeProvider } from "../utils/safe-provider";
  *
  * Note: Use useValue (not useExisting) to register the class token itself.
  */
-export const INIT_SERVICES = new InjectionToken<Dependency[]>("INIT_SERVICES");
+export const INIT_SERVICES = new SafeInjectionToken<Dependency[]>("INIT_SERVICES");
 
 /**
  * Helper function to create a type-safe provider for an Initializable service.

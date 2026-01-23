@@ -1,48 +1,43 @@
-import { Inject, Injectable, Injector } from "@angular/core";
-
-import { Dependency, Initializable } from "@bitwarden/common/platform/abstractions/initializable";
-
-import {
-  DecentralizedInitService,
-  INIT_SERVICES,
-} from "../abstractions/decentralized-init.service";
+import { Dependency, Initializable } from "../abstractions/initializable";
+import { Injector } from "../abstractions/injector";
 
 /**
- * Default implementation of DecentralizedInitService that uses topological sort
- * to execute initialization in dependency order.
+ * Framework-agnostic implementation of decentralized initialization service.
+ * Uses topological sort to execute initialization in dependency order.
  *
  * This service:
- * - Collects registered service tokens via the INIT_SERVICES token
- * - Resolves tokens to instances using Angular's Injector
+ * - Accepts service tokens directly (no DI-specific decorators)
+ * - Resolves tokens to instances using the provided Injector abstraction
  * - Builds a dependency graph from each service's dependencies property
  * - Performs topological sort to determine execution order
  * - Detects circular dependencies and throws clear errors
  * - Executes init() methods sequentially in dependency order
+ *
+ * Works in both Angular (via AngularInjectorAdapter) and non-Angular contexts
+ * (via BackgroundInjector or any Injector implementation).
  */
-@Injectable()
-export class DefaultDecentralizedInitService implements DecentralizedInitService {
+export class DefaultDecentralizedInitService {
   constructor(
-    @Inject(INIT_SERVICES) private initServiceTokens: Dependency[],
-    private injector: Injector,
+    private readonly serviceTokens: Dependency[],
+    private readonly injector: Injector,
   ) {}
 
   async init(): Promise<void> {
-    if (!this.initServiceTokens || this.initServiceTokens.length === 0) {
+    if (!this.serviceTokens || this.serviceTokens.length === 0) {
       return;
     }
 
-    // Resolve all tokens to instances using Angular's Injector
-    const services: Initializable[] = this.initServiceTokens.map((token) =>
-      this.injector.get(token),
-    );
+    // Resolve all tokens to instances using the provided Injector
+    const services: Initializable[] = this.serviceTokens.map((token) => this.injector.get(token));
 
-    const sorted = this.topologicalSort(services, this.initServiceTokens);
+    const sorted = this.topologicalSort(services, this.serviceTokens);
 
     for (const service of sorted) {
       try {
         await service.init();
       } catch (error) {
-        throw new Error(`Failed to initialize ${service.constructor.name}: ${error}`);
+        const serviceName = service.constructor?.name || "Unknown";
+        throw new Error(`Failed to initialize ${serviceName}: ${error}`);
       }
     }
   }
@@ -75,12 +70,14 @@ export class DefaultDecentralizedInitService implements DecentralizedInitService
 
       if (visiting.has(service)) {
         // Circular dependency detected - build a clear error message
-        const cycle = [...path, service.constructor.name].join(" -> ");
+        const serviceName = service.constructor?.name || "Unknown";
+        const cycle = [...path, serviceName].join(" -> ");
         throw new Error(`Circular dependency detected: ${cycle}`);
       }
 
       visiting.add(service);
-      const currentPath = [...path, service.constructor.name];
+      const serviceName = service.constructor?.name || "Unknown";
+      const currentPath = [...path, serviceName];
 
       // Visit all dependencies first
       for (const depClass of service.dependencies ?? []) {
@@ -88,10 +85,12 @@ export class DefaultDecentralizedInitService implements DecentralizedInitService
 
         if (!depInstance) {
           // Dependency declared but not registered - this is likely a configuration error
+          const depName = depClass.name || "Unknown";
           throw new Error(
-            `${service.constructor.name} depends on ${depClass.name}, but ${depClass.name} is not registered in INIT_SERVICES. ` +
-              `Make sure to add it to your providers array:\n` +
-              `{ provide: INIT_SERVICES, useValue: ${depClass.name}, multi: true }`,
+            `${serviceName} depends on ${depName}, but ${depName} is not registered. ` +
+              `Make sure to register it in your initialization service tokens:\n` +
+              `Angular: { provide: INIT_SERVICES, useValue: ${depName}, multi: true }\n` +
+              `Background: Add ${depName} to initServiceTokens array and register with injector`,
           );
         }
 

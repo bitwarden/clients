@@ -2,6 +2,8 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
+import { Dependency } from "@bitwarden/common/platform/abstractions/initializable";
+import { DefaultDecentralizedInitService } from "@bitwarden/common/platform/services/default-decentralized-init.service";
 import {
   AsyncActionsModule,
   AutofocusDirective,
@@ -45,11 +47,14 @@ import { SearchCiphersPipe } from "./pipes/search-ciphers.pipe";
 import { SearchPipe } from "./pipes/search.pipe";
 import { UserNamePipe } from "./pipes/user-name.pipe";
 import { UserTypePipe } from "./pipes/user-type.pipe";
-import { DecentralizedInitService } from "./platform/abstractions/decentralized-init.service";
+import {
+  DecentralizedInitService,
+  INIT_SERVICES,
+} from "./platform/abstractions/decentralized-init.service";
 import { EllipsisPipe } from "./platform/pipes/ellipsis.pipe";
 import { FingerprintPipe } from "./platform/pipes/fingerprint.pipe";
 import { I18nPipe } from "./platform/pipes/i18n.pipe";
-import { DefaultDecentralizedInitService } from "./platform/services/default-decentralized-init.service";
+import { AngularInjectorAdapter } from "./platform/services/angular-injector-adapter";
 import { safeProvider } from "./platform/utils/safe-provider";
 import { IconComponent } from "./vault/components/icon.component";
 
@@ -148,9 +153,13 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     FingerprintPipe,
     PluralizePipe,
+    AngularInjectorAdapter,
     safeProvider({
       provide: DecentralizedInitService,
-      useClass: DefaultDecentralizedInitService,
+      useFactory: (serviceTokens: Dependency[], adapter: AngularInjectorAdapter) => {
+        return new DefaultDecentralizedInitService(serviceTokens, adapter);
+      },
+      deps: [INIT_SERVICES, AngularInjectorAdapter],
       useAngularDecorators: true,
     }),
   ],
