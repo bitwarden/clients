@@ -2,7 +2,8 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, inject, OnInit, output, computed, signal } from "@angular/core";
-import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -12,13 +13,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { NavigationModule, DialogService, A11yTitleDirective } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
-  OrganizationFilter,
-  CipherTypeFilter,
-  CollectionFilter,
   FolderFilter,
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
@@ -75,13 +72,25 @@ export class VaultFilterComponent implements OnInit {
   protected showArchiveVaultFilter = false;
   protected activeOrganizationDataOwnershipPolicy: boolean;
   protected activeSingleOrganizationPolicy: boolean;
-  protected organizations$: Observable<TreeNode<OrganizationFilter>>;
-  protected collections$: Observable<TreeNode<CollectionFilter>>;
-  protected folders$: Observable<TreeNode<FolderFilter>>;
-  protected cipherTypes$: Observable<TreeNode<CipherTypeFilter>>;
+  protected readonly organizations = toSignal(this.vaultFilterService.organizationTree$);
+  protected readonly collections = toSignal(this.vaultFilterService.collectionTree$);
+  protected readonly folders = toSignal(this.vaultFilterService.folderTree$);
+  protected readonly cipherTypes = toSignal(this.vaultFilterService.cipherTypeTree$);
 
   protected readonly showCollectionsFilter = computed<boolean>(() => {
-    return this.organizations$ != null && !this.activeFilter()?.isMyVaultSelected;
+    return (
+      this.organizations() != null &&
+      !this.activeFilter()?.isMyVaultSelected &&
+      !this.allOrganizationsDisabled()
+    );
+  });
+
+  protected readonly allOrganizationsDisabled = computed<boolean>(() => {
+    if (!this.organizations()) {
+      return false;
+    }
+    const orgs = this.organizations().children.filter((org) => org.node.id !== "MyVault");
+    return orgs.length > 0 && orgs.every((org) => !org.node.enabled);
   });
 
   private async setActivePolicies() {
@@ -98,16 +107,9 @@ export class VaultFilterComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    this.organizations$ = this.vaultFilterService.organizationTree$;
-    if (
-      this.organizations$ != null &&
-      (await firstValueFrom(this.organizations$)).children.length > 0
-    ) {
+    if (this.organizations() != null && this.organizations().children.length > 0) {
       await this.setActivePolicies();
     }
-    this.cipherTypes$ = this.vaultFilterService.cipherTypeTree$;
-    this.folders$ = this.vaultFilterService.folderTree$;
-    this.collections$ = this.vaultFilterService.collectionTree$;
 
     this.showArchiveVaultFilter = await firstValueFrom(
       this.cipherArchiveService.hasArchiveFlagEnabled$,
