@@ -146,7 +146,7 @@ export class PreviewInvoiceClient {
 
   previewProrationForPremiumUpgrade = async (
     planTier: ProductTierType,
-    billingAddress: BillingAddress,
+    billingAddress: Pick<BillingAddress, "country" | "postalCode">,
   ): Promise<ProrationPreviewResponse> => {
     const prorationResponse = await this.apiService.send(
       "POST",

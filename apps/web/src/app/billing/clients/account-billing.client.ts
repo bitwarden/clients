@@ -61,12 +61,13 @@ export class AccountBillingClient {
     organizationKey: string,
     planTier: ProductTierType,
     cadence: SubscriptionCadence,
+    billingAddress: Pick<BillingAddress, "country" | "postalCode">,
   ): Promise<void> => {
     const path = `${this.endpoint}/upgrade`;
     await this.apiService.send(
       "POST",
       path,
-      { organizationName, key: organizationKey, tier: planTier, cadence },
+      { organizationName, key: organizationKey, tier: planTier, cadence, billingAddress },
       true,
       false,
     );
