@@ -805,6 +805,8 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
           type: CipherViewLikeUtils.getType(cipher),
           // Normalize undefined organizationId to null for filter compatibility
           organizationId: cipher.organizationId ?? null,
+          // Normalize empty string folderId to null for filter compatibility
+          folderId: cipher.folderId ? cipher.folderId : null,
           // Explicitly include isDeleted and isArchived since they might be getters
           isDeleted: CipherViewLikeUtils.isDeleted(cipher),
           isArchived: CipherViewLikeUtils.isArchived(cipher),
