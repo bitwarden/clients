@@ -49,6 +49,7 @@ describe("SendV2Component", () => {
   let sendApiService: MockProxy<SendApiService>;
   let toastService: MockProxy<ToastService>;
   let i18nService: MockProxy<I18nService>;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
     sendService = mock<SendService>();
@@ -62,6 +63,10 @@ describe("SendV2Component", () => {
     sendApiService = mock<SendApiService>();
     toastService = mock<ToastService>();
     i18nService = mock<I18nService>();
+    configService = mock<ConfigService>();
+
+    // Setup configService mock - feature flag returns true to test the new drawer mode
+    configService.getFeatureFlag$.mockReturnValue(of(true));
 
     // Setup environmentService mock
     environmentService.getEnvironment.mockResolvedValue({
@@ -117,7 +122,7 @@ describe("SendV2Component", () => {
           useValue: mock<BillingAccountProfileStateService>(),
         },
         { provide: MessagingService, useValue: mock<MessagingService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: ConfigService, useValue: configService },
         {
           provide: ActivatedRoute,
           useValue: {
