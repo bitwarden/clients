@@ -122,9 +122,11 @@ describe("NotificationBackground", () => {
     it("returns a cipher view when passed an `AddLoginQueueMessage`", () => {
       const message: AddLoginQueueMessage = {
         type: "add",
-        username: "test",
-        password: "password",
-        uri: "https://example.com",
+        data: {
+          username: "test",
+          password: "password",
+          uri: "https://example.com",
+        },
         domain: "",
         tab: createChromeTabMock(),
         expires: new Date(),
@@ -136,13 +138,13 @@ describe("NotificationBackground", () => {
       expect(cipherView.name).toEqual("example.com");
       expect(cipherView.login).toEqual({
         fido2Credentials: [],
-        password: message.password,
+        password: message.data.password,
         uris: [
           {
-            _uri: message.uri,
+            _uri: message.data.uri,
           },
         ],
-        username: message.username,
+        username: message.data.username,
       });
     });
 
@@ -150,9 +152,11 @@ describe("NotificationBackground", () => {
       const folderId = "folder-id";
       const message: AddLoginQueueMessage = {
         type: "add",
-        username: "test",
-        password: "password",
-        uri: "https://example.com",
+        data: {
+          username: "test",
+          password: "password",
+          uri: "https://example.com",
+        },
         domain: "example.com",
         tab: createChromeTabMock(),
         expires: new Date(),
@@ -1051,8 +1055,11 @@ describe("NotificationBackground", () => {
             type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
-            username: "test",
-            password: "updated-password",
+            data: {
+              username: "test",
+              password: "updated-password",
+              uri: "https://example.com",
+            },
             wasVaultLocked: true,
           });
           notificationBackground["notificationQueue"] = [queueMessage];
@@ -1066,7 +1073,7 @@ describe("NotificationBackground", () => {
 
           expect(updatePasswordSpy).toHaveBeenCalledWith(
             cipherView,
-            queueMessage.password,
+            queueMessage.data.password,
             message.edit,
             sender.tab,
             "testId",
