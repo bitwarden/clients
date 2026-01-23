@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "הפריט נמחק לצמיתות"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoredItem": {
     "message": "הפריט שוחזר"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "העבר פריט לארכיון"
   },
-  "archiveItemConfirmDesc": {
-    "message": "פריטים בארכיון מוחרגים מתוצאות חיפוש כללי והצעות למילוי אוטומטי. האם אתה בטוח שברצונך להעביר פריט זה לארכיון?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"

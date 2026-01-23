@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Eintrag dauerhaft gelöscht"
   },
+  "archivedItemRestored": {
+    "message": "Archivierter Eintrag wiederhergestellt"
+  },
   "restoredItem": {
     "message": "Eintrag wiederhergestellt"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Eintrag archivieren"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  "archiveItemDialogContent": {
+    "message": "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
   "unArchiveAndSave": {
     "message": "Nicht mehr archivieren und speichern"

@@ -101,23 +101,23 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Send, bu tarixdə həmişəlik silinəcək.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "Paylaşılacaq fayl"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Mətni ilkin olaraq gizlət"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "E-poçt ünvanınız baxanlardan gizlədilsin."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Baxışları limitlə"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ baxış qaldı",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -127,41 +127,41 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Limitə çatdıqdan sonra bu Send-ə heç kim baxa bilməz.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Özəl not"
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Send detalları",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Alıcıların bu \"Send\"ə erişməsi üçün ixtiyari bir parol əlavə edin.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Paylaşılacaq mətn"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Yeni Send mətni",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Yeni Send faylı",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Send mətninə düzəliş et",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Send faylına düzəliş et",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Bu Send-i həmişəlik silmək istədiyinizə əminsiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
@@ -2091,6 +2091,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Element birdəfəlik silindi"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoredItem": {
     "message": "Element bərpa edildi"
@@ -4076,10 +4079,10 @@
     "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Zəifliyi olan parol."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "İndi dəyişdir"
   },
   "missingWebsite": {
     "message": "Əskik veb sayt"
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Elementi arxivlə"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
+  "archiveItemDialogContent": {
+    "message": "Arxivləndikdən sonra, bu element axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "unArchiveAndSave": {
     "message": "Arxivdən çıxart və saxla"
