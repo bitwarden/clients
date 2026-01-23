@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "Arquivar item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Itens arquivados são excluídos dos resultados gerais de busca e das sugestões de preenchimento automático. Tem certeza de que deseja arquivar este item?"
+  "archiveItemDialogContent": {
+    "message": "Ao arquivar, o item será excluído dos resultados de busca e sugestões de preenchimento automático."
   },
   "archived": {
     "message": "Arquivados"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Item apagado para sempre"
+  },
+  "archivedItemRestored": {
+    "message": "Item arquivado restaurado"
   },
   "restoreItem": {
     "message": "Restaurar item"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Mais opções"
+  },
   "moreOptionsTitle": {
     "message": "Mais opções - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Ocultar detecção de correspondência $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Mostrar detecção de correspondência"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ocultar detecção de correspondência"
   },
   "autoFillOnPageLoad": {
     "message": "Preencher ao carregar a página?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Extra larga"
+  },
+  "narrow": {
+    "message": "Estreita"
   },
   "sshKeyWrongPassword": {
     "message": "A senha que você digitou está incorreta."

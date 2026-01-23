@@ -37,7 +37,7 @@ export class PopupSizeService {
   /** Begin listening for state changes */
   async init() {
     this.width$.subscribe((width: PopupWidthOption) => {
-      PopupSizeService.setStyle(width);
+      void PopupSizeService.setStyle(width);
       localStorage.setItem(PopupSizeService.LocalStorageKey, width);
     });
   }
@@ -77,8 +77,9 @@ export class PopupSizeService {
     }
   }
 
-  private static setStyle(width: PopupWidthOption) {
-    if (!BrowserPopupUtils.inPopup(window)) {
+  private static async setStyle(width: PopupWidthOption) {
+    const isInTab = await BrowserPopupUtils.isInTab();
+    if (!BrowserPopupUtils.inPopup(window) || isInTab) {
       return;
     }
     const pxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
@@ -91,6 +92,6 @@ export class PopupSizeService {
    **/
   static initBodyWidthFromLocalStorage() {
     const storedValue = localStorage.getItem(PopupSizeService.LocalStorageKey);
-    this.setStyle(storedValue as any);
+    void this.setStyle(storedValue as any);
   }
 }

@@ -195,6 +195,8 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
       return "Brave";
     } else if (format === "vivaldicsv") {
       return "Vivaldi";
+    } else if (format === "arccsv") {
+      return "Arc";
     }
     return "Chrome";
   }
