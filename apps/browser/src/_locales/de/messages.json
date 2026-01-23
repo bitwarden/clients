@@ -573,17 +573,29 @@
   "itemWasSentToArchive": {
     "message": "Eintrag wurde archiviert"
   },
+  "itemWasUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
+  },
   "itemUnarchived": {
     "message": "Eintrag wird nicht mehr archiviert"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  "archiveItemDialogContent": {
+    "message": "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
+  },
+  "archived": {
+    "message": "Archiviert"
+  },
+  "unarchiveAndSave": {
+    "message": "Nicht mehr archivieren und speichern"
   },
   "upgradeToUseArchive": {
     "message": "Für die Nutzung des Archivs ist eine Premium-Mitgliedschaft erforderlich."
+  },
+  "itemRestored": {
+    "message": "Eintrag wurde wiederhergestellt"
   },
   "edit": {
     "message": "Bearbeiten"
@@ -1322,11 +1334,21 @@
   "exportFrom": {
     "message": "Export aus"
   },
-  "export": {
-    "message": "Export"
+  "exportVerb": {
+    "message": "Exportieren",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Import"
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importieren",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Dateiformat"
@@ -1522,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Dein Premium-Abonnement ist abgelaufen"
+  },
+  "archivePremiumRestart": {
+    "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
+  },
+  "restartPremium": {
+    "message": "Premium neu starten"
   },
   "ppremiumSignUpReports": {
     "message": "Berichte über Kennworthygiene, Kontostatus und Datenschutzverletzungen, um deinen Tresor sicher zu halten."
@@ -2441,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Eintrag dauerhaft gelöscht"
+  },
+  "archivedItemRestored": {
+    "message": "Archivierter Eintrag wiederhergestellt"
   },
   "restoreItem": {
     "message": "Eintrag wiederherstellen"
@@ -4708,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Weitere Optionen"
+  },
   "moreOptionsTitle": {
     "message": "Weitere Optionen - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4798,17 +4835,50 @@
   "adminConsole": {
     "message": "Administrator-Konsole"
   },
+  "admin": {
+    "message": "Administrator"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatische Benutzerbestätigung"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Ausstehende Benutzer automatisch bestätigen, während dieses Gerät entsperrt ist"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Spare Zeit durch die automatische Benutzerbestätigung"
+  },
+  "autoConfirmWarning": {
+    "message": "Dies könnte die Datensicherheit deiner Organisation beeinflussen. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Erfahre mehr über die Risiken"
+  },
+  "autoConfirmSetup": {
+    "message": "Neue Benutzer automatisch bestätigen"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Neue Benutzer werden automatisch bestätigt, während dieses Gerät entsperrt ist."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Was sind die möglichen Sicherheitsrisiken?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Automatische Bestätigung aktiviert"
+  },
+  "availableNow": {
+    "message": "Jetzt verfügbar"
+  },
   "accountSecurity": {
     "message": "Kontosicherheit"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Phishing-Blocker"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Phishing-Erkennung"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Warnung vor dem Zugriff auf verdächtige Phishing-Seiten anzeigen"
   },
   "notifications": {
     "message": "Benachrichtigungen"
@@ -5061,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Übereinstimmungs-Erkennung verstecken $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung anzeigen"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung ausblenden"
   },
   "autoFillOnPageLoad": {
     "message": "Auto-Ausfüllen beim Laden einer Seite?"
@@ -5606,6 +5673,9 @@
   "extraWide": {
     "message": "Extra breit"
   },
+  "narrow": {
+    "message": "Schmal"
+  },
   "sshKeyWrongPassword": {
     "message": "Dein eingegebenes Passwort ist falsch."
   },
@@ -5653,6 +5723,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
+  },
+  "vulnerablePassword": {
+    "message": "Gefährdetes Passwort."
+  },
+  "changeNow": {
+    "message": "Jetzt ändern"
   },
   "missingWebsite": {
     "message": "Fehlende Website"
@@ -6029,5 +6105,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Warum wird mir das angezeigt?"
+  },
+  "resizeSideNavigation": {
+    "message": "Größe der Seitennavigation ändern"
   }
 }

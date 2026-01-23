@@ -573,17 +573,29 @@
   "itemWasSentToArchive": {
     "message": "Элемент был отправлен в архив"
   },
+  "itemWasUnarchived": {
+    "message": "Элемент был разархивирован"
+  },
   "itemUnarchived": {
     "message": "Элемент был разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  "archiveItemDialogContent": {
+    "message": "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению."
+  },
+  "archived": {
+    "message": "Архивирован"
+  },
+  "unarchiveAndSave": {
+    "message": "Разархивировать и сохранить"
   },
   "upgradeToUseArchive": {
     "message": "Для использования архива требуется премиум-статус."
+  },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
   },
   "edit": {
     "message": "Изменить"
@@ -1322,11 +1334,21 @@
   "exportFrom": {
     "message": "Экспорт из"
   },
-  "export": {
-    "message": "Экспорт"
+  "exportVerb": {
+    "message": "Экспортировать",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "Импорт"
+  "exportNoun": {
+    "message": "Экспорт",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Импорт",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Импортировать",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат файла"
@@ -1522,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ваша подписка Премиум закончилась"
+  },
+  "archivePremiumRestart": {
+    "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
+  },
+  "restartPremium": {
+    "message": "Переподключить Премиум"
   },
   "ppremiumSignUpReports": {
     "message": "Гигиена паролей, здоровье аккаунта и отчеты об утечках данных для обеспечения безопасности вашего хранилища."
@@ -2441,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Элемент удален навсегда"
+  },
+  "archivedItemRestored": {
+    "message": "Архивированный элемент восстановлен"
   },
   "restoreItem": {
     "message": "Восстановить элемент"
@@ -4708,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Больше опций"
+  },
   "moreOptionsTitle": {
     "message": "Больше опций - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4797,6 +4834,39 @@
   },
   "adminConsole": {
     "message": "консоли администратора"
+  },
+  "admin": {
+    "message": "Администратор"
+  },
+  "automaticUserConfirmation": {
+    "message": "Автоматическое подтверждение пользователя"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Автоматически подтверждать ожидающих пользователей пока это устройство разблокировано"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Экономьте время благодаря автоматическому подтверждению пользователей"
+  },
+  "autoConfirmWarning": {
+    "message": "Это может повлиять на безопасность данных вашей организации. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Узнайте о рисках"
+  },
+  "autoConfirmSetup": {
+    "message": "Автоматически подтверждать новых пользователей"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Новые пользователи будут автоматически подтверждены при разблокировке устройства."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Каковы потенциальные риски для безопасности?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Включено автоматическое подтверждение"
+  },
+  "availableNow": {
+    "message": "Уже доступно"
   },
   "accountSecurity": {
     "message": "Безопасность аккаунта"
@@ -5061,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Скрыть обнаружение совпадений $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показать обнаружение совпадений"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скрыть обнаружение совпадений"
   },
   "autoFillOnPageLoad": {
     "message": "Автозаполнение при загрузке страницы?"
@@ -5606,6 +5673,9 @@
   "extraWide": {
     "message": "Очень широкое"
   },
+  "narrow": {
+    "message": "Узкий"
+  },
   "sshKeyWrongPassword": {
     "message": "Введенный пароль неверен."
   },
@@ -5653,6 +5723,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
+  },
+  "vulnerablePassword": {
+    "message": "Уязвимый пароль."
+  },
+  "changeNow": {
+    "message": "Изменить сейчас"
   },
   "missingWebsite": {
     "message": "Отсутствует сайт"
@@ -6029,5 +6105,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Почему я это вижу?"
+  },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
   }
 }

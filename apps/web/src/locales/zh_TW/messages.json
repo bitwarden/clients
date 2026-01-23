@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "沒有可列出的成員。"
   },
+  "noMembersToExport": {
+    "message": "沒有可匯出的成員。"
+  },
   "noEventsInList": {
     "message": "沒有可列出的事件。"
   },
@@ -1969,8 +1972,13 @@
   "encExportAccountWarningDesc": {
     "message": "每個 Bitwarden 使用者帳戶的帳戶加密金鑰都不相同，因此無法將已加密匯出的檔案匯入至不同帳戶中。"
   },
-  "export": {
-    "message": "匯出"
+  "exportNoun": {
+    "message": "匯出",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "匯出",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "匯出自"
@@ -2297,8 +2305,13 @@
   "tools": {
     "message": "工具"
   },
-  "import": {
-    "message": "Import"
+  "importNoun": {
+    "message": "匯入",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "匯入",
+    "description": "The verb form of the word Import"
   },
   "importData": {
     "message": "匯入資料"
@@ -2527,6 +2540,9 @@
   "enabled": {
     "message": "已啟用"
   },
+  "optionEnabled": {
+    "message": "已啟用"
+  },
   "restoreAccess": {
     "message": "還原存取權限"
   },
@@ -2623,6 +2639,9 @@
   },
   "key": {
     "message": "金鑰"
+  },
+  "unnamedKey": {
+    "message": "未命名金鑰"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "驗證碼"
@@ -3133,6 +3152,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
   },
+  "itemRestored": {
+    "message": "已還原項目"
+  },
   "restartPremium": {
     "message": "重新啟用進階版"
   },
@@ -3281,6 +3303,9 @@
     "message": "管理訂閱"
   },
   "launchCloudSubscription": {
+    "message": "啟動雲端訂閱"
+  },
+  "launchCloudSubscriptionSentenceCase": {
     "message": "啟動雲端訂閱"
   },
   "storage": {
@@ -4197,6 +4222,12 @@
         "example": "Google"
       }
     }
+  },
+  "userAcceptedTransfer": {
+    "message": "已接受轉移至組織擁有權。"
+  },
+  "userDeclinedTransfer": {
+    "message": "因拒絕轉移至組織擁有權而遭撤銷。"
   },
   "invitedUserId": {
     "message": "已邀請使用者 $ID$。",
@@ -5176,7 +5207,7 @@
     "message": "需要先修正密碼庫中舊的檔案附件，然後才能輪換帳戶的加密金鑰。"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "項目已轉移"
   },
   "yourAccountsFingerprint": {
     "message": "您帳戶的指紋短語",
@@ -5387,6 +5418,12 @@
   "restoreSelected": {
     "message": "還原所選"
   },
+  "archivedItemRestored": {
+    "message": "已還原封存項目"
+  },
+  "archivedItemsRestored": {
+    "message": "已還原封存項目"
+  },
   "restoredItem": {
     "message": "項目已還原"
   },
@@ -5585,6 +5622,37 @@
     "message": "Send 已儲存",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send 建立成功！",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescription": {
+    "message": "複製並分享此 Send 連結。在接下來的 $TIME$ 內，您指定的人員都可以檢視此內容。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ 小時",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "新增文字 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "新增檔案 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send 已儲存",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5623,6 +5691,9 @@
   },
   "revoked": {
     "message": "已撤銷"
+  },
+  "accepted": {
+    "message": "已接受"
   },
   "sendLink": {
     "message": "Send 連結",
@@ -5843,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "集中化組織所有權"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "所有成員的項目將由組織統一擁有並管理。管理員與擁有者不受此限制。"
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "進一步了解集中化所有權",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "優點"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "全面掌握憑證的安全狀態，包括已共用與未共用的項目。"
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "在成員離職或交接時輕鬆轉移項目，確保存取權不中斷。"
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "為所有使用者提供專屬的「我的項目」空間，以管理個人登入資料。"
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "提示成員轉移其項目"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "若成員在其個人密碼庫中仍有項目，系統將提示其選擇轉移至組織或離開。若選擇離開，其存取權將被撤銷，但可隨時恢復。"
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "進一步了解轉移流程"
   },
   "organizationDataOwnership": {
     "message": "強制組織資料所有權"
@@ -6281,6 +6383,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "已注冊帳戶復原"
+  },
+  "enrolled": {
+    "message": "已加入"
+  },
+  "notEnrolled": {
+    "message": "未加入"
   },
   "withdrawAccountRecovery": {
     "message": "撤銷帳戶復原"
@@ -6806,7 +6914,7 @@
     "message": "密碼庫逾時時間不在允許的範圍內。"
   },
   "disableExport": {
-    "message": "Remove export"
+    "message": "移除匯出"
   },
   "disablePersonalVaultExportDescription": {
     "message": "不允許成員從其個人密碼庫匯出資料。"
@@ -9475,7 +9583,7 @@
     "message": "需要登入 SSO"
   },
   "emailRequiredForSsoLogin": {
-    "message": "Email is required for SSO"
+    "message": "使用 SSO 需要電子郵件"
   },
   "selectedRegionFlag": {
     "message": "選定的區域標記"
@@ -11549,6 +11657,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
   },
+  "vulnerablePassword": {
+    "message": "有安全疑慮的密碼。"
+  },
+  "changeNow": {
+    "message": "立即變更"
+  },
   "missingWebsite": {
     "message": "缺少網站"
   },
@@ -11587,8 +11701,11 @@
   "unArchive": {
     "message": "取消封存"
   },
+  "archived": {
+    "message": "已封存"
+  },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "取消封存並儲存"
   },
   "itemsInArchive": {
     "message": "封存中的項目"
@@ -11605,6 +11722,9 @@
   "itemsWereSentToArchive": {
     "message": "項目已移至封存"
   },
+  "itemWasUnarchived": {
+    "message": "已取消封存項目"
+  },
   "itemUnarchived": {
     "message": "項目取消封存"
   },
@@ -11618,8 +11738,8 @@
     "message": "封存項目",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
+  "archiveItemDialogContent": {
+    "message": "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。"
   },
   "archiveBulkItems": {
     "message": "封存項目",
@@ -12232,43 +12352,43 @@
     }
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "您的組織已不再使用主密碼登入 Bitwarden。若要繼續，請驗證組織與網域。"
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "繼續登入"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "不要繼續"
   },
   "domain": {
-    "message": "Domain"
+    "message": "網域"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "此網域將儲存您帳號的加密金鑰，請確認您信任它。若不確定，請洽詢您的管理員。"
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "驗證您的組織以登入"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "組織已驗證"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "已驗證網域"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "若您未驗證組織，將會被撤銷對該組織的存取權限。"
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "立即離開"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "驗證您的網域以登入"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "若要繼續登入，請驗證此網域。"
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "若要繼續登入，請驗證組織與網域。"
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "未選取任何關鍵應用程式"
@@ -12279,53 +12399,56 @@
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
   },
+  "resizeSideNavigation": {
+    "message": "調整側邊欄大小"
+  },
   "recoveryDeleteCiphersTitle": {
-    "message": "Delete unrecoverable vault items"
+    "message": "刪除無法復原的密碼庫項目"
   },
   "recoveryDeleteCiphersDesc": {
-    "message": "Some of your vault items could not be recovered. Do you want to delete these unrecoverable items from your vault?"
+    "message": "部分密碼庫項目無法復原。是否要從您的密碼庫中刪除這些無法復原的項目？"
   },
   "recoveryDeleteFoldersTitle": {
-    "message": "Delete unrecoverable folders"
+    "message": "刪除無法復原的資料夾"
   },
   "recoveryDeleteFoldersDesc": {
-    "message": "Some of your folders could not be recovered. Do you want to delete these unrecoverable folders from your vault?"
+    "message": "部分資料夾無法復原。是否要從您的密碼庫中刪除這些無法復原的資料夾？"
   },
   "recoveryReplacePrivateKeyTitle": {
-    "message": "Replace encryption key"
+    "message": "更換加密金鑰"
   },
   "recoveryReplacePrivateKeyDesc": {
-    "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
+    "message": "您的公開金鑰加密金鑰組無法復原。是否要以新的金鑰組取代目前的加密金鑰？這將需要您重新設定現有的緊急存取與組織成員資格。"
   },
   "recoveryStepSyncTitle": {
-    "message": "Synchronizing data"
+    "message": "正在同步資料"
   },
   "recoveryStepPrivateKeyTitle": {
-    "message": "Verifying encryption key integrity"
+    "message": "正在驗證加密金鑰完整性"
   },
   "recoveryStepUserInfoTitle": {
-    "message": "Verifying user information"
+    "message": "正在驗證使用者資訊"
   },
   "recoveryStepCipherTitle": {
-    "message": "Verifying vault item integrity"
+    "message": "正在驗證密碼庫項目完整性"
   },
   "recoveryStepFoldersTitle": {
-    "message": "Verifying folder integrity"
+    "message": "正在驗證資料夾完整性"
   },
   "dataRecoveryTitle": {
-    "message": "Data Recovery and Diagnostics"
+    "message": "資料復原與診斷"
   },
   "dataRecoveryDescription": {
-    "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
+    "message": "使用資料復原工具來診斷並修復您帳號的問題。完成診斷後，您可以選擇儲存診斷記錄以供支援使用，並修復任何偵測到的問題。"
   },
   "runDiagnostics": {
-    "message": "Run Diagnostics"
+    "message": "執行診斷"
   },
   "repairIssues": {
-    "message": "Repair Issues"
+    "message": "修復問題"
   },
   "saveDiagnosticLogs": {
-    "message": "Save Diagnostic Logs"
+    "message": "儲存診斷記錄"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "此設定由您的組織管理。"
@@ -12366,16 +12489,16 @@
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "確定要離開嗎？"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "若選擇拒絕，您的個人項目將保留在帳號中，但您將失去對共用項目與組織功能的存取權。"
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "請聯絡您的管理員以重新取得存取權限。"
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "離開 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12384,10 +12507,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "我要如何管理我的密碼庫？"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "將項目轉移至 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12396,7 +12519,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "message": "$ORGANIZATION$ 為了安全性與合規性，要求所有項目皆由組織擁有。點擊接受即可轉移您項目的擁有權。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12405,12 +12528,143 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "同意轉移"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "拒絕並離開"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "為什麼我會看到此訊息？"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "您已擁有 Bitwarden 進階版"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "檢視並管理您的進階版訂閱"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "您需要更新您的授權檔案"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$。",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "上傳授權檔案"
+  },
+  "uploadYourLicenseFile": {
+    "message": "上傳您的授權檔案"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "上傳您的進階版授權檔案"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "您的授權檔案名稱將類似於：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "已經有訂閱了嗎？"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "請在您的 Bitwarden 雲端帳號中開啟訂閱頁面並下載授權檔案，接著返回此畫面並於下方上傳。"
+  },
+  "viewAllPlans": {
+    "message": "查看所有方案"
+  },
+  "planDescPremium": {
+    "message": "完整的線上安全防護"
+  },
+  "updatePayment": {
+    "message": "更新付款方式"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "我們無法處理您的付款。請更新付款方式，或聯絡支援團隊以取得協助。"
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "您的訂閱已到期。請聯絡支援團隊以取得協助。"
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "您的訂閱預計將於 $DATE$ 取消。您可在此之前隨時恢復訂閱。",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "透過家庭方案分享更多內容，或使用 Teams 或 Enterprise 享有強大且值得信賴的密碼安全防護。"
+  },
+  "youHaveAGracePeriod": {
+    "message": "自訂閱到期日起，你有 $DAYS$ 天的寬限期可維持訂閱。請於 $SUSPENSION_DATE$ 前結清逾期發票。",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "管理帳單"
+  },
+  "yourNextChargeIsFor": {
+    "message": "您的下一筆收費項目為"
+  },
+  "dueOn": {
+    "message": "到期日"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "您的訂閱將於以下日期暫停"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "您的訂閱已於以下日期暫停"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "您的訂閱將於以下日期取消"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "您的訂閱已於以下日期取消"
+  },
+  "storageFull": {
+    "message": "儲存空間已滿"
+  },
+  "storageUsedDescription": {
+    "message": "您已使用 $AVAILABLE$ GB 加密檔案儲存空間中的 $USED$ GB。",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "您已用完全部 $GB$ GB 的加密儲存空間。如需繼續儲存檔案，請增加儲存空間。"
+  },
+  "whenYouRemoveStorage": {
+    "message": "當您移除儲存空間時，將會獲得按比例計算的帳戶抵扣金額，並自動套用至下一期帳單。"
+  },
+  "youHavePremium": {
+    "message": "您已擁有進階版"
+  },
+  "emailProtected": {
+    "message": "電子郵件已受保護"
   }
 }

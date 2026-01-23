@@ -573,17 +573,29 @@
   "itemWasSentToArchive": {
     "message": "Kayıt arşive gönderildi"
   },
+  "itemWasUnarchived": {
+    "message": "Kayıt arşivden çıkarıldı"
+  },
   "itemUnarchived": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {
     "message": "Kaydı arşivle"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğine emin misin?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archived": {
+    "message": "Arşivlendi"
+  },
+  "unarchiveAndSave": {
+    "message": "Arşivden çıkar ve kaydet"
   },
   "upgradeToUseArchive": {
     "message": "Arşivi kullanmak için premium üyelik gereklidir."
+  },
+  "itemRestored": {
+    "message": "Kayıt geri yüklendi"
   },
   "edit": {
     "message": "Düzenle"
@@ -1322,11 +1334,21 @@
   "exportFrom": {
     "message": "Dışa aktarılacak konum"
   },
-  "export": {
-    "message": "Dışa aktar"
+  "exportVerb": {
+    "message": "Dışa aktar",
+    "description": "The verb form of the word Export"
   },
-  "import": {
-    "message": "İçe aktar"
+  "exportNoun": {
+    "message": "Dışa aktar",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "İçe aktar",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "İçe aktar",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Dosya biçimi"
@@ -1522,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey ve Duo gibi marka bazlı iki aşamalı giriş seçenekleri."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Premium aboneliğiniz sona erdi"
+  },
+  "archivePremiumRestart": {
+    "message": "Arşivinize yeniden erişebilmek için Premium aboneliğinizi yeniden başlatın. Yeniden başlatmadan önce arşivlenmiş bir kaydın ayrıntılarını düzenlerseniz kayıt tekrar kasanıza taşınır."
+  },
+  "restartPremium": {
+    "message": "Premium’u yeniden başlat"
   },
   "ppremiumSignUpReports": {
     "message": "Kasanızı güvende tutmak için parola hijyeni, hesap sağlığı ve veri ihlali raporları."
@@ -2441,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Kayıt kalıcı olarak silindi"
+  },
+  "archivedItemRestored": {
+    "message": "Arşivlenmiş kayıt geri getirildi"
   },
   "restoreItem": {
     "message": "Kaydı geri yükle"
@@ -4708,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Diğer seçenekler"
+  },
   "moreOptionsTitle": {
     "message": "Diğer seçenekler - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4797,6 +4834,39 @@
   },
   "adminConsole": {
     "message": "Yönetici Konsolu"
+  },
+  "admin": {
+    "message": "Yönetici"
+  },
+  "automaticUserConfirmation": {
+    "message": "Otomatik kullanıcı onayı"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Yeni kullanıcıları otomatik onayla"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
   },
   "accountSecurity": {
     "message": "Hesap güvenliği"
@@ -5061,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "$WEBSITE$ eşleşme tespitini gizle",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Eşleşme tespitini göster"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Eşleşme tespitini gizle"
   },
   "autoFillOnPageLoad": {
     "message": "Sayfa yüklenince otomatik doldur"
@@ -5206,7 +5273,7 @@
     "message": "Web sitesi URI'sini yeniden sıralayın. Kayıtı yukarı veya aşağı taşımak için ok tuşunu kullanın."
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ yukarı taşındı, konum: $LENGTH$'in $INDEX$'i",
+    "message": "$LABEL$ yukarı taşındı. Konum: $LENGTH$/$INDEX$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5606,6 +5673,9 @@
   "extraWide": {
     "message": "Ekstra geniş"
   },
+  "narrow": {
+    "message": "Dar"
+  },
   "sshKeyWrongPassword": {
     "message": "Girdiğiniz parola yanlış."
   },
@@ -5653,6 +5723,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu hesap risk altında ve web sitesi eksik. Bir web sitesi ekleyin ve güvenliğinizi artırmak için parolayı değiştirin."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Şimdi değiştir"
   },
   "missingWebsite": {
     "message": "Web sitesi eksik"
@@ -5729,7 +5805,7 @@
     "message": "Oltalama tespiti hakkında daha fazla bilgi edinin"
   },
   "protectedBy": {
-    "message": "$PRODUCT$ tarafından korunuyor",
+    "message": "$PRODUCT$ ile korunuyor",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -6029,5 +6105,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Bunu neden görüyorum?"
+  },
+  "resizeSideNavigation": {
+    "message": "Kenar menüsünü yeniden boyutlandır"
   }
 }

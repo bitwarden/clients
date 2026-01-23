@@ -3,7 +3,11 @@
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
 import { merge, of, Subject } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  OrganizationUserApiService,
+  OrganizationUserService,
+} from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
@@ -24,6 +28,12 @@ import {
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
+  AUTOFILL_NUDGE_SERVICE,
+  AUTO_CONFIRM_NUDGE_SERVICE,
+  AutoConfirmNudgeService,
+} from "@bitwarden/angular/vault";
+import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import {
   LoginComponentService,
   TwoFactorAuthComponentService,
   TwoFactorAuthDuoComponentService,
@@ -38,22 +48,29 @@ import {
   LogoutService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import {
+  AutomaticUserConfirmationService,
+  DefaultAutomaticUserConfirmationService,
+} from "@bitwarden/auto-confirm";
+import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  InternalOrganizationServiceAbstraction,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   AccountService,
   AccountService as AccountServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import {
   AutofillSettingsService,
@@ -208,6 +225,7 @@ import {
 } from "../../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
+import { BrowserAutofillNudgeService } from "../../vault/popup/services/browser-autofill-nudge.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
@@ -491,18 +509,19 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: AuthRequestAnsweringServiceAbstraction,
-    useClass: AuthRequestAnsweringService,
+    provide: AuthRequestAnsweringService,
+    useClass: ExtensionAuthRequestAnsweringService,
     deps: [
       AccountServiceAbstraction,
-      ActionsService,
       AuthService,
-      I18nServiceAbstraction,
       MasterPasswordServiceAbstraction,
       MessagingService,
       PendingAuthRequestsStateService,
+      ActionsService,
+      I18nServiceAbstraction,
       PlatformUtilsService,
       SystemNotificationsService,
+      LogService,
     ],
   }),
   safeProvider({
@@ -522,7 +541,9 @@ const safeProviders: SafeProvider[] = [
       AccountService,
       BillingAccountProfileStateService,
       ConfigService,
+      LogService,
       OrganizationService,
+      PlatformUtilsService,
       StateProvider,
     ],
   }),
@@ -741,6 +762,19 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: AutomaticUserConfirmationService,
+    useClass: DefaultAutomaticUserConfirmationService,
+    deps: [
+      ConfigService,
+      ApiService,
+      OrganizationUserService,
+      StateProvider,
+      InternalOrganizationServiceAbstraction,
+      OrganizationUserApiService,
+      PolicyService,
+    ],
+  }),
+  safeProvider({
     provide: SessionTimeoutTypeService,
     useClass: BrowserSessionTimeoutTypeService,
     deps: [PlatformUtilsService],
@@ -754,6 +788,16 @@ const safeProviders: SafeProvider[] = [
       PolicyService,
       MessagingServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: AUTOFILL_NUDGE_SERVICE as SafeInjectionToken<BrowserAutofillNudgeService>,
+    useClass: BrowserAutofillNudgeService,
+    deps: [StateProvider, VaultProfileService, LogService],
+  }),
+  safeProvider({
+    provide: AUTO_CONFIRM_NUDGE_SERVICE as SafeInjectionToken<AutoConfirmNudgeService>,
+    useClass: AutoConfirmNudgeService,
+    deps: [StateProvider, AutomaticUserConfirmationService],
   }),
 ];
 

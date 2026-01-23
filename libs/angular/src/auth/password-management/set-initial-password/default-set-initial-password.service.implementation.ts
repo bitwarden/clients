@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { concatMap, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -19,18 +19,32 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
+import {
+  fromSdkKdfConfig,
+  KdfConfig,
+  KdfConfigService,
+  KeyService,
+} from "@bitwarden/key-management";
+import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 
 import {
-  SetInitialPasswordService,
+  InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
-  SetInitialPasswordUserType,
+  SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
+  SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
@@ -46,6 +60,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected accountCryptographicStateService: AccountCryptographicStateService,
+    protected registerSdkService: RegisterSdkService,
   ) {}
 
   async setInitialPassword(
@@ -62,6 +77,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       orgSsoIdentifier,
       orgId,
       resetPasswordAutoEnroll,
+      newPassword,
+      salt,
     } = credentials;
 
     for (const [key, value] of Object.entries(credentials)) {
@@ -155,6 +172,20 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
     );
 
+    // Set master password unlock data for unlock path pointed to with
+    // MasterPasswordUnlockData feature development
+    // (requires: password, salt, kdf, userKey).
+    // As migration to this strategy continues, both unlock paths need supported.
+    // Several invocations in this file become redundant and can be removed once
+    // the feature is enshrined/unwound. These are marked with [PM-23246] below.
+    await this.setMasterPasswordUnlockData(
+      newPassword,
+      salt,
+      kdfConfig,
+      masterKeyEncryptedUserKey[0],
+      userId,
+    );
+
     /**
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
      * (Existing TDE users will have their private key set on sync or on login.)
@@ -174,11 +205,132 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       );
     }
 
+    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
     await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
       await this.handleResetPasswordAutoEnroll(newServerMasterKeyHash, orgId, userId);
     }
+  }
+
+  async setInitialPasswordTdeOffboarding(
+    credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) {
+    const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} not found. Could not set password.`);
+      }
+    }
+
+    if (userId == null) {
+      throw new Error("userId not found. Could not set password.");
+    }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("userKey not found. Could not set password.");
+    }
+
+    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+      newMasterKey,
+      userKey,
+    );
+
+    if (!newMasterKeyEncryptedUserKey[1].encryptedString) {
+      throw new Error("newMasterKeyEncryptedUserKey not found. Could not set password.");
+    }
+
+    const request = new UpdateTdeOffboardingPasswordRequest();
+    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
+    request.newMasterPasswordHash = newServerMasterKeyHash;
+    request.masterPasswordHint = newPasswordHint;
+
+    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
+
+    // Clear force set password reason to allow navigation back to vault.
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+  }
+
+  async initializePasswordJitPasswordUserV2Encryption(
+    credentials: InitializeJitPasswordCredentials,
+    userId: UserId,
+  ): Promise<void> {
+    if (userId == null) {
+      throw new Error("User ID is required.");
+    }
+
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} is required.`);
+      }
+    }
+
+    const { newPasswordHint, orgSsoIdentifier, orgId, resetPasswordAutoEnroll, newPassword, salt } =
+      credentials;
+
+    const organizationKeys = await this.organizationApiService.getKeys(orgId);
+    if (organizationKeys == null) {
+      throw new Error("Organization keys response is null.");
+    }
+
+    const registerResult = await firstValueFrom(
+      this.registerSdkService.registerClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+          return await ref.value
+            .auth()
+            .registration()
+            .post_keys_for_jit_password_registration({
+              org_id: asUuid<SdkOrganizationId>(orgId),
+              org_public_key: organizationKeys.publicKey,
+              master_password: newPassword,
+              master_password_hint: newPasswordHint,
+              salt: salt,
+              organization_sso_identifier: orgSsoIdentifier,
+              user_id: asUuid<SdkUserId>(userId),
+              reset_password_enroll: resetPasswordAutoEnroll,
+            });
+        }),
+      ),
+    );
+
+    if (!("V2" in registerResult.account_cryptographic_state)) {
+      throw new Error("Unexpected V2 account cryptographic state");
+    }
+
+    // Note: When SDK state management matures, these should be moved into post_keys_for_tde_registration
+    // Set account cryptography state
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      registerResult.account_cryptographic_state,
+      userId,
+    );
+
+    // Clear force set password reason to allow navigation back to vault.
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+
+    const masterPasswordUnlockData = MasterPasswordUnlockData.fromSdk(
+      registerResult.master_password_unlock,
+    );
+    await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
+
+    await this.keyService.setUserKey(
+      SymmetricCryptoKey.fromString(registerResult.user_key) as UserKey,
+      userId,
+    );
+
+    await this.updateLegacyState(
+      newPassword,
+      fromSdkKdfConfig(registerResult.master_password_unlock.kdf),
+      new EncString(registerResult.master_password_unlock.masterKeyWrappedUserKey),
+      userId,
+      masterPasswordUnlockData,
+    );
   }
 
   private async makeMasterKeyEncryptedUserKey(
@@ -216,8 +368,69 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userDecryptionOpts,
     );
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
+    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
     await this.masterPasswordService.setMasterKey(masterKey, userId);
+    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
+    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
+      masterKeyEncryptedUserKey[1],
+      userId,
+    );
     await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
+  }
+
+  // Deprecated legacy support - to be removed in future
+  private async updateLegacyState(
+    newPassword: string,
+    kdfConfig: KdfConfig,
+    masterKeyWrappedUserKey: EncString,
+    userId: UserId,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+  ) {
+    // TODO Remove HasMasterPassword from UserDecryptionOptions https://bitwarden.atlassian.net/browse/PM-23475
+    const userDecryptionOpts = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+    );
+    userDecryptionOpts.hasMasterPassword = true;
+    await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+      userId,
+      userDecryptionOpts,
+    );
+
+    // TODO Remove KDF state https://bitwarden.atlassian.net/browse/PM-30661
+    await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
+    // TODO Remove master key memory state https://bitwarden.atlassian.net/browse/PM-23477
+    await this.masterPasswordService.setMasterKeyEncryptedUserKey(masterKeyWrappedUserKey, userId);
+
+    // TODO Removed with https://bitwarden.atlassian.net/browse/PM-30676
+    await this.masterPasswordService.setLegacyMasterKeyFromUnlockData(
+      newPassword,
+      masterPasswordUnlockData,
+      userId,
+    );
+  }
+
+  /**
+   * As part of [PM-28494], adding this setting path to accommodate the changes that are
+   * emerging with pm-23246-unlock-with-master-password-unlock-data.
+   * Without this, immediately locking/unlocking the vault with the new password _may_ still fail
+   * if sync has not completed. Sync will eventually set this data, but we want to ensure it's
+   * set right away here to prevent a race condition UX issue that prevents immediate unlock.
+   */
+  private async setMasterPasswordUnlockData(
+    password: string,
+    salt: MasterPasswordSalt,
+    kdfConfig: KdfConfig,
+    userKey: UserKey,
+    userId: UserId,
+  ): Promise<void> {
+    const masterPasswordUnlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
+      password,
+      kdfConfig,
+      salt,
+      userKey,
+    );
+
+    await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
   }
 
   private async handleResetPasswordAutoEnroll(
@@ -261,45 +474,5 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
       enrollmentRequest,
     );
-  }
-
-  async setInitialPasswordTdeOffboarding(
-    credentials: SetInitialPasswordTdeOffboardingCredentials,
-    userId: UserId,
-  ) {
-    const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;
-    for (const [key, value] of Object.entries(credentials)) {
-      if (value == null) {
-        throw new Error(`${key} not found. Could not set password.`);
-      }
-    }
-
-    if (userId == null) {
-      throw new Error("userId not found. Could not set password.");
-    }
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-    if (userKey == null) {
-      throw new Error("userKey not found. Could not set password.");
-    }
-
-    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
-      newMasterKey,
-      userKey,
-    );
-
-    if (!newMasterKeyEncryptedUserKey[1].encryptedString) {
-      throw new Error("newMasterKeyEncryptedUserKey not found. Could not set password.");
-    }
-
-    const request = new UpdateTdeOffboardingPasswordRequest();
-    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
-    request.newMasterPasswordHash = newServerMasterKeyHash;
-    request.masterPasswordHint = newPasswordHint;
-
-    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
-
-    // Clear force set password reason to allow navigation back to vault.
-    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
 }

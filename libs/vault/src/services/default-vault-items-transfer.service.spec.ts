@@ -2,11 +2,12 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of, Subject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { EventType } from "@bitwarden/common/enums";
@@ -41,6 +42,7 @@ describe("DefaultVaultItemsTransferService", () => {
   let mockToastService: MockProxy<ToastService>;
   let mockEventCollectionService: MockProxy<EventCollectionService>;
   let mockConfigService: MockProxy<ConfigService>;
+  let mockOrganizationUserApiService: MockProxy<OrganizationUserApiService>;
 
   const userId = "user-id" as UserId;
   const organizationId = "org-id" as OrganizationId;
@@ -76,6 +78,7 @@ describe("DefaultVaultItemsTransferService", () => {
     mockToastService = mock<ToastService>();
     mockEventCollectionService = mock<EventCollectionService>();
     mockConfigService = mock<ConfigService>();
+    mockOrganizationUserApiService = mock<OrganizationUserApiService>();
 
     mockI18nService.t.mockImplementation((key) => key);
     transferInProgressValues = [];
@@ -91,6 +94,7 @@ describe("DefaultVaultItemsTransferService", () => {
       mockToastService,
       mockEventCollectionService,
       mockConfigService,
+      mockOrganizationUserApiService,
     );
   });
 
@@ -631,9 +635,15 @@ describe("DefaultVaultItemsTransferService", () => {
       mockDialogService.open
         .mockReturnValueOnce(createMockDialogRef(TransferItemsDialogResult.Declined))
         .mockReturnValueOnce(createMockDialogRef(LeaveConfirmationDialogResult.Confirmed));
+      mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
 
       await service.enforceOrganizationDataOwnership(userId);
 
+      expect(mockOrganizationUserApiService.revokeSelf).toHaveBeenCalledWith(organizationId);
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "leftOrganization",
+      });
       expect(mockCipherService.shareManyWithServer).not.toHaveBeenCalled();
     });
 

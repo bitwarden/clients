@@ -1,3 +1,4 @@
+import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -6,19 +7,20 @@ import {
   OrganizationUserBulkResponse,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import {
   OrganizationUserType,
   OrganizationUserStatusType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
+import { DialogService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -30,13 +32,9 @@ describe("MemberActionsService", () => {
   let service: MemberActionsService;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationUserService: MockProxy<OrganizationUserService>;
-  let keyService: MockProxy<KeyService>;
-  let encryptService: MockProxy<EncryptService>;
   let configService: MockProxy<ConfigService>;
-  let accountService: FakeAccountService;
   let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
 
-  const userId = newGuid() as UserId;
   const organizationId = newGuid() as OrganizationId;
   const userIdToManage = newGuid();
 
@@ -46,10 +44,7 @@ describe("MemberActionsService", () => {
   beforeEach(() => {
     organizationUserApiService = mock<OrganizationUserApiService>();
     organizationUserService = mock<OrganizationUserService>();
-    keyService = mock<KeyService>();
-    encryptService = mock<EncryptService>();
     configService = mock<ConfigService>();
-    accountService = mockAccountServiceWith(userId);
     organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
 
     mockOrganization = {
@@ -68,15 +63,29 @@ describe("MemberActionsService", () => {
       resetPasswordEnrolled: true,
     } as OrganizationUserView;
 
-    service = new MemberActionsService(
-      organizationUserApiService,
-      organizationUserService,
-      keyService,
-      encryptService,
-      configService,
-      accountService,
-      organizationMetadataService,
-    );
+    TestBed.configureTestingModule({
+      providers: [
+        MemberActionsService,
+        { provide: OrganizationUserApiService, useValue: organizationUserApiService },
+        { provide: OrganizationUserService, useValue: organizationUserService },
+        { provide: ConfigService, useValue: configService },
+        {
+          provide: OrganizationMetadataServiceAbstraction,
+          useValue: organizationMetadataService,
+        },
+        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: OrganizationManagementPreferencesService,
+          useValue: mock<OrganizationManagementPreferencesService>(),
+        },
+        { provide: UserNamePipe, useValue: mock<UserNamePipe>() },
+      ],
+    });
+
+    service = TestBed.inject(MemberActionsService);
   });
 
   describe("inviteUser", () => {
@@ -242,8 +251,7 @@ describe("MemberActionsService", () => {
   describe("confirmUser", () => {
     const publicKey = new Uint8Array([1, 2, 3, 4, 5]);
 
-    it("should confirm user using new flow when feature flag is enabled", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
+    it("should confirm user", async () => {
       organizationUserService.confirmUser.mockReturnValue(of(undefined));
 
       const result = await service.confirmUser(mockOrgUser, publicKey, mockOrganization);
@@ -257,44 +265,7 @@ describe("MemberActionsService", () => {
       expect(organizationUserApiService.postOrganizationUserConfirm).not.toHaveBeenCalled();
     });
 
-    it("should confirm user using exising flow when feature flag is disabled", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(false));
-
-      const mockOrgKey = mock<OrgKey>();
-      const mockOrgKeys = { [organizationId]: mockOrgKey };
-      keyService.orgKeys$.mockReturnValue(of(mockOrgKeys));
-
-      const mockEncryptedKey = new EncString("encrypted-key-data");
-      encryptService.encapsulateKeyUnsigned.mockResolvedValue(mockEncryptedKey);
-
-      organizationUserApiService.postOrganizationUserConfirm.mockResolvedValue(undefined);
-
-      const result = await service.confirmUser(mockOrgUser, publicKey, mockOrganization);
-
-      expect(result).toEqual({ success: true });
-      expect(keyService.orgKeys$).toHaveBeenCalledWith(userId);
-      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(mockOrgKey, publicKey);
-      expect(organizationUserApiService.postOrganizationUserConfirm).toHaveBeenCalledWith(
-        organizationId,
-        userIdToManage,
-        expect.objectContaining({
-          key: "encrypted-key-data",
-        }),
-      );
-    });
-
-    it("should handle missing organization keys", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(false));
-      keyService.orgKeys$.mockReturnValue(of({}));
-
-      const result = await service.confirmUser(mockOrgUser, publicKey, mockOrganization);
-
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("Organization keys not found");
-    });
-
     it("should handle confirm errors", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       const errorMessage = "Confirm failed";
       organizationUserService.confirmUser.mockImplementation(() => {
         throw new Error(errorMessage);
@@ -711,6 +682,28 @@ describe("MemberActionsService", () => {
       const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("isProcessing signal", () => {
+    it("should be false initially", () => {
+      expect(service.isProcessing()).toBe(false);
+    });
+
+    it("should be false after operation completes successfully", async () => {
+      organizationUserApiService.removeOrganizationUser.mockResolvedValue(undefined);
+
+      await service.removeUser(mockOrganization, userIdToManage);
+
+      expect(service.isProcessing()).toBe(false);
+    });
+
+    it("should be false after operation fails", async () => {
+      organizationUserApiService.removeOrganizationUser.mockRejectedValue(new Error("Failed"));
+
+      await service.removeUser(mockOrganization, userIdToManage);
+
+      expect(service.isProcessing()).toBe(false);
     });
   });
 });
