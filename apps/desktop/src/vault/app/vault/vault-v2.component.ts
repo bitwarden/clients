@@ -692,6 +692,9 @@ export class VaultV2Component<C extends CipherViewLike>
         }
         break;
       case CipherType.Card:
+        if (cipher.isDeleted) {
+          break;
+        }
         if (cipher.card.number != null || cipher.card.code != null) {
           menu.push({ type: "separator" });
         }
