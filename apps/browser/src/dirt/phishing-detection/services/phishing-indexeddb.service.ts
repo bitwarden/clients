@@ -53,6 +53,9 @@ export class PhishingIndexedDbService {
    * @returns `true` if save succeeded, `false` on error
    */
   async saveUrls(urls: string[]): Promise<boolean> {
+    this.logService.debug(
+      `[PhishingIndexedDbService] Clearing and saving ${urls.length} to the store...`,
+    );
     let db: IDBDatabase | null = null;
     try {
       db = await this.openDatabase();
@@ -75,6 +78,8 @@ export class PhishingIndexedDbService {
    * @returns `true` if add succeeded, `false` on error
    */
   async addUrls(urls: string[]): Promise<boolean> {
+    this.logService.debug(`[PhishingIndexedDbService] Adding ${urls.length} to the store...`);
+
     let db: IDBDatabase | null = null;
     try {
       db = await this.openDatabase();
@@ -121,6 +126,8 @@ export class PhishingIndexedDbService {
    * @returns `true` if URL exists, `false` if not found or on error
    */
   async hasUrl(url: string): Promise<boolean> {
+    this.logService.debug(`[PhishingIndexedDbService] Checking if store contains ${url}...`);
+
     let db: IDBDatabase | null = null;
     try {
       db = await this.openDatabase();
@@ -151,6 +158,8 @@ export class PhishingIndexedDbService {
    * @returns Array of all stored URLs, or empty array on error
    */
   async loadAllUrls(): Promise<string[]> {
+    this.logService.debug("[PhishingIndexedDbService] Loading all urls from store...");
+
     let db: IDBDatabase | null = null;
     try {
       db = await this.openDatabase();
@@ -194,6 +203,8 @@ export class PhishingIndexedDbService {
    * @returns `true` if save succeeded, `false` on error
    */
   async saveUrlsFromStream(stream: ReadableStream<Uint8Array>): Promise<boolean> {
+    this.logService.debug("[PhishingIndexedDbService] Saving urls to the store from stream...");
+
     let db: IDBDatabase | null = null;
     try {
       db = await this.openDatabase();
