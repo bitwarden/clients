@@ -162,7 +162,10 @@ export class PhishingDataService {
 
     // Quick lookup: check direct presence of hostname in IndexedDB
     try {
-      return await this.indexedDbService.hasUrl(url.hostname);
+      const hasUrl = await this.indexedDbService.hasUrl(url.hostname);
+      if (hasUrl) {
+        return true;
+      }
     } catch (err) {
       this.logService.error("[PhishingDataService] IndexedDB lookup via hasUrl failed", err);
     }
