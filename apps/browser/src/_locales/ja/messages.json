@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "アイテムをアーカイブ"
   },
-  "archiveItemConfirmDesc": {
-    "message": "アーカイブされたアイテムはここに表示され、通常の検索結果および自動入力の候補から除外されます。このアイテムをアーカイブしますか？"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "完全に削除されたアイテム"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "アイテムをリストア"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "その他のオプション - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "一致検出 $WEBSITE$を非表示",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "ページ読み込み時に自動入力する"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "エクストラワイド"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "入力されたパスワードが間違っています。"
