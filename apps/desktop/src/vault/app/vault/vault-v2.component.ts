@@ -651,6 +651,9 @@ export class VaultV2Component<C extends CipherViewLike>
         ) {
           menu.push({ type: "separator" });
         }
+        if (cipher.isDeleted) {
+          break;
+        }
         if (cipher.login.canLaunch) {
           menu.push({
             label: this.i18nService.t("launch"),
