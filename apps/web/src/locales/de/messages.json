@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Auswahl wiederherstellen"
   },
+  "archivedItemRestored": {
+    "message": "Archivierter Eintrag wiederhergestellt"
+  },
+  "archivedItemsRestored": {
+    "message": "Archivierte Einträge wiederhergestellt"
+  },
   "restoredItem": {
     "message": "Eintrag wiederhergestellt"
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Zentralisierung der Eigentumsrechte an Organisationen"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Alle Mitgliedereinträge gehen in den Besitz der Organisation über und werden von dieser verwaltet. Administratoren und Eigentümer sind davon ausgenommen. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Erfahre mehr über zentralisierte Eigentumsrechte",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Vorteile"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Verschaffe dir einen vollständigen Überblick über den Zustand deiner Zugangsdaten, einschließlich geteilter und nicht geteilter Einträge."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Übertrage Einträge bei Austritt und Ablösung von Mitgliedern ganz einfach und sorge dafür, dass keine Zugriffslücken entstehen."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Stelle allen Benutzern einen eigenen \"Meine Einträge\"-Bereich für die Verwaltung ihrer eigenen Zugangsdaten zur Verfügung."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Mitglieder auffordern, ihre Einträge zu übertragen"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Wenn Mitglieder Einträge in ihrem eigenen Tresor haben, werden sie aufgefordert, diese entweder an die Organisation zu übertragen oder zu die Organisation verlassen. Wenn sie gehen, wird ihr Zugriff widerrufen, kann aber jederzeit wiederhergestellt werden."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Erfahre mehr über die Übertragung"
   },
   "organizationDataOwnership": {
     "message": "Eigentumsrechte an Unternehmensdaten erzwingen"
@@ -11701,8 +11738,8 @@
     "message": "Eintrag archivieren",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  "archiveItemDialogContent": {
+    "message": "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
   "archiveBulkItems": {
     "message": "Einträge archivieren",
