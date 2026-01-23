@@ -221,7 +221,7 @@ export class LocalBackedSessionStorageService
       `[LocalBackedSessionStorageService] Clearing local session storage. Found ${keys}`,
     );
     for (const key of keys) {
-      const keyWithoutPrefix = key.substring(SESSION_KEY_PREFIX.indexOf(key) + 1);
+      const keyWithoutPrefix = key.substring(SESSION_KEY_PREFIX.length);
       await this.remove(keyWithoutPrefix);
     }
   }
