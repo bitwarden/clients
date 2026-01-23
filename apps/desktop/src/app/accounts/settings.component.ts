@@ -313,17 +313,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     // Screen Privacy is for Windows initially
     // TODO: windows only for now, update when done testing
-    if (true) {
-      this.showScreenPrivacy = true;
-      /*
+    /*if (true) {
       this.configService
       .getFeatureFlag$(FeatureFlag.ScreenPrivacy)
       .pipe(takeUntil(this.destroy$))
       .subscribe((enabled) => {
         this.showScreenPrivacy = enabled;
       });
-      */
-    }
+    }*/
+    this.showScreenPrivacy = true;
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
@@ -988,7 +986,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async saveScreenPrivacy() {
     await this.desktopAutofillSettingsService.setScreenPrivacy(this.form.value.screenPrivacy);
-    console.log("screen privacy updated to: " + this.form.value.screenPrivacy);
+    // console.log("screen privacy updated to: " + this.form.value.screenPrivacy);
   }
 
   async saveAutotypeShortcut() {
