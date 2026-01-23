@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "항목 보관"
   },
-  "archiveItemConfirmDesc": {
-    "message": "보관된 항목은 일반 검색 결과와 자동 완성 제안에서 제외됩니다. 이 항목을 보관하시겠습니까?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "영구적으로 삭제된 항목"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "항목 복원"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "다른 옵션 - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "$WEBSITE$ 일치 인식 숨기기",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "페이지 로드 시 자동 완성을 할까요?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "매우 넓게"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."

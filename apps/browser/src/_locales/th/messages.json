@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "จัดเก็บรายการถาวร"
   },
-  "archiveItemConfirmDesc": {
-    "message": "รายการที่จัดเก็บถาวรจะไม่ถูกรวมในผลการค้นหาทั่วไปและคำแนะนำการป้อนอัตโนมัติ ยืนยันที่จะจัดเก็บรายการนี้ถาวรหรือไม่"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "ลบรายการถาวรแล้ว"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "กู้คืนรายการ"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "ตัวเลือกเพิ่มเติม - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "ซ่อนการตรวจสอบการจับคู่ $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "ป้อนอัตโนมัติเมื่อโหลดหน้าเว็บหรือไม่"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "กว้างพิเศษ"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "รหัสผ่านที่คุณป้อนไม่ถูกต้อง"

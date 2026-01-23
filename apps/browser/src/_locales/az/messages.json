@@ -582,14 +582,14 @@
   "archiveItem": {
     "message": "Elementi arxivlə"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
+  "archiveItemDialogContent": {
+    "message": "Arxivləndikdən sonra, bu element axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arxivləndi"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Arxivdən çıxart və saxla"
   },
   "upgradeToUseArchive": {
     "message": "Arxivi istifadə etmək üçün premium üzvlük tələb olunur."
@@ -1546,13 +1546,13 @@
     "message": "YubiKey və Duo kimi mülkiyyətçi iki addımlı giriş seçimləri."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Premium abunəliyiniz bitdi"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "\"Premium\"u yenidən başlat"
   },
   "ppremiumSignUpReports": {
     "message": "Seyfinizi güvəndə saxlamaq üçün parol gigiyenası, hesab sağlamlığı və veri pozuntusu hesabatları."
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Element birdəfəlik silindi"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "Elementi bərpa et"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Daha çox seçim"
+  },
   "moreOptionsTitle": {
     "message": "Daha çox seçim - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "$WEBSITE$ ilə uyuşma aşkarlamasını gizlət",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Uyuşma aşkarlamasını göstər"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Uyuşma aşkarlamasını gizlət"
   },
   "autoFillOnPageLoad": {
     "message": "Səhifə yüklənəndə avto-doldurulsun?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Ekstra enli"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "Daxil etdiyiniz parol yanlışdır."

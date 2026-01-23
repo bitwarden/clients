@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "封存項目"
   },
-  "archiveItemConfirmDesc": {
-    "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
+  "archiveItemDialogContent": {
+    "message": "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。"
   },
   "archived": {
     "message": "已封存"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "項目已永久刪除"
+  },
+  "archivedItemRestored": {
+    "message": "已還原封存項目"
   },
   "restoreItem": {
     "message": "還原項目"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "更多選項"
+  },
   "moreOptionsTitle": {
     "message": "更多選項 - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "隱藏偵測到的吻合 $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "顯示比對偵測"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "隱藏比對偵測"
   },
   "autoFillOnPageLoad": {
     "message": "在頁面載入時自動填寫？"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "超寬"
+  },
+  "narrow": {
+    "message": "縮小"
   },
   "sshKeyWrongPassword": {
     "message": "您輸入的密碼錯誤。"

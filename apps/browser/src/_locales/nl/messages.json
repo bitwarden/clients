@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "Item archiveren"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  "archiveItemDialogContent": {
+    "message": "Eenmaal gearchiveerd wordt dit item uitgesloten van zoekresultaten en suggesties voor automatisch invullen."
   },
   "archived": {
     "message": "Archived"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Definitief verwijderd item"
+  },
+  "archivedItemRestored": {
+    "message": "Gearchiveerd item hersteld"
   },
   "restoreItem": {
     "message": "Item herstellen"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Meer opties"
+  },
   "moreOptionsTitle": {
     "message": "Meer opties - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Overeenkomstdetectie verbergen $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie weergeven"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie verbergen"
   },
   "autoFillOnPageLoad": {
     "message": "Automatisch invullen bij laden van pagina?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Extra breed"
+  },
+  "narrow": {
+    "message": "Smal"
   },
   "sshKeyWrongPassword": {
     "message": "Het wachtwoord dat je hebt ingevoerd is onjuist."

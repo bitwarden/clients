@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "Archive item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -1947,7 +1947,7 @@
     "message": "Tahun Kedaluwarsa"
   },
   "monthly": {
-    "message": "month"
+    "message": "bulan"
   },
   "expiration": {
     "message": "Masa Berlaku"
@@ -2097,51 +2097,51 @@
     "message": "Catatan"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Log Masuk Baru",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Kartu Baru",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Identitas Baru",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Catatan Baru",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Kunci SSH Baru",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Kirim Teks Baru",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Kirim Berkas Baru",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Sunting Log Masuk",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Sunting Kartu",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Sunting Identitas",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Sunting Catatan",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Sunting kunci SSH",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Hapus Item Secara Permanen"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "Pulihkan Item"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "Pilihan lainnya - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Sembunyikan deteksi kecocokan $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Isi otomatis ketika halaman dimuat?"
@@ -5670,6 +5673,9 @@
   "extraWide": {
     "message": "Ekstra lebar"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Kata sandi yang Anda masukkan tidak benar."
   },
@@ -5994,19 +6000,19 @@
     "message": "Leave now"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Verifikasikan domain Anda untuk log masuk"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Untuk melanjutkan log masuk, verifikasikan domain ini."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Untuk melanjutkan log masuk, verifikasikan organisasi dan domain."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Tindakan saat habis waktu"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "Pengaturan ini dikelola oleh organisasi Anda."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
     "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",

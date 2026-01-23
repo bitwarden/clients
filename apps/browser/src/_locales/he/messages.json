@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "העבר פריט לארכיון"
   },
-  "archiveItemConfirmDesc": {
-    "message": "פריטים בארכיון מוחרגים מתוצאות חיפוש כללי והצעות למילוי אוטומטי. האם אתה בטוח שברצונך להעביר פריט זה לארכיון?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "הפריט נמחק לצמיתות"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "שחזר פריט"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "עוד אפשרויות - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "הסתר זיהוי התאמה $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "למלא אוטומטית בעת טעינת עמוד?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "רחב במיוחד"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "הסיסמה שהזנת שגויה."

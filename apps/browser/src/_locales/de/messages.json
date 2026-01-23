@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "Eintrag archivieren"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  "archiveItemDialogContent": {
+    "message": "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
   "archived": {
     "message": "Archiviert"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Eintrag dauerhaft gelöscht"
+  },
+  "archivedItemRestored": {
+    "message": "Archivierter Eintrag wiederhergestellt"
   },
   "restoreItem": {
     "message": "Eintrag wiederherstellen"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Weitere Optionen"
+  },
   "moreOptionsTitle": {
     "message": "Weitere Optionen - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Übereinstimmungs-Erkennung verstecken $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung anzeigen"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung ausblenden"
   },
   "autoFillOnPageLoad": {
     "message": "Auto-Ausfüllen beim Laden einer Seite?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Extra breit"
+  },
+  "narrow": {
+    "message": "Schmal"
   },
   "sshKeyWrongPassword": {
     "message": "Dein eingegebenes Passwort ist falsch."

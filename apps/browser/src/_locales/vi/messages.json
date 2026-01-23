@@ -437,7 +437,7 @@
     "message": "Đồng bộ"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Đồng bộ ngay"
   },
   "lastSync": {
     "message": "Đồng bộ lần cuối:"
@@ -574,7 +574,7 @@
     "message": "Mục đã được chuyển vào kho lưu trữ"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Mục đã được bỏ lưu trữ"
   },
   "itemUnarchived": {
     "message": "Mục đã được bỏ lưu trữ"
@@ -582,20 +582,20 @@
   "archiveItem": {
     "message": "Lưu trữ mục"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Các mục đã lưu trữ sẽ bị loại khỏi kết quả tìm kiếm chung và gợi ý tự động điền. Bạn có chắc chắn muốn lưu trữ mục này không?"
+  "archiveItemDialogContent": {
+    "message": "Khi đã lưu trữ, mục này sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Đã lưu trữ"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Bỏ lưu trữ và lưu"
   },
   "upgradeToUseArchive": {
     "message": "Cần là thành viên cao cấp để sử dụng tính năng Lưu trữ."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Mục đã được khôi phục"
   },
   "edit": {
     "message": "Sửa"
@@ -1335,19 +1335,19 @@
     "message": "Xuất từ"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Xuất",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Xuất",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Nhập",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Nhập",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1546,13 +1546,13 @@
     "message": "Các tùy chọn xác minh hai bước như YubiKey và Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Gói đăng ký Cao cấp của bạn đã kết thúc"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Để lấy lại quyền truy cập vào lưu trữ của bạn, hãy khởi động lại gói đăng ký Cao cấp. Nếu bạn chỉnh sửa chi tiết cho một mục đã lưu trữ trước khi khởi động lại, mục đó sẽ được chuyển trở lại kho của bạn."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Khởi động lại gói Cao cấp"
   },
   "ppremiumSignUpReports": {
     "message": "Thanh lọc mật khẩu, kiểm tra an toàn tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho dữ liệu của bạn."
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Đã xóa vĩnh viễn mục"
+  },
+  "archivedItemRestored": {
+    "message": "Mục lưu trữ đã được khôi phục"
   },
   "restoreItem": {
     "message": "Khôi phục mục"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Thêm tuỳ chọn"
+  },
   "moreOptionsTitle": {
     "message": "Thêm tùy chọn - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4830,49 +4836,49 @@
     "message": "Bảng điều khiển dành cho quản trị viên"
   },
   "admin": {
-    "message": "Admin"
+    "message": "Quản trị"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Tự động xác nhận người dùng"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "Tự động xác nhận người dùng đang chờ trong khi thiết bị này được mở khóa"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "Tiết kiệm thời gian với xác nhận người dùng tự động"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "Điều này có thể ảnh hưởng đến bảo mật dữ liệu của tổ chức bạn. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "Tìm hiểu về các rủi ro"
   },
   "autoConfirmSetup": {
-    "message": "Automatically confirm new users"
+    "message": "Tự động xác nhận người dùng mới"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "Người dùng mới sẽ được tự động xác nhận trong khi thiết bị này được mở khóa."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "Những rủi ro bảo mật tiềm ẩn là gì?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "Đã bật xác nhận tự động"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Khả dụng bây giờ"
   },
   "accountSecurity": {
     "message": "Bảo mật tài khoản"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Trình chặn lừa đảo"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Phát hiện lừa đảo"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Hiển thị cảnh báo trước khi truy cập các trang web nghi ngờ lừa đảo"
   },
   "notifications": {
     "message": "Thông báo"
@@ -4990,7 +4996,7 @@
     "message": "Tải xuống Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Tải xuống Bitwarden trên tất cả thiết bị"
+    "message": "Tải về Bitwarden trên mọi thiết bị"
   },
   "getTheMobileApp": {
     "message": "Tải ứng dụng di động"
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Ẩn phát hiện trùng khớp $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Hiển thị phát hiện trùng khớp"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ẩn phát hiện trùng khớp"
   },
   "autoFillOnPageLoad": {
     "message": "Tự động điền khi tải trang?"
@@ -5670,6 +5673,9 @@
   "extraWide": {
     "message": "Rộng hơn"
   },
+  "narrow": {
+    "message": "Hẹp"
+  },
   "sshKeyWrongPassword": {
     "message": "Mật khẩu bạn đã nhập không đúng."
   },
@@ -5719,10 +5725,10 @@
     "message": "Thông tin đăng nhập này có rủi ro và thiếu một trang web. Hãy thêm trang web và đổi mật khẩu để tăng cường bảo mật."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Mật khẩu dễ bị tấn công."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Thay đổi ngay"
   },
   "missingWebsite": {
     "message": "Thiếu trang web"
@@ -5964,43 +5970,43 @@
     "message": "Số thẻ"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "Tổ chức của bạn không còn sử dụng mật khẩu chính để đăng nhập vào Bitwarden. Để tiếp tục, hãy xác minh tổ chức và tên miền."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Tiếp tục đăng nhập"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Không tiếp tục"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Tên miền"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Tên miền này sẽ lưu trữ các khóa mã hóa tài khoản của bạn, vì vậy hãy đảm bảo bạn tin tưởng nó. Nếu bạn không chắc chắn, hãy kiểm tra với quản trị viên của bạn."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Xác minh tổ chức của bạn để đăng nhập"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Tổ chức đã được xác minh"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Tên miền đã được xác minh"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Nếu bạn không xác minh tổ chức của mình, quyền truy cập vào tổ chức sẽ bị thu hồi."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Rời khỏi ngay"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Xác minh tên miền của bạn để đăng nhập"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Để tiếp tục đăng nhập, hãy xác minh tên miền này."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Để tiếp tục đăng nhập, hãy xác minh tổ chức và tên miền."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Hành động sau khi đóng kho"
@@ -6101,6 +6107,6 @@
     "message": "Tại sao tôi thấy điều này?"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Thay đổi kích thước thanh bên"
   }
 }

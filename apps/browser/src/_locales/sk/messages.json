@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "Archivovať položku"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivované položky sú vylúčené zo všeobecného vyhľadávania a z návrhov automatického vypĺňania. Naozaj chcete archivovať túto položku?"
+  "archiveItemDialogContent": {
+    "message": "Po archivácii bude táto položka vylúčená z výsledkov vyhľadávania a návrhov automatického vypĺňania."
   },
   "archived": {
     "message": "Archivované"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Položka bola natrvalo odstránená"
+  },
+  "archivedItemRestored": {
+    "message": "Archivovaná položka bola obnovená"
   },
   "restoreItem": {
     "message": "Obnoviť položku"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Ďalšie možnosti"
+  },
   "moreOptionsTitle": {
     "message": "Ďalšie možnosti - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Skryť spôsob zisťovania zhody $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Zobraziť spôsob mapovania"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Skryť spôsob mapovania"
   },
   "autoFillOnPageLoad": {
     "message": "Automaticky vyplniť pri načítaní stránky?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Extra široké"
+  },
+  "narrow": {
+    "message": "Úzke"
   },
   "sshKeyWrongPassword": {
     "message": "Zadané heslo je nesprávne."

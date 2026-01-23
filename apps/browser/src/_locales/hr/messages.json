@@ -437,7 +437,7 @@
     "message": "Sinkronizacija"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Sinkroniziraj"
   },
   "lastSync": {
     "message": "Posljednja sinkronizacija:"
@@ -574,7 +574,7 @@
     "message": "Stavka poslana u arhivu"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "Stavka vraćena iz arhive"
   },
   "itemUnarchived": {
     "message": "Stavka vraćena iz arhive"
@@ -582,11 +582,11 @@
   "archiveItem": {
     "message": "Arhiviraj stavku"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arhivirane stavke biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune. Sigurno želiš arhivirati?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arhivirano"
   },
   "unarchiveAndSave": {
     "message": "Unarchive and save"
@@ -595,7 +595,7 @@
     "message": "A premium membership is required to use Archive."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Stavka je vraćena"
   },
   "edit": {
     "message": "Uredi"
@@ -607,7 +607,7 @@
     "message": "Vidi sve"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Prikaži sve"
   },
   "viewLess": {
     "message": "Vidi manje"
@@ -1335,19 +1335,19 @@
     "message": "Izvezi iz"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Izvoz",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Izvoz",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Uvoz",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Uvoz",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1429,25 +1429,25 @@
     "message": "Saznaj više"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Dogodila se greška pri ažuriranju postavki šifriranja."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Ažuriraj svoje postakve šifriranja"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Nove preporučene postavke šifriranja poboljšat će sigurnost tvojeg računa. Za ažuriranje, unesi svoju glavnu lozinku."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Za nastavak, potvrdi svoj identitet"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Unesi svoju glavnu lozinku"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Ažuriraj postavke"
   },
   "later": {
-    "message": "Later"
+    "message": "Kasnije"
   },
   "authenticatorKeyTotp": {
     "message": "Ključ autentifikatora (TOTP)"
@@ -1486,7 +1486,7 @@
     "message": "This file is using an outdated encryption method."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Privitak ažuriran"
   },
   "file": {
     "message": "Datoteka"
@@ -1531,7 +1531,7 @@
     "message": "1 GB šifriranog prostora za pohranu podataka."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ šifriranog prostora za privitke.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1546,13 +1546,13 @@
     "message": "Mogućnosti za prijavu u dva koraka kao što su YubiKey i Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Toja Premium pretplata je završila"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Za ponovni pristup svojoj arhivi, ponovno pokreni Premium pretplatu. Ako urediš detalje arhivirane stavke prije ponovnog pokretanja, ona će biti vraćena u tvoj trezor."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Ponovno Pokreni Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Higijenu lozinki, zdravlje računa i izvještaje o krađi podatak radi zaštite svojeg trezora."
@@ -1947,7 +1947,7 @@
     "message": "Godina isteka"
   },
   "monthly": {
-    "message": "month"
+    "message": "mjesečno"
   },
   "expiration": {
     "message": "Istek"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Stavka trajno izbrisana"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "Vrati stavku"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "Više mogućnosti - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4860,7 +4866,7 @@
     "message": "Turned on automatic confirmation"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Dostupno sada"
   },
   "accountSecurity": {
     "message": "Sigurnost računa"
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Sakrij otkrivanje podudaranja $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Auto-ispuna kod učitavanja?"
@@ -5670,6 +5673,9 @@
   "extraWide": {
     "message": "Ekstra široko"
   },
+  "narrow": {
+    "message": "Usko"
+  },
   "sshKeyWrongPassword": {
     "message": "Unesena lozinka nije ispravna."
   },
@@ -5719,10 +5725,10 @@
     "message": "Ova prijava je ugrožena i nedostaje joj web-stranica. Dodaj web-stranicu i promijeni lozinku za veću sigurnost."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Ranjiva lozinka."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Promijeni sada"
   },
   "missingWebsite": {
     "message": "Nedostaje web-stranica"
@@ -6092,13 +6098,13 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Prihvati prijenos"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Odbij i napusti"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Zašto ovo vidim?"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
