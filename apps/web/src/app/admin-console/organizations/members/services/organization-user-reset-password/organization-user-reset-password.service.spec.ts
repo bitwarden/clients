@@ -14,7 +14,7 @@ import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
   MasterPasswordAuthenticationData,
@@ -49,7 +49,7 @@ describe("OrganizationUserResetPasswordService", () => {
   let i18nService: MockProxy<I18nService>;
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
-  let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let masterPasswordService: FakeMasterPasswordService;
   let configService: MockProxy<ConfigService>;
 
   beforeAll(() => {
@@ -60,7 +60,7 @@ describe("OrganizationUserResetPasswordService", () => {
     organizationApiService = mock<OrganizationApiService>();
     i18nService = mock<I18nService>();
     accountService = mockAccountServiceWith(mockUserId);
-    masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    masterPasswordService = new FakeMasterPasswordService();
     configService = mock<ConfigService>();
 
     sut = new OrganizationUserResetPasswordService(
@@ -280,10 +280,10 @@ describe("OrganizationUserResetPasswordService", () => {
         masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       } as MasterPasswordUnlockData;
 
-      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+      masterPasswordService.mock.makeMasterPasswordAuthenticationData.mockResolvedValue(
         authenticationData,
       );
-      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
+      masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
     });
 
     it("should throw an error if the organizationUserResetPasswordDetailsResponse is nullish", async () => {
