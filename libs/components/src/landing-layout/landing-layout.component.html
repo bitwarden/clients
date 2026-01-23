@@ -1,0 +1,25 @@
+<div
+  class="tw-relative tw-flex tw-size-full tw-mx-auto tw-flex-col"
+  [class]="{
+    'tw-min-h-screen': clientType === 'web',
+    'tw-min-h-full': clientType === 'browser' || clientType === 'desktop',
+  }"
+>
+  <ng-content select="bit-landing-header"></ng-content>
+  <main class="tw-relative tw-flex tw-flex-1 tw-size-full tw-mx-auto tw-flex-col">
+    <ng-content></ng-content>
+  </main>
+  @if (!hideBackgroundIllustration()) {
+    <div
+      class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-start-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
+    >
+      <bit-icon [icon]="leftIllustration"></bit-icon>
+    </div>
+    <div
+      class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-end-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
+    >
+      <bit-icon [icon]="rightIllustration"></bit-icon>
+    </div>
+  }
+  <ng-content select="bit-landing-footer"></ng-content>
+</div>

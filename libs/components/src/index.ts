@@ -25,6 +25,7 @@ export * from "./icon";
 export * from "./icon-tile";
 export * from "./input";
 export * from "./item";
+export * from "./landing-layout";
 export * from "./layout";
 export * from "./link";
 export * from "./menu";
