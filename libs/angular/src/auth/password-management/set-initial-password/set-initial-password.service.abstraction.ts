@@ -114,8 +114,6 @@ export abstract class SetInitialPasswordService {
   ) => Promise<void>;
 
   /**
-   * @deprecated To be removed in PM-28143
-   *
    * Sets an initial password for an existing authed TDE user who has been given the
    * Manage Account Recovery permission:
    * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}

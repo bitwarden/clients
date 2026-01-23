@@ -343,6 +343,16 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     credentials: SetInitialPasswordTdeUserWithPermissionCredentials,
     userId: UserId,
   ): Promise<void> {
+    if (userId == null) {
+      throw new Error("User ID is required.");
+    }
+
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} not found.`);
+      }
+    }
+
     const {
       newPassword,
       salt,
@@ -353,76 +363,57 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       resetPasswordAutoEnroll,
     } = credentials;
 
-    for (const [key, value] of Object.entries(credentials)) {
-      if (value == null) {
-        throw new Error(`${key} not found.`);
-      }
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("userKey not found.");
+    }
 
-      if (userKey == null) {
-        throw new Error("userKey not found.");
-      }
-
-      const authenticationData: MasterPasswordAuthenticationData =
-        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
-          newPassword,
-          kdfConfig,
-          salt,
-        );
-
-      const unlockData: MasterPasswordUnlockData =
-        await this.masterPasswordService.makeMasterPasswordUnlockData(
-          newPassword,
-          kdfConfig,
-          salt,
-          userKey,
-        );
-
-      const request = SetPasswordRequest.newConstructor(
-        authenticationData,
-        unlockData,
-        newPasswordHint,
-        orgSsoIdentifier,
-        null, // no KeysRequest for TDE user because they already have a key pair
-      );
-
-      await this.masterPasswordApiService.setPassword(request);
-
-      // Clear force set password reason to allow navigation back to vault.
-      await this.masterPasswordService.setForceSetPasswordReason(
-        ForceSetPasswordReason.None,
-        userId,
-      );
-
-      // User now has a password so update account decryption options in state
-      await this.updateAccountDecryptionProperties(
-        newMasterKey,
-        kdfConfig,
-        masterKeyEncryptedUserKey,
-        userId,
-      );
-
-      // Set master password unlock data for unlock path pointed to with
-      // MasterPasswordUnlockData feature development
-      // (requires: password, salt, kdf, userKey).
-      // As migration to this strategy continues, both unlock paths need supported.
-      // Several invocations in this file become redundant and can be removed once
-      // the feature is enshrined/unwound. These are marked with [PM-23246] below.
-      await this.setMasterPasswordUnlockData(
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
         newPassword,
-        salt,
         kdfConfig,
-        masterKeyEncryptedUserKey[0],
-        userId,
+        salt,
       );
 
-      // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-      await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        newPassword,
+        kdfConfig,
+        salt,
+        userKey,
+      );
 
-      if (resetPasswordAutoEnroll) {
-        await this.handleResetPasswordAutoEnroll(newServerMasterKeyHash, orgId, userId);
-      }
+    const request = SetPasswordRequest.newConstructor(
+      authenticationData,
+      unlockData,
+      newPasswordHint,
+      orgSsoIdentifier,
+      null, // no KeysRequest for TDE user because they already have a key pair
+    );
+
+    await this.masterPasswordApiService.setPassword(request);
+
+    // Clear force set password reason to allow navigation back to vault.
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+
+    // User now has a password so update decryption state
+    await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
+    await this.keyService.setUserKey(userKey, userId);
+    await this.updateLegacyState(
+      newPassword,
+      kdfConfig,
+      new EncString(unlockData.masterKeyWrappedUserKey),
+      userId,
+      unlockData,
+    );
+
+    if (resetPasswordAutoEnroll) {
+      await this.handleResetPasswordAutoEnroll(
+        authenticationData.masterPasswordAuthenticationHash,
+        orgId,
+        userId,
+      );
     }
   }
 

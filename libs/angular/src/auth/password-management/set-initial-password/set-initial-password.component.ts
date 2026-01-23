@@ -184,7 +184,13 @@ export class SetInitialPasswordComponent implements OnInit {
         break;
       }
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
+        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
+          await this.setInitialPasswordTdeUserWithPermission(passwordInputResult);
+          return; // EARLY RETURN for flagged logic
+        }
+
         await this.setInitialPassword(passwordInputResult);
+
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
         await this.setInitialPasswordTdeOffboarding(passwordInputResult);
@@ -389,13 +395,12 @@ export class SetInitialPasswordComponent implements OnInit {
 
     assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
     assertTruthy(passwordInputResult.salt, "salt", ctx);
-    assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
     assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
     assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
     assertTruthy(this.orgId, "orgId", ctx);
-    assertTruthy(this.userType, "userType", ctx);
-    assertTruthy(this.userId, "userId", ctx);
     assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
+    assertTruthy(this.userId, "userId", ctx);
 
     try {
       const credentials: SetInitialPasswordTdeUserWithPermissionCredentials = {
@@ -408,9 +413,8 @@ export class SetInitialPasswordComponent implements OnInit {
         resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
       };
 
-      await this.setInitialPasswordService.setInitialPassword(
+      await this.setInitialPasswordService.setInitialPasswordTdeUserWithPermission(
         credentials,
-        this.userType,
         this.userId,
       );
 
