@@ -1,4 +1,25 @@
-import { catchError, EMPTY, first, share, startWith, Subject, switchMap, tap } from "rxjs";
+import {
+  catchError,
+  concatMap,
+  defer,
+  EMPTY,
+  exhaustMap,
+  first,
+  forkJoin,
+  from,
+  iif,
+  map,
+  Observable,
+  of,
+  retry,
+  share,
+  startWith,
+  Subject,
+  switchMap,
+  tap,
+  throwError,
+  timer,
+} from "rxjs";
 
 import { devFlagEnabled, devFlagValue } from "@bitwarden/browser/platform/flags";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -64,6 +85,8 @@ export class PhishingDataService {
   // How often are new web addresses added to the remote?
   readonly UPDATE_INTERVAL_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
+  private _backgroundUpdateTrigger$ = new Subject<PhishingDataMeta | null>();
+
   private _triggerUpdate$ = new Subject<void>();
   update$ = this._triggerUpdate$.pipe(
     startWith(undefined), // Always emit once
@@ -71,8 +94,8 @@ export class PhishingDataService {
       this._phishingMetaState.state$.pipe(
         first(), // Only take the first value to avoid an infinite loop when updating the cache below
         tap((metaState) => {
-          // Perform any updates in the background if needed
-          void this._backgroundUpdate(metaState);
+          // Perform any updates in the background
+          this._backgroundUpdateTrigger$.next(metaState);
         }),
         catchError((err: unknown) => {
           this.logService.error("[PhishingDataService] Background update failed to start.", err);
@@ -100,6 +123,13 @@ export class PhishingDataService {
       ScheduledTaskNames.phishingDomainUpdate,
       this.UPDATE_INTERVAL_DURATION,
     );
+    this._backgroundUpdateTrigger$
+      .pipe(
+        exhaustMap((currentMeta) => {
+          return this._backgroundUpdate(currentMeta);
+        }),
+      )
+      .subscribe();
   }
 
   /**
@@ -142,63 +172,6 @@ export class PhishingDataService {
     }
   }
 
-  /**
-   * Determines the next set of web addresses to fetch based on previous metadata.
-   *
-   * @param previous Previous phishing data metadata
-   * @returns Object containing either a stream for full update or lines for daily update, along with new metadata; or null if no update is needed
-   */
-  async getNextWebAddresses(previous: PhishingDataMeta | null): Promise<{
-    meta?: PhishingDataMeta;
-    stream?: ReadableStream<Uint8Array>;
-    lines?: string[];
-  } | null> {
-    const prevMeta = previous ?? { timestamp: 0, checksum: "", applicationVersion: "" };
-    const now = Date.now();
-
-    // Updates to check
-    const applicationVersion = await this.platformUtilsService.getApplicationVersion();
-    const remoteChecksum = await this.fetchPhishingChecksum(this.resourceType);
-
-    // Logic checks
-    const appVersionChanged = applicationVersion !== prevMeta.applicationVersion;
-    const masterChecksumChanged = remoteChecksum !== prevMeta.checksum;
-
-    // Full update: return stream so caller can write to IndexedDB incrementally
-    if (masterChecksumChanged || appVersionChanged) {
-      this.logService.info("[PhishingDataService] Checksum or version changed; Fetching ALL.");
-      const remoteUrl = getPhishingResources(this.resourceType)!.remoteUrl;
-      const response = await this.apiService.nativeFetch(new Request(remoteUrl));
-      if (!response.ok || !response.body) {
-        throw new Error("Fetch failed");
-      }
-      return {
-        stream: response.body!,
-        meta: { checksum: remoteChecksum, timestamp: now, applicationVersion },
-      };
-    }
-
-    // Check for daily file
-    const isCacheExpired = now - prevMeta.timestamp > this.UPDATE_INTERVAL_DURATION;
-
-    if (isCacheExpired) {
-      this.logService.info("[PhishingDataService] Daily cache expired; Fetching TODAY's");
-      const url = getPhishingResources(this.resourceType)!.todayUrl;
-      const newLines = await this.fetchToday(url);
-
-      return {
-        lines: newLines,
-        meta: {
-          checksum: remoteChecksum,
-          timestamp: now,
-          applicationVersion,
-        },
-      };
-    }
-
-    return null;
-  }
-
   // [FIXME] Pull fetches into api service
   private async fetchPhishingChecksum(type: PhishingResourceType = PhishingResourceType.Domains) {
     const checksumUrl = getPhishingResources(type)!.checksumUrl;
@@ -237,69 +210,121 @@ export class PhishingDataService {
     return [];
   }
 
-  // Runs the update flow in the background and retries up to 3 times on failure
-  private async _backgroundUpdate(previous: PhishingDataMeta | null): Promise<void> {
-    this.logService.info(`[PhishingDataService] Update web addresses triggered...`);
-    const phishingMeta: PhishingDataMeta = previous ?? {
-      timestamp: 0,
-      checksum: "",
-      applicationVersion: "",
-    };
-    // Start time for logging performance of update
-    const startTime = Date.now();
-    const maxAttempts = 3;
-    const delayMs = 5 * 60 * 1000; // 5 minutes
+  private _getUpdatedMeta(): Observable<PhishingDataMeta> {
+    // Use defer to
+    return defer(() => {
+      const now = Date.now();
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        const next = await this.getNextWebAddresses(phishingMeta);
-        if (!next) {
-          return; // No update needed
+      // forkJoin kicks off both requests in parallel
+      return forkJoin({
+        applicationVersion: from(this.platformUtilsService.getApplicationVersion()),
+        remoteChecksum: from(this.fetchPhishingChecksum(this.resourceType)),
+      }).pipe(
+        map(({ applicationVersion, remoteChecksum }) => {
+          return {
+            checksum: remoteChecksum,
+            timestamp: now,
+            applicationVersion,
+          };
+        }),
+      );
+    });
+  }
+
+  // Streams the full phishing data set and saves it to IndexedDB
+  private _updateFullDataSet() {
+    this.logService.info("[PhishingDataService] Starting FULL update...");
+    const resource = getPhishingResources(this.resourceType);
+
+    if (!resource?.remoteUrl) {
+      return throwError(() => new Error("Invalid resource URL"));
+    }
+
+    return from(this.apiService.nativeFetch(new Request(resource.remoteUrl))).pipe(
+      switchMap((response) => {
+        if (!response.ok || !response.body) {
+          return throwError(() => new Error(`Full fetch failed: ${response.statusText}`));
         }
 
-        if (next.meta) {
-          await this._phishingMetaState.update(() => next.meta!);
-        }
+        return from(this.indexedDbService.saveUrlsFromStream(response.body));
+      }),
+    );
+  }
 
-        // If we received a stream, write it into IndexedDB incrementally
-        if (next.stream) {
-          await this.indexedDbService.saveUrlsFromStream(next.stream);
-        } else if (next.lines) {
-          await this.indexedDbService.saveUrls(next.lines);
+  private _updateDailyDataSet() {
+    this.logService.info("[PhishingDataService] Starting DAILY update...");
 
-          // TODO Check if any of this is needed or if saveUrls is sufficient
-          // AI Updates but does not take into account that saving
-          // to the indexedDB will merge entries and not create duplicates.
-          // // For incremental daily updates we merge with existing set to preserve old entries
-          // const existing = await this.indexedDbService.loadAllUrls();
-          // const combinedSet = new Set<string>(existing);
-          // for (const l of next.lines) {
-          //   const trimmed = l.trim();
-          //   if (trimmed) {
-          //     combinedSet.add(trimmed);
-          //   }
-          // }
-          // await this.indexedDbService.saveUrls(Array.from(combinedSet));
-        }
+    const todayUrl = getPhishingResources(this.resourceType)?.todayUrl;
+    if (!todayUrl) {
+      return throwError(() => new Error("Today URL missing"));
+    }
 
-        const elapsed = Date.now() - startTime;
-        this.logService.info(`[PhishingDataService] Phishing data cache updated in ${elapsed}ms`);
-        return;
-      } catch (err) {
-        this.logService.error(
-          `[PhishingDataService] Unable to update web addresses. Attempt ${attempt}.`,
-          err,
-        );
-        if (attempt < maxAttempts) {
-          await new Promise((res) => setTimeout(res, delayMs));
-        } else {
+    return from(this.fetchToday(todayUrl)).pipe(
+      switchMap((lines) => from(this.indexedDbService.saveUrls(lines))),
+    );
+  }
+
+  private _backgroundUpdate(
+    previous: PhishingDataMeta | null,
+  ): Observable<PhishingDataMeta | null> {
+    // Use defer to restart timer if retry is activated
+    return defer(() => {
+      const startTime = Date.now();
+      this.logService.info(`[PhishingDataService] Update triggered...`);
+
+      // Get updated meta info
+      return this._getUpdatedMeta().pipe(
+        // Update full data set if application version or checksum changed
+        concatMap((newMeta) =>
+          iif(
+            () => {
+              const appVersionChanged = newMeta.applicationVersion !== previous?.applicationVersion;
+              const checksumChanged = newMeta.checksum !== previous?.checksum;
+              return appVersionChanged || checksumChanged;
+            },
+            this._updateFullDataSet().pipe(map(() => newMeta)),
+            of(newMeta),
+          ),
+        ),
+        // Update daily data set if last update was more than UPDATE_INTERVAL_DURATION ago
+        concatMap((newMeta) =>
+          iif(
+            () => {
+              const isCacheExpired =
+                Date.now() - (previous?.timestamp ?? 0) > this.UPDATE_INTERVAL_DURATION;
+              return isCacheExpired;
+            },
+            this._updateDailyDataSet().pipe(map(() => newMeta)),
+            of(newMeta),
+          ),
+        ),
+        concatMap((newMeta) => {
+          return from(this._phishingMetaState.update(() => newMeta)).pipe(
+            tap(() => {
+              const elapsed = Date.now() - startTime;
+              this.logService.info(`[PhishingDataService] Updated in ${elapsed}ms`);
+            }),
+          );
+        }),
+        retry({
+          count: 2, // Total 3 attempts (initial + 2 retries)
+          delay: (error, retryCount) => {
+            this.logService.error(
+              `[PhishingDataService] Attempt ${retryCount} failed. Retrying in 5m...`,
+              error,
+            );
+            return timer(5 * 60 * 1000); // Wait 5 mins before next attempt
+          },
+        }),
+        catchError((err: unknown) => {
           const elapsed = Date.now() - startTime;
           this.logService.error(
-            `[PhishingDataService] Retries unsuccessful after ${elapsed}ms. Unable to update web addresses.`,
+            `[PhishingDataService] Retries unsuccessful after ${elapsed}ms.`,
             err,
           );
-        }
-      }
-    }
+          return throwError(() => err);
+        }),
+      );
+    });
   }
 }
