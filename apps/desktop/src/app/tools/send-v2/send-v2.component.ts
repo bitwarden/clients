@@ -79,7 +79,6 @@ export class SendV2Component {
 
   protected readonly sendId = signal<string | null>(null);
   protected readonly action = signal<Action>(Action.None);
-  private readonly selectedSendTypeOverride = signal<SendType | undefined>(undefined);
 
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
@@ -151,10 +150,9 @@ export class SendV2Component {
 
   protected readonly selectedSendType = computed(() => {
     const action = this.action();
-    const typeOverride = this.selectedSendTypeOverride();
 
-    if (action === Action.Add && typeOverride !== undefined) {
-      return typeOverride;
+    if (action === Action.Add) {
+      return undefined;
     }
 
     const sendId = this.sendId();
@@ -173,12 +171,9 @@ export class SendV2Component {
     } else {
       this.action.set(Action.Add);
       this.sendId.set(null);
-      this.selectedSendTypeOverride.set(type);
 
-      const component = this.addEditComponent();
-      if (component) {
-        await component.resetAndLoad();
-      }
+      this.cdr.detectChanges();
+      void this.addEditComponent()?.resetAndLoad();
     }
   }
 
@@ -190,7 +185,6 @@ export class SendV2Component {
   protected closeEditPanel(): void {
     this.action.set(Action.None);
     this.sendId.set(null);
-    this.selectedSendTypeOverride.set(undefined);
   }
 
   protected async savedSend(send: SendView): Promise<void> {
