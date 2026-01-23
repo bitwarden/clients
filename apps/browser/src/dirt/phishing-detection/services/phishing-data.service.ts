@@ -288,6 +288,18 @@ export class PhishingDataService {
         );
         // Try fallback URL
         return from(this.apiService.nativeFetch(new Request(resource.fallbackUrl))).pipe(
+          switchMap((fallbackResponse) => {
+            if (!fallbackResponse.ok || !fallbackResponse.body) {
+              return throwError(
+                () =>
+                  new Error(
+                    `[PhishingDataService] Fallback fetch failed: ${fallbackResponse.status}, ${fallbackResponse.statusText}`,
+                  ),
+              );
+            }
+
+            return from(this.indexedDbService.saveUrlsFromStream(fallbackResponse.body));
+          }),
           catchError((fallbackError: unknown) => {
             this.logService.error(`[PhishingDataService] Fallback source failed`);
             return throwError(() => fallbackError);
