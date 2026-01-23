@@ -1,6 +1,8 @@
 export type PhishingResource = {
   name?: string;
   remoteUrl: string;
+  /** Fallback URL to use if remoteUrl fails (e.g., due to SSL interception/cert issues) */
+  fallbackUrl: string;
   checksumUrl: string;
   todayUrl: string;
   /** Matcher used to decide whether a given URL matches an entry from this resource */
@@ -19,6 +21,8 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
     {
       name: "Phishing.Database Domains",
       remoteUrl: "https://phish.co.za/latest/phishing-domains-ACTIVE.txt",
+      fallbackUrl:
+        "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-domains-ACTIVE.txt",
       checksumUrl:
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5",
       todayUrl:
@@ -46,6 +50,8 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
     {
       name: "Phishing.Database Links",
       remoteUrl: "https://phish.co.za/latest/phishing-links-ACTIVE.txt",
+      fallbackUrl:
+        "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-links-ACTIVE.txt",
       checksumUrl:
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-links-ACTIVE.txt.md5",
       todayUrl:

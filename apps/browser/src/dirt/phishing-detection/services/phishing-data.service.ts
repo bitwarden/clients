@@ -160,6 +160,13 @@ export class PhishingDataService {
 
     const resource = getPhishingResources(this.resourceType);
 
+    // Quick lookup: check direct presence of hostname in IndexedDB
+    try {
+      return await this.indexedDbService.hasUrl(url.hostname);
+    } catch (err) {
+      this.logService.error("[PhishingDataService] IndexedDB lookup via hasUrl failed", err);
+    }
+
     // If a custom matcher is provided, iterate stored entries and apply the matcher.
     if (resource && resource.match) {
       try {
@@ -175,25 +182,29 @@ export class PhishingDataService {
       }
       return false;
     }
-
-    // TODO Should default lookup happen first for quick match
-    // Default lookup: check presence of hostname in IndexedDB
-    try {
-      return await this.indexedDbService.hasUrl(url.hostname);
-    } catch (err) {
-      this.logService.error("[PhishingDataService] IndexedDB lookup failed", err);
-      return false;
-    }
   }
 
   // [FIXME] Pull fetches into api service
   private async fetchPhishingChecksum(type: PhishingResourceType = PhishingResourceType.Domains) {
     const checksumUrl = getPhishingResources(type)!.checksumUrl;
-    const response = await this.apiService.nativeFetch(new Request(checksumUrl));
-    if (!response.ok) {
-      throw new Error(`[PhishingDataService] Failed to fetch checksum: ${response.status}`);
+    this.logService.debug(`[PhishingDataService] Fetching checksum from: ${checksumUrl}`);
+
+    try {
+      const response = await this.apiService.nativeFetch(new Request(checksumUrl));
+      if (!response.ok) {
+        throw new Error(
+          `[PhishingDataService] Failed to fetch checksum: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      return await response.text();
+    } catch (error) {
+      this.logService.error(
+        `[PhishingDataService] Checksum fetch failed from ${checksumUrl}`,
+        error,
+      );
+      throw error;
     }
-    return response.text();
   }
 
   // [FIXME] Pull fetches into api service
@@ -216,7 +227,7 @@ export class PhishingDataService {
     const webAddresses = devFlagValue("testPhishingUrls") as unknown[];
     if (webAddresses && webAddresses instanceof Array) {
       this.logService.debug(
-        "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
+        "[PhishingDataService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
         webAddresses,
       );
       return webAddresses as string[];
@@ -225,11 +236,9 @@ export class PhishingDataService {
   }
 
   private _getUpdatedMeta(): Observable<PhishingDataMeta> {
-    // Use defer to
     return defer(() => {
       const now = Date.now();
 
-      // forkJoin kicks off both requests in parallel
       return forkJoin({
         applicationVersion: from(this.platformUtilsService.getApplicationVersion()),
         remoteChecksum: from(this.fetchPhishingChecksum(this.resourceType)),
@@ -247,20 +256,40 @@ export class PhishingDataService {
 
   // Streams the full phishing data set and saves it to IndexedDB
   private _updateFullDataSet() {
-    this.logService.info("[PhishingDataService] Starting FULL update...");
     const resource = getPhishingResources(this.resourceType);
 
     if (!resource?.remoteUrl) {
       return throwError(() => new Error("Invalid resource URL"));
     }
 
+    this.logService.info(`[PhishingDataService] Starting FULL update using ${resource.remoteUrl}`);
     return from(this.apiService.nativeFetch(new Request(resource.remoteUrl))).pipe(
       switchMap((response) => {
         if (!response.ok || !response.body) {
-          return throwError(() => new Error(`Full fetch failed: ${response.statusText}`));
+          return throwError(
+            () =>
+              new Error(
+                `[PhishingDataService] Full fetch failed: ${response.status}, ${response.statusText}`,
+              ),
+          );
         }
 
         return from(this.indexedDbService.saveUrlsFromStream(response.body));
+      }),
+      catchError((err: unknown) => {
+        this.logService.error(
+          `[PhishingDataService] Full dataset update failed using primary source ${err}`,
+        );
+        this.logService.warning(
+          `[PhishingDataService] Falling back to: ${resource.fallbackUrl} (Note: Fallback data may be less up-to-date)`,
+        );
+        // Try fallback URL
+        return from(this.apiService.nativeFetch(new Request(resource.fallbackUrl))).pipe(
+          catchError((fallbackError: unknown) => {
+            this.logService.error(`[PhishingDataService] Fallback source failed`);
+            return throwError(() => fallbackError);
+          }),
+        );
       }),
     );
   }
