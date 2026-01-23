@@ -20,6 +20,7 @@ import {
   AllActivitiesService,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTask, SecurityTaskStatus } from "@bitwarden/common/vault/tasks";
@@ -164,7 +165,7 @@ export class PasswordChangeMetricComponent implements OnInit {
         title: this.i18nService.t("success"),
       });
     } catch (error) {
-      if (error?.statusCode === 404) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
         this.toastService.showToast({
           message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
           variant: "error",

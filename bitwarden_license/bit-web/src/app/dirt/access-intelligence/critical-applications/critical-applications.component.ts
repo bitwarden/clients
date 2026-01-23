@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -165,7 +166,7 @@ export class CriticalApplicationsComponent implements OnInit {
         title: this.i18nService.t("success"),
       });
     } catch (error) {
-      if (error?.statusCode === 404) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
         this.toastService.showToast({
           message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
           variant: "error",
