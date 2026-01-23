@@ -161,7 +161,7 @@ describe("SendRequest", () => {
     });
   });
 
-  describe("acceptance criteria validation", () => {
+  describe("Email auth requirements", () => {
     it("should create request with encrypted emails and plaintext emailHashes", () => {
       // Setup: A Send with encrypted emails and computed hashes
       const send = new Send();
@@ -179,12 +179,11 @@ describe("SendRequest", () => {
       // Act: Create the request
       const request = new SendRequest(send);
 
-      // Assert: Verify acceptance criteria
-      // 1. emails field contains encrypted value
+      // emails field contains encrypted value
       expect(request.emails).toBe("2.encryptedEmailString|data");
       expect(request.emails).toContain("encrypted");
 
-      // 2. emailHashes field contains plaintext comma-separated hashes
+      //emailHashes field contains plaintext comma-separated hashes
       expect(request.emailHashes).toBe("A1B2C3D4,E5F6G7H8");
       expect(request.emailHashes).not.toContain("encrypted");
       expect(request.emailHashes.split(",")).toHaveLength(2);
