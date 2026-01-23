@@ -239,8 +239,20 @@ export class PhishingDataService {
         "[PhishingDataService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
         webAddresses,
       );
-      // Normalize dev flag URLs as well
-      const normalizedDevAddresses = (webAddresses as string[]).map((addr) => new URL(addr).href);
+      // Normalize dev flag URLs as well, filtering out invalid ones
+      const normalizedDevAddresses = (webAddresses as string[])
+        .filter((addr) => {
+          try {
+            new URL(addr);
+            return true;
+          } catch {
+            this.logService.warning(
+              `[PhishingDataService] Invalid test URL in dev flag, skipping: ${addr}`,
+            );
+            return false;
+          }
+        })
+        .map((addr) => new URL(addr).href);
       return testWebAddresses.concat(normalizedDevAddresses);
     }
     return testWebAddresses;
@@ -378,7 +390,7 @@ export class PhishingDataService {
           return from(this._phishingMetaState.update(() => result.meta)).pipe(
             tap(() => {
               const elapsed = Date.now() - startTime;
-              this.logService.info(`[PhishingDataService] Updated in ${elapsed}ms`);
+              this.logService.info(`[PhishingDataService] Updated data set in ${elapsed}ms`);
             }),
           );
         }),
