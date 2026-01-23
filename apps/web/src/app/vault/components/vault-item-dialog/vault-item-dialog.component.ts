@@ -9,7 +9,6 @@ import {
   OnDestroy,
   OnInit,
   viewChild,
-  ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
@@ -165,14 +164,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * Reference to the dialog content element. Used to scroll to the top of the dialog when switching modes.
    * @protected
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("dialogContent")
-  protected dialogContent: ElementRef<HTMLElement>;
+  protected readonly dialogContent = viewChild.required<ElementRef<HTMLElement>>("dialogContent");
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(CipherFormComponent) cipherFormComponent!: CipherFormComponent;
+  private readonly cipherFormComponent = viewChild.required(CipherFormComponent);
 
   private readonly dialogComponent = viewChild(DialogComponent);
 
@@ -540,7 +534,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         updatedCipherView = await this.cipherService.decrypt(updatedCipher, activeUserId);
       }
 
-      this.cipherFormComponent.patchCipher((currentCipher) => {
+      this.cipherFormComponent().patchCipher((currentCipher) => {
         currentCipher.attachments = updatedCipherView.attachments;
         currentCipher.revisionDate = updatedCipherView.revisionDate;
 
@@ -578,7 +572,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.cipherFormComponent.patchCipher((current) => {
+    this.cipherFormComponent().patchCipher((current) => {
       current.revisionDate = revisionDate;
       current.archivedDate = archivedDate;
       return current;
@@ -695,7 +689,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.params.mode = mode;
     this.updateTitle();
     // Scroll to the top of the dialog content when switching modes.
-    this.dialogContent.nativeElement.parentElement.scrollTop = 0;
+    this.dialogContent().nativeElement.parentElement.scrollTop = 0;
 
     // Refocus on title element, the built-in focus management of the dialog only works for the initial open.
     this.dialogComponent().focusOnHeader();
