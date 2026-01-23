@@ -239,6 +239,7 @@ describe("OrganizationUserResetPasswordService", () => {
 
       organizationUserResetPasswordDetailsResponse =
         new OrganizationUserResetPasswordDetailsResponse({
+          organizationUserId: orgUserId,
           kdf: kdfConfig.kdfType,
           kdfIterations: kdfConfig.iterations,
           resetPasswordKey: "test-reset-password-key",
@@ -249,16 +250,19 @@ describe("OrganizationUserResetPasswordService", () => {
         organizationUserResetPasswordDetailsResponse,
       );
 
-      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-      const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
+      const mockDecryptedOrgKeyBytes = new Uint8Array(64);
+      const mockDecryptedOrgKey = new SymmetricCryptoKey(mockDecryptedOrgKeyBytes) as OrgKey;
 
       keyService.orgKeys$.mockReturnValue(
-        of({ [orgId]: mockOrgKey } as Record<OrganizationId, OrgKey>),
+        of({ [orgId]: mockDecryptedOrgKey } as Record<OrganizationId, OrgKey>),
       );
 
-      encryptService.unwrapDecapsulationKey.mockResolvedValue(mockRandomBytes);
+      const mockDecryptedPrivateKeyBytes = new Uint8Array(64);
+      encryptService.unwrapDecapsulationKey.mockResolvedValue(mockDecryptedPrivateKeyBytes);
+
+      const mockDecryptedUserKeyBytes = new Uint8Array(64);
       encryptService.decapsulateKeyUnsigned.mockResolvedValue(
-        new SymmetricCryptoKey(mockRandomBytes) as UserKey,
+        new SymmetricCryptoKey(mockDecryptedUserKeyBytes) as UserKey,
       );
 
       salt = email as MasterPasswordSalt;
@@ -295,7 +299,18 @@ describe("OrganizationUserResetPasswordService", () => {
 
     it("should throw an error if the org key cannot be found", async () => {
       // Arrange
-      keyService.orgKeys$.mockReturnValue(of({ [orgId]: null } as Record<OrganizationId, OrgKey>));
+      keyService.orgKeys$.mockReturnValue(of({} as Record<OrganizationId, OrgKey>));
+
+      // Act
+      const promise = sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
+
+      // Assert
+      await expect(promise).rejects.toThrow("No org key found");
+    });
+
+    it("should throw an error if orgKeys$ returns null", async () => {
+      // Arrange
+      keyService.orgKeys$.mockReturnValue(of(null));
 
       // Act
       const promise = sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
