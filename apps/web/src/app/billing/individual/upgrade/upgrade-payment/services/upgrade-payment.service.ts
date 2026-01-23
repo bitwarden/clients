@@ -126,7 +126,7 @@ export class UpgradePaymentService {
     }
 
     if (previewInvoiceClientCall === null) {
-      throw new Error("Tax client call is not defined");
+      throw new Error("Preview client call is not defined");
     }
 
     try {
