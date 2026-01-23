@@ -144,6 +144,18 @@
         "y": 180,
         "type": "link",
         "path": "/Applications"
+      },
+      {
+        "x": 9999,
+        "y": 9999,
+        "type": "file",
+        "path": ".background.png"
+      },
+      {
+        "x": 9999,
+        "y": 9999,
+        "type": "file",
+        "path": ".VolumeIcon.icns"
       }
     ],
     "window": {
