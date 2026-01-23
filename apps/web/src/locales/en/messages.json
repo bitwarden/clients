@@ -10432,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Send vault event data to your Datadog instance"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
@@ -10542,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Select a plan"

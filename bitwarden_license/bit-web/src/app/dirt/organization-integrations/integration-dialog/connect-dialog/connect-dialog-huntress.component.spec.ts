@@ -13,11 +13,11 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { IntegrationDialogResultStatus } from "../integration-dialog-result-status";
 
 import {
-  ConnectDatadogDialogComponent,
-  DatadogConnectDialogParams,
-  DatadogConnectDialogResult,
-  openDatadogConnectDialog,
-} from "./connect-dialog-datadog.component";
+  ConnectHuntressDialogComponent,
+  HuntressConnectDialogParams,
+  HuntressConnectDialogResult,
+  openHuntressConnectDialog,
+} from "./connect-dialog-huntress.component";
 
 beforeAll(() => {
   // Mock element.animate for jsdom
@@ -54,14 +54,14 @@ beforeAll(() => {
   }
 });
 
-describe("ConnectDialogDatadogComponent", () => {
-  let component: ConnectDatadogDialogComponent;
-  let fixture: ComponentFixture<ConnectDatadogDialogComponent>;
-  let dialogRefMock = mock<DialogRef<DatadogConnectDialogResult>>();
+describe("ConnectHuntressDialogComponent", () => {
+  let component: ConnectHuntressDialogComponent;
+  let fixture: ComponentFixture<ConnectHuntressDialogComponent>;
+  let dialogRefMock = mock<DialogRef<HuntressConnectDialogResult>>();
   const mockI18nService = mock<I18nService>();
 
   const integrationMock: Integration = {
-    name: "Test Integration",
+    name: "Huntress",
     image: "test-image.png",
     linkURL: "https://example.com",
     imageDarkMode: "test-image-dark.png",
@@ -70,12 +70,13 @@ describe("ConnectDialogDatadogComponent", () => {
     canSetupConnection: true,
     type: IntegrationType.EVENT,
   } as Integration;
-  const connectInfo: DatadogConnectDialogParams = {
-    settings: integrationMock, // Provide appropriate mock template if needed
+
+  const connectInfo: HuntressConnectDialogParams = {
+    settings: integrationMock,
   };
 
   beforeEach(async () => {
-    dialogRefMock = mock<DialogRef<DatadogConnectDialogResult>>();
+    dialogRefMock = mock<DialogRef<HuntressConnectDialogResult>>();
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, SharedModule, BrowserAnimationsModule],
@@ -90,7 +91,7 @@ describe("ConnectDialogDatadogComponent", () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ConnectDatadogDialogComponent);
+    fixture = TestBed.createComponent(ConnectHuntressDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
     mockI18nService.t.mockImplementation((key) => key);
@@ -100,73 +101,106 @@ describe("ConnectDialogDatadogComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should initialize form with empty values", () => {
+  it("should initialize form with empty values and service name", () => {
     expect(component.formGroup.value).toEqual({
       url: "",
-      apiKey: "",
-      service: "Test Integration",
+      token: "",
+      service: "Huntress",
     });
   });
 
-  it("should have required validators for all fields", () => {
-    component.formGroup.setValue({ url: "", apiKey: "", service: "" });
+  it("should have required validators for url and token fields", () => {
+    component.formGroup.setValue({ url: "", token: "", service: "" });
     expect(component.formGroup.valid).toBeFalsy();
 
     component.formGroup.setValue({
-      url: "https://test.com",
-      apiKey: "token",
-      service: "Test Service",
+      url: "https://hec.huntress.io/services/collector",
+      token: "test-token",
+      service: "Huntress",
     });
     expect(component.formGroup.valid).toBeTruthy();
   });
 
-  it("should test url is at least 7 characters long", () => {
+  it("should require url to be at least 7 characters long", () => {
     component.formGroup.setValue({
       url: "test",
-      apiKey: "token",
-      service: "Test Service",
+      token: "token",
+      service: "Huntress",
     });
     expect(component.formGroup.valid).toBeFalsy();
 
     component.formGroup.setValue({
-      url: "https://test.com",
-      apiKey: "token",
-      service: "Test Service",
+      url: "https://hec.huntress.io",
+      token: "token",
+      service: "Huntress",
     });
     expect(component.formGroup.valid).toBeTruthy();
   });
 
   it("should call dialogRef.close with correct result on submit", async () => {
     component.formGroup.setValue({
-      url: "https://test.com",
-      apiKey: "token",
-      service: "Test Service",
+      url: "https://hec.huntress.io/services/collector",
+      token: "test-token",
+      service: "Huntress",
     });
 
     await component.submit();
 
     expect(dialogRefMock.close).toHaveBeenCalledWith({
       integrationSettings: integrationMock,
-      url: "https://test.com",
-      apiKey: "token",
-      service: "Test Service",
+      url: "https://hec.huntress.io/services/collector",
+      token: "test-token",
+      service: "Huntress",
       success: IntegrationDialogResultStatus.Edited,
     });
   });
+
+  it("should not submit when form is invalid", async () => {
+    component.formGroup.setValue({
+      url: "",
+      token: "",
+      service: "Huntress",
+    });
+
+    await component.submit();
+
+    expect(dialogRefMock.close).not.toHaveBeenCalled();
+    expect(component.formGroup.touched).toBeTruthy();
+  });
+
+  it("should return false for isUpdateAvailable when no config exists", () => {
+    component.huntressConfig = null;
+    expect(component.isUpdateAvailable).toBeFalsy();
+  });
+
+  it("should return true for isUpdateAvailable when config exists", () => {
+    component.huntressConfig = { uri: "test", token: "test" } as any;
+    expect(component.isUpdateAvailable).toBeTruthy();
+  });
+
+  it("should return false for canDelete when no config exists", () => {
+    component.huntressConfig = null;
+    expect(component.canDelete).toBeFalsy();
+  });
+
+  it("should return true for canDelete when config exists", () => {
+    component.huntressConfig = { uri: "test", token: "test" } as any;
+    expect(component.canDelete).toBeTruthy();
+  });
 });
 
-describe("openDatadogConnectDialog", () => {
+describe("openHuntressConnectDialog", () => {
   it("should call dialogService.open with correct params", () => {
     const dialogServiceMock = mock<DialogService>();
     const config: DialogConfig<
-      DatadogConnectDialogParams,
-      DialogRef<DatadogConnectDialogResult>
+      HuntressConnectDialogParams,
+      DialogRef<HuntressConnectDialogResult>
     > = {
-      data: { settings: { name: "Test" } as Integration },
+      data: { settings: { name: "Huntress" } as Integration },
     } as any;
 
-    openDatadogConnectDialog(dialogServiceMock, config);
+    openHuntressConnectDialog(dialogServiceMock, config);
 
-    expect(dialogServiceMock.open).toHaveBeenCalledWith(ConnectDatadogDialogComponent, config);
+    expect(dialogServiceMock.open).toHaveBeenCalledWith(ConnectHuntressDialogComponent, config);
   });
 });
