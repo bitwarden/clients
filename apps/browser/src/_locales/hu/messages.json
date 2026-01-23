@@ -582,8 +582,14 @@
   "archiveItem": {
     "message": "Elem archiválása"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  "archiveItemDialogContent": {
+    "message": "Az archiválás után ez az elem kizárásra kerül a keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
+  "archived": {
+    "message": "Archiválva"
+  },
+  "unarchiveAndSave": {
+    "message": "Archiválás visszavonása és mentés"
   },
   "upgradeToUseArchive": {
     "message": "Az Archívum használatához prémium tagság szükséges."
@@ -1539,6 +1545,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Saját kétlépcsős bejelentkezési lehetőségek mint a YubiKey és a Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "A Prémium előfizetés véget ért."
+  },
+  "archivePremiumRestart": {
+    "message": "Az archívumhoz hozzáférés visszaszerzéséhez indítsuk újra a Prémium előfizetést. Ha az újraindítás előtt szerkesztjük egy archivált elem adatait, akkor az visszakerül a széfbe."
+  },
+  "restartPremium": {
+    "message": "Prémium előfizetés újraindítása"
+  },
   "ppremiumSignUpReports": {
     "message": "Jelszó higiénia, fiók biztonság és adatszivárgási jelentések a széf biztonsága érdekében."
   },
@@ -2457,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Véglegesen törölt elem"
+  },
+  "archivedItemRestored": {
+    "message": "Az archivált elem visszaállításra került."
   },
   "restoreItem": {
     "message": "Elem visszaállítása"
@@ -4724,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "További opciók"
+  },
   "moreOptionsTitle": {
     "message": "További opciók - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5110,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "$WEBSITE$ egyező érzékelés elrejtése",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Egyezés felismerés megjelenítése"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Egyezés felismerés elrejtése"
   },
   "autoFillOnPageLoad": {
     "message": "Automatikus kitöltés oldalbetöltésnél?"
@@ -5654,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Extra széles"
+  },
+  "narrow": {
+    "message": "Keskeny"
   },
   "sshKeyWrongPassword": {
     "message": "A megadott jelszó helytelen."

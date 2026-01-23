@@ -582,8 +582,14 @@
   "archiveItem": {
     "message": "Архивиране на елемента"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  "archiveItemDialogContent": {
+    "message": "След като бъде архивиран, този елемент няма да се показва в резултатите при търсене, нито в предложенията за автоматично попълване."
+  },
+  "archived": {
+    "message": "Архивирано"
+  },
+  "unarchiveAndSave": {
+    "message": "Разархивиране и запазване"
   },
   "upgradeToUseArchive": {
     "message": "За да се възползвате от архивирането, трябва да ползвате платен абонамент."
@@ -1539,6 +1545,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Частно двустепенно удостоверяване чрез YubiKey и Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Вашият абонамент за платения план е приключил"
+  },
+  "archivePremiumRestart": {
+    "message": "Ако искате отново да получите достъп до архива си, трябва да подновите платения си абонамент. Ако редактирате данните за архивиран елемент преди подновяването, той ще бъде върнат в трезора."
+  },
+  "restartPremium": {
+    "message": "Подновяване на платения абонамент"
+  },
   "ppremiumSignUpReports": {
     "message": "Проверки в списъците с публикувани пароли, проверка на регистрациите и доклади за пробивите в сигурността, което спомага трезорът ви да е допълнително защитен."
   },
@@ -2457,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Записът е изтрит окончателно"
+  },
+  "archivedItemRestored": {
+    "message": "Архивираният елемент е възстановен"
   },
   "restoreItem": {
     "message": "Възстановяване на запис"
@@ -4724,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Още настройки"
+  },
   "moreOptionsTitle": {
     "message": "Още опции – $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5110,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Скриване на откритото съвпадение $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показване на откриването на съвпадения"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скриване на откриването на съвпадения"
   },
   "autoFillOnPageLoad": {
     "message": "Автоматично попълване при зареждане на страницата?"
@@ -5654,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Много широко"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "Въведената парола е неправилна."
