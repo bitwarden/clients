@@ -10,7 +10,7 @@ import {
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { LogService } from "@bitwarden/logging";
 
-import { PhishingDataService } from "./phishing-data.service";
+import { PHISHING_DOMAINS_META_KEY, PhishingDataService } from "./phishing-data.service";
 import type { PhishingIndexedDbService } from "./phishing-indexeddb.service";
 
 describe("PhishingDataService", () => {
@@ -206,6 +206,134 @@ describe("PhishingDataService", () => {
       expect(meta.checksum).toBe("new-checksum");
       expect(meta.applicationVersion).toBe("2.0.0");
       expect(meta.timestamp).toBeDefined();
+    });
+  });
+
+  describe("phishing meta data updates", () => {
+    it("should not update metadata when no data updates occur", async () => {
+      // Set up existing metadata
+      const existingMeta = {
+        checksum: "existing-checksum",
+        timestamp: Date.now() - 1000, // 1 second ago (not expired)
+        applicationVersion: "1.0.0",
+      };
+      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
+
+      // Mock conditions where no update is needed
+      fetchChecksumSpy.mockResolvedValue("existing-checksum"); // Same checksum
+      platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0"); // Same version
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      // Trigger background update
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      // Verify metadata was NOT updated (same reference returned)
+      expect(result).toEqual(existingMeta);
+      expect(result?.timestamp).toBe(existingMeta.timestamp);
+
+      // Verify no data updates were performed
+      expect(mockIndexedDbService.saveUrlsFromStream).not.toHaveBeenCalled();
+      expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled();
+    });
+
+    it("should update metadata when full dataset update occurs due to checksum change", async () => {
+      // Set up existing metadata
+      const existingMeta = {
+        checksum: "old-checksum",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+      };
+      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
+
+      // Mock conditions for full update
+      fetchChecksumSpy.mockResolvedValue("new-checksum"); // Different checksum
+      platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0");
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      // Trigger background update
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      // Verify metadata WAS updated with new values
+      expect(result?.checksum).toBe("new-checksum");
+      expect(result?.timestamp).toBeGreaterThan(existingMeta.timestamp);
+
+      // Verify full update was performed
+      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
+      expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled(); // Daily should not run
+    });
+
+    it("should update metadata when full dataset update occurs due to version change", async () => {
+      // Set up existing metadata
+      const existingMeta = {
+        checksum: "same-checksum",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+      };
+      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
+
+      // Mock conditions for full update
+      fetchChecksumSpy.mockResolvedValue("same-checksum");
+      platformUtilsService.getApplicationVersion.mockResolvedValue("2.0.0"); // Different version
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      // Trigger background update
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      // Verify metadata WAS updated
+      expect(result?.applicationVersion).toBe("2.0.0");
+      expect(result?.timestamp).toBeGreaterThan(existingMeta.timestamp);
+
+      // Verify full update was performed
+      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
+      expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled();
+    });
+
+    it("should update metadata when daily update occurs due to cache expiration", async () => {
+      // Set up existing metadata (expired cache)
+      const existingMeta = {
+        checksum: "same-checksum",
+        timestamp: Date.now() - 25 * 60 * 60 * 1000, // 25 hours ago (expired)
+        applicationVersion: "1.0.0",
+      };
+      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
+
+      // Mock conditions for daily update only
+      fetchChecksumSpy.mockResolvedValue("same-checksum"); // Same checksum (no full update)
+      platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0"); // Same version
+      const mockFullResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      const mockDailyResponse = {
+        ok: true,
+        text: jest.fn().mockResolvedValue("newdomain.com"),
+      } as unknown as Response;
+      apiService.nativeFetch
+        .mockResolvedValueOnce(mockFullResponse)
+        .mockResolvedValueOnce(mockDailyResponse);
+
+      // Trigger background update
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      // Verify metadata WAS updated
+      expect(result?.timestamp).toBeGreaterThan(existingMeta.timestamp);
+      expect(result?.checksum).toBe("same-checksum");
+
+      // Verify only daily update was performed
+      expect(mockIndexedDbService.saveUrlsFromStream).not.toHaveBeenCalled();
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalledWith(["newdomain.com"]);
     });
   });
 });

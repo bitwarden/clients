@@ -338,26 +338,36 @@ export class PhishingDataService {
             () => {
               const appVersionChanged = newMeta.applicationVersion !== previous?.applicationVersion;
               const checksumChanged = newMeta.checksum !== previous?.checksum;
+
+              this.logService.info(
+                `[PhishingDataService] Checking if full update is needed: appVersionChanged=${appVersionChanged}, checksumChanged=${checksumChanged}`,
+              );
               return appVersionChanged || checksumChanged;
             },
-            this._updateFullDataSet().pipe(map(() => newMeta)),
-            of(newMeta),
+            this._updateFullDataSet().pipe(map(() => ({ meta: newMeta, updated: true }))),
+            of({ meta: newMeta, updated: false }),
           ),
         ),
         // Update daily data set if last update was more than UPDATE_INTERVAL_DURATION ago
-        concatMap((newMeta) =>
+        concatMap((result) =>
           iif(
             () => {
               const isCacheExpired =
                 Date.now() - (previous?.timestamp ?? 0) > this.UPDATE_INTERVAL_DURATION;
               return isCacheExpired;
             },
-            this._updateDailyDataSet().pipe(map(() => newMeta)),
-            of(newMeta),
+            this._updateDailyDataSet().pipe(map(() => ({ meta: result.meta, updated: true }))),
+            of(result),
           ),
         ),
-        concatMap((newMeta) => {
-          return from(this._phishingMetaState.update(() => newMeta)).pipe(
+        concatMap((result) => {
+          if (!result.updated) {
+            this.logService.debug(`[PhishingDataService] No update needed, metadata unchanged`);
+            return of(previous);
+          }
+
+          this.logService.debug(`[PhishingDataService] Updated phishing meta data:`, result.meta);
+          return from(this._phishingMetaState.update(() => result.meta)).pipe(
             tap(() => {
               const elapsed = Date.now() - startTime;
               this.logService.info(`[PhishingDataService] Updated in ${elapsed}ms`);
