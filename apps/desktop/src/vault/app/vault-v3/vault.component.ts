@@ -109,6 +109,8 @@ import {
   All,
   VaultItem,
   VaultItemEvent,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -163,6 +165,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
       provide: COPY_CLICK_LISTENER,
       useExisting: VaultComponent,
     },
+    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
 export class VaultComponent<C extends CipherViewLike>
@@ -201,6 +204,7 @@ export class VaultComponent<C extends CipherViewLike>
   private routedVaultFilterService = inject(RoutedVaultFilterService);
   private searchService = inject(SearchService);
   private searchPipe = inject(SearchPipe);
+  private vaultItemTransferService: VaultItemsTransferService = inject(VaultItemsTransferService);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -375,6 +379,9 @@ export class VaultComponent<C extends CipherViewLike>
       void this.ngZone.run(async () => {
         if (message.command === "syncCompleted" && message.successfully) {
           this.refresh();
+        }
+        if (this.activeUserId) {
+          void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
         }
       });
     });
@@ -630,6 +637,8 @@ export class VaultComponent<C extends CipherViewLike>
           this.changeDetectorRef.markForCheck();
         },
       );
+
+    void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
   ngOnDestroy() {
