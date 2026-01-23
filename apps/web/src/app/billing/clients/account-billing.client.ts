@@ -4,6 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BitwardenSubscriptionResponse } from "@bitwarden/common/billing/models/response/bitwarden-subscription.response";
 import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { BitwardenSubscription } from "@bitwarden/subscription";
 
 import {
@@ -58,7 +59,7 @@ export class AccountBillingClient {
 
   upgradePremiumToOrganization = async (
     organizationName: string,
-    organizationKey: string,
+    organizationKey: EncString,
     planTier: ProductTierType,
     cadence: SubscriptionCadence,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
