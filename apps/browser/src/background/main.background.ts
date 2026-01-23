@@ -10,6 +10,7 @@ import {
   map,
   merge,
   Observable,
+  of,
   Subject,
   switchMap,
   timeout,
@@ -222,14 +223,14 @@ import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
+import { GenerateRequest, Type } from "@bitwarden/generator-core";
+import { GeneratedCredential } from "@bitwarden/generator-history";
 import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
   PasswordGenerationServiceAbstraction,
   UsernameGenerationServiceAbstraction,
 } from "@bitwarden/generator-legacy";
-import { GenerateRequest } from "@bitwarden/generator-core";
-import { GeneratedCredential } from "@bitwarden/generator-history";
 import {
   DefaultImportMetadataService,
   ImportApiService,
@@ -2017,7 +2018,7 @@ export default class MainBackground {
       this.totpService,
       this.accountService,
       this.yieldGeneratedPassword,
-      (password) => this.addPasswordToHistory(password),
+      this.addPasswordToHistory,
     );
 
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(
@@ -2059,13 +2060,10 @@ export default class MainBackground {
     );
   };
 
-  generatePassword = async (): Promise<string> => {
-    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-    return await this.passwordGenerationService.generatePassword(options);
-  };
-
   generatePasswordToClipboard = async () => {
-    const password = await this.generatePassword();
+    const { credential: password } = await firstValueFrom(
+      this.yieldGeneratedPassword(of({ source: "clipboard", type: Type.password })),
+    );
     this.platformUtilsService.copyToClipboard(password);
     await this.addPasswordToHistory(password);
   };

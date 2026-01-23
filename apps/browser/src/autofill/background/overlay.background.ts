@@ -9,6 +9,7 @@ import {
   ReplaySubject,
   Subject,
   switchMap,
+  tap,
   throttleTime,
 } from "rxjs";
 import { parse } from "tldts";
@@ -48,7 +49,7 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { GenerateRequest } from "@bitwarden/generator-core";
+import { GenerateRequest, Type } from "@bitwarden/generator-core";
 import { GeneratedCredential } from "@bitwarden/generator-history";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -124,6 +125,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly repositionInlineMenu$ = new Subject<chrome.runtime.MessageSender>();
   private readonly rebuildSubFrameOffsets$ = new Subject<chrome.runtime.MessageSender>();
   private readonly addNewVaultItem$ = new Subject<CurrentAddNewItemData>();
+  private readonly requestGeneratedPassword$ = new Subject<GenerateRequest>();
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private portKeyForTab: Record<number, string> = {};
@@ -148,6 +150,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private showPasskeysLabelsWithinInlineMenu: boolean = false;
   private iconsServerUrl: string;
   private generatedPassword: string;
+  private yieldedPassword$: Observable<GeneratedCredential>;
   private readonly validPortConnections: Set<string> = new Set([
     AutofillOverlayPort.Button,
     AutofillOverlayPort.ButtonMessageConnector,
@@ -236,7 +239,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private themeStateService: ThemeStateService,
     private totpService: TotpService,
     private accountService: AccountService,
-    private generatePasswordCallback: (
+    private yieldGeneratedPassword: (
       $on: Observable<GenerateRequest>,
     ) => Observable<GeneratedCredential>,
     private addPasswordCallback: (password: string) => Promise<void>,
@@ -252,6 +255,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.setupExtensionListeners();
     const env = await firstValueFrom(this.environmentService.environment$);
     this.iconsServerUrl = env.getIconsUrl();
+    this.yieldedPassword$ = this.yieldGeneratedPassword(merge(this.requestGeneratedPassword$));
+    this.yieldedPassword$
+      .pipe(
+        tap(async ({ credential }) => {
+          this.generatedPassword = credential;
+          await this.addPasswordCallback(this.generatedPassword);
+        }),
+      )
+      .subscribe();
   }
 
   /**
@@ -1801,9 +1813,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Generates a password based on the user defined password generation options.
    */
-  private async generatePassword(): Promise<void> {
-    this.generatedPassword = await this.generatePasswordCallback();
-    await this.addPasswordCallback(this.generatedPassword);
+  private async requestGeneratedPassword(source: GenerateRequest["source"]) {
+    this.requestGeneratedPassword$.next({ source, type: Type.password });
   }
 
   /**
@@ -1813,7 +1824,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async updateGeneratedPassword(refreshPassword: boolean = false) {
     if (!this.generatedPassword || refreshPassword) {
-      await this.generatePassword();
+      await this.requestGeneratedPassword("inline-menu");
     }
 
     this.postMessageToPort(this.inlineMenuListPort, {
@@ -2949,6 +2960,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       isInlineMenuListPort,
       showInlineMenuAccountCreation,
     );
+
     const showSaveLoginMenu =
       (await this.checkFocusedFieldHasValue(port.sender.tab)) &&
       (await this.shouldShowSaveLoginInlineMenuList(port.sender.tab));
@@ -3077,7 +3089,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (!this.generatedPassword) {
-      await this.generatePassword();
+      await this.requestGeneratedPassword();
     }
 
     return true;
