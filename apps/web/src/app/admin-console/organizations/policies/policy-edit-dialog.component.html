@@ -1,10 +1,13 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog
-    dialogSize="large"
-    [loading]="loading"
-    [title]="'editPolicy' | i18n"
-    [subtitle]="policy.name | i18n"
-  >
+  <bit-dialog dialogSize="large" [loading]="loading">
+    <ng-container bitDialogTitle>
+      <span class="tw-flex tw-items-center tw-gap-2">
+        {{ policy.name | i18n }}
+        @if (isPolicyEnabled) {
+          <span bitBadge variant="success">{{ "on" | i18n }}</span>
+        }
+      </span>
+    </ng-container>
     <ng-container bitDialogContent>
       <div *ngIf="loading">
         <i
