@@ -92,6 +92,8 @@ import {
   PasswordRepromptService,
   CipherFormComponent,
   ArchiveCipherUtilitiesService,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 
 import { NavComponent } from "../../../app/layout/nav.component";
@@ -150,6 +152,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
       provide: COPY_CLICK_LISTENER,
       useExisting: VaultV2Component,
     },
+    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
 export class VaultV2Component<C extends CipherViewLike>
@@ -264,6 +267,7 @@ export class VaultV2Component<C extends CipherViewLike>
     private policyService: PolicyService,
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
+    private vaultItemTransferService: VaultItemsTransferService,
   ) {}
 
   async ngOnInit() {
@@ -316,6 +320,11 @@ export class VaultV2Component<C extends CipherViewLike>
                     .reloadCollectionsAndFolders(this.activeFilter)
                     .catch(() => {});
                   await this.vaultFilterComponent.reloadOrganizations().catch(() => {});
+                }
+                if (this.activeUserId) {
+                  void this.vaultItemTransferService.enforceOrganizationDataOwnership(
+                    this.activeUserId,
+                  );
                 }
                 break;
               case "modalShown":
@@ -420,6 +429,8 @@ export class VaultV2Component<C extends CipherViewLike>
       .subscribe((collections) => {
         this.allCollections = collections;
       });
+
+    void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
   ngOnDestroy() {
