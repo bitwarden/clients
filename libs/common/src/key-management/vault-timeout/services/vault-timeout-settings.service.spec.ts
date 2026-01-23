@@ -260,6 +260,13 @@ describe("VaultTimeoutSettingsService", () => {
   });
 
   describe("getVaultTimeoutByUserId$", () => {
+    beforeEach(() => {
+      // Return the input value unchanged
+      sessionTimeoutTypeService.getOrPromoteToAvailable.mockImplementation(
+        async (timeout) => timeout,
+      );
+    });
+
     it("should throw an error if no user id is provided", async () => {
       expect(() => vaultTimeoutSettingsService.getVaultTimeoutByUserId$(null)).toThrow(
         "User id required. Cannot get vault timeout.",
@@ -277,6 +284,9 @@ describe("VaultTimeoutSettingsService", () => {
           vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
         );
 
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          defaultVaultTimeout,
+        );
         expect(result).toBe(defaultVaultTimeout);
       });
 
@@ -299,7 +309,30 @@ describe("VaultTimeoutSettingsService", () => {
           vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
         );
 
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          vaultTimeout,
+        );
         expect(result).toBe(vaultTimeout);
+      });
+
+      it("promotes timeout when unavailable on client", async () => {
+        const determinedTimeout = VaultTimeoutNumberType.OnMinute;
+        const promotedValue = VaultTimeoutStringType.OnRestart;
+
+        sessionTimeoutTypeService.getOrPromoteToAvailable.mockResolvedValue(promotedValue);
+        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: true }));
+        policyService.policiesByType$.mockReturnValue(of([]));
+
+        await stateProvider.setUserState(VAULT_TIMEOUT, determinedTimeout, mockUserId);
+
+        const result = await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
+        );
+
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          determinedTimeout,
+        );
+        expect(result).toBe(promotedValue);
       });
     });
 
@@ -327,6 +360,9 @@ describe("VaultTimeoutSettingsService", () => {
             vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
           );
 
+          expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+            policyMinutes,
+          );
           expect(result).toBe(policyMinutes);
         },
       );
@@ -345,6 +381,9 @@ describe("VaultTimeoutSettingsService", () => {
             vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
           );
 
+          expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+            vaultTimeout,
+          );
           expect(result).toBe(vaultTimeout);
         },
       );
@@ -365,7 +404,35 @@ describe("VaultTimeoutSettingsService", () => {
           vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
         );
 
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          VaultTimeoutNumberType.Immediately,
+        );
         expect(result).toBe(VaultTimeoutNumberType.Immediately);
+      });
+
+      it("promotes policy minutes when unavailable on client", async () => {
+        const promotedValue = VaultTimeoutStringType.Never;
+
+        sessionTimeoutTypeService.getOrPromoteToAvailable.mockResolvedValue(promotedValue);
+        userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: true }));
+        policyService.policiesByType$.mockReturnValue(
+          of([{ data: { type: "custom", minutes: policyMinutes } }] as unknown as Policy[]),
+        );
+
+        await stateProvider.setUserState(
+          VAULT_TIMEOUT,
+          VaultTimeoutNumberType.EightHours,
+          mockUserId,
+        );
+
+        const result = await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
+        );
+
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          policyMinutes,
+        );
+        expect(result).toBe(promotedValue);
       });
     });
 
@@ -383,7 +450,6 @@ describe("VaultTimeoutSettingsService", () => {
         "when current timeout is %s, returns immediately or promoted value",
         async (currentTimeout) => {
           const expectedTimeout = VaultTimeoutNumberType.Immediately;
-          sessionTimeoutTypeService.getOrPromoteToAvailable.mockResolvedValue(expectedTimeout);
           policyService.policiesByType$.mockReturnValue(
             of([{ data: { type: "immediately" } }] as unknown as Policy[]),
           );
@@ -400,6 +466,26 @@ describe("VaultTimeoutSettingsService", () => {
           expect(result).toBe(expectedTimeout);
         },
       );
+
+      it("promotes immediately when unavailable on client", async () => {
+        const promotedValue = VaultTimeoutNumberType.OnMinute;
+
+        sessionTimeoutTypeService.getOrPromoteToAvailable.mockResolvedValue(promotedValue);
+        policyService.policiesByType$.mockReturnValue(
+          of([{ data: { type: "immediately" } }] as unknown as Policy[]),
+        );
+
+        await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
+
+        const result = await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
+        );
+
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          VaultTimeoutNumberType.Immediately,
+        );
+        expect(result).toBe(promotedValue);
+      });
     });
 
     describe("policy type: onSystemLock", () => {
@@ -413,7 +499,6 @@ describe("VaultTimeoutSettingsService", () => {
         "when current timeout is %s, returns onLocked or promoted value",
         async (currentTimeout) => {
           const expectedTimeout = VaultTimeoutStringType.OnLocked;
-          sessionTimeoutTypeService.getOrPromoteToAvailable.mockResolvedValue(expectedTimeout);
           policyService.policiesByType$.mockReturnValue(
             of([{ data: { type: "onSystemLock" } }] as unknown as Policy[]),
           );
@@ -446,8 +531,30 @@ describe("VaultTimeoutSettingsService", () => {
           vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
         );
 
-        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).not.toHaveBeenCalled();
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          currentTimeout,
+        );
         expect(result).toBe(currentTimeout);
+      });
+
+      it("promotes onLocked when unavailable on client", async () => {
+        const promotedValue = VaultTimeoutStringType.OnRestart;
+
+        sessionTimeoutTypeService.getOrPromoteToAvailable.mockResolvedValue(promotedValue);
+        policyService.policiesByType$.mockReturnValue(
+          of([{ data: { type: "onSystemLock" } }] as unknown as Policy[]),
+        );
+
+        await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
+
+        const result = await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
+        );
+
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          VaultTimeoutStringType.OnLocked,
+        );
+        expect(result).toBe(promotedValue);
       });
     });
 
@@ -468,7 +575,9 @@ describe("VaultTimeoutSettingsService", () => {
           vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
         );
 
-        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).not.toHaveBeenCalled();
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          VaultTimeoutStringType.OnRestart,
+        );
         expect(result).toBe(VaultTimeoutStringType.OnRestart);
       });
 
@@ -488,32 +597,40 @@ describe("VaultTimeoutSettingsService", () => {
           vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
         );
 
-        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).not.toHaveBeenCalled();
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          currentTimeout,
+        );
         expect(result).toBe(currentTimeout);
       });
-    });
 
-    describe("policy type: never", () => {
-      it("when current timeout is never, returns never or promoted value", async () => {
-        const expectedTimeout = VaultTimeoutStringType.Never;
-        sessionTimeoutTypeService.getOrPromoteToAvailable.mockResolvedValue(expectedTimeout);
+      it("promotes onRestart when unavailable on client", async () => {
+        const promotedValue = VaultTimeoutStringType.Never;
+
+        sessionTimeoutTypeService.getOrPromoteToAvailable.mockResolvedValue(promotedValue);
         policyService.policiesByType$.mockReturnValue(
-          of([{ data: { type: "never" } }] as unknown as Policy[]),
+          of([{ data: { type: "onAppRestart" } }] as unknown as Policy[]),
         );
 
-        await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
+        await stateProvider.setUserState(
+          VAULT_TIMEOUT,
+          VaultTimeoutStringType.OnLocked,
+          mockUserId,
+        );
 
         const result = await firstValueFrom(
           vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
         );
 
         expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
-          VaultTimeoutStringType.Never,
+          VaultTimeoutStringType.OnRestart,
         );
-        expect(result).toBe(expectedTimeout);
+        expect(result).toBe(promotedValue);
       });
+    });
 
+    describe("policy type: never", () => {
       it.each([
+        VaultTimeoutStringType.Never,
         VaultTimeoutStringType.OnRestart,
         VaultTimeoutStringType.OnLocked,
         VaultTimeoutStringType.OnIdle,
@@ -532,8 +649,31 @@ describe("VaultTimeoutSettingsService", () => {
           vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
         );
 
-        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).not.toHaveBeenCalled();
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          currentTimeout,
+        );
         expect(result).toBe(currentTimeout);
+      });
+
+      it("promotes timeout when unavailable on client", async () => {
+        const determinedTimeout = VaultTimeoutStringType.Never;
+        const promotedValue = VaultTimeoutStringType.OnRestart;
+
+        sessionTimeoutTypeService.getOrPromoteToAvailable.mockResolvedValue(promotedValue);
+        policyService.policiesByType$.mockReturnValue(
+          of([{ data: { type: "never" } }] as unknown as Policy[]),
+        );
+
+        await stateProvider.setUserState(VAULT_TIMEOUT, determinedTimeout, mockUserId);
+
+        const result = await firstValueFrom(
+          vaultTimeoutSettingsService.getVaultTimeoutByUserId$(mockUserId),
+        );
+
+        expect(sessionTimeoutTypeService.getOrPromoteToAvailable).toHaveBeenCalledWith(
+          determinedTimeout,
+        );
+        expect(result).toBe(promotedValue);
       });
     });
   });

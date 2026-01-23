@@ -14,6 +14,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
@@ -671,9 +672,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId) {
-    let shouldStoreKey = false;
     switch (keySuffix) {
       case KeySuffixOptions.Auto: {
+        // Cli has fixed Never vault timeout, and it should not be affected by a policy.
+        if (this.platformUtilService.getClientType() == ClientType.Cli) {
+          return true;
+        }
+
         // TODO: Sharing the UserKeyDefinition is temporary to get around a circ dep issue between
         // the VaultTimeoutSettingsSvc and this service.
         // This should be fixed as part of the PM-7082 - Auto Key Service work.
@@ -683,11 +688,14 @@ export class DefaultKeyService implements KeyServiceAbstraction {
             .pipe(filter((timeout) => timeout != null)),
         );
 
-        shouldStoreKey = vaultTimeout == VaultTimeoutStringType.Never;
-        break;
+        this.logService.debug(
+          `[KeyService] Should store auto key for vault timeout ${vaultTimeout}`,
+        );
+
+        return vaultTimeout == VaultTimeoutStringType.Never;
       }
     }
-    return shouldStoreKey;
+    return false;
   }
 
   protected async getKeyFromStorage(
