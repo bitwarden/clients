@@ -210,6 +210,9 @@ export class PhishingIndexedDbService {
       db = await this.openDatabase();
       await this.clearStore(db);
       await this.processStream(db, stream);
+      this.logService.info(
+        "[PhishingIndexedDbService] Finished saving urls to the store from stream.",
+      );
       return true;
     } catch (error) {
       this.logService.error("[PhishingIndexedDbService] Stream save failed", error);
