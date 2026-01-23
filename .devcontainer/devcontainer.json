@@ -1,0 +1,41 @@
+{
+  "name": "Bitwarden Clients",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "bitwarden_clients",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/devcontainers/features/rust:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {},
+      "extensions": [
+        "angular.ng-template",
+        "orta.vscode-jest",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "nrwl.angular-console",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+  "forwardPorts": [8080, 8081, 6006],
+  "portsAttributes": {
+    "default": {
+      "onAutoForward": "ignore"
+    },
+    "8080": {
+      "label": "Web Vault",
+      "onAutoForward": "notify"
+    },
+    "8081": {
+      "label": "Web Vault (Self-hosted)",
+      "onAutoForward": "notify"
+    },
+    "6006": {
+      "label": "Storybook",
+      "onAutoForward": "notify"
+    }
+  }
+}
