@@ -3,6 +3,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
@@ -37,6 +38,30 @@ describe("DeleteAccountComponent", () => {
     );
   });
 
+  describe("ngOnInit", () => {
+    it("should set migrationMilestone4 to true when flag is enabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await component.ngOnInit();
+
+      expect(component["migrationMilestone4"]).toBe(true);
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+        FeatureFlag.DesktopUiMigrationMilestone4,
+      );
+    });
+
+    it("should set migrationMilestone4 to false when flag is disabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await component.ngOnInit();
+
+      expect(component["migrationMilestone4"]).toBe(false);
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+        FeatureFlag.DesktopUiMigrationMilestone4,
+      );
+    });
+  });
+
   describe("submit", () => {
     const mockVerification: VerificationWithSecret = {
       type: 0,
@@ -68,13 +93,17 @@ describe("DeleteAccountComponent", () => {
         expect(component["invalidSecret"]).toBe(false);
       });
 
-      it("should set invalidSecret to true when deletion fails", async () => {
+      it("should set invalidSecret to true and show error toast when deletion fails", async () => {
         accountApiService.deleteAccount.mockRejectedValue(new Error("Invalid credentials"));
 
         await component.submit();
 
         expect(accountApiService.deleteAccount).toHaveBeenCalledWith(mockVerification);
-        expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(toastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: "errorOccurred",
+          message: "userVerificationFailed",
+        });
         expect(component["invalidSecret"]).toBe(true);
       });
 

@@ -91,6 +91,11 @@ export class DeleteAccountComponent implements OnInit {
     } catch {
       if (this.migrationMilestone4) {
         this.invalidSecret = true;
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("userVerificationFailed"),
+        });
       }
     }
   };
