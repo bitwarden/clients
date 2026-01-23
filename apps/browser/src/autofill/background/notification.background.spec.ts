@@ -1145,9 +1145,14 @@ describe("NotificationBackground", () => {
             type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
-            username: "test",
-            password: "password",
+            data: {
+              username: "test",
+              password: "password",
+              uri: "https://example.com",
+            },
             wasVaultLocked: false,
+            launchTimestamp: Date.now(),
+            expires: new Date(Date.now() + 10000),
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
@@ -1184,9 +1189,14 @@ describe("NotificationBackground", () => {
             type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
-            username: "test",
-            password: "password",
+            data: {
+              username: "test",
+              password: "password",
+              uri: "https://example.com",
+            },
             wasVaultLocked: false,
+            launchTimestamp: Date.now(),
+            expires: new Date(Date.now() + 10000),
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
@@ -1237,9 +1247,14 @@ describe("NotificationBackground", () => {
             type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
-            username: "test",
-            password: "password",
+            data: {
+              username: "test",
+              password: "password",
+              uri: "https://example.com",
+            },
             wasVaultLocked: false,
+            launchTimestamp: Date.now(),
+            expires: new Date(Date.now() + 10000),
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
