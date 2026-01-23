@@ -182,9 +182,9 @@ export class SendV2Component {
     }
   }
 
-  /** Used by old UI to add a send without specifying type (defaults to Text) */
+  /** Used by old UI to add a send without specifying type (defaults to File) */
   protected async addSendWithoutType(): Promise<void> {
-    await this.addSend(SendType.Text);
+    await this.addSend(SendType.File);
   }
 
   protected closeEditPanel(): void {
