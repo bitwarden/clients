@@ -410,7 +410,7 @@ export class PhishingDataService {
             `[PhishingDataService] Retries unsuccessful after ${elapsed}ms.`,
             err,
           );
-          return throwError(() => err);
+          return of(previous);
         }),
       );
     });
