@@ -23,15 +23,17 @@ import {
 } from "rxjs";
 import { filter, map, take } from "rxjs/operators";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
+import { ItemTypes } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -68,6 +70,7 @@ import {
   ToastService,
   CopyClickListener,
   COPY_CLICK_LISTENER,
+  NoItemsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -89,6 +92,8 @@ import {
   PasswordRepromptService,
   CipherFormComponent,
   ArchiveCipherUtilitiesService,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 
 import { NavComponent } from "../../../app/layout/nav.component";
@@ -123,6 +128,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
     NavComponent,
     VaultFilterModule,
     VaultItemsV2Component,
+    NoItemsModule,
   ],
   providers: [
     {
@@ -146,6 +152,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
       provide: COPY_CLICK_LISTENER,
       useExisting: VaultV2Component,
     },
+    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
 export class VaultV2Component<C extends CipherViewLike>
@@ -202,6 +209,7 @@ export class VaultV2Component<C extends CipherViewLike>
   collections: CollectionView[] | null = null;
   config: CipherFormConfig | null = null;
   readonly userHasPremium = signal<boolean>(false);
+  protected itemTypesIcon = ItemTypes;
 
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
@@ -219,6 +227,12 @@ export class VaultV2Component<C extends CipherViewLike>
       ? this.i18nService.t("unArchiveAndSave")
       : this.i18nService.t("save");
   });
+
+  protected hasArchivedCiphers$ = this.userId$.pipe(
+    switchMap((userId) =>
+      this.cipherArchiveService.archivedCiphers$(userId).pipe(map((ciphers) => ciphers.length > 0)),
+    ),
+  );
 
   private componentIsDestroyed$ = new Subject<boolean>();
   private allOrganizations: Organization[] = [];
@@ -253,6 +267,7 @@ export class VaultV2Component<C extends CipherViewLike>
     private policyService: PolicyService,
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
+    private vaultItemTransferService: VaultItemsTransferService,
   ) {}
 
   async ngOnInit() {
@@ -305,6 +320,11 @@ export class VaultV2Component<C extends CipherViewLike>
                     .reloadCollectionsAndFolders(this.activeFilter)
                     .catch(() => {});
                   await this.vaultFilterComponent.reloadOrganizations().catch(() => {});
+                }
+                if (this.activeUserId) {
+                  void this.vaultItemTransferService.enforceOrganizationDataOwnership(
+                    this.activeUserId,
+                  );
                 }
                 break;
               case "modalShown":
@@ -409,6 +429,8 @@ export class VaultV2Component<C extends CipherViewLike>
       .subscribe((collections) => {
         this.allCollections = collections;
       });
+
+    void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
   ngOnDestroy() {
@@ -610,7 +632,7 @@ export class VaultV2Component<C extends CipherViewLike>
       });
     }
 
-    if (cipher.isArchived) {
+    if (cipher.isArchived && !cipher.isDeleted) {
       menu.push({
         label: this.i18nService.t("unArchive"),
         click: async () => {

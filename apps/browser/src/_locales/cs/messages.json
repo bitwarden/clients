@@ -582,8 +582,14 @@
   "archiveItem": {
     "message": "Archivovat položku"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  "archiveItemDialogContent": {
+    "message": "Jakmile bude tato položka archivována, bude vyloučena z výsledků vyhledávání a z návrhů automatického vyplňování."
+  },
+  "archived": {
+    "message": "Archivováno"
+  },
+  "unarchiveAndSave": {
+    "message": "Odebrat z archivu a uložit"
   },
   "upgradeToUseArchive": {
     "message": "Pro použití funkce Archiv je potřebné prémiové členství."
@@ -1539,6 +1545,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Volby proprietálních dvoufázových přihlášení jako je YubiKey a Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Vaše předplatné Premium skončilo"
+  },
+  "archivePremiumRestart": {
+    "message": "Chcete-li získat přístup k Vašemu archivu, restartujte předplatné Premium. Pokud upravíte detaily archivované položky před restartováním, bude přesunuta zpět do Vašeho trezoru."
+  },
+  "restartPremium": {
+    "message": "Restartovat Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "Reporty o hygieně Vašich hesel, zdraví účtu a narušeních bezpečnosti."
   },
@@ -2457,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Položka byla trvale smazána"
+  },
+  "archivedItemRestored": {
+    "message": "Archivovaná položka byla obnovena"
   },
   "restoreItem": {
     "message": "Obnovit položku"
@@ -4724,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Více voleb"
+  },
   "moreOptionsTitle": {
     "message": "Více voleb - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5110,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Skrýt detekci shody $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Zobrazit detekci shody"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Skrýt detekci shody"
   },
   "autoFillOnPageLoad": {
     "message": "Automaticky vyplnit při načtení stránky?"
@@ -5654,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Extra široké"
+  },
+  "narrow": {
+    "message": "Úzké"
   },
   "sshKeyWrongPassword": {
     "message": "Zadané heslo není správné."
