@@ -12,25 +12,18 @@
       @if (!loading) {
         <ng-container>
           <bit-form-field>
-            <bit-label>{{ "url" | i18n }}</bit-label>
+            <bit-label>{{ "httpEventCollectorUrl" | i18n }}</bit-label>
             <input
               bitInput
               type="text"
               formControlName="url"
-              placeholder="https://<customer-id>.crowdstrike.com"
+              placeholder="https://hec.huntress.io/services/collector"
             />
           </bit-form-field>
 
           <bit-form-field>
-            <bit-label>{{ "bearerToken" | i18n }}</bit-label>
-            <input bitInput type="password" formControlName="bearerToken" />
-            <bit-hint>{{ "apiKey" | i18n }}</bit-hint>
-          </bit-form-field>
-
-          <bit-form-field>
-            <bit-label>{{ "index" | i18n }}</bit-label>
-            <input bitInput type="text" formControlName="index" />
-            <bit-hint>{{ "repositoryNameHint" | i18n }}</bit-hint>
+            <bit-label>{{ "httpEventCollectorToken" | i18n }}</bit-label>
+            <input bitInput type="password" formControlName="token" />
           </bit-form-field>
         </ng-container>
       }
