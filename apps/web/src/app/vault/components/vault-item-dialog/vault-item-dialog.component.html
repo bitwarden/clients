@@ -87,7 +87,7 @@
     @if (showActionButtons) {
       <div class="tw-ml-auto">
         @if ((userCanArchive$ | async) && !params.isAdminConsoleAction) {
-          @if (isCipherArchived) {
+          @if (isCipherArchived && !cipher?.isDeleted) {
             <button
               type="button"
               class="tw-mr-1"
