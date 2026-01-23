@@ -160,8 +160,8 @@ export class PhishingDataService {
 
     const resource = getPhishingResources(this.resourceType);
 
-    // Quick lookup: check direct presence of hostname in IndexedDB
     try {
+      // Quick lookup: check direct presence of hostname in IndexedDB
       const hasUrl = await this.indexedDbService.hasUrl(url.hostname);
       if (hasUrl) {
         return true;
@@ -184,6 +184,7 @@ export class PhishingDataService {
       }
       return false;
     }
+    return false;
   }
 
   // [FIXME] Pull fetches into api service
