@@ -236,13 +236,7 @@ import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
-import {
-  CredentialGeneratorService,
-  // @TODO
-  // DefaultCredentialGeneratorService,
-  GenerateRequest,
-  Type,
-} from "@bitwarden/generator-core";
+import { GenerateRequest, Type } from "@bitwarden/generator-core";
 import { GeneratedCredential } from "@bitwarden/generator-history";
 import {
   legacyPasswordGenerationServiceFactory,
@@ -402,7 +396,6 @@ export default class MainBackground {
   passwordGenerationService: PasswordGenerationServiceAbstraction;
   syncService: SyncService;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
-  credentialGeneratorService: CredentialGeneratorService;
   totpService: TotpServiceAbstraction;
   autofillService: AutofillServiceAbstraction;
   containerService: ContainerService;
@@ -1587,8 +1580,8 @@ export default class MainBackground {
       this.authService,
     );
 
-    // @TODO
-    // this.credentialGeneratorService = new DefaultCredentialGeneratorService()
+    // TODO: Integrate CredentialGeneratorService for checking autogeneration capability
+    // See: libs/tools/generator/core/src/services/default-credential-generator.service.ts
 
     // Synchronous startup
     if (this.webPushConnectionService instanceof WorkerWebPushConnectionService) {
@@ -2056,7 +2049,6 @@ export default class MainBackground {
       this.accountService,
       this.yieldGeneratedPassword,
       this.addPasswordToHistory,
-      this.credentialGeneratorService,
     );
 
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(
