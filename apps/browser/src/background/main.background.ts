@@ -3,6 +3,7 @@
 import "core-js/proposals/explicit-resource-management";
 
 import {
+  concatMap,
   filter,
   firstValueFrom,
   from,
@@ -240,6 +241,8 @@ import {
   PasswordGenerationServiceAbstraction,
   UsernameGenerationServiceAbstraction,
 } from "@bitwarden/generator-legacy";
+import { GenerateRequest } from "@bitwarden/generator-core";
+import { GeneratedCredential } from "@bitwarden/generator-history";
 import {
   DefaultImportMetadataService,
   ImportApiService,
@@ -2070,6 +2073,18 @@ export default class MainBackground {
     await this.autofillBadgeUpdaterService.init();
     await this.atRiskCipherUpdaterService.init();
   }
+
+  yieldGeneratedPassword = ($on: Observable<GenerateRequest>): Observable<GeneratedCredential> => {
+    return $on.pipe(
+      concatMap(async () => {
+        const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
+        const password = await this.passwordGenerationService.generatePassword(options);
+        const credential = new GeneratedCredential(password, "password", new Date());
+
+        return credential;
+      }),
+    );
+  };
 
   generatePassword = async (): Promise<string> => {
     const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};

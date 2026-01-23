@@ -48,6 +48,8 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { GenerateRequest } from "@bitwarden/generator-core";
+import { GeneratedCredential } from "@bitwarden/generator-history";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
@@ -234,7 +236,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private themeStateService: ThemeStateService,
     private totpService: TotpService,
     private accountService: AccountService,
-    private generatePasswordCallback: () => Promise<string>,
+    private generatePasswordCallback: (
+      $on: Observable<GenerateRequest>,
+    ) => Observable<GeneratedCredential>,
     private addPasswordCallback: (password: string) => Promise<void>,
   ) {
     this.initOverlayEventObservables();
