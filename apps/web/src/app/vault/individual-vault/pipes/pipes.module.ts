@@ -1,7 +1,8 @@
 import { NgModule } from "@angular/core";
 
+import { GetOrgNameFromIdPipe } from "@bitwarden/vault";
+
 import { GetGroupNameFromIdPipe } from "./get-group-name.pipe";
-import { GetOrgNameFromIdPipe } from "./get-organization-name.pipe";
 
 @NgModule({
   declarations: [GetOrgNameFromIdPipe, GetGroupNameFromIdPipe],

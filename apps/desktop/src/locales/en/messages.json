@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favorites"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Types"
   },
@@ -46,6 +49,21 @@
   },
   "addItem": {
     "message": "Add item"
+  },
+  "addLogin": {
+    "message": "Add login"
+  },
+  "addCard": {
+    "message": "Add card"
+  },
+  "addIdentity": {
+    "message": "Add identity"
+  },
+  "addSecureNote": {
+    "message": "Add secure note"
+  },
+  "addSshKey": {
+    "message": "Add SSH key"
   },
   "shared": {
     "message": "Shared"
@@ -84,6 +102,21 @@
   "viewItem": {
     "message": "View item"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
+  "viewCard": {
+    "message": "View card"
+  },
+  "viewIdentity": {
+    "message": "View identity"
+  },
+  "viewSecureNote": {
+    "message": "View secure note"
+  },
+  "viewSshKey": {
+    "message": "View SSH key"
+  },
   "name": {
     "message": "Name"
   },
@@ -99,70 +132,6 @@
         "example": "2"
       }
     }
-  },
-  "deletionDateDescV2": {
-     "message": "The Send will be permanently deleted on this date.",
-     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-   },
-   "fileToShare": {
-     "message": "File to share"
-   },
-   "hideTextByDefault": {
-     "message": "Hide text by default"
-   },
-   "hideYourEmail": {
-     "message": "Hide your email address from viewers."
-   },
-   "limitSendViews": {
-     "message": "Limit views"
-   },
-   "limitSendViewsCount": {
-     "message": "$ACCESSCOUNT$ views left",
-     "description": "Displayed under the limit views field on Send",
-     "placeholders": {
-       "accessCount": {
-         "content": "$1",
-         "example": "2"
-       }
-     }
-   },
-   "limitSendViewsHint": {
-     "message": "No one can view this Send after the limit is reached.",
-     "description": "Displayed under the limit views field on Send"
-   },
-   "privateNote": {
-     "message": "Private note"
-   },
-   "sendDetails": {
-     "message": "Send details",
-     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-   },
-   "sendPasswordDescV3": {
-     "message": "Add an optional password for recipients to access this Send.",
-     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-   },
-   "sendTypeTextToShare": {
-     "message": "Text to share"
-   },
-  "newItemHeaderTextSend": {
-    "message": "New Text Send",
-    "description": "Header for new text send"
-  },
-  "newItemHeaderFileSend": {
-    "message": "New File Send",
-    "description": "Header for new file send"
-  },
-  "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
-    "description": "Header for edit text send"
-  },
-  "editItemHeaderFileSend": {
-    "message": "Edit File Send",
-    "description": "Header for edit file send"
-  },
-  "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
     "message": "New",
@@ -182,6 +151,21 @@
   },
   "editItem": {
     "message": "Edit item"
+  },
+  "editLogin": {
+    "message": "Edit login"
+  },
+  "editCard": {
+    "message": "Edit card"
+  },
+  "editIdentity": {
+    "message": "Edit identity"
+  },
+  "editSecureNote": {
+    "message": "Edit secure note"
+  },
+  "editSshKey": {
+    "message": "Edit SSH key"
   },
   "emailAddress": {
     "message": "Email address"
@@ -590,6 +574,12 @@
   "editedItem": {
     "message": "Item saved"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
   "deleteItem": {
     "message": "Delete item"
   },
@@ -604,6 +594,15 @@
   },
   "deletedItem": {
     "message": "Item sent to trash"
+  },
+  "deletedCollectionId": {
+    "message": "Deleted collection $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
   },
   "overwritePasswordConfirmation": {
     "message": "Are you sure you want to overwrite the current password?"
@@ -814,6 +813,15 @@
   },
   "deletedFolder": {
     "message": "Folder deleted"
+  },
+  "editInfo": {
+    "message": "Edit info"
+  },
+  "access": {
+    "message": "Access"
+  },
+  "editAccess": {
+    "message": "Edit access"
   },
   "loginOrCreateNewAccount": {
     "message": "Log in or create a new account to access your secure vault."
@@ -1556,6 +1564,21 @@
   "unknown": {
     "message": "Unknown"
   },
+  "unknownCipher": {
+    "message": "Unknown item, you may need to request permission to access this item."
+  },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "Copy username"
   },
@@ -2057,6 +2080,24 @@
   "clone": {
     "message": "Clone"
   },
+  "cloneItem": {
+    "message": "Clone item"
+  },
+  "cloneLogin": {
+    "message": "Clone login"
+  },
+  "cloneCard": {
+    "message": "Clone card"
+  },
+  "cloneIdentity": {
+    "message": "Clone identity"
+  },
+  "cloneSecureNote": {
+    "message": "Clone secure note"
+  },
+  "cloneSshKey": {
+    "message": "Clone SSH key"
+  },
   "passwordGeneratorPolicyInEffect": {
     "message": "One or more organization policies are affecting your generator settings."
   },
@@ -2080,8 +2121,32 @@
     "message": "Trash",
     "description": "Noun: a special folder to hold deleted items"
   },
+  "trashCleanupWarning": {
+    "message": "Items that have been in trash more than 30 days will be automatically deleted."
+  },
+  "trashCleanupWarningSelfHosted": {
+    "message": "Items that have been in trash for a while will be automatically deleted."
+  },
   "searchTrash": {
     "message": "Search trash"
+  },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
   },
   "permanentlyDeleteItem": {
     "message": "Permanently delete item"
@@ -2091,9 +2156,6 @@
   },
   "permanentlyDeletedItem": {
     "message": "Item permanently deleted"
-  },
-  "archivedItemRestored": {
-    "message": "Archived item restored"
   },
   "restoredItem": {
     "message": "Item restored"
@@ -2378,6 +2440,9 @@
   "editSend": {
     "message": "Edit Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Me"
   },
   "myVault": {
     "message": "My vault"
@@ -3780,6 +3845,93 @@
   "collection": {
     "message": "Collection"
   },
+  "editCollection": {
+    "message": "Edit collection"
+  },
+  "nestCollectionUnder": {
+    "message": "Nest collection under"
+  },
+  "collectionInfo": {
+    "message": "Collection info"
+  },
+  "grantCollectionAccess": {
+    "message": "Grant groups or members access to this collection."
+  },
+  "permission": {
+    "message": "Permission"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
+  },
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "selectGroupsAndMembers": {
+    "message": "Select groups and members"
+  },
+  "newCollection": {
+    "message": "New collection"
+  },
+  "externalId": {
+    "message": "External ID"
+  },
+  "externalIdDesc": {
+    "message": "External ID is an unencrypted reference used by the Bitwarden Directory Connector and API."
+  },
+  "noCollection": {
+    "message": "No collection"
+  },
+  "deleted": {
+    "message": "Deleted"
+  },
+  "readOnlyCollectionAccess": {
+    "message": "You do not have access to manage this collection."
+  },
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
+  },
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Grant members access to this collection."
+  },
+  "adminCollectionAccess": {
+    "message": "Administrators can access and manage collections."
+  },
+  "managePermissionRequired": {
+    "message": "At least one member or group must have can manage permission."
+  },
+  "userPermissionOverrideHelperDesc": {
+    "message": "Permissions set for a member will replace permissions set by that member's group."
+  },
+  "noMembersOrGroupsAdded": {
+    "message": "No members or groups added"
+  },
+  "memberColumnHeader": {
+    "message": "Member"
+  },
+  "selectMembers": {
+    "message": "Select members"
+  },
+  "noMembersAdded": {
+    "message": "No members added"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Group/Member"
+  },
+  "deleteCollectionConfirmation": {
+    "message": "Are you sure you want to delete this collection?"
+  },
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
   },
@@ -4086,6 +4238,9 @@
   },
   "missingWebsite": {
     "message": "Missing website"
+  },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -4400,8 +4555,8 @@
   "archiveItem": {
     "message": "Archive item"
   },
-  "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  "archiveItemConfirmDesc": {
+    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"

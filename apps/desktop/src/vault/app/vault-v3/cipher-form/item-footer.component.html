@@ -1,0 +1,50 @@
+<div
+  class="tw-flex tw-items-center tw-bg-bg-secondary tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-py-[20px] tw-pl-[24px] tw-pr-[12px]"
+>
+  @if (!cipher.decryptionFailure) {
+    <button
+      #submitBtn
+      form="cipherForm"
+      type="submit"
+      [hidden]="action === 'view'"
+      bitButton
+      class="primary"
+      appA11yTitle="{{ submitButtonText() }}"
+    >
+      {{ submitButtonText() }}
+    </button>
+    @if (!cipher.isDeleted && action === "view") {
+      <button
+        bitButton
+        buttonType="primary"
+        type="button"
+        (click)="edit()"
+        [appA11yTitle]="'edit' | i18n"
+      >
+        {{ "edit" | i18n }}
+      </button>
+    }
+    @if (cipher.isDeleted && cipher.permissions.restore) {
+      <button
+        type="button"
+        class="primary"
+        (click)="restore()"
+        appA11yTitle="{{ 'restore' | i18n }}"
+      >
+        <i class="bwi bwi-undo bwi-fw bwi-lg" aria-hidden="true"></i>
+      </button>
+    }
+  }
+  @if (hasFooterAction) {
+    <div class="tw-ml-auto tw-flex">
+      <button
+        type="button"
+        bitIconButton="bwi-trash"
+        buttonType="danger"
+        [label]="(cipher.isDeleted ? 'permanentlyDelete' : 'delete') | i18n"
+        (click)="delete()"
+        appA11yTitle="{{ (cipher.isDeleted ? 'permanentlyDelete' : 'delete') | i18n }}"
+      ></button>
+    </div>
+  }
+</div>
