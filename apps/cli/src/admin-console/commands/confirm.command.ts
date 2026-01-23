@@ -101,10 +101,6 @@ export class ConfirmCommand {
   }
 
   private validateOrganizationUserStatus(orgUser: OrganizationUserDetailsResponse): void {
-    if (orgUser.userId == null) {
-      throw new Error("User has not accepted the invitation yet.");
-    }
-
     if (orgUser.status === OrganizationUserStatusType.Invited) {
       throw new Error("User must accept the invitation before they can be confirmed.");
     }
