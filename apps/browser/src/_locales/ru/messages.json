@@ -582,14 +582,14 @@
   "archiveItem": {
     "message": "Архивировать элемент"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  "archiveItemDialogContent": {
+    "message": "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Архивирован"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Разархивировать и сохранить"
   },
   "upgradeToUseArchive": {
     "message": "Для использования архива требуется премиум-статус."
@@ -1546,13 +1546,13 @@
     "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Ваша подписка Премиум закончилась"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Переподключить Премиум"
   },
   "ppremiumSignUpReports": {
     "message": "Гигиена паролей, здоровье аккаунта и отчеты об утечках данных для обеспечения безопасности вашего хранилища."
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Элемент удален навсегда"
+  },
+  "archivedItemRestored": {
+    "message": "Архивированный элемент восстановлен"
   },
   "restoreItem": {
     "message": "Восстановить элемент"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Больше опций"
+  },
   "moreOptionsTitle": {
     "message": "Больше опций - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4848,19 +4854,19 @@
     "message": "Узнайте о рисках"
   },
   "autoConfirmSetup": {
-    "message": "Automatically confirm new users"
+    "message": "Автоматически подтверждать новых пользователей"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "Новые пользователи будут автоматически подтверждены при разблокировке устройства."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "Каковы потенциальные риски для безопасности?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "Включено автоматическое подтверждение"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Уже доступно"
   },
   "accountSecurity": {
     "message": "Безопасность аккаунта"
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Скрыть обнаружение совпадений $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показать обнаружение совпадений"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скрыть обнаружение совпадений"
   },
   "autoFillOnPageLoad": {
     "message": "Автозаполнение при загрузке страницы?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Очень широкое"
+  },
+  "narrow": {
+    "message": "Узкий"
   },
   "sshKeyWrongPassword": {
     "message": "Введенный пароль неверен."

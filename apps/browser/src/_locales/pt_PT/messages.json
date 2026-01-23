@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "Arquivar item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  "archiveItemDialogContent": {
+    "message": "Depois de arquivado, este item será excluído dos resultados de pesquisa e das sugestões de preenchimento automático."
   },
   "archived": {
     "message": "Arquivado"
@@ -1071,7 +1071,7 @@
     }
   },
   "deleteItemConfirmation": {
-    "message": "Tem a certeza de que pretende eliminar este item?"
+    "message": "Pretende realmente mover este item para o lixo?"
   },
   "deletedItem": {
     "message": "Item movido para o lixo"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Item eliminado permanentemente"
+  },
+  "archivedItemRestored": {
+    "message": "Item arquivado restaurado"
   },
   "restoreItem": {
     "message": "Restaurar item"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Mais opções"
+  },
   "moreOptionsTitle": {
     "message": "Mais opções - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Ocultar deteção de correspondência para $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Mostrar deteção de correspondência"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ocultar deteção de correspondência"
   },
   "autoFillOnPageLoad": {
     "message": "Preencher automaticamente ao carregar a página?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Muito ampla"
+  },
+  "narrow": {
+    "message": "Estreito"
   },
   "sshKeyWrongPassword": {
     "message": "A palavra-passe que introduziu está incorreta."
