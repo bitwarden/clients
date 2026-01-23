@@ -582,8 +582,8 @@
   "archiveItem": {
     "message": "Архивиране на елемента"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  "archiveItemDialogContent": {
+    "message": "След като бъде архивиран, този елемент няма да се показва в резултатите при търсене, нито в предложенията за автоматично попълване."
   },
   "archived": {
     "message": "Архивирано"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Записът е изтрит окончателно"
+  },
+  "archivedItemRestored": {
+    "message": "Архивираният елемент е възстановен"
   },
   "restoreItem": {
     "message": "Възстановяване на запис"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Още настройки"
+  },
   "moreOptionsTitle": {
     "message": "Още опции – $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Скриване на откритото съвпадение $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показване на откриването на съвпадения"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скриване на откриването на съвпадения"
   },
   "autoFillOnPageLoad": {
     "message": "Автоматично попълване при зареждане на страницата?"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "Много широко"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "Въведената парола е неправилна."

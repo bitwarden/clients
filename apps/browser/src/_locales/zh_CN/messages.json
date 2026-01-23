@@ -582,14 +582,14 @@
   "archiveItem": {
     "message": "归档项目"
   },
-  "archiveItemConfirmDesc": {
-    "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
+  "archiveItemDialogContent": {
+    "message": "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。"
   },
   "archived": {
-    "message": "Archived"
+    "message": "已归档"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "取消归档并保存"
   },
   "upgradeToUseArchive": {
     "message": "需要高级会员才能使用归档。"
@@ -1546,13 +1546,13 @@
     "message": "专有的两步登录选项，如 YubiKey 和 Duo。"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "您的高级版订阅已结束"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "要重新获取归档内容的访问权限，请重启您的高级版订阅。如果您在重启前编辑了某个已归档项目的详细信息，它将被移回您的密码库中。"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "重启高级版"
   },
   "ppremiumSignUpReports": {
     "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
@@ -2472,6 +2472,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "项目已永久删除"
+  },
+  "archivedItemRestored": {
+    "message": "归档项目已恢复"
   },
   "restoreItem": {
     "message": "恢复项目"
@@ -4739,6 +4742,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "更多选项"
+  },
   "moreOptionsTitle": {
     "message": "更多选项 - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5131,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "隐藏匹配检测 $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "显示匹配检测"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "隐藏匹配检测"
   },
   "autoFillOnPageLoad": {
     "message": "页面加载时自动填充吗？"
@@ -5669,6 +5672,9 @@
   },
   "extraWide": {
     "message": "超宽"
+  },
+  "narrow": {
+    "message": "窄"
   },
   "sshKeyWrongPassword": {
     "message": "您输入的密码不正确。"
