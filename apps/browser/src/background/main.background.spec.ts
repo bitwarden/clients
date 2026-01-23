@@ -11,3 +11,7 @@ describe("MainBackground sync task scheduling", () => {
     expect(bootstrapSource).toContain("this.backgroundSyncService.init();");
   });
 });
+
+// Note: yieldGeneratedPassword() and generatePasswordToClipboard() are tested
+// through integration tests in overlay.background.spec.ts where they are
+// exercised via the callback mechanism.
