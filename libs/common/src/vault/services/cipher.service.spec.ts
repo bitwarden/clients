@@ -117,8 +117,9 @@ describe("Cipher Service", () => {
 
   let cipherService: CipherService;
   let encryptionContext: EncryptionContext;
-  // BehaviorSubject for SDK feature flag - allows tests to change the value after service instantiation
+  // BehaviorSubjects for SDK feature flags - allows tests to change the value after service instantiation
   let sdkCrudFeatureFlag$: BehaviorSubject<boolean>;
+  let sdkShareFeatureFlag$: BehaviorSubject<boolean>;
 
   beforeEach(() => {
     encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
@@ -134,9 +135,15 @@ describe("Cipher Service", () => {
 
     (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
-    // Create BehaviorSubject for SDK feature flag - tests can update this to change behavior
+    // Create BehaviorSubjects for SDK feature flags - tests can update these to change behavior
     sdkCrudFeatureFlag$ = new BehaviorSubject<boolean>(false);
-    configService.getFeatureFlag$.mockReturnValue(sdkCrudFeatureFlag$.asObservable());
+    sdkShareFeatureFlag$ = new BehaviorSubject<boolean>(false);
+    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
+      if (flag === FeatureFlag.PM28190_SdkCipherShareOperations) {
+        return sdkShareFeatureFlag$.asObservable();
+      }
+      return sdkCrudFeatureFlag$.asObservable();
+    });
 
     cipherService = new CipherService(
       keyService,
@@ -888,6 +895,124 @@ describe("Cipher Service", () => {
         } as unknown as CipherView),
         userId,
       );
+    });
+
+    it("should delegate to cipherSdkService when SDK share feature flag is enabled", async () => {
+      sdkShareFeatureFlag$.next(true);
+
+      const expectedCipher = new Cipher(cipherData);
+      expectedCipher.organizationId = orgId;
+      const cipherView = new CipherView(expectedCipher);
+      cipherView.organizationId = null; // Ensure organizationId is null for this test
+      const collectionIds = ["collection1", "collection2"] as CollectionId[];
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "shareWithServer")
+        .mockResolvedValue(expectedCipher);
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      const result = await cipherService.shareWithServer(cipherView, orgId, collectionIds, userId);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(
+        cipherView,
+        orgId,
+        collectionIds,
+        userId,
+        undefined,
+      );
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+      expect(result).toEqual(expectedCipher);
+    });
+
+    it("should pass originalCipherView to cipherSdkService when SDK share feature flag is enabled", async () => {
+      sdkShareFeatureFlag$.next(true);
+
+      const expectedCipher = new Cipher(cipherData);
+      const cipherView = new CipherView(expectedCipher);
+      cipherView.organizationId = null;
+      const originalCipherView = new CipherView(expectedCipher);
+      originalCipherView.name = "Original Cipher";
+      const collectionIds = ["collection1"] as CollectionId[];
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "shareWithServer")
+        .mockResolvedValue(expectedCipher);
+
+      await cipherService.shareWithServer(
+        cipherView,
+        orgId,
+        collectionIds,
+        userId,
+        originalCipherView,
+      );
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(
+        cipherView,
+        orgId,
+        collectionIds,
+        userId,
+        originalCipherView,
+      );
+    });
+
+    it("should throw when cipher already has organization and SDK share flag is enabled", async () => {
+      sdkShareFeatureFlag$.next(true);
+
+      const expectedCipher = new Cipher(cipherData);
+      expectedCipher.organizationId = orgId;
+      const cipherView = new CipherView(expectedCipher);
+      cipherView.organizationId = orgId; // Cipher already has organization
+      const collectionIds = ["collection1"] as CollectionId[];
+
+      await expect(
+        cipherService.shareWithServer(cipherView, orgId, collectionIds, userId),
+      ).rejects.toThrow("Cipher is already associated with an organization.");
+    });
+  });
+
+  describe("shareManyWithServer()", () => {
+    it("should delegate to cipherSdkService when SDK share feature flag is enabled", async () => {
+      sdkShareFeatureFlag$.next(true);
+
+      const cipherView1 = new CipherView(new Cipher(cipherData));
+      cipherView1.organizationId = null;
+      const cipherView2 = new CipherView(new Cipher(cipherData));
+      cipherView2.organizationId = null;
+      const collectionIds = ["collection1"] as CollectionId[];
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "shareManyWithServer")
+        .mockResolvedValue([]);
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.shareManyWithServer(
+        [cipherView1, cipherView2],
+        orgId,
+        collectionIds,
+        userId,
+      );
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(
+        [cipherView1, cipherView2],
+        orgId,
+        collectionIds,
+        userId,
+      );
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+    });
+
+    it("should throw when any cipher already has organization and SDK share flag is enabled", async () => {
+      sdkShareFeatureFlag$.next(true);
+
+      const cipherView1 = new CipherView(new Cipher(cipherData));
+      cipherView1.organizationId = null;
+      const cipherView2 = new CipherView(new Cipher(cipherData));
+      cipherView2.organizationId = orgId; // Second cipher already has organization
+      const collectionIds = ["collection1"] as CollectionId[];
+
+      await expect(
+        cipherService.shareManyWithServer([cipherView1, cipherView2], orgId, collectionIds, userId),
+      ).rejects.toThrow("Cipher is already associated with an organization.");
     });
   });
 

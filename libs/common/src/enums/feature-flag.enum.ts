@@ -61,6 +61,7 @@ export enum FeatureFlag {
 
   /* Vault */
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
+  PM28190CipherSharingOpsToSdk = "pm-28190-cipher-sharing-ops-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
@@ -69,6 +70,7 @@ export enum FeatureFlag {
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
+  PM28190_SdkCipherShareOperations = "pm-28190-cipher-sharing-ops-to-sdk",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -132,6 +134,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VaultLoadingSkeletons]: FALSE,
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
+  [FeatureFlag.PM28190_SdkCipherShareOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
 
   /* Auth */
