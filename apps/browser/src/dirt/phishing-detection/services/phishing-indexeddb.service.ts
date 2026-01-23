@@ -68,6 +68,27 @@ export class PhishingIndexedDbService {
   }
 
   /**
+   * Adds an array of phishing URLs to IndexedDB.
+   * Appends to existing data without clearing.
+   *
+   * @param urls - Array of phishing URLs to add
+   * @returns `true` if add succeeded, `false` on error
+   */
+  async addUrls(urls: string[]): Promise<boolean> {
+    let db: IDBDatabase | null = null;
+    try {
+      db = await this.openDatabase();
+      await this.saveChunked(db, urls);
+      return true;
+    } catch (error) {
+      this.logService.error("[PhishingIndexedDbService] Add failed", error);
+      return false;
+    } finally {
+      db?.close();
+    }
+  }
+
+  /**
    * Saves URLs in chunks to prevent transaction timeouts and UI freezes.
    */
   private async saveChunked(db: IDBDatabase, urls: string[]): Promise<void> {

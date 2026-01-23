@@ -260,7 +260,7 @@ export class PhishingDataService {
     }
 
     return from(this.fetchToday(todayUrl)).pipe(
-      switchMap((lines) => from(this.indexedDbService.saveUrls(lines))),
+      switchMap((lines) => from(this.indexedDbService.addUrls(lines))),
     );
   }
 

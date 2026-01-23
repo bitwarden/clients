@@ -41,6 +41,7 @@ describe("PhishingDataService", () => {
     mockIndexedDbService.hasUrl.mockResolvedValue(false);
     mockIndexedDbService.loadAllUrls.mockResolvedValue([]);
     mockIndexedDbService.saveUrls.mockResolvedValue(undefined);
+    mockIndexedDbService.addUrls.mockResolvedValue(undefined);
     mockIndexedDbService.saveUrlsFromStream.mockResolvedValue(undefined);
 
     platformUtilsService = mock<PlatformUtilsService>();
@@ -139,7 +140,7 @@ describe("PhishingDataService", () => {
       expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
     });
 
-    it("should update daily dataset via saveUrls", async () => {
+    it("should update daily dataset via addUrls", async () => {
       // Mock daily update
       const mockResponse = {
         ok: true,
@@ -149,10 +150,7 @@ describe("PhishingDataService", () => {
 
       await firstValueFrom(service["_updateDailyDataSet"]());
 
-      expect(mockIndexedDbService.saveUrls).toHaveBeenCalledWith([
-        "newphish.com",
-        "anotherbad.net",
-      ]);
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalledWith(["newphish.com", "anotherbad.net"]);
     });
 
     it("should get updated meta information", async () => {
