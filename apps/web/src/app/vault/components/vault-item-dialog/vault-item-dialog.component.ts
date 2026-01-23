@@ -8,6 +8,7 @@ import {
   Inject,
   OnDestroy,
   OnInit,
+  viewChild,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -50,6 +51,7 @@ import {
   ItemModule,
   ToastService,
   CenterPositionStrategy,
+  DialogComponent,
 } from "@bitwarden/components";
 import {
   AttachmentDialogCloseResult,
@@ -171,6 +173,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CipherFormComponent) cipherFormComponent!: CipherFormComponent;
+
+  private readonly dialogComponent = viewChild(DialogComponent);
 
   /**
    * Tracks if the cipher was ever modified while the dialog was open. Used to ensure the dialog emits the correct result
@@ -692,6 +696,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.updateTitle();
     // Scroll to the top of the dialog content when switching modes.
     this.dialogContent.nativeElement.parentElement.scrollTop = 0;
+
+    // Refocus on title element, the built-in focus management of the dialog only works for the initial open.
+    this.dialogComponent().focusOnHeader();
 
     // Update the URL query params to reflect the new mode.
     await this.router.navigate([], {
