@@ -165,7 +165,7 @@ export class PasswordChangeMetricComponent implements OnInit {
       });
     } catch {
       this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
+        message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
         variant: "error",
         title: this.i18nService.t("error"),
       });

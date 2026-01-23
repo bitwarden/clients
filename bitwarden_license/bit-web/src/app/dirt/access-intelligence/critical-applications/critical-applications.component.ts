@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { debounceTime, EMPTY, from, map, switchMap, take } from "rxjs";
+import { debounceTime, EMPTY, firstValueFrom, map, switchMap } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -152,35 +152,25 @@ export class CriticalApplicationsComponent implements OnInit {
   };
 
   async requestPasswordChange() {
-    this.dataService.criticalApplicationAtRiskCipherIds$
-      .pipe(
-        takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
-        take(1), // Handle unsubscribe for one off operation
-        switchMap((cipherIds) => {
-          return from(
-            this.securityTasksService.requestPasswordChangeForCriticalApplications(
-              this.organizationId,
-              cipherIds,
-            ),
-          );
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.toastService.showToast({
-            message: this.i18nService.t("notifiedMembers"),
-            variant: "success",
-            title: this.i18nService.t("success"),
-          });
-        },
-        error: () => {
-          this.toastService.showToast({
-            message: this.i18nService.t("unexpectedError"),
-            variant: "error",
-            title: this.i18nService.t("error"),
-          });
-        },
+    try {
+      const cipherIds = await firstValueFrom(this.dataService.criticalApplicationAtRiskCipherIds$);
+
+      await this.securityTasksService.requestPasswordChangeForCriticalApplications(
+        this.organizationId,
+        cipherIds,
+      );
+      this.toastService.showToast({
+        message: this.i18nService.t("notifiedMembers"),
+        variant: "success",
+        title: this.i18nService.t("success"),
       });
+    } catch {
+      this.toastService.showToast({
+        message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+        variant: "error",
+        title: this.i18nService.t("error"),
+      });
+    }
   }
 
   showAppAtRiskMembers = async (applicationName: string) => {
