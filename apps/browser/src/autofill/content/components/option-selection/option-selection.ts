@@ -139,16 +139,18 @@ export class OptionSelection extends LitElement {
           toggledOn: this.showMenu,
           handleButtonClick: this.handleButtonClick,
         })}
-        ${this.showMenu
-          ? OptionItems({
-              id: this.id,
-              label: this.label,
-              options: this.options,
-              theme: this.theme,
-              topOffset: this.menuTopOffset,
-              handleOptionSelection: this.handleOptionSelection,
-            })
-          : nothing}
+        ${
+          this.showMenu
+            ? OptionItems({
+                id: this.id,
+                label: this.label,
+                options: this.options,
+                theme: this.theme,
+                topOffset: this.menuTopOffset,
+                handleOptionSelection: this.handleOptionSelection,
+              })
+            : nothing
+        }
       </div>
     `;
   }

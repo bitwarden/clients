@@ -526,17 +526,13 @@ function testCompare(fast = false) {
 }
 
 function testRsaGenerateKeyPair(length: 2048) {
-  it(
-    "should successfully generate a " + length + " bit key pair",
-    async () => {
-      const cryptoFunctionService = new NodeCryptoFunctionService();
-      const keyPair = await cryptoFunctionService.rsaGenerateKeyPair(length);
-      expect(keyPair[0] == null || keyPair[1] == null).toBe(false);
-      const publicKey = await cryptoFunctionService.rsaExtractPublicKey(keyPair[1]);
-      expect(Utils.fromBufferToB64(keyPair[0])).toBe(Utils.fromBufferToB64(publicKey));
-    },
-    30000,
-  );
+  it("should successfully generate a " + length + " bit key pair", async () => {
+    const cryptoFunctionService = new NodeCryptoFunctionService();
+    const keyPair = await cryptoFunctionService.rsaGenerateKeyPair(length);
+    expect(keyPair[0] == null || keyPair[1] == null).toBe(false);
+    const publicKey = await cryptoFunctionService.rsaExtractPublicKey(keyPair[1]);
+    expect(Utils.fromBufferToB64(keyPair[0])).toBe(Utils.fromBufferToB64(publicKey));
+  }, 30000);
 }
 
 function makeStaticByteArray(length: number) {

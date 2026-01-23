@@ -55,13 +55,16 @@ function buildRegisterContentScriptsPolyfill() {
 
         return (...arguments_: any[]) =>
           new Promise((resolve, reject) => {
-            (target[prop as keyof T] as CallableFunction)(...arguments_, (result: any) => {
-              if (chrome.runtime.lastError) {
-                reject(new Error(chrome.runtime.lastError.message));
-              } else {
-                resolve(result);
-              }
-            });
+            (target[prop as keyof T] as CallableFunction)(
+              ...arguments_,
+              (result: any) => {
+                if (chrome.runtime.lastError) {
+                  reject(new Error(chrome.runtime.lastError.message));
+                } else {
+                  resolve(result);
+                }
+              },
+            );
           });
       },
     });

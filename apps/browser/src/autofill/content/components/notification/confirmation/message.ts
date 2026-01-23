@@ -26,21 +26,25 @@ export function NotificationConfirmationMessage({
 }: NotificationConfirmationMessageProps) {
   return html`
     <div class=${containerStyles}>
-      ${message || buttonText
-        ? html`
+      ${
+        message || buttonText
+          ? html`
             <div class=${singleLineWrapperStyles}>
-              ${itemName
-                ? html`
+              ${
+                itemName
+                  ? html`
                     <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
                   `
-                : nothing}
+                  : nothing
+              }
               <span
                 title=${message || buttonText}
                 class=${notificationConfirmationMessageStyles(theme)}
               >
                 ${message || nothing}
-                ${buttonText
-                  ? html`
+                ${
+                  buttonText
+                    ? html`
                       <a
                         title=${buttonText}
                         class=${notificationConfirmationButtonTextStyles(theme)}
@@ -54,14 +58,18 @@ export function NotificationConfirmationMessage({
                         ${buttonText}
                       </a>
                     `
-                  : nothing}
+                    : nothing
+                }
               </span>
             </div>
           `
-        : nothing}
-      ${messageDetails
-        ? html`<div class=${AdditionalMessageStyles({ theme })}>${messageDetails}</div>`
-        : nothing}
+          : nothing
+      }
+      ${
+        messageDetails
+          ? html`<div class=${AdditionalMessageStyles({ theme })}>${messageDetails}</div>`
+          : nothing
+      }
     </div>
   `;
 }

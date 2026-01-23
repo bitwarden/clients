@@ -20,16 +20,18 @@ export function AtRiskNotificationFooter({
   passwordChangeUri,
 }: AtRiskNotificationFooterProps) {
   return html`<div class=${atRiskNotificationFooterStyles}>
-    ${passwordChangeUri &&
-    ActionButton({
-      handleClick: () => {
-        open(passwordChangeUri, "_blank");
-      },
-      buttonText: AdditionalTasksButtonContent({ buttonText: i18n.changePassword, theme }),
-      dataTestId: "change-password-button",
-      theme,
-      fullWidth: false,
-    })}
+    ${
+      passwordChangeUri &&
+      ActionButton({
+        handleClick: () => {
+          open(passwordChangeUri, "_blank");
+        },
+        buttonText: AdditionalTasksButtonContent({ buttonText: i18n.changePassword, theme }),
+        dataTestId: "change-password-button",
+        theme,
+        fullWidth: false,
+      })
+    }
   </div>`;
 }
 

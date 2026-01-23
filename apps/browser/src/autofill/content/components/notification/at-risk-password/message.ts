@@ -13,13 +13,15 @@ export type AtRiskNotificationMessageProps = {
 export function AtRiskNotificationMessage({ message, theme }: AtRiskNotificationMessageProps) {
   return html`
     <div>
-      ${message
-        ? html`
+      ${
+        message
+          ? html`
             <span title=${message} class=${atRiskNotificationMessageStyles(theme)}>
               ${message}
             </span>
           `
-        : nothing}
+          : nothing
+      }
     </div>
   `;
 }

@@ -1,17 +1,17 @@
 {
   "name": "@bitwarden/desktop",
-  "productName": "Bitwarden",
-  "description": "A secure and free password manager for all of your devices.",
   "version": "2025.12.1",
-  "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
+  "description": "A secure and free password manager for all of your devices.",
   "homepage": "https://bitwarden.com",
   "license": "GPL-3.0",
-  "main": "main.js",
+  "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bitwarden/clients.git"
   },
+  "main": "main.js",
   "dependencies": {
     "@bitwarden/desktop-napi": "file:../desktop_native/napi"
-  }
+  },
+  "productName": "Bitwarden"
 }
