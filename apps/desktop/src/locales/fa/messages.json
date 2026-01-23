@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "مورد برای همیشه حذف شد"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoredItem": {
     "message": "مورد بازیابی شد"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "بایگانی آیتم"
   },
-  "archiveItemConfirmDesc": {
-    "message": "آیتم‌های بایگانی‌شده از نتایج جستجوی عمومی و پیشنهاد ها پر کردن خودکار حذف می‌شوند. آیا مطمئن هستید که می‌خواهید این آیتم را بایگانی کنید؟"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"

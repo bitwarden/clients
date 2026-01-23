@@ -309,10 +309,10 @@
     "message": "啟用 SSH 代理程式"
   },
   "enableSshAgentDesc": {
-    "message": "啟用SSBitwardenH代理以從 Bitwarden 密碼庫簽發SSH請求"
+    "message": "啟用 SSH 代理以從 Bitwarden 密碼庫直接簽署 SSH 請求。"
   },
   "enableSshAgentHelp": {
-    "message": "SSH代理是一個針對開發者的服務，它能夠直接從 Bitwarden 密碼庫簽發SSH請求。"
+    "message": "SSH 代理是一個針對開發者的服務，它能夠直接從 Bitwarden 密碼庫簽署 SSH 請求。"
   },
   "sshAgentPromptBehavior": {
     "message": "使用 SSH 代理程式時要求授權"
@@ -2091,6 +2091,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "項目已永久刪除"
+  },
+  "archivedItemRestored": {
+    "message": "已還原封存項目"
   },
   "restoredItem": {
     "message": "項目已還原"
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "封存項目"
   },
-  "archiveItemConfirmDesc": {
-    "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
+  "archiveItemDialogContent": {
+    "message": "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。"
   },
   "unArchiveAndSave": {
     "message": "取消封存並儲存"

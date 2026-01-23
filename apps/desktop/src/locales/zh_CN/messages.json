@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "项目已永久删除"
   },
+  "archivedItemRestored": {
+    "message": "归档项目已恢复"
+  },
   "restoredItem": {
     "message": "项目已恢复"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "归档项目"
   },
-  "archiveItemConfirmDesc": {
-    "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
+  "archiveItemDialogContent": {
+    "message": "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。"
   },
   "unArchiveAndSave": {
     "message": "取消归档并保存"

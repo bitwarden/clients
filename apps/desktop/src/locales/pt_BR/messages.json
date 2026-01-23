@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Item apagado para sempre"
   },
+  "archivedItemRestored": {
+    "message": "Item arquivado restaurado"
+  },
   "restoredItem": {
     "message": "Item restaurado"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Arquivar item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Itens arquivados são excluídos dos resultados gerais de busca e das sugestões de preenchimento automático. Tem certeza de que deseja arquivar este item?"
+  "archiveItemDialogContent": {
+    "message": "Ao arquivar, o item será excluído dos resultados de busca e sugestões de preenchimento automático."
   },
   "unArchiveAndSave": {
     "message": "Desarquivar e salvar"

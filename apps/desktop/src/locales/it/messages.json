@@ -101,23 +101,23 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Il Send sarà eliminato definitivamente in questa data.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "File da condividere"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Nascondi il testo per impostazione predefinita"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Nascondi il tuo indirizzo email ai visualizzatori."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Limita le visualizzazioni"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ visualizzazioni rimaste",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -127,41 +127,41 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Nessuno potrà visualizzare il Send dopo il raggiungimento del limite.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Nota privata"
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Dettagli del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Richiedi ai destinatari una password per aprire questo Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Testo da condividere"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Nuovo Send (testo)",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Nuovo Send (file)",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Modifica Send testuale",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Modifica Send con file",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Vuoi davvero eliminare questo Send? L'azione è irreversibile.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
@@ -2091,6 +2091,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Elemento eliminato definitivamente"
+  },
+  "archivedItemRestored": {
+    "message": "Elemento estratto dall'archivio"
   },
   "restoredItem": {
     "message": "Elemento ripristinato"
@@ -4076,10 +4079,10 @@
     "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Password vulnerabile."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Cambiala subito"
   },
   "missingWebsite": {
     "message": "Sito Web mancante"
@@ -4374,7 +4377,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Rimuovi dall'Archivio"
+    "message": "Togli dall'archivio"
   },
   "archived": {
     "message": "Archiviato"
@@ -4386,19 +4389,19 @@
     "message": "Nessun elemento nell'archivio"
   },
   "noItemsInArchiveDesc": {
-    "message": "Gli elementi archiviati appariranno qui e saranno esclusi dai risultati di ricerca e dall'auto-riempimento."
+    "message": "Gli elementi archiviati appariranno qui e saranno esclusi dai risultati di ricerca e dal riempimento automatico."
   },
   "itemWasSentToArchive": {
     "message": "Elemento archiviato"
   },
   "itemWasUnarchived": {
-    "message": "Elemento rimosso dall'archivio"
+    "message": "Elemento estratto dall'archivio"
   },
   "archiveItem": {
     "message": "Archivia elemento"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Gli elementi archiviati sono esclusi dai risultati di ricerca e dall'auto-riempimento. Vuoi davvero archiviare questo elemento?"
+  "archiveItemDialogContent": {
+    "message": "Una volta archiviato, questo elemento sarà escluso dai risultati di ricerca e dai suggerimenti del completamento automatico."
   },
   "unArchiveAndSave": {
     "message": "Togli dall'archivio e salva"
