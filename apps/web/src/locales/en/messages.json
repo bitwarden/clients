@@ -4522,6 +4522,34 @@
   "thisMightTakeFewMinutes": {
     "message": "This might take a few minutes."
   },
+  "fetchingCollections": {
+    "message": "Fetching collections..."
+  },
+  "fetchingGroups": {
+    "message": "Fetching groups..."
+  },
+  "fetchingItems": {
+    "message": "Fetching items..."
+  },
+  "processingData": {
+    "message": "Processing data..."
+  },
+  "processingMembers": {
+    "message": "Processing members..."
+  },
+  "processingXOfYMembers": {
+    "message": "Processing $X$ of $Y$ members",
+    "placeholders": {
+      "x": {
+        "content": "$1",
+        "example": "5"
+      },
+      "y": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "riskInsightsRunReport": {
     "message": "Run report"
   },
