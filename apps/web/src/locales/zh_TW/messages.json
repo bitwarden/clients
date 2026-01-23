@@ -1750,7 +1750,7 @@
     "message": "沒有可列出的成員。"
   },
   "noMembersToExport": {
-    "message": "There are no members to export."
+    "message": "沒有可匯出的成員。"
   },
   "noEventsInList": {
     "message": "沒有可列出的事件。"
@@ -2541,7 +2541,7 @@
     "message": "已啟用"
   },
   "optionEnabled": {
-    "message": "Enabled"
+    "message": "已啟用"
   },
   "restoreAccess": {
     "message": "還原存取權限"
@@ -3153,7 +3153,7 @@
     "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "已還原項目"
   },
   "restartPremium": {
     "message": "重新啟用進階版"
@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "還原所選"
   },
+  "archivedItemRestored": {
+    "message": "已還原封存項目"
+  },
+  "archivedItemsRestored": {
+    "message": "已還原封存項目"
+  },
   "restoredItem": {
     "message": "項目已還原"
   },
@@ -5617,11 +5623,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedSuccessfully": {
-    "message": "Send created successfully!",
+    "message": "Send 建立成功！",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescription": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "message": "複製並分享此 Send 連結。在接下來的 $TIME$ 內，您指定的人員都可以檢視此內容。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -5631,7 +5637,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ 小時",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5640,11 +5646,11 @@
     }
   },
   "newTextSend": {
-    "message": "New Text Send",
+    "message": "新增文字 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newFileSend": {
-    "message": "New File Send",
+    "message": "新增檔案 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -5687,7 +5693,7 @@
     "message": "已撤銷"
   },
   "accepted": {
-    "message": "Accepted"
+    "message": "已接受"
   },
   "sendLink": {
     "message": "Send 連結",
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "集中化組織所有權"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "所有成員的項目將由組織統一擁有並管理。管理員與擁有者不受此限制。"
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "進一步了解集中化所有權",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "優點"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "全面掌握憑證的安全狀態，包括已共用與未共用的項目。"
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "在成員離職或交接時輕鬆轉移項目，確保存取權不中斷。"
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "為所有使用者提供專屬的「我的項目」空間，以管理個人登入資料。"
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "提示成員轉移其項目"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "若成員在其個人密碼庫中仍有項目，系統將提示其選擇轉移至組織或離開。若選擇離開，其存取權將被撤銷，但可隨時恢復。"
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "進一步了解轉移流程"
   },
   "organizationDataOwnership": {
     "message": "強制組織資料所有權"
@@ -6348,10 +6385,10 @@
     "message": "已注冊帳戶復原"
   },
   "enrolled": {
-    "message": "Enrolled"
+    "message": "已加入"
   },
   "notEnrolled": {
-    "message": "Not enrolled"
+    "message": "未加入"
   },
   "withdrawAccountRecovery": {
     "message": "撤銷帳戶復原"
@@ -11621,10 +11658,10 @@
     "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "有安全疑慮的密碼。"
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "立即變更"
   },
   "missingWebsite": {
     "message": "缺少網站"
@@ -11665,7 +11702,7 @@
     "message": "取消封存"
   },
   "archived": {
-    "message": "Archived"
+    "message": "已封存"
   },
   "unArchiveAndSave": {
     "message": "取消封存並儲存"
@@ -11686,7 +11723,7 @@
     "message": "項目已移至封存"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "已取消封存項目"
   },
   "itemUnarchived": {
     "message": "項目取消封存"
@@ -11701,8 +11738,8 @@
     "message": "封存項目",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
+  "archiveItemDialogContent": {
+    "message": "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。"
   },
   "archiveBulkItems": {
     "message": "封存項目",
@@ -12363,7 +12400,7 @@
     "message": "使用者驗證失敗。"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "調整側邊欄大小"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "刪除無法復原的密碼庫項目"
@@ -12548,16 +12585,16 @@
     "message": "完整的線上安全防護"
   },
   "updatePayment": {
-    "message": "Update payment"
+    "message": "更新付款方式"
   },
   "weCouldNotProcessYourPayment": {
-    "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
+    "message": "我們無法處理您的付款。請更新付款方式，或聯絡支援團隊以取得協助。"
   },
   "yourSubscriptionHasExpired": {
-    "message": "Your subscription has expired. Please contact the support team for assistance."
+    "message": "您的訂閱已到期。請聯絡支援團隊以取得協助。"
   },
   "yourSubscriptionIsScheduledToCancel": {
-    "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
+    "message": "您的訂閱預計將於 $DATE$ 取消。您可在此之前隨時恢復訂閱。",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -12566,10 +12603,10 @@
     }
   },
   "premiumShareEvenMore": {
-    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+    "message": "透過家庭方案分享更多內容，或使用 Teams 或 Enterprise 享有強大且值得信賴的密碼安全防護。"
   },
   "youHaveAGracePeriod": {
-    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "message": "自訂閱到期日起，你有 $DAYS$ 天的寬限期可維持訂閱。請於 $SUSPENSION_DATE$ 前結清逾期發票。",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -12582,31 +12619,31 @@
     }
   },
   "manageInvoices": {
-    "message": "Manage invoices"
+    "message": "管理帳單"
   },
   "yourNextChargeIsFor": {
-    "message": "Your next charge is for"
+    "message": "您的下一筆收費項目為"
   },
   "dueOn": {
-    "message": "due on"
+    "message": "到期日"
   },
   "yourSubscriptionWillBeSuspendedOn": {
-    "message": "Your subscription will be suspended on"
+    "message": "您的訂閱將於以下日期暫停"
   },
   "yourSubscriptionWasSuspendedOn": {
-    "message": "Your subscription was suspended on"
+    "message": "您的訂閱已於以下日期暫停"
   },
   "yourSubscriptionWillBeCanceledOn": {
-    "message": "Your subscription will be canceled on"
+    "message": "您的訂閱將於以下日期取消"
   },
   "yourSubscriptionWasCanceledOn": {
-    "message": "Your subscription was canceled on"
+    "message": "您的訂閱已於以下日期取消"
   },
   "storageFull": {
-    "message": "Storage full"
+    "message": "儲存空間已滿"
   },
   "storageUsedDescription": {
-    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "message": "您已使用 $AVAILABLE$ GB 加密檔案儲存空間中的 $USED$ GB。",
     "placeholders": {
       "used": {
         "content": "$1",
@@ -12619,15 +12656,15 @@
     }
   },
   "storageFullDescription": {
-    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+    "message": "您已用完全部 $GB$ GB 的加密儲存空間。如需繼續儲存檔案，請增加儲存空間。"
   },
   "whenYouRemoveStorage": {
-    "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+    "message": "當您移除儲存空間時，將會獲得按比例計算的帳戶抵扣金額，並自動套用至下一期帳單。"
   },
   "youHavePremium": {
-    "message": "You have Premium"
+    "message": "您已擁有進階版"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "電子郵件已受保護"
   }
 }

@@ -94,7 +94,7 @@
     "message": "הקצה משימות לחברים כדי לנטר התקדמות"
   },
   "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
+    "message": "לאחר סקירת הבקשות וסימונן כנחוצות, מומלץ להקצות מטלות לחברים שלכם לשינוי הסיסמאות שלהם."
   },
   "sendReminders": {
     "message": "שלח תזכורות"
@@ -179,34 +179,34 @@
     }
   },
   "noDataInOrgTitle": {
-    "message": "No data found"
+    "message": "לא נמצאו נתונים"
   },
   "noDataInOrgDescription": {
-    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+    "message": "בצעו ייבוא של פרטי ההתחברות של הארגון שלכם כדי להתחיל שימוש ב-Access Intelligence. לאחר שתבצעו זאת, באפשרותכם:"
   },
   "feature1Title": {
-    "message": "Mark applications as critical"
+    "message": "סימון יישומים כנחוצים"
   },
   "feature1Description": {
-    "message": "This will help you remove risks to your most important applications first."
+    "message": "הפעולה תסייע לך להסיר סיכונים ליישומים החשובים לך ביותר תחילה."
   },
   "feature2Title": {
-    "message": "Help members improve their security"
+    "message": "סייעו לחברים לשפר את האבטחה שלהם"
   },
   "feature2Description": {
-    "message": "Assign at-risk members guided security tasks to update credentials."
+    "message": "הקצו מטלות אבטחה מודרכות לחברים שבסיכון לעדכון נתוני ההתחברות."
   },
   "feature3Title": {
-    "message": "Monitor progress"
+    "message": "ניטור ההתקדמות"
   },
   "feature3Description": {
-    "message": "Track changes over time to show security improvements."
+    "message": "עקבו אחר שינויים לאורך זמן כדי להציג שיפורי אבטחה."
   },
   "noReportsRunTitle": {
-    "message": "Generate report"
+    "message": "יצירת דו\"ח"
   },
   "noReportsRunDescription": {
-    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
+    "message": "באפשרותך כעת להתחיל ליצור דו\"חות. לאחר יצירת דו\"חות, יהיה ניתן:"
   },
   "noCriticalApplicationsTitle": {
     "message": "לא סימנת אף יישום כקריטי"
@@ -266,13 +266,13 @@
     "message": "חברים בסיכון"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
-    "message": "These members have access to vulnerable items for critical applications."
+    "message": "לחברים אלה ניתנת גישה לפריטים רגישים עבור יישומים חיוניים."
   },
   "membersWithAtRiskPasswords": {
     "message": "חברים עם סיסמאות בסיכון"
   },
   "membersWillReceiveSecurityTask": {
-    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
+    "message": "לחברים בארגון שלך תוקצה מטלה לשינוי סיסמאות רגישות. הם יקבלו התראה בתוסף הדפדפן של Bitwarden."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ חברים בסיכון",
@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "שחזר את מה שנבחר"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
+  "archivedItemsRestored": {
+    "message": "Archived items restored"
+  },
   "restoredItem": {
     "message": "הפריט שוחזר"
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Benefits"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "אכוף בעלות נתוני ארגון"
@@ -11701,8 +11738,8 @@
     "message": "העבר פריט לארכיון",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "פריטים בארכיון מוחרגים מתוצאות חיפוש כללי והצעות למילוי אוטומטי. האם אתה בטוח שברצונך להעביר פריט זה לארכיון?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archiveBulkItems": {
     "message": "העבר פריטים לארכיון",
