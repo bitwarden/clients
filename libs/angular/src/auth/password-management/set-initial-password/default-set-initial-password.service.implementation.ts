@@ -20,6 +20,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
+  MasterPasswordAuthenticationData,
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
@@ -45,6 +46,7 @@ import {
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordUserType,
+  SetInitialPasswordTdeUserWithPermissionCredentials,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
@@ -335,6 +337,93 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
       masterPasswordUnlockData,
     );
+  }
+
+  async setInitialPasswordTdeUserWithPermission(
+    credentials: SetInitialPasswordTdeUserWithPermissionCredentials,
+    userId: UserId,
+  ): Promise<void> {
+    const {
+      newPassword,
+      salt,
+      kdfConfig,
+      newPasswordHint,
+      orgSsoIdentifier,
+      orgId,
+      resetPasswordAutoEnroll,
+    } = credentials;
+
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} not found.`);
+      }
+
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+      if (userKey == null) {
+        throw new Error("userKey not found.");
+      }
+
+      const authenticationData: MasterPasswordAuthenticationData =
+        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+          newPassword,
+          kdfConfig,
+          salt,
+        );
+
+      const unlockData: MasterPasswordUnlockData =
+        await this.masterPasswordService.makeMasterPasswordUnlockData(
+          newPassword,
+          kdfConfig,
+          salt,
+          userKey,
+        );
+
+      const request = SetPasswordRequest.newConstructor(
+        authenticationData,
+        unlockData,
+        newPasswordHint,
+        orgSsoIdentifier,
+        null, // no KeysRequest for TDE user because they already have a key pair
+      );
+
+      await this.masterPasswordApiService.setPassword(request);
+
+      // Clear force set password reason to allow navigation back to vault.
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.None,
+        userId,
+      );
+
+      // User now has a password so update account decryption options in state
+      await this.updateAccountDecryptionProperties(
+        newMasterKey,
+        kdfConfig,
+        masterKeyEncryptedUserKey,
+        userId,
+      );
+
+      // Set master password unlock data for unlock path pointed to with
+      // MasterPasswordUnlockData feature development
+      // (requires: password, salt, kdf, userKey).
+      // As migration to this strategy continues, both unlock paths need supported.
+      // Several invocations in this file become redundant and can be removed once
+      // the feature is enshrined/unwound. These are marked with [PM-23246] below.
+      await this.setMasterPasswordUnlockData(
+        newPassword,
+        salt,
+        kdfConfig,
+        masterKeyEncryptedUserKey[0],
+        userId,
+      );
+
+      // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
+      await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
+
+      if (resetPasswordAutoEnroll) {
+        await this.handleResetPasswordAutoEnroll(newServerMasterKeyHash, orgId, userId);
+      }
+    }
   }
 
   /**
