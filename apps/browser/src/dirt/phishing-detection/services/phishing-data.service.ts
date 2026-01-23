@@ -170,7 +170,6 @@ export class PhishingDataService {
     // If a custom matcher is provided, iterate stored entries and apply the matcher.
     if (resource && resource.match) {
       try {
-        // TODO Check that load all urls actually has the cursor setup correctly
         const entries = await this.indexedDbService.loadAllUrls();
         for (const entry of entries) {
           if (resource.match(url, entry)) {
