@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Atjaunot atlasīto"
   },
+  "archivedItemRestored": {
+    "message": "Arhīva vienums atjaunots"
+  },
+  "archivedItemsRestored": {
+    "message": "Arhīva vienumi atjaunoti"
+  },
   "restoredItem": {
     "message": "Vienums atjaunots"
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralizēt apvienības īpašumtiesības"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Visi dalībnieku vienumi piederēs un tos pārvaldīs apvienība. Pārvaldītāji un īpašnieki ir izņēmums. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Uzzināt vairāk par centralizētām īpašumtiesībām",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Ieguvumi"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Tiek iegūta pilna pārredzamība par pieteikšanās vienumu stāvokli, tajā skaitā kopīgotajiem un nekopīgotajiem vienumiem."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Vienkārša vienumu pārcelšana dalībnieku aiziešanas un aizstāšanas gadījumos, nodrošinot, ka nav piekļuvju spraugu."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Uzspiest apvienības datu īpašumtiesības"
@@ -11701,8 +11738,8 @@
     "message": "Arhivēt vienumu",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  "archiveItemDialogContent": {
+    "message": "Pēc ievietošanas arhīvā šis vienums netiks iekļauts meklēšanas iznākumā un automātiskās aizpildes ieteikumos."
   },
   "archiveBulkItems": {
     "message": "Arhivēt vienumus",
@@ -12628,6 +12665,6 @@
     "message": "Tev ir Premium"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "E-pasts aizsargāts"
   }
 }

@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Obnovit vybrané"
   },
+  "archivedItemRestored": {
+    "message": "Archivovaná položka byla obnovena"
+  },
+  "archivedItemsRestored": {
+    "message": "Archivované položky byly obnoveny"
+  },
   "restoredItem": {
     "message": "Položka byla obnovena"
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralizovat vlastnictví organizace"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Všechny položky uživatele budou vlastněny a spravovány organizací. Správci a vlastníci jsou osvobozeni. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Zjistěte více o centralizovaném vlastnictví",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Výhody"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Získejte úplný přehled o stavu přihlašovacích údajů, včetně sdílených a nesdílených položek."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Snadno přenášjte položky při odchodu a nástupu nových uživatelů pro zajištění bezproblémového přístupu."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Všem uživatelům poskytněte vyhrazený prostor \"Moje položky\" pro správu jejich vlastních přihlašovacích údajů."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Vyzvěte uživatele, aby převedli své položky"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Pokud mají uživatelé ve svém individuálním trezoru nějaké položky, budou vyzváni, aby je buď převedli do organizace, nebo odešli. Pokud odejdou, jejich přístup bude zrušen, ale může být kdykoli obnoven."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Více informací o převodu"
   },
   "organizationDataOwnership": {
     "message": "Vynutit vlastnictví dat organizace"
@@ -11701,8 +11738,8 @@
     "message": "Archivovat položku",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  "archiveItemDialogContent": {
+    "message": "Jakmile bude tato položka archivována, bude vyloučena z výsledků vyhledávání a z návrhů automatického vyplňování."
   },
   "archiveBulkItems": {
     "message": "Archivovat položky",

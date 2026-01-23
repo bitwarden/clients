@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Restaurer la sélection"
   },
+  "archivedItemRestored": {
+    "message": "Élément archivé restauré"
+  },
+  "archivedItemsRestored": {
+    "message": "Élément archivé restauré"
+  },
   "restoredItem": {
     "message": "Élément restauré"
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centraliser la propriété de l'organisation"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Tous les éléments du membre seront détenus et gérés par l'organisation. Les administrateurs et les propriétaires sont exemptés. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "En savoir plus sur la propriété centralisée",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Les bénéfices"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gagnez une pleine visibilité sur la santé des identifiants, y compris les éléments partagés et non partagés."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Transférez facilement les éléments pendant la période de lancement et de succession du membre, en veillant à ce qu'il n'y ait pas de manques d'accès."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Donnez à tous les utilisateurs un espace dédié \"Mes éléments\" pour gérer leurs propres identifiants."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Demander aux membres de transférer leurs éléments"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Si les membres ont des éléments dans leur coffre individuel, ils seront invités à les transférer à l'organisation ou à quitter. S'ils quittent, leur accès est révoqué mais peut être restauré à tout moment."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "En savoir plus sur le transfert"
   },
   "organizationDataOwnership": {
     "message": "Forcer la propriété des données de l'organisation"
@@ -11701,8 +11738,8 @@
     "message": "Archiver l'élément",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
+  "archiveItemDialogContent": {
+    "message": "Une fois archivé, cet élément sera exclu des résultats de recherche et des suggestions de remplissage automatique."
   },
   "archiveBulkItems": {
     "message": "Archiver les éléments",

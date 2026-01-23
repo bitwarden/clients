@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Kiválasztottak visszaállítása"
   },
+  "archivedItemRestored": {
+    "message": "Az archivált elem visszaállításra került."
+  },
+  "archivedItemsRestored": {
+    "message": "Az archivált elemek visszaállításra kerültek."
+  },
   "restoredItem": {
     "message": "Az elem visszaállításra került."
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "A szervezet tulajdonjog központosítása"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Az összes tagi elem a szervezet tulajdonában és kezelésében lesz. Az adminisztrátorok és a tulajdonosok mentesülnek. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "További információ a központosított tulajdonról",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Előnyök"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Szerezzünk teljes láthatóságot a hitelesítő egészséghez, beleértve a megosztott és nem megosztott elemeket is."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Könnyen átvihetjük az elemeket a tagok kilépése és utódlása során, biztosítva, hogy ne legyenek hozzáférési hiányosságok."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Adjunk minden felhasználónak egy dedikált \"Saját elemek\" helyet saját a bejelentkezései kezelésére."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Kérjük meg a tagokat, hogy vigyék át az elemeiket."
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Ha a tagok vannak elemei az egyedi széfükben, a rendszer felkéri őket, hogy vigyék át azokat a szervezethez vagy távozzanak. Ha távoznak, a hozzáféréseik visszavonásra kerülnek, de bármikor visszaállíthatók."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "További információ az átvitelről"
   },
   "organizationDataOwnership": {
     "message": "A szervezet adat tulajdonjogának érvényesítése"
@@ -11701,8 +11738,8 @@
     "message": "Elem archiválása",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  "archiveItemDialogContent": {
+    "message": "Az archiválás után ez az elem kizárásra kerül a keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
   "archiveBulkItems": {
     "message": "Elemek archiválása",
@@ -12628,6 +12665,6 @@
     "message": "Prémium felhasználó vagyunk"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Védett email cím"
   }
 }

@@ -1291,7 +1291,7 @@
     "message": "Eliminar anexo"
   },
   "deleteItemConfirmation": {
-    "message": "Tem a certeza de que pretende eliminar este item?"
+    "message": "Pretende realmente mover este item para o lixo?"
   },
   "deletedItem": {
     "message": "Item movido para o lixo"
@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Restaurar selecionados"
   },
+  "archivedItemRestored": {
+    "message": "Item arquivado restaurado"
+  },
+  "archivedItemsRestored": {
+    "message": "Itens arquivados restaurados"
+  },
   "restoredItem": {
     "message": "Item restaurado"
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralizar a propriedade da organização"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Todos os itens dos membros serão propriedade da organização e geridos por esta. Os administradores e proprietários estão isentos. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Saiba mais sobre a propriedade centralizada",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Benefícios"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Obtenha visibilidade total sobre a segurança das credenciais, incluindo itens partilhados e não partilhados."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Transfira facilmente os itens durante a saída de membros ou sucessão, garantindo que não existem lacunas de acesso."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Ofereça a todos os utilizadores um espaço dedicado “Os meus itens” para gerirem as suas próprias credenciais."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Solicitar aos membros que transfiram os seus itens"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Se os membros tiverem itens no seu cofre individual, será solicitado que os transfiram para a organização ou que os deixem no seu cofre pessoal. Se optarem por deixar, o acesso será revogado, mas poderá ser restaurado a qualquer momento."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Saiba mais sobre a transferência"
   },
   "organizationDataOwnership": {
     "message": "Reforçar a propriedade dos dados da organização"
@@ -11701,8 +11738,8 @@
     "message": "Arquivar item",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Os itens arquivados são excluídos dos resultados gerais da pesquisa e das sugestões de preenchimento automático. Tem a certeza de que pretende arquivar este item?"
+  "archiveItemDialogContent": {
+    "message": "Depois de arquivado, este item será excluído dos resultados de pesquisa e das sugestões de preenchimento automático."
   },
   "archiveBulkItems": {
     "message": "Arquivar itens",

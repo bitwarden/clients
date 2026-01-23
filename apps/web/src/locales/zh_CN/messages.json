@@ -233,7 +233,7 @@
     "message": "取消选择应用程序"
   },
   "applicationsMarkedAsCriticalSuccess": {
-    "message": "标记为关键的应用程序"
+    "message": "应用程序标记为关键"
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ 个应用程序标记为关键",
@@ -3788,7 +3788,7 @@
     }
   },
   "inviteUserDesc": {
-    "message": "在下面输入 Bitwarden 账户电子邮箱地址，以邀请新用户加入您的组织。如果他们没有 Bitwarden 账户，将会提示他们创建一个。"
+    "message": "在下面输入他们的 Bitwarden 账户电子邮箱地址，以邀请新用户加入您的组织。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
   },
   "inviteMultipleEmailDesc": {
     "message": "通过逗号分隔，最多输入 $COUNT$ 个电子邮箱。",
@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "恢复所选"
   },
+  "archivedItemRestored": {
+    "message": "归档项目已恢复"
+  },
+  "archivedItemsRestored": {
+    "message": "归档项目已恢复"
+  },
   "restoredItem": {
     "message": "项目已恢复"
   },
@@ -5425,7 +5431,7 @@
     "message": "项目已恢复"
   },
   "restoredItemId": {
-    "message": "恢复了项目 $ID$",
+    "message": "项目 $ID$ 已恢复",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5795,7 +5801,7 @@
     "message": "编辑紧急联系人"
   },
   "inviteEmergencyContactDesc": {
-    "message": "通过在下面输入他们的 Bitwarden 账户电子邮箱地址来邀请新的紧急联系人。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
+    "message": "在下面输入他们的 Bitwarden 账户电子邮箱地址，以邀请新的紧急联系人。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
   },
   "emergencyAccessRecoveryInitiated": {
     "message": "紧急访问已发起"
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "集中化组织所有权"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "所有成员项目都将由组织拥有和管理。管理员和所有者不受此约束。"
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "进一步了解集中化所有权",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "优点"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "全面掌握凭据的健康状况，包括已共享和未共享的项目。"
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "在成员离职或岗位交接时，轻松转移项目，确保不会出现访问空档。"
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "为所有用户提供一个专用的「我的项目」空间，用于管理他们自己的登录信息。"
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "提示成员转移他们的项目"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "如果成员的个人密码库中有项目，将提示他们选择将项目转移到组织中，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "进一步了解转移"
   },
   "organizationDataOwnership": {
     "message": "强制组织数据所有权"
@@ -6635,7 +6672,7 @@
     "message": "服务用户可以访问和管理所有客户组织。"
   },
   "providerInviteUserDesc": {
-    "message": "通过在下面输入他们的 Bitwarden 账户电子邮箱地址，以邀请新用户加入您的提供商。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
+    "message": "在下面输入他们的 Bitwarden 账户电子邮箱地址，以邀请新用户加入您的提供商。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
   },
   "joinProvider": {
     "message": "加入提供商"
@@ -11234,7 +11271,7 @@
     }
   },
   "userLeftOrganization": {
-    "message": "用户 $ID$ 离开了组织",
+    "message": "用户 $ID$ 退出了组织",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11692,17 +11729,17 @@
     "message": "项目已取消归档"
   },
   "bulkArchiveItems": {
-    "message": "已归档的项目"
+    "message": "项目已归档"
   },
   "bulkUnarchiveItems": {
-    "message": "已取消归档的项目"
+    "message": "项目已取消归档"
   },
   "archiveItem": {
     "message": "归档项目",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "已归档的项目将被排除在一般搜索结果和自动填充建议之外。确定要归档此项目吗？"
+  "archiveItemDialogContent": {
+    "message": "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。"
   },
   "archiveBulkItems": {
     "message": "归档项目",
