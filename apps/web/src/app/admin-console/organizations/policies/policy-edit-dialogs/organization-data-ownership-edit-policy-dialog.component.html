@@ -1,5 +1,5 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog [loading]="loading">
+  <bit-dialog dialogSize="large" [loading]="loading">
     <ng-container bitDialogTitle>
       @let title = multiStepSubmit()[currentStep()]?.titleContent();
       @if (title) {
