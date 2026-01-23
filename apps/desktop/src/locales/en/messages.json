@@ -4587,5 +4587,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "enableScreenPrivacy": {
+    "message": "Enable Screen Privacy"
   }
 }

@@ -400,6 +400,21 @@
                   </a></small
                 >
               </div>
+              <div class="form-group" *ngIf="showScreenPrivacy">
+                <div class="checkbox">
+                  <label for="screenPrivacy">
+                    <input
+                      id="screenPrivacy"
+                      type="checkbox"
+                      formControlName="screenPrivacy"
+                      (change)="saveScreenPrivacy()"
+                    />
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                      {{ "enableScreenPrivacy" | i18n }}
+                    </div>
+                  </label>
+                </div>
+              </div>
               <div class="form-group">
                 <div class="checkbox">
                   <label for="enableHardwareAcceleration">

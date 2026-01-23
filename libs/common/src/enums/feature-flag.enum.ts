@@ -24,6 +24,7 @@ export enum FeatureFlag {
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   SSHAgentV2 = "ssh-agent-v2",
+  ScreenPrivacy = "screen-privacy",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
@@ -111,6 +112,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
+  [FeatureFlag.ScreenPrivacy]: FALSE,
 
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,

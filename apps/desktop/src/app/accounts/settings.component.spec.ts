@@ -183,6 +183,7 @@ describe("SettingsComponent", () => {
     desktopSettingsService.preventScreenshots$ = of(false);
     domainSettingsService.showFavicons$ = of(false);
     desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$ = of(false);
+    desktopAutofillSettingsService.screenPrivacy$ = of(false);
     themeStateService.selectedTheme$ = of(ThemeType.System);
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);

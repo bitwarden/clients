@@ -118,6 +118,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   showEnableAutotype = false;
+  showScreenPrivacy = false;
   autotypeShortcut: string;
   showOpenAtLoginOption = false;
   isWindows: boolean;
@@ -184,6 +185,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       value: false,
       disabled: true,
     }),
+    screenPrivacy: false,
     autotypeShortcut: [null as string | null],
     theme: [null as Theme | null],
     locale: [null as string | null],
@@ -309,6 +311,20 @@ export class SettingsComponent implements OnInit, OnDestroy {
         });
     }
 
+    // Screen Privacy is for Windows initially
+    // TODO: windows only for now, update when done testing
+    if (true) {
+      this.showScreenPrivacy = true;
+      /*
+      this.configService
+      .getFeatureFlag$(FeatureFlag.ScreenPrivacy)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((enabled) => {
+        this.showScreenPrivacy = enabled;
+      });
+      */
+    }
+
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
     this.currentUserEmail = activeAccount.email;
@@ -417,6 +433,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
+      screenPrivacy: await firstValueFrom(this.desktopAutofillSettingsService.screenPrivacy$),
       autotypeShortcut: this.getFormattedAutotypeShortcutText(
         (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
       ),
@@ -967,6 +984,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.getFormattedAutotypeShortcutText(currentShortcut),
       );
     }
+  }
+
+  async saveScreenPrivacy() {
+    await this.desktopAutofillSettingsService.setScreenPrivacy(this.form.value.screenPrivacy);
+    console.log("screen privacy updated to: " + this.form.value.screenPrivacy);
   }
 
   async saveAutotypeShortcut() {
