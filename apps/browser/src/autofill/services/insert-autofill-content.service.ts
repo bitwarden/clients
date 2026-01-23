@@ -245,9 +245,53 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     valueChangeCallback: CallableFunction,
   ): void {
     this.triggerPreInsertEventsOnElement(element);
+
+    // First, try the standard value assignment
     valueChangeCallback();
+
+    // For input/textarea elements, also try using the native value setter
+    // This bypasses React/Vue/Angular property descriptors that may prevent
+    // normal value assignment from triggering their change detection
+    if (elementIsInputElement(element) || elementIsTextAreaElement(element)) {
+      this.setValueUsingNativeInputValueSetter(element);
+    }
+
     this.triggerPostInsertEventsOnElement(element);
     this.triggerFillAnimationOnElement(element);
+  }
+
+  /**
+   * Uses the native HTMLInputElement/HTMLTextAreaElement value setter to set the value.
+   * This is necessary for frameworks like React, Vue, and Angular that override the
+   * value property with their own getters/setters for change detection.
+   * Chrome's autofill uses a similar technique to ensure the value is properly set.
+   * @param {HTMLInputElement | HTMLTextAreaElement} element
+   * @private
+   */
+  private setValueUsingNativeInputValueSetter(
+    element: HTMLInputElement | HTMLTextAreaElement,
+  ): void {
+    const currentValue = element.value;
+    if (!currentValue) {
+      return;
+    }
+
+    try {
+      // Get the native value setter from the prototype
+      const prototype = elementIsInputElement(element)
+        ? HTMLInputElement.prototype
+        : HTMLTextAreaElement.prototype;
+      const nativeValueSetter = Object.getOwnPropertyDescriptor(prototype, "value")?.set;
+
+      if (nativeValueSetter) {
+        // Call the native setter with the current value to ensure
+        // framework change detection is properly triggered
+        nativeValueSetter.call(element, currentValue);
+      }
+    } catch {
+      // If this fails, we've already set the value via the callback
+      // so this is just an enhancement attempt
+    }
   }
 
   /**
@@ -357,27 +401,61 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
 
   /**
    * Simulates several keyboard events on the element, mocking a user interaction with the element.
+   * Chrome dispatches keyboard events in sequence: keydown -> keypress -> keyup
+   * with proper key properties that modern frameworks (React, Vue, Angular) expect.
    * @param {FormFieldElement} element
    * @private
    */
   private simulateUserKeyboardEventInteractions(element: FormFieldElement): void {
-    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYUP];
-    for (let index = 0; index < simulatedKeyboardEvents.length; index++) {
-      element.dispatchEvent(new KeyboardEvent(simulatedKeyboardEvents[index], { bubbles: true }));
-    }
+    // Chrome-like keyboard event properties - frameworks check these values
+    const keyboardEventProps: KeyboardEventInit = {
+      bubbles: true,
+      cancelable: true,
+      key: "",
+      code: "",
+      keyCode: 0,
+      which: 0,
+      composed: true,
+    };
+
+    // Dispatch keydown first
+    element.dispatchEvent(new KeyboardEvent(EVENTS.KEYDOWN, keyboardEventProps));
+
+    // Chrome also dispatches keypress for character input (deprecated but still used by some frameworks)
+    element.dispatchEvent(new KeyboardEvent(EVENTS.KEYPRESS, keyboardEventProps));
+
+    // Dispatch keyup last
+    element.dispatchEvent(new KeyboardEvent(EVENTS.KEYUP, keyboardEventProps));
   }
 
   /**
    * Simulates an input change event on the element, mocking behavior that would occur if a user
-   * manually changed a value for the element.
+   * manually changed a value for the element. Chrome uses InputEvent with inputType property
+   * which modern frameworks like React check to determine input source.
    * @param {FormFieldElement} element
    * @private
    */
   private simulateInputElementChangedEvent(element: FormFieldElement): void {
-    const simulatedInputEvents = [EVENTS.INPUT, EVENTS.CHANGE];
-    for (let index = 0; index < simulatedInputEvents.length; index++) {
-      element.dispatchEvent(new Event(simulatedInputEvents[index], { bubbles: true }));
-    }
+    // Use InputEvent with inputType for the 'input' event - this is what Chrome does
+    // and what modern frameworks (React, Vue, Angular) expect to see
+    const inputEventProps: InputEventInit = {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+      inputType: "insertText",
+      data: null,
+    };
+
+    // Dispatch InputEvent for input (Chrome-like behavior)
+    element.dispatchEvent(new InputEvent(EVENTS.INPUT, inputEventProps));
+
+    // Dispatch regular Event for change (standard behavior)
+    element.dispatchEvent(
+      new Event(EVENTS.CHANGE, {
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
   }
 }
 
