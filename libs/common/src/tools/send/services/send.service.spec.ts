@@ -17,6 +17,7 @@ import {
 import { KeyGenerationService } from "../../../key-management/crypto";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
@@ -51,6 +52,7 @@ describe("SendService", () => {
   const encryptService = mock<EncryptService>();
   const environmentService = mock<EnvironmentService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
+  const configService = mock<ConfigService>();
   let sendStateProvider: SendStateProvider;
   let sendService: SendService;
 
@@ -97,6 +99,7 @@ describe("SendService", () => {
       sendStateProvider,
       encryptService,
       cryptoFunctionService,
+      configService,
     );
   });
 
@@ -606,130 +609,158 @@ describe("SendService", () => {
       encryptService.encryptString.mockResolvedValue({ encryptedString: "encrypted" } as any);
     });
 
-    describe("email encryption", () => {
+    describe("when SendEmailOTP feature flag is ON", () => {
       beforeEach(() => {
+        configService.getFeatureFlag.mockResolvedValue(true);
         cryptoFunctionService.hash.mockClear();
       });
 
-      it("should encrypt emails when email list is provided", async () => {
-        sendView.emails = ["test@example.com", "user@test.com"];
-        cryptoFunctionService.hash.mockResolvedValue(new Uint8Array([0xab, 0xcd]));
+      describe("email encryption", () => {
+        it("should encrypt emails when email list is provided", async () => {
+          sendView.emails = ["test@example.com", "user@test.com"];
+          cryptoFunctionService.hash.mockResolvedValue(new Uint8Array([0xab, 0xcd]));
 
-        const [send] = await sendService.encrypt(sendView, null, null);
+          const [send] = await sendService.encrypt(sendView, null, null);
 
-        expect(encryptService.encryptString).toHaveBeenCalledWith(
-          "test@example.com,user@test.com",
-          mockCryptoKey,
-        );
-        expect(send.emails).toEqual({ encryptedString: "encrypted" });
-        expect(send.password).toBeNull();
+          expect(encryptService.encryptString).toHaveBeenCalledWith(
+            "test@example.com,user@test.com",
+            mockCryptoKey,
+          );
+          expect(send.emails).toEqual({ encryptedString: "encrypted" });
+          expect(send.password).toBeNull();
+        });
+
+        it("should set emails to null when email list is empty", async () => {
+          sendView.emails = [];
+
+          const [send] = await sendService.encrypt(sendView, null, null);
+
+          expect(send.emails).toBeNull();
+          expect(send.emailHashes).toBe("");
+        });
+
+        it("should set emails to null when email list is null", async () => {
+          sendView.emails = null;
+
+          const [send] = await sendService.encrypt(sendView, null, null);
+
+          expect(send.emails).toBeNull();
+          expect(send.emailHashes).toBe("");
+        });
+
+        it("should set emails to null when email list is undefined", async () => {
+          sendView.emails = undefined;
+
+          const [send] = await sendService.encrypt(sendView, null, null);
+
+          expect(send.emails).toBeNull();
+          expect(send.emailHashes).toBe("");
+        });
       });
 
-      it("should set emails to null when email list is empty", async () => {
-        sendView.emails = [];
+      describe("email hashing", () => {
+        it("should hash emails using SHA-256 and return uppercase hex", async () => {
+          sendView.emails = ["test@example.com"];
+          const mockHash = new Uint8Array([0xab, 0xcd, 0xef]);
 
-        const [send] = await sendService.encrypt(sendView, null, null);
+          cryptoFunctionService.hash.mockResolvedValue(mockHash);
 
-        expect(send.emails).toBeNull();
-        expect(send.emailHashes).toBe("");
+          const [send] = await sendService.encrypt(sendView, null, null);
+
+          expect(cryptoFunctionService.hash).toHaveBeenCalledWith("test@example.com", "sha256");
+          expect(send.emailHashes).toBe("ABCDEF");
+        });
+
+        it("should hash multiple emails and return comma-separated hashes", async () => {
+          sendView.emails = ["test@example.com", "user@test.com"];
+          const mockHash1 = new Uint8Array([0xab, 0xcd]);
+          const mockHash2 = new Uint8Array([0x12, 0x34]);
+
+          cryptoFunctionService.hash
+            .mockResolvedValueOnce(mockHash1)
+            .mockResolvedValueOnce(mockHash2);
+
+          const [send] = await sendService.encrypt(sendView, null, null);
+
+          expect(cryptoFunctionService.hash).toHaveBeenCalledWith("test@example.com", "sha256");
+          expect(cryptoFunctionService.hash).toHaveBeenCalledWith("user@test.com", "sha256");
+          expect(send.emailHashes).toBe("ABCD,1234");
+        });
+
+        it("should trim and lowercase emails before hashing", async () => {
+          sendView.emails = ["  Test@Example.COM  ", "USER@test.com"];
+          const mockHash = new Uint8Array([0xff]);
+
+          cryptoFunctionService.hash.mockResolvedValue(mockHash);
+
+          await sendService.encrypt(sendView, null, null);
+
+          expect(cryptoFunctionService.hash).toHaveBeenCalledWith("test@example.com", "sha256");
+          expect(cryptoFunctionService.hash).toHaveBeenCalledWith("user@test.com", "sha256");
+        });
+
+        it("should set emailHashes to empty string when no emails", async () => {
+          sendView.emails = [];
+
+          const [send] = await sendService.encrypt(sendView, null, null);
+
+          expect(send.emailHashes).toBe("");
+          expect(cryptoFunctionService.hash).not.toHaveBeenCalled();
+        });
+
+        it("should handle single email correctly", async () => {
+          sendView.emails = ["single@test.com"];
+          const mockHash = new Uint8Array([0xa1, 0xb2, 0xc3]);
+
+          cryptoFunctionService.hash.mockResolvedValue(mockHash);
+
+          const [send] = await sendService.encrypt(sendView, null, null);
+
+          expect(send.emailHashes).toBe("A1B2C3");
+        });
       });
 
-      it("should set emails to null when email list is null", async () => {
-        sendView.emails = null;
+      describe("emails and password mutual exclusivity", () => {
+        it("should set password to null when emails are provided", async () => {
+          sendView.emails = ["test@example.com"];
 
-        const [send] = await sendService.encrypt(sendView, null, null);
+          const [send] = await sendService.encrypt(sendView, null, "password123");
 
-        expect(send.emails).toBeNull();
-        expect(send.emailHashes).toBe("");
-      });
+          expect(send.emails).toBeDefined();
+          expect(send.password).toBeNull();
+        });
 
-      it("should set emails to null when email list is undefined", async () => {
-        sendView.emails = undefined;
+        it("should set password when no emails are provided", async () => {
+          sendView.emails = [];
+          keyGenerationService.deriveKeyFromPassword.mockResolvedValue({
+            keyB64: "hashedPassword",
+          } as any);
 
-        const [send] = await sendService.encrypt(sendView, null, null);
+          const [send] = await sendService.encrypt(sendView, null, "password123");
 
-        expect(send.emails).toBeNull();
-        expect(send.emailHashes).toBe("");
+          expect(send.emails).toBeNull();
+          expect(send.password).toBe("hashedPassword");
+        });
       });
     });
 
-    describe("email hashing", () => {
+    describe("when SendEmailOTP feature flag is OFF", () => {
       beforeEach(() => {
+        configService.getFeatureFlag.mockResolvedValue(false);
         cryptoFunctionService.hash.mockClear();
       });
 
-      it("should hash emails using SHA-256 and return uppercase hex", async () => {
+      it("should NOT encrypt emails even when provided", async () => {
         sendView.emails = ["test@example.com"];
-        const mockHash = new Uint8Array([0xab, 0xcd, 0xef]);
-
-        cryptoFunctionService.hash.mockResolvedValue(mockHash);
 
         const [send] = await sendService.encrypt(sendView, null, null);
 
-        expect(cryptoFunctionService.hash).toHaveBeenCalledWith("test@example.com", "sha256");
-        expect(send.emailHashes).toBe("ABCDEF");
-      });
-
-      it("should hash multiple emails and return comma-separated hashes", async () => {
-        sendView.emails = ["test@example.com", "user@test.com"];
-        const mockHash1 = new Uint8Array([0xab, 0xcd]);
-        const mockHash2 = new Uint8Array([0x12, 0x34]);
-
-        cryptoFunctionService.hash
-          .mockResolvedValueOnce(mockHash1)
-          .mockResolvedValueOnce(mockHash2);
-
-        const [send] = await sendService.encrypt(sendView, null, null);
-
-        expect(cryptoFunctionService.hash).toHaveBeenCalledWith("test@example.com", "sha256");
-        expect(cryptoFunctionService.hash).toHaveBeenCalledWith("user@test.com", "sha256");
-        expect(send.emailHashes).toBe("ABCD,1234");
-      });
-
-      it("should trim and lowercase emails before hashing", async () => {
-        sendView.emails = ["  Test@Example.COM  ", "USER@test.com"];
-        const mockHash = new Uint8Array([0xff]);
-
-        cryptoFunctionService.hash.mockResolvedValue(mockHash);
-
-        await sendService.encrypt(sendView, null, null);
-
-        expect(cryptoFunctionService.hash).toHaveBeenCalledWith("test@example.com", "sha256");
-        expect(cryptoFunctionService.hash).toHaveBeenCalledWith("user@test.com", "sha256");
-      });
-
-      it("should set emailHashes to empty string when no emails", async () => {
-        sendView.emails = [];
-
-        const [send] = await sendService.encrypt(sendView, null, null);
-
+        expect(send.emails).toBeNull();
         expect(send.emailHashes).toBe("");
         expect(cryptoFunctionService.hash).not.toHaveBeenCalled();
       });
 
-      it("should handle single email correctly", async () => {
-        sendView.emails = ["single@test.com"];
-        const mockHash = new Uint8Array([0xa1, 0xb2, 0xc3]);
-
-        cryptoFunctionService.hash.mockResolvedValue(mockHash);
-
-        const [send] = await sendService.encrypt(sendView, null, null);
-
-        expect(send.emailHashes).toBe("A1B2C3");
-      });
-    });
-
-    describe("emails and password mutual exclusivity", () => {
-      it("should set password to null when emails are provided", async () => {
-        sendView.emails = ["test@example.com"];
-
-        const [send] = await sendService.encrypt(sendView, null, "password123");
-
-        expect(send.emails).toBeDefined();
-        expect(send.password).toBeNull();
-      });
-
-      it("should set password when no emails are provided", async () => {
+      it("should use password when provided and flag is OFF", async () => {
         sendView.emails = [];
         keyGenerationService.deriveKeyFromPassword.mockResolvedValue({
           keyB64: "hashedPassword",
@@ -738,7 +769,32 @@ describe("SendService", () => {
         const [send] = await sendService.encrypt(sendView, null, "password123");
 
         expect(send.emails).toBeNull();
+        expect(send.emailHashes).toBe("");
         expect(send.password).toBe("hashedPassword");
+      });
+
+      it("should ignore emails and use password when both provided", async () => {
+        sendView.emails = ["test@example.com"];
+        keyGenerationService.deriveKeyFromPassword.mockResolvedValue({
+          keyB64: "hashedPassword",
+        } as any);
+
+        const [send] = await sendService.encrypt(sendView, null, "password123");
+
+        expect(send.emails).toBeNull();
+        expect(send.emailHashes).toBe("");
+        expect(send.password).toBe("hashedPassword");
+        expect(cryptoFunctionService.hash).not.toHaveBeenCalled();
+      });
+
+      it("should set emails and password to null when neither provided", async () => {
+        sendView.emails = [];
+
+        const [send] = await sendService.encrypt(sendView, null, null);
+
+        expect(send.emails).toBeNull();
+        expect(send.emailHashes).toBe("");
+        expect(send.password).toBeUndefined();
       });
     });
 

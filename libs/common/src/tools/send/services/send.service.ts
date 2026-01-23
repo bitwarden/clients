@@ -7,10 +7,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 // eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
 
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeyGenerationService } from "../../../key-management/crypto";
 import { CryptoFunctionService } from "../../../key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
@@ -53,6 +55,7 @@ export class SendService implements InternalSendServiceAbstraction {
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
+    private configService: ConfigService,
   ) {}
 
   async encrypt(
@@ -82,8 +85,12 @@ export class SendService implements InternalSendServiceAbstraction {
       model.cryptoKey = key.derivedKey;
     }
 
+    // Check feature flag for email OTP authentication
+    const sendEmailOTPEnabled = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
+
     const hasEmails = (model.emails?.length ?? 0) > 0;
-    if (hasEmails) {
+
+    if (sendEmailOTPEnabled && hasEmails) {
       const plaintextEmails = model.emails.join(",");
       send.emails = await this.encryptService.encryptString(plaintextEmails, model.cryptoKey);
       send.emailHashes = await this.hashEmails(plaintextEmails);
@@ -91,6 +98,7 @@ export class SendService implements InternalSendServiceAbstraction {
     } else {
       send.emails = null;
       send.emailHashes = "";
+
       if (password != null) {
         // Note: Despite being called key, the passwordKey is not used for encryption.
         // It is used as a static proof that the client knows the password, and has the encryption key.

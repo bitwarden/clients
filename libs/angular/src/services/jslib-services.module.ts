@@ -849,6 +849,7 @@ const safeProviders: SafeProvider[] = [
       SendStateProviderAbstraction,
       EncryptService,
       CryptoFunctionServiceAbstraction,
+      ConfigService,
     ],
   }),
   safeProvider({

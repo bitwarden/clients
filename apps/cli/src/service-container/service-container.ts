@@ -606,6 +606,7 @@ export class ServiceContainer {
       this.sendStateProvider,
       this.encryptService,
       this.cryptoFunctionService,
+      this.configService,
     );
 
     this.cipherFileUploadService = new CipherFileUploadService(
