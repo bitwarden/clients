@@ -164,9 +164,18 @@ export class CriticalApplicationsComponent implements OnInit {
         variant: "success",
         title: this.i18nService.t("success"),
       });
-    } catch {
+    } catch (error) {
+      if (error?.statusCode === 404) {
+        this.toastService.showToast({
+          message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+          variant: "error",
+          title: this.i18nService.t("error"),
+        });
+        return;
+      }
+
       this.toastService.showToast({
-        message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+        message: this.i18nService.t("unexpectedError"),
         variant: "error",
         title: this.i18nService.t("error"),
       });
