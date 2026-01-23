@@ -18,6 +18,24 @@
       </span>
     </span>
     <div bitDialogContent>
+      <div *ngIf="data?.orgDomain && !data?.orgDomain?.verifiedDate" class="tw-space-y-2 tw-pb-4">
+        <p bitTypography="body1">
+          {{ "automaticDomainClaimProcessPart1" | i18n }}
+          <a
+            bitLink
+            target="_blank"
+            rel="noreferrer"
+            href="https://bitwarden.com/help/claimed-accounts/"
+            class="tw-inline-flex tw-items-center tw-gap-1"
+          >
+            {{ "accountOwnershipChange" | i18n }}
+            <i class="bwi bwi-external-link tw-text-xs" aria-hidden="true"></i>
+          </a>
+          {{ "automaticDomainClaimProcessPart1End" | i18n }}
+        </p>
+        <p bitTypography="body1">{{ "automaticDomainClaimProcessPart2" | i18n }}</p>
+        <p bitTypography="body1">{{ "automaticDomainClaimProcessPart3" | i18n }}</p>
+      </div>
       <bit-form-field>
         <bit-label>{{ "domainName" | i18n }}</bit-label>
         <input bitInput appAutofocus formControlName="domainName" [showErrorsWhenDisabled]="true" />
@@ -35,14 +53,6 @@
           (click)="copyDnsTxt()"
         ></button>
       </bit-form-field>
-
-      <bit-callout
-        *ngIf="data?.orgDomain && !data?.orgDomain?.verifiedDate"
-        type="info"
-        title="{{ 'automaticClaimedDomains' | i18n | uppercase }}"
-      >
-        {{ "automaticDomainClaimProcess" | i18n }}
-      </bit-callout>
     </div>
     <ng-container bitDialogFooter>
       <button type="submit" bitButton bitFormButton buttonType="primary">
