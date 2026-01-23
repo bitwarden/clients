@@ -161,8 +161,8 @@ export class PhishingDataService {
     const resource = getPhishingResources(this.resourceType);
 
     try {
-      // Quick lookup: check direct presence of hostname in IndexedDB
-      const hasUrl = await this.indexedDbService.hasUrl(url.hostname);
+      // Quick lookup: check direct presence of href in IndexedDB
+      const hasUrl = await this.indexedDbService.hasUrl(url.href);
       if (hasUrl) {
         return true;
       }
