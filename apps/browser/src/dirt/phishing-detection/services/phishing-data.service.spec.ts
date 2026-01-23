@@ -83,17 +83,17 @@ describe("PhishingDataService", () => {
       // Mock hasUrl to return true for direct hostname match
       mockIndexedDbService.hasUrl.mockResolvedValue(true);
 
-      const url = new URL("http://phish.com");
+      const url = new URL("http://phish.com/testing-param");
       const result = await service.isPhishingWebAddress(url);
 
       expect(result).toBe(true);
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("phish.com");
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/testing-param");
       // Should not fall back to custom matcher when hasUrl returns true
       expect(mockIndexedDbService.loadAllUrls).not.toHaveBeenCalled();
     });
 
     it("should fall back to custom matcher when hasUrl returns false", async () => {
-      // Mock hasUrl to return false (no direct hostname match)
+      // Mock hasUrl to return false (no direct href match)
       mockIndexedDbService.hasUrl.mockResolvedValue(false);
       // Mock loadAllUrls to return phishing URLs for custom matcher
       mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com/path"]);
@@ -102,7 +102,7 @@ describe("PhishingDataService", () => {
       const result = await service.isPhishingWebAddress(url);
 
       expect(result).toBe(true);
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("phish.com");
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/path");
       expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
     });
 
@@ -116,12 +116,12 @@ describe("PhishingDataService", () => {
       const result = await service.isPhishingWebAddress(url);
 
       expect(result).toBe(false);
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("safe.com");
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://safe.com/");
       expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
     });
 
-    it("should match against root web address with subpaths using custom matcher", async () => {
-      // Mock hasUrl to return false (no direct hostname match)
+    it("should not match against root web address with subpaths using custom matcher", async () => {
+      // Mock hasUrl to return false (no direct href match)
       mockIndexedDbService.hasUrl.mockResolvedValue(false);
       // Mock loadAllUrls to return entry that matches with subpath
       mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com/login"]);
@@ -129,8 +129,22 @@ describe("PhishingDataService", () => {
       const url = new URL("http://phish.com/login/page");
       const result = await service.isPhishingWebAddress(url);
 
-      expect(result).toBe(true);
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("phish.com");
+      expect(result).toBe(false);
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/login/page");
+      expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
+    });
+
+    it("should not match against root web address with different subpaths using custom matcher", async () => {
+      // Mock hasUrl to return false (no direct hostname match)
+      mockIndexedDbService.hasUrl.mockResolvedValue(false);
+      // Mock loadAllUrls to return entry that matches with subpath
+      mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com/login/page1"]);
+
+      const url = new URL("http://phish.com/login/page2");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(false);
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/login/page2");
       expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
     });
 
