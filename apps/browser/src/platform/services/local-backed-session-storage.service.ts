@@ -122,20 +122,20 @@ export class LocalBackedSessionStorageService
   }
 
   async get<T>(key: string, options?: StorageOptions): Promise<T> {
-    if (this.cache[key] !== undefined) {
+    if (this.cache[key] != null) {
       return this.cache[key] as T;
     }
 
     const value = await this.getLocalSessionValue(await this.getSessionKey(), key);
 
-    if (this.cache[key] === undefined && value !== undefined) {
+    if (this.cache[key] == null && value != null) {
       // Cache is still empty and we just got a value from local/session storage, cache it.
       this.cache[key] = value;
       return value as T;
-    } else if (this.cache[key] === undefined && value === undefined) {
+    } else if (this.cache[key] == null && value == null) {
       // Cache is still empty and we got nothing from local/session storage, no need to modify cache.
       return value as T;
-    } else if (this.cache[key] !== undefined && value !== undefined) {
+    } else if (this.cache[key] != null && value != null) {
       // Conflict, somebody wrote to the cache while we were reading from storage
       // but we also got a value from storage. We assume the cache is more up to date
       // and use that value.
@@ -143,7 +143,7 @@ export class LocalBackedSessionStorageService
         `Conflict while reading from local session storage, both cache and storage have values. Key: ${key}. Using cached value.`,
       );
       return this.cache[key] as T;
-    } else if (this.cache[key] !== undefined && value === undefined) {
+    } else if (this.cache[key] != null && value == null) {
       // Cache was filled after the local/session storage read completed. We got null
       // from the storage read, but we have a value from the cache, use that.
       this.logService.warning(
