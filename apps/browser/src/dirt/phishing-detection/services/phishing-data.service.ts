@@ -153,6 +153,12 @@ export class PhishingDataService {
    * @returns True if the URL is a known phishing web address, false otherwise
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
+    // Skip non-http(s) protocols - phishing database only contains web URLs
+    // This prevents expensive fallback checks for chrome://, about:, file://, etc.
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return false;
+    }
+
     // Quick check for QA/dev test addresses
     if (this._testWebAddresses.includes(url.href)) {
       return true;
