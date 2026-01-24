@@ -327,16 +327,12 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           // Use sshKey.metadata.privateKey instead of the sshKey.privateKey field.
           // The sshKey.privateKey field doesn't have a consistent format for every item.
           const { privateKey } = field.value.sshKey.metadata;
-          try {
-            // Convert SSH key from PKCS#8 (1Password format) to OpenSSH format using SDK
-            // Note: 1Password does not store password-protected SSH keys, so no password handling needed for now
-            const parsedKey = import_ssh_key(privateKey);
-            cipher.sshKey.privateKey = parsedKey.privateKey;
-            cipher.sshKey.publicKey = parsedKey.publicKey;
-            cipher.sshKey.keyFingerprint = parsedKey.fingerprint;
-          } catch {
-            // If conversion fails, leave fields empty. We only import valid keys.
-          }
+          // Convert SSH key from PKCS#8 (1Password format) to OpenSSH format using SDK
+          // Note: 1Password does not store password-protected SSH keys, so no password handling needed for now
+          const parsedKey = import_ssh_key(privateKey);
+          cipher.sshKey.privateKey = parsedKey.privateKey;
+          cipher.sshKey.publicKey = parsedKey.publicKey;
+          cipher.sshKey.keyFingerprint = parsedKey.fingerprint;
           return;
         }
       }
