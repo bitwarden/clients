@@ -1,6 +1,10 @@
-<td bitCell [ngClass]="RowHeightClass" class="tw-truncate tw-flex tw-items-center tw-gap-2">
+<td
+  bitCell
+  [ngClass]="RowHeightClass"
+  class="tw-truncate tw-flex tw-items-center tw-gap-2"
+>
   <app-vault-icon [cipher]="cipher()"></app-vault-icon>
-  <div class="tw-inline-flex tw-w-full">
+  <div class="tw-flex tw-flex-col tw-w-full">
     <button
       bitLink
       class="tw-overflow-hidden tw-text-ellipsis tw-text-start tw-leading-snug"
@@ -34,9 +38,10 @@
         <span class="tw-sr-only">{{ "attachmentsNeedFix" | i18n }}</span>
       }
     }
+    <span class="tw-text-sm tw-text-muted" appStopProp>{{ subtitle() }}</span>
   </div>
-  <br />
-  <span class="tw-text-sm tw-text-muted" appStopProp>{{ subtitle() }}</span>
+  <!-- <br />
+  <span class="tw-text-sm tw-text-muted" appStopProp>{{ subtitle() }}</span> -->
 </td>
 @if (showOwner()) {
   <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell">
@@ -59,7 +64,7 @@
     </p>
   </td>
 }
-<td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
+<td bitCell [ngClass]="RowHeightClass" class="tw-text-right tw-whitespace-nowrap">
   @if (decryptionFailure()) {
     <button
       [disabled]="disabled() || !canManageCollection()"
