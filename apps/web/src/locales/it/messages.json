@@ -21,7 +21,7 @@
     "message": "Rischio password"
   },
   "noEditPermissions": {
-    "message": "Non hai i permessi per modificare questo elemento"
+    "message": "Non hai il permesso per modificare questo elemento"
   },
   "reviewAtRiskPasswords": {
     "message": "Controlla le password a rischio (deboli, esposte o riutilizzate). Seleziona le applicazioni critiche per determinare la priorità delle azioni di sicurezza."
@@ -179,7 +179,7 @@
     }
   },
   "noDataInOrgTitle": {
-    "message": "Nessun dato disponibile"
+    "message": "Dati non trovati"
   },
   "noDataInOrgDescription": {
     "message": "Importa i dati di accesso della tua organizzazione per configurare Access Intelligence. Una volta fatto, sarai in grado di:"
@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Ripristina selezionati"
   },
+  "archivedItemRestored": {
+    "message": "Elemento estratto dall'archivio"
+  },
+  "archivedItemsRestored": {
+    "message": "Elementi archiviati ripristinati"
+  },
   "restoredItem": {
     "message": "Elemento ripristinato"
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralizza la proprietà dell'organizzazione"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Tutti gli elementi membri saranno di proprietà e gestiti dall'organizzazione. Gli amministratori e i proprietari sono esenti. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Scopri di più sulla proprietà centralizzata",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Benefit"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Ottieni piena visibilità sulla salute delle credenziali, sia per gli elementi condivisi che per quelli non condivisi."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Trasferisci facilmente gli elementi durante l'onboarding dei membri e la successione, garantendo che non ci siano vuoti di accesso."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Fornisci a tutti gli utenti uno spazio dedicato 'I miei elementi' per gestire i propri login."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Chiedi ai membri di trasferire i loro elemento salvati"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Se gli utenti membri hanno elementi nella loro cassaforte individuale, saranno invitati a trasferirli all'organizzazione o a lasciarla. In caso di uscita dall'organizzazione, il loro accesso è revocato, ma può essere ripristinato in qualsiasi momento."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Scopri di più sul trasferimento"
   },
   "organizationDataOwnership": {
     "message": "Forza la proprietà dei dati dell'organizzazione"
@@ -11621,10 +11658,10 @@
     "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Password vulnerabile."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Cambiala subito"
   },
   "missingWebsite": {
     "message": "Sito web mancante"
@@ -11686,23 +11723,23 @@
     "message": "Elementi archiviati"
   },
   "itemWasUnarchived": {
-    "message": "Elemento rimosso dall'archivio"
+    "message": "Elemento estratto dall'archivio"
   },
   "itemUnarchived": {
-    "message": "Elemento rimosso dall'archivio"
+    "message": "Elemento estratto dall'archivio"
   },
   "bulkArchiveItems": {
     "message": "Elementi archiviati"
   },
   "bulkUnarchiveItems": {
-    "message": "Elementi rimossi dall'archivio"
+    "message": "Elementi estratti dall'archivio"
   },
   "archiveItem": {
     "message": "Archivia elemento",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Gli elementi archiviati sono esclusi dai risultati di ricerca e dall'auto-riempimento. Vuoi davvero archiviare questo elemento?"
+  "archiveItemDialogContent": {
+    "message": "Una volta archiviato, questo elemento sarà escluso dai risultati di ricerca e dai consigli di auto completamento."
   },
   "archiveBulkItems": {
     "message": "Archivia elementi",
@@ -12622,12 +12659,12 @@
     "message": "Hai usato tutti i $GB$ GB del tuo spazio di archiviazione crittografato. Per archiviare altri file, aggiungi altro spazio."
   },
   "whenYouRemoveStorage": {
-    "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+    "message": "Quando rimuovi spazio di archiviazione, riceverai un credito che sarà automaticamente applicato al tuo prossimo pagamento."
   },
   "youHavePremium": {
-    "message": "You have Premium"
+    "message": "Sei un utente Premium"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Email protetta"
   }
 }
