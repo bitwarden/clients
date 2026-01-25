@@ -28,6 +28,7 @@ import { HeaderComponent } from "./layout/header.component";
 import { NavComponent } from "./layout/nav.component";
 import { SearchComponent } from "./layout/search/search.component";
 import { SharedModule } from "./shared/shared.module";
+import { ToastContainerComponent } from "libs/components/src/toast/toast-container.component";
 
 @NgModule({
   imports: [
@@ -53,6 +54,7 @@ import { SharedModule } from "./shared/shared.module";
     PremiumComponent,
     SearchComponent,
   ],
+  exports: [HeaderComponent, ToastContainerComponent],
   providers: [
     SshAgentService,
     {

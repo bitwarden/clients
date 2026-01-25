@@ -12,6 +12,7 @@ on:
       - 'cf-pages'
     paths:
       - 'apps/desktop/**'
+      - 'bitwarden_license/bit-desktop/**'
       - 'libs/**'
       - '*'
       - '!*.md'
@@ -24,6 +25,7 @@ on:
       - 'hotfix-rc-desktop'
     paths:
       - 'apps/desktop/**'
+      - 'bitwarden_license/bit-desktop/**'
       - 'libs/**'
       - '*'
       - '!*.md'
@@ -156,7 +158,17 @@ jobs:
           echo "has_secrets=$has_secrets" >> "$GITHUB_OUTPUT"
 
   linux:
-    name: Linux Build
+    name: Linux Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
@@ -258,47 +270,47 @@ jobs:
           node build.js --target=x86_64-unknown-linux-gnu --release
 
       - name: Build application
-        run: npm run dist:lin
+        run: npm run dist:${{ matrix.variant }}:lin
 
       - name: Upload tar.gz artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden_${{ env._PACKAGE_VERSION }}_x64.tar.gz
+          name: ${{ matrix.artifact_prefix }}bitwarden_${{ env._PACKAGE_VERSION }}_x64.tar.gz
           path: apps/desktop/dist/bitwarden_desktop_x64.tar.gz
           if-no-files-found: error
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           if-no-files-found: error
 
       - name: Upload .rpm artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           if-no-files-found: error
 
       - name: Upload .snap artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
+          name: ${{ matrix.artifact_prefix }}bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           if-no-files-found: error
 
       - name: Upload .AppImage artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           if-no-files-found: error
 
       - name: Upload auto-update artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ needs.setup.outputs.release_channel }}-linux.yml
+          name: ${{ matrix.artifact_prefix }}${{ needs.setup.outputs.release_channel }}-linux.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-linux.yml
           if-no-files-found: error
 
@@ -311,12 +323,22 @@ jobs:
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: com.bitwarden.desktop.flatpak
+          name: ${{ matrix.artifact_prefix }}com.bitwarden.desktop.flatpak
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
           if-no-files-found: error
 
   linux-arm64:
-    name: Linux ARM64 Build
+    name: Linux ARM64 Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
@@ -434,19 +456,19 @@ jobs:
           # Snapcraft environment variables to bypass LXD requirement on ARM64
           SNAPCRAFT_BUILD_ENVIRONMENT: host
           USE_SYSTEM_FPM: true
-        run: npm run dist:lin:arm64
+        run: npm run dist:${{ matrix.variant }}:lin:arm64
 
       - name: Upload .snap artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
+          name: ${{ matrix.artifact_prefix }}bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
           path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
           if-no-files-found: error
 
       - name: Upload tar.gz artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.tar.gz
+          name: ${{ matrix.artifact_prefix }}bitwarden_${{ env._PACKAGE_VERSION }}_arm64.tar.gz
           path: apps/desktop/dist/bitwarden_desktop_arm64.tar.gz
           if-no-files-found: error
 
@@ -459,12 +481,22 @@ jobs:
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: com.bitwarden.desktop-arm64.flatpak
+          name: ${{ matrix.artifact_prefix }}com.bitwarden.desktop-arm64.flatpak
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
           if-no-files-found: error
 
   windows:
-    name: Windows Build
+    name: Windows Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: windows-2022
     needs:
       - setup
@@ -578,7 +610,7 @@ jobs:
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -632,7 +664,7 @@ jobs:
       - name: Upload portable exe artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
@@ -640,7 +672,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
@@ -648,7 +680,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
           if-no-files-found: error
 
@@ -656,7 +688,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           if-no-files-found: error
 
@@ -664,7 +696,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           if-no-files-found: error
 
@@ -672,7 +704,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
           if-no-files-found: error
 
@@ -680,7 +712,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
           if-no-files-found: error
 
@@ -688,7 +720,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           if-no-files-found: error
 
@@ -696,7 +728,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
           if-no-files-found: error
 
@@ -704,7 +736,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           if-no-files-found: error
 
@@ -712,7 +744,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           if-no-files-found: error
 
@@ -720,7 +752,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
+          name: ${{ matrix.artifact_prefix }}bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/desktop/dist/chocolatey/bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
           if-no-files-found: error
 
@@ -728,12 +760,22 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ needs.setup.outputs.release_channel }}.yml
+          name: ${{ matrix.artifact_prefix }}${{ needs.setup.outputs.release_channel }}.yml
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
           if-no-files-found: error
 
   windows-beta:
-    name: Windows Beta Build
+    name: Windows Beta Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: windows-2022
     needs: setup
     permissions:
@@ -843,7 +885,7 @@ jobs:
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -885,7 +927,7 @@ jobs:
       - name: Upload portable exe artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
@@ -893,7 +935,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
@@ -901,7 +943,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
           if-no-files-found: error
 
@@ -909,7 +951,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           if-no-files-found: error
 
@@ -917,7 +959,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           if-no-files-found: error
 
@@ -925,7 +967,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
           if-no-files-found: error
 
@@ -933,7 +975,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
           if-no-files-found: error
 
@@ -941,7 +983,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           if-no-files-found: error
 
@@ -949,7 +991,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
           if-no-files-found: error
 
@@ -957,7 +999,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
+          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           if-no-files-found: error
 
@@ -965,7 +1007,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
+          name: ${{ matrix.artifact_prefix }}bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           if-no-files-found: error
 
@@ -973,12 +1015,22 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: latest-beta.yml
+          name: ${{ matrix.artifact_prefix }}latest-beta.yml
           path: apps/desktop/dist/nsis-web/latest-beta.yml
           if-no-files-found: error
 
   macos-build:
-    name: MacOS Build
+    name: MacOS Build [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: macos-15
     needs:
       - setup
@@ -1201,7 +1253,7 @@ jobs:
         run: node build.js cross-platform "$MODE"
 
       - name: Build application (dev)
-        run: npm run build
+        run: npm run build:${{ matrix.variant }}
 
   browser-build:
     name: Browser Build
@@ -1215,7 +1267,17 @@ jobs:
       id-token: write
 
   macos-package-github:
-    name: MacOS Package GitHub Release Assets
+    name: MacOS Package GitHub Release Assets [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -1464,33 +1526,43 @@ jobs:
       - name: Upload .zip artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
       - name: Upload .dmg blockmap artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           if-no-files-found: error
 
       - name: Upload auto-update artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ needs.setup.outputs.release_channel }}-mac.yml
+          name: ${{ matrix.artifact_prefix }}${{ needs.setup.outputs.release_channel }}-mac.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-mac.yml
           if-no-files-found: error
 
   macos-package-mas:
-    name: MacOS Package Prod Release Asset
+    name: MacOS Package Prod Release Asset [${{ matrix.variant }}]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: oss
+            license_type: oss
+            artifact_prefix: ""
+          - variant: bit
+            license_type: commercial
+            artifact_prefix: "commercial-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -1757,14 +1829,14 @@ jobs:
       - name: Upload MacOS App Store build number artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: macos-build-number.json
+          name: ${{ matrix.artifact_prefix }}macos-build-number.json
           path: apps/desktop/dist/macos-build-number.json
           if-no-files-found: error
 
       - name: Upload .pkg artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
+          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
           path: apps/desktop/dist/mas-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
           if-no-files-found: error
 
