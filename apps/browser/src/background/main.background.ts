@@ -866,6 +866,7 @@ export default class MainBackground {
       this.registerSdkService,
       this.securityStateService,
       this.accountCryptographicStateService,
+      this.userDecryptionOptionsService,
     );
 
     this.pinService = new PinService(
