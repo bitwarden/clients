@@ -1369,7 +1369,7 @@
     "message": "No"
   },
   "noAuth": {
-    "message": "No Auth"
+    "message": "Anyone with the link"
   },
   "location": {
     "message": "Location"
