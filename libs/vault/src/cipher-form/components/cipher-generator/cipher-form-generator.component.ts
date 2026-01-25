@@ -14,6 +14,7 @@ import { AlgorithmInfo, GeneratedCredential } from "@bitwarden/generator-core";
 @Component({
   selector: "vault-cipher-form-generator",
   templateUrl: "./cipher-form-generator.component.html",
+  standalone: true,
   imports: [CommonModule, GeneratorModule],
 })
 export class CipherFormGeneratorComponent {
@@ -49,12 +50,12 @@ export class CipherFormGeneratorComponent {
   valueGenerated = new EventEmitter<string>();
 
   /** Event handler for when an algorithm is selected */
-  onAlgorithmSelected = (selected: AlgorithmInfo) => {
+  onAlgorithmSelected(selected: AlgorithmInfo) {
     this.algorithmSelected.emit(selected);
-  };
+  }
 
   /** Event handler for both generation components */
-  onCredentialGenerated = (generatedCred: GeneratedCredential) => {
+  onCredentialGenerated(generatedCred: GeneratedCredential) {
     this.valueGenerated.emit(generatedCred.credential);
-  };
+  }
 }
