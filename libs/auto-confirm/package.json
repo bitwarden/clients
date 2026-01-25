@@ -1,11 +1,11 @@
 {
   "name": "@bitwarden/auto-confirm",
   "version": "0.0.1",
-  "description": "auto confirm",
   "private": true,
+  "description": "auto confirm",
+  "license": "GPL-3.0",
+  "author": "admin-console",
   "type": "commonjs",
   "main": "index.js",
-  "types": "index.d.ts",
-  "license": "GPL-3.0",
-  "author": "admin-console"
+  "types": "index.d.ts"
 }

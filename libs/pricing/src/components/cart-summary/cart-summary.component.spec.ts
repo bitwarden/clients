@@ -353,8 +353,9 @@ describe("CartSummaryComponent - Custom Header Template", () => {
     imports: [CartSummaryComponent, CurrencyPipe],
   })
   class TestHostComponent {
-    readonly customHeaderTemplate =
-      viewChild.required<TemplateRef<{ total: number }>>("customHeader");
+    readonly customHeaderTemplate = viewChild.required<TemplateRef<{ total: number }>>(
+      "customHeader",
+    );
     cart: Cart = {
       passwordManager: {
         seats: {

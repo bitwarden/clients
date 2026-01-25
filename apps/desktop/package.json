@@ -1,20 +1,20 @@
 {
   "name": "@bitwarden/desktop",
-  "description": "A secure and free password manager for all of your devices.",
   "version": "2025.12.1",
+  "description": "A secure and free password manager for all of your devices.",
   "keywords": [
     "bitwarden",
     "password",
-    "vault",
-    "password manager"
+    "password manager",
+    "vault"
   ],
-  "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
   "homepage": "https://bitwarden.com",
+  "license": "GPL-3.0",
+  "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bitwarden/clients.git"
   },
-  "license": "GPL-3.0",
   "scripts": {
     "postinstall": "electron-rebuild",
     "start": "cross-env ELECTRON_IS_DEV=0 ELECTRON_NO_UPDATER=1 electron ./build",

@@ -1,21 +1,24 @@
 {
   "name": "@bitwarden/cli",
-  "description": "A secure and free password manager for all of your devices.",
   "version": "2025.12.1",
+  "description": "A secure and free password manager for all of your devices.",
   "keywords": [
     "bitwarden",
+    "cli",
     "password",
-    "vault",
     "password manager",
-    "cli"
+    "vault"
   ],
-  "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
   "homepage": "https://bitwarden.com",
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bitwarden/clients.git"
   },
-  "license": "SEE LICENSE IN LICENSE.txt",
+  "bin": {
+    "bw": "build/bw.js"
+  },
   "scripts": {
     "clean": "rimraf dist",
     "build:oss": "webpack",
@@ -54,14 +57,6 @@
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll"
   },
-  "bin": {
-    "bw": "build/bw.js"
-  },
-  "pkg": {
-    "assets": [
-      "./build/**/*"
-    ]
-  },
   "dependencies": {
     "@koa/multer": "4.0.0",
     "@koa/router": "14.0.0",
@@ -90,5 +85,10 @@
     "semver": "7.7.3",
     "tldts": "7.0.19",
     "zxcvbn": "4.4.2"
+  },
+  "pkg": {
+    "assets": [
+      "./build/**/*"
+    ]
   }
 }

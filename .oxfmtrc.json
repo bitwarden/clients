@@ -1,0 +1,34 @@
+{
+  "printWidth": 100,
+  "overrides": [
+    {
+      "files": ["*.mdx"],
+      "options": {
+        "proseWrap": "always"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "**/build",
+    "**/dist",
+    "**/coverage",
+    ".angular",
+    "documentation.json",
+    "storybook-static",
+    "apps/browser/src/_locales",
+    "apps/browser/src/auth/scripts/duo.js",
+    "apps/browser/src/safari",
+    "apps/desktop/src/locales",
+    "apps/desktop/dist-safari",
+    "apps/desktop/desktop_native",
+    "apps/desktop/src/auth/scripts/duo.js",
+    "apps/cli/src/locales",
+    "apps/cli/.github",
+    "apps/web/.github",
+    "apps/web/src/404/bootstrap.min.css",
+    "apps/web/src/locales",
+    "libs/.github",
+    ".github/workflows",
+    "libs/common/src/types/deep-jsonify.ts"
+  ]
+}
