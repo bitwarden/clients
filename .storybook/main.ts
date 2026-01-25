@@ -69,6 +69,22 @@ const config: StorybookConfig = {
   },
   docs: {},
   staticDirs: ["../apps/web/src/images"],
+  refs: (config, { configType }) => {
+    if (configType === "DEVELOPMENT") {
+      return {
+        autofill: {
+          title: "Autofill Components",
+          url: "http://localhost:6007",
+        },
+      };
+    }
+    return {
+      autofill: {
+        title: "Autofill Components",
+        url: "https://main--695ffc4bef53d3a5ae4c8067.chromatic.com",
+      },
+    };
+  },
 };
 
 export default config;
