@@ -89,6 +89,7 @@ import {
   PlatformUtilsService,
   PlatformUtilsService as PlatformUtilsServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
@@ -432,6 +433,7 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       MessagingServiceAbstraction,
       AccountCryptographicStateService,
+      RegisterSdkService,
     ],
   }),
   safeProvider({

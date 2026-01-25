@@ -3,6 +3,7 @@
 import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { ProviderUserInviteRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-invite.request";
@@ -15,14 +16,11 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 export type AddEditMemberDialogParams = {
   providerId: string;
-  user?: {
-    id: string;
-    name: string;
-    type: ProviderUserType;
-  };
+  user?: ProviderUser;
 };
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -59,6 +57,7 @@ export class AddEditMemberDialogComponent {
     private dialogService: DialogService,
     private i18nService: I18nService,
     private toastService: ToastService,
+    private userNamePipe: UserNamePipe,
   ) {
     this.editing = this.loading = this.dialogParams.user != null;
     if (this.editing) {
@@ -78,8 +77,10 @@ export class AddEditMemberDialogComponent {
       return;
     }
 
+    const userName = this.userNamePipe.transform(this.dialogParams.user);
+
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: this.dialogParams.user.name,
+      title: userName,
       content: { key: "removeUserConfirmation" },
       type: "warning",
     });
@@ -96,7 +97,7 @@ export class AddEditMemberDialogComponent {
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("removedUserId", this.dialogParams.user.name),
+      message: this.i18nService.t("removedUserId", userName),
     });
 
     this.dialogRef.close(AddEditMemberDialogResultType.Deleted);
@@ -118,13 +119,12 @@ export class AddEditMemberDialogComponent {
       await this.apiService.postProviderUserInvite(this.dialogParams.providerId, request);
     }
 
+    const userName = this.editing ? this.userNamePipe.transform(this.dialogParams.user) : undefined;
+
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t(
-        this.editing ? "editedUserId" : "invitedUsers",
-        this.dialogParams.user?.name,
-      ),
+      message: this.i18nService.t(this.editing ? "editedUserId" : "invitedUsers", userName),
     });
 
     this.dialogRef.close(AddEditMemberDialogResultType.Saved);
