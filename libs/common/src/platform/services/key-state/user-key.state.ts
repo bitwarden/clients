@@ -3,6 +3,7 @@ import { SignedPublicKey, WrappedSigningKey } from "../../../key-management/type
 import { UserKey } from "../../../types/key";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 import { CRYPTO_DISK, CRYPTO_MEMORY, UserKeyDefinition } from "../../state";
+import { record } from "@bitwarden/serialization";
 
 export const USER_EVER_HAD_USER_KEY = new UserKeyDefinition<boolean>(
   CRYPTO_DISK,
@@ -22,7 +23,8 @@ export const USER_ENCRYPTED_PRIVATE_KEY = new UserKeyDefinition<EncryptedString>
   },
 );
 
-export const USER_KEY = new UserKeyDefinition<UserKey>(CRYPTO_MEMORY, "userKey", {
+// This is a map with a single entry to conform with the repository pattern in the SDK.
+export const USER_KEY = UserKeyDefinition.record<UserKey>(CRYPTO_MEMORY, "userKey", {
   deserializer: (obj) => SymmetricCryptoKey.fromJSON(obj) as UserKey,
   clearOn: ["logout", "lock"],
 });

@@ -26,10 +26,11 @@ import {
   IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
-import { BiometricsStatus } from "@bitwarden/key-management";
+import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UserId } from "@bitwarden/user-core";
+import { UnlockService } from "@bitwarden/unlock";
 
 import {
   UnlockOption,
@@ -52,8 +53,9 @@ import {
   ],
 })
 export class MasterPasswordLockComponent implements OnInit, OnDestroy {
+  private readonly unlockService = inject(UnlockService);
+  private readonly keyService = inject(KeyService);
   private readonly accountService = inject(AccountService);
-  private readonly masterPasswordUnlockService = inject(MasterPasswordUnlockService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
@@ -123,13 +125,12 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
 
   private async unlockViaMasterPassword(
     masterPassword: string,
-    activeUserId: UserId,
+    userId: UserId,
   ): Promise<void> {
     try {
-      const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
-        masterPassword,
-        activeUserId,
-      );
+      await this.unlockService.unlockWithMasterPassword(userId, masterPassword);
+      // Backward compatibility, the user-key is already set
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
       this.successfulUnlock.emit({ userKey, masterPassword });
     } catch (error) {
       this.logService.error(

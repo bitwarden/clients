@@ -11,6 +11,7 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  map,
   tap,
 } from "rxjs";
 
@@ -28,6 +29,7 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -52,6 +54,9 @@ import {
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { UnlockService } from "@bitwarden/unlock";
+
 import {
   UnlockOption,
   LockComponentService,
@@ -60,6 +65,7 @@ import {
 } from "../services/lock-component.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock/master-password-lock.component";
+import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -150,6 +156,7 @@ export class LockComponent implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private pinService: PinServiceAbstraction,
+    private pinStateService: PinStateServiceAbstraction,
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
@@ -173,10 +180,11 @@ export class LockComponent implements OnInit, OnDestroy {
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private encryptedMigrator: EncryptedMigrator,
+    private unlockService: UnlockService,
 
     // desktop deps
     private broadcasterService: BroadcasterService,
-  ) {}
+  ) { }
 
   async ngOnInit() {
     this.listenForActiveUnlockOptionChanges();
@@ -483,7 +491,9 @@ export class LockComponent implements OnInit, OnDestroy {
     const MAX_INVALID_PIN_ENTRY_ATTEMPTS = 5;
 
     try {
-      const userKey = await this.pinService.decryptUserKeyWithPin(pin, this.activeAccount.id);
+      this.unlockService.unlockWithPin(this.activeAccount.id, pin);
+      // Backward compatibility. The user-key is already set
+      const userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
 
       if (userKey) {
         await this.setUserKeyAndContinue(userKey);
