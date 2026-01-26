@@ -5626,13 +5626,13 @@
     "message": "Send created successfully!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Kopieer en deel deze Send-link. De Send is beschikbaar voor iedereen met de link voor de volgende $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5916,35 +5916,35 @@
     }
   },
   "centralizeDataOwnership": {
-    "message": "Centralize organization ownership"
+    "message": "Centraliseer organisatie-eigendom"
   },
   "centralizeDataOwnershipDesc": {
-    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+    "message": "Alle items van leden worden eigendom van en beheerd door de organisatie. Beheerders en eigenaren zijn vrijgesteld. "
   },
   "centralizeDataOwnershipContentAnchor": {
-    "message": "Learn more about centralized ownership",
+    "message": "Meer informatie over gecentraliseerd eigendom",
     "description": "This will be used as a hyperlink"
   },
   "benefits": {
     "message": "Voordelen"
   },
   "centralizeDataOwnershipBenefit1": {
-    "message": "Gain full visibility into credential health, including shared and unshared items."
+    "message": "Krijg volledige zichtbaarheid in de gezondheid van inloggegevens, inclusief gedeelde en niet-gedeelde items."
   },
   "centralizeDataOwnershipBenefit2": {
-    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+    "message": "Eenvoudig items tijdens het offboarden van leden en opvolging verplaatsen, verzekerd dat er geen toegangsgaten zijn."
   },
   "centralizeDataOwnershipBenefit3": {
-    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+    "message": "Geef alle gebruikers een toegewijde \"Mijn Items\"-ruimte voor het beheren van hun eigen inloggegevens."
   },
   "centralizeDataOwnershipWarningTitle": {
-    "message": "Prompt members to transfer their items"
+    "message": "Vraagt de leden om hun items over te brengen"
   },
   "centralizeDataOwnershipWarningDesc": {
-    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+    "message": "Als leden items in hun individuele kluis hebben, worden ze gevraagd deze over te dragen naar de organisatie of te vertrekken. Als ze vertrekken, wordt hun toegang ingetrokken maar kan deze op elk moment worden hersteld."
   },
   "centralizeDataOwnershipWarningLink": {
-    "message": "Learn more about the transfer"
+    "message": "Meer informatie over de overstap"
   },
   "organizationDataOwnership": {
     "message": "Gegevenseigendom van organisatie afdwingen"
@@ -10432,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Stuur gebeurtenisgegevens van je kluis naar je Datadog-instance"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Stuur eventgegevens naar je Huntress SIEM-instantie"
+  },
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
   },
@@ -10542,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Selecteer een plan"
@@ -12091,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Nu verifiëren."
+  },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
   },
   "additionalStorageGB": {
     "message": "Extra opslagruimte (GB)"
