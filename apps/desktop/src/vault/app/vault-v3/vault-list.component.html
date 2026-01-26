@@ -12,7 +12,13 @@
       </app-header>
     </div>
     <div class="tw-mb-[16px]">
-      <app-search />
+      <bit-search
+        [ngModel]="searchText"
+        (ngModelChange)="onSearchTextChanged($event)"
+        [placeholder]="placeholderText()"
+        appAutofocus
+      >
+      </bit-search>
     </div>
     <bit-table [dataSource]="dataSource" layout="fixed">
       <ng-container header>

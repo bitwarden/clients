@@ -14,6 +14,7 @@
     [showAdminActions]="false"
     [userCanArchive]="userCanArchive$ | async"
     [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
+    [placeholderText]="searchPlaceholderText"
     (onEvent)="onVaultItemsEvent($event)"
     (onAddCipher)="addCipher($event)"
     (onAddFolder)="addFolder()"

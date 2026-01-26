@@ -18,8 +18,6 @@ import {
   switchMap,
   lastValueFrom,
   Observable,
-  debounceTime,
-  distinctUntilChanged,
   BehaviorSubject,
   combineLatest,
 } from "rxjs";
@@ -27,7 +25,6 @@ import { filter, map, take, first, shareReplay, concatMap, tap } from "rxjs/oper
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -35,10 +32,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { CollectionView, Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import {
-  getNestedCollectionTree,
-  getFlatCollectionTree,
-} from "@bitwarden/common/admin-console/utils";
+import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -50,14 +44,12 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, OrganizationId, UserId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -66,7 +58,6 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -114,7 +105,6 @@ import {
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
-import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
@@ -183,7 +173,6 @@ export class VaultComponent<C extends CipherViewLike>
   private eventCollectionService = inject(EventCollectionService);
   private totpService = inject(TotpService);
   private passwordRepromptService = inject(PasswordRepromptService);
-  private searchBarService = inject(SearchBarService);
   private dialogService = inject(DialogService);
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private toastService = inject(ToastService);
@@ -202,8 +191,6 @@ export class VaultComponent<C extends CipherViewLike>
   private routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
   private vaultFilterService = inject(VaultFilterService);
   private routedVaultFilterService = inject(RoutedVaultFilterService);
-  private searchService = inject(SearchService);
-  private searchPipe = inject(SearchPipe);
   private vaultItemTransferService: VaultItemsTransferService = inject(VaultItemsTransferService);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -318,9 +305,7 @@ export class VaultComponent<C extends CipherViewLike>
   protected filteredCollections: CollectionView[] = [];
   protected collectionsToDisplay: CollectionView[] = [];
   protected selectedCollection: TreeNode<CollectionView> | undefined;
-  protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(
-    map((queryParams) => queryParams.search),
-  );
+  protected searchPlaceholderText: string;
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected ciphers: C[] = [];
   protected filteredCiphers: C[] = [];
@@ -390,8 +375,8 @@ export class VaultComponent<C extends CipherViewLike>
       .pipe(takeUntil(this.destroy$))
       .subscribe((activeFilter) => {
         this.activeFilter = activeFilter;
-        this.searchBarService.setPlaceholderText(
-          this.i18nService.t(this.calculateSearchBarLocalizationString(activeFilter)),
+        this.searchPlaceholderText = this.i18nService.t(
+          this.calculateSearchBarLocalizationString(activeFilter),
         );
       });
 
@@ -401,24 +386,6 @@ export class VaultComponent<C extends CipherViewLike>
     const nestedCollections$ = allCollections$.pipe(
       map((collections) => getNestedCollectionTree(collections)),
     );
-
-    // Connect search bar to route query params
-    this.searchBarService.searchText$
-      .pipe(
-        debounceTime(SearchTextDebounceInterval),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((searchText: string) => {
-        void this.router.navigate([], {
-          queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
-          queryParamsHandling: "merge",
-          replaceUrl: true,
-          state: {
-            focusMainAfterNav: false,
-          },
-        });
-      });
 
     const _ciphers = this.cipherService
       .cipherListViews$(activeUserId)
@@ -441,34 +408,24 @@ export class VaultComponent<C extends CipherViewLike>
     const ciphers$ = combineLatest([
       allowedCiphers$,
       filter$,
-      this.currentSearchText$,
       this.cipherArchiveService.hasArchiveFlagEnabled$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, showArchiveVault]) => {
+      concatMap(async ([ciphers, filter, showArchiveVault]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
         const filterFunction = createFilterFunction(filter, showArchiveVault);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
-        if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          return await this.searchService.searchCiphers<C>(
-            activeUserId,
-            searchText,
-            [filterFunction],
-            allCiphers as C[],
-          );
-        }
-
-        return ciphers.filter(filterFunction) as C[];
+        return allCiphers.filter(filterFunction) as C[];
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    const collections$ = combineLatest([nestedCollections$, filter$, this.currentSearchText$]).pipe(
+    const collections$ = combineLatest([nestedCollections$, filter$]).pipe(
       filter(([collections, filter]) => collections != undefined && filter != undefined),
-      concatMap(async ([collections, filter, searchText]) => {
+      map(([collections, filter]) => {
         if (filter.collectionId === undefined || filter.collectionId === Unassigned) {
           return [];
         }
@@ -485,19 +442,6 @@ export class VaultComponent<C extends CipherViewLike>
             filter.collectionId,
           );
           searchableCollectionNodes = selectedCollection?.children ?? [];
-        }
-
-        if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          // Flatten the tree for searching through all levels
-          const flatCollectionTree: CollectionView[] =
-            getFlatCollectionTree(searchableCollectionNodes);
-
-          return this.searchPipe.transform(
-            flatCollectionTree,
-            searchText,
-            (collection) => collection.name,
-            (collection) => collection.id,
-          );
         }
 
         return searchableCollectionNodes.map((treeNode: TreeNode<CollectionView>) => treeNode.node);

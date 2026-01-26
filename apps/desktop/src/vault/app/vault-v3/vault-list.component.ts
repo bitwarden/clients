@@ -5,12 +5,14 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { AsyncPipe } from "@angular/common";
 import { Component, input, output, effect, inject, computed } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormsModule } from "@angular/forms";
 import { Observable, of, switchMap } from "rxjs";
 
+import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
@@ -28,14 +30,13 @@ import {
   MenuModule,
   ButtonModule,
   IconButtonModule,
+  SearchModule,
 } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { NewCipherMenuComponent, VaultItem, VaultItemEvent } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
-import { SearchBarService } from "../../../app/layout/search/search-bar.service";
-import { SearchComponent } from "../../../app/layout/search/search.component";
 
 import { VaultItemsModule } from "./vault-items/vault-items.module";
 
@@ -57,7 +58,8 @@ export const RowHeightClass = `tw-h-[75px]`;
     ButtonModule,
     IconButtonModule,
     VaultItemsModule,
-    SearchComponent,
+    SearchModule,
+    FormsModule,
     DesktopHeaderComponent,
     NewCipherMenuComponent,
   ],
@@ -80,6 +82,7 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected readonly activeCollection = input<CollectionView | undefined>();
   protected readonly userCanArchive = input<boolean>();
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
+  protected readonly placeholderText = input<string>("");
 
   protected readonly ciphers = input<C[]>([]);
 
@@ -92,20 +95,17 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
   protected cipherArchiveService = inject(CipherArchiveService);
-  private searchBarService = inject(SearchBarService);
-  private i18nService = inject(I18nService);
+  private searchService = inject(SearchService);
+  private searchPipe = inject(SearchPipe);
 
   protected dataSource = new TableDataSource<VaultItem<C>>();
   protected selection = new SelectionModel<VaultItem<C>>(true, [], true);
   private restrictedTypes: RestrictedCipherType[] = [];
+  protected searchText = "";
 
   protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
   constructor() {
-    // Enable the search bar
-    this.searchBarService.setEnabled(true);
-    this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
-
     this.restrictedItemTypesService.restricted$.pipe(takeUntilDestroyed()).subscribe((types) => {
       this.restrictedTypes = types;
       this.refreshItems();
@@ -131,6 +131,11 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected addFolder() {
     this.onAddFolder.emit();
+  }
+
+  protected onSearchTextChanged(searchText: string) {
+    this.searchText = searchText;
+    this.refreshItems();
   }
 
   protected canClone$(vaultItem: VaultItem<C>): Observable<boolean> {
@@ -202,14 +207,25 @@ export class VaultListComponent<C extends CipherViewLike> {
   }
 
   private refreshItems() {
-    const collections: VaultItem<C>[] =
-      this.collections()?.map((collection) => ({ collection })) || [];
-    const ciphers: VaultItem<C>[] = this.ciphers()
-      .filter(
-        (cipher) =>
-          !this.restrictedItemTypesService.isCipherRestricted(cipher, this.restrictedTypes),
-      )
-      .map((cipher) => ({ cipher }));
+    const filteredCollections: CollectionView[] = this.searchText
+      ? this.searchPipe.transform(
+          this.collections() || [],
+          this.searchText,
+          (collection) => collection.name,
+          (collection) => collection.id,
+        )
+      : this.collections() || [];
+
+    const allowedCiphers = this.ciphers().filter(
+      (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, this.restrictedTypes),
+    );
+
+    const filteredCiphers: C[] = this.searchText
+      ? this.searchService.searchCiphersBasic(allowedCiphers, this.searchText)
+      : allowedCiphers;
+
+    const collections: VaultItem<C>[] = filteredCollections.map((collection) => ({ collection }));
+    const ciphers: VaultItem<C>[] = filteredCiphers.map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
     this.dataSource.data = items;

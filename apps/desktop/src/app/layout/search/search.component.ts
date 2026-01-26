@@ -1,12 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ReactiveFormsModule, UntypedFormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { Subscription } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AutofocusDirective, SearchModule } from "@bitwarden/components";
 
 import { SearchBarService, SearchBarState } from "./search-bar.service";
 
@@ -15,7 +13,7 @@ import { SearchBarService, SearchBarState } from "./search-bar.service";
 @Component({
   selector: "app-search",
   templateUrl: "search.component.html",
-  imports: [CommonModule, ReactiveFormsModule, AutofocusDirective, SearchModule],
+  standalone: false,
 })
 export class SearchComponent implements OnInit, OnDestroy {
   state: SearchBarState;
