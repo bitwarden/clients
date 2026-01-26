@@ -261,7 +261,7 @@ export const WithIcons: Story = {
         <a bitLink [linkType]="linkType" href="#" endIcon="bwi-external-link">External link</a>
       </div>
       <div class="tw-block tw-p-2">
-        <a bitLink [linkType]="linkType" href="#" startIcon="bwi-arrow-left" endIcon="bwi-arrow-right">Both icons</a>
+        <a bitLink [linkType]="linkType" href="#" startIcon="bwi-angle-left" endIcon="bwi-angle-right">Both icons</a>
       </div>
       <div class="tw-block tw-p-2">
         <button type="button" bitLink [linkType]="linkType" startIcon="bwi-plus-circle">Add item</button>

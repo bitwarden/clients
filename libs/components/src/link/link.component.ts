@@ -51,9 +51,6 @@ const commonStyles = [
   "tw-border-0",
   "tw-border-none",
   "tw-rounded",
-  "tw-inline-flex",
-  "tw-items-center",
-  "tw-gap-2",
   "tw-transition",
   "tw-no-underline",
   "tw-cursor-pointer",
@@ -137,7 +134,9 @@ export class LinkComponent {
 
   readonly classList = computed(() => {
     const verticalInset = this.isButton ? "0.25rem" : "0.125rem";
-    return [`before:-tw-inset-y-[${verticalInset}]`]
+    const displayStyle = this.isButton ? "inline-block" : "inline-flex";
+
+    return [`before:-tw-inset-y-[${verticalInset}]`, `tw-${displayStyle}`]
       .concat(commonStyles)
       .concat(linkStyles[this.linkType()] ?? []);
   });

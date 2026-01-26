@@ -1,9 +1,11 @@
-@if (startIcon()) {
-  <i [class]="['bwi', startIcon()]" aria-hidden="true"></i>
-}
-<span>
-  <ng-content></ng-content>
+<span class="tw-flex tw-gap-2 tw-items-center">
+  @if (startIcon()) {
+    <i [class]="['bwi', startIcon()]" aria-hidden="true"></i>
+  }
+  <span>
+    <ng-content></ng-content>
+  </span>
+  @if (endIcon()) {
+    <i [class]="['bwi', endIcon()]" aria-hidden="true"></i>
+  }
 </span>
-@if (endIcon()) {
-  <i [class]="['bwi', endIcon()]" aria-hidden="true"></i>
-}
