@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Войти с passkey"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Использовать единый вход"
   },
@@ -436,7 +439,7 @@
   "sync": {
     "message": "Синхронизация"
   },
-  "syncVaultNow": {
+  "syncNow": {
     "message": "Синхронизировать"
   },
   "lastSync": {
@@ -454,9 +457,6 @@
   },
   "bitWebVaultApp": {
     "message": "Веб-приложение Bitwarden"
-  },
-  "importItems": {
-    "message": "Импорт элементов"
   },
   "select": {
     "message": "Выбрать"
@@ -576,17 +576,29 @@
   "itemWasSentToArchive": {
     "message": "Элемент был отправлен в архив"
   },
+  "itemWasUnarchived": {
+    "message": "Элемент был разархивирован"
+  },
   "itemUnarchived": {
     "message": "Элемент был разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  "archiveItemDialogContent": {
+    "message": "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению."
+  },
+  "archived": {
+    "message": "Архивирован"
+  },
+  "unarchiveAndSave": {
+    "message": "Разархивировать и сохранить"
   },
   "upgradeToUseArchive": {
     "message": "Для использования архива требуется премиум-статус."
+  },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
   },
   "edit": {
     "message": "Изменить"
@@ -931,7 +943,7 @@
     "message": "Вы вышли из своего аккаунта."
   },
   "loginExpired": {
-    "message": "Истек срок действия вашего сеанса."
+    "message": "Истек срок действия вашей сессии."
   },
   "logIn": {
     "message": "Войти"
@@ -1325,8 +1337,21 @@
   "exportFrom": {
     "message": "Экспорт из"
   },
-  "exportVault": {
-    "message": "Экспорт хранилища"
+  "exportVerb": {
+    "message": "Экспортировать",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Экспорт",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Импорт",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Импортировать",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат файла"
@@ -1406,6 +1431,27 @@
   "learnMore": {
     "message": "Подробнее"
   },
+  "migrationsFailed": {
+    "message": "Произошла ошибка при обновлении настроек шифрования."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Обновите настройки шифрования"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "Новые рекомендуемые настройки шифрования повысят безопасность вашего аккаунта. Введите мастер-пароль, чтобы обновить сейчас."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Подтвердите вашу личность, чтобы продолжить"
+  },
+  "enterYourMasterPassword": {
+    "message": "Введите ваш мастер-пароль"
+  },
+  "updateSettings": {
+    "message": "Обновить настройки"
+  },
+  "later": {
+    "message": "Позже"
+  },
   "authenticatorKeyTotp": {
     "message": "Ключ аутентификатора (TOTP)"
   },
@@ -1436,6 +1482,15 @@
   "attachmentSaved": {
     "message": "Вложение сохранено."
   },
+  "fixEncryption": {
+    "message": "Исправить шифрование"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Этот файл использует устаревший метод шифрования."
+  },
+  "attachmentUpdated": {
+    "message": "Вложение обновлено"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1444,6 +1499,9 @@
   },
   "selectFile": {
     "message": "Выбрать файл"
+  },
+  "itemsTransferred": {
+    "message": "Элементы переданы"
   },
   "maxFileSize": {
     "message": "Максимальный размер файла 500 МБ."
@@ -1475,11 +1533,29 @@
   "ppremiumSignUpStorage": {
     "message": "1 ГБ зашифрованного хранилища для вложенных файлов."
   },
+  "premiumSignUpStorageV2": {
+    "message": "Зашифрованного хранилища для вложенных файлов: $SIZE$",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "Экстренный доступ"
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ваша подписка Премиум закончилась"
+  },
+  "archivePremiumRestart": {
+    "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
+  },
+  "restartPremium": {
+    "message": "Переподключить Премиум"
   },
   "ppremiumSignUpReports": {
     "message": "Гигиена паролей, здоровье аккаунта и отчеты об утечках данных для обеспечения безопасности вашего хранилища."
@@ -1542,7 +1618,7 @@
     "message": "Таймаут аутентификации"
   },
   "authenticationSessionTimedOut": {
-    "message": "Сеанс аутентификации завершился по времени. Пожалуйста, попробуйте войти еще раз."
+    "message": "Сессия аутентификации завершилась по времени. Пожалуйста, перезапустите процесс авторизации."
   },
   "verificationCodeEmailSent": {
     "message": "Отправлено письмо подтверждения на $EMAIL$.",
@@ -2400,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Элемент удален навсегда"
   },
+  "archivedItemRestored": {
+    "message": "Архивированный элемент восстановлен"
+  },
   "restoreItem": {
     "message": "Восстановить элемент"
   },
@@ -3079,10 +3158,10 @@
     "message": "Обновить мастер-пароль"
   },
   "updateMasterPasswordWarning": {
-    "message": "Мастер-пароль недавно был изменен администратором вашей организации. Чтобы получить доступ к хранилищу, вы должны обновить его сейчас. В результате текущий сеанс будет завершен, потребуется повторный вход. Сеансы на других устройствах могут оставаться активными в течение одного часа."
+    "message": "Мастер-пароль недавно был изменен администратором вашей организации. Чтобы получить доступ к хранилищу, вы должны обновить его сейчас. В результате текущая сессия будет завершена, потребуется повторный вход. Сессии на других устройствах могут оставаться активными в течение одного часа."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
+    "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущая сессия будет завершена и потребуется повторная авторизация. Сессии на других устройствах могут оставаться активными в течение часа."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "В вашей организации отключено шифрование доверенных устройств. Пожалуйста, установите мастер-пароль для доступа к вашему хранилищу."
@@ -3210,9 +3289,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Уникальный идентификатор не найден."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Мастер-пароль больше не требуется для членов следующей организации. Пожалуйста, подтвердите указанный ниже домен у администратора вашей организации."
-  },
   "organizationName": {
     "message": "Название организации"
   },
@@ -3238,7 +3314,7 @@
     "message": "Показать количество символов"
   },
   "sessionTimeout": {
-    "message": "Время вашего сеанса истекло. Пожалуйста, вернитесь и попробуйте войти снова."
+    "message": "Время вашей сессии истекло. Пожалуйста, вернитесь и попробуйте войти снова."
   },
   "exportingPersonalVaultTitle": {
     "message": "Экспорт личного хранилища"
@@ -3293,6 +3369,12 @@
   },
   "error": {
     "message": "Ошибка"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Ошибка расшифровки"
@@ -4176,10 +4258,6 @@
   "ignore": {
     "message": "Игнорировать"
   },
-  "importData": {
-    "message": "Импорт данных",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Ошибка импорта"
   },
@@ -4673,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Больше опций"
+  },
   "moreOptionsTitle": {
     "message": "Больше опций - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4763,8 +4844,50 @@
   "adminConsole": {
     "message": "консоли администратора"
   },
+  "admin": {
+    "message": "Администратор"
+  },
+  "automaticUserConfirmation": {
+    "message": "Автоматическое подтверждение пользователя"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Автоматически подтверждать ожидающих пользователей пока это устройство разблокировано"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Экономьте время благодаря автоматическому подтверждению пользователей"
+  },
+  "autoConfirmWarning": {
+    "message": "Это может повлиять на безопасность данных вашей организации. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Узнайте о рисках"
+  },
+  "autoConfirmSetup": {
+    "message": "Автоматически подтверждать новых пользователей"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Новые пользователи будут автоматически подтверждены при разблокировке устройства."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Каковы потенциальные риски для безопасности?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Включено автоматическое подтверждение"
+  },
+  "availableNow": {
+    "message": "Уже доступно"
+  },
   "accountSecurity": {
     "message": "Безопасность аккаунта"
+  },
+  "phishingBlocker": {
+    "message": "Блокировщик фишинга"
+  },
+  "enablePhishingDetection": {
+    "message": "Обнаружение фишинга"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Отображать предупреждение перед доступом к подозрительным фишинговым сайтам"
   },
   "notifications": {
     "message": "Уведомления"
@@ -5017,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Скрыть обнаружение совпадений $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показать обнаружение совпадений"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скрыть обнаружение совпадений"
   },
   "autoFillOnPageLoad": {
     "message": "Автозаполнение при загрузке страницы?"
@@ -5562,6 +5682,9 @@
   "extraWide": {
     "message": "Очень широкое"
   },
+  "narrow": {
+    "message": "Узкий"
+  },
   "sshKeyWrongPassword": {
     "message": "Введенный пароль неверен."
   },
@@ -5609,6 +5732,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
+  },
+  "vulnerablePassword": {
+    "message": "Уязвимый пароль."
+  },
+  "changeNow": {
+    "message": "Изменить сейчас"
   },
   "missingWebsite": {
     "message": "Отсутствует сайт"
@@ -5818,8 +5947,8 @@
   "andMoreFeatures": {
     "message": "И многое другое!"
   },
-  "planDescPremium": {
-    "message": "Полная онлайн-защищенность"
+  "advancedOnlineSecurity": {
+    "message": "Расширенная онлайн-безопасность"
   },
   "upgradeToPremium": {
     "message": "Обновить до Премиум"
@@ -5849,7 +5978,144 @@
   "cardNumberLabel": {
     "message": "Номер карты"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Ваша организация больше не использует мастер-пароли для входа в Bitwarden. Чтобы продолжить, подтвердите организацию и домен."
+  },
+  "continueWithLogIn": {
+    "message": "Продолжить с логином"
+  },
+  "doNotContinue": {
+    "message": "Не продолжать"
+  },
+  "domain": {
+    "message": "Домен"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "В этом домене будут храниться ключи шифрования вашего аккаунта, поэтому убедитесь, что вы ему доверяете. Если вы не уверены, обратитесь к своему администратору."
+  },
+  "verifyYourOrganization": {
+    "message": "Подтвердите свою организацию для входа"
+  },
+  "organizationVerified": {
+    "message": "Организация подтверждена"
+  },
+  "domainVerified": {
+    "message": "Домен верифицирован"
+  },
+  "leaveOrganizationContent": {
+    "message": "Если вы не подтвердите свою организацию, ваш доступ к ней будет аннулирован."
+  },
+  "leaveNow": {
+    "message": "Покинуть"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Подтвердите свой домен для входа"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Чтобы продолжить с логином, подтвердите этот домен."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Чтобы продолжить с логином, подтвердите организацию и домен."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Тайм-аут действия"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Эта настройка управляется вашей организацией."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "В вашей организации максимальный тайм-аут сессии установлен равным $HOURS$ час. и $MINUTES$ мин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Ваша организация не установила тайм-аут сессии на Немедленно."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Ваша организация установила тайм-аут сессии по умолчанию на При блокировке системы."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Ваша организация установила тайм-аут сессии по умолчанию на При перезапуске браузера."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Максимальный тайм-аут не может превышать $HOURS$ час. и $MINUTES$ мин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "При перезапуске браузера"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Установите способ разблокировки для изменения действия при истечении тайм-аута"
+  },
+  "upgrade": {
+    "message": "Перейти"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Вы уверены, что хотите покинуть?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "В случае отказа ваши личные данные останутся в вашем аккаунте, но вы потеряете доступ к общим элементам и возможностям организации."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Свяжитесь с вашим администратором для восстановления доступа."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Покинуть $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Как я могу управлять своим хранилищем?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Перенести элементы в $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Принять передачу"
+  },
+  "declineAndLeave": {
+    "message": "Отклонить и покинуть"
+  },
+  "whyAmISeeingThis": {
+    "message": "Почему я это вижу?"
+  },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
   }
 }

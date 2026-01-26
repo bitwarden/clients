@@ -29,7 +29,7 @@ on:
         default: false
       target_ref:
         default: "main"
-        description: "Branch/Tag to target for cut"
+        description: "Branch/Tag to target for cut (ignored if not cutting rc)"
         required: true
         type: string
       version_number_override:
@@ -71,6 +71,7 @@ jobs:
       version_web: ${{ steps.set-final-version-output.outputs.version_web }}
     permissions:
       id-token: write
+      contents: write
 
     steps:
       - name: Validate version input format
@@ -93,27 +94,47 @@ jobs:
           keyvault: gh-org-bitwarden
           secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
 
+      - name: Retrieve GPG secrets
+        id: retrieve-gpg-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "github-gpg-private-key, github-gpg-private-key-passphrase"
+
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Generate GH App token
-        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: app-token
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-contents: write # for committing and pushing to main (bypasses rulesets)
 
       - name: Check out branch
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: main
+          ref: ${{ github.ref }}
           token: ${{ steps.app-token.outputs.token }}
           persist-credentials: true
 
       - name: Configure Git
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "Github Actions"
+          git config --local user.email "106330231+bitwarden-devops-bot@users.noreply.github.com"
+          git config --local user.name "bitwarden-devops-bot"
+
+      - name: Setup GPG signing
+        env:
+          GPG_PRIVATE_KEY: ${{ steps.retrieve-gpg-secrets.outputs.github-gpg-private-key }}
+          GPG_PASSPHRASE: ${{ steps.retrieve-gpg-secrets.outputs.github-gpg-private-key-passphrase }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --import --batch
+          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format=long | grep -o "rsa[0-9]\+/[A-F0-9]\+" | head -n1 | cut -d'/' -f2)
+          git config --local user.signingkey "$GPG_KEY_ID"
+          git config --local commit.gpgsign true
+          export GPG_TTY=$(tty)
+          echo "test" | gpg --clearsign --pinentry-mode=loopback --passphrase "$GPG_PASSPHRASE" > /dev/null 2>&1
 
       ########################
       # VERSION BUMP SECTION #
@@ -425,13 +446,15 @@ jobs:
             echo "No changes to commit!";
           fi
 
-      - name: Commit files
+      - name: Commit version bumps with GPG signature
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        run: git commit -m "Bumped client version(s)" -a
+        run: |
+          git commit -m "Bumped client version(s)" -a
 
-      - name: Push changes
+      - name: Push changes to main
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        run: git push
+        run: |
+          git push
 
   cut_branch:
     name: Cut branch
@@ -462,14 +485,15 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Generate GH App token
-        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: app-token
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-contents: write # for creating and pushing new branch
 
       - name: Check out target ref
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.target_ref }}
           token: ${{ steps.app-token.outputs.token }}

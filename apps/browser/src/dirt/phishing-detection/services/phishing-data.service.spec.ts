@@ -1,4 +1,5 @@
 import { MockProxy, mock } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -9,7 +10,8 @@ import {
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { LogService } from "@bitwarden/logging";
 
-import { PhishingDataService, PhishingData, PHISHING_DOMAINS_KEY } from "./phishing-data.service";
+import { PHISHING_DOMAINS_META_KEY, PhishingDataService } from "./phishing-data.service";
+import type { PhishingIndexedDbService } from "./phishing-indexeddb.service";
 
 describe("PhishingDataService", () => {
   let service: PhishingDataService;
@@ -17,20 +19,30 @@ describe("PhishingDataService", () => {
   let taskSchedulerService: TaskSchedulerService;
   let logService: MockProxy<LogService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
-  const stateProvider: FakeGlobalStateProvider = new FakeGlobalStateProvider();
-
-  const setMockState = (state: PhishingData) => {
-    stateProvider.getFake(PHISHING_DOMAINS_KEY).stateSubject.next(state);
-    return state;
-  };
-
+  let mockIndexedDbService: MockProxy<PhishingIndexedDbService>;
+  const fakeGlobalStateProvider: FakeGlobalStateProvider = new FakeGlobalStateProvider();
   let fetchChecksumSpy: jest.SpyInstance;
-  let fetchDomainsSpy: jest.SpyInstance;
 
-  beforeEach(() => {
-    jest.useFakeTimers();
+  beforeEach(async () => {
+    jest.clearAllMocks();
+
+    // Mock Request global if not available
+    if (typeof Request === "undefined") {
+      (global as any).Request = class {
+        constructor(public url: string) {}
+      };
+    }
+
     apiService = mock<ApiService>();
     logService = mock<LogService>();
+    mockIndexedDbService = mock<PhishingIndexedDbService>();
+
+    // Set default mock behaviors
+    mockIndexedDbService.hasUrl.mockResolvedValue(false);
+    mockIndexedDbService.loadAllUrls.mockResolvedValue([]);
+    mockIndexedDbService.saveUrls.mockResolvedValue(undefined);
+    mockIndexedDbService.addUrls.mockResolvedValue(undefined);
+    mockIndexedDbService.saveUrlsFromStream.mockResolvedValue(undefined);
 
     platformUtilsService = mock<PlatformUtilsService>();
     platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0");
@@ -40,119 +52,319 @@ describe("PhishingDataService", () => {
     service = new PhishingDataService(
       apiService,
       taskSchedulerService,
-      stateProvider,
+      fakeGlobalStateProvider,
       logService,
       platformUtilsService,
     );
 
-    fetchChecksumSpy = jest.spyOn(service as any, "fetchPhishingDomainsChecksum");
-    fetchDomainsSpy = jest.spyOn(service as any, "fetchPhishingDomains");
+    // Replace the IndexedDB service with our mock
+    service["indexedDbService"] = mockIndexedDbService;
+
+    fetchChecksumSpy = jest.spyOn(service as any, "fetchPhishingChecksum");
+    fetchChecksumSpy.mockResolvedValue("new-checksum");
   });
 
-  describe("isPhishingDomains", () => {
-    it("should detect a phishing domain", async () => {
-      setMockState({
-        domains: ["phish.com", "badguy.net"],
-        timestamp: Date.now(),
-        checksum: "abc123",
-        applicationVersion: "1.0.0",
-      });
-      const url = new URL("http://phish.com");
-      const result = await service.isPhishingDomain(url);
-      expect(result).toBe(true);
+  describe("initialization", () => {
+    it("should initialize with IndexedDB service", () => {
+      expect(service["indexedDbService"]).toBeDefined();
     });
 
-    it("should not detect a safe domain", async () => {
-      setMockState({
-        domains: ["phish.com", "badguy.net"],
-        timestamp: Date.now(),
-        checksum: "abc123",
-        applicationVersion: "1.0.0",
-      });
+    it("should detect QA test addresses - http protocol", async () => {
+      const url = new URL("http://phishing.testcategory.com");
+      expect(await service.isPhishingWebAddress(url)).toBe(true);
+      // IndexedDB should not be called for test addresses
+      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
+    });
+
+    it("should detect QA test addresses - https protocol", async () => {
+      const url = new URL("https://phishing.testcategory.com");
+      expect(await service.isPhishingWebAddress(url)).toBe(true);
+      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
+    });
+
+    it("should detect QA test addresses - specific subpath /block", async () => {
+      const url = new URL("https://phishing.testcategory.com/block");
+      expect(await service.isPhishingWebAddress(url)).toBe(true);
+      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
+    });
+
+    it("should NOT detect QA test addresses - different subpath", async () => {
+      mockIndexedDbService.hasUrl.mockResolvedValue(false);
+      mockIndexedDbService.loadAllUrls.mockResolvedValue([]);
+
+      const url = new URL("https://phishing.testcategory.com/other");
+      const result = await service.isPhishingWebAddress(url);
+
+      // This should NOT be detected as a test address since only /block subpath is hardcoded
+      expect(result).toBe(false);
+    });
+
+    it("should detect QA test addresses - root path with trailing slash", async () => {
+      const url = new URL("https://phishing.testcategory.com/");
+      const result = await service.isPhishingWebAddress(url);
+
+      // This SHOULD be detected since URLs are normalized (trailing slash added to root URLs)
+      expect(result).toBe(true);
+      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("isPhishingWebAddress", () => {
+    it("should detect a phishing web address using quick hasUrl lookup", async () => {
+      // Mock hasUrl to return true for direct hostname match
+      mockIndexedDbService.hasUrl.mockResolvedValue(true);
+
+      const url = new URL("http://phish.com/testing-param");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(true);
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/testing-param");
+      // Should not fall back to custom matcher when hasUrl returns true
+      expect(mockIndexedDbService.loadAllUrls).not.toHaveBeenCalled();
+    });
+
+    it("should fall back to custom matcher when hasUrl returns false", async () => {
+      // Mock hasUrl to return false (no direct href match)
+      mockIndexedDbService.hasUrl.mockResolvedValue(false);
+      // Mock loadAllUrls to return phishing URLs for custom matcher
+      mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com/path"]);
+
+      const url = new URL("http://phish.com/path");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(true);
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/path");
+      expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
+    });
+
+    it("should not detect a safe web address", async () => {
+      // Mock hasUrl to return false
+      mockIndexedDbService.hasUrl.mockResolvedValue(false);
+      // Mock loadAllUrls to return phishing URLs that don't match
+      mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com", "http://badguy.net"]);
+
       const url = new URL("http://safe.com");
-      const result = await service.isPhishingDomain(url);
+      const result = await service.isPhishingWebAddress(url);
+
       expect(result).toBe(false);
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://safe.com/");
+      expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
     });
 
-    it("should match against root domain", async () => {
-      setMockState({
-        domains: ["phish.com", "badguy.net"],
-        timestamp: Date.now(),
-        checksum: "abc123",
-        applicationVersion: "1.0.0",
-      });
-      const url = new URL("http://phish.com/about");
-      const result = await service.isPhishingDomain(url);
-      expect(result).toBe(true);
+    it("should not match against root web address with subpaths using custom matcher", async () => {
+      // Mock hasUrl to return false (no direct href match)
+      mockIndexedDbService.hasUrl.mockResolvedValue(false);
+      // Mock loadAllUrls to return entry that matches with subpath
+      mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com/login"]);
+
+      const url = new URL("http://phish.com/login/page");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(false);
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/login/page");
+      expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
     });
 
-    it("should not error on empty state", async () => {
-      setMockState(undefined as any);
-      const url = new URL("http://phish.com/about");
-      const result = await service.isPhishingDomain(url);
+    it("should not match against root web address with different subpaths using custom matcher", async () => {
+      // Mock hasUrl to return false (no direct hostname match)
+      mockIndexedDbService.hasUrl.mockResolvedValue(false);
+      // Mock loadAllUrls to return entry that matches with subpath
+      mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com/login/page1"]);
+
+      const url = new URL("http://phish.com/login/page2");
+      const result = await service.isPhishingWebAddress(url);
+
       expect(result).toBe(false);
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/login/page2");
+      expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
+    });
+
+    it("should handle IndexedDB errors gracefully", async () => {
+      // Mock hasUrl to throw error
+      mockIndexedDbService.hasUrl.mockRejectedValue(new Error("hasUrl error"));
+      // Mock loadAllUrls to also throw error
+      mockIndexedDbService.loadAllUrls.mockRejectedValue(new Error("IndexedDB error"));
+
+      const url = new URL("http://phish.com/about");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(false);
+      expect(logService.error).toHaveBeenCalledWith(
+        "[PhishingDataService] IndexedDB lookup via hasUrl failed",
+        expect.any(Error),
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        "[PhishingDataService] Error running custom matcher",
+        expect.any(Error),
+      );
     });
   });
 
-  describe("getNextDomains", () => {
-    it("refetches all domains if applicationVersion has changed", async () => {
-      const prev: PhishingData = {
-        domains: ["a.com"],
-        timestamp: Date.now() - 60000,
-        checksum: "old",
-        applicationVersion: "1.0.0",
-      };
-      fetchChecksumSpy.mockResolvedValue("new");
-      fetchDomainsSpy.mockResolvedValue(["d.com", "e.com"]);
+  describe("data updates", () => {
+    it("should update full dataset via stream", async () => {
+      // Mock full dataset update
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      await firstValueFrom(service["_updateFullDataSet"]());
+
+      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
+    });
+
+    it("should update daily dataset via addUrls", async () => {
+      // Mock daily update
+      const mockResponse = {
+        ok: true,
+        text: jest.fn().mockResolvedValue("newphish.com\nanotherbad.net"),
+      } as unknown as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      await firstValueFrom(service["_updateDailyDataSet"]());
+
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalledWith(["newphish.com", "anotherbad.net"]);
+    });
+
+    it("should get updated meta information", async () => {
+      fetchChecksumSpy.mockResolvedValue("new-checksum");
       platformUtilsService.getApplicationVersion.mockResolvedValue("2.0.0");
 
-      const result = await service.getNextDomains(prev);
+      const meta = await firstValueFrom(service["_getUpdatedMeta"]());
 
-      expect(result!.domains).toEqual(["d.com", "e.com"]);
-      expect(result!.checksum).toBe("new");
-      expect(result!.applicationVersion).toBe("2.0.0");
+      expect(meta).toBeDefined();
+      expect(meta.checksum).toBe("new-checksum");
+      expect(meta.applicationVersion).toBe("2.0.0");
+      expect(meta.timestamp).toBeDefined();
     });
+  });
 
-    it("only updates timestamp if checksum matches", async () => {
-      const prev: PhishingData = {
-        domains: ["a.com"],
-        timestamp: Date.now() - 60000,
-        checksum: "abc",
+  describe("phishing meta data updates", () => {
+    it("should not update metadata when no data updates occur", async () => {
+      // Set up existing metadata
+      const existingMeta = {
+        checksum: "existing-checksum",
+        timestamp: Date.now() - 1000, // 1 second ago (not expired)
         applicationVersion: "1.0.0",
       };
-      fetchChecksumSpy.mockResolvedValue("abc");
-      const result = await service.getNextDomains(prev);
-      expect(result!.domains).toEqual(prev.domains);
-      expect(result!.checksum).toBe("abc");
-      expect(result!.timestamp).not.toBe(prev.timestamp);
+      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
+
+      // Mock conditions where no update is needed
+      fetchChecksumSpy.mockResolvedValue("existing-checksum"); // Same checksum
+      platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0"); // Same version
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      // Trigger background update
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      // Verify metadata was NOT updated (same reference returned)
+      expect(result).toEqual(existingMeta);
+      expect(result?.timestamp).toBe(existingMeta.timestamp);
+
+      // Verify no data updates were performed
+      expect(mockIndexedDbService.saveUrlsFromStream).not.toHaveBeenCalled();
+      expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled();
     });
 
-    it("patches daily domains if cache is fresh", async () => {
-      const prev: PhishingData = {
-        domains: ["a.com"],
-        timestamp: Date.now() - 60000,
-        checksum: "old",
+    it("should update metadata when full dataset update occurs due to checksum change", async () => {
+      // Set up existing metadata
+      const existingMeta = {
+        checksum: "old-checksum",
+        timestamp: Date.now() - 1000,
         applicationVersion: "1.0.0",
       };
-      fetchChecksumSpy.mockResolvedValue("new");
-      fetchDomainsSpy.mockResolvedValue(["b.com", "c.com"]);
-      const result = await service.getNextDomains(prev);
-      expect(result!.domains).toEqual(["a.com", "b.com", "c.com"]);
-      expect(result!.checksum).toBe("new");
+      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
+
+      // Mock conditions for full update
+      fetchChecksumSpy.mockResolvedValue("new-checksum"); // Different checksum
+      platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0");
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      // Trigger background update
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      // Verify metadata WAS updated with new values
+      expect(result?.checksum).toBe("new-checksum");
+      expect(result?.timestamp).toBeGreaterThan(existingMeta.timestamp);
+
+      // Verify full update was performed
+      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
+      expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled(); // Daily should not run
     });
 
-    it("fetches all domains if cache is old", async () => {
-      const prev: PhishingData = {
-        domains: ["a.com"],
-        timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
-        checksum: "old",
+    it("should update metadata when full dataset update occurs due to version change", async () => {
+      // Set up existing metadata
+      const existingMeta = {
+        checksum: "same-checksum",
+        timestamp: Date.now() - 1000,
         applicationVersion: "1.0.0",
       };
-      fetchChecksumSpy.mockResolvedValue("new");
-      fetchDomainsSpy.mockResolvedValue(["d.com", "e.com"]);
-      const result = await service.getNextDomains(prev);
-      expect(result!.domains).toEqual(["d.com", "e.com"]);
-      expect(result!.checksum).toBe("new");
+      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
+
+      // Mock conditions for full update
+      fetchChecksumSpy.mockResolvedValue("same-checksum");
+      platformUtilsService.getApplicationVersion.mockResolvedValue("2.0.0"); // Different version
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      // Trigger background update
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      // Verify metadata WAS updated
+      expect(result?.applicationVersion).toBe("2.0.0");
+      expect(result?.timestamp).toBeGreaterThan(existingMeta.timestamp);
+
+      // Verify full update was performed
+      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
+      expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled();
+    });
+
+    it("should update metadata when daily update occurs due to cache expiration", async () => {
+      // Set up existing metadata (expired cache)
+      const existingMeta = {
+        checksum: "same-checksum",
+        timestamp: Date.now() - 25 * 60 * 60 * 1000, // 25 hours ago (expired)
+        applicationVersion: "1.0.0",
+      };
+      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
+
+      // Mock conditions for daily update only
+      fetchChecksumSpy.mockResolvedValue("same-checksum"); // Same checksum (no full update)
+      platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0"); // Same version
+      const mockFullResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      const mockDailyResponse = {
+        ok: true,
+        text: jest.fn().mockResolvedValue("newdomain.com"),
+      } as unknown as Response;
+      apiService.nativeFetch
+        .mockResolvedValueOnce(mockFullResponse)
+        .mockResolvedValueOnce(mockDailyResponse);
+
+      // Trigger background update
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      // Verify metadata WAS updated
+      expect(result?.timestamp).toBeGreaterThan(existingMeta.timestamp);
+      expect(result?.checksum).toBe("same-checksum");
+
+      // Verify only daily update was performed
+      expect(mockIndexedDbService.saveUrlsFromStream).not.toHaveBeenCalled();
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalledWith(["newdomain.com"]);
     });
   });
 });

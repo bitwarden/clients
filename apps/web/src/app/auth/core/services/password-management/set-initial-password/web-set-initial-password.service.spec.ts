@@ -3,6 +3,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
+  InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
@@ -16,14 +17,17 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { RouterService } from "@bitwarden/web-vault/app/core";
@@ -45,6 +49,8 @@ describe("WebSetInitialPasswordService", () => {
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
   let routerService: MockProxy<RouterService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let registerSdkService: MockProxy<RegisterSdkService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
@@ -59,6 +65,8 @@ describe("WebSetInitialPasswordService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     organizationInviteService = mock<OrganizationInviteService>();
     routerService = mock<RouterService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    registerSdkService = mock<RegisterSdkService>();
 
     sut = new WebSetInitialPasswordService(
       apiService,
@@ -73,6 +81,8 @@ describe("WebSetInitialPasswordService", () => {
       userDecryptionOptionsService,
       organizationInviteService,
       routerService,
+      accountCryptographicStateService,
+      registerSdkService,
     );
   });
 
@@ -202,6 +212,38 @@ describe("WebSetInitialPasswordService", () => {
         expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
         expect(organizationInviteService.clearOrganizationInvitation).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("initializePasswordJitPasswordUserV2Encryption(...)", () => {
+    it("should call routerService.getAndClearLoginRedirectUrl() and organizationInviteService.clearOrganizationInvitation()", async () => {
+      // Arrange
+      const credentials: InitializeJitPasswordCredentials = {
+        newPasswordHint: "newPasswordHint",
+        orgSsoIdentifier: "orgSsoIdentifier",
+        orgId: "orgId" as OrganizationId,
+        resetPasswordAutoEnroll: false,
+        newPassword: "newPassword123!",
+        salt: "user@example.com" as MasterPasswordSalt,
+      };
+      const userId = "userId" as UserId;
+
+      const superSpy = jest
+        .spyOn(
+          Object.getPrototypeOf(Object.getPrototypeOf(sut)),
+          "initializePasswordJitPasswordUserV2Encryption",
+        )
+        .mockResolvedValue(undefined);
+
+      // Act
+      await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      // Assert
+      expect(superSpy).toHaveBeenCalledWith(credentials, userId);
+      expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+      expect(organizationInviteService.clearOrganizationInvitation).toHaveBeenCalledTimes(1);
+
+      superSpy.mockRestore();
     });
   });
 });

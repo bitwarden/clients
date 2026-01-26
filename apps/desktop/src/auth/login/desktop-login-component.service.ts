@@ -48,11 +48,12 @@ export class DesktopLoginComponentService
     email: string,
     state: string,
     codeChallenge: string,
+    orgSsoIdentifier?: string,
   ): Promise<void> {
     // For platforms that cannot support a protocol-based (e.g. bitwarden://) callback, we use a localhost callback
     // Otherwise, we launch the SSO component in a browser window and wait for the callback
     if (ipc.platform.isAppImage || ipc.platform.isDev) {
-      await this.initiateSsoThroughLocalhostCallback(email, state, codeChallenge);
+      await this.initiateSsoThroughLocalhostCallback(email, state, codeChallenge, orgSsoIdentifier);
     } else {
       const env = await firstValueFrom(this.environmentService.environment$);
       const webVaultUrl = env.getWebVaultUrl();
@@ -66,6 +67,7 @@ export class DesktopLoginComponentService
         state,
         codeChallenge,
         email,
+        orgSsoIdentifier,
       );
 
       this.platformUtilsService.launchUri(ssoWebAppUrl);
@@ -76,9 +78,15 @@ export class DesktopLoginComponentService
     email: string,
     state: string,
     challenge: string,
+    orgSsoIdentifier?: string,
   ): Promise<void> {
     try {
-      await ipc.platform.localhostCallbackService.openSsoPrompt(challenge, state, email);
+      await ipc.platform.localhostCallbackService.openSsoPrompt(
+        challenge,
+        state,
+        email,
+        orgSsoIdentifier,
+      );
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {

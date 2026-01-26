@@ -46,9 +46,9 @@ const KeyUsages: KeyUsage[] = ["sign"];
  *
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
-export class Fido2AuthenticatorService<ParentWindowReference>
-  implements Fido2AuthenticatorServiceAbstraction<ParentWindowReference>
-{
+export class Fido2AuthenticatorService<
+  ParentWindowReference,
+> implements Fido2AuthenticatorServiceAbstraction<ParentWindowReference> {
   constructor(
     private cipherService: CipherService,
     private userInterface: Fido2UserInterfaceService<ParentWindowReference>,
@@ -187,8 +187,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         if (Utils.isNullOrEmpty(cipher.login.username)) {
           cipher.login.username = fido2Credential.userName;
         }
-        const reencrypted = await this.cipherService.encrypt(cipher, activeUserId);
-        await this.cipherService.updateWithServer(reencrypted);
+        await this.cipherService.updateWithServer(cipher, activeUserId);
         await this.cipherService.clearCache(activeUserId);
         credentialId = fido2Credential.credentialId;
       } catch (error) {
@@ -328,8 +327,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
           const activeUserId = await firstValueFrom(
             this.accountService.activeAccount$.pipe(getUserId),
           );
-          const encrypted = await this.cipherService.encrypt(selectedCipher, activeUserId);
-          await this.cipherService.updateWithServer(encrypted);
+          await this.cipherService.updateWithServer(selectedCipher, activeUserId);
           await this.cipherService.clearCache(activeUserId);
         }
 

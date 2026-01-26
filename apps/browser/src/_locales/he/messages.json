@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "כניסה עם מפתח גישה"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "השתמש בכניסה יחידה"
   },
@@ -436,8 +439,8 @@
   "sync": {
     "message": "סנכרן"
   },
-  "syncVaultNow": {
-    "message": "סנכרן את הכספת עכשיו"
+  "syncNow": {
+    "message": "סנכרון כעת"
   },
   "lastSync": {
     "message": "סנכרון אחרון:"
@@ -454,9 +457,6 @@
   },
   "bitWebVaultApp": {
     "message": "יישום הרשת של Bitwarden"
-  },
-  "importItems": {
-    "message": "ייבא פריטים"
   },
   "select": {
     "message": "בחר"
@@ -576,17 +576,29 @@
   "itemWasSentToArchive": {
     "message": "הפריט נשלח לארכיון"
   },
+  "itemWasUnarchived": {
+    "message": "הפריט שוחזר מהארכיב"
+  },
   "itemUnarchived": {
     "message": "הפריט הוסר מהארכיון"
   },
   "archiveItem": {
     "message": "העבר פריט לארכיון"
   },
-  "archiveItemConfirmDesc": {
-    "message": "פריטים בארכיון מוחרגים מתוצאות חיפוש כללי והצעות למילוי אוטומטי. האם אתה בטוח שברצונך להעביר פריט זה לארכיון?"
+  "archiveItemDialogContent": {
+    "message": "עם ארכובו, יהיה הפריט מוחרג מתוצאות החיפוש ומהצעות המילוי האוטומטי."
+  },
+  "archived": {
+    "message": "הועבר לארכיב"
+  },
+  "unarchiveAndSave": {
+    "message": "שחזור מהארכיב ושמירה"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "נדרשת חברות פרמיום כדי להשתמש בארכיב."
+  },
+  "itemRestored": {
+    "message": "הפריט שוחזר"
   },
   "edit": {
     "message": "ערוך"
@@ -598,7 +610,7 @@
     "message": "הצג הכל"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "הצגת הכל"
   },
   "viewLess": {
     "message": "הצג פחות"
@@ -1325,8 +1337,21 @@
   "exportFrom": {
     "message": "ייצא מ־"
   },
-  "exportVault": {
-    "message": "ייצא כספת"
+  "exportVerb": {
+    "message": "ייצוא",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "ייצוא",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "ייבוא",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "ייבוא",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "פורמט הקובץ"
@@ -1406,6 +1431,27 @@
   "learnMore": {
     "message": "למידע נוסף"
   },
+  "migrationsFailed": {
+    "message": "אירעה שגיאה בעת עדכון הגדרות ההצפנה."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "עדכון הגדרות ההצפנה שלך"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "הגדרות ההצפנה המומלצות החדשות ישפרו את אבטחת החשבון שלך. יש להזין את הסיסמה הראשית שלך כדי לעדכן כעת."
+  },
+  "confirmIdentityToContinue": {
+    "message": "יש לאשר את זהותך כדי להמשיך"
+  },
+  "enterYourMasterPassword": {
+    "message": "נא להזין את הסיסמה הראשית שלך"
+  },
+  "updateSettings": {
+    "message": "עדכון ההגדרות"
+  },
+  "later": {
+    "message": "מאוחר יותר"
+  },
   "authenticatorKeyTotp": {
     "message": "מפתח מאמת (TOTP)"
   },
@@ -1436,6 +1482,15 @@
   "attachmentSaved": {
     "message": "הצרופה נשמרה"
   },
+  "fixEncryption": {
+    "message": "תיקון ההצפנה"
+  },
+  "fixEncryptionTooltip": {
+    "message": "הקובץ מוגדר בשיטת הצפנה לא עדכנית."
+  },
+  "attachmentUpdated": {
+    "message": "הצרופה עודכנה"
+  },
   "file": {
     "message": "קובץ"
   },
@@ -1444,6 +1499,9 @@
   },
   "selectFile": {
     "message": "בחר קובץ"
+  },
+  "itemsTransferred": {
+    "message": "הפריטים הועברו"
   },
   "maxFileSize": {
     "message": "גודל הקובץ המרבי הוא 500MB."
@@ -1475,11 +1533,29 @@
   "ppremiumSignUpStorage": {
     "message": "1 ג'יגה של מקום אחסון עבור קבצים מצורפים."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ של אחסון מוצפן עבור קבצים מצורפים.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "גישת חירום."
   },
   "premiumSignUpTwoStepOptions": {
     "message": "אפשרויות כניסה דו־שלבית קנייניות כגון YubiKey ו־Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "מנוי הפרמיום שלך הסתיים"
+  },
+  "archivePremiumRestart": {
+    "message": "לשחזור הגישה לארכיב שלך יש לחדש את מנוי הפרמיום שלך. אם תבצעו עריכת פרטים של פריט בארכיב לפני חידוש המנוי, הפריט ישוחזר אל הכספת שלכם."
+  },
+  "restartPremium": {
+    "message": "חידוש מנוי הפרמיום"
   },
   "ppremiumSignUpReports": {
     "message": "היגיינת סיסמאות, מצב בריאות החשבון, ודיווחים מעודכנים על פרצות חדשות בכדי לשמור על הכספת שלך בטוחה."
@@ -1874,7 +1950,7 @@
     "message": "שנת תפוגה"
   },
   "monthly": {
-    "message": "month"
+    "message": "חודש"
   },
   "expiration": {
     "message": "תוקף"
@@ -2399,6 +2475,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "הפריט נמחק לצמיתות"
+  },
+  "archivedItemRestored": {
+    "message": "פריט שוחזר מהארכיב"
   },
   "restoreItem": {
     "message": "שחזר פריט"
@@ -3210,9 +3289,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "לא נמצא מזהה ייחודי."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "סיסמה ראשית אינה נדרשת עוד עבור חברים בארגון הבא. נא לאשר את הדומיין שלהלן עם מנהל הארגון שלך."
-  },
   "organizationName": {
     "message": "שם הארגון"
   },
@@ -3293,6 +3369,12 @@
   },
   "error": {
     "message": "שגיאה"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "שגיאת פענוח"
@@ -4176,10 +4258,6 @@
   "ignore": {
     "message": "התעלם"
   },
-  "importData": {
-    "message": "ייבא נתונים",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "שגיאת ייבוא"
   },
@@ -4673,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "עוד אפשרויות - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4763,8 +4844,50 @@
   "adminConsole": {
     "message": "מסוף מנהל"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
   "accountSecurity": {
     "message": "אבטחת החשבון"
+  },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
     "message": "התראות"
@@ -5017,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "הסתר זיהוי התאמה $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "למלא אוטומטית בעת טעינת עמוד?"
@@ -5562,6 +5682,9 @@
   "extraWide": {
     "message": "רחב במיוחד"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "הסיסמה שהזנת שגויה."
   },
@@ -5609,6 +5732,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "כניסה זו נמצאת בסיכון וחסר בה אתר אינטרנט. הוסף אתר אינטרנט ושנה את הסיסמה לאבטחה חזקה יותר."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "לא נמצא אתר אינטרנט"
@@ -5818,8 +5947,8 @@
   "andMoreFeatures": {
     "message": "ועוד!"
   },
-  "planDescPremium": {
-    "message": "השלם אבטחה מקוונת"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "upgradeToPremium": {
     "message": "שדרג לפרימיום"
@@ -5849,7 +5978,144 @@
   "cardNumberLabel": {
     "message": "מספר כרטיס"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "פעולת פסק זמן"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Your organization has set the default session timeout to Immediately."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

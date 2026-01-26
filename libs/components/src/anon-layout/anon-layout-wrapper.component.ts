@@ -7,10 +7,10 @@ import { Icon } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { Translation } from "../dialog";
+import { LandingContentMaxWidthType } from "../landing-layout";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
-import { AnonLayoutComponent, AnonLayoutMaxWidth } from "./anon-layout.component";
-
+import { AnonLayoutComponent } from "./anon-layout.component";
 export interface AnonLayoutWrapperData {
   /**
    * The optional title of the page.
@@ -35,7 +35,7 @@ export interface AnonLayoutWrapperData {
   /**
    * Optional flag to set the max-width of the page. Defaults to 'md' if not provided.
    */
-  maxWidth?: AnonLayoutMaxWidth;
+  maxWidth?: LandingContentMaxWidthType;
   /**
    * Hide the card that wraps the default content. Defaults to false.
    */
@@ -59,7 +59,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected pageSubtitle?: string | null;
   protected pageIcon: Icon | null = null;
   protected showReadonlyHostname?: boolean | null;
-  protected maxWidth?: AnonLayoutMaxWidth | null;
+  protected maxWidth?: LandingContentMaxWidthType | null;
   protected hideCardWrapper?: boolean | null;
   protected hideBackgroundIllustration?: boolean | null;
 

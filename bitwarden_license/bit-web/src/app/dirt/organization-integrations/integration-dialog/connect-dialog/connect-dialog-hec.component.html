@@ -23,7 +23,7 @@
 
           <bit-form-field>
             <bit-label>{{ "bearerToken" | i18n }}</bit-label>
-            <input bitInput type="text" formControlName="bearerToken" />
+            <input bitInput type="password" formControlName="bearerToken" />
             <bit-hint>{{ "apiKey" | i18n }}</bit-hint>
           </bit-form-field>
 
@@ -53,8 +53,8 @@
             bitIconButton="bwi-trash"
             type="button"
             buttonType="danger"
-            label="'delete' | i18n"
-            [appA11yTitle]="'delete' | i18n"
+            label="{{ 'delete' | i18n }}"
+            appA11yTitle="{{ 'delete' | i18n }}"
             [bitAction]="delete"
           ></button>
         </div>

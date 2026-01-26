@@ -1,6 +1,7 @@
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
+  InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
@@ -9,10 +10,12 @@ import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
@@ -32,6 +35,8 @@ export class DesktopSetInitialPasswordService
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private messagingService: MessagingService,
+    protected accountCryptographicStateService: AccountCryptographicStateService,
+    protected registerSdkService: RegisterSdkService,
   ) {
     super(
       apiService,
@@ -44,6 +49,8 @@ export class DesktopSetInitialPasswordService
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
+      accountCryptographicStateService,
+      registerSdkService,
     );
   }
 
@@ -53,6 +60,15 @@ export class DesktopSetInitialPasswordService
     userId: UserId,
   ) {
     await super.setInitialPassword(credentials, userType, userId);
+
+    this.messagingService.send("redrawMenu");
+  }
+
+  override async initializePasswordJitPasswordUserV2Encryption(
+    credentials: InitializeJitPasswordCredentials,
+    userId: UserId,
+  ): Promise<void> {
+    await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
     this.messagingService.send("redrawMenu");
   }

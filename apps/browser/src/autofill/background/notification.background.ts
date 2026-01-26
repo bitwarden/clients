@@ -627,11 +627,11 @@ export default class NotificationBackground {
     }
 
     const username: string | null = data.username || null;
-    const currentPassword = data.password || null;
-    const newPassword = data.newPassword || null;
+    const currentPasswordFieldValue = data.password || null;
+    const newPasswordFieldValue = data.newPassword || null;
 
-    if (authStatus === AuthenticationStatus.Locked && newPassword !== null) {
-      await this.pushChangePasswordToQueue(null, loginDomain, newPassword, tab, true);
+    if (authStatus === AuthenticationStatus.Locked && newPasswordFieldValue !== null) {
+      await this.pushChangePasswordToQueue(null, loginDomain, newPasswordFieldValue, tab, true);
       return true;
     }
 
@@ -657,35 +657,49 @@ export default class NotificationBackground {
       const [cipher] = ciphers;
       if (
         username !== null &&
-        newPassword === null &&
-        cipher.login.username === normalizedUsername &&
-        cipher.login.password === currentPassword
+        newPasswordFieldValue === null &&
+        cipher.login.username.toLowerCase() === normalizedUsername &&
+        cipher.login.password === currentPasswordFieldValue
       ) {
         // Assumed to be a login
         return false;
       }
     }
 
-    if (currentPassword && !newPassword) {
+    if (
+      ciphers.length > 0 &&
+      currentPasswordFieldValue?.length &&
       // Only use current password for change if no new password present.
-      if (ciphers.length > 0) {
-        await this.pushChangePasswordToQueue(
-          ciphers.map((cipher) => cipher.id),
-          loginDomain,
-          currentPassword,
-          tab,
-        );
-        return true;
+      !newPasswordFieldValue
+    ) {
+      const currentPasswordMatchesAnExistingValue = ciphers.some(
+        (cipher) =>
+          cipher.login?.password?.length && cipher.login.password === currentPasswordFieldValue,
+      );
+
+      // The password entered matched a stored cipher value with
+      // the same username (no change)
+      if (currentPasswordMatchesAnExistingValue) {
+        return false;
       }
+
+      await this.pushChangePasswordToQueue(
+        ciphers.map((cipher) => cipher.id),
+        loginDomain,
+        currentPasswordFieldValue,
+        tab,
+      );
+
+      return true;
     }
 
-    if (newPassword) {
+    if (newPasswordFieldValue) {
       // Otherwise include all known ciphers.
       if (ciphers.length > 0) {
         await this.pushChangePasswordToQueue(
           ciphers.map((cipher) => cipher.id),
           loginDomain,
-          newPassword,
+          newPasswordFieldValue,
           tab,
         );
 
@@ -852,13 +866,11 @@ export default class NotificationBackground {
         return;
       }
 
-      const encrypted = await this.cipherService.encrypt(newCipher, activeUserId);
-      const { cipher } = encrypted;
       try {
-        await this.cipherService.createWithServer(encrypted);
+        const resultCipher = await this.cipherService.createWithServer(newCipher, activeUserId);
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
           itemName: newCipher?.name && String(newCipher?.name),
-          cipherId: cipher?.id && String(cipher?.id),
+          cipherId: resultCipher?.id && String(resultCipher?.id),
         });
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
@@ -896,7 +908,6 @@ export default class NotificationBackground {
       await BrowserApi.tabSendMessage(tab, { command: "editedCipher" });
       return;
     }
-    const cipher = await this.cipherService.encrypt(cipherView, userId);
 
     try {
       if (!cipherView.edit) {
@@ -925,7 +936,7 @@ export default class NotificationBackground {
         return;
       }
 
-      await this.cipherService.updateWithServer(cipher);
+      await this.cipherService.updateWithServer(cipherView, userId);
 
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
         itemName: cipherView?.name && String(cipherView?.name),

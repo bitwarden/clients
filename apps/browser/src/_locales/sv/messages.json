@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Logga in med nyckel"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Använd Single Sign-On"
   },
@@ -436,8 +439,8 @@
   "sync": {
     "message": "Synkronisera"
   },
-  "syncVaultNow": {
-    "message": "Synkronisera valv nu"
+  "syncNow": {
+    "message": "Synkronisera nu"
   },
   "lastSync": {
     "message": "Senaste synkronisering:"
@@ -454,9 +457,6 @@
   },
   "bitWebVaultApp": {
     "message": "Bitwarden webbapp"
-  },
-  "importItems": {
-    "message": "Importera objekt"
   },
   "select": {
     "message": "Välj"
@@ -576,17 +576,29 @@
   "itemWasSentToArchive": {
     "message": "Objektet skickades till arkivet"
   },
+  "itemWasUnarchived": {
+    "message": "Objektet har avarkiverats"
+  },
   "itemUnarchived": {
     "message": "Objektet har avarkiverats"
   },
   "archiveItem": {
     "message": "Arkivera objekt"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arkiverade objekt är exkluderade från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
+  "archiveItemDialogContent": {
+    "message": "När du har arkiverat kommer detta objekt att uteslutas från sökresultat och förslag till autofyll."
+  },
+  "archived": {
+    "message": "Arkiverade"
+  },
+  "unarchiveAndSave": {
+    "message": "Avarkivera och spara"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Ett premium-medlemskap krävs för att använda Arkiv."
+  },
+  "itemRestored": {
+    "message": "Objektet har återställts"
   },
   "edit": {
     "message": "Redigera"
@@ -598,7 +610,7 @@
     "message": "Visa alla"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Visa alla"
   },
   "viewLess": {
     "message": "Visa mindre"
@@ -1325,8 +1337,21 @@
   "exportFrom": {
     "message": "Exportera från"
   },
-  "exportVault": {
-    "message": "Exportera valv"
+  "exportVerb": {
+    "message": "Exportera",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Importera",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Filformat"
@@ -1406,6 +1431,27 @@
   "learnMore": {
     "message": "Läs mer"
   },
+  "migrationsFailed": {
+    "message": "Ett fel inträffade när krypteringsinställningarna skulle uppdateras."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Uppdatera dina krypteringsinställningar"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "De nya rekommenderade krypteringsinställningarna kommer att förbättra säkerheten för ditt konto. Ange ditt huvudlösenord för att uppdatera nu."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Bekräfta din identitet för att fortsätta"
+  },
+  "enterYourMasterPassword": {
+    "message": "Ange ditt huvudlösenord"
+  },
+  "updateSettings": {
+    "message": "Uppdatera inställningar"
+  },
+  "later": {
+    "message": "Senare"
+  },
   "authenticatorKeyTotp": {
     "message": "Autentiseringsnyckel (TOTP)"
   },
@@ -1436,6 +1482,15 @@
   "attachmentSaved": {
     "message": "Bilaga sparad"
   },
+  "fixEncryption": {
+    "message": "Fixa kryptering"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Denna fil använder en föråldrad krypteringsmetod."
+  },
+  "attachmentUpdated": {
+    "message": "Bilaga uppdaterad"
+  },
   "file": {
     "message": "Fil"
   },
@@ -1444,6 +1499,9 @@
   },
   "selectFile": {
     "message": "Välj en fil"
+  },
+  "itemsTransferred": {
+    "message": "Objekt överförda"
   },
   "maxFileSize": {
     "message": "Filen får vara maximalt 500 MB."
@@ -1475,11 +1533,29 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB lagring av krypterade filer."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ krypterad lagring för filbilagor.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "Nödåtkomst."
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Premium-alternativ för tvåstegsverifiering, såsom YubiKey och Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ditt Premium-abonnemang avslutades"
+  },
+  "archivePremiumRestart": {
+    "message": "För att återfå åtkomst till ditt arkiv, starta om Premium-abonnemanget. Om du redigerar detaljer för ett arkiverat objekt innan du startar om kommer det att flyttas tillbaka till ditt valv."
+  },
+  "restartPremium": {
+    "message": "Starta om Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Lösenordshygien, kontohälsa och dataintrångsrapporter för att hålla ditt valv säkert."
@@ -1874,7 +1950,7 @@
     "message": "Utgångsår"
   },
   "monthly": {
-    "message": "month"
+    "message": "månad"
   },
   "expiration": {
     "message": "Utgång"
@@ -2399,6 +2475,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Raderade objekt permanent"
+  },
+  "archivedItemRestored": {
+    "message": "Arkiverat objekt återställt"
   },
   "restoreItem": {
     "message": "Återställ objekt"
@@ -3210,9 +3289,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Ingen unik identifierare hittades."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Ett huvudlösenord krävs inte längre för medlemmar i följande organisation. Vänligen bekräfta domänen nedan med din organisationsadministratör."
-  },
   "organizationName": {
     "message": "Organisationsnamn"
   },
@@ -3293,6 +3369,12 @@
   },
   "error": {
     "message": "Fel"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Dekrypteringsfel"
@@ -4176,10 +4258,6 @@
   "ignore": {
     "message": "Ignorera"
   },
-  "importData": {
-    "message": "Importera data",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Fel vid import"
   },
@@ -4673,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Fler alternativ"
+  },
   "moreOptionsTitle": {
     "message": "Fler alternativ - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4763,8 +4844,50 @@
   "adminConsole": {
     "message": "Adminkonsol"
   },
+  "admin": {
+    "message": "Administratör"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatisk bekräftelse av användare"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Bekräfta automatiskt väntande användare medan enheten är olåst"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Spara tid med automatisk användarbekräftelse"
+  },
+  "autoConfirmWarning": {
+    "message": "Detta kan påverka din organisations datasäkerhet. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Läs mer om riskerna"
+  },
+  "autoConfirmSetup": {
+    "message": "Bekräfta nya användare automatiskt"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Nya användare kommer automatiskt att bekräftas när denna enhet är upplåst."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Vilka är de potentiella säkerhetsriskerna?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Aktiverade automatisk bekräftelse"
+  },
+  "availableNow": {
+    "message": "Tillgänglig nu"
+  },
   "accountSecurity": {
     "message": "Kontosäkerhet"
+  },
+  "phishingBlocker": {
+    "message": "Nätfiskeblockerare"
+  },
+  "enablePhishingDetection": {
+    "message": "Nätfiskedetektering"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Visa varning innan du öppnar misstänkta nätfiskeplatser"
   },
   "notifications": {
     "message": "Aviseringar"
@@ -5017,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Detektering av dold matchning $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Visa matchningsdetektering"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Dölj matchdetektering"
   },
   "autoFillOnPageLoad": {
     "message": "Autofyll vid sidladdning?"
@@ -5562,6 +5682,9 @@
   "extraWide": {
     "message": "Extra bred"
   },
+  "narrow": {
+    "message": "Smal"
+  },
   "sshKeyWrongPassword": {
     "message": "Lösenordet du har angett är felaktigt."
   },
@@ -5609,6 +5732,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
+  },
+  "vulnerablePassword": {
+    "message": "Sårbart lösenord."
+  },
+  "changeNow": {
+    "message": "Ändra nu"
   },
   "missingWebsite": {
     "message": "Saknar webbplats"
@@ -5818,17 +5947,17 @@
   "andMoreFeatures": {
     "message": "och mer!"
   },
-  "planDescPremium": {
-    "message": "Komplett säkerhet online"
+  "advancedOnlineSecurity": {
+    "message": "Avancerad säkerhet online"
   },
   "upgradeToPremium": {
     "message": "Uppgradera till Premium"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "Lås upp avancerade säkerhetsfunktioner"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "En Premium-prenumeration ger dig fler verktyg för att hålla dig säker och ha kontroll"
   },
   "explorePremium": {
     "message": "Utforska Premium"
@@ -5849,7 +5978,144 @@
   "cardNumberLabel": {
     "message": "Kortnummer"
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Din organisation använder inte längre huvudlösenord för att logga in på Bitwarden. För att fortsätta, verifiera organisationen och domänen."
+  },
+  "continueWithLogIn": {
+    "message": "Fortsätt med inloggning"
+  },
+  "doNotContinue": {
+    "message": "Fortsätt inte"
+  },
+  "domain": {
+    "message": "Domän"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Denna domän kommer att lagra dina krypteringsnycklar, så se till att du litar på den. Om du inte är säker, kontrollera med din administratör."
+  },
+  "verifyYourOrganization": {
+    "message": "Verifiera din organisation för att logga in"
+  },
+  "organizationVerified": {
+    "message": "Organisation verifierad"
+  },
+  "domainVerified": {
+    "message": "Domän verifierad"
+  },
+  "leaveOrganizationContent": {
+    "message": "Om du inte verifierar din organisation kommer din åtkomst till organisationen att återkallas."
+  },
+  "leaveNow": {
+    "message": "Lämna nu"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifiera din domän för att logga in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "För att fortsätta med inloggning, verifiera denna domän."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "För att fortsätta logga in, verifiera organisationen och domänen."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Tidsgränsåtgärd"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Den här inställningen hanteras av din organisation."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Din organisation har ställt in maximal sessionstidsgräns till $HOURS$ timmar och $MINUTES$ minut(er).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Din organisation har ställt in tidsgräns för standardsessionen till Omedelbart."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Din organisation har ställt in tidsgräns för standardsessionen till Vid systemlåsning."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Din organisation har ställt in tidsgräns för standardsessionen till Vid omstart av webbläsaren."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximal tidsgräns får inte överstiga $HOURS$ timmar och $MINUTES$ minut(er)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "Vid omstart av webbläsaren"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Ställ in en upplåsningsmetod för att ändra din tidsgränsåtgärd"
+  },
+  "upgrade": {
+    "message": "Uppgradera"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Är du säker på att du vill lämna?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Genom att avböja kommer dina personliga objekt att stanna på ditt konto, men du kommer att förlora åtkomst till delade objekt och organisationsfunktioner."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Kontakta administratören för att återfå åtkomst."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Lämna $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Hur hanterar jag mitt valv?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Överför objekt till $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ kräver att alla objekt ägs av organisationen för säkerhet och efterlevnad. Klicka på godkänn för att överföra ägarskapet för dina objekt.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Godkänn överföring"
+  },
+  "declineAndLeave": {
+    "message": "Avböj och lämna"
+  },
+  "whyAmISeeingThis": {
+    "message": "Varför ser jag det här?"
+  },
+  "resizeSideNavigation": {
+    "message": "Ändra storlek på sidnavigering"
   }
 }

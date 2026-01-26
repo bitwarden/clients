@@ -60,6 +60,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     "button",
     "image",
     "file",
+    "search",
+    "url",
+    "date",
+    "time",
+    "datetime", // Note: datetime is deprecated in HTML5; keeping here for backwards compatibility
+    "datetime-local",
+    "week",
+    "color",
+    "range",
   ]);
 
   constructor(
@@ -87,7 +96,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   async getPageDetails(): Promise<AutofillPageDetails> {
     // Set up listeners on top-layer candidates that predate Mutation Observer setup
-    this.setupInitialTopLayerListeners();
+    if (this.autofillOverlayContentService) {
+      this.setupInitialTopLayerListeners();
+    }
 
     if (!this.mutationObserver) {
       this.setupMutationObserver();
@@ -1063,17 +1074,21 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   private setupTopLayerCandidateListener = (element: Element) => {
-    const ownedTags = this.autofillOverlayContentService.getOwnedInlineMenuTagNames() || [];
-    this.ownedExperienceTagNames = ownedTags;
+    if (this.autofillOverlayContentService) {
+      const ownedTags = this.autofillOverlayContentService.getOwnedInlineMenuTagNames() || [];
+      this.ownedExperienceTagNames = ownedTags;
 
-    if (!ownedTags.includes(element.tagName)) {
-      element.addEventListener("toggle", (event: ToggleEvent) => {
-        if (event.newState === "open") {
-          // Add a slight delay (but faster than a user's reaction), to ensure the layer
-          // positioning happens after any triggered toggle has completed.
-          setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
-        }
-      });
+      if (!ownedTags.includes(element.tagName)) {
+        element.addEventListener("toggle", (event: ToggleEvent) => {
+          if (event.newState === "open") {
+            // Add a slight delay (but faster than a user's reaction), to ensure the layer
+            // positioning happens after any triggered toggle has completed.
+            setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
+          }
+        });
+
+        this.autofillOverlayContentService.refreshMenuLayerPosition();
+      }
     }
   };
 
@@ -1400,7 +1415,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
       root: null,
       rootMargin: "0px",
-      threshold: 1.0,
+      threshold: 0.9999, // Safari doesn't seem to function properly with a threshold of 1,
     });
   }
 

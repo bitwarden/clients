@@ -6,12 +6,13 @@ import { emptyGuid, UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
-import { makeStaticByteArray, mockEnc } from "../../../../../spec";
+import { makeStaticByteArray, mockContainerService, mockEnc } from "../../../../../spec";
 import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../../platform/services/container.service";
 import { UserKey } from "../../../../types/key";
-import { SendType } from "../../enums/send-type";
+import { AuthType } from "../../types/auth-type";
+import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
 
 import { Send } from "./send";
@@ -25,6 +26,7 @@ describe("Send", () => {
       id: "id",
       accessId: "accessId",
       type: SendType.Text,
+      authType: AuthType.None,
       name: "encName",
       notes: "encNotes",
       text: {
@@ -43,6 +45,8 @@ describe("Send", () => {
       disabled: false,
       hideEmail: true,
     };
+
+    mockContainerService();
   });
 
   it("Convert from empty", () => {
@@ -53,6 +57,7 @@ describe("Send", () => {
       id: null,
       accessId: null,
       type: undefined,
+      authType: undefined,
       name: null,
       notes: null,
       text: undefined,
@@ -76,6 +81,7 @@ describe("Send", () => {
       id: "id",
       accessId: "accessId",
       type: SendType.Text,
+      authType: AuthType.None,
       name: { encryptedString: "encName", encryptionType: 0 },
       notes: { encryptedString: "encNotes", encryptionType: 0 },
       text: {
@@ -105,6 +111,7 @@ describe("Send", () => {
     send.id = "id";
     send.accessId = "accessId";
     send.type = SendType.Text;
+    send.authType = AuthType.None;
     send.name = mockEnc("name");
     send.notes = mockEnc("notes");
     send.text = text;
@@ -143,6 +150,7 @@ describe("Send", () => {
       name: "name",
       notes: "notes",
       type: 0,
+      authType: 2,
       key: expect.anything(),
       cryptoKey: "cryptoKey",
       file: expect.anything(),

@@ -138,10 +138,8 @@ export class EditCommand {
       );
     }
 
-    const encCipher = await this.cipherService.encrypt(cipherView, activeUserId);
     try {
-      const updatedCipher = await this.cipherService.updateWithServer(encCipher);
-      const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
+      const decCipher = await this.cipherService.updateWithServer(cipherView, activeUserId);
       const res = new CipherResponse(decCipher);
       return Response.success(res);
     } catch (e) {
@@ -186,15 +184,15 @@ export class EditCommand {
       return Response.notFound();
     }
 
-    let folderView = await folder.decrypt();
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    let folderView = await folder.decrypt(userKey);
     folderView = FolderExport.toView(req, folderView);
 
-    const userKey = await this.keyService.getUserKey(activeUserId);
     const encFolder = await this.folderService.encrypt(folderView, userKey);
     try {
       const folder = await this.folderApiService.save(encFolder, activeUserId);
       const updatedFolder = new Folder(folder);
-      const decFolder = await updatedFolder.decrypt();
+      const decFolder = await updatedFolder.decrypt(userKey);
       const res = new FolderResponse(decFolder);
       return Response.success(res);
     } catch (e) {

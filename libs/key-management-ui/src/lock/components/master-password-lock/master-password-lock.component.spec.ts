@@ -6,23 +6,29 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/client-type";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
   ButtonModule,
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
 import { BiometricsStatus } from "@bitwarden/key-management";
+import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UserId } from "@bitwarden/user-core";
 
 import { UnlockOption, UnlockOptions } from "../../services/lock-component.service";
+import { WebAuthnPrfUnlockService } from "../../services/webauthn-prf-unlock.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock.component";
 
@@ -35,13 +41,18 @@ describe("MasterPasswordLockComponent", () => {
   const i18nService = mock<I18nService>();
   const toastService = mock<ToastService>();
   const logService = mock<LogService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
+  const messageListener = mock<MessageListener>();
+  const webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
+  const dialogService = mock<DialogService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
     id: "user-id" as UserId,
-    email: "user@example.com",
-    emailVerified: true,
-    name: "User",
+    ...mockAccountInfoWith({
+      email: "user@example.com",
+      name: "User",
+    }),
   };
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
@@ -57,6 +68,7 @@ describe("MasterPasswordLockComponent", () => {
         enabled: false,
         biometricsStatus: BiometricsStatus.NotEnabledLocally,
       },
+      prf: { enabled: false },
     };
 
     accountService.activeAccount$ = of(account);
@@ -101,6 +113,10 @@ describe("MasterPasswordLockComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: logService },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: MessageListener, useValue: messageListener },
+        { provide: WebAuthnPrfUnlockService, useValue: webAuthnPrfUnlockService },
+        { provide: DialogService, useValue: dialogService },
       ],
     }).compileComponents();
 
@@ -276,6 +292,29 @@ describe("MasterPasswordLockComponent", () => {
       fixture.detectChanges();
 
       expect(inputElement.type).toEqual("password");
+    });
+  });
+
+  describe("ngOnInit", () => {
+    test.each([ClientType.Browser, ClientType.Web])(
+      "does nothing when client type is %s",
+      async (clientType) => {
+        platformUtilsService.getClientType.mockReturnValue(clientType);
+        messageListener.messages$.mockReturnValue(of({}));
+
+        await component.ngOnInit();
+
+        expect(messageListener.messages$).not.toHaveBeenCalled();
+      },
+    );
+
+    it("subscribes to windowHidden messages when client type is Desktop", async () => {
+      platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+      messageListener.messages$.mockReturnValue(of({}));
+
+      await component.ngOnInit();
+
+      expect(messageListener.messages$).toHaveBeenCalledWith(new CommandDefinition("windowHidden"));
     });
   });
 

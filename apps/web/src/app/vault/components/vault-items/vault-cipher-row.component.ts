@@ -8,9 +8,10 @@ import {
   OnInit,
   Output,
   ViewChild,
+  input,
 } from "@angular/core";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -101,8 +102,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() userCanArchive: boolean;
+  /** Archive feature is enabled */
+  readonly archiveEnabled = input.required<boolean>();
   /**
-   * Enforge Org Data Ownership Policy Status
+   * Enforce Org Data Ownership Policy Status
    */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -141,18 +144,26 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
   }
 
+  // Archive button will not show in Admin Console
   protected get showArchiveButton() {
+    if (!this.archiveEnabled() || this.viewingOrgVault) {
+      return false;
+    }
+
     return (
-      this.userCanArchive &&
-      !CipherViewLikeUtils.isArchived(this.cipher) &&
-      !CipherViewLikeUtils.isDeleted(this.cipher) &&
-      !this.cipher.organizationId
+      !CipherViewLikeUtils.isArchived(this.cipher) && !CipherViewLikeUtils.isDeleted(this.cipher)
     );
   }
 
   // If item is archived always show unarchive button, even if user is not premium
   protected get showUnArchiveButton() {
-    return CipherViewLikeUtils.isArchived(this.cipher);
+    if (!this.archiveEnabled()) {
+      return false;
+    }
+
+    return (
+      CipherViewLikeUtils.isArchived(this.cipher) && !CipherViewLikeUtils.isDeleted(this.cipher)
+    );
   }
 
   protected get clickAction() {
@@ -182,7 +193,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // Do not show attachments button if:
   // item is archived AND user is not premium user
   protected get showAttachments() {
-    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+    if ((CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) || this.isDeleted) {
       return false;
     }
     return this.canEditCipher || this.hasAttachments;
@@ -208,11 +219,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
-  // Do Not show Assign to Collections option if item is archived
   protected get showAssignToCollections() {
-    if (CipherViewLikeUtils.isArchived(this.cipher)) {
-      return false;
-    }
     return (
       this.organizations?.length &&
       this.canAssignCollections &&
@@ -243,14 +250,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
       !CipherViewLikeUtils.isDeleted(this.cipher) &&
       !CipherViewLikeUtils.isArchived(this.cipher)
     );
-  }
-
-  protected get hasPasswordToCopy() {
-    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "password");
-  }
-
-  protected get hasUsernameToCopy() {
-    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "username");
   }
 
   protected get permissionText() {
@@ -311,6 +310,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get isIdentityCipher() {
+    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+      return false;
+    }
     return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Identity && !this.isDeleted;
   }
 
@@ -384,6 +386,18 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
 
     return this.organization.canEditAllCiphers || (this.cipher.edit && this.cipher.viewPassword);
+  }
+
+  protected get showFavorite() {
+    if (
+      (!this.viewingOrgVault &&
+        CipherViewLikeUtils.isArchived(this.cipher) &&
+        !this.userCanArchive) ||
+      CipherViewLikeUtils.isDeleted(this.cipher)
+    ) {
+      return false;
+    }
+    return true;
   }
 
   protected toggleFavorite() {

@@ -17,7 +17,7 @@ export default {
 
 const {
   // Filtering out the few non-icons in the libs/assets/svg import
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   DynamicContentNotAllowedError: _DynamicContentNotAllowedError,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isIcon,

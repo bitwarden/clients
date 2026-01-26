@@ -14,6 +14,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
@@ -28,7 +29,7 @@ import {
   EncryptedString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { WrappedSigningKey } from "@bitwarden/common/key-management/types";
+import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -46,6 +47,7 @@ import {
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
   USER_KEY_ENCRYPTED_SIGNING_KEY,
+  USER_SIGNED_PUBLIC_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -203,26 +205,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) != null;
   }
 
-  async makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]> {
-    if (masterKey == null) {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (userId == null) {
-        throw new Error("No active user id found.");
-      }
-
-      masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    }
-    if (masterKey == null) {
-      throw new Error("No Master Key found.");
+  async makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]> {
+    if (!masterKey) {
+      throw new Error("MasterKey is required");
     }
 
     const newUserKey = await this.keyGenerationService.createKey(512);
     return this.buildProtectedSymmetricKey(masterKey, newUserKey);
-  }
-
-  async makeUserKeyV1(): Promise<UserKey> {
-    const newUserKey = await this.keyGenerationService.createKey(512);
-    return newUserKey as UserKey;
   }
 
   /**
@@ -683,21 +672,30 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId) {
-    let shouldStoreKey = false;
     switch (keySuffix) {
       case KeySuffixOptions.Auto: {
+        // Cli has fixed Never vault timeout, and it should not be affected by a policy.
+        if (this.platformUtilService.getClientType() == ClientType.Cli) {
+          return true;
+        }
+
         // TODO: Sharing the UserKeyDefinition is temporary to get around a circ dep issue between
         // the VaultTimeoutSettingsSvc and this service.
         // This should be fixed as part of the PM-7082 - Auto Key Service work.
         const vaultTimeout = await firstValueFrom(
-          this.stateProvider.getUserState$(VAULT_TIMEOUT, userId),
+          this.stateProvider
+            .getUserState$(VAULT_TIMEOUT, userId)
+            .pipe(filter((timeout) => timeout != null)),
         );
 
-        shouldStoreKey = vaultTimeout == VaultTimeoutStringType.Never;
-        break;
+        this.logService.debug(
+          `[KeyService] Should store auto key for vault timeout ${vaultTimeout}`,
+        );
+
+        return vaultTimeout == VaultTimeoutStringType.Never;
       }
     }
-    return shouldStoreKey;
+    return false;
   }
 
   protected async getKeyFromStorage(
@@ -801,7 +799,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$;
   }
 
-  private userPrivateKeyHelper$(userId: UserId) {
+  private userPrivateKeyHelper$(userId: UserId): Observable<{
+    userKey: UserKey;
+    userPrivateKey: UserPrivateKey | null;
+  } | null> {
     const userKey$ = this.userKey$(userId);
     return userKey$.pipe(
       switchMap((userKey) => {
@@ -811,18 +812,20 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
         return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$.pipe(
           switchMap(async (encryptedPrivateKey) => {
-            try {
-              return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
-            } catch (e) {
-              this.logService.error("Failed to decrypt private key for user ", userId, e);
-              throw e;
-            }
+            return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
           }),
           // Combine outerscope info with user private key
           map((userPrivateKey) => ({
             userKey,
             userPrivateKey,
           })),
+          catchError((err: unknown) => {
+            this.logService.error(`Failed to decrypt private key for user ${userId}`);
+            return of({
+              userKey,
+              userPrivateKey: null,
+            });
+          }),
         );
       }),
     );
@@ -1012,5 +1015,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         );
       }),
     );
+  }
+
+  async setSignedPublicKey(signedPublicKey: SignedPublicKey, userId: UserId): Promise<void> {
+    await this.stateProvider.setUserState(USER_SIGNED_PUBLIC_KEY, signedPublicKey, userId);
+  }
+
+  userSignedPublicKey$(userId: UserId): Observable<SignedPublicKey | null> {
+    return this.stateProvider.getUserState$(USER_SIGNED_PUBLIC_KEY, userId);
   }
 }
