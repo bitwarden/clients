@@ -142,7 +142,7 @@ jobs:
         run: cargo +nightly udeps --workspace --all-features --all-targets
 
       - name: Install cargo-deny
-        uses: taiki-e/install-action@2e9d707ef49c9b094d45955b60c7e5c0dfedeb14 # v2.66.5
+        uses: taiki-e/install-action@542cebaaed782771e619bd5609d97659d109c492 # v2.66.7
         with:
           tool: cargo-deny@0.18.6
 
