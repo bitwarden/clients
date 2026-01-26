@@ -13,6 +13,7 @@ import {
   PersonalSubscriptionPricingTierIds,
   BusinessSubscriptionPricingTierId,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
@@ -103,6 +104,7 @@ describe("UnifiedUpgradeDialogComponent", () => {
   const mockRouter = mock<Router>();
   const mockPremiumInterestStateService = mock<PremiumInterestStateService>();
   const mockBillingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+  const mockConfigService = mock<ConfigService>();
   const mockAccount: Account = {
     id: "user-id" as UserId,
     ...mockAccountInfoWith({
@@ -142,6 +144,7 @@ describe("UnifiedUpgradeDialogComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: mockBillingAccountProfileStateService,
         },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     })
       .overrideComponent(UnifiedUpgradeDialogComponent, {
@@ -182,6 +185,7 @@ describe("UnifiedUpgradeDialogComponent", () => {
     // Default mock: no premium interest
     mockPremiumInterestStateService.getPremiumInterest.mockResolvedValue(false);
     mockBillingAccountProfileStateService.hasPremiumPersonally$.mockReturnValue(of(true));
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     await TestBed.configureTestingModule({
       imports: [UnifiedUpgradeDialogComponent],
       providers: [
@@ -193,6 +197,7 @@ describe("UnifiedUpgradeDialogComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: mockBillingAccountProfileStateService,
         },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     })
       .overrideComponent(UnifiedUpgradeDialogComponent, {
@@ -471,7 +476,95 @@ describe("UnifiedUpgradeDialogComponent", () => {
     });
   });
 
-  describe("Premium Org Upgrade edge cases", () => {
+  describe("Child Component Display Logic", () => {
+    describe("Plan Selection Step", () => {
+      it("should display app-upgrade-account when user does not have premium personally", async () => {
+        mockBillingAccountProfileStateService.hasPremiumPersonally$.mockReturnValue(of(false));
+        mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+
+        const { fixture } = await createComponentWithDialogData(defaultDialogData);
+
+        const upgradeAccountElement = fixture.nativeElement.querySelector("app-upgrade-account");
+        const premiumOrgUpgradeElement =
+          fixture.nativeElement.querySelector("app-premium-org-upgrade");
+
+        expect(upgradeAccountElement).toBeTruthy();
+        expect(premiumOrgUpgradeElement).toBeFalsy();
+      });
+
+      it("should display app-upgrade-account when user has premium but feature flag is disabled", async () => {
+        mockBillingAccountProfileStateService.hasPremiumPersonally$.mockReturnValue(of(true));
+        mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+
+        const { fixture } = await createComponentWithDialogData(defaultDialogData);
+
+        const upgradeAccountElement = fixture.nativeElement.querySelector("app-upgrade-account");
+        const premiumOrgUpgradeElement =
+          fixture.nativeElement.querySelector("app-premium-org-upgrade");
+
+        expect(upgradeAccountElement).toBeTruthy();
+        expect(premiumOrgUpgradeElement).toBeFalsy();
+      });
+
+      it("should display app-premium-org-upgrade when user has premium and feature flag is enabled", async () => {
+        mockBillingAccountProfileStateService.hasPremiumPersonally$.mockReturnValue(of(true));
+        mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+        const { fixture } = await createComponentWithDialogData(defaultDialogData);
+
+        const upgradeAccountElement = fixture.nativeElement.querySelector("app-upgrade-account");
+        const premiumOrgUpgradeElement =
+          fixture.nativeElement.querySelector("app-premium-org-upgrade");
+
+        expect(upgradeAccountElement).toBeFalsy();
+        expect(premiumOrgUpgradeElement).toBeTruthy();
+      });
+    });
+
+    describe("Payment Step", () => {
+      it("should display app-upgrade-payment when user does not have premium personally", async () => {
+        mockBillingAccountProfileStateService.hasPremiumPersonally$.mockReturnValue(of(false));
+
+        const customDialogData: UnifiedUpgradeDialogParams = {
+          account: mockAccount,
+          initialStep: UnifiedUpgradeDialogStep.Payment,
+          selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
+        };
+
+        const { fixture } = await createComponentWithDialogData(customDialogData);
+
+        const upgradePaymentElement = fixture.nativeElement.querySelector("app-upgrade-payment");
+        const premiumOrgUpgradePaymentElement = fixture.nativeElement.querySelector(
+          "app-premium-org-upgrade-payment",
+        );
+
+        expect(upgradePaymentElement).toBeTruthy();
+        expect(premiumOrgUpgradePaymentElement).toBeFalsy();
+      });
+
+      it("should display app-premium-org-upgrade-payment when user has premium personally", async () => {
+        mockBillingAccountProfileStateService.hasPremiumPersonally$.mockReturnValue(of(true));
+
+        const customDialogData: UnifiedUpgradeDialogParams = {
+          account: mockAccount,
+          initialStep: UnifiedUpgradeDialogStep.Payment,
+          selectedPlan: "teams" as BusinessSubscriptionPricingTierId,
+        };
+
+        const { fixture } = await createComponentWithDialogData(customDialogData);
+
+        const upgradePaymentElement = fixture.nativeElement.querySelector("app-upgrade-payment");
+        const premiumOrgUpgradePaymentElement = fixture.nativeElement.querySelector(
+          "app-premium-org-upgrade-payment",
+        );
+
+        expect(upgradePaymentElement).toBeFalsy();
+        expect(premiumOrgUpgradePaymentElement).toBeTruthy();
+      });
+    });
+  });
+
+  describe("Premium Org Upgrade", () => {
     it("should handle selecting a business plan (Teams) and move to payment step", async () => {
       const { component } = await createComponentWithDialogData(defaultDialogData);
 
@@ -532,19 +625,6 @@ describe("UnifiedUpgradeDialogComponent", () => {
 
       expect(component["step"]()).toBe(UnifiedUpgradeDialogStep.PlanSelection);
       expect(component["selectedPlan"]()).toBeNull();
-    });
-
-    it("should initialize with business plan when specified", async () => {
-      const customDialogData: UnifiedUpgradeDialogParams = {
-        account: mockAccount,
-        initialStep: UnifiedUpgradeDialogStep.Payment,
-        selectedPlan: "teams" as BusinessSubscriptionPricingTierId,
-      };
-
-      const { component: customComponent } = await createComponentWithDialogData(customDialogData);
-
-      expect(customComponent["step"]()).toBe(UnifiedUpgradeDialogStep.Payment);
-      expect(customComponent["selectedPlan"]()).toBe("teams");
     });
 
     it("should handle closed status during premium org upgrade", async () => {

@@ -1,5 +1,5 @@
 @if (step() == PlanSelectionStep) {
-  @if (hasPremiumPersonally()) {
+  @if (hasPremiumPersonally() && premiumToOrganizationUpgradeEnabled()) {
     <app-premium-org-upgrade
       (planSelected)="onPlanSelected($event)"
       (closeClicked)="onCloseClicked()"

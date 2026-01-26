@@ -18,6 +18,8 @@ import {
   BusinessSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierId,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   ButtonModule,
@@ -115,6 +117,11 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     { initialValue: false },
   );
 
+  readonly premiumToOrganizationUpgradeEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM29593_PremiumToOrganizationUpgrade),
+    { initialValue: false },
+  );
+
   // Type-narrowed computed signal for app-upgrade-payment
   // When hasPremiumPersonally is false, selectedPlan will only contain PersonalSubscriptionPricingTierId
   protected readonly selectedPersonalPlanId = computed<PersonalSubscriptionPricingTierId | null>(
@@ -130,6 +137,7 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     private router: Router,
     private premiumInterestStateService: PremiumInterestStateService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
