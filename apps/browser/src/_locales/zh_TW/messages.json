@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "使用密碼金鑰登入"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "使用單一登入"
   },
@@ -573,17 +576,29 @@
   "itemWasSentToArchive": {
     "message": "項目已移至封存"
   },
+  "itemWasUnarchived": {
+    "message": "已取消封存項目"
+  },
   "itemUnarchived": {
     "message": "項目取消封存"
   },
   "archiveItem": {
     "message": "封存項目"
   },
-  "archiveItemConfirmDesc": {
-    "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
+  "archiveItemDialogContent": {
+    "message": "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。"
+  },
+  "archived": {
+    "message": "已封存"
+  },
+  "unarchiveAndSave": {
+    "message": "取消封存並儲存"
   },
   "upgradeToUseArchive": {
     "message": "需要進階版會員才能使用封存功能。"
+  },
+  "itemRestored": {
+    "message": "已還原項目"
   },
   "edit": {
     "message": "編輯"
@@ -1533,6 +1548,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "專有的兩步驟登入選項，例如 YubiKey 和 Duo。"
   },
+  "premiumSubscriptionEnded": {
+    "message": "您的進階版訂閱已到期"
+  },
+  "archivePremiumRestart": {
+    "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
+  },
+  "restartPremium": {
+    "message": "重新啟用進階版"
+  },
   "ppremiumSignUpReports": {
     "message": "密碼健康度檢查、提供帳戶體檢以及資料外洩報告，以保障您的密碼庫安全。"
   },
@@ -2452,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "項目已永久刪除"
   },
+  "archivedItemRestored": {
+    "message": "已還原封存項目"
+  },
   "restoreItem": {
     "message": "還原項目"
   },
@@ -3342,6 +3369,12 @@
   },
   "error": {
     "message": "錯誤"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "解密發生錯誤"
@@ -4718,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "更多選項"
+  },
   "moreOptionsTitle": {
     "message": "更多選項 - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4807,6 +4843,39 @@
   },
   "adminConsole": {
     "message": "管理控制台"
+  },
+  "admin": {
+    "message": "管理員"
+  },
+  "automaticUserConfirmation": {
+    "message": "自動使用者確認"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "在此裝置解鎖時自動確認待處理的使用者"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "透過自動使用者確認節省時間"
+  },
+  "autoConfirmWarning": {
+    "message": "可能影響您的組織資料安全性。"
+  },
+  "autoConfirmWarningLink": {
+    "message": "了解風險"
+  },
+  "autoConfirmSetup": {
+    "message": "自動確認新使用者"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "當此裝置處於解鎖狀態時，新的使用者將會自動獲得確認。"
+  },
+  "autoConfirmSetupHint": {
+    "message": "潛在的安全性風險有哪些？"
+  },
+  "autoConfirmEnabled": {
+    "message": "開啟自動確認"
+  },
+  "availableNow": {
+    "message": "立即可用"
   },
   "accountSecurity": {
     "message": "帳戶安全性"
@@ -5071,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "隱藏偵測到的吻合 $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "顯示比對偵測"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "隱藏比對偵測"
   },
   "autoFillOnPageLoad": {
     "message": "在頁面載入時自動填寫？"
@@ -5616,6 +5682,9 @@
   "extraWide": {
     "message": "超寬"
   },
+  "narrow": {
+    "message": "縮小"
+  },
   "sshKeyWrongPassword": {
     "message": "您輸入的密碼錯誤。"
   },
@@ -5663,6 +5732,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
+  },
+  "vulnerablePassword": {
+    "message": "有安全疑慮的密碼。"
+  },
+  "changeNow": {
+    "message": "立即變更"
   },
   "missingWebsite": {
     "message": "缺少網站"

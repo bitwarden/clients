@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Il n'y a pas de membres à répertorier."
   },
+  "noMembersToExport": {
+    "message": "Il n'y a aucun membre à exporter."
+  },
   "noEventsInList": {
     "message": "Aucun événement à afficher."
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "Activé"
   },
+  "optionEnabled": {
+    "message": "Activé"
+  },
   "restoreAccess": {
     "message": "Restaurer l'Accès"
   },
@@ -3145,6 +3151,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Pour récupérer l'accès à vos archives, redémarrez votre abonnement Premium. Si vous modifiez les détails d'un élément archivé avant de le redémarrer, il sera déplacé dans votre coffre."
+  },
+  "itemRestored": {
+    "message": "L'élément a été restauré"
   },
   "restartPremium": {
     "message": "Redémarrer Premium"
@@ -5409,6 +5418,12 @@
   "restoreSelected": {
     "message": "Restaurer la sélection"
   },
+  "archivedItemRestored": {
+    "message": "Élément archivé restauré"
+  },
+  "archivedItemsRestored": {
+    "message": "Élément archivé restauré"
+  },
   "restoredItem": {
     "message": "Élément restauré"
   },
@@ -5607,6 +5622,37 @@
     "message": "Send créé",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send créé avec succès !",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copiez et partagez ce lien Send. Le Send sera disponible à quiconque avec le lien pour les prochains $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ heures",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Nouveau texte Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Nouveau fichier Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send modifié",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5645,6 +5691,9 @@
   },
   "revoked": {
     "message": "Révoqué"
+  },
+  "accepted": {
+    "message": "Accepté"
   },
   "sendLink": {
     "message": "Lien du Send",
@@ -5865,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centraliser la propriété de l'organisation"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Tous les éléments du membre seront détenus et gérés par l'organisation. Les administrateurs et les propriétaires sont exemptés. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "En savoir plus sur la propriété centralisée",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Les bénéfices"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gagnez une pleine visibilité sur la santé des identifiants, y compris les éléments partagés et non partagés."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Transférez facilement les éléments pendant la période de lancement et de succession du membre, en veillant à ce qu'il n'y ait pas de manques d'accès."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Donnez à tous les utilisateurs un espace dédié \"Mes éléments\" pour gérer leurs propres identifiants."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Demander aux membres de transférer leurs éléments"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Si les membres ont des éléments dans leur coffre individuel, ils seront invités à les transférer à l'organisation ou à quitter. S'ils quittent, leur accès est révoqué mais peut être restauré à tout moment."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "En savoir plus sur le transfert"
   },
   "organizationDataOwnership": {
     "message": "Forcer la propriété des données de l'organisation"
@@ -6303,6 +6383,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Inscrit à la récupération du compte"
+  },
+  "enrolled": {
+    "message": "Inscrit"
+  },
+  "notEnrolled": {
+    "message": "Non inscrit"
   },
   "withdrawAccountRecovery": {
     "message": "Retirer de la récupération du compte"
@@ -10346,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Envoyer les données de l'événement du coffre à votre instance Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Envoyer les données de l'événement à votre instance de Huntress SIEM"
+  },
   "failedToSaveIntegration": {
     "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
   },
@@ -10456,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "URL HTTP du Collecterur d'Événements"
+  },
+  "httpEventCollectorToken": {
+    "message": "Jeton du Collecteur d'Événements HTTP"
   },
   "selectAPlan": {
     "message": "Sélectionnez un plan"
@@ -11571,6 +11666,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
   },
+  "vulnerablePassword": {
+    "message": "Mot de passe vulnérable."
+  },
+  "changeNow": {
+    "message": "Changer maintenant"
+  },
   "missingWebsite": {
     "message": "Site Web manquant"
   },
@@ -11609,6 +11710,9 @@
   "unArchive": {
     "message": "Désarchiver"
   },
+  "archived": {
+    "message": "Archivé"
+  },
   "unArchiveAndSave": {
     "message": "Désarchiver et enregistrer"
   },
@@ -11627,6 +11731,9 @@
   "itemsWereSentToArchive": {
     "message": "Les éléments ont été envoyés à l'archive"
   },
+  "itemWasUnarchived": {
+    "message": "L'élément a été désarchivé"
+  },
   "itemUnarchived": {
     "message": "L'élément a été désarchivé"
   },
@@ -11640,8 +11747,8 @@
     "message": "Archiver l'élément",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
+  "archiveItemDialogContent": {
+    "message": "Une fois archivé, cet élément sera exclu des résultats de recherche et des suggestions de remplissage automatique."
   },
   "archiveBulkItems": {
     "message": "Archiver les éléments",
@@ -11993,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Vérifier maintenant."
+  },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
   },
   "additionalStorageGB": {
     "message": "Stockage additionnel (Go)"
@@ -12485,5 +12601,88 @@
   },
   "planDescPremium": {
     "message": "Sécurité en ligne complète"
+  },
+  "updatePayment": {
+    "message": "Mettre à jour le paiement"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Nous n'avons pas pu traiter votre paiement. Veuillez mettre à jour votre méthode de paiement ou contactez l'équipe de support pour obtenir de l'assistance."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Votre abonnement a expiré. Veuillez contacter l'équipe de suuport pour obtenir de l'assistance."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Votre abonnement est programmé pour terminer le $DATE$. Vous pouvez le rétablir à tout moment avant cette date.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Partagez encore plus avec Familles, ou obtenez une sécurité de mot de passe puissante et fiable avec Équipes ou Entreprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Vous bénéficiez d'une période de grace de $DAYS$ jours suivants la date d'expiration de votre abonnement. Veuillez régler les paiements en souffrance pour les factures dont les échéances sont passées d'ici le $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Gérer les factures"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Votre prochaine charge est de"
+  },
+  "dueOn": {
+    "message": "dû le"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Votre abonnement sera suspendu le"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Votre abonnement a été suspendu le"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Votre abonnement sera annulé le"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Votre abonnement a été annulé le"
+  },
+  "storageFull": {
+    "message": "Stockage plein"
+  },
+  "storageUsedDescription": {
+    "message": "Vous avez utilisé $USED$ sur $AVAILABLE$ Go de votre stockage de fichiers chiffré.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Vous avez utilisé tous les $GB$ Go de votre stockage chiffré. Pour continuer à stocker des fichiers, ajoutez plus de stockage."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Lorsque vous supprimez le stockage, vous recevrez un crédit de compte au prorata qui sera automatiquement appliqué à votre prochaine facture."
+  },
+  "youHavePremium": {
+    "message": "Vous avez Premium"
+  },
+  "emailProtected": {
+    "message": "Protégé par courriel"
   }
 }
