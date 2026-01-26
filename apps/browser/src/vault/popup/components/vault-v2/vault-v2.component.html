@@ -1,4 +1,4 @@
-<popup-page [loading]="showSpinnerLoaders$ | async" [hideOverflow]="showSkeletonsLoaders$ | async">
+<popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -8,37 +8,28 @@
     </ng-container>
   </popup-header>
 
-  <ng-template #emptyVaultTemplate>
-    <div
-      *ngIf="vaultState === VaultStateEnum.Empty"
-      class="tw-flex tw-flex-col tw-h-full tw-justify-center"
-    >
-      <bit-no-items [icon]="vaultIcon">
-        <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
-        <ng-container slot="description">
-          <p bitTypography="body2" class="tw-mx-6 tw-mt-2">
-            {{ "emptyVaultDescription" | i18n }}
-          </p>
-        </ng-container>
-        <a
-          slot="button"
-          bitButton
-          buttonType="secondary"
-          [routerLink]="['/add-cipher']"
-          [queryParams]="{ prefillNameAndURIFromTab: true }"
-        >
-          {{ "newLogin" | i18n }}
-        </a>
-      </bit-no-items>
-    </div>
-  </ng-template>
-
-  @if (skeletonFeatureFlag$ | async) {
-    <vault-fade-in-out *ngIf="vaultState === VaultStateEnum.Empty">
-      <ng-container *ngTemplateOutlet="emptyVaultTemplate"></ng-container>
+  @if (vaultState === VaultStateEnum.Empty) {
+    <vault-fade-in-out>
+      <div class="tw-flex tw-flex-col tw-h-full tw-justify-center">
+        <bit-no-items [icon]="vaultIcon">
+          <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
+          <ng-container slot="description">
+            <p bitTypography="body2" class="tw-mx-6 tw-mt-2">
+              {{ "emptyVaultDescription" | i18n }}
+            </p>
+          </ng-container>
+          <a
+            slot="button"
+            bitButton
+            buttonType="secondary"
+            [routerLink]="['/add-cipher']"
+            [queryParams]="{ prefillNameAndURIFromTab: true }"
+          >
+            {{ "newLogin" | i18n }}
+          </a>
+        </bit-no-items>
+      </div>
     </vault-fade-in-out>
-  } @else {
-    <ng-container *ngTemplateOutlet="emptyVaultTemplate"></ng-container>
   }
 
   <blocked-injection-banner
@@ -113,31 +104,25 @@
       </div>
     </div>
 
-    <ng-template #vaultContentTemplate>
-      <ng-container *ngIf="vaultState === null && !(loading$ | async)">
-        <app-autofill-vault-list-items></app-autofill-vault-list-items>
-        <app-vault-list-items-container
-          [title]="'favorites' | i18n"
-          [ciphers]="(favoriteCiphers$ | async) || []"
-          id="favorites"
-          collapsibleKey="favorites"
-        ></app-vault-list-items-container>
-        <app-vault-list-items-container
-          [title]="'allItems' | i18n"
-          [ciphers]="(remainingCiphers$ | async) || []"
-          id="allItems"
-          disableSectionMargin
-          collapsibleKey="allItems"
-        ></app-vault-list-items-container>
-      </ng-container>
-    </ng-template>
-
-    @if (skeletonFeatureFlag$ | async) {
-      <vault-fade-in-out *ngIf="vaultState === null">
-        <ng-container *ngTemplateOutlet="vaultContentTemplate"></ng-container>
+    @if (vaultState === null) {
+      <vault-fade-in-out>
+        @if (!(loading$ | async)) {
+          <app-autofill-vault-list-items></app-autofill-vault-list-items>
+          <app-vault-list-items-container
+            [title]="'favorites' | i18n"
+            [ciphers]="(favoriteCiphers$ | async) || []"
+            id="favorites"
+            collapsibleKey="favorites"
+          ></app-vault-list-items-container>
+          <app-vault-list-items-container
+            [title]="'allItems' | i18n"
+            [ciphers]="(remainingCiphers$ | async) || []"
+            id="allItems"
+            disableSectionMargin
+            collapsibleKey="allItems"
+          ></app-vault-list-items-container>
+        }
       </vault-fade-in-out>
-    } @else {
-      <ng-container *ngTemplateOutlet="vaultContentTemplate"></ng-container>
     }
   </ng-container>
 
