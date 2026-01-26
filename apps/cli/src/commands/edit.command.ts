@@ -138,10 +138,8 @@ export class EditCommand {
       );
     }
 
-    const encCipher = await this.cipherService.encrypt(cipherView, activeUserId);
     try {
-      const updatedCipher = await this.cipherService.updateWithServer(encCipher);
-      const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
+      const decCipher = await this.cipherService.updateWithServer(cipherView, activeUserId);
       const res = new CipherResponse(decCipher);
       return Response.success(res);
     } catch (e) {

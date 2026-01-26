@@ -444,10 +444,9 @@ export class Fido2Component implements OnInit, OnDestroy {
     );
 
     this.buildCipher(name, username);
-    const encrypted = await this.cipherService.encrypt(this.cipher, activeUserId);
     try {
-      await this.cipherService.createWithServer(encrypted);
-      this.cipher.id = encrypted.cipher.id;
+      const result = await this.cipherService.createWithServer(this.cipher, activeUserId);
+      this.cipher.id = result.id;
     } catch (e) {
       this.logService.error(e);
     }

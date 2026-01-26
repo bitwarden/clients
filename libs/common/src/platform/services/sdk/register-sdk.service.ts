@@ -62,7 +62,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
       await SdkLoadService.Ready;
-      const settings = this.toSettings(env);
+      const settings = await this.toSettings(env);
       const client = await this.sdkClientFactory.createSdkClient(
         new JsTokenProvider(this.apiService),
         settings,
@@ -137,7 +137,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
               return undefined;
             }
 
-            const settings = this.toSettings(env);
+            const settings = await this.toSettings(env);
             const client = await this.sdkClientFactory.createSdkClient(
               new JsTokenProvider(this.apiService, userId),
               settings,
@@ -185,12 +185,13 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     client.platform().load_flags(featureFlagMap);
   }
 
-  private toSettings(env: Environment): ClientSettings {
+  private async toSettings(env: Environment): Promise<ClientSettings> {
     return {
       apiUrl: env.getApiUrl(),
       identityUrl: env.getIdentityUrl(),
       deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
       userAgent: this.userAgent ?? navigator.userAgent,
+      bitwardenClientVersion: await this.platformUtilsService.getApplicationVersionNumber(),
     };
   }
 }
