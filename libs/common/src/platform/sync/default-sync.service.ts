@@ -6,8 +6,8 @@ import { firstValueFrom, map } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import {
-  CollectionDetailsResponse,
   CollectionData,
+  CollectionDetailsResponse,
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
@@ -15,9 +15,13 @@ import { SecurityStateService } from "@bitwarden/common/key-management/security-
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  UserDecryptionOptions,
+  WebAuthnPrfUserDecryptionOption,
+} from "../../../../auth/src/common";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "../../../../auth/src/common/types";
@@ -93,7 +97,7 @@ export class DefaultSyncService extends CoreSyncService {
     folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
     sendApiService: SendApiService,
-    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private avatarService: AvatarService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: UserId) => Promise<void>,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -449,6 +453,44 @@ export class DefaultSyncService extends CoreSyncService {
         userId,
       );
       await this.kdfConfigService.setKdfConfig(userId, masterPasswordUnlockData.kdf);
+    }
+
+    // Update WebAuthn PRF options if present
+    if (userDecryption.webAuthnPrfOptions != null && userDecryption.webAuthnPrfOptions.length > 0) {
+      try {
+        // Only update if this is the active user, since setUserDecryptionOptions()
+        // operates on the active user's state
+        const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+
+        if (activeAccount?.id !== userId) {
+          return;
+        }
+
+        // Get current options without blocking if they don't exist yet
+        const currentUserDecryptionOptions = await firstValueFrom(
+          this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+        ).catch((): UserDecryptionOptions | null => {
+          return null;
+        });
+
+        if (currentUserDecryptionOptions != null) {
+          // Update the PRF options while preserving other decryption options
+          const updatedOptions = Object.assign(
+            new UserDecryptionOptions(),
+            currentUserDecryptionOptions,
+          );
+          updatedOptions.webAuthnPrfOptions = userDecryption.webAuthnPrfOptions
+            .map((option) => WebAuthnPrfUserDecryptionOption.fromResponse(option))
+            .filter((option) => option !== undefined);
+
+          await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+            activeAccount.id,
+            updatedOptions,
+          );
+        }
+      } catch (error) {
+        this.logService.error("[Sync] Failed to update WebAuthn PRF options:", error);
+      }
     }
   }
 }
