@@ -1,0 +1,31 @@
+{
+  "name": "Bitwarden Clients (macOS / GitHub Codespaces)",
+  "dockerComposeFile": "../common/docker-compose.yml",
+  "service": "bitwarden_clients",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/devcontainers/features/rust:1": {},
+    "ghcr.io/devcontainers/features/desktop-lite:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "angular.ng-template",
+        "orta.vscode-jest",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "nrwl.angular-console",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/common/postCreateCommand.sh",
+  "forwardPorts": [8080, 8081, 6006, 6080],
+  "portsAttributes": {
+    "default": { "onAutoForward": "ignore" },
+    "8080": { "label": "Web Vault", "onAutoForward": "notify" },
+    "8081": { "label": "Web Vault (Self-hosted)", "onAutoForward": "notify" },
+    "6006": { "label": "Storybook", "onAutoForward": "notify" },
+    "6080": { "label": "Desktop (noVNC)", "onAutoForward": "ignore" }
+  }
+}

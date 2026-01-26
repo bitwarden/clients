@@ -1,6 +1,6 @@
 {
-  "name": "Bitwarden Clients",
-  "dockerComposeFile": "docker-compose.yml",
+  "name": "Bitwarden Clients (macOS XQuartz)",
+  "dockerComposeFile": ["../common/docker-compose.yml", "docker-compose.override.yml"],
   "service": "bitwarden_clients",
   "workspaceFolder": "/workspace",
   "features": {
@@ -8,7 +8,6 @@
   },
   "customizations": {
     "vscode": {
-      "settings": {},
       "extensions": [
         "angular.ng-template",
         "orta.vscode-jest",
@@ -19,23 +18,12 @@
       ]
     }
   },
-  "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+  "postCreateCommand": "bash .devcontainer/common/postCreateCommand.sh",
   "forwardPorts": [8080, 8081, 6006],
   "portsAttributes": {
-    "default": {
-      "onAutoForward": "ignore"
-    },
-    "8080": {
-      "label": "Web Vault",
-      "onAutoForward": "notify"
-    },
-    "8081": {
-      "label": "Web Vault (Self-hosted)",
-      "onAutoForward": "notify"
-    },
-    "6006": {
-      "label": "Storybook",
-      "onAutoForward": "notify"
-    }
+    "default": { "onAutoForward": "ignore" },
+    "8080": { "label": "Web Vault", "onAutoForward": "notify" },
+    "8081": { "label": "Web Vault (Self-hosted)", "onAutoForward": "notify" },
+    "6006": { "label": "Storybook", "onAutoForward": "notify" }
   }
 }
