@@ -194,12 +194,7 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
           return this.searchService.searchCiphers(
             userId,
             searchText,
-            [
-              filter,
-              this.deletedFilter,
-              ...(this.deleted ? [] : [this.archivedFilter]),
-              restrictedTypeFilter,
-            ],
+            [filter, restrictedTypeFilter],
             allCiphers,
           );
         }),
