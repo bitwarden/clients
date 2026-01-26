@@ -1,6 +1,8 @@
 export type PhishingResource = {
   name?: string;
   remoteUrl: string;
+  /** Fallback URL to use if remoteUrl fails (e.g., due to SSL interception/cert issues) */
+  fallbackUrl: string;
   checksumUrl: string;
   todayUrl: string;
   /** Matcher used to decide whether a given URL matches an entry from this resource */
@@ -19,6 +21,8 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
     {
       name: "Phishing.Database Domains",
       remoteUrl: "https://phish.co.za/latest/phishing-domains-ACTIVE.txt",
+      fallbackUrl:
+        "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-domains-ACTIVE.txt",
       checksumUrl:
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5",
       todayUrl:
@@ -46,6 +50,8 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
     {
       name: "Phishing.Database Links",
       remoteUrl: "https://phish.co.za/latest/phishing-links-ACTIVE.txt",
+      fallbackUrl:
+        "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-links-ACTIVE.txt",
       checksumUrl:
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-links-ACTIVE.txt.md5",
       todayUrl:
@@ -71,10 +77,10 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
           return true;
         }
 
-        // Check if URL starts with entry (prefix match for subpaths/query/hash)
-        // e.g., entry "site.com/phish" matches "site.com/phish/subpage" or "site.com/phish?id=1"
+        // Check if URL starts with entry (prefix match for query/hash only, NOT subpaths)
+        // e.g., entry "site.com/phish" matches "site.com/phish?id=1" or "site.com/phish#section"
+        // but NOT "site.com/phish/subpage" (different endpoint)
         if (
-          urlNoProto.startsWith(entryNoProto + "/") ||
           urlNoProto.startsWith(entryNoProto + "?") ||
           urlNoProto.startsWith(entryNoProto + "#")
         ) {
