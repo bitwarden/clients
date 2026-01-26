@@ -20,83 +20,86 @@
       >
       </bit-search>
     </div>
-    <bit-table [dataSource]="dataSource" layout="fixed" class="tw-@container">
-      <ng-container header>
-        <tr>
-          <!-- Individual or Organization vault -->
-          <th
-            bitCell
-            bitSortable="name"
-            [fn]="sortByName"
-            [class]="showExtraColumn ? 'tw-w-3/6' : 'tw-w-full'"
-          >
-            {{ "name" | i18n }}
-          </th>
-          @if (showOwner()) {
+    <div class="tw-@container">
+      <bit-table [dataSource]="dataSource" layout="fixed">
+        <ng-container header>
+          <tr>
+            <!-- Individual or Organization vault -->
             <th
               bitCell
-              bitSortable="owner"
-              [fn]="sortByOwner"
-              class="tw-hidden tw-w-1/6 @sm:tw-table-cell"
+              bitSortable="name"
+              [fn]="sortByName"
+              [class]="showExtraColumn ? 'tw-w-3/6' : 'tw-w-full'"
             >
-              {{ "owner" | i18n }}
+              {{ "name" | i18n }}
             </th>
-          }
-          <th bitCell class="tw-w-2/6 tw-text-right tw-font-medium">
-            {{ "options" | i18n }}
-          </th>
-        </tr>
-      </ng-container>
-      <ng-template body let-rows$>
-        <ng-container *cdkVirtualFor="let item of rows$; templateCacheSize: 0">
-          @if (item.collection) {
-            <tr
-              bitRow
-              appVaultCollectionRow
-              alignContent="middle"
-              [disabled]="disabled()"
-              [collection]="item.collection"
-              [showOwner]="showOwner()"
-              [organizations]="allOrganizations()"
-            ></tr>
-          }
-          <!--
+            @if (showOwner()) {
+              <th
+                bitCell
+                bitSortable="owner"
+                [fn]="sortByOwner"
+                class="tw-hidden tw-w-1/6 @sm:tw-table-cell"
+              >
+                {{ "owner" | i18n }}
+              </th>
+            }
+            <th bitCell class="tw-w-2/6 tw-text-right tw-font-medium">
+              {{ "options" | i18n }}
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body let-rows$>
+          <ng-container *cdkVirtualFor="let item of rows$; templateCacheSize: 0">
+            @if (item.collection) {
+              <tr
+                bitRow
+                appVaultCollectionRow
+                alignContent="middle"
+                [disabled]="disabled()"
+                [collection]="item.collection"
+                [showOwner]="showOwner()"
+                [organizations]="allOrganizations()"
+              ></tr>
+            }
+            <!--
           addAccessStatus check here so ciphers do not show if user
           has filtered for collections with addAccess
         -->
-          @if (
-            item.cipher && (!addAccessToggle() || (addAccessToggle() && addAccessStatus() !== 1))
-          ) {
-            <tr
-              bitRow
-              appVaultCipherRow
-              alignContent="middle"
-              [disabled]="disabled()"
-              [cipher]="item.cipher"
-              [showOwner]="showOwner()"
-              [showPremiumFeatures]="showPremiumFeatures()"
-              [useEvents]="useEvents()"
-              [viewingOrgVault]="viewingOrgVault()"
-              [cloneable]="canClone$(item) | async"
-              [organizations]="allOrganizations()"
-              [canEditCipher]="canEditCipher(item.cipher)"
-              [canAssignCollections]="canAssignCollections(item.cipher)"
-              [canManageCollection]="canManageCollection(item.cipher)"
-              [canDeleteCipher]="
-                cipherAuthorizationService.canDeleteCipher$(item.cipher, showAdminActions()) | async
-              "
-              [canRestoreCipher]="
-                cipherAuthorizationService.canRestoreCipher$(item.cipher, showAdminActions())
-                  | async
-              "
-              (onEvent)="event($event)"
-              [userCanArchive]="userCanArchive()"
-              [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy()"
-              [archiveEnabled]="archiveFeatureEnabled$ | async"
-            ></tr>
-          }
-        </ng-container>
-      </ng-template>
-    </bit-table>
+            @if (
+              item.cipher && (!addAccessToggle() || (addAccessToggle() && addAccessStatus() !== 1))
+            ) {
+              <tr
+                bitRow
+                appVaultCipherRow
+                alignContent="middle"
+                [disabled]="disabled()"
+                [cipher]="item.cipher"
+                [showOwner]="showOwner()"
+                [showPremiumFeatures]="showPremiumFeatures()"
+                [useEvents]="useEvents()"
+                [viewingOrgVault]="viewingOrgVault()"
+                [cloneable]="canClone$(item) | async"
+                [organizations]="allOrganizations()"
+                [canEditCipher]="canEditCipher(item.cipher)"
+                [canAssignCollections]="canAssignCollections(item.cipher)"
+                [canManageCollection]="canManageCollection(item.cipher)"
+                [canDeleteCipher]="
+                  cipherAuthorizationService.canDeleteCipher$(item.cipher, showAdminActions())
+                    | async
+                "
+                [canRestoreCipher]="
+                  cipherAuthorizationService.canRestoreCipher$(item.cipher, showAdminActions())
+                    | async
+                "
+                (onEvent)="event($event)"
+                [userCanArchive]="userCanArchive()"
+                [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy()"
+                [archiveEnabled]="archiveFeatureEnabled$ | async"
+              ></tr>
+            }
+          </ng-container>
+        </ng-template>
+      </bit-table>
+    </div>
   </div>
 </cdk-virtual-scroll-viewport>
