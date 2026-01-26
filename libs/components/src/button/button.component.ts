@@ -130,7 +130,8 @@ const getButtonStyles = (buttonType: ButtonType, size: ButtonSize): string[] => 
   const isOutline = normalizedType.includes("outline");
   const isGhost = normalizedType.includes("ghost");
   const isSecondary = normalizedType === "secondary";
-  const isSolid = !isOutline && !isGhost;
+  const isUnstyled = normalizedType === "unstyled";
+  const isSolid = !isOutline && !isGhost && !isUnstyled;
 
   if (isOutline || isGhost) {
     baseStyles.push("tw-bg-transparent", "hover:tw-bg-bg-hover");
@@ -142,6 +143,10 @@ const getButtonStyles = (buttonType: ButtonType, size: ButtonSize): string[] => 
 
   if (isGhost) {
     baseStyles.push("tw-border-transparent", "tw-bg-clip-padding", "hover:tw-border-bg-hover");
+  }
+
+  if (isUnstyled) {
+    baseStyles.push("tw-text-current");
   }
 
   return [...baseStyles, ...buttonStyles[buttonType], ...getButtonSizeStyles(size)];
