@@ -124,7 +124,7 @@ describe("VaultPopupScrollPositionService", () => {
 
         // A follow-up scroll is scheduled to defeat Firefox scroll restoration.
         ((scrollElement as any).scrollTo as jest.Mock).mockClear();
-        tick(50);
+        tick(300);
         expect((scrollElement as any).scrollTo).toHaveBeenCalledWith({
           behavior: "instant",
           top: 0,

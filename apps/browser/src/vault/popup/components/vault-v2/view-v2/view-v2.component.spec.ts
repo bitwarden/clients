@@ -66,6 +66,7 @@ describe("ViewV2Component", () => {
   const back = jest.fn().mockResolvedValue(null);
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
   const stop = jest.fn();
+  const forceTopOnNextVaultStart = jest.fn();
   const showToast = jest.fn();
   const showPasswordPrompt = jest.fn().mockResolvedValue(true);
   const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
@@ -114,6 +115,7 @@ describe("ViewV2Component", () => {
     doAutofill.mockClear();
     copy.mockClear();
     stop.mockClear();
+    forceTopOnNextVaultStart.mockClear();
     openSimpleDialog.mockClear();
     back.mockClear();
     showToast.mockClear();
@@ -134,7 +136,7 @@ describe("ViewV2Component", () => {
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>({ back }) },
         { provide: ActivatedRoute, useValue: { queryParams: params$ } },
         { provide: EventCollectionService, useValue: { collect } },
-        { provide: VaultPopupScrollPositionService, useValue: { stop } },
+        { provide: VaultPopupScrollPositionService, useValue: { stop, forceTopOnNextVaultStart } },
         { provide: VaultPopupAutofillService, useValue: mockVaultPopupAutofillService },
         { provide: ToastService, useValue: { showToast } },
         { provide: ConfigService, useValue: { getFeatureFlag$ } },
