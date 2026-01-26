@@ -1,17 +1,25 @@
 import {
   catchError,
+  concatMap,
+  defer,
   EMPTY,
+  exhaustMap,
   first,
-  firstValueFrom,
+  forkJoin,
   from,
+  iif,
+  map,
+  Observable,
   of,
+  retry,
   share,
   takeUntil,
   startWith,
   Subject,
   switchMap,
   tap,
-  map,
+  throwError,
+  timer,
 } from "rxjs";
 
 import { devFlagEnabled, devFlagValue } from "@bitwarden/browser/platform/flags";
@@ -22,6 +30,8 @@ import { LogService } from "@bitwarden/logging";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 
 import { getPhishingResources, PhishingResourceType } from "../phishing-resources";
+
+import { PhishingIndexedDbService } from "./phishing-indexeddb.service";
 
 /**
  * Metadata about the phishing data set
@@ -73,18 +83,15 @@ export class PhishingDataService {
   // We are adding the destroy to guard against accidental leaks.
   private _destroy$ = new Subject<void>();
 
-  private _testWebAddresses = this.getTestWebAddresses().concat("phishing.testcategory.com"); // Included for QA to test in prod
+  private _testWebAddresses = this.getTestWebAddresses();
   private _phishingMetaState = this.globalStateProvider.get(PHISHING_DOMAINS_META_KEY);
-  private _phishingBlobState = this.globalStateProvider.get(PHISHING_DOMAINS_BLOB_KEY);
 
-  // In-memory set loaded from blob for fast lookups without reading large storage repeatedly
-  private _webAddressesSet: Set<string> | null = null;
-  // Loading variables for web addresses set
-  // Triggers a load for _webAddressesSet
-  private _loadTrigger$ = new Subject<void>();
+  private indexedDbService: PhishingIndexedDbService;
 
   // How often are new web addresses added to the remote?
   readonly UPDATE_INTERVAL_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+  private _backgroundUpdateTrigger$ = new Subject<PhishingDataMeta | null>();
 
   private _triggerUpdate$ = new Subject<void>();
   update$ = this._triggerUpdate$.pipe(
@@ -93,12 +100,8 @@ export class PhishingDataService {
       this._phishingMetaState.state$.pipe(
         first(), // Only take the first value to avoid an infinite loop when updating the cache below
         tap((metaState) => {
-          // Initial loading of web addresses set if not already loaded
-          if (!this._webAddressesSet) {
-            this._loadBlobToMemory();
-          }
-          // Perform any updates in the background if needed
-          void this._backgroundUpdate(metaState);
+          // Perform any updates in the background
+          this._backgroundUpdateTrigger$.next(metaState);
         }),
         catchError((err: unknown) => {
           this.logService.error("[PhishingDataService] Background update failed to start.", err);
@@ -106,7 +109,6 @@ export class PhishingDataService {
         }),
       ),
     ),
-    // Stop emitting when dispose() is called
     takeUntil(this._destroy$),
     share(),
   );
@@ -120,6 +122,7 @@ export class PhishingDataService {
     private resourceType: PhishingResourceType = PhishingResourceType.Links,
   ) {
     this.logService.debug("[PhishingDataService] Initializing service...");
+    this.indexedDbService = new PhishingIndexedDbService(this.logService);
     this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.phishingDomainUpdate, () => {
       this._triggerUpdate$.next();
     });
@@ -127,18 +130,20 @@ export class PhishingDataService {
       ScheduledTaskNames.phishingDomainUpdate,
       this.UPDATE_INTERVAL_DURATION,
     );
-    this._setupLoadPipeline();
+    this._backgroundUpdateTrigger$
+      .pipe(
+        exhaustMap((currentMeta) => {
+          return this._backgroundUpdate(currentMeta);
+        }),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
   }
 
   dispose(): void {
     // Signal all pipelines to stop and unsubscribe stored subscriptions
     this._destroy$.next();
     this._destroy$.complete();
-
-    // Clear web addresses set from memory
-    if (this._webAddressesSet !== null) {
-      this._webAddressesSet = null;
-    }
   }
 
   /**
@@ -148,105 +153,65 @@ export class PhishingDataService {
    * @returns True if the URL is a known phishing web address, false otherwise
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
-    if (!this._webAddressesSet) {
-      this.logService.debug("[PhishingDataService] Set not loaded; skipping check");
-      return false;
+    // Quick check for QA/dev test addresses
+    if (this._testWebAddresses.includes(url.href)) {
+      return true;
     }
 
-    const set = this._webAddressesSet!;
     const resource = getPhishingResources(this.resourceType);
 
-    // Custom matcher per resource
-    if (resource && resource?.match) {
-      for (const entry of set) {
-        if (resource.match(url, entry)) {
-          return true;
+    try {
+      // Quick lookup: check direct presence of href in IndexedDB
+      const hasUrl = await this.indexedDbService.hasUrl(url.href);
+      if (hasUrl) {
+        return true;
+      }
+    } catch (err) {
+      this.logService.error("[PhishingDataService] IndexedDB lookup via hasUrl failed", err);
+    }
+
+    // If a custom matcher is provided, iterate stored entries and apply the matcher.
+    if (resource && resource.match) {
+      try {
+        const entries = await this.indexedDbService.loadAllUrls();
+        for (const entry of entries) {
+          if (resource.match(url, entry)) {
+            return true;
+          }
         }
+      } catch (err) {
+        this.logService.error("[PhishingDataService] Error running custom matcher", err);
       }
       return false;
     }
-
-    // Default set-based lookup
-    return set.has(url.hostname);
+    return false;
   }
 
-  async getNextWebAddresses(
-    previous: PhishingDataMeta | null,
-  ): Promise<Partial<PhishingData> | null> {
-    const prevMeta = previous ?? { timestamp: 0, checksum: "", applicationVersion: "" };
-    const now = Date.now();
-
-    // Updates to check
-    const applicationVersion = await this.platformUtilsService.getApplicationVersion();
-    const remoteChecksum = await this.fetchPhishingChecksum(this.resourceType);
-
-    // Logic checks
-    const appVersionChanged = applicationVersion !== prevMeta.applicationVersion;
-    const masterChecksumChanged = remoteChecksum !== prevMeta.checksum;
-
-    // Check for full updated
-    if (masterChecksumChanged || appVersionChanged) {
-      this.logService.info("[PhishingDataService] Checksum or version changed; Fetching ALL.");
-      const remoteUrl = getPhishingResources(this.resourceType)!.remoteUrl;
-      const blob = await this.fetchAndCompress(remoteUrl);
-      return {
-        blob,
-        meta: { checksum: remoteChecksum, timestamp: now, applicationVersion },
-      };
-    }
-
-    // Check for daily file
-    const isCacheExpired = now - prevMeta.timestamp > this.UPDATE_INTERVAL_DURATION;
-
-    if (isCacheExpired) {
-      this.logService.info("[PhishingDataService] Daily cache expired; Fetching TODAY's");
-      const url = getPhishingResources(this.resourceType)!.todayUrl;
-      const newLines = await this.fetchText(url);
-      const prevBlob = (await firstValueFrom(this._phishingBlobState.state$)) ?? "";
-      const oldText = prevBlob ? await this._decompressString(prevBlob) : "";
-
-      // Join the new lines to the existing list
-      const combined = (oldText ? oldText + "\n" : "") + newLines.join("\n");
-
-      return {
-        blob: await this._compressString(combined),
-        meta: {
-          checksum: remoteChecksum,
-          timestamp: now, // Reset the timestamp
-          applicationVersion,
-        },
-      };
-    }
-
-    return null;
-  }
-
+  // [FIXME] Pull fetches into api service
   private async fetchPhishingChecksum(type: PhishingResourceType = PhishingResourceType.Domains) {
     const checksumUrl = getPhishingResources(type)!.checksumUrl;
-    const response = await this.apiService.nativeFetch(new Request(checksumUrl));
-    if (!response.ok) {
-      throw new Error(`[PhishingDataService] Failed to fetch checksum: ${response.status}`);
-    }
-    return response.text();
-  }
-  private async fetchAndCompress(url: string): Promise<string> {
-    const response = await this.apiService.nativeFetch(new Request(url));
-    if (!response.ok) {
-      throw new Error("Fetch failed");
-    }
+    this.logService.debug(`[PhishingDataService] Fetching checksum from: ${checksumUrl}`);
 
-    const downloadStream = response.body!;
-    // Pipe through CompressionStream while it's downloading
-    const compressedStream = downloadStream.pipeThrough(new CompressionStream("gzip"));
-    // Convert to ArrayBuffer
-    const buffer = await new Response(compressedStream).arrayBuffer();
-    const bytes = new Uint8Array(buffer);
+    try {
+      const response = await this.apiService.nativeFetch(new Request(checksumUrl));
+      if (!response.ok) {
+        throw new Error(
+          `[PhishingDataService] Failed to fetch checksum: ${response.status} ${response.statusText}`,
+        );
+      }
 
-    // Return as Base64 for storage
-    return (bytes as any).toBase64 ? (bytes as any).toBase64() : this._uint8ToBase64Fallback(bytes);
+      return await response.text();
+    } catch (error) {
+      this.logService.error(
+        `[PhishingDataService] Checksum fetch failed from ${checksumUrl}`,
+        error,
+      );
+      throw error;
+    }
   }
 
-  private async fetchText(url: string) {
+  // [FIXME] Pull fetches into api service
+  private async fetchToday(url: string) {
     const response = await this.apiService.nativeFetch(new Request(url));
 
     if (!response.ok) {
@@ -258,171 +223,196 @@ export class PhishingDataService {
 
   private getTestWebAddresses() {
     const flag = devFlagEnabled("testPhishingUrls");
+    // Normalize URLs by converting to URL object and back to ensure consistent format (e.g., trailing slashes)
+    const testWebAddresses: string[] = [
+      new URL("http://phishing.testcategory.com").href,
+      new URL("https://phishing.testcategory.com").href,
+      new URL("https://phishing.testcategory.com/block").href,
+    ];
     if (!flag) {
-      return [];
+      return testWebAddresses;
     }
 
     const webAddresses = devFlagValue("testPhishingUrls") as unknown[];
     if (webAddresses && webAddresses instanceof Array) {
       this.logService.debug(
-        "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
+        "[PhishingDataService] Dev flag enabled for testing phishing detection. Adding test phishing web addresses:",
         webAddresses,
       );
-      return webAddresses as string[];
+      // Normalize dev flag URLs as well, filtering out invalid ones
+      const normalizedDevAddresses = (webAddresses as string[])
+        .filter((addr) => {
+          try {
+            new URL(addr);
+            return true;
+          } catch {
+            this.logService.warning(
+              `[PhishingDataService] Invalid test URL in dev flag, skipping: ${addr}`,
+            );
+            return false;
+          }
+        })
+        .map((addr) => new URL(addr).href);
+      return testWebAddresses.concat(normalizedDevAddresses);
     }
-    return [];
+    return testWebAddresses;
   }
 
-  // Runs the update flow in the background and retries up to 3 times on failure
-  private async _backgroundUpdate(previous: PhishingDataMeta | null): Promise<void> {
-    this.logService.info(`[PhishingDataService] Update web addresses triggered...`);
-    const phishingMeta: PhishingDataMeta = previous ?? {
-      timestamp: 0,
-      checksum: "",
-      applicationVersion: "",
-    };
-    // Start time for logging performance of update
-    const startTime = Date.now();
-    const maxAttempts = 3;
-    const delayMs = 5 * 60 * 1000; // 5 minutes
+  private _getUpdatedMeta(): Observable<PhishingDataMeta> {
+    return defer(() => {
+      const now = Date.now();
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        const next = await this.getNextWebAddresses(phishingMeta);
-        if (!next) {
-          return; // No update needed
-        }
+      return forkJoin({
+        applicationVersion: from(this.platformUtilsService.getApplicationVersion()),
+        remoteChecksum: from(this.fetchPhishingChecksum(this.resourceType)),
+      }).pipe(
+        map(({ applicationVersion, remoteChecksum }) => {
+          return {
+            checksum: remoteChecksum,
+            timestamp: now,
+            applicationVersion,
+          };
+        }),
+      );
+    });
+  }
 
-        if (next.meta) {
-          await this._phishingMetaState.update(() => next!.meta!);
-        }
-        if (next.blob) {
-          await this._phishingBlobState.update(() => next!.blob!);
-          this._loadBlobToMemory();
-        }
+  // Streams the full phishing data set and saves it to IndexedDB
+  private _updateFullDataSet() {
+    const resource = getPhishingResources(this.resourceType);
 
-        // Performance logging
-        const elapsed = Date.now() - startTime;
-        this.logService.info(`[PhishingDataService] Phishing data cache updated in ${elapsed}ms`);
-      } catch (err) {
-        this.logService.error(
-          `[PhishingDataService] Unable to update web addresses. Attempt ${attempt}.`,
-          err,
-        );
-        if (attempt < maxAttempts) {
-          await new Promise((res) => setTimeout(res, delayMs));
-        } else {
-          const elapsed = Date.now() - startTime;
-          this.logService.error(
-            `[PhishingDataService] Retries unsuccessful after ${elapsed}ms. Unable to update web addresses.`,
-            err,
+    if (!resource?.remoteUrl) {
+      return throwError(() => new Error("Invalid resource URL"));
+    }
+
+    this.logService.info(`[PhishingDataService] Starting FULL update using ${resource.remoteUrl}`);
+    return from(this.apiService.nativeFetch(new Request(resource.remoteUrl))).pipe(
+      switchMap((response) => {
+        if (!response.ok || !response.body) {
+          return throwError(
+            () =>
+              new Error(
+                `[PhishingDataService] Full fetch failed: ${response.status}, ${response.statusText}`,
+              ),
           );
         }
-      }
-    }
+
+        return from(this.indexedDbService.saveUrlsFromStream(response.body));
+      }),
+      catchError((err: unknown) => {
+        this.logService.error(
+          `[PhishingDataService] Full dataset update failed using primary source ${err}`,
+        );
+        this.logService.warning(
+          `[PhishingDataService] Falling back to: ${resource.fallbackUrl} (Note: Fallback data may be less up-to-date)`,
+        );
+        // Try fallback URL
+        return from(this.apiService.nativeFetch(new Request(resource.fallbackUrl))).pipe(
+          switchMap((fallbackResponse) => {
+            if (!fallbackResponse.ok || !fallbackResponse.body) {
+              return throwError(
+                () =>
+                  new Error(
+                    `[PhishingDataService] Fallback fetch failed: ${fallbackResponse.status}, ${fallbackResponse.statusText}`,
+                  ),
+              );
+            }
+
+            return from(this.indexedDbService.saveUrlsFromStream(fallbackResponse.body));
+          }),
+          catchError((fallbackError: unknown) => {
+            this.logService.error(`[PhishingDataService] Fallback source failed`);
+            return throwError(() => fallbackError);
+          }),
+        );
+      }),
+    );
   }
 
-  // Sets up the load pipeline to load the blob into memory when triggered
-  private _setupLoadPipeline(): void {
-    this._loadTrigger$
-      .pipe(
-        switchMap(() =>
-          this._phishingBlobState.state$.pipe(
-            first(),
-            switchMap((blobBase64) => {
-              if (!blobBase64) {
-                return of(undefined);
-              }
-              // Note: _decompressString wraps a promise that cannot be aborted
-              // If performance improvements are needed, consider migrating to a cancellable approach
-              return from(this._decompressString(blobBase64)).pipe(
-                map((text) => {
-                  const lines = text.split(/\r?\n/);
-                  const newWebAddressesSet = new Set(lines);
-                  this._testWebAddresses.forEach((a) => newWebAddressesSet.add(a));
-                  this._webAddressesSet = new Set(newWebAddressesSet);
-                  this.logService.info(
-                    `[PhishingDataService] loaded ${this._webAddressesSet.size} addresses into memory from blob`,
-                  );
-                }),
+  private _updateDailyDataSet() {
+    this.logService.info("[PhishingDataService] Starting DAILY update...");
+
+    const todayUrl = getPhishingResources(this.resourceType)?.todayUrl;
+    if (!todayUrl) {
+      return throwError(() => new Error("Today URL missing"));
+    }
+
+    return from(this.fetchToday(todayUrl)).pipe(
+      switchMap((lines) => from(this.indexedDbService.addUrls(lines))),
+    );
+  }
+
+  private _backgroundUpdate(
+    previous: PhishingDataMeta | null,
+  ): Observable<PhishingDataMeta | null> {
+    // Use defer to restart timer if retry is activated
+    return defer(() => {
+      const startTime = Date.now();
+      this.logService.info(`[PhishingDataService] Update triggered...`);
+
+      // Get updated meta info
+      return this._getUpdatedMeta().pipe(
+        // Update full data set if application version or checksum changed
+        concatMap((newMeta) =>
+          iif(
+            () => {
+              const appVersionChanged = newMeta.applicationVersion !== previous?.applicationVersion;
+              const checksumChanged = newMeta.checksum !== previous?.checksum;
+
+              this.logService.info(
+                `[PhishingDataService] Checking if full update is needed: appVersionChanged=${appVersionChanged}, checksumChanged=${checksumChanged}`,
               );
-            }),
-            catchError((err: unknown) => {
-              this.logService.error("[PhishingDataService] Failed to load blob into memory", err);
-              return of(undefined);
-            }),
+              return appVersionChanged || checksumChanged;
+            },
+            this._updateFullDataSet().pipe(map(() => ({ meta: newMeta, updated: true }))),
+            of({ meta: newMeta, updated: false }),
           ),
         ),
-        catchError((err: unknown) => {
-          this.logService.error("[PhishingDataService] Load pipeline failed", err);
-          return of(undefined);
+        // Update daily data set if last update was more than UPDATE_INTERVAL_DURATION ago
+        concatMap((result) =>
+          iif(
+            () => {
+              const isCacheExpired =
+                Date.now() - (previous?.timestamp ?? 0) > this.UPDATE_INTERVAL_DURATION;
+              return isCacheExpired;
+            },
+            this._updateDailyDataSet().pipe(map(() => ({ meta: result.meta, updated: true }))),
+            of(result),
+          ),
+        ),
+        concatMap((result) => {
+          if (!result.updated) {
+            this.logService.debug(`[PhishingDataService] No update needed, metadata unchanged`);
+            return of(previous);
+          }
+
+          this.logService.debug(`[PhishingDataService] Updated phishing meta data:`, result.meta);
+          return from(this._phishingMetaState.update(() => result.meta)).pipe(
+            tap(() => {
+              const elapsed = Date.now() - startTime;
+              this.logService.info(`[PhishingDataService] Updated data set in ${elapsed}ms`);
+            }),
+          );
         }),
-        takeUntil(this._destroy$),
-        share(),
-      )
-      .subscribe();
-  }
-
-  // [FIXME] Move compression helpers to a shared utils library
-  // to separate from phishing data service.
-  // ------------------------- Blob and Compression Handling -------------------------
-  private async _compressString(input: string): Promise<string> {
-    try {
-      const stream = new Blob([input]).stream().pipeThrough(new CompressionStream("gzip"));
-
-      const compressedBuffer = await new Response(stream).arrayBuffer();
-      const bytes = new Uint8Array(compressedBuffer);
-
-      // Modern browsers support direct toBase64 conversion
-      // For older support, use fallback
-      return (bytes as any).toBase64
-        ? (bytes as any).toBase64()
-        : this._uint8ToBase64Fallback(bytes);
-    } catch (err) {
-      this.logService.error("[PhishingDataService] Compression failed", err);
-      return btoa(encodeURIComponent(input));
-    }
-  }
-
-  private async _decompressString(base64: string): Promise<string> {
-    try {
-      // Modern browsers support direct toBase64 conversion
-      // For older support, use fallback
-      const bytes = (Uint8Array as any).fromBase64
-        ? (Uint8Array as any).fromBase64(base64)
-        : this._base64ToUint8Fallback(base64);
-      if (bytes == null) {
-        throw new Error("Base64 decoding resulted in null");
-      }
-      const byteResponse = new Response(bytes);
-      if (!byteResponse.body) {
-        throw new Error("Response body is null");
-      }
-      const stream = byteResponse.body.pipeThrough(new DecompressionStream("gzip"));
-      const streamResponse = new Response(stream);
-      return await streamResponse.text();
-    } catch (err) {
-      this.logService.error("[PhishingDataService] Decompression failed", err);
-      return decodeURIComponent(atob(base64));
-    }
-  }
-
-  // Trigger a load of the blob into memory
-  private _loadBlobToMemory(): void {
-    this._loadTrigger$.next();
-  }
-  private _uint8ToBase64Fallback(bytes: Uint8Array): string {
-    const CHUNK_SIZE = 0x8000; // 32KB chunks
-    let binary = "";
-    for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
-      const chunk = bytes.subarray(i, i + CHUNK_SIZE);
-      binary += String.fromCharCode.apply(null, chunk as any);
-    }
-    return btoa(binary);
-  }
-
-  private _base64ToUint8Fallback(base64: string): Uint8Array {
-    const binary = atob(base64);
-    return Uint8Array.from(binary, (c) => c.charCodeAt(0));
+        retry({
+          count: 2, // Total 3 attempts (initial + 2 retries)
+          delay: (error, retryCount) => {
+            this.logService.error(
+              `[PhishingDataService] Attempt ${retryCount} failed. Retrying in 5m...`,
+              error,
+            );
+            return timer(5 * 60 * 1000); // Wait 5 mins before next attempt
+          },
+        }),
+        catchError((err: unknown) => {
+          const elapsed = Date.now() - startTime;
+          this.logService.error(
+            `[PhishingDataService] Retries unsuccessful after ${elapsed}ms.`,
+            err,
+          );
+          return of(previous);
+        }),
+      );
+    });
   }
 }
