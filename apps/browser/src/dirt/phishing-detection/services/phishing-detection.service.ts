@@ -1,10 +1,10 @@
 import {
-  concatMap,
   distinctUntilChanged,
   EMPTY,
   filter,
   map,
   merge,
+  mergeMap,
   Subject,
   switchMap,
   tap,
@@ -63,7 +63,7 @@ export class PhishingDetectionService {
       tap((message) =>
         logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
       ),
-      concatMap(async (message) => {
+      mergeMap(async (message) => {
         const url = new URL(message.url);
         this._ignoredHostnames.add(url.hostname);
         await BrowserApi.navigateTabToUrl(message.tabId, url);
@@ -88,7 +88,9 @@ export class PhishingDetectionService {
           prev.ignored === curr.ignored,
       ),
       tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
-      concatMap(async ({ tabId, url, ignored }) => {
+      // Use mergeMap for parallel processing - each tab check runs independently
+      // Concurrency limit of 5 prevents overwhelming IndexedDB
+      mergeMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
           // The next time this host is visited, block again
           this._ignoredHostnames.delete(url.hostname);
@@ -104,7 +106,7 @@ export class PhishingDetectionService {
             `?phishingUrl=${url.toString()}`,
         );
         await BrowserApi.navigateTabToUrl(tabId, phishingWarningPage);
-      }),
+      }, 5),
     );
 
     const onCancelCommand$ = messageListener

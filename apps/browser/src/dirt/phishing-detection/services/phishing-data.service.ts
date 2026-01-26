@@ -153,6 +153,12 @@ export class PhishingDataService {
    * @returns True if the URL is a known phishing web address, false otherwise
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
+    // Skip non-http(s) protocols - phishing database only contains web URLs
+    // This prevents expensive fallback checks for chrome://, about:, file://, etc.
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return false;
+    }
+
     // Quick check for QA/dev test addresses
     if (this._testWebAddresses.includes(url.href)) {
       this.logService.info("[PhishingDataService] Found test web address: " + url.href);
@@ -163,10 +169,25 @@ export class PhishingDataService {
 
     try {
       // Quick lookup: check direct presence of href in IndexedDB
-      const hasUrl = await this.indexedDbService.hasUrl(url.href);
+      // Also check without trailing slash since browsers add it but DB entries may not have it
+      const urlHref = url.href;
+      const urlWithoutTrailingSlash = urlHref.endsWith("/") ? urlHref.slice(0, -1) : null;
+
+      this.logService.debug("[PhishingDataService] Checking hasUrl on this string: " + urlHref);
+      let hasUrl = await this.indexedDbService.hasUrl(urlHref);
+
+      // If not found and URL has trailing slash, try without it
+      if (!hasUrl && urlWithoutTrailingSlash) {
+        this.logService.debug(
+          "[PhishingDataService] Checking hasUrl without trailing slash: " +
+            urlWithoutTrailingSlash,
+        );
+        hasUrl = await this.indexedDbService.hasUrl(urlWithoutTrailingSlash);
+      }
+
       if (hasUrl) {
         this.logService.info(
-          "[PhishingDataService] Found phishing web address through direct lookup: " + url.href,
+          "[PhishingDataService] Found phishing web address through direct lookup: " + urlHref,
         );
         return true;
       }
@@ -178,9 +199,21 @@ export class PhishingDataService {
     // This avoids loading all URLs into memory and allows early exit on first match.
     if (resource && resource.match) {
       try {
+        this.logService.debug(
+          "[PhishingDataService] Starting cursor-based search for: " + url.href,
+        );
+        const startTime = performance.now();
+
         const found = await this.indexedDbService.findMatchingUrl((entry) =>
           resource.match(url, entry),
         );
+
+        const endTime = performance.now();
+        const duration = (endTime - startTime).toFixed(2);
+        this.logService.debug(
+          `[PhishingDataService] Cursor-based search completed in ${duration}ms for: ${url.href} (found: ${found})`,
+        );
+
         if (found) {
           this.logService.info(
             "[PhishingDataService] Found phishing web address through custom matcher: " + url.href,
