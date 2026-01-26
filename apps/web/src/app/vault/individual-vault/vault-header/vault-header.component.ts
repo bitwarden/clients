@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  viewChild,
+} from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
@@ -51,6 +58,9 @@ export class VaultHeaderComponent {
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected CipherType = CipherType;
+
+  /** Query for the NewCipherMenuComponent in the template */
+  readonly newCipherMenu = viewChild(NewCipherMenuComponent);
 
   /**
    * Boolean to determine the loading state of the header.

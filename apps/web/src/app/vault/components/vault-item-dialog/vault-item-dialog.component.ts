@@ -50,6 +50,7 @@ import {
   ItemModule,
   ToastService,
   CenterPositionStrategy,
+  DialogConfig,
 } from "@bitwarden/components";
 import {
   AttachmentDialogCloseResult,
@@ -731,10 +732,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * @param dialogService
    * @param params
    */
-  static open(dialogService: DialogService, params: VaultItemDialogParams) {
+  static open(
+    dialogService: DialogService,
+    params: VaultItemDialogParams,
+    dialogConfig?: DialogConfig,
+  ) {
     return dialogService.open<VaultItemDialogResult, VaultItemDialogParams>(
       VaultItemDialogComponent,
       {
+        ...dialogConfig,
         data: params,
       },
     );
