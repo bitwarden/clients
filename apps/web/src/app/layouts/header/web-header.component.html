@@ -10,6 +10,7 @@
     <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-gap-2">
       <ng-content select="[slot=breadcrumbs]"></ng-content>
       <h1
+        bitTypography="h1"
         noMargin
         class="tw-m-0 tw-mr-2 tw-leading-10 tw-flex tw-gap-1"
         [title]="title() || (routeData.titleId | i18n)"
