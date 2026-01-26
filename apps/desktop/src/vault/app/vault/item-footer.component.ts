@@ -75,6 +75,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
   protected showArchiveButton = false;
   protected showUnarchiveButton = false;
+  protected userCanArchive = false;
 
   constructor(
     protected cipherService: CipherService,
@@ -131,6 +132,16 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       this.showArchiveButton ||
       this.showUnarchiveButton ||
       (this.cipher.permissions?.delete && (this.action === "edit" || this.action === "view"))
+    );
+  }
+
+  protected get showCloneOption() {
+    return (
+      this.cipher.id &&
+      !this.cipher?.organizationId &&
+      !this.cipher.isDeleted &&
+      this.action === "view" &&
+      (!this.cipher.isArchived || this.userCanArchive)
     );
   }
 
@@ -241,11 +252,16 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       ),
     );
 
+    this.userCanArchive = userCanArchive;
+
     this.showArchiveButton =
       cipherCanBeArchived && userCanArchive && this.action === "view" && !this.cipher.isArchived;
 
     // A user should always be able to unarchive an archived item
     this.showUnarchiveButton =
-      hasArchiveFlagEnabled && this.action === "view" && this.cipher.isArchived;
+      hasArchiveFlagEnabled &&
+      this.action === "view" &&
+      this.cipher.isArchived &&
+      !this.cipher.isDeleted;
   }
 }

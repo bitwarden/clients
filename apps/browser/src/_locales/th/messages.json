@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "เข้าสู่ระบบด้วยพาสคีย์"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "ใช้การลงชื่อเข้าใช้แบบ SSO"
   },
@@ -582,8 +585,8 @@
   "archiveItem": {
     "message": "จัดเก็บรายการถาวร"
   },
-  "archiveItemConfirmDesc": {
-    "message": "รายการที่จัดเก็บถาวรจะไม่ถูกรวมในผลการค้นหาทั่วไปและคำแนะนำการป้อนอัตโนมัติ ยืนยันที่จะจัดเก็บรายการนี้ถาวรหรือไม่"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Archived"
@@ -2473,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "ลบรายการถาวรแล้ว"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoreItem": {
     "message": "กู้คืนรายการ"
   },
@@ -3363,6 +3369,12 @@
   },
   "error": {
     "message": "ข้อผิดพลาด"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "ข้อผิดพลาดในการถอดรหัส"
@@ -4739,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "ตัวเลือกเพิ่มเติม - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "ซ่อนการตรวจสอบการจับคู่ $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "ป้อนอัตโนมัติเมื่อโหลดหน้าเว็บหรือไม่"
@@ -5669,6 +5681,9 @@
   },
   "extraWide": {
     "message": "กว้างพิเศษ"
+  },
+  "narrow": {
+    "message": "Narrow"
   },
   "sshKeyWrongPassword": {
     "message": "รหัสผ่านที่คุณป้อนไม่ถูกต้อง"
