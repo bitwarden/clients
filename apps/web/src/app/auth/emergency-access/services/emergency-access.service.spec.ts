@@ -486,12 +486,10 @@ describe("EmergencyAccessService", () => {
     const PM27086_UpdateAuthenticationApisForInputPasswordEnabled = true;
 
     // Mock sut method params
-    const params = {
-      id: "emergencyAccessId",
-      masterPassword: "mockPassword",
-      email: "user@example.com",
-      activeUserId: newGuid() as UserId,
-    };
+    const id = "emergency-access-id";
+    const masterPassword = "mockPassword";
+    const email = "user@example.com";
+    const activeUserId = newGuid() as UserId;
 
     // Mock method data
     const kdfConfig = DEFAULT_KDF_CONFIG;
@@ -520,7 +518,7 @@ describe("EmergencyAccessService", () => {
       encryptService.decapsulateKeyUnsigned.mockResolvedValue(mockDecryptedGrantorUserKey);
       mockGrantorUserKey = mockDecryptedGrantorUserKey as UserKey;
 
-      salt = params.email as MasterPasswordSalt;
+      salt = email as MasterPasswordSalt;
       masterPasswordService.emailToSalt.mockReturnValue(salt);
 
       authenticationData = {
@@ -547,12 +545,7 @@ describe("EmergencyAccessService", () => {
       keyService.userPrivateKey$.mockReturnValue(of(null));
 
       // Act
-      const promise = emergencyAccessService.takeover(
-        params.id,
-        params.masterPassword,
-        params.email,
-        params.activeUserId,
-      );
+      const promise = emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
       await expect(promise).rejects.toThrow(
@@ -566,12 +559,7 @@ describe("EmergencyAccessService", () => {
       encryptService.decapsulateKeyUnsigned.mockResolvedValue(null);
 
       // Act
-      const promise = emergencyAccessService.takeover(
-        params.id,
-        params.masterPassword,
-        params.email,
-        params.activeUserId,
-      );
+      const promise = emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
       await expect(promise).rejects.toThrow("Failed to decrypt grantor key");
@@ -580,16 +568,11 @@ describe("EmergencyAccessService", () => {
 
     it("should use PBKDF2 if takeover response contains KdfType.PBKDF2_SHA256", async () => {
       // Act
-      await emergencyAccessService.takeover(
-        params.id,
-        params.masterPassword,
-        params.email,
-        params.activeUserId,
-      );
+      await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
       expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
-        params.masterPassword,
+        masterPassword,
         kdfConfig, // default config (PBKDF2)
         salt,
       );
@@ -616,21 +599,16 @@ describe("EmergencyAccessService", () => {
       );
 
       // Act
-      await emergencyAccessService.takeover(
-        params.id,
-        params.masterPassword,
-        params.email,
-        params.activeUserId,
-      );
+      await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
       expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
-        params.masterPassword,
+        masterPassword,
         expectedKdfConfig,
         salt,
       );
       expect(masterPasswordService.makeMasterPasswordAuthenticationData).not.toHaveBeenCalledWith(
-        params.masterPassword,
+        masterPassword,
         kdfConfig, // default config (PBKDF2)
         salt,
       );
@@ -638,50 +616,40 @@ describe("EmergencyAccessService", () => {
 
     it("should call makeMasterPasswordAuthenticationData and makeMasterPasswordUnlockData with the correct parameters", async () => {
       // Act
-      await emergencyAccessService.takeover(
-        params.id,
-        params.masterPassword,
-        params.email,
-        params.activeUserId,
-      );
+      await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
       const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
 
       expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
-        params.masterPassword,
+        masterPassword,
         kdfConfig,
         salt,
       );
 
       expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
-        params.masterPassword,
+        masterPassword,
         kdfConfig,
         salt,
         mockGrantorUserKey,
       );
 
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledWith(
-        params.id,
+        id,
         request,
       );
     });
 
     it("should call the API method to change the grantor's master password", async () => {
       // Act
-      await emergencyAccessService.takeover(
-        params.id,
-        params.masterPassword,
-        params.email,
-        params.activeUserId,
-      );
+      await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
 
       // Assert
       const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
 
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledTimes(1);
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledWith(
-        params.id,
+        id,
         request,
       );
     });
