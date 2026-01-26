@@ -4,8 +4,7 @@ import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, ElementRef, inject, input, viewChild } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { DrawerHostDirective } from "../drawer/drawer-host.directive";
-import { DrawerService } from "../drawer/drawer.service";
+import { DrawerService } from "../dialog/drawer.service";
 import { LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
 import { SharedModule } from "../shared";
@@ -31,7 +30,6 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
     "(document:keydown.tab)": "handleKeydown($event)",
     class: "tw-block tw-h-screen",
   },
-  hostDirectives: [DrawerHostDirective],
 })
 export class LayoutComponent {
   protected sideNavService = inject(SideNavService);

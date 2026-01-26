@@ -16,9 +16,9 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { DrawerService } from "../drawer/drawer.service";
 import { isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
+import { DrawerService } from "./drawer.service";
 import { SimpleConfigurableDialogComponent } from "./simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component";
 import { SimpleDialogOptions } from "./simple-dialog/types";
 
