@@ -19,7 +19,7 @@
       ]
     }
   },
-  "postCreateCommand": "bash .devcontainer/common/postCreateCommand.sh",
+  "postCreateCommand": "bash .devcontainer/common/post-create-command.sh",
   "forwardPorts": [8080, 8081, 6006],
   "portsAttributes": {
     "default": { "onAutoForward": "ignore" },

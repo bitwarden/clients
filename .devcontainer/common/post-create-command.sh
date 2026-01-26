@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Running postCreateCommand.sh"
+echo "Running post-create-command.sh"
 
 # Load configuration (use .env.example as fallback for defaults)
 if [ -f ".devcontainer/common/.env" ]; then
@@ -67,4 +67,4 @@ if [ "$RUN_NPM_CI" = "yes" ]; then
     npm ci
 fi
 
-echo "postCreateCommand.sh completed"
+echo "post-create-command.sh completed"
