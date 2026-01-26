@@ -58,4 +58,40 @@ export class NewCipherMenuComponent {
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  /**
+   * Returns the appropriate button label based on what can be created.
+   * If only collections can be created (no ciphers or folders), show "New Collection".
+   * Otherwise, show "New".
+   */
+  protected getButtonLabel(): string {
+    const canCreateCipher = this.canCreateCipher();
+    const canCreateFolder = this.canCreateFolder();
+    const canCreateCollection = this.canCreateCollection();
+
+    // If only collections can be created, be specific
+    if (!canCreateCipher && !canCreateFolder && canCreateCollection) {
+      return "newCollection";
+    }
+
+    return "new";
+  }
+
+  /**
+   * Returns true if only collections can be created (no other options).
+   * When this is true, the button should directly create a collection instead of showing a dropdown.
+   */
+  protected isOnlyCollectionCreation(): boolean {
+    return !this.canCreateCipher() && !this.canCreateFolder() && this.canCreateCollection();
+  }
+
+  /**
+   * Handles the button click. If only collections can be created, directly emit the collection event.
+   * Otherwise, the menu trigger will handle opening the dropdown.
+   */
+  protected handleButtonClick(): void {
+    if (this.isOnlyCollectionCreation()) {
+      this.collectionAdded.emit();
+    }
+  }
 }
