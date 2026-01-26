@@ -101,7 +101,7 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Denna Send kommer att raderas permanent på detta datum.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
@@ -111,7 +111,7 @@
     "message": "Dölj text som standard"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Dölj din e-postadress från tittarna."
   },
   "limitSendViews": {
     "message": "Begränsa antalet visningar"
@@ -127,41 +127,41 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Ingen kan se denna Send efter att gränsen har nåtts.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
     "message": "Privat anteckning"
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Send-detaljer",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Lägg till ett valfritt lösenord för att mottagarna ska få åtkomst till denna Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
     "message": "Text att dela"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Ny Send för text",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Ny Send för fil",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Redigera Send för text",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Redigera Send för fil",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Är du säker på att du vill ta bort denna Send permanent?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
@@ -2091,6 +2091,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Raderade objekt permanent"
+  },
+  "archivedItemRestored": {
+    "message": "Arkiverat objekt återställt"
   },
   "restoredItem": {
     "message": "Återställde objekt"
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Arkivera objekt"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arkiverade objekt är uteslutna från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
+  "archiveItemDialogContent": {
+    "message": "När du har arkiverat kommer detta objekt att uteslutas från sökresultat och förslag till autofyll."
   },
   "unArchiveAndSave": {
     "message": "Avarkivera och spara"
