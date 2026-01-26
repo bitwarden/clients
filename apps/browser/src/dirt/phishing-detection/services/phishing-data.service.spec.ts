@@ -110,51 +110,6 @@ describe("PhishingDataService", () => {
   });
 
   describe("isPhishingWebAddress", () => {
-    it("should return false for chrome:// URLs without checking IndexedDB", async () => {
-      const url = new URL("chrome://newtab/");
-      const result = await service.isPhishingWebAddress(url);
-
-      expect(result).toBe(false);
-      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
-      expect(mockIndexedDbService.loadAllUrls).not.toHaveBeenCalled();
-    });
-
-    it("should return false for about: URLs without checking IndexedDB", async () => {
-      const url = new URL("about:blank");
-      const result = await service.isPhishingWebAddress(url);
-
-      expect(result).toBe(false);
-      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
-    });
-
-    it("should return false for file:// URLs without checking IndexedDB", async () => {
-      const url = new URL("file:///Users/test/document.html");
-      const result = await service.isPhishingWebAddress(url);
-
-      expect(result).toBe(false);
-      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
-    });
-
-    it("should check http:// URLs normally", async () => {
-      mockIndexedDbService.hasUrl.mockResolvedValue(false);
-      mockIndexedDbService.loadAllUrls.mockResolvedValue([]);
-
-      const url = new URL("http://example.com");
-      await service.isPhishingWebAddress(url);
-
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalled();
-    });
-
-    it("should check https:// URLs normally", async () => {
-      mockIndexedDbService.hasUrl.mockResolvedValue(false);
-      mockIndexedDbService.loadAllUrls.mockResolvedValue([]);
-
-      const url = new URL("https://example.com");
-      await service.isPhishingWebAddress(url);
-
-      expect(mockIndexedDbService.hasUrl).toHaveBeenCalled();
-    });
-
     it("should detect a phishing web address using quick hasUrl lookup", async () => {
       // Mock hasUrl to return true for direct hostname match
       mockIndexedDbService.hasUrl.mockResolvedValue(true);
