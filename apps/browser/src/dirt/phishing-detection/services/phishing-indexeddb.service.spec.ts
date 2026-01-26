@@ -215,6 +215,86 @@ describe("PhishingIndexedDbService", () => {
     });
   });
 
+  describe("addUrls", () => {
+    it("appends URLs to IndexedDB without clearing", async () => {
+      // Pre-populate store with existing data
+      mockStore.set("https://existing.com", { url: "https://existing.com" });
+
+      const urls = ["https://phishing.com", "https://malware.net"];
+      const result = await service.addUrls(urls);
+
+      expect(result).toBe(true);
+      expect(mockDb.transaction).toHaveBeenCalledWith("phishing-urls", "readwrite");
+      expect(mockObjectStore.clear).not.toHaveBeenCalled();
+      expect(mockObjectStore.put).toHaveBeenCalledTimes(2);
+      // Existing data should still be present
+      expect(mockStore.has("https://existing.com")).toBe(true);
+      expect(mockStore.size).toBe(3);
+      expect(mockDb.close).toHaveBeenCalled();
+    });
+
+    it("handles empty array without clearing", async () => {
+      mockStore.set("https://existing.com", { url: "https://existing.com" });
+
+      const result = await service.addUrls([]);
+
+      expect(result).toBe(true);
+      expect(mockObjectStore.clear).not.toHaveBeenCalled();
+      expect(mockStore.has("https://existing.com")).toBe(true);
+    });
+
+    it("trims whitespace from URLs", async () => {
+      const urls = ["  https://example.com  ", "\nhttps://test.org\n"];
+
+      await service.addUrls(urls);
+
+      expect(mockObjectStore.put).toHaveBeenCalledWith({ url: "https://example.com" });
+      expect(mockObjectStore.put).toHaveBeenCalledWith({ url: "https://test.org" });
+    });
+
+    it("skips empty lines", async () => {
+      const urls = ["https://example.com", "", "  ", "https://test.org"];
+
+      await service.addUrls(urls);
+
+      expect(mockObjectStore.put).toHaveBeenCalledTimes(2);
+    });
+
+    it("handles duplicate URLs via upsert", async () => {
+      mockStore.set("https://example.com", { url: "https://example.com" });
+
+      const urls = [
+        "https://example.com", // Already exists
+        "https://test.org",
+      ];
+
+      const result = await service.addUrls(urls);
+
+      expect(result).toBe(true);
+      expect(mockObjectStore.put).toHaveBeenCalledTimes(2);
+      expect(mockStore.size).toBe(2);
+    });
+
+    it("logs error and returns false on failure", async () => {
+      const error = new Error("IndexedDB error");
+      mockOpenRequest.error = error;
+      (global.indexedDB.open as jest.Mock).mockImplementation(() => {
+        setTimeout(() => {
+          mockOpenRequest.onerror?.();
+        }, 0);
+        return mockOpenRequest;
+      });
+
+      const result = await service.addUrls(["https://test.com"]);
+
+      expect(result).toBe(false);
+      expect(logService.error).toHaveBeenCalledWith(
+        "[PhishingIndexedDbService] Add failed",
+        expect.any(Error),
+      );
+    });
+  });
+
   describe("hasUrl", () => {
     it("returns true for existing URL", async () => {
       mockStore.set("https://example.com", { url: "https://example.com" });

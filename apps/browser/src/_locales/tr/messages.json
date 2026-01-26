@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Geçiş anahtarıyla giriş yap"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Çoklu oturum açma kullan"
   },
@@ -582,8 +585,8 @@
   "archiveItem": {
     "message": "Kaydı arşivle"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğinizden emin misiniz?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
     "message": "Arşivlendi"
@@ -2473,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Kayıt kalıcı olarak silindi"
   },
+  "archivedItemRestored": {
+    "message": "Arşivlenmiş kayıt geri getirildi"
+  },
   "restoreItem": {
     "message": "Kaydı geri yükle"
   },
@@ -3363,6 +3369,12 @@
   },
   "error": {
     "message": "Hata"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Şifre çözme sorunu"
@@ -4739,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Diğer seçenekler"
+  },
   "moreOptionsTitle": {
     "message": "Diğer seçenekler - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "$WEBSITE$ eşleşme tespitini gizle",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Eşleşme tespitini göster"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Eşleşme tespitini gizle"
   },
   "autoFillOnPageLoad": {
     "message": "Sayfa yüklenince otomatik doldur"
@@ -5669,6 +5681,9 @@
   },
   "extraWide": {
     "message": "Ekstra geniş"
+  },
+  "narrow": {
+    "message": "Dar"
   },
   "sshKeyWrongPassword": {
     "message": "Girdiğiniz parola yanlış."
