@@ -32,6 +32,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
   tabIndex: number = 0;
   organization$: Observable<Organization> = new Observable<Organization>();
   isEventManagementForDataDogAndCrowdStrikeEnabled: boolean = false;
+  isEventManagementForHuntressEnabled: boolean = false;
   private destroy$ = new Subject<void>();
 
   // initialize the integrations list with default integrations
@@ -258,6 +259,13 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
         this.isEventManagementForDataDogAndCrowdStrikeEnabled = isEnabled;
       });
 
+    this.configService
+      .getFeatureFlag$(FeatureFlag.EventManagementForHuntress)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isEnabled) => {
+        this.isEventManagementForHuntressEnabled = isEnabled;
+      });
+
     // Add the new event based items to the list
     if (this.isEventManagementForDataDogAndCrowdStrikeEnabled) {
       const crowdstrikeIntegration: Integration = {
@@ -283,6 +291,21 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       };
 
       this.integrationsList.push(datadogIntegration);
+    }
+
+    // Add Huntress SIEM integration (separate feature flag)
+    if (this.isEventManagementForHuntressEnabled) {
+      const huntressIntegration: Integration = {
+        name: OrganizationIntegrationServiceName.Huntress,
+        linkURL: "https://bitwarden.com/help/huntress-siem/",
+        image: "../../../../../../../images/integrations/logo-huntress-siem.svg",
+        type: IntegrationType.EVENT,
+        description: "huntressEventIntegrationDesc",
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
+      };
+
+      this.integrationsList.push(huntressIntegration);
     }
 
     // For all existing event based configurations loop through and assign the

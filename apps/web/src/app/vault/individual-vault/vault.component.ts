@@ -1271,6 +1271,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   restore = async (c: C): Promise<boolean> => {
+    let toastMessage;
     if (!CipherViewLikeUtils.isDeleted(c)) {
       return;
     }
@@ -1284,13 +1285,19 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
+    if (CipherViewLikeUtils.isArchived(c)) {
+      toastMessage = this.i18nService.t("archivedItemRestored");
+    } else {
+      toastMessage = this.i18nService.t("restoredItem");
+    }
+
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.cipherService.restoreWithServer(uuidAsString(c.id), activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("restoredItem"),
+        message: toastMessage,
       });
       this.refresh();
     } catch (e) {
@@ -1299,9 +1306,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   };
 
   async bulkRestore(ciphers: C[]) {
+    let toastMessage;
     if (ciphers.some((c) => !c.edit)) {
       this.showMissingPermissionsError();
       return;
+    }
+
+    if (ciphers.some((c) => !CipherViewLikeUtils.isArchived(c))) {
+      toastMessage = this.i18nService.t("restoredItems");
+    } else {
+      toastMessage = this.i18nService.t("archivedItemsRestored");
     }
 
     if (!(await this.repromptCipher(ciphers))) {
@@ -1323,7 +1337,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("restoredItems"),
+      message: toastMessage,
     });
     this.refresh();
   }
