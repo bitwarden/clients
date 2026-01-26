@@ -1,7 +1,12 @@
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ItemView } from "@bitwarden/common/vault/models/view/item.view";
-import { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+import {
+  CipherCreateRequest,
+  CipherEditRequest,
+  CipherViewType,
+  CipherView as SdkCipherView,
+} from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
@@ -330,6 +335,85 @@ export class CipherView implements View, InitializerMetadata {
     }
 
     return cipherView;
+  }
+
+  /**
+   * Maps CipherView to an SDK CipherCreateRequest
+   *
+   * @returns {CipherCreateRequest} The SDK cipher create request object
+   */
+  toSdkCreateCipherRequest(): CipherCreateRequest {
+    const sdkCipherCreateRequest: CipherCreateRequest = {
+      organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
+      collectionIds: this.collectionIds ? this.collectionIds.map((i) => asUuid(i)) : [],
+      folderId: this.folderId ? asUuid(this.folderId) : undefined,
+      name: this.name ?? "",
+      notes: this.notes,
+      favorite: this.favorite ?? false,
+      reprompt: this.reprompt ?? CipherRepromptType.None,
+      fields: this.fields?.map((f) => f.toSdkFieldView()),
+      type: this.getSdkCipherViewType(),
+    };
+
+    return sdkCipherCreateRequest;
+  }
+
+  /**
+   * Maps CipherView to an SDK CipherEditRequest
+   *
+   * @returns {CipherEditRequest} The SDK cipher edit request object
+   */
+  toSdkUpdateCipherRequest(): CipherEditRequest {
+    const sdkCipherEditRequest: CipherEditRequest = {
+      id: asUuid(this.id),
+      organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
+      folderId: this.folderId ? asUuid(this.folderId) : undefined,
+      name: this.name ?? "",
+      notes: this.notes,
+      favorite: this.favorite ?? false,
+      reprompt: this.reprompt ?? CipherRepromptType.None,
+      fields: this.fields?.map((f) => f.toSdkFieldView()),
+      type: this.getSdkCipherViewType(),
+      revisionDate: this.revisionDate?.toISOString(),
+      archivedDate: this.archivedDate?.toISOString(),
+      attachments: this.attachments?.map((a) => a.toSdkAttachmentView()),
+      key: this.key?.toSdk(),
+    };
+
+    return sdkCipherEditRequest;
+  }
+
+  /**
+   * Returns the SDK CipherViewType object for the cipher.
+   *
+   * @returns {CipherViewType} The SDK CipherViewType for the cipher.t
+   */
+  getSdkCipherViewType(): CipherViewType {
+    let viewType: CipherViewType;
+    switch (this.type) {
+      case CipherType.Card:
+        viewType = { card: this.card?.toSdkCardView() };
+        break;
+      case CipherType.Identity:
+        viewType = { identity: this.identity?.toSdkIdentityView() };
+        break;
+      case CipherType.Login:
+        viewType = { login: this.login?.toSdkLoginView() };
+        break;
+      case CipherType.SecureNote:
+        viewType = { secureNote: this.secureNote?.toSdkSecureNoteView() };
+        break;
+      case CipherType.SshKey:
+        viewType = { sshKey: this.sshKey?.toSdkSshKeyView() };
+        break;
+      default:
+        viewType = {
+          // Default to empty login - should not be valid code path.
+          login: new LoginView().toSdkLoginView(),
+        };
+        break;
+    }
+    return viewType;
   }
 
   /**
