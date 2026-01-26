@@ -220,24 +220,12 @@ export class AccountSubscriptionComponent {
           return;
         }
 
-        const currentSubscription = this.subscription.value();
-        const shouldForcePremium =
-          currentSubscription?.status === SubscriptionStatuses.IncompleteExpired ||
-          currentSubscription?.status === SubscriptionStatuses.Canceled;
-
         const dialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
           data: {
             account,
-            ...(shouldForcePremium
-              ? {
-                  initialStep: UnifiedUpgradeDialogStep.Payment,
-                  selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
-                  redirectOnCompletion: true,
-                }
-              : {
-                  planSelectionStepTitleOverride: "upgradeYourPlan",
-                  hideContinueWithoutUpgradingButton: true,
-                }),
+            initialStep: UnifiedUpgradeDialogStep.Payment,
+            selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
+            redirectOnCompletion: true,
           },
         });
 
