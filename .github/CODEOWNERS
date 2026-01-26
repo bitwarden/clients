@@ -84,6 +84,7 @@ apps/web/src/app/billing @bitwarden/team-billing-dev
 libs/angular/src/billing @bitwarden/team-billing-dev
 libs/common/src/billing @bitwarden/team-billing-dev
 libs/billing @bitwarden/team-billing-dev
+libs/pricing @bitwarden/team-billing-dev
 bitwarden_license/bit-web/src/app/billing @bitwarden/team-billing-dev
 
 ## Platform team files ##
@@ -227,7 +228,9 @@ apps/web/src/locales/en/messages.json
 **/tsconfig.json @bitwarden/team-platform-dev
 **/jest.config.js @bitwarden/team-platform-dev
 **/project.jsons @bitwarden/team-platform-dev
-libs/pricing @bitwarden/team-billing-dev
+# Platform override specifically for the package-lock.json in
+# native-messaging-test-runner so that Platform can manage all lock file updates
+apps/desktop/native-messaging-test-runner/package-lock.json @bitwarden/team-platform-dev
 
 # Claude related files
 .claude/ @bitwarden/team-ai-sme
