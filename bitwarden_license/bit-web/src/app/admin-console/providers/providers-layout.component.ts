@@ -13,7 +13,7 @@ import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { IconModule } from "@bitwarden/components";
+import { SvgModule } from "@bitwarden/components";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
@@ -31,7 +31,7 @@ import { ProviderWarningsService } from "../../billing/providers/warnings/servic
     RouterModule,
     JslibModule,
     WebLayoutModule,
-    IconModule,
+    SvgModule,
     TaxIdWarningComponent,
   ],
 })

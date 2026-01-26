@@ -8,7 +8,7 @@ import { Subject, filter, switchMap, takeUntil, tap } from "rxjs";
 import { BitwardenLogo, Icon } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
-  IconModule,
+  SvgModule,
   Translation,
   AnonLayoutComponent,
   AnonLayoutWrapperData,
@@ -38,7 +38,7 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
     CommonModule,
     CurrentAccountComponent,
     I18nPipe,
-    IconModule,
+    SvgModule,
     PopOutComponent,
     PopupPageComponent,
     PopupHeaderComponent,

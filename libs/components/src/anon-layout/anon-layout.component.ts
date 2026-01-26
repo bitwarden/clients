@@ -16,10 +16,10 @@ import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { IconModule } from "../icon";
 import { LandingContentMaxWidthType } from "../landing-layout";
 import { LandingLayoutModule } from "../landing-layout/landing-layout.module";
 import { SharedModule } from "../shared";
+import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -28,7 +28,7 @@ import { TypographyModule } from "../typography";
   selector: "auth-anon-layout",
   templateUrl: "./anon-layout.component.html",
   imports: [
-    IconModule,
+    SvgModule,
     CommonModule,
     TypographyModule,
     SharedModule,

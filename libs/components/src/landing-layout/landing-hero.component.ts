@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { Icon } from "@bitwarden/assets/svg";
 
-import { IconModule } from "../icon";
+import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
 
 /**
@@ -31,7 +31,7 @@ import { TypographyModule } from "../typography";
   selector: "bit-landing-hero",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-hero.component.html",
-  imports: [IconModule, TypographyModule],
+  imports: [SvgModule, TypographyModule],
 })
 export class LandingHeroComponent {
   readonly icon = input<Icon | null>(null);
