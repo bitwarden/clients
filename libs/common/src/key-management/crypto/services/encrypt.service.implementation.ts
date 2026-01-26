@@ -1,9 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
@@ -15,27 +13,11 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
-  private disableType0Decryption = false;
-
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected logService: LogService,
     protected logMacFailures: boolean,
   ) {}
-
-  init(configService: ConfigService): void {
-    configService.serverConfig$.subscribe((newConfig) => {
-      if (newConfig != null) {
-        this.setDisableType0Decryption(
-          newConfig.featureStates[FeatureFlag.PM25174_DisableType0Decryption] === true,
-        );
-      }
-    });
-  }
-
-  setDisableType0Decryption(disable: boolean): void {
-    this.disableType0Decryption = disable;
-  }
 
   async encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString> {
     if (plainValue == null) {
@@ -60,7 +42,7 @@ export class EncryptServiceImplementation implements EncryptService {
   }
 
   async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
-    if (this.disableType0Decryption && encString.encryptionType === EncryptionType.AesCbc256_B64) {
+    if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
     await SdkLoadService.Ready;
@@ -68,7 +50,7 @@ export class EncryptServiceImplementation implements EncryptService {
   }
 
   async decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array> {
-    if (this.disableType0Decryption && encString.encryptionType === EncryptionType.AesCbc256_B64) {
+    if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
     await SdkLoadService.Ready;
@@ -76,7 +58,7 @@ export class EncryptServiceImplementation implements EncryptService {
   }
 
   async decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array> {
-    if (this.disableType0Decryption && encBuffer.encryptionType === EncryptionType.AesCbc256_B64) {
+    if (encBuffer.encryptionType === EncryptionType.AesCbc256_B64) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
     await SdkLoadService.Ready;
@@ -148,10 +130,7 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No wrappingKey provided for unwrapping.");
     }
 
-    if (
-      this.disableType0Decryption &&
-      wrappedDecapsulationKey.encryptionType === EncryptionType.AesCbc256_B64
-    ) {
+    if (wrappedDecapsulationKey.encryptionType === EncryptionType.AesCbc256_B64) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
 
@@ -171,10 +150,7 @@ export class EncryptServiceImplementation implements EncryptService {
     if (wrappingKey == null) {
       throw new Error("No wrappingKey provided for unwrapping.");
     }
-    if (
-      this.disableType0Decryption &&
-      wrappedEncapsulationKey.encryptionType === EncryptionType.AesCbc256_B64
-    ) {
+    if (wrappedEncapsulationKey.encryptionType === EncryptionType.AesCbc256_B64) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
 
@@ -194,10 +170,7 @@ export class EncryptServiceImplementation implements EncryptService {
     if (wrappingKey == null) {
       throw new Error("No wrappingKey provided for unwrapping.");
     }
-    if (
-      this.disableType0Decryption &&
-      keyToBeUnwrapped.encryptionType === EncryptionType.AesCbc256_B64
-    ) {
+    if (keyToBeUnwrapped.encryptionType === EncryptionType.AesCbc256_B64) {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
 
