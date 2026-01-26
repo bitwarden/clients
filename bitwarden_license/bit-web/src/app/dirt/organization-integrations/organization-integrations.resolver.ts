@@ -252,7 +252,6 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
       );
     }
 
-    // Wait for initial integrations load
     const orgIntegrations = await firstValueFrom(
       this.organizationIntegrationService.integrations$.pipe(take(1)),
     );
@@ -263,9 +262,6 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
     }));
 
     this.state.setIntegrations(merged);
-
-    // eslint-disable-next-line no-console
-    console.log("[DEBUG] Loaded integrations:", merged);
 
     return true;
   }
