@@ -25,7 +25,7 @@
   </div>
 </td>
 @if (showOwner()) {
-  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell">
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden @sm:tw-table-cell">
     <app-org-badge
       [disabled]="disabled()"
       [organizationId]="collection().organizationId"

@@ -20,7 +20,7 @@
       >
       </bit-search>
     </div>
-    <bit-table [dataSource]="dataSource" layout="fixed">
+    <bit-table [dataSource]="dataSource" layout="fixed" class="tw-@container">
       <ng-container header>
         <tr>
           <!-- Individual or Organization vault -->
@@ -37,12 +37,12 @@
               bitCell
               bitSortable="owner"
               [fn]="sortByOwner"
-              class="tw-hidden tw-w-1/6 lg:tw-table-cell"
+              class="tw-hidden tw-w-1/6 @sm:tw-table-cell"
             >
               {{ "owner" | i18n }}
             </th>
           }
-          <th bitCell class="tw-w-2/6 lg:tw-table-cell tw-text-right tw-font-medium">
+          <th bitCell class="tw-w-2/6 tw-text-right tw-font-medium">
             {{ "options" | i18n }}
           </th>
         </tr>
