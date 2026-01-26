@@ -1,4 +1,4 @@
-name: bitwarden_clients
+name: bitwarden_common
 
 services:
   bitwarden_clients:
