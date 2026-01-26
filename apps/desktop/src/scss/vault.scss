@@ -28,8 +28,9 @@ app-root {
 
   > .items {
     order: 2;
-    width: 50%;
+    width: 28%;
     min-width: 200px;
+    max-width: 350px;
     border-right: 1px solid #000000;
 
     @include themify($themes) {
