@@ -1,10 +1,10 @@
 import {
-  concatMap,
   distinctUntilChanged,
   EMPTY,
   filter,
   map,
   merge,
+  mergeMap,
   Subject,
   switchMap,
   tap,
@@ -43,6 +43,7 @@ export class PhishingDetectionService {
   private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
   private static _ignoredHostnames = new Set<string>();
   private static _didInit = false;
+  private static _activeSearchCount = 0;
 
   static initialize(
     logService: LogService,
@@ -63,7 +64,7 @@ export class PhishingDetectionService {
       tap((message) =>
         logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
       ),
-      concatMap(async (message) => {
+      mergeMap(async (message) => {
         const url = new URL(message.url);
         this._ignoredHostnames.add(url.hostname);
         await BrowserApi.navigateTabToUrl(message.tabId, url);
@@ -88,23 +89,40 @@ export class PhishingDetectionService {
           prev.ignored === curr.ignored,
       ),
       tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
-      concatMap(async ({ tabId, url, ignored }) => {
-        if (ignored) {
-          // The next time this host is visited, block again
-          this._ignoredHostnames.delete(url.hostname);
-          return;
-        }
-        const isPhishing = await phishingDataService.isPhishingWebAddress(url);
-        if (!isPhishing) {
-          return;
-        }
-
-        const phishingWarningPage = new URL(
-          BrowserApi.getRuntimeURL("popup/index.html#/security/phishing-warning") +
-            `?phishingUrl=${url.toString()}`,
+      // Use mergeMap for parallel processing - each tab check runs independently
+      // Concurrency limit of 5 prevents overwhelming IndexedDB
+      mergeMap(async ({ tabId, url, ignored }) => {
+        this._activeSearchCount++;
+        const searchId = `${tabId}-${Date.now()}`;
+        logService.debug(
+          `[PhishingDetectionService] Search STARTED [${searchId}] for ${url.href} (active: ${this._activeSearchCount}/5)`,
         );
-        await BrowserApi.navigateTabToUrl(tabId, phishingWarningPage);
-      }),
+        const startTime = performance.now();
+
+        try {
+          if (ignored) {
+            // The next time this host is visited, block again
+            this._ignoredHostnames.delete(url.hostname);
+            return;
+          }
+          const isPhishing = await phishingDataService.isPhishingWebAddress(url);
+          if (!isPhishing) {
+            return;
+          }
+
+          const phishingWarningPage = new URL(
+            BrowserApi.getRuntimeURL("popup/index.html#/security/phishing-warning") +
+              `?phishingUrl=${url.toString()}`,
+          );
+          await BrowserApi.navigateTabToUrl(tabId, phishingWarningPage);
+        } finally {
+          this._activeSearchCount--;
+          const duration = (performance.now() - startTime).toFixed(2);
+          logService.debug(
+            `[PhishingDetectionService] Search FINISHED [${searchId}] for ${url.href} in ${duration}ms (active: ${this._activeSearchCount}/5)`,
+          );
+        }
+      }, 5),
     );
 
     const onCancelCommand$ = messageListener
