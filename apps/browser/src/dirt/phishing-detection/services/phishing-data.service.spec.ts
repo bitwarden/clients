@@ -40,6 +40,7 @@ describe("PhishingDataService", () => {
     // Set default mock behaviors
     mockIndexedDbService.hasUrl.mockResolvedValue(false);
     mockIndexedDbService.loadAllUrls.mockResolvedValue([]);
+    mockIndexedDbService.findMatchingUrl.mockResolvedValue(false);
     mockIndexedDbService.saveUrls.mockResolvedValue(undefined);
     mockIndexedDbService.addUrls.mockResolvedValue(undefined);
     mockIndexedDbService.saveUrlsFromStream.mockResolvedValue(undefined);
@@ -90,7 +91,7 @@ describe("PhishingDataService", () => {
 
     it("should NOT detect QA test addresses - different subpath", async () => {
       mockIndexedDbService.hasUrl.mockResolvedValue(false);
-      mockIndexedDbService.loadAllUrls.mockResolvedValue([]);
+      mockIndexedDbService.findMatchingUrl.mockResolvedValue(false);
 
       const url = new URL("https://phishing.testcategory.com/other");
       const result = await service.isPhishingWebAddress(url);
@@ -120,70 +121,65 @@ describe("PhishingDataService", () => {
       expect(result).toBe(true);
       expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/testing-param");
       // Should not fall back to custom matcher when hasUrl returns true
-      expect(mockIndexedDbService.loadAllUrls).not.toHaveBeenCalled();
+      expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
 
-    it("should fall back to custom matcher when hasUrl returns false", async () => {
+    it("should return false when hasUrl returns false (custom matcher disabled)", async () => {
       // Mock hasUrl to return false (no direct href match)
       mockIndexedDbService.hasUrl.mockResolvedValue(false);
-      // Mock loadAllUrls to return phishing URLs for custom matcher
-      mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com/path"]);
 
       const url = new URL("http://phish.com/path");
       const result = await service.isPhishingWebAddress(url);
 
-      expect(result).toBe(true);
+      // Custom matcher is currently disabled (useCustomMatcher: false), so result is false
+      expect(result).toBe(false);
       expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/path");
-      expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
+      // Custom matcher should NOT be called since it's disabled
+      expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
 
     it("should not detect a safe web address", async () => {
       // Mock hasUrl to return false
       mockIndexedDbService.hasUrl.mockResolvedValue(false);
-      // Mock loadAllUrls to return phishing URLs that don't match
-      mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com", "http://badguy.net"]);
 
       const url = new URL("http://safe.com");
       const result = await service.isPhishingWebAddress(url);
 
       expect(result).toBe(false);
       expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://safe.com/");
-      expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
+      // Custom matcher is disabled, so findMatchingUrl should NOT be called
+      expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
 
-    it("should not match against root web address with subpaths using custom matcher", async () => {
+    it("should not match against root web address with subpaths (custom matcher disabled)", async () => {
       // Mock hasUrl to return false (no direct href match)
       mockIndexedDbService.hasUrl.mockResolvedValue(false);
-      // Mock loadAllUrls to return entry that matches with subpath
-      mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com/login"]);
 
       const url = new URL("http://phish.com/login/page");
       const result = await service.isPhishingWebAddress(url);
 
       expect(result).toBe(false);
       expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/login/page");
-      expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
+      // Custom matcher is disabled, so findMatchingUrl should NOT be called
+      expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
 
-    it("should not match against root web address with different subpaths using custom matcher", async () => {
+    it("should not match against root web address with different subpaths (custom matcher disabled)", async () => {
       // Mock hasUrl to return false (no direct hostname match)
       mockIndexedDbService.hasUrl.mockResolvedValue(false);
-      // Mock loadAllUrls to return entry that matches with subpath
-      mockIndexedDbService.loadAllUrls.mockResolvedValue(["http://phish.com/login/page1"]);
 
       const url = new URL("http://phish.com/login/page2");
       const result = await service.isPhishingWebAddress(url);
 
       expect(result).toBe(false);
       expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/login/page2");
-      expect(mockIndexedDbService.loadAllUrls).toHaveBeenCalled();
+      // Custom matcher is disabled, so findMatchingUrl should NOT be called
+      expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
 
     it("should handle IndexedDB errors gracefully", async () => {
       // Mock hasUrl to throw error
       mockIndexedDbService.hasUrl.mockRejectedValue(new Error("hasUrl error"));
-      // Mock loadAllUrls to also throw error
-      mockIndexedDbService.loadAllUrls.mockRejectedValue(new Error("IndexedDB error"));
 
       const url = new URL("http://phish.com/about");
       const result = await service.isPhishingWebAddress(url);
@@ -193,10 +189,8 @@ describe("PhishingDataService", () => {
         "[PhishingDataService] IndexedDB lookup via hasUrl failed",
         expect.any(Error),
       );
-      expect(logService.error).toHaveBeenCalledWith(
-        "[PhishingDataService] Error running custom matcher",
-        expect.any(Error),
-      );
+      // Custom matcher is disabled, so no custom matcher error is expected
+      expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
   });
 
