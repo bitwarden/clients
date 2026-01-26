@@ -175,6 +175,8 @@ describe("WebAuthnLoginStrategy", () => {
       WebAuthnPrfOption: {
         EncryptedPrivateKey: mockEncPrfPrivateKey,
         EncryptedUserKey: mockEncUserKey,
+        CredentialId: "mockCredentialId",
+        Transports: ["usb", "nfc"],
       },
     };
 
