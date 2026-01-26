@@ -20,9 +20,7 @@
       <button
         type="button"
         class="tw-ms-auto tw-text-fg-sidenav-text"
-        [ngClass]="{
-          'tw-transform tw-rotate-[90deg]': variantValue === 'tree' && !open(),
-        }"
+        [class]="variantValue === 'tree' && !open() ? 'tw-transform tw-rotate-[90deg]' : ''"
         [bitIconButton]="toggleButtonIcon()"
         buttonType="nav-contrast"
         (click)="toggle($event)"
