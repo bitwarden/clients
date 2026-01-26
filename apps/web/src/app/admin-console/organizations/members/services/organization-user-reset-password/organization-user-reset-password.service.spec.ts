@@ -227,6 +227,7 @@ describe("OrganizationUserResetPasswordService", () => {
     let kdfConfig: KdfConfig;
     let authenticationData: MasterPasswordAuthenticationData;
     let unlockData: MasterPasswordUnlockData;
+    let userKey: UserKey;
 
     beforeEach(() => {
       // Mock feature flag value
@@ -250,22 +251,23 @@ describe("OrganizationUserResetPasswordService", () => {
         organizationUserResetPasswordDetailsResponse,
       );
 
-      const mockDecryptedOrgKeyBytes = new Uint8Array(64);
+      const mockDecryptedOrgKeyBytes = new Uint8Array(64).fill(1);
       const mockDecryptedOrgKey = new SymmetricCryptoKey(mockDecryptedOrgKeyBytes) as OrgKey;
 
       keyService.orgKeys$.mockReturnValue(
         of({ [orgId]: mockDecryptedOrgKey } as Record<OrganizationId, OrgKey>),
       );
 
-      const mockDecryptedPrivateKeyBytes = new Uint8Array(64);
+      const mockDecryptedPrivateKeyBytes = new Uint8Array(64).fill(2);
       encryptService.unwrapDecapsulationKey.mockResolvedValue(mockDecryptedPrivateKeyBytes);
 
-      const mockDecryptedUserKeyBytes = new Uint8Array(64);
-      encryptService.decapsulateKeyUnsigned.mockResolvedValue(
-        new SymmetricCryptoKey(mockDecryptedUserKeyBytes) as UserKey,
-      );
+      const mockDecryptedUserKeyBytes = new Uint8Array(64).fill(3);
+      const mockUserKey = new SymmetricCryptoKey(mockDecryptedUserKeyBytes);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValue(mockUserKey); // returns `SymmetricCryptoKey`
+      userKey = mockUserKey as UserKey; // type cast to `UserKey` (see code implementation). Points to same object as mockUserKey.
 
       salt = email as MasterPasswordSalt;
+      masterPasswordService.mock.emailToSalt.mockReturnValue(salt);
 
       authenticationData = {
         salt,
@@ -319,7 +321,37 @@ describe("OrganizationUserResetPasswordService", () => {
       await expect(promise).rejects.toThrow();
     });
 
-    it("should call organizationUserApiService.putOrganizationUserResetPassword() to reset the user's master password", async () => {
+    it("should call makeMasterPasswordAuthenticationData and makeMasterPasswordUnlockData with the correct parameters", async () => {
+      // Act
+      await sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
+
+      // Assert
+      const request = OrganizationUserResetPasswordRequest.newConstructor(
+        authenticationData,
+        unlockData,
+      );
+
+      expect(masterPasswordService.mock.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
+        newMasterPassword,
+        kdfConfig,
+        salt,
+      );
+
+      expect(masterPasswordService.mock.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+        newMasterPassword,
+        kdfConfig,
+        salt,
+        userKey,
+      );
+
+      expect(organizationUserApiService.putOrganizationUserResetPassword).toHaveBeenCalledWith(
+        orgId,
+        orgUserId,
+        request,
+      );
+    });
+
+    it("should call the API method to reset the user's master password", async () => {
       // Act
       await sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
 
