@@ -108,7 +108,7 @@ describe("DownloadAttachmentComponent", () => {
   it("renders delete button", () => {
     const deleteButton = fixture.debugElement.query(By.css("button"));
 
-    expect(deleteButton.attributes["aria-label"]).toBe("downloadAttachmentName");
+    expect(deleteButton.attributes["aria-label"]).toBe("downloadAttachmentLabel");
   });
 
   describe("download attachment", () => {
