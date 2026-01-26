@@ -10,11 +10,12 @@ import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import { IntegrationDialogResultStatus } from "../integration-dialog-result-status";
+
 import {
   ConnectDatadogDialogComponent,
   DatadogConnectDialogParams,
   DatadogConnectDialogResult,
-  DatadogConnectDialogResultStatus,
   openDatadogConnectDialog,
 } from "./connect-dialog-datadog.component";
 
@@ -149,7 +150,7 @@ describe("ConnectDialogDatadogComponent", () => {
       url: "https://test.com",
       apiKey: "token",
       service: "Test Service",
-      success: DatadogConnectDialogResultStatus.Edited,
+      success: IntegrationDialogResultStatus.Edited,
     });
   });
 });

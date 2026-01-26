@@ -1,5 +1,5 @@
 @let mainContentId = "main-content";
-<div class="tw-flex tw-size-full">
+<div class="tw-flex tw-size-full" [class.tw-bg-background-alt3]="rounded()">
   <div class="tw-flex tw-size-full" cdkTrapFocus>
     <div
       class="tw-fixed tw-z-50 tw-w-full tw-flex tw-justify-center tw-opacity-0 focus-within:tw-opacity-100 tw-pointer-events-none focus-within:tw-pointer-events-auto"
@@ -24,6 +24,7 @@
       tabindex="-1"
       bitScrollLayoutHost
       class="tw-overflow-auto tw-max-h-full tw-min-w-0 tw-flex-1 tw-bg-background tw-p-8 tw-pt-6 tw-@container"
+      [class.tw-rounded-tl-2xl]="rounded()"
     >
       <!-- ^ If updating this padding, also update the padding correction in bit-banner! ^ -->
       <ng-content></ng-content>
