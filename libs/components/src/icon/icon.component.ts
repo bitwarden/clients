@@ -1,35 +1,61 @@
-import { Component, effect, input } from "@angular/core";
-import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import { Icon, isIcon } from "@bitwarden/assets/svg";
+import { BitwardenIcon } from "../shared/icon";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+export const BitIconSize = Object.freeze({
+  Xs: "xs",
+  Sm: "sm",
+  Md: "md",
+  Lg: "lg",
+  Xl: "xl",
+} as const);
+
+export type BitIconSize = (typeof BitIconSize)[keyof typeof BitIconSize];
+
 @Component({
   selector: "bit-icon",
+  standalone: true,
   host: {
-    "[attr.aria-hidden]": "!ariaLabel()",
+    "[class]": "classList()",
+    "[attr.aria-hidden]": "ariaLabel() ? null : true",
     "[attr.aria-label]": "ariaLabel()",
-    "[innerHtml]": "innerHtml",
-    class: "tw-max-h-full tw-flex tw-justify-center",
   },
   template: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BitIconComponent {
-  innerHtml: SafeHtml | null = null;
+  /**
+   * The Bitwarden icon name (e.g., "bwi-lock", "bwi-user")
+   */
+  readonly icon = input.required<BitwardenIcon>();
 
-  readonly icon = input<Icon>();
+  /**
+   * Whether the icon should have a fixed width for alignment
+   */
+  readonly fw = input<boolean>(false);
 
+  /**
+   * Icon size - applies bwi-* size classes
+   */
+  readonly size = input<BitIconSize>();
+
+  /**
+   * Accessible label for the icon
+   */
   readonly ariaLabel = input<string>();
 
-  constructor(private domSanitizer: DomSanitizer) {
-    effect(() => {
-      const icon = this.icon();
-      if (!isIcon(icon)) {
-        return;
-      }
-      const svg = icon.svg;
-      this.innerHtml = this.domSanitizer.bypassSecurityTrustHtml(svg);
-    });
-  }
+  protected readonly classList = computed(() => {
+    const classes = ["bwi", this.icon()];
+
+    if (this.fw()) {
+      classes.push("bwi-fw");
+    }
+
+    const size = this.size();
+    if (size) {
+      classes.push(`bwi-${size}`);
+    }
+
+    return classes.join(" ");
+  });
 }

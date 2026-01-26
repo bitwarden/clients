@@ -2,17 +2,17 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { Icon, svgIcon } from "@bitwarden/assets/svg";
 
-import { BitIconComponent } from "./icon.component";
+import { SvgComponent } from "./svg.component";
 
-describe("IconComponent", () => {
-  let fixture: ComponentFixture<BitIconComponent>;
+describe("SvgComponent", () => {
+  let fixture: ComponentFixture<SvgComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BitIconComponent],
+      imports: [SvgComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(BitIconComponent);
+    fixture = TestBed.createComponent(SvgComponent);
     fixture.detectChanges();
   });
 

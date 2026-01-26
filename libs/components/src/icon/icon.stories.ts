@@ -1,6 +1,6 @@
-import { Meta } from "@storybook/angular";
+import { Meta, StoryObj } from "@storybook/angular";
 
-import * as SvgIcons from "@bitwarden/assets/svg";
+import { BITWARDEN_ICONS } from "../shared/icon";
 
 import { BitIconComponent } from "./icon.component";
 
@@ -13,38 +13,73 @@ export default {
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21662-50335&t=k6OTDDPZOTtypRqo-11",
     },
   },
-} as Meta;
+  argTypes: {
+    icon: {
+      control: { type: "select" },
+      options: BITWARDEN_ICONS,
+    },
+    size: {
+      control: { type: "select" },
+      options: ["xs", "sm", "md", "lg", "xl"],
+    },
+  },
+} as Meta<BitIconComponent>;
 
-const {
-  // Filtering out the few non-icons in the libs/assets/svg import
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  DynamicContentNotAllowedError: _DynamicContentNotAllowedError,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  isIcon,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  svgIcon,
-  ...Icons
-}: {
-  [key: string]: any;
-} = SvgIcons;
+type Story = StoryObj<BitIconComponent>;
 
-export const Default = {
-  render: (args: { icons: [string, any][] }) => ({
-    props: args,
-    template: /*html*/ `
-    <div class="tw-bg-secondary-100 tw-p-2 tw-grid tw-grid-cols-[repeat(auto-fit,minmax(224px,1fr))] tw-gap-2">
-      @for (icon of icons; track icon[0]) {
-        <div class="tw-size-56 tw-border tw-border-secondary-300 tw-rounded-md">
-          <div class="tw-text-xs tw-text-center">{{icon[0]}}</div>
-          <div class="tw-size-52 tw-w-full tw-content-center">
-            <bit-icon [icon]="icon[1]"></bit-icon>
+export const Default: Story = {
+  args: {
+    icon: "bwi-lock",
+  },
+};
+
+export const AllIcons: Story = {
+  render: () => ({
+    template: `
+      <div class="tw-grid tw-grid-cols-[repeat(auto-fit,minmax(150px,1fr))] tw-gap-4 tw-p-4">
+        @for (icon of icons; track icon) {
+          <div class="tw-flex tw-flex-col tw-items-center tw-p-2 tw-border tw-border-secondary-300 tw-rounded">
+            <bit-icon [icon]="icon" class="tw-text-2xl tw-mb-2"></bit-icon>
+            <span class="tw-text-xs tw-text-center">{{ icon }}</span>
           </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    `,
+    props: {
+      icons: BITWARDEN_ICONS,
+    },
+  }),
+};
+
+export const WithFixedWidth: Story = {
+  render: () => ({
+    template: `
+      <div class="tw-space-y-2">
+        <div><bit-icon icon="bwi-lock" [fw]="true"></bit-icon> Lock</div>
+        <div><bit-icon icon="bwi-user" [fw]="true"></bit-icon> User</div>
+        <div><bit-icon icon="bwi-key" [fw]="true"></bit-icon> Key</div>
+      </div>
     `,
   }),
+};
+
+export const WithSizes: Story = {
+  render: () => ({
+    template: `
+      <div class="tw-flex tw-items-end tw-gap-4">
+        <bit-icon icon="bwi-lock" size="xs"></bit-icon>
+        <bit-icon icon="bwi-lock" size="sm"></bit-icon>
+        <bit-icon icon="bwi-lock" size="md"></bit-icon>
+        <bit-icon icon="bwi-lock" size="lg"></bit-icon>
+        <bit-icon icon="bwi-lock" size="xl"></bit-icon>
+      </div>
+    `,
+  }),
+};
+
+export const WithAriaLabel: Story = {
   args: {
-    icons: Object.entries(Icons),
+    icon: "bwi-lock",
+    ariaLabel: "Secure lock icon",
   },
 };
