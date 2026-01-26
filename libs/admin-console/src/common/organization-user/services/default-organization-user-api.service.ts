@@ -368,7 +368,7 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
   ): Promise<void> {
     return this.apiService.send(
       "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/restore",
+      "/organizations/" + organizationId + "/users/" + id + "/restore/vnext",
       request,
       true,
       false,
