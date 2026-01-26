@@ -2,7 +2,7 @@ import { Jsonify } from "type-fest";
 
 import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { DECRYPT_ERROR, EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { Attachment } from "../domain/attachment";
@@ -18,6 +18,7 @@ export class AttachmentView implements View {
    * The SDK returns an encrypted key for the attachment.
    */
   encryptedKey: EncString | undefined;
+  private _hasDecryptionError?: boolean;
 
   constructor(a?: Attachment) {
     if (!a) {
@@ -39,6 +40,14 @@ export class AttachmentView implements View {
       // Invalid file size.
     }
     return 0;
+  }
+
+  get hasDecryptionError(): boolean {
+    return this._hasDecryptionError || this.fileName === DECRYPT_ERROR;
+  }
+
+  set hasDecryptionError(value: boolean) {
+    this._hasDecryptionError = value;
   }
 
   static fromJSON(obj: Partial<Jsonify<AttachmentView>>): AttachmentView {
@@ -76,7 +85,10 @@ export class AttachmentView implements View {
   /**
    * Converts the SDK AttachmentView to a AttachmentView.
    */
-  static fromSdkAttachmentView(obj: SdkAttachmentView): AttachmentView | undefined {
+  static fromSdkAttachmentView(
+    obj: SdkAttachmentView,
+    failure = false,
+  ): AttachmentView | undefined {
     if (!obj) {
       return undefined;
     }
@@ -90,6 +102,7 @@ export class AttachmentView implements View {
     // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
     view.key = obj.decryptedKey ? SymmetricCryptoKey.fromString(obj.decryptedKey) : undefined;
     view.encryptedKey = obj.key ? new EncString(obj.key) : undefined;
+    view._hasDecryptionError = failure;
 
     return view;
   }
