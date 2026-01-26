@@ -5422,7 +5422,7 @@
     "message": "Arkiverat objekt återställt"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "Arkiverade objekt återställda"
   },
   "restoredItem": {
     "message": "Återställde objekt"
@@ -5626,13 +5626,13 @@
     "message": "Send skapades!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Kopiera och dela denna Send-länk. Den kan visas av personer som du har angivet nästa $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Kopiera och dela denna Send-länk. Denna Send kommer att vara tillgänglig för alla med länken för nästa $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5916,13 +5916,13 @@
     }
   },
   "centralizeDataOwnership": {
-    "message": "Centralize organization ownership"
+    "message": "Centralisera organisationens ägarskap"
   },
   "centralizeDataOwnershipDesc": {
-    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+    "message": "Alla medlemsobjekt kommer att ägas och hanteras av organisationen. Administratörer och ägare är undantagna. "
   },
   "centralizeDataOwnershipContentAnchor": {
-    "message": "Learn more about centralized ownership",
+    "message": "Läs mer om centraliserat ägarskap",
     "description": "This will be used as a hyperlink"
   },
   "benefits": {
@@ -5935,16 +5935,16 @@
     "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
   },
   "centralizeDataOwnershipBenefit3": {
-    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+    "message": "Ge alla användare ett dedikerat \"Mina objekt\"-utrymme för att hantera sina egna inloggningar."
   },
   "centralizeDataOwnershipWarningTitle": {
-    "message": "Prompt members to transfer their items"
+    "message": "Fråga medlemmar att överföra sina objekt"
   },
   "centralizeDataOwnershipWarningDesc": {
     "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
   },
   "centralizeDataOwnershipWarningLink": {
-    "message": "Learn more about the transfer"
+    "message": "Läs mer om överföringen"
   },
   "organizationDataOwnership": {
     "message": "Genomför äganderätt till organisationsdata"
@@ -10432,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Skicka data om valvhändelser till din Datadog-instans"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Skicka händelsedata till din Huntress SIEM-instans"
+  },
   "failedToSaveIntegration": {
     "message": "Misslyckades med att spara integration. Försök igen senare."
   },
@@ -10542,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Välj en plan"
@@ -12092,6 +12101,15 @@
   "verifyNow": {
     "message": "Verifiera nu."
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
+  },
   "additionalStorageGB": {
     "message": "Ytterligare lagringsplats (GB)"
   },
@@ -12643,7 +12661,7 @@
     "message": "Lagringen är full"
   },
   "storageUsedDescription": {
-    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "message": "Du har använt $USED$ av $AVAILABLE$ GB av din krypterade fillagring.",
     "placeholders": {
       "used": {
         "content": "$1",
@@ -12656,10 +12674,10 @@
     }
   },
   "storageFullDescription": {
-    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+    "message": "Du har använt alla $GB$ GB av din krypterade lagring. För att fortsätta lagra filer, lägg till mer lagringsutrymme."
   },
   "whenYouRemoveStorage": {
-    "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+    "message": "När du tar bort lagring kommer du att få en proportionell kontokredit som automatiskt går mot din nästa faktura."
   },
   "youHavePremium": {
     "message": "Du har Premium"

@@ -5626,13 +5626,13 @@
     "message": "Send byl úspěšně vytvořen!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Zkopírujte a sdílejte tento Send pro odesílání. Můžou jej zobrazit osoby, které jste zadali, a to po dobu $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Zkopírujte a sdílejte tento odkaz Send. Send bude k dispozici komukoli s odkazem na dalších $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -10432,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Odeslat data o trezoru do Vaší instance Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Odešle data události do Vaší instanci SIEM Huntress"
+  },
   "failedToSaveIntegration": {
     "message": "Nepodařilo se uložit integraci. Opakujte akci později."
   },
@@ -10542,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "URL kolektoru HTTP událostí"
+  },
+  "httpEventCollectorToken": {
+    "message": "Token kolektoru HTTP událostí"
   },
   "selectAPlan": {
     "message": "Vyberte plán"
@@ -12091,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Ověřit nyní"
+  },
+  "unlockWithPasskey": {
+    "message": "Odemknout pomocí přístupového klíče"
+  },
+  "prfUnlockFailed": {
+    "message": "Nepodařilo se odemknout pomocí přístupového klíče. Zkuste to znovu nebo použijte jinou metodu odemknutí."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "K odemknutí nejsou k dispozici žádné přístupové klíče s podporou PRF."
   },
   "additionalStorageGB": {
     "message": "Další úložiště (GB)"

@@ -5626,13 +5626,13 @@
     "message": "A Send sikeresen létrejött!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Másoljuk és osszuk meg ezt a Send hivatkozást. Megtekinthetik a megadott személyek a következő $TIME$ intervallumban.",
+  "sendCreatedDescriptionV2": {
+    "message": "Másoljuk és osszuk meg ezt a Send elem hivatkozást. A Send elem bárki számára elérhető lesz, aki rendelkezik a hivatkozással a következő $TIME$ alatt.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -10432,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Széf eseményadatok küldése a Datadog példánynak"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Eseményadatok küldése a Huntress SIEM éldánynak"
+  },
   "failedToSaveIntegration": {
     "message": "Nem sikerült menteni az integrációt. Próbáljuk újra később."
   },
@@ -10542,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP eseménygyűjtő webcím"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP eseménygyűjtő vezérjel"
   },
   "selectAPlan": {
     "message": "Előfizetés kiválasztása"
@@ -12091,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Ellenőrzés most"
+  },
+  "unlockWithPasskey": {
+    "message": "Hozzáférési kulcs"
+  },
+  "prfUnlockFailed": {
+    "message": "Nem sikerült a feloldás a hozzéférési kulccsal. Próbáljuk újra vagy használjunk más feloldási metódust."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "A feloldáshoz nem állnak rendelkezésre PRF kompatibilis hozzáférési kucsok."
   },
   "additionalStorageGB": {
     "message": "Kiegészítő tárhely (GB)"

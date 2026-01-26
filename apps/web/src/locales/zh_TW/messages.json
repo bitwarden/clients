@@ -12,10 +12,10 @@
     "message": "重要應用程式"
   },
   "noCriticalAppsAtRisk": {
-    "message": "沒有關鍵應用程式處於風險中"
+    "message": "目前沒有任何關鍵應用程式存在風險"
   },
   "accessIntelligence": {
-    "message": "存取資訊"
+    "message": "Access Intelligence"
   },
   "passwordRisk": {
     "message": "密碼風險"
@@ -24,13 +24,13 @@
     "message": "你沒有權限編輯這個項目"
   },
   "reviewAtRiskPasswords": {
-    "message": "檢視全部應用中具有風險的密碼 (弱、被暴露或重複使用)。選擇最重要的應用程式並優先採取安全措施，幫助使用者解決具有風險的密碼。"
+    "message": "檢視各應用程式中的風險密碼（弱、外洩或重複使用）。選擇最關鍵的應用程式，優先採取安全措施，協助使用者處理這些密碼。"
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "檢視有風險的登入資訊"
   },
   "dataLastUpdated": {
-    "message": "上次資料更新日期：$DATE$",
+    "message": "資料最後更新於：$DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -42,7 +42,7 @@
     "message": "您尚未建立報告"
   },
   "notifiedMembers": {
-    "message": "已被通知的成員"
+    "message": "已通知成員"
   },
   "revokeMembers": {
     "message": "撤銷成員"
@@ -63,7 +63,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "新增登入項目"
+    "message": "建立新的登入項目"
   },
   "percentageCompleted": {
     "message": "完成 $PERCENT$%",
@@ -91,7 +91,7 @@
     "message": "密碼變更進度"
   },
   "assignMembersTasksToMonitorProgress": {
-    "message": "指派成員任務以監控進度"
+    "message": "指派任務給成員以監控進度"
   },
   "onceYouReviewApplications": {
     "message": "當您審查應用程式並將其標記為關鍵後，可指派任務給成員以變更其密碼。"
@@ -131,7 +131,7 @@
     }
   },
   "criticalApplicationsMarked": {
-    "message": "已將應用程式標記為關鍵"
+    "message": "已標記為關鍵的應用程式"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ 個關鍵應用程式",
@@ -170,7 +170,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "已被通知的成員($COUNT$)",
+    "message": "已通知成員 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -182,7 +182,7 @@
     "message": "找不到資料"
   },
   "noDataInOrgDescription": {
-    "message": "匯入您組織的登入資料以開始使用存取智慧功能。完成後，您將能夠："
+    "message": "匯入組織的登入資料即可開始使用 Access Intelligence。完成後，您將能夠："
   },
   "feature1Title": {
     "message": "將應用程式標記為關鍵"
@@ -197,7 +197,7 @@
     "message": "指派有風險的成員執行指導式安全任務以更新憑證。"
   },
   "feature3Title": {
-    "message": "監控進展"
+    "message": "追蹤進度"
   },
   "feature3Description": {
     "message": "追蹤隨時間變化的狀況以顯示安全性改善。"
@@ -514,16 +514,16 @@
     }
   },
   "websiteAdded": {
-    "message": "網站已添加"
+    "message": "網站已新增"
   },
   "addWebsite": {
-    "message": "添加網站"
+    "message": "新增網站"
   },
   "deleteWebsite": {
     "message": "刪除網站"
   },
   "defaultLabel": {
-    "message": "預設 （$VALUE$）",
+    "message": "預設（$VALUE$）",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -533,7 +533,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "顯示偵測到的吻合 $WEBSITE$",
+    "message": "顯示偵測到相符的 $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -542,7 +542,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "隱藏偵測到的吻合 $WEBSITE$",
+    "message": "隱藏偵測到相符的 $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -560,7 +560,7 @@
     "message": "發卡組織"
   },
   "expiration": {
-    "message": "逾期"
+    "message": "到期日"
   },
   "securityCode": {
     "message": "安全碼 (CVV)"
@@ -581,7 +581,7 @@
     "message": "護照號碼"
   },
   "licenseNumber": {
-    "message": "許可證號碼"
+    "message": "駕照號碼"
   },
   "email": {
     "message": "電子郵件"
@@ -650,10 +650,10 @@
     "message": "如果您已續卡，請更新支付卡資訊"
   },
   "expirationMonth": {
-    "message": "逾期月份"
+    "message": "到期月份"
   },
   "expirationYear": {
-    "message": "逾期年份"
+    "message": "到期年份"
   },
   "authenticatorKeyTotp": {
     "message": "驗證器金鑰 (TOTP)"
@@ -668,7 +668,7 @@
     "message": "Bitwarden 可以儲存並填入兩步驟驗證碼。選擇相機圖示來截取此網站的驗證器QR code，或手動複製金鑰並貼上到此欄位。"
   },
   "learnMoreAboutAuthenticators": {
-    "message": "了解更多驗證程式"
+    "message": "瞭解更多關於驗證器的資訊"
   },
   "folder": {
     "message": "資料夾"
@@ -705,7 +705,7 @@
     "message": "未指派"
   },
   "noneFolder": {
-    "message": "預設資料夾",
+    "message": "無資料夾",
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
@@ -766,11 +766,11 @@
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "一致性偵測",
+    "message": "比對偵測",
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "預設一致性偵測",
+    "message": "預設比對偵測",
     "description": "Default URI match detection for auto-fill."
   },
   "never": {
@@ -1153,7 +1153,7 @@
     "message": "複製護照號碼"
   },
   "copyLicenseNumber": {
-    "message": "複製許可證號碼"
+    "message": "複製駕照號碼"
   },
   "copyPrivateKey": {
     "message": "複製私密金鑰"
@@ -1656,7 +1656,7 @@
     "message": "發生了未預期的錯誤。"
   },
   "expirationDateError": {
-    "message": "請選擇一個未來的逾期日期。"
+    "message": "請選擇一個未來的到期日。"
   },
   "emailAddress": {
     "message": "電子郵件地址"
@@ -2791,7 +2791,7 @@
     "message": "您的 Bitwarden 兩步驟登入復原碼"
   },
   "twoFactorRecoveryNoCode": {
-    "message": "您尚未啟用任何兩步驟登入方式。等你啟用兩步驟登入方式後，您可回來這裡取得復原碼。"
+    "message": "您目前尚未啟用任何兩步驟登入方式。啟用後，即可回到此處取得復原碼。"
   },
   "printCode": {
     "message": "列印代碼",
@@ -3845,7 +3845,7 @@
     "message": "全部"
   },
   "addAccess": {
-    "message": "添加存取權限"
+    "message": "新增存取權限"
   },
   "addAccessFilter": {
     "message": "新增存取過濾器"
@@ -4504,7 +4504,7 @@
     "message": "更新瀏覽器"
   },
   "generatingYourAccessIntelligence": {
-    "message": "正在產生您的存取智慧分析…"
+    "message": "正在產生您的 Access Intelligence……"
   },
   "fetchingMemberData": {
     "message": "正在擷取成員資料…"
@@ -5626,13 +5626,13 @@
     "message": "Send 建立成功！",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "複製並分享此 Send 連結。在接下來的 $TIME$ 內，您指定的人員都可以檢視此內容。",
+  "sendCreatedDescriptionV2": {
+    "message": "複製並分享此 Send 連結。任何擁有此連結的人，都可在接下來的 $TIME$ 內存取該 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -6092,13 +6092,13 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "uriMatchDetectionPolicy": {
-    "message": "預設的 URI 一致性偵測方式"
+    "message": "預設 URI 相符偵測"
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "決定何時建議登入項目進行自動填入。管理員與擁有者不受此原則限制。"
   },
   "uriMatchDetectionOptionsLabel": {
-    "message": "預設的 URI 一致性偵測方式"
+    "message": "預設 URI 相符偵測"
   },
   "invalidUriMatchDefaultPolicySetting": {
     "message": "請選擇有效的 URI 比對偵測選項。",
@@ -10432,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "將密碼庫事件資料傳送至你的 Datadog 執行個體"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "將事件資料傳送至您的 SIEM 執行個體"
+  },
   "failedToSaveIntegration": {
     "message": "整合設定儲存失敗。請稍後再試。"
   },
@@ -10542,6 +10545,12 @@
   },
   "index": {
     "message": "索引"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "選擇一個計劃"
@@ -12091,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "立即驗證"
+  },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
   },
   "additionalStorageGB": {
     "message": "額外儲存空間 (GB)"

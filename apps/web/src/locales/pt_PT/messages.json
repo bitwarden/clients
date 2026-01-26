@@ -3156,7 +3156,7 @@
     "message": "O item foi restaurado"
   },
   "restartPremium": {
-    "message": "Reiniciar Premium"
+    "message": "Reiniciar o Premium"
   },
   "additionalStorageGb": {
     "message": "Armazenamento adicional (GB)"
@@ -5626,13 +5626,13 @@
     "message": "Send criado com sucesso!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Copie e partilhe este link do Send. Pode ser visualizado pelas pessoas que especificou durante os próximos $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Copie e partilhe este link do Send. O Send estará disponível para qualquer pessoa com o link durante os próximos $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -10432,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Envie dados de eventos do cofre para a sua instância da Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Enviar dados de eventos para a sua instância Huntress SIEM"
+  },
   "failedToSaveIntegration": {
     "message": "Falha ao guardar a integração. Por favor, tente novamente mais tarde."
   },
@@ -10542,6 +10545,12 @@
   },
   "index": {
     "message": "Índice"
+  },
+  "httpEventCollectorUrl": {
+    "message": "URL do coletor de eventos HTTP"
+  },
+  "httpEventCollectorToken": {
+    "message": "Token do coletor de eventos HTTP"
   },
   "selectAPlan": {
     "message": "Selecionar um plano"
@@ -12091,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Verificar agora."
+  },
+  "unlockWithPasskey": {
+    "message": "Desbloquear com chave de acesso"
+  },
+  "prfUnlockFailed": {
+    "message": "Não foi possível desbloquear com a chave de acesso. Por favor, tente novamente ou utilize outro método de desbloqueio."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Não estão disponíveis chaves de acesso com PRF ativado para o desbloqueio."
   },
   "additionalStorageGB": {
     "message": "Armazenamento adicional (GB)"
