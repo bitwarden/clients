@@ -42,6 +42,7 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
+import { CipherSdkService } from "../abstractions/cipher-sdk.service";
 import {
   CipherService as CipherServiceAbstraction,
   EncryptionContext,
@@ -120,6 +121,7 @@ export class CipherService implements CipherServiceAbstraction {
     private logService: LogService,
     private cipherEncryptionService: CipherEncryptionService,
     private messageSender: MessageSender,
+    private cipherSdkService: CipherSdkService,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -903,6 +905,40 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async createWithServer(
+    cipherView: CipherView,
+    userId: UserId,
+    orgAdmin?: boolean,
+  ): Promise<CipherView> {
+    const useSdk = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
+    );
+
+    if (useSdk) {
+      return (
+        (await this.createWithServerUsingSdk(cipherView, userId, orgAdmin)) || new CipherView()
+      );
+    }
+
+    const encrypted = await this.encrypt(cipherView, userId);
+    const result = await this.createWithServer_legacy(encrypted, orgAdmin);
+    return await this.decrypt(result, userId);
+  }
+
+  private async createWithServerUsingSdk(
+    cipherView: CipherView,
+    userId: UserId,
+    orgAdmin?: boolean,
+  ): Promise<CipherView | void> {
+    const resultCipherView = await this.cipherSdkService.createWithServer(
+      cipherView,
+      userId,
+      orgAdmin,
+    );
+    await this.clearCache(userId);
+    return resultCipherView;
+  }
+
+  private async createWithServer_legacy(
     { cipher, encryptedFor }: EncryptionContext,
     orgAdmin?: boolean,
   ): Promise<Cipher> {
@@ -929,6 +965,42 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async updateWithServer(
+    cipherView: CipherView,
+    userId: UserId,
+    originalCipherView?: CipherView,
+    orgAdmin?: boolean,
+  ): Promise<CipherView> {
+    const useSdk = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27632_SdkCipherCrudOperations,
+    );
+
+    if (useSdk) {
+      return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
+    }
+
+    const encrypted = await this.encrypt(cipherView, userId);
+    const updatedCipher = await this.updateWithServer_legacy(encrypted, orgAdmin);
+    const updatedCipherView = await this.decrypt(updatedCipher, userId);
+    return updatedCipherView;
+  }
+
+  async updateWithServerUsingSdk(
+    cipher: CipherView,
+    userId: UserId,
+    originalCipherView?: CipherView,
+    orgAdmin?: boolean,
+  ): Promise<CipherView> {
+    const resultCipherView = await this.cipherSdkService.updateWithServer(
+      cipher,
+      userId,
+      originalCipherView,
+      orgAdmin,
+    );
+    await this.clearCache(userId);
+    return resultCipherView;
+  }
+
+  async updateWithServer_legacy(
     { cipher, encryptedFor }: EncryptionContext,
     orgAdmin?: boolean,
   ): Promise<Cipher> {
@@ -1119,8 +1191,7 @@ export class CipherService implements CipherServiceAbstraction {
     //in order to keep item and it's attachments with the same encryption level
     if (cipher.key != null && !cipherKeyEncryptionEnabled) {
       const model = await this.decrypt(cipher, userId);
-      const reEncrypted = await this.encrypt(model, userId);
-      await this.updateWithServer(reEncrypted);
+      await this.updateWithServer(model, userId);
     }
 
     const encFileName = await this.encryptService.encryptString(filename, cipherEncKey);
