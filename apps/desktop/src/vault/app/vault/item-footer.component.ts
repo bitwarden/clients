@@ -87,6 +87,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
   protected showArchiveButton = false;
   protected showUnarchiveButton = false;
+  protected userCanArchive = false;
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -133,6 +134,16 @@ export class ItemFooterComponent implements OnInit, OnChanges {
     );
   }
 
+  protected get showCloneOption() {
+    return (
+      this.cipher.id &&
+      !this.cipher?.organizationId &&
+      !this.cipher.isDeleted &&
+      this.action === "view" &&
+      (!this.cipher.isArchived || this.userCanArchive)
+    );
+  }
+
   cancel() {
     this.onCancel.emit(this.cipher);
   }
@@ -172,8 +183,15 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   async restore(): Promise<boolean> {
+    let toastMessage;
     if (!this.cipher.isDeleted) {
       return false;
+    }
+
+    if (this.cipher.isArchived) {
+      toastMessage = this.i18nService.t("archivedItemRestored");
+    } else {
+      toastMessage = this.i18nService.t("restoredItem");
     }
 
     try {
@@ -181,7 +199,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       await this.restoreCipher(activeUserId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("restoredItem"),
+        message: toastMessage,
       });
       this.onRestore.emit(this.cipher);
     } catch (e) {
@@ -239,11 +257,16 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       ),
     );
 
+    this.userCanArchive = userCanArchive;
+
     this.showArchiveButton =
       cipherCanBeArchived && userCanArchive && this.action === "view" && !this.cipher.isArchived;
 
     // A user should always be able to unarchive an archived item
     this.showUnarchiveButton =
-      hasArchiveFlagEnabled && this.action === "view" && this.cipher.isArchived;
+      hasArchiveFlagEnabled &&
+      this.action === "view" &&
+      this.cipher.isArchived &&
+      !this.cipher.isDeleted;
   }
 }

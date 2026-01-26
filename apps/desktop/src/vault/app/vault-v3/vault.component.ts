@@ -79,6 +79,8 @@ import {
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterBridgeService,
+  VaultItemsTransferService,
+  DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
@@ -120,6 +122,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
       provide: COPY_CLICK_LISTENER,
       useExisting: VaultComponent,
     },
+    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
 })
 export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
@@ -204,6 +207,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     private archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
     private routedVaultFilterBridgeService: RoutedVaultFilterBridgeService,
     private vaultFilterService: VaultFilterService,
+    private vaultItemTransferService: VaultItemsTransferService,
   ) {}
 
   async ngOnInit() {
@@ -255,6 +259,11 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
               case "syncCompleted":
                 if (this.vaultItemsComponent) {
                   await this.vaultItemsComponent.refresh().catch(() => {});
+                }
+                if (this.activeUserId) {
+                  void this.vaultItemTransferService.enforceOrganizationDataOwnership(
+                    this.activeUserId,
+                  );
                 }
                 break;
               case "modalShown":
@@ -362,6 +371,8 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       .subscribe((collections) => {
         this.filteredCollections = collections;
       });
+
+    void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
   ngOnDestroy() {
@@ -858,13 +869,16 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
           type: CipherViewLikeUtils.getType(cipher),
           // Normalize undefined organizationId to null for filter compatibility
           organizationId: cipher.organizationId ?? null,
+          // Normalize empty string folderId to null for filter compatibility
+          folderId: cipher.folderId ? cipher.folderId : null,
           // Explicitly include isDeleted and isArchived since they might be getters
           isDeleted: CipherViewLikeUtils.isDeleted(cipher),
           isArchived: CipherViewLikeUtils.isArchived(cipher),
         };
         return filterFn(proxyCipher as any);
       }
-      return false;
+      // return false;
+      return filterFn(cipher);
     };
   }
 
