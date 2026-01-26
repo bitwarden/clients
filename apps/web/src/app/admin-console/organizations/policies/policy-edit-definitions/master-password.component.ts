@@ -34,10 +34,14 @@ export class MasterPasswordPolicy extends BasePolicyEditDefinition {
 })
 export class MasterPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
   MinPasswordLength = Utils.minimumPasswordLength;
+  MaxPasswordLength = Utils.maximumPasswordLength;
 
   data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({
     minComplexity: [null],
-    minLength: [this.MinPasswordLength, [Validators.min(Utils.minimumPasswordLength)]],
+    minLength: [
+      this.MinPasswordLength,
+      [Validators.min(Utils.minimumPasswordLength), Validators.max(this.MaxPasswordLength)],
+    ],
     requireUpper: [false],
     requireLower: [false],
     requireNumbers: [false],

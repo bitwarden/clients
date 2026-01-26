@@ -42,6 +42,7 @@ export enum FeatureFlag {
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
+  PasskeyUnlock = "pm-2035-passkey-unlock",
   DataRecoveryTool = "pm-28813-data-recovery-tool",
   ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
@@ -56,6 +57,7 @@ export enum FeatureFlag {
 
   /* DIRT */
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
+  EventManagementForHuntress = "event-management-for-huntress",
   PhishingDetection = "phishing-detection",
 
   /* Vault */
@@ -119,6 +121,7 @@ export const DefaultFeatureFlagValue = {
 
   /* DIRT */
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
+  [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
 
   /* Vault */
@@ -151,6 +154,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.PasskeyUnlock]: FALSE,
   [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,

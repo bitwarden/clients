@@ -12,7 +12,12 @@ import { Observable, Subject, combineLatest, lastValueFrom, takeUntil } from "rx
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
-import { OrgIntegrationBuilder } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration-builder";
+import {
+  OrgIntegrationBuilder,
+  OrgIntegrationConfiguration,
+  OrgIntegrationTemplate,
+  Schemas,
+} from "@bitwarden/bit-common/dirt/organization-integrations/models/integration-builder";
 import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
 import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
@@ -23,7 +28,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   BaseCardComponent,
   CardContentComponent,
-  DialogRef,
   DialogService,
   ToastService,
 } from "@bitwarden/components";
@@ -32,10 +36,11 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import {
   HecConnectDialogResult,
   DatadogConnectDialogResult,
-  HecConnectDialogResultStatus,
-  DatadogConnectDialogResultStatus,
+  HuntressConnectDialogResult,
+  IntegrationDialogResultStatus,
   openDatadogConnectDialog,
   openHecConnectDialog,
+  openHuntressConnectDialog,
 } from "../integration-dialog/index";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -164,14 +169,12 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   }
 
   async setupConnection() {
-    let dialog: DialogRef<DatadogConnectDialogResult | HecConnectDialogResult, unknown>;
-
     if (this.integrationSettings?.integrationType === null) {
       return;
     }
 
     if (this.integrationSettings?.integrationType === OrganizationIntegrationType.Datadog) {
-      dialog = openDatadogConnectDialog(this.dialogService, {
+      const dialog = openDatadogConnectDialog(this.dialogService, {
         data: {
           settings: this.integrationSettings,
         },
@@ -179,37 +182,29 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
       const result = await lastValueFrom(dialog.closed);
 
-      // the dialog was cancelled
-      if (!result || !result.success) {
-        return;
-      }
+      await this.handleIntegrationDialogResult(
+        result,
+        () => this.deleteDatadog(),
+        (res) => this.saveDatadog(res),
+      );
+    } else if (this.integrationSettings.name === OrganizationIntegrationServiceName.Huntress) {
+      // Huntress uses HEC protocol but has its own dialog
+      const dialog = openHuntressConnectDialog(this.dialogService, {
+        data: {
+          settings: this.integrationSettings,
+        },
+      });
 
-      try {
-        if (result.success === HecConnectDialogResultStatus.Delete) {
-          await this.deleteDatadog();
-        }
-      } catch {
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: this.i18nService.t("failedToDeleteIntegration"),
-        });
-      }
+      const result = await lastValueFrom(dialog.closed);
 
-      try {
-        if (result.success === DatadogConnectDialogResultStatus.Edited) {
-          await this.saveDatadog(result as DatadogConnectDialogResult);
-        }
-      } catch {
-        this.toastService.showToast({
-          variant: "error",
-          title: "",
-          message: this.i18nService.t("failedToSaveIntegration"),
-        });
-      }
+      await this.handleIntegrationDialogResult(
+        result,
+        () => this.deleteHuntress(),
+        (res) => this.saveHuntress(res),
+      );
     } else {
       // invoke the dialog to connect the integration
-      dialog = openHecConnectDialog(this.dialogService, {
+      const dialog = openHecConnectDialog(this.dialogService, {
         data: {
           settings: this.integrationSettings,
         },
@@ -217,15 +212,113 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
       const result = await lastValueFrom(dialog.closed);
 
-      // the dialog was cancelled
-      if (!result || !result.success) {
-        return;
+      await this.handleIntegrationDialogResult(
+        result,
+        () => this.deleteHec(),
+        (res) => this.saveHec(res),
+      );
+    }
+  }
+
+  /**
+   * Generic save method
+   */
+  private async saveIntegration(
+    integrationType: OrganizationIntegrationType,
+    config: OrgIntegrationConfiguration,
+    template: OrgIntegrationTemplate,
+  ): Promise<void> {
+    let response = { mustBeOwner: false, success: false };
+
+    if (this.isUpdateAvailable) {
+      // retrieve org integration and configuration ids
+      const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
+      const orgIntegrationConfigurationId =
+        this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
+
+      if (!orgIntegrationId || !orgIntegrationConfigurationId) {
+        throw Error("Organization Integration ID or Configuration ID is missing");
       }
 
+      // update existing integration and configuration
+      response = await this.organizationIntegrationService.update(
+        this.organizationId,
+        orgIntegrationId,
+        integrationType,
+        orgIntegrationConfigurationId,
+        config,
+        template,
+      );
+    } else {
+      // create new integration and configuration
+      response = await this.organizationIntegrationService.save(
+        this.organizationId,
+        integrationType,
+        config,
+        template,
+      );
+    }
+
+    if (response.mustBeOwner) {
+      this.showMustBeOwnerToast();
+      return;
+    }
+
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("success"),
+    });
+  }
+
+  /**
+   * Generic delete method
+   */
+  private async deleteIntegration(): Promise<void> {
+    const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
+    const orgIntegrationConfigurationId =
+      this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
+
+    if (!orgIntegrationId || !orgIntegrationConfigurationId) {
+      throw Error("Organization Integration ID or Configuration ID is missing");
+    }
+
+    const response = await this.organizationIntegrationService.delete(
+      this.organizationId,
+      orgIntegrationId,
+      orgIntegrationConfigurationId,
+    );
+
+    if (response.mustBeOwner) {
+      this.showMustBeOwnerToast();
+      return;
+    }
+
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("success"),
+    });
+  }
+
+  /**
+   * Generic dialog result handler
+   * Handles both delete and edit actions with proper error handling
+   */
+  private async handleIntegrationDialogResult<T extends { success: string | null }>(
+    result: T | undefined,
+    deleteCallback: () => Promise<void>,
+    saveCallback: (result: T) => Promise<void>,
+  ): Promise<void> {
+    // User cancelled the dialog or closed it without saving
+    if (!result || !result.success) {
+      return;
+    }
+
+    // Handle delete action
+    if (result.success === IntegrationDialogResultStatus.Delete) {
       try {
-        if (result.success === HecConnectDialogResultStatus.Delete) {
-          await this.deleteHec();
-        }
+        await deleteCallback();
       } catch {
         this.toastService.showToast({
           variant: "error",
@@ -233,11 +326,13 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
           message: this.i18nService.t("failedToDeleteIntegration"),
         });
       }
+      return;
+    }
 
+    // Handle edit/save action
+    if (result.success === IntegrationDialogResultStatus.Edited) {
       try {
-        if (result.success === HecConnectDialogResultStatus.Edited) {
-          await this.saveHec(result as HecConnectDialogResult);
-        }
+        await saveCallback(result);
       } catch {
         this.toastService.showToast({
           variant: "error",
@@ -249,8 +344,6 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   }
 
   async saveHec(result: HecConnectDialogResult) {
-    let response = { mustBeOwner: false, success: false };
-
     const config = OrgIntegrationBuilder.buildHecConfiguration(
       result.url,
       result.bearerToken,
@@ -261,148 +354,45 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       this.integrationSettings.name as OrganizationIntegrationServiceName,
     );
 
-    if (this.isUpdateAvailable) {
-      // retrieve org integration and configuration ids
-      const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
-      const orgIntegrationConfigurationId =
-        this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
-
-      if (!orgIntegrationId || !orgIntegrationConfigurationId) {
-        throw Error("Organization Integration ID or Configuration ID is missing");
-      }
-
-      // update existing integration and configuration
-      response = await this.organizationIntegrationService.update(
-        this.organizationId,
-        orgIntegrationId,
-        OrganizationIntegrationType.Hec,
-        orgIntegrationConfigurationId,
-        config,
-        template,
-      );
-    } else {
-      // create new integration and configuration
-      response = await this.organizationIntegrationService.save(
-        this.organizationId,
-        OrganizationIntegrationType.Hec,
-        config,
-        template,
-      );
-    }
-
-    if (response.mustBeOwner) {
-      this.showMustBeOwnerToast();
-      return;
-    }
-
-    this.toastService.showToast({
-      variant: "success",
-      title: "",
-      message: this.i18nService.t("success"),
-    });
+    await this.saveIntegration(OrganizationIntegrationType.Hec, config, template);
   }
 
   async deleteHec() {
-    const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
-    const orgIntegrationConfigurationId =
-      this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
+    await this.deleteIntegration();
+  }
 
-    if (!orgIntegrationId || !orgIntegrationConfigurationId) {
-      throw Error("Organization Integration ID or Configuration ID is missing");
-    }
-
-    const response = await this.organizationIntegrationService.delete(
-      this.organizationId,
-      orgIntegrationId,
-      orgIntegrationConfigurationId,
+  async saveHuntress(result: HuntressConnectDialogResult) {
+    // Huntress uses "Splunk" scheme for HEC protocol compatibility
+    const config = OrgIntegrationBuilder.buildHecConfiguration(
+      result.url,
+      result.token,
+      OrganizationIntegrationServiceName.Huntress,
+      Schemas.Splunk,
+    );
+    // Huntress SIEM doesn't require the index field
+    const template = OrgIntegrationBuilder.buildHecTemplate(
+      "",
+      OrganizationIntegrationServiceName.Huntress,
     );
 
-    if (response.mustBeOwner) {
-      this.showMustBeOwnerToast();
-      return;
-    }
+    await this.saveIntegration(OrganizationIntegrationType.Hec, config, template);
+  }
 
-    this.toastService.showToast({
-      variant: "success",
-      title: "",
-      message: this.i18nService.t("success"),
-    });
+  async deleteHuntress() {
+    await this.deleteIntegration();
   }
 
   async saveDatadog(result: DatadogConnectDialogResult) {
-    let response = { mustBeOwner: false, success: false };
-
     const config = OrgIntegrationBuilder.buildDataDogConfiguration(result.url, result.apiKey);
     const template = OrgIntegrationBuilder.buildDataDogTemplate(
       this.integrationSettings.name as OrganizationIntegrationServiceName,
     );
 
-    if (this.isUpdateAvailable) {
-      // retrieve org integration and configuration ids
-      const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
-      const orgIntegrationConfigurationId =
-        this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
-
-      if (!orgIntegrationId || !orgIntegrationConfigurationId) {
-        throw Error("Organization Integration ID or Configuration ID is missing");
-      }
-
-      // update existing integration and configuration
-      response = await this.organizationIntegrationService.update(
-        this.organizationId,
-        orgIntegrationId,
-        OrganizationIntegrationType.Datadog,
-        orgIntegrationConfigurationId,
-        config,
-        template,
-      );
-    } else {
-      // create new integration and configuration
-      response = await this.organizationIntegrationService.save(
-        this.organizationId,
-        OrganizationIntegrationType.Datadog,
-        config,
-        template,
-      );
-    }
-
-    if (response.mustBeOwner) {
-      this.showMustBeOwnerToast();
-      return;
-    }
-
-    this.toastService.showToast({
-      variant: "success",
-      title: "",
-      message: this.i18nService.t("success"),
-    });
+    await this.saveIntegration(OrganizationIntegrationType.Datadog, config, template);
   }
 
   async deleteDatadog() {
-    const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
-    const orgIntegrationConfigurationId =
-      this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
-
-    if (!orgIntegrationId || !orgIntegrationConfigurationId) {
-      throw Error("Organization Integration ID or Configuration ID is missing");
-    }
-
-    const response = await this.organizationIntegrationService.delete(
-      this.organizationId,
-      orgIntegrationId,
-      orgIntegrationConfigurationId,
-    );
-
-    if (response.mustBeOwner) {
-      this.showMustBeOwnerToast();
-      return;
-    }
-
-    this.toastService.showToast({
-      variant: "success",
-      title: "",
-      message: this.i18nService.t("success"),
-    });
+    await this.deleteIntegration();
   }
 
   private showMustBeOwnerToast() {
