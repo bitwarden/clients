@@ -198,9 +198,10 @@ export class PhishingDataService {
       this.logService.error("[PhishingDataService] IndexedDB lookup via hasUrl failed", err);
     }
 
-    // If a custom matcher is provided, use cursor-based search for performance.
+    // If a custom matcher is provided and enabled, use cursor-based search.
     // This avoids loading all URLs into memory and allows early exit on first match.
-    if (resource && resource.match) {
+    // Can be disabled via useCustomMatcher: false for performance reasons.
+    if (resource && resource.match && resource.useCustomMatcher !== false) {
       try {
         this.logService.debug(
           "[PhishingDataService] Starting cursor-based search for: " + url.href,
