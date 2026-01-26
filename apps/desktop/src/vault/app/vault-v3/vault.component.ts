@@ -813,6 +813,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
         };
         return filterFn(proxyCipher as any);
       }
+      return filterFn(cipher);
     };
   }
 
