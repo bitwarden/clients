@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Увійти з ключем доступу"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Використати єдиний вхід"
   },
@@ -583,7 +586,7 @@
     "message": "Архівувати запис"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Після архівації цей запис буде виключено з результатів пошуку і пропозицій автозаповнення."
   },
   "archived": {
     "message": "Архівовано"
@@ -2474,7 +2477,7 @@
     "message": "Запис остаточно видалено"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Архівований запис відновлено"
   },
   "restoreItem": {
     "message": "Відновити запис"
@@ -3366,6 +3369,12 @@
   },
   "error": {
     "message": "Помилка"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Помилка розшифрування"
@@ -4743,7 +4752,7 @@
     }
   },
   "moreOptionsLabelNoPlaceholder": {
-    "message": "More options"
+    "message": "Більше опцій"
   },
   "moreOptionsTitle": {
     "message": "Інші можливості – $ITEMNAME$",
@@ -5132,10 +5141,10 @@
     }
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "Показати виявлення збігів"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "Приховати виявлення збігів"
   },
   "autoFillOnPageLoad": {
     "message": "Автоматично заповнювати під час завантаження сторінки?"
@@ -5674,7 +5683,7 @@
     "message": "Дуже широке"
   },
   "narrow": {
-    "message": "Narrow"
+    "message": "Вузький"
   },
   "sshKeyWrongPassword": {
     "message": "Ви ввели неправильний пароль."
