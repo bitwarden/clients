@@ -153,9 +153,12 @@ export class PhishingDataService {
    * @returns True if the URL is a known phishing web address, false otherwise
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
+    this.logService.debug("[PhishingDataService] isPhishingWebAddress called for: " + url.href);
+
     // Skip non-http(s) protocols - phishing database only contains web URLs
     // This prevents expensive fallback checks for chrome://, about:, file://, etc.
     if (url.protocol !== "http:" && url.protocol !== "https:") {
+      this.logService.debug("[PhishingDataService] Skipping non-http(s) protocol: " + url.protocol);
       return false;
     }
 
@@ -218,13 +221,23 @@ export class PhishingDataService {
           this.logService.info(
             "[PhishingDataService] Found phishing web address through custom matcher: " + url.href,
           );
+        } else {
+          this.logService.debug(
+            "[PhishingDataService] No match found, returning false for: " + url.href,
+          );
         }
         return found;
       } catch (err) {
         this.logService.error("[PhishingDataService] Error running custom matcher", err);
+        this.logService.debug(
+          "[PhishingDataService] Returning false due to error for: " + url.href,
+        );
         return false;
       }
     }
+    this.logService.debug(
+      "[PhishingDataService] No custom matcher, returning false for: " + url.href,
+    );
     return false;
   }
 
