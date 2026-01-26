@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/browser",
-  "version": "2025.12.1",
+  "version": "2026.1.0",
   "scripts": {
     "build": "npm run build:chrome",
     "build:bit": "npm run build:bit:chrome",
