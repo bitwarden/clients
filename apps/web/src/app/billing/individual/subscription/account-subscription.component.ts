@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, map } from "rxjs";
+import { lastValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -76,7 +76,7 @@ export class AccountSubscriptionComponent {
         await this.router.navigate(["/settings/subscription/premium"]);
         return null;
       };
-      const account = await firstValueFrom(this.accountService.activeAccount$);
+      const account = this.activeAccount();
       if (!account) {
         return await redirectToPremiumPage();
       }
@@ -181,6 +181,8 @@ export class AccountSubscriptionComponent {
     { initialValue: false },
   );
 
+  readonly activeAccount = toSignal(this.accountService.activeAccount$);
+
   onSubscriptionCardAction = async (action: SubscriptionCardAction) => {
     switch (action) {
       case SubscriptionCardActions.ContactSupport:
@@ -213,19 +215,20 @@ export class AccountSubscriptionComponent {
         await this.router.navigate(["../payment-details"], { relativeTo: this.activatedRoute });
         break;
       case SubscriptionCardActions.Resubscribe: {
-        const account = await firstValueFrom(this.accountService.activeAccount$);
+        const account = this.activeAccount();
         if (!account) {
           return;
         }
 
         const currentSubscription = this.subscription.value();
-        const isIncompleteExpired =
-          currentSubscription?.status === SubscriptionStatuses.IncompleteExpired;
+        const shouldForcePremium =
+          currentSubscription?.status === SubscriptionStatuses.IncompleteExpired ||
+          currentSubscription?.status === SubscriptionStatuses.Canceled;
 
         const dialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
           data: {
             account,
-            ...(isIncompleteExpired
+            ...(shouldForcePremium
               ? {
                   initialStep: UnifiedUpgradeDialogStep.Payment,
                   selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
