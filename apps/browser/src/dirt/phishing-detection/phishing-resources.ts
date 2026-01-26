@@ -7,6 +7,8 @@ export type PhishingResource = {
   todayUrl: string;
   /** Matcher used to decide whether a given URL matches an entry from this resource */
   match: (url: URL, entry: string) => boolean;
+  /** Whether to use the custom matcher. If false, only exact hasUrl lookups are used. Default: true */
+  useCustomMatcher?: boolean;
 };
 
 export const PhishingResourceType = Object.freeze({
@@ -56,6 +58,8 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-links-ACTIVE.txt.md5",
       todayUrl:
         "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-links-NEW-today.txt",
+      // Disabled for performance - cursor search takes 6+ minutes on large databases
+      useCustomMatcher: false,
       match: (url: URL, entry: string) => {
         if (!entry) {
           return false;
