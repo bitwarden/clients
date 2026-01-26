@@ -230,13 +230,13 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract clear(userId?: string): Promise<void>;
   abstract moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any>;
   abstract delete(id: string | string[], userId: UserId): Promise<any>;
-  abstract deleteWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
+  abstract deleteWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<void>;
   abstract deleteManyWithServer(
     ids: string[],
     userId: UserId,
     asAdmin?: boolean,
     orgId?: OrganizationId,
-  ): Promise<any>;
+  ): Promise<void>;
   abstract deleteAttachment(
     id: string,
     revisionDate: string,
@@ -252,19 +252,19 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract sortCiphersByLastUsed(a: CipherViewLike, b: CipherViewLike): number;
   abstract sortCiphersByLastUsedThenName(a: CipherViewLike, b: CipherViewLike): number;
   abstract getLocaleSortingFunction(): (a: CipherViewLike, b: CipherViewLike) => number;
-  abstract softDelete(id: string | string[], userId: UserId): Promise<any>;
-  abstract softDeleteWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
+  abstract softDelete(id: string | string[], userId: UserId): Promise<void>;
+  abstract softDeleteWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<void>;
   abstract softDeleteManyWithServer(
     ids: string[],
     userId: UserId,
     asAdmin?: boolean,
     orgId?: OrganizationId,
-  ): Promise<any>;
+  ): Promise<void>;
   abstract restore(
     cipher: { id: string; revisionDate: string } | { id: string; revisionDate: string }[],
     userId: UserId,
-  ): Promise<any>;
-  abstract restoreWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
+  ): Promise<void>;
+  abstract restoreWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<void>;
   abstract restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void>;
   abstract getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<any>;
   abstract setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId): Promise<void>;

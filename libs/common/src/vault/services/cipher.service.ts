@@ -1392,10 +1392,12 @@ export class CipherService implements CipherServiceAbstraction {
     await this.encryptedCiphersState(userId).update(() => ciphers);
   }
 
-  async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<any> {
+  async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      return this.deleteWithServerUsingSdk(id, userId, asAdmin);
+      await this.cipherSdkService.deleteWithServer(id, userId, asAdmin);
+      await this.clearCache(userId);
+      return;
     }
 
     if (asAdmin) {
@@ -1407,24 +1409,17 @@ export class CipherService implements CipherServiceAbstraction {
     await this.delete(id, userId);
   }
 
-  private async deleteWithServerUsingSdk(
-    id: string,
-    userId: UserId,
-    asAdmin = false,
-  ): Promise<any> {
-    await this.cipherSdkService.deleteWithServer(id, userId, asAdmin);
-    await this.clearCache(userId);
-  }
-
   async deleteManyWithServer(
     ids: string[],
     userId: UserId,
     asAdmin = false,
     orgId?: OrganizationId,
-  ): Promise<any> {
+  ): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      return this.deleteManyWithServerUsingSdk(ids, userId, asAdmin, orgId);
+      await this.cipherSdkService.deleteManyWithServer(ids, userId, asAdmin, orgId);
+      await this.clearCache(userId);
+      return;
     }
 
     const request = new CipherBulkDeleteRequest(ids);
@@ -1434,16 +1429,6 @@ export class CipherService implements CipherServiceAbstraction {
       await this.apiService.deleteManyCiphers(request);
     }
     await this.delete(ids, userId);
-  }
-
-  private async deleteManyWithServerUsingSdk(
-    ids: string[],
-    userId: UserId,
-    asAdmin = false,
-    orgId?: OrganizationId,
-  ): Promise<any> {
-    await this.cipherSdkService.deleteManyWithServer(ids, userId, asAdmin, orgId);
-    await this.clearCache(userId);
   }
 
   async deleteAttachment(
@@ -1576,7 +1561,7 @@ export class CipherService implements CipherServiceAbstraction {
     };
   }
 
-  async softDelete(id: string | string[], userId: UserId): Promise<any> {
+  async softDelete(id: string | string[], userId: UserId): Promise<void> {
     let ciphers = await firstValueFrom(this.ciphers$(userId));
     if (ciphers == null) {
       return;
@@ -1604,10 +1589,12 @@ export class CipherService implements CipherServiceAbstraction {
     });
   }
 
-  async softDeleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<any> {
+  async softDeleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      return this.softDeleteWithServerUsingSdk(id, userId, asAdmin);
+      await this.cipherSdkService.softDeleteWithServer(id, userId, asAdmin);
+      await this.clearCache(userId);
+      return;
     }
 
     if (asAdmin) {
@@ -1619,24 +1606,17 @@ export class CipherService implements CipherServiceAbstraction {
     await this.softDelete(id, userId);
   }
 
-  private async softDeleteWithServerUsingSdk(
-    id: string,
-    userId: UserId,
-    asAdmin = false,
-  ): Promise<any> {
-    await this.cipherSdkService.softDeleteWithServer(id, userId, asAdmin);
-    await this.clearCache(userId);
-  }
-
   async softDeleteManyWithServer(
     ids: string[],
     userId: UserId,
     asAdmin = false,
     orgId?: OrganizationId,
-  ): Promise<any> {
+  ): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      return this.softDeleteManyWithServerUsingSdk(ids, userId, asAdmin, orgId);
+      await this.cipherSdkService.softDeleteManyWithServer(ids, userId, asAdmin, orgId);
+      await this.clearCache(userId);
+      return;
     }
 
     const request = new CipherBulkDeleteRequest(ids);
@@ -1647,16 +1627,6 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     await this.softDelete(ids, userId);
-  }
-
-  private async softDeleteManyWithServerUsingSdk(
-    ids: string[],
-    userId: UserId,
-    asAdmin = false,
-    orgId?: OrganizationId,
-  ): Promise<any> {
-    await this.cipherSdkService.softDeleteManyWithServer(ids, userId, asAdmin, orgId);
-    await this.clearCache(userId);
   }
 
   async restore(
@@ -1692,10 +1662,12 @@ export class CipherService implements CipherServiceAbstraction {
     });
   }
 
-  async restoreWithServer(id: string, userId: UserId, asAdmin = false): Promise<any> {
+  async restoreWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      return await this.restoreWithServerUsingSdk(id, userId, asAdmin);
+      await this.cipherSdkService.restoreWithServer(id, userId, asAdmin);
+      await this.clearCache(userId);
+      return;
     }
 
     let response;
@@ -1708,15 +1680,6 @@ export class CipherService implements CipherServiceAbstraction {
     await this.restore({ id: id, revisionDate: response.revisionDate }, userId);
   }
 
-  private async restoreWithServerUsingSdk(
-    id: string,
-    userId: UserId,
-    asAdmin = false,
-  ): Promise<any> {
-    await this.cipherSdkService.restoreWithServer(id, userId, asAdmin);
-    await this.clearCache(userId);
-  }
-
   /**
    * No longer using an asAdmin Param. Org Vault bulkRestore will assess if an item is unassigned or editable
    * The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
@@ -1724,7 +1687,9 @@ export class CipherService implements CipherServiceAbstraction {
   async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
-      return await this.restoreManyWithServerUsingSdk(ids, userId, orgId);
+      await this.cipherSdkService.restoreManyWithServer(ids, userId, orgId);
+      await this.clearCache(userId);
+      return;
     }
 
     let response;
@@ -1742,15 +1707,6 @@ export class CipherService implements CipherServiceAbstraction {
       restores.push({ id: cipher.id, revisionDate: cipher.revisionDate });
     }
     await this.restore(restores, userId);
-  }
-
-  private async restoreManyWithServerUsingSdk(
-    ids: string[],
-    userId: UserId,
-    orgId?: string,
-  ): Promise<void> {
-    await this.cipherSdkService.restoreManyWithServer(ids, userId, orgId);
-    await this.clearCache(userId);
   }
 
   async getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<UserKey | OrgKey> {
