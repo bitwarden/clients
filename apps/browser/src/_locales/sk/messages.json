@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Prihlásiť sa s prístupovým kľúčom"
   },
+  "unlockWithPasskey": {
+    "message": "Odomknúť pomocou prístupového kľúča"
+  },
   "useSingleSignOn": {
     "message": "Použiť jednotné prihlásenie"
   },
@@ -3366,6 +3369,12 @@
   },
   "error": {
     "message": "Chyba"
+  },
+  "prfUnlockFailed": {
+    "message": "Odomknutie pomocou prístupového kľúča zlyhalo. Skúste to znovu alebo použite inú metódu odomknutia."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Na odomkntuie nie sú k dispozícii žiadne PRF-enabled prístupové kľúče. Najskôr sa prihláste pomocou prístupového kľúča."
   },
   "decryptionError": {
     "message": "Chyba dešifrovania"

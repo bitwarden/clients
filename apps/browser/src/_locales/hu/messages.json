@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Bejelentkezés hozzáférési kulccsal"
   },
+  "unlockWithPasskey": {
+    "message": "Hozzáférési kulcs"
+  },
   "useSingleSignOn": {
     "message": "Egyszeri bejelentkezés használata"
   },
@@ -3366,6 +3369,12 @@
   },
   "error": {
     "message": "Hiba"
+  },
+  "prfUnlockFailed": {
+    "message": "Nem sikerült a feloldás a hozzéférési kulccsal. Próbáljuk újra vagy használjunk más feloldási metódust."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "A feloldáshoz nem állnak rendelkezésre PRF kompatibilis hozzáférési kucsok. Először jelentkezzünk be egy hozzáférési kulccsal."
   },
   "decryptionError": {
     "message": "Visszafejtési hiba"

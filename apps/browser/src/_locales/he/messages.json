@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "כניסה עם מפתח גישה"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "השתמש בכניסה יחידה"
   },
@@ -437,7 +440,7 @@
     "message": "סנכרן"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "סנכרון כעת"
   },
   "lastSync": {
     "message": "סנכרון אחרון:"
@@ -574,7 +577,7 @@
     "message": "הפריט נשלח לארכיון"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "הפריט שוחזר מהארכיב"
   },
   "itemUnarchived": {
     "message": "הפריט הוסר מהארכיון"
@@ -583,19 +586,19 @@
     "message": "העבר פריט לארכיון"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "עם ארכובו, יהיה הפריט מוחרג מתוצאות החיפוש ומהצעות המילוי האוטומטי."
   },
   "archived": {
-    "message": "Archived"
+    "message": "הועבר לארכיב"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "שחזור מהארכיב ושמירה"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "נדרשת חברות פרמיום כדי להשתמש בארכיב."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "הפריט שוחזר"
   },
   "edit": {
     "message": "ערוך"
@@ -607,7 +610,7 @@
     "message": "הצג הכל"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "הצגת הכל"
   },
   "viewLess": {
     "message": "הצג פחות"
@@ -1335,19 +1338,19 @@
     "message": "ייצא מ־"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "ייצוא",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "ייצוא",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "ייבוא",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "ייבוא",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1429,25 +1432,25 @@
     "message": "למידע נוסף"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "אירעה שגיאה בעת עדכון הגדרות ההצפנה."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "עדכון הגדרות ההצפנה שלך"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "הגדרות ההצפנה המומלצות החדשות ישפרו את אבטחת החשבון שלך. יש להזין את הסיסמה הראשית שלך כדי לעדכן כעת."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "יש לאשר את זהותך כדי להמשיך"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "נא להזין את הסיסמה הראשית שלך"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "עדכון ההגדרות"
   },
   "later": {
-    "message": "Later"
+    "message": "מאוחר יותר"
   },
   "authenticatorKeyTotp": {
     "message": "מפתח מאמת (TOTP)"
@@ -1480,13 +1483,13 @@
     "message": "הצרופה נשמרה"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "תיקון ההצפנה"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "הקובץ מוגדר בשיטת הצפנה לא עדכנית."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "הצרופה עודכנה"
   },
   "file": {
     "message": "קובץ"
@@ -1498,7 +1501,7 @@
     "message": "בחר קובץ"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "הפריטים הועברו"
   },
   "maxFileSize": {
     "message": "גודל הקובץ המרבי הוא 500MB."
@@ -1531,7 +1534,7 @@
     "message": "1 ג'יגה של מקום אחסון עבור קבצים מצורפים."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ של אחסון מוצפן עבור קבצים מצורפים.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1546,13 +1549,13 @@
     "message": "אפשרויות כניסה דו־שלבית קנייניות כגון YubiKey ו־Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "מנוי הפרמיום שלך הסתיים"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "לשחזור הגישה לארכיב שלך יש לחדש את מנוי הפרמיום שלך. אם תבצעו עריכת פרטים של פריט בארכיב לפני חידוש המנוי, הפריט ישוחזר אל הכספת שלכם."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "חידוש מנוי הפרמיום"
   },
   "ppremiumSignUpReports": {
     "message": "היגיינת סיסמאות, מצב בריאות החשבון, ודיווחים מעודכנים על פרצות חדשות בכדי לשמור על הכספת שלך בטוחה."
@@ -1947,7 +1950,7 @@
     "message": "שנת תפוגה"
   },
   "monthly": {
-    "message": "month"
+    "message": "חודש"
   },
   "expiration": {
     "message": "תוקף"
@@ -2474,7 +2477,7 @@
     "message": "הפריט נמחק לצמיתות"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "פריט שוחזר מהארכיב"
   },
   "restoreItem": {
     "message": "שחזר פריט"
@@ -3366,6 +3369,12 @@
   },
   "error": {
     "message": "שגיאה"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "שגיאת פענוח"

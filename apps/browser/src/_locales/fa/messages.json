@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "با کلید عبور وارد شوید"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "استفاده از ورود تک مرحله‌ای"
   },
@@ -3366,6 +3369,12 @@
   },
   "error": {
     "message": "خطا"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "خطای رمزگشایی"
