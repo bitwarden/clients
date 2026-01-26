@@ -44,7 +44,7 @@
   @if (hasFooterAction) {
     <div class="right">
       @if (showArchiveButton) {
-        <button type="button" (click)="archive()" [appA11yTitle]="archiveTooltip">
+        <button type="button" (click)="archive()" appA11yTitle="{{ 'archiveVerb' | i18n }}">
           <i
             class="bwi bwi-archive bwi-lg bwi-fw"
             aria-hidden="true"
@@ -54,7 +54,7 @@
       }
 
       @if (showUnarchiveButton) {
-        <button type="button" (click)="unarchive()" [appA11yTitle]="unarchiveTooltip">
+        <button type="button" (click)="unarchive()" appA11yTitle="{{ 'unArchive' | i18n }}">
           <i
             class="bwi bwi-unarchive bwi-lg bwi-fw"
             aria-hidden="true"

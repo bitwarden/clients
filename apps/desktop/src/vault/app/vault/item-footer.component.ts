@@ -73,12 +73,6 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   activeUserId: UserId | null = null;
   passwordReprompted: boolean = false;
 
-  protected readonly editTooltip = this.i18nService.t("edit");
-  protected readonly cloneTooltip = this.i18nService.t("clone");
-  protected readonly restoreTooltip = this.i18nService.t("restore");
-  protected readonly archiveTooltip = this.i18nService.t("archiveVerb");
-  protected readonly unarchiveTooltip = this.i18nService.t("unArchive");
-
   protected showArchiveButton = false;
   protected showUnarchiveButton = false;
   protected userCanArchive = false;
