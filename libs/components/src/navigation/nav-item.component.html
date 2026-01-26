@@ -1,13 +1,13 @@
 <div class="tw-ps-2 tw-pe-2">
-  @let open = sideNavService.open$ | async;
+  @let open = sideNavService.open();
   @if (open || icon()) {
     <div
       [style.padding-inline-start]="navItemIndentationPadding()"
       class="tw-relative tw-rounded-md tw-h-10"
+      [class]="fvwStyles()"
       [class.tw-bg-bg-sidenav-active-item]="showActiveStyles"
       [class.tw-bg-bg-sidenav-background]="!showActiveStyles"
       [class.hover:tw-bg-bg-sidenav-item-hover]="!showActiveStyles"
-      [class]="fvwStyles$ | async"
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {
@@ -17,35 +17,9 @@
             <ng-content select="[slot=start]"></ng-content>
           </div>
         }
-        <ng-container *ngIf="route(); then isAnchor; else isButton"></ng-container>
-
-        <!-- Main content of `NavItem` -->
-        <ng-template #anchorAndButtonContent>
-          <div
-            [title]="text()"
-            class="tw-gap-2 tw-flex tw-items-center tw-font-medium tw-h-full"
-            [class.tw-py-0]="variant() === 'tree' || treeDepth() > 0"
-            [class.tw-py-2]="variant() !== 'tree' && treeDepth() === 0"
-            [class.tw-text-center]="!open"
-            [class.tw-justify-center]="!open"
-          >
-            @if (icon()) {
-              <i
-                class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-fg-sidenav-text {{ icon() }}"
-                [attr.aria-hidden]="open"
-                [attr.aria-label]="text()"
-              ></i>
-            }
-            @if (open) {
-              <span class="tw-truncate">{{ text() }}</span>
-            }
-          </div>
-        </ng-template>
-
-        <!-- Show if a value was passed to `this.route` -->
-        <ng-template #isAnchor>
-          <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin$` -->
-          <!-- The following `class` field should match the `#isButton` class field below -->
+        @if (route()) {
+          <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin` -->
+          <!-- The following `class` field should match the button class field below -->
           <a
             class="tw-size-full tw-px-4 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-sidenav-text hover:tw-text-fg-sidenav-text hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
             [class.!tw-ps-0]="variant() === 'tree' || treeDepth() > 0"
@@ -61,11 +35,8 @@
           >
             <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
           </a>
-        </ng-template>
-
-        <!-- Show if `this.route` is falsy -->
-        <ng-template #isButton>
-          <!-- Class field should match `#isAnchor` class field above -->
+        } @else {
+          <!-- Class field should match anchor class field above -->
           <button
             type="button"
             class="tw-size-full tw-px-4 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-sidenav-text hover:tw-text-fg-sidenav-text hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
@@ -75,7 +46,7 @@
           >
             <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
           </button>
-        </ng-template>
+        }
 
         @if (open) {
           <div
@@ -88,3 +59,27 @@
     </div>
   }
 </div>
+
+<!-- Main content of `NavItem` -->
+<ng-template #anchorAndButtonContent>
+  <div
+    [title]="text()"
+    class="tw-gap-2 tw-flex tw-items-center tw-font-medium tw-h-full"
+    [class.tw-py-0]="variant() === 'tree' || treeDepth() > 0"
+    [class.tw-py-2]="variant() !== 'tree' && treeDepth() === 0"
+    [class.tw-text-center]="!open"
+    [class.tw-justify-center]="!open"
+  >
+    @if (icon()) {
+      <i
+        class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-fg-sidenav-text"
+        [class]="icon()"
+        [attr.aria-hidden]="open"
+        [attr.aria-label]="text()"
+      ></i>
+    }
+    @if (open) {
+      <span class="tw-truncate">{{ text() }}</span>
+    }
+  </div>
+</ng-template>
