@@ -1,7 +1,7 @@
-@let organization = organization$ | async;
-@let integrationsList = integrations$ | async;
+@let org = organization();
+@let integrationsList = integrations();
 
-<section class="tw-mb-9" *ngIf="organization?.useScim">
+<section class="tw-mb-9" *ngIf="org?.useScim">
   <h2 bitTypography="h2">
     {{ "scimIntegration" | i18n }}
   </h2>
@@ -14,7 +14,7 @@
     [integrations]="integrationsList | filterIntegrations: IntegrationType.SCIM"
   ></app-integration-grid>
 </section>
-<section class="tw-mb-9" *ngIf="organization?.useDirectory">
+<section class="tw-mb-9" *ngIf="org?.useDirectory">
   <h2 bitTypography="h2">
     {{ "bwdc" | i18n }}
   </h2>

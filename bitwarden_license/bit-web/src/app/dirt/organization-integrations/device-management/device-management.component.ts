@@ -15,7 +15,7 @@ import { OrganizationIntegrationsState } from "../organization-integrations.stat
   imports: [SharedModule, IntegrationGridComponent, FilterIntegrationsPipe],
 })
 export class DeviceManagementComponent {
-  integrations$ = this.state.integrations$;
+  integrations = this.state.integrations;
 
   constructor(private state: OrganizationIntegrationsState) {}
 

@@ -1,5 +1,4 @@
 import { Injectable, signal } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -12,10 +11,6 @@ export class OrganizationIntegrationsState {
   // Signals
   integrations = this._integrations.asReadonly();
   organization = this._organization.asReadonly();
-
-  // Observables for backward compatibility
-  integrations$ = toObservable(this._integrations);
-  organization$ = toObservable(this._organization);
 
   setOrganization(val: Organization | null) {
     this._organization.set(val);

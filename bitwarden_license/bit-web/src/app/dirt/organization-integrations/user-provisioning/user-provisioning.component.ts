@@ -15,8 +15,8 @@ import { OrganizationIntegrationsState } from "../organization-integrations.stat
   imports: [SharedModule, IntegrationGridComponent, FilterIntegrationsPipe],
 })
 export class UserProvisioningComponent implements OnInit {
-  organization$ = this.state.organization$;
-  integrations$ = this.state.integrations$;
+  organization = this.state.organization;
+  integrations = this.state.integrations;
 
   constructor(private state: OrganizationIntegrationsState) {}
 

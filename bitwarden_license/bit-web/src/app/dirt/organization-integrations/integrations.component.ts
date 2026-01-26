@@ -13,8 +13,8 @@ import { OrganizationIntegrationsState } from "./organization-integrations.state
   imports: [SharedModule, HeaderModule],
 })
 export class AdminConsoleIntegrationsComponent {
-  integrations$ = this.state.integrations$;
-  organization$ = this.state.organization$;
+  integrations = this.state.integrations;
+  organization = this.state.organization;
 
   constructor(private state: OrganizationIntegrationsState) {}
 }

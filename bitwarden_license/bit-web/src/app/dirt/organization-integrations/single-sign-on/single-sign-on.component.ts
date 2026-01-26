@@ -15,7 +15,7 @@ import { OrganizationIntegrationsState } from "../organization-integrations.stat
   imports: [SharedModule, IntegrationGridComponent, FilterIntegrationsPipe],
 })
 export class SingleSignOnComponent {
-  integrationsList$ = this.state.integrations$;
+  integrations = this.state.integrations;
   IntegrationType = IntegrationType;
 
   constructor(private state: OrganizationIntegrationsState) {}
