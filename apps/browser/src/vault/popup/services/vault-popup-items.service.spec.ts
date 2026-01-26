@@ -452,6 +452,7 @@ describe("VaultPopupItemsService", () => {
   describe("hasFilterApplied$", () => {
     it("should return true if the search term provided is searchable", (done) => {
       searchService.isSearchable.mockImplementation(async () => true);
+      service.applyFilter("test");
       service.hasFilterApplied$.subscribe((canSearch) => {
         expect(canSearch).toBe(true);
         done();
@@ -483,12 +484,14 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should emit false once ciphers are available", async () => {
+      await trackedCiphers.expectEmission();
       expect(tracked.emissions.length).toBe(2);
       expect(tracked.emissions[0]).toBe(true);
       expect(tracked.emissions[1]).toBe(false);
     });
 
     it("should cycle when cipherService.ciphers$ emits", async () => {
+      await trackedCiphers.expectEmission();
       // Restart tracking
       tracked = new ObservableTracker(service.loading$);
       ciphersSubject.next({});
@@ -506,6 +509,7 @@ describe("VaultPopupItemsService", () => {
     it("should call search Service with the new search term", (done) => {
       const searchText = "Hello";
       const searchServiceSpy = jest.spyOn(searchService, "searchCiphers");
+      searchService.isSearchable.mockImplementation(async () => true);
 
       service.applyFilter(searchText);
       service.favoriteCiphers$.subscribe(() => {
