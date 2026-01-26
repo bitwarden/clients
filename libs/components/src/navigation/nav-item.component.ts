@@ -1,7 +1,14 @@
-import { CommonModule } from "@angular/common";
-import { Component, HostListener, Optional, computed, input, model } from "@angular/core";
-import { RouterLinkActive, RouterModule } from "@angular/router";
-import { BehaviorSubject, map } from "rxjs";
+import { NgTemplateOutlet } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  inject,
+  signal,
+  computed,
+  model,
+} from "@angular/core";
+import { RouterModule, RouterLinkActive } from "@angular/router";
 
 import { IconButtonModule } from "../icon-button";
 
@@ -14,13 +21,16 @@ export abstract class NavGroupAbstraction {
   abstract treeDepth: ReturnType<typeof model<number>>;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
-  imports: [CommonModule, IconButtonModule, RouterModule],
+  imports: [NgTemplateOutlet, IconButtonModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "(focusin)": "onFocusIn($event.target)",
+    "(focusout)": "onFocusOut()",
+  },
 })
 export class NavItemComponent extends NavBaseComponent {
   /**
@@ -35,8 +45,13 @@ export class NavItemComponent extends NavBaseComponent {
    */
   protected readonly TREE_DEPTH_PADDING = 1.75;
 
-  /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
+  /**
+   * Forces active styles to be shown, regardless of the `routerLinkActiveOptions`
+   */
   readonly forceActiveStyles = input<boolean>(false);
+
+  protected readonly sideNavService = inject(SideNavService);
+  private readonly parentNavGroup = inject(NavGroupAbstraction, { optional: true });
 
   /**
    * Is `true` if `to` matches the current route
@@ -56,7 +71,7 @@ export class NavItemComponent extends NavBaseComponent {
    * adding calculation for tree variant due to needing visual alignment on different indentation levels needed between the first level and subsequent levels
    */
   protected readonly navItemIndentationPadding = computed(() => {
-    const open = this.sideNavService.open;
+    const open = this.sideNavService.open();
     const depth = this.treeDepth() ?? 0;
 
     if (open && this.variant() === "tree") {
@@ -87,25 +102,22 @@ export class NavItemComponent extends NavBaseComponent {
    * (denoted with the data-fvw attribute) matches :focus-visible. We then map that state to some
    * styles, so the entire component can have an outline.
    */
-  protected focusVisibleWithin$ = new BehaviorSubject(false);
-  protected fvwStyles$ = this.focusVisibleWithin$.pipe(
-    map((value) =>
-      value ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-focus" : "",
-    ),
+  protected readonly focusVisibleWithin = signal(false);
+  protected readonly fvwStyles = computed(() =>
+    this.focusVisibleWithin()
+      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-focus"
+      : "",
   );
-  @HostListener("focusin", ["$event.target"])
-  onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin$.next(target.matches("[data-fvw]:focus-visible"));
-  }
-  @HostListener("focusout")
-  onFocusOut() {
-    this.focusVisibleWithin$.next(false);
+
+  protected onFocusIn(target: HTMLElement) {
+    this.focusVisibleWithin.set(target.matches("[data-fvw]:focus-visible"));
   }
 
-  constructor(
-    protected sideNavService: SideNavService,
-    @Optional() private parentNavGroup: NavGroupAbstraction,
-  ) {
+  protected onFocusOut() {
+    this.focusVisibleWithin.set(false);
+  }
+
+  constructor() {
     super();
 
     // Set tree depth based on parent's depth
