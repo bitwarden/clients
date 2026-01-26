@@ -155,6 +155,7 @@ export class PhishingDataService {
   async isPhishingWebAddress(url: URL): Promise<boolean> {
     // Quick check for QA/dev test addresses
     if (this._testWebAddresses.includes(url.href)) {
+      this.logService.info("[PhishingDataService] Found test web address: " + url.href);
       return true;
     }
 
@@ -164,25 +165,32 @@ export class PhishingDataService {
       // Quick lookup: check direct presence of href in IndexedDB
       const hasUrl = await this.indexedDbService.hasUrl(url.href);
       if (hasUrl) {
+        this.logService.info(
+          "[PhishingDataService] Found phishing web address through direct lookup: " + url.href,
+        );
         return true;
       }
     } catch (err) {
       this.logService.error("[PhishingDataService] IndexedDB lookup via hasUrl failed", err);
     }
 
-    // If a custom matcher is provided, iterate stored entries and apply the matcher.
+    // If a custom matcher is provided, use cursor-based search for performance.
+    // This avoids loading all URLs into memory and allows early exit on first match.
     if (resource && resource.match) {
       try {
-        const entries = await this.indexedDbService.loadAllUrls();
-        for (const entry of entries) {
-          if (resource.match(url, entry)) {
-            return true;
-          }
+        const found = await this.indexedDbService.findMatchingUrl((entry) =>
+          resource.match(url, entry),
+        );
+        if (found) {
+          this.logService.info(
+            "[PhishingDataService] Found phishing web address through custom matcher: " + url.href,
+          );
         }
+        return found;
       } catch (err) {
         this.logService.error("[PhishingDataService] Error running custom matcher", err);
+        return false;
       }
-      return false;
     }
     return false;
   }
