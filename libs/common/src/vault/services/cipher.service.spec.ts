@@ -224,6 +224,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.postCipherAdmin when orgAdmin param is true and the cipher orgId != null", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
       const spy = jest
         .spyOn(apiService, "postCipherAdmin")
         .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));
@@ -236,6 +239,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.postCipher when orgAdmin param is true and the cipher orgId is null", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
       encryptionContext.cipher.organizationId = null!;
       const spy = jest
         .spyOn(apiService, "postCipher")
@@ -249,6 +255,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.postCipherCreate if collectionsIds != null", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
       encryptionContext.cipher.collectionIds = ["123"];
       const spy = jest
         .spyOn(apiService, "postCipherCreate")
@@ -262,6 +271,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.postCipher when orgAdmin and collectionIds logic is false", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
       const spy = jest
         .spyOn(apiService, "postCipher")
         .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));
@@ -328,6 +340,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.putCipher if cipher.edit is true", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
       encryptionContext.cipher.edit = true;
       const spy = jest
         .spyOn(apiService, "putCipher")
@@ -341,6 +356,9 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.putPartialCipher when orgAdmin, and edit are false", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
       encryptionContext.cipher.edit = false;
       const spy = jest
         .spyOn(apiService, "putPartialCipher")
