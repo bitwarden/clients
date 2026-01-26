@@ -573,6 +573,9 @@
   "itemWasSentToArchive": {
     "message": "Položka byla přesunuta do archivu"
   },
+  "itemWasUnarchived": {
+    "message": "Položka byla odebrána z archivu"
+  },
   "itemUnarchived": {
     "message": "Položka byla odebrána z archivu"
   },
@@ -582,8 +585,17 @@
   "archiveItemConfirmDesc": {
     "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
   },
+  "archived": {
+    "message": "Archivováno"
+  },
+  "unarchiveAndSave": {
+    "message": "Odebrat z archivu a uložit"
+  },
   "upgradeToUseArchive": {
     "message": "Pro použití funkce Archiv je potřebné prémiové členství."
+  },
+  "itemRestored": {
+    "message": "Položka byla obnovena"
   },
   "edit": {
     "message": "Upravit"
@@ -1532,6 +1544,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Volby proprietálních dvoufázových přihlášení jako je YubiKey a Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Vaše předplatné Premium skončilo"
+  },
+  "archivePremiumRestart": {
+    "message": "Chcete-li získat přístup k Vašemu archivu, restartujte předplatné Premium. Pokud upravíte detaily archivované položky před restartováním, bude přesunuta zpět do Vašeho trezoru."
+  },
+  "restartPremium": {
+    "message": "Restartovat Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Reporty o hygieně Vašich hesel, zdraví účtu a narušeních bezpečnosti."
@@ -4808,6 +4829,39 @@
   "adminConsole": {
     "message": "Konzole správce"
   },
+  "admin": {
+    "message": "Administrátor"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatické potvrzení uživatele"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automaticky potvrdit čekající uživatele, když je toto zařízení odemčeno"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Ušetřete čas s automatickým potvrzením uživatele"
+  },
+  "autoConfirmWarning": {
+    "message": "To by mohlo ovlivnit bezpečnost dat Vaší organizace. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Více o rizicích"
+  },
+  "autoConfirmSetup": {
+    "message": "Automaticky potvrdit nové uživatele"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Noví uživatelé budou automaticky potvrzeni, když bude toto zařízení odemčeno."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Jaká jsou možná bezpečnostní rizika?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Zapnuto automatické potvrzení"
+  },
+  "availableNow": {
+    "message": "Nyní k dispozici"
+  },
   "accountSecurity": {
     "message": "Zabezpečení účtu"
   },
@@ -5664,6 +5718,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
+  "vulnerablePassword": {
+    "message": "Zranitelné heslo."
+  },
+  "changeNow": {
+    "message": "Změnit nyní"
+  },
   "missingWebsite": {
     "message": "Chybějící webová stránka"
   },
@@ -6039,5 +6099,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Proč se mi toto zobrazuje?"
+  },
+  "resizeSideNavigation": {
+    "message": "Změnit velikost boční navigace"
   }
 }

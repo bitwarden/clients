@@ -340,6 +340,24 @@ export class CipherService implements CipherServiceAbstraction {
     }
   }
 
+  async encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]> {
+    const sdkEncryptionEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM22136_SdkCipherEncryption,
+    );
+
+    if (sdkEncryptionEnabled) {
+      return await this.cipherEncryptionService.encryptMany(models, userId);
+    }
+
+    // Fallback to sequential encryption if SDK disabled
+    const results: EncryptionContext[] = [];
+    for (const model of models) {
+      const result = await this.encrypt(model, userId);
+      results.push(result);
+    }
+    return results;
+  }
+
   async encryptAttachments(
     attachmentsModel: AttachmentView[],
     key: SymmetricCryptoKey,
@@ -1461,7 +1479,6 @@ export class CipherService implements CipherServiceAbstraction {
         return;
       }
       ciphers[cipherId].deletedDate = new Date().toISOString();
-      ciphers[cipherId].archivedDate = null;
     };
 
     if (typeof id === "string") {

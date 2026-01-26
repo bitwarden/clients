@@ -125,7 +125,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     return false;
   }
 
-  async regenerateUserPublicKeyEncryptionKeyPair(userId: UserId): Promise<void> {
+  async regenerateUserPublicKeyEncryptionKeyPair(userId: UserId): Promise<boolean> {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (userKey == null) {
       throw new Error("User key not found");
@@ -154,13 +154,14 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
         this.logService.info(
           "[UserAsymmetricKeyRegeneration] Regeneration not supported for this user at this time.",
         );
+        return false;
       } else {
         this.logService.error(
           "[UserAsymmetricKeyRegeneration] Regeneration error when submitting the request to the server: " +
             error,
         );
+        return false;
       }
-      return;
     }
 
     await this.accountCryptographyStateService.setAccountCryptographicState(
@@ -174,6 +175,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     this.logService.info(
       "[UserAsymmetricKeyRegeneration] User's asymmetric keys successfully regenerated.",
     );
+    return true;
   }
 
   private async userKeyCanDecrypt(userKey: UserKey, userId: UserId): Promise<boolean> {
