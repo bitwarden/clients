@@ -1,0 +1,19 @@
+[package]
+name = "ssh_agent"
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
+
+[dependencies]
+anyhow = { workspace = true }
+base64 = { workspace = true }
+ssh-key = { version = "=0.6.7", features = [
+    "encryption",
+    "ed25519",
+    "rsa",
+    "rand_core",
+] }
+
+[lints]
+workspace = true
