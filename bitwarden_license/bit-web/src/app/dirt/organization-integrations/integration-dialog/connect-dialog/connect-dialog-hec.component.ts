@@ -7,6 +7,11 @@ import { HecTemplate } from "@bitwarden/bit-common/dirt/organization-integration
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import {
+  IntegrationDialogResultStatus,
+  IntegrationDialogResultStatusType,
+} from "../integration-dialog-result-status";
+
 export type HecConnectDialogParams = {
   settings: Integration;
 };
@@ -17,16 +22,8 @@ export interface HecConnectDialogResult {
   bearerToken: string;
   index: string;
   service: string;
-  success: HecConnectDialogResultStatusType | null;
+  success: IntegrationDialogResultStatusType | null;
 }
-
-export const HecConnectDialogResultStatus = {
-  Edited: "edit",
-  Delete: "delete",
-} as const;
-
-export type HecConnectDialogResultStatusType =
-  (typeof HecConnectDialogResultStatus)[keyof typeof HecConnectDialogResultStatus];
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -81,7 +78,7 @@ export class ConnectHecDialogComponent implements OnInit {
       this.formGroup.markAllAsTouched();
       return;
     }
-    const result = this.getHecConnectDialogResult(HecConnectDialogResultStatus.Edited);
+    const result = this.getHecConnectDialogResult(IntegrationDialogResultStatus.Edited);
 
     this.dialogRef.close(result);
 
@@ -98,13 +95,13 @@ export class ConnectHecDialogComponent implements OnInit {
     });
 
     if (confirmed) {
-      const result = this.getHecConnectDialogResult(HecConnectDialogResultStatus.Delete);
+      const result = this.getHecConnectDialogResult(IntegrationDialogResultStatus.Delete);
       this.dialogRef.close(result);
     }
   };
 
   private getHecConnectDialogResult(
-    status: HecConnectDialogResultStatusType,
+    status: IntegrationDialogResultStatusType,
   ): HecConnectDialogResult {
     const formJson = this.formGroup.getRawValue();
 

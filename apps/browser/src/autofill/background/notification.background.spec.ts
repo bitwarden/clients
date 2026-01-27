@@ -767,7 +767,6 @@ describe("NotificationBackground", () => {
         let createWithServerSpy: jest.SpyInstance;
         let updateWithServerSpy: jest.SpyInstance;
         let folderExistsSpy: jest.SpyInstance;
-        let cipherEncryptSpy: jest.SpyInstance;
 
         beforeEach(() => {
           activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
@@ -791,7 +790,6 @@ describe("NotificationBackground", () => {
           createWithServerSpy = jest.spyOn(cipherService, "createWithServer");
           updateWithServerSpy = jest.spyOn(cipherService, "updateWithServer");
           folderExistsSpy = jest.spyOn(notificationBackground as any, "folderExists");
-          cipherEncryptSpy = jest.spyOn(cipherService, "encrypt");
 
           accountService.activeAccount$ = activeAccountSubject;
         });
@@ -1190,13 +1188,7 @@ describe("NotificationBackground", () => {
           folderExistsSpy.mockResolvedValueOnce(false);
           convertAddLoginQueueMessageToCipherViewSpy.mockReturnValueOnce(cipherView);
           editItemSpy.mockResolvedValueOnce(undefined);
-          cipherEncryptSpy.mockResolvedValueOnce({
-            cipher: {
-              ...cipherView,
-              id: "testId",
-            },
-            encryptedFor: userId,
-          });
+          createWithServerSpy.mockResolvedValueOnce(cipherView);
 
           sendMockExtensionMessage(message, sender);
           await flushPromises();
@@ -1205,7 +1197,6 @@ describe("NotificationBackground", () => {
             queueMessage,
             null,
           );
-          expect(cipherEncryptSpy).toHaveBeenCalledWith(cipherView, "testId");
           expect(createWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
             sender.tab,
@@ -1241,13 +1232,6 @@ describe("NotificationBackground", () => {
           folderExistsSpy.mockResolvedValueOnce(true);
           convertAddLoginQueueMessageToCipherViewSpy.mockReturnValueOnce(cipherView);
           editItemSpy.mockResolvedValueOnce(undefined);
-          cipherEncryptSpy.mockResolvedValueOnce({
-            cipher: {
-              ...cipherView,
-              id: "testId",
-            },
-            encryptedFor: userId,
-          });
           const errorMessage = "fetch error";
           createWithServerSpy.mockImplementation(() => {
             throw new Error(errorMessage);
@@ -1256,7 +1240,6 @@ describe("NotificationBackground", () => {
           sendMockExtensionMessage(message, sender);
           await flushPromises();
 
-          expect(cipherEncryptSpy).toHaveBeenCalledWith(cipherView, "testId");
           expect(createWithServerSpy).toThrow(errorMessage);
           expect(tabSendMessageSpy).not.toHaveBeenCalledWith(sender.tab, {
             command: "addedCipher",

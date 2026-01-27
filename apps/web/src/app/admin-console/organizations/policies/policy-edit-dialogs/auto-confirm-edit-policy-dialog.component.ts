@@ -41,20 +41,15 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { SharedModule } from "../../../shared";
-
-import { AutoConfirmPolicyEditComponent } from "./policy-edit-definitions/auto-confirm-policy.component";
+import { SharedModule } from "../../../../shared";
+import { AutoConfirmPolicyEditComponent } from "../policy-edit-definitions/auto-confirm-policy.component";
 import {
   PolicyEditDialogComponent,
   PolicyEditDialogData,
   PolicyEditDialogResult,
-} from "./policy-edit-dialog.component";
+} from "../policy-edit-dialog.component";
 
-export type MultiStepSubmit = {
-  sideEffect: () => Promise<void>;
-  footerContent: Signal<TemplateRef<unknown> | undefined>;
-  titleContent: Signal<TemplateRef<unknown> | undefined>;
-};
+import { MultiStepSubmit } from "./models";
 
 export type AutoConfirmPolicyDialogData = PolicyEditDialogData & {
   firstTimeDialog?: boolean;
@@ -186,10 +181,21 @@ export class AutoConfirmPolicyDialogComponent
   }
 
   private async handleSubmit(singleOrgEnabled: boolean) {
-    if (!singleOrgEnabled) {
-      await this.submitSingleOrg();
+    const enabledSingleOrgDuringAction = !singleOrgEnabled;
+
+    if (enabledSingleOrgDuringAction) {
+      await this.setSingleOrgPolicy(true);
     }
-    await this.submitAutoConfirm();
+
+    try {
+      await this.submitAutoConfirm();
+    } catch (error) {
+      // Roll back SingleOrg if we enabled it during this action
+      if (enabledSingleOrgDuringAction) {
+        await this.setSingleOrgPolicy(false);
+      }
+      throw error;
+    }
   }
 
   /**
@@ -202,11 +208,10 @@ export class AutoConfirmPolicyDialogComponent
     }
 
     const autoConfirmRequest = await this.policyComponent.buildRequest();
-    await this.policyApiService.putPolicy(
-      this.data.organizationId,
-      this.data.policy.type,
-      autoConfirmRequest,
-    );
+
+    await this.policyApiService.putPolicyVNext(this.data.organizationId, this.data.policy.type, {
+      policy: autoConfirmRequest,
+    });
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
@@ -229,17 +234,15 @@ export class AutoConfirmPolicyDialogComponent
     }
   }
 
-  private async submitSingleOrg(): Promise<void> {
+  private async setSingleOrgPolicy(enabled: boolean): Promise<void> {
     const singleOrgRequest: PolicyRequest = {
-      enabled: true,
+      enabled,
       data: null,
     };
 
-    await this.policyApiService.putPolicy(
-      this.data.organizationId,
-      PolicyType.SingleOrg,
-      singleOrgRequest,
-    );
+    await this.policyApiService.putPolicyVNext(this.data.organizationId, PolicyType.SingleOrg, {
+      policy: singleOrgRequest,
+    });
   }
 
   private async openBrowserExtension() {
@@ -260,7 +263,10 @@ export class AutoConfirmPolicyDialogComponent
 
     try {
       const multiStepSubmit = await firstValueFrom(this.multiStepSubmit);
-      await multiStepSubmit[this.currentStep()].sideEffect();
+      const sideEffect = multiStepSubmit[this.currentStep()].sideEffect;
+      if (sideEffect) {
+        await sideEffect();
+      }
 
       if (this.currentStep() === multiStepSubmit.length - 1) {
         this.dialogRef.close("saved");
