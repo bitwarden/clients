@@ -18,7 +18,7 @@
     "lint:fix": "eslint . --cache --cache-strategy content --fix",
     "lint:clear": "rimraf .eslintcache",
     "prettier": "prettier --cache --write .",
-    "test": "jest",
+    "test": "node --max-old-space-size=3072 node_modules/.bin/jest",
     "test:watch": "jest --clearCache && jest --watch",
     "test:watch:all": "jest --watchAll",
     "test:types": "node ./scripts/test-types.js",
