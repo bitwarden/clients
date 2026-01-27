@@ -10,22 +10,34 @@
         {{ "claimDomain" | i18n }}
       </span>
 
-      <span *ngIf="data.orgDomain" class="tw-text-xs tw-text-muted">
-        {{ data.orgDomain.domainName }}
-      </span>
-
       <span *ngIf="data?.orgDomain && !data.orgDomain?.verifiedDate" bitBadge variant="warning">
-        {{ "domainStatusUnderVerification" | i18n }}
+        {{ "domainStatusPending" | i18n }}
       </span>
       <span *ngIf="data?.orgDomain && data?.orgDomain?.verifiedDate" bitBadge variant="success">
         {{ "domainStatusClaimed" | i18n }}
       </span>
     </span>
     <div bitDialogContent>
+      <div *ngIf="data?.orgDomain && !data?.orgDomain?.verifiedDate" class="tw-space-y-2 tw-pb-4">
+        <p bitTypography="body1">{{ "automaticDomainClaimProcess1" | i18n }}</p>
+        <p bitTypography="body1">
+          {{ "automaticDomainClaimProcess2" | i18n }}
+          <a
+            bitLink
+            target="_blank"
+            rel="noreferrer"
+            href="https://bitwarden.com/help/claimed-accounts/"
+            class="tw-inline-flex tw-items-center tw-gap-1"
+          >
+            {{ "accountOwnershipChange" | i18n }}
+            <i class="bwi bwi-external-link tw-text-xs" aria-hidden="true"></i>
+          </a>
+          {{ "automaticDomainClaimProcessEnd" | i18n }}
+        </p>
+      </div>
       <bit-form-field>
         <bit-label>{{ "domainName" | i18n }}</bit-label>
         <input bitInput appAutofocus formControlName="domainName" [showErrorsWhenDisabled]="true" />
-        <bit-hint>{{ "claimDomainNameInputHint" | i18n }}</bit-hint>
       </bit-form-field>
 
       <bit-form-field *ngIf="data?.orgDomain">
@@ -40,14 +52,6 @@
           (click)="copyDnsTxt()"
         ></button>
       </bit-form-field>
-
-      <bit-callout
-        *ngIf="data?.orgDomain && !data?.orgDomain?.verifiedDate"
-        type="info"
-        title="{{ 'automaticClaimedDomains' | i18n | uppercase }}"
-      >
-        {{ "automaticDomainClaimProcess" | i18n }}
-      </bit-callout>
     </div>
     <ng-container bitDialogFooter>
       <button type="submit" bitButton bitFormButton buttonType="primary">
