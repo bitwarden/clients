@@ -514,7 +514,7 @@ export class vNextMembersComponent {
     if (result.error != null) {
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t(result.error),
+        message: result.error,
       });
       this.logService.error(result.error);
       return;
