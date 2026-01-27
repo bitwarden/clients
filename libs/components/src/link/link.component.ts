@@ -41,16 +41,17 @@ const commonStyles = [
   "tw-transition",
   "tw-no-underline",
   "tw-cursor-pointer",
-  "hover:[&_span]:tw-underline",
-  "hover:[&_span]:tw-decoration-[.125em]",
+  "[&:hover_span]:tw-underline",
+  "[&.tw-test-hover_span]:tw-underline",
+  "[&:hover_span]:tw-decoration-[.125em]",
+  "[&.tw-test-hover_span]:tw-decoration-[.125em]",
   "disabled:tw-no-underline",
   "disabled:tw-cursor-not-allowed",
   "disabled:!tw-text-secondary-300",
   "disabled:hover:!tw-text-secondary-300",
   "disabled:hover:tw-no-underline",
   "focus-visible:tw-outline-none",
-  "focus-visible:[&_span]:tw-underline",
-  "focus-visible:[&_span]:tw-decoration-[.125em]",
+  "focus-visible:before:tw-ring-border-focus",
 
   // Workaround for html button tag not being able to be set to `display: inline`
   // and at the same time not being able to use `tw-ring-offset` because of box-shadow issue.
@@ -66,6 +67,7 @@ const commonStyles = [
   "before:tw-block",
   "before:tw-absolute",
   "before:-tw-inset-x-[0.1em]",
+  "before:-tw-inset-y-[0]",
   "before:tw-rounded-md",
   "before:tw-transition",
   "before:tw-h-full",
@@ -120,7 +122,7 @@ export class LinkComponent {
 
   readonly classList = computed(() => {
     const verticalInset = this.isButton ? "0.25rem" : "0.125rem";
-    const displayStyle = this.isButton ? "inline-block" : "inline-flex";
+    const displayStyle = this.isButton ? "" : "inline-flex";
 
     return [`before:-tw-inset-y-[${verticalInset}]`, `tw-${displayStyle}`]
       .concat(commonStyles)
