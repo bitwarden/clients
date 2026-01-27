@@ -22,19 +22,19 @@ import {
  * Add your policy definition here if it is under the OSS license.
  */
 export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
+  new TwoFactorAuthenticationPolicy(),
+  new MasterPasswordPolicy(),
+  new RemoveUnlockWithPinPolicy(),
+  new ResetPasswordPolicy(),
+  new PasswordGeneratorPolicy(),
   new SingleOrgPolicy(),
-  new vNextOrganizationDataOwnershipPolicy(), // Centralized ownership
-  new MasterPasswordPolicy(), // Master password requirements
-  new ResetPasswordPolicy(), // Account recovery
-  new RequireSsoPolicy(), // Require SSO
-  new TwoFactorAuthenticationPolicy(), // Require 2FA
-  new RemoveUnlockWithPinPolicy(), // Remove Unlock with PIN
-  new PasswordGeneratorPolicy(), // Password generator
-  new UriMatchDefaultPolicy(), // Default URI match detection
-  new SendOptionsPolicy(), // Send options
-  new DisableSendPolicy(), // Remove Send
-  new RestrictedItemTypesPolicy(), // Remove card item type
-  new AutoConfirmPolicy(),
+  new RequireSsoPolicy(),
   new OrganizationDataOwnershipPolicy(),
+  new vNextOrganizationDataOwnershipPolicy(),
+  new DisableSendPolicy(),
+  new SendOptionsPolicy(),
+  new RestrictedItemTypesPolicy(),
   new DesktopAutotypeDefaultSettingPolicy(),
+  new UriMatchDefaultPolicy(),
+  new AutoConfirmPolicy(),
 ];

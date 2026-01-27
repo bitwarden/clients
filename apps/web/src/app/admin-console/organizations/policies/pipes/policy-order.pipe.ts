@@ -46,10 +46,8 @@ export class PolicyOrderPipe implements PipeTransform {
       return [];
     }
 
-    // Create a copy of the array to avoid mutating the original
     const sortedPolicies = [...policies];
 
-    // Sort by order index, maintaining relative order for policies with the same index
     sortedPolicies.sort((a, b) => {
       const orderA = POLICY_ORDER_MAP.get(a.name) ?? DEFAULT_ORDER;
       const orderB = POLICY_ORDER_MAP.get(b.name) ?? DEFAULT_ORDER;
@@ -58,8 +56,6 @@ export class PolicyOrderPipe implements PipeTransform {
         return orderA - orderB;
       }
 
-      // If both have the same order (e.g., both unmapped), maintain original relative order
-      // by comparing their original indices
       const indexA = policies.indexOf(a);
       const indexB = policies.indexOf(b);
       return indexA - indexB;

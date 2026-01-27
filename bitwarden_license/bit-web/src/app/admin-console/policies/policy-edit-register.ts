@@ -19,12 +19,12 @@ import {
  * It will not appear in the web vault when running in OSS mode.
  */
 const policyEditRegister: BasePolicyEditDefinition[] = [
-  new AutomaticAppLoginPolicy(), // Automatic login with SSO
-  new BlockClaimedDomainAccountCreationPolicy(), // Block account creation for claimed domains
-  new SessionTimeoutPolicy(), // Session timeout
-  new ActivateAutofillPolicy(), // Activate auto-fill
-  new FreeFamiliesSponsorshipPolicy(), // Remove Free Bitwarden Families sponsorship
-  new DisablePersonalVaultExportPolicy(), // Remove export
+  new SessionTimeoutPolicy(),
+  new DisablePersonalVaultExportPolicy(),
+  new FreeFamiliesSponsorshipPolicy(),
+  new ActivateAutofillPolicy(),
+  new AutomaticAppLoginPolicy(),
+  new BlockClaimedDomainAccountCreationPolicy(),
 ];
 
 export const bitPolicyEditRegister = ossPolicyEditRegister.concat(policyEditRegister);
