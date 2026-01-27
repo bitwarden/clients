@@ -405,4 +405,42 @@ describe("ItemMoreOptionsComponent", () => {
       });
     });
   });
+
+  describe("canAssignCollections$", () => {
+    it("emits true when user has organizations and editable collections", (done) => {
+      jest.spyOn(component["organizationService"], "hasOrganizations").mockReturnValue(of(true));
+      jest
+        .spyOn(component["collectionService"], "decryptedCollections$")
+        .mockReturnValue(of([{ id: "col-1", readOnly: false }] as any));
+
+      component["canAssignCollections$"].subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+    });
+
+    it("emits false when user has no organizations", (done) => {
+      jest.spyOn(component["organizationService"], "hasOrganizations").mockReturnValue(of(false));
+      jest
+        .spyOn(component["collectionService"], "decryptedCollections$")
+        .mockReturnValue(of([{ id: "col-1", readOnly: false }] as any));
+
+      component["canAssignCollections$"].subscribe((result) => {
+        expect(result).toBe(false);
+        done();
+      });
+    });
+
+    it("emits false when all collections are read-only", (done) => {
+      jest.spyOn(component["organizationService"], "hasOrganizations").mockReturnValue(of(true));
+      jest
+        .spyOn(component["collectionService"], "decryptedCollections$")
+        .mockReturnValue(of([{ id: "col-1", readOnly: true }] as any));
+
+      component["canAssignCollections$"].subscribe((result) => {
+        expect(result).toBe(false);
+        done();
+      });
+    });
+  });
 });

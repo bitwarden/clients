@@ -12,9 +12,13 @@ if [ -e "/usr/lib/x86_64-linux-gnu/libdbus-1.so.3" ]; then
   export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libdbus-1.so.3"
 fi
 
+# A bug in Electron 39 (which now enables Wayland by default) causes a crash on
+# systems using Wayland with hardware acceleration. Platform decided to
+# configure Electron to use X11 (with an opt-out) until the upstream bug is
+# fixed. The follow-up task is https://bitwarden.atlassian.net/browse/PM-31080.
 PARAMS="--enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform-hint=auto"
-if [ "$USE_X11" = "true" ]; then
-  PARAMS=""
+if [ "$USE_X11" != "false" ]; then
+  PARAMS="--ozone-platform=x11"
 fi
 
 $APP_PATH/bitwarden-app $PARAMS "$@"

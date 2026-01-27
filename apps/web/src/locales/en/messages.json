@@ -3281,6 +3281,9 @@
   "nextChargeHeader": {
     "message": "Next Charge"
   },
+  "nextChargeDate": {
+    "message": "Next charge date"
+  },
   "plan": {
     "message": "Plan"
   },
@@ -5418,6 +5421,12 @@
   "restoreSelected": {
     "message": "Restore selected"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
+  "archivedItemsRestored": {
+    "message": "Archived items restored"
+  },
   "restoredItem": {
     "message": "Item restored"
   },
@@ -5620,13 +5629,13 @@
     "message": "Send created successfully!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5917,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership":{
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc":{
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits":{
+    "message": "Benefits"
+  },
+  "centralizeDataOwnershipBenefit1":{
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2":{
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3":{
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
@@ -6891,8 +6931,8 @@
   "activateAutofill": {
     "message": "Activate auto-fill"
   },
-  "activateAutofillPolicyDesc": {
-    "message": "Activate the auto-fill on page load setting on the browser extension for all existing and new members."
+  "activateAutofillPolicyDescription": {
+    "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
   "experimentalFeature": {
     "message": "Compromised or untrusted websites can exploit auto-fill on page load."
@@ -10395,6 +10435,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Send vault event data to your Datadog instance"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
@@ -10505,6 +10548,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Select a plan"
@@ -11320,6 +11369,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden will attempt to claim the domain 3 times during the first 72 hours. If the domain can’t be claimed, check the DNS record in your host and manually claim. The domain will be removed from your organization in 7 days if it is not claimed."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ not claimed. Check your DNS records.",
     "placeholders": {
@@ -11332,8 +11393,8 @@
   "domainStatusClaimed": {
     "message": "Claimed"
   },
-  "domainStatusUnderVerification": {
-    "message": "Under verification"
+  "domainStatusPending": {
+    "message": "Pending"
   },
   "claimedDomainsDescription": {
     "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
@@ -11701,8 +11762,8 @@
     "message": "Archive item",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archiveBulkItems": {
     "message": "Archive items",
@@ -12054,6 +12115,15 @@
   },
   "verifyNow": {
     "message": "Verify now."
+  },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
   },
   "additionalStorageGB": {
     "message": "Additional storage GB"
@@ -12626,5 +12696,8 @@
   },
   "youHavePremium": {
     "message": "You have Premium"
+  },
+  "emailProtected": {
+    "message": "Email protected"
   }
 }

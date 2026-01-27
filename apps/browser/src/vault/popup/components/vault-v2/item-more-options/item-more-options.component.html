@@ -3,19 +3,19 @@
     type="button"
     bitIconButton="bwi-ellipsis-v"
     size="small"
-    [label]="'moreOptionsLabel' | i18n: cipher.name"
+    [label]="'moreOptionsLabelNoPlaceholder' | i18n"
     [bitMenuTriggerFor]="moreOptions"
   ></button>
   <bit-menu #moreOptions>
     @if (!decryptionFailure) {
-      <ng-container *ngIf="canAutofill && !hideAutofillOptions">
+      <ng-container *ngIf="canAutofill && showAutofill()">
         <ng-container *ngIf="autofillAllowed$ | async">
           <button type="button" bitMenuItem (click)="doAutofill()">
             {{ "autofill" | i18n }}
           </button>
         </ng-container>
       </ng-container>
-      <ng-container *ngIf="showViewOption">
+      <ng-container>
         <button type="button" bitMenuItem (click)="onView()">
           {{ "view" | i18n }}
         </button>
