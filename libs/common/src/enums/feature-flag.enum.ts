@@ -18,6 +18,7 @@ export enum FeatureFlag {
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
+  SafariAccountSwitching = "pm-5594-safari-account-switching",
 
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -65,10 +66,9 @@ export enum FeatureFlag {
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
-  RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
-  VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
+  PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -129,13 +129,13 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
-  [FeatureFlag.RiskInsightsForPremium]: FALSE,
-  [FeatureFlag.VaultLoadingSkeletons]: FALSE,
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
+  [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
+  [FeatureFlag.SafariAccountSwitching]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,

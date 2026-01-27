@@ -14,6 +14,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
@@ -267,7 +268,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
   private async getRpIdForUser(userId: UserId): Promise<string | undefined> {
     try {
       const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
-      const hostname = environment.getHostname();
+      const hostname = Utils.getHost(environment.getWebVaultUrl());
 
       // The navigator.credentials.get call will fail if rpId is set but is null/empty. Undefined uses the current host.
       if (!hostname) {

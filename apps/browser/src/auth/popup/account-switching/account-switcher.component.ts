@@ -1,7 +1,7 @@
 import { CommonModule, Location } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
+import { Observable, Subject, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LockService, LogoutService } from "@bitwarden/auth/common";
@@ -24,7 +24,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { enableAccountSwitching } from "../../../platform/flags";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -59,7 +58,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   loading = false;
   activeUserCanLock = false;
-  enableAccountSwitching = true;
+  enableAccountSwitching$: Observable<boolean>;
 
   constructor(
     private accountSwitcherService: AccountSwitcherService,
@@ -72,7 +71,9 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private lockService: LockService,
     private logoutService: LogoutService,
-  ) {}
+  ) {
+    this.enableAccountSwitching$ = this.accountSwitcherService.accountSwitchingEnabled$();
+  }
 
   get accountLimit() {
     return this.accountSwitcherService.ACCOUNT_LIMIT;
@@ -97,19 +98,21 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     switchMap((accounts) => {
       // If account switching is disabled, don't show the lock all button
       // as only one account should be shown.
-      if (!enableAccountSwitching()) {
-        return of(false);
-      }
+      return this.accountSwitcherService.accountSwitchingEnabled$().pipe(
+        switchMap((enabled) => {
+          if (!enabled) {
+            return of(false);
+          }
 
-      // When there are an inactive accounts provide the option to lock all accounts
-      // Note: "Add account" is counted as an inactive account, so check for more than one account
-      return of(accounts.length > 1);
+          // When there are inactive accounts provide the option to lock all accounts
+          // Note: "Add account" is counted as an inactive account, so check for more than one account
+          return of(accounts.length > 1);
+        }),
+      );
     }),
   );
 
   async ngOnInit() {
-    this.enableAccountSwitching = enableAccountSwitching();
-
     const availableVaultTimeoutActions = await firstValueFrom(
       this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
     );
