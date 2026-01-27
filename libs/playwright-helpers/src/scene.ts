@@ -5,9 +5,6 @@ import { SceneTemplate } from "./scene-templates/scene-template";
  * It is created by providing a Scene Template, which contains the arguments the server requires to create the data.
  *
  * Scenes are intended to be initialized through the {@link Play.scene} method.
- *
- * - {@link SceneOptions.noDown}: Useful for setting up data then using codegen to create tests that use the data. Remember to tear down the data manually.
- * - {@link SceneOptions.downAfterAll}: Useful for expensive setups that you want to share across all tests in a worker or for writing acts.
  */
 export class Scene<UpParams = unknown, Returns = void> {
   private inited = false;
