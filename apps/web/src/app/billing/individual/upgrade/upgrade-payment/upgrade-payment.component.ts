@@ -59,6 +59,9 @@ import {
   UpgradePaymentService,
 } from "./services/upgrade-payment.service";
 
+/**
+ * Status types for upgrade payment dialog
+ */
 export const UpgradePaymentStatus = {
   Closed: "closed",
   UpgradedToPremium: "upgradedToPremium",

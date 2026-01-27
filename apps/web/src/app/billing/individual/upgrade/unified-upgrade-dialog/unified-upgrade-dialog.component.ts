@@ -17,6 +17,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import {
   BusinessSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierId,
+  PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -123,10 +124,24 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   protected readonly showPremiumOrgFlow = computed(
     () => this.hasPremiumPersonally() && this.premiumToOrganizationUpgradeEnabled(),
   );
-  // Type-narrowed computed signal for app-upgrade-payment
-  // When hasPremiumPersonally is false, selectedPlan will only contain PersonalSubscriptionPricingTierId
+  /**
+   * Type-safe computed signal for app-upgrade-payment component.
+   * Returns the selected plan only when it's a personal plan (Premium or Families).
+   * When showPremiumOrgFlow is true, this will be null since business plans are handled separately.
+   */
   protected readonly selectedPersonalPlanId = computed<PersonalSubscriptionPricingTierId | null>(
-    () => this.selectedPlan() as PersonalSubscriptionPricingTierId | null,
+    () => {
+      const plan = this.selectedPlan();
+      // When showing premium org flow, user is selecting business plans (Teams/Enterprise)
+      // Standard flow uses personal plans (Premium/Families)
+      if (
+        plan === PersonalSubscriptionPricingTierIds.Premium ||
+        plan === PersonalSubscriptionPricingTierIds.Families
+      ) {
+        return plan;
+      }
+      return null;
+    },
   );
 
   protected readonly PaymentStep = UnifiedUpgradeDialogStep.Payment;
