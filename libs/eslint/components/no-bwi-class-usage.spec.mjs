@@ -1,4 +1,4 @@
-import { RuleTester } from "@angular-eslint/test-utils";
+import { RuleTester } from "@typescript-eslint/rule-tester";
 
 import rule, { errorMessage } from "./no-bwi-class-usage.mjs";
 
