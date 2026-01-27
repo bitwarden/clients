@@ -60,7 +60,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   protected readonly disabled = input<boolean>();
   protected readonly cipher = input<C>();
   protected readonly showOwner = input<boolean>();
-  protected readonly showGroups = input<boolean>();
   protected readonly showPremiumFeatures = input<boolean>();
   protected readonly useEvents = input<boolean>();
   protected readonly cloneable = input<boolean>();
