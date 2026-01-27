@@ -3281,6 +3281,9 @@
   "nextChargeHeader": {
     "message": "Next Charge"
   },
+  "nextChargeDate": {
+    "message": "Next charge date"
+  },
   "plan": {
     "message": "Plan"
   },
