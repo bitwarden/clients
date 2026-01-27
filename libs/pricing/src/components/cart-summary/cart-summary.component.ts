@@ -155,6 +155,16 @@ export class CartSummaryComponent {
   readonly total$ = toObservable(this.total);
 
   /**
+   * Translates a key with optional parameters
+   */
+  translateWithParams(key: string, params?: Array<string | number>): string {
+    if (!params || params.length === 0) {
+      return this.i18nService.t(key);
+    }
+    return this.i18nService.t(key, ...params);
+  }
+
+  /**
    * Toggles the expanded/collapsed state of the cart items
    */
   toggleExpanded(): void {
