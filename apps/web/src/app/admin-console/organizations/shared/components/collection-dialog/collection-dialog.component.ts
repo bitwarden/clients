@@ -361,6 +361,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     return this.params.readonly === true;
   }
 
+  protected get accessTabLabel(): string {
+    return this.dialogReadonly
+      ? this.i18nService.t("viewAccess")
+      : this.i18nService.t("editAccess");
+  }
+
   protected async cancel() {
     this.close(CollectionDialogAction.Canceled);
   }
