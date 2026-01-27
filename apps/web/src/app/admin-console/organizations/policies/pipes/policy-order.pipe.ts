@@ -8,6 +8,7 @@ import { BasePolicyEditDefinition } from "../base-policy-edit.component";
  */
 const POLICY_ORDER_MAP = new Map<string, number>([
   ["singleOrg", 1],
+  ["organizationDataOwnership", 2],
   ["centralizeDataOwnership", 2],
   ["masterPassPolicyTitle", 3],
   ["accountRecoveryPolicy", 4],
