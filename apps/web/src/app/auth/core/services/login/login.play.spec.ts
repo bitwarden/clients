@@ -8,7 +8,7 @@ import {
 test("login with password", async ({ page }) => {
   const scene = await Play.scene(new SingleUserSceneTemplate({ email: "test@example.com" }));
 
-  await page.goto("https://localhost:8080/#/login");
+  await page.goto("/#/login");
   await page.getByRole("textbox", { name: "Email address (required)" }).click();
   await page
     .getByRole("textbox", { name: "Email address (required)" })
