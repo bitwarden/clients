@@ -35,7 +35,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     super();
     // Always connect to the native messaging background if biometrics are enabled, not just when it is used
     // so that there is no wait when used.
-    const biometricsEnabled = this.biometricStateService.biometricUnlockEnabled$;
+    const biometricsEnabled = this.biometricStateService.biometricUnlockEnabled$();
 
     combineLatest([timer(0, this.BACKGROUND_POLLING_INTERVAL), biometricsEnabled])
       .pipe(

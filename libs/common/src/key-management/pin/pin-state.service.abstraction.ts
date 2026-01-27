@@ -12,6 +12,20 @@ import { PinLockType } from "./pin-lock-type";
  */
 export abstract class PinStateServiceAbstraction {
   /**
+   * Checks if a user is enrolled into PIN unlock
+   * @param userId The user's id
+   * @throws If the user id is not provided
+   */
+  abstract pinSet$(userId: UserId): Observable<boolean>;
+
+  /**
+   * Gets the user's {@link PinLockType}
+   * @param userId The user's id
+   * @throws If the user id is not provided
+   */
+  abstract pinLockType$(userId: UserId): Observable<PinLockType>;
+
+  /**
    * Gets the user's UserKey encrypted PIN
    * @deprecated - This is not a public API. DO NOT USE IT
    * @param userId The user's id
@@ -21,16 +35,11 @@ export abstract class PinStateServiceAbstraction {
 
   /**
    * Gets the user's {@link PinLockType}
+   * @deprecated Use {@link pinLockType$} instead
    * @param userId The user's id
    * @throws If the user id is not provided
    */
   abstract getPinLockType(userId: UserId): Promise<PinLockType>;
-
-  /**
-   * Checks if a user is enrolled into PIN unlock
-   * @param userId The user's id
-   */
-  abstract isPinSet(userId: UserId): Promise<boolean>;
 
   /**
    * Gets the user's PIN-protected UserKey envelope, either persistent or ephemeral based on the provided PinLockType

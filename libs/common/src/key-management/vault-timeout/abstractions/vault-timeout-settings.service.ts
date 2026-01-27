@@ -20,10 +20,9 @@ export abstract class VaultTimeoutSettingsService {
   /**
    * Get the available vault timeout actions for the current user
    *
-   * **NOTE:** This observable is not yet connected to the state service, so it will not update when the state changes
    * @param userId The user id to check. If not provided, the current user is used
    */
-  abstract availableVaultTimeoutActions$(userId?: string): Observable<VaultTimeoutAction[]>;
+  abstract availableVaultTimeoutActions$(userId?: UserId): Observable<VaultTimeoutAction[]>;
 
   /**
    * Evaluates the user's available vault timeout actions and returns a boolean representing
@@ -55,5 +54,5 @@ export abstract class VaultTimeoutSettingsService {
    * @param userId The user id to check. If not provided, the current user is used
    * @returns boolean true if biometric lock is set
    */
-  abstract isBiometricLockSet(userId?: string): Promise<boolean>;
+  abstract isBiometricLockSet(userId?: UserId): Promise<boolean>;
 }
