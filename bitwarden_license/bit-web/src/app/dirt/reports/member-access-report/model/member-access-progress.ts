@@ -60,7 +60,7 @@ export const MemberAccessProgressConfig = Object.freeze({
     progress: 35,
   },
   [MemberAccessProgress.Complete]: {
-    messageKey: "complete",
+    messageKey: "reportGenerationComplete",
     progress: 100,
   },
 } as const);

@@ -401,7 +401,7 @@ export class MemberAccessReportService {
       for (const access of directAccess) {
         exportItems.push({
           email: member.email,
-          name: member.name,
+          name: member.name || "(No Name)",
           twoStepLogin: member.twoFactorEnabled
             ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
             : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
@@ -421,10 +421,30 @@ export class MemberAccessReportService {
         const groupCollections = groupCollectionMap.get(groupId) || [];
         const groupName = groupNameMap.get(groupId) || "Unknown Group";
 
-        for (const access of groupCollections) {
+        if (groupCollections.length > 0) {
+          // Group has collection access - create a row for each collection
+          for (const access of groupCollections) {
+            exportItems.push({
+              email: member.email,
+              name: member.name || "(No Name)",
+              twoStepLogin: member.twoFactorEnabled
+                ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
+                : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
+              accountRecovery: member.resetPasswordEnrolled
+                ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
+                : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
+              group: groupName,
+              collection:
+                access.collectionName || this.i18nService.t("memberAccessReportNoCollection"),
+              collectionPermission: this.getPermissionText(access),
+              totalItems: String(collectionCipherCountMap.get(access.collectionId) || 0),
+            });
+          }
+        } else {
+          // Group has no collection access - still show the group membership
           exportItems.push({
             email: member.email,
-            name: member.name,
+            name: member.name || "(No Name)",
             twoStepLogin: member.twoFactorEnabled
               ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
               : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
@@ -432,10 +452,9 @@ export class MemberAccessReportService {
               ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
               : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
             group: groupName,
-            collection:
-              access.collectionName || this.i18nService.t("memberAccessReportNoCollection"),
-            collectionPermission: this.getPermissionText(access),
-            totalItems: String(collectionCipherCountMap.get(access.collectionId) || 0),
+            collection: this.i18nService.t("memberAccessReportNoCollection"),
+            collectionPermission: this.i18nService.t("memberAccessReportNoCollectionPermission"),
+            totalItems: "0",
           });
         }
       }
@@ -444,7 +463,7 @@ export class MemberAccessReportService {
       if (directAccess.length === 0 && memberGroups.length === 0) {
         exportItems.push({
           email: member.email,
-          name: member.name,
+          name: member.name || "(No Name)",
           twoStepLogin: member.twoFactorEnabled
             ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
             : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),

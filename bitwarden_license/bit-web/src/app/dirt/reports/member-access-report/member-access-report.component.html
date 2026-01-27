@@ -55,12 +55,13 @@
           ></bit-avatar>
           <div class="tw-flex tw-flex-col">
             <button type="button" bitLink (click)="edit(row)">
-              {{ row.name }}
+              {{ row.name || row.email }}
             </button>
-
-            <div class="tw-text-sm tw-mt-1 tw-text-muted">
-              {{ row.email }}
-            </div>
+            @if (row.name) {
+              <div class="tw-text-sm tw-mt-1 tw-text-muted">
+                {{ row.email }}
+              </div>
+            }
           </div>
         </div>
       </td>

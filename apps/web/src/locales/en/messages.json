@@ -4558,6 +4558,9 @@
       }
     }
   },
+  "reportGenerationComplete": {
+    "message": "Report generation complete"
+  },
   "riskInsightsRunReport": {
     "message": "Run report"
   },
