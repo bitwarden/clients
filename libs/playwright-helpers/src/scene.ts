@@ -4,8 +4,7 @@ import { SceneTemplate } from "./scene-templates/scene-template";
  * A Scene contains logic to set up and tear down data for a test on the server.
  * It is created by providing a Scene Template, which contains the arguments the server requires to create the data.
  *
- * Scenes are `Disposable`, meaning they must be used with the `using` keyword and will be automatically torn down when disposed.
- * Options exist to modify this behavior.
+ * Scenes are intended to be initialized through the {@link Play.scene} method.
  *
  * - {@link SceneOptions.noDown}: Useful for setting up data then using codegen to create tests that use the data. Remember to tear down the data manually.
  * - {@link SceneOptions.downAfterAll}: Useful for expensive setups that you want to share across all tests in a worker or for writing acts.
@@ -28,10 +27,12 @@ export class Scene<UpParams = unknown, Returns = void> {
     return this._template;
   }
 
+  /** The template arguments used to initialize this scene */
   get upArgs(): UpParams {
     return this.template.upArgs;
   }
 
+  /** The value returned from the seeder API for this scene */
   get returnValue(): Returns {
     if (!this.inited) {
       throw new Error("Scene must be initialized before accessing returnValue");

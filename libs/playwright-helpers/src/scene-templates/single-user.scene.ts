@@ -1,10 +1,19 @@
+import { KdfType } from "@bitwarden/key-management";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { Scene } from "../scene";
 
 import { SceneTemplate } from "./scene-template";
 
-type SceneResult = UserId;
+type SceneResult = {
+  userId: UserId;
+  kdf: KdfType;
+  kdfIterations?: number;
+  key: EncString;
+  privateKey: EncString;
+  publicKey: string;
+};
 type UpParams = {
   email: string;
   emailVerified?: boolean;
