@@ -7,7 +7,7 @@ import { BrowserApi } from "../browser/browser-api";
 
 const IPC_CONTENT_SCRIPT_ID = "ipc-content-script";
 
-export class cccccdderntbrnbtgeuhivjijvnubtuevejdcubuevrj {
+export class IpcContentScriptManagerService {
   constructor(configService: ConfigService) {
     if (!BrowserApi.isManifestVersion(3)) {
       // IPC not supported on MV2
