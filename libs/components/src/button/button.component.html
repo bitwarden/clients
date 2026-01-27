@@ -1,22 +1,18 @@
-@let showLoadingStyles = showLoadingStyle();
-@let leadIcon = startIcon();
-@let tailIcon = endIcon();
-
 <ng-template #buttonContent>
   <ng-content></ng-content>
 </ng-template>
 
 <span class="tw-relative tw-flex tw-items-center tw-justify-center">
-  <span [class.tw-invisible]="showLoadingStyles">
-    @if (leadIcon || tailIcon) {
+  <span [class.tw-invisible]="showLoadingStyle()">
+    @if (startIcon() || endIcon()) {
       <div class="tw-flex tw-items-center tw-gap-2">
-        @if (leadIcon) {
+        @if (startIcon()) {
           <i class="{{ startIconClasses() }}"></i>
         }
         <div>
           <ng-container *ngTemplateOutlet="buttonContent"></ng-container>
         </div>
-        @if (tailIcon) {
+        @if (endIcon()) {
           <i class="{{ endIconClasses() }}"></i>
         }
       </div>
@@ -26,7 +22,7 @@
       </div>
     }
   </span>
-  @if (showLoadingStyles) {
+  @if (showLoadingStyle()) {
     <span class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
       <bit-spinner size="fill" noColor></bit-spinner>
     </span>
