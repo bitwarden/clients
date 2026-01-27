@@ -114,7 +114,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
     VaultItemsV2Component,
   ],
   providers: [
-    RoutedVaultFilterService,
     {
       provide: CipherFormConfigService,
       useClass: DefaultCipherFormConfigService,
