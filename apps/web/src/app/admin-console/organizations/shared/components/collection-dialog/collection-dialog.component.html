@@ -63,7 +63,7 @@
             </bit-select>
           </bit-form-field>
         </bit-tab>
-        <bit-tab label="{{ 'access' | i18n }}">
+        <bit-tab [label]="accessTabLabel">
           <div class="tw-mb-3">
             <ng-container *ngIf="dialogReadonly">
               <span>{{ "readOnlyCollectionAccess" | i18n }}</span>
