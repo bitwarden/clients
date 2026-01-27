@@ -3,6 +3,8 @@ import { webServerBaseUrl } from "@playwright-config";
 // First seed points at the seeder API proxy, second is the seed path of the SeedController
 const seedApiUrl = new URL("/seed/seed/", webServerBaseUrl).toString();
 
+export type extractTUpType<T> = T extends SceneTemplate<infer U, any> ? U : never;
+
 export abstract class SceneTemplate<TUp, TReturns = void> {
   abstract template: string;
   private seedId?: string;
@@ -14,7 +16,7 @@ export abstract class SceneTemplate<TUp, TReturns = void> {
     return this.seedId;
   }
 
-  constructor(private upArgs: TUp) {}
+  constructor(public upArgs: TUp) {}
   async up(): Promise<SceneTemplateResult<TReturns>> {
     const result = await sceneUp<TUp, TReturns>(this.template, this.upArgs);
     this.seedId = result.seedId;

@@ -24,8 +24,10 @@ export class Play {
    * @param options Options for the scene
    * @returns
    */
-  static async scene<TUp, TResult>(template: SceneTemplate<TUp, TResult>): Promise<Scene<TResult>> {
-    const scene = new Scene<TResult>();
+  static async scene<TUp, TResult>(
+    template: SceneTemplate<TUp, TResult>,
+  ): Promise<Scene<TUp, TResult>> {
+    const scene = new Scene<TUp, TResult>();
     await scene.init(template);
     return scene;
   }

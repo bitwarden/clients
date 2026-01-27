@@ -10,15 +10,15 @@ import { SceneTemplate } from "./scene-templates/scene-template";
  * - {@link SceneOptions.noDown}: Useful for setting up data then using codegen to create tests that use the data. Remember to tear down the data manually.
  * - {@link SceneOptions.downAfterAll}: Useful for expensive setups that you want to share across all tests in a worker or for writing acts.
  */
-export class Scene<Returns = void> {
+export class Scene<UpParams = unknown, Returns = void> {
   private inited = false;
-  private _template?: SceneTemplate<unknown, Returns>;
+  private _template?: SceneTemplate<UpParams, Returns>;
   private mangledMap = new Map<string, string | null>();
   private _returnValue?: Returns;
 
   constructor() {}
 
-  private get template(): SceneTemplate<unknown, Returns> {
+  private get template(): SceneTemplate<UpParams, Returns> {
     if (!this.inited) {
       throw new Error("Scene must be initialized before accessing template");
     }
@@ -26,6 +26,10 @@ export class Scene<Returns = void> {
       throw new Error("Scene was not properly initialized");
     }
     return this._template;
+  }
+
+  get upArgs(): UpParams {
+    return this.template.upArgs;
   }
 
   get returnValue(): Returns {
@@ -43,7 +47,7 @@ export class Scene<Returns = void> {
     return this.mangledMap.get(id) ?? id;
   }
 
-  async init<T extends SceneTemplate<TUp, Returns>, TUp>(template: T): Promise<void> {
+  async init(template: SceneTemplate<UpParams, Returns>): Promise<void> {
     if (this.inited) {
       throw new Error("Scene has already been initialized");
     }
