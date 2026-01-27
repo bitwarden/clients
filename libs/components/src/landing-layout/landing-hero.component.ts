@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
-import { Icon } from "@bitwarden/assets/svg";
+import { BitSvg } from "@bitwarden/assets/svg";
 
 import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
@@ -34,7 +34,7 @@ import { TypographyModule } from "../typography";
   imports: [SvgModule, TypographyModule],
 })
 export class LandingHeroComponent {
-  readonly icon = input<Icon | null>(null);
+  readonly icon = input<BitSvg | null>(null);
   readonly title = input<string | undefined>();
   readonly subtitle = input<string | undefined>();
 }

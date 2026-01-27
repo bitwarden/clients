@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
-import { Icon, isIcon } from "@bitwarden/assets/svg";
+import { BitSvg, isBitSvg } from "@bitwarden/assets/svg";
 
 @Component({
   selector: "bit-svg",
@@ -17,12 +17,12 @@ import { Icon, isIcon } from "@bitwarden/assets/svg";
 export class SvgComponent {
   private domSanitizer = inject(DomSanitizer);
 
-  readonly content = input<Icon>();
+  readonly content = input<BitSvg>();
   readonly ariaLabel = input<string>();
 
   protected readonly innerHtml = computed<SafeHtml | null>(() => {
     const content = this.content();
-    if (!isIcon(content)) {
+    if (!isBitSvg(content)) {
       return null;
     }
     const svg = content.svg;

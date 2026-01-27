@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, inject } from "@angular/core";
 import { RouterLinkActive, RouterLink } from "@angular/router";
 
-import { BitwardenShield, Icon } from "@bitwarden/assets/svg";
+import { BitwardenShield, BitSvg } from "@bitwarden/assets/svg";
 
 import { SvgComponent } from "../svg/svg.component";
 
@@ -26,7 +26,7 @@ export class NavLogoComponent {
   /**
    * Icon that is displayed when the side nav is open
    */
-  readonly openIcon = input.required<Icon>();
+  readonly openIcon = input.required<BitSvg>();
 
   /**
    * Route to be passed to internal `routerLink`

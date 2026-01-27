@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const EmptyTrash = svgIcon`
+export const EmptyTrash = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0.22 7 95.71 88">
     <path class="tw-fill-illustration-bg-primary" d="M.232 9.21A2 2 0 0 1 2.222 7h67.556a2 2 0 0 1 1.99 2.21l-7.014 66.627A8 8 0 0 1 56.798 83H15.202a8 8 0 0 1-7.956-7.162L.232 9.209Z"/>
     <path class="tw-fill-illustration-bg-secondary" d="M60.283 80.99C63.59 80.76 61.313 77 58 77H14c-3.314 0-5.59 3.759-2.284 3.99.094.007.189.01.284.01h48c.095 0 .19-.003.283-.01Z"/>

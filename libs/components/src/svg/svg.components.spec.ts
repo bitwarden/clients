@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { Icon, svgIcon } from "@bitwarden/assets/svg";
+import { BitSvg, svg } from "@bitwarden/assets/svg";
 
 import { SvgComponent } from "./svg.component";
 
@@ -17,7 +17,7 @@ describe("SvgComponent", () => {
   });
 
   it("should have empty innerHtml when input is not an Icon", () => {
-    const fakeIcon = { svg: "harmful user input" } as Icon;
+    const fakeIcon = { svg: "harmful user input" } as BitSvg;
 
     fixture.componentRef.setInput("content", fakeIcon);
     fixture.detectChanges();
@@ -27,7 +27,7 @@ describe("SvgComponent", () => {
   });
 
   it("should contain icon when input is a safe Icon", () => {
-    const icon = svgIcon`<svg><text x="0" y="15">safe icon</text></svg>`;
+    const icon = svg`<svg><text x="0" y="15">safe icon</text></svg>`;
 
     fixture.componentRef.setInput("content", icon);
     fixture.detectChanges();
