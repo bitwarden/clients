@@ -92,7 +92,6 @@ export class SendV2Component {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private logService = inject(LogService);
-  private cdr = inject(ChangeDetectorRef);
 
   protected readonly useDrawerEditMode = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone2),
