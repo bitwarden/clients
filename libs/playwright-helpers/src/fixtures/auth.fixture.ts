@@ -177,7 +177,7 @@ export class AuthFixture {
     await page.getByRole("textbox", { name: "Email address (required)" }).press("Enter");
     await page
       .getByRole("textbox", { name: "Master password (required)" })
-      .fill(scene.mangle("asdfasdfasdf"));
+      .fill(scene.mangle(password));
     await page.getByRole("button", { name: "Log in with master password" }).click();
     await page.getByRole("button", { name: "Add it later" }).click();
     await page.getByRole("link", { name: "Skip to web app" }).click();
