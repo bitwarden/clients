@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
@@ -243,6 +244,7 @@ describe("VaultV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [VaultV2Component, RouterTestingModule],
       providers: [
+        provideNoopAnimations(),
         { provide: VaultPopupItemsService, useValue: itemsSvc },
         { provide: VaultPopupListFiltersService, useValue: filtersSvc },
         { provide: VaultPopupScrollPositionService, useValue: scrollSvc },
