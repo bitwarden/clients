@@ -3,14 +3,14 @@ import { RouterLinkActive, RouterLink } from "@angular/router";
 
 import { BitwardenShield, Icon } from "@bitwarden/assets/svg";
 
-import { BitIconComponent } from "../icon/icon.component";
+import { SvgComponent } from "../svg/svg.component";
 
 import { SideNavService } from "./side-nav.service";
 
 @Component({
   selector: "bit-nav-logo",
   templateUrl: "./nav-logo.component.html",
-  imports: [RouterLinkActive, RouterLink, BitIconComponent],
+  imports: [RouterLinkActive, RouterLink, SvgComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavLogoComponent {
