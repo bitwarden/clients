@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Pieteikties ar piekļuves atslēgu"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Izmantot vienoto pieteikšanos"
   },
@@ -573,17 +576,29 @@
   "itemWasSentToArchive": {
     "message": "Vienums tika ievietots arhīvā"
   },
+  "itemWasUnarchived": {
+    "message": "Vienums tika izņemts no arhīva"
+  },
   "itemUnarchived": {
     "message": "Vienums tika izņemts no arhīva"
   },
   "archiveItem": {
     "message": "Arhivēt vienumu"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  "archiveItemDialogContent": {
+    "message": "Pēc ievietošanas arhīvā šis vienums netiks iekļauts meklēšanas iznākumā un automātiskās aizpildes ieteikumos."
+  },
+  "archived": {
+    "message": "Arhivēts"
+  },
+  "unarchiveAndSave": {
+    "message": "Atcelt arhivēšanu un saglabāt"
   },
   "upgradeToUseArchive": {
     "message": "Ir nepieciešama Premium dalība, lai izmantotu arhīvu."
+  },
+  "itemRestored": {
+    "message": "Vienums tika atjaunots"
   },
   "edit": {
     "message": "Labot"
@@ -1533,6 +1548,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Tādas slēgtā pirmavota divpakāpju pieteikšanās iespējas kā YubiKey un Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Tavs Premium abonements beidzās"
+  },
+  "archivePremiumRestart": {
+    "message": "Lai atgūtu piekļuvi savam arhīvam, jāatsāk Premium abonements. Ja labosi arhivēta vienuma informāciju pirms atsākšanas, tas tiks pārvietots atpakaļ Tavā glabātavā."
+  },
+  "restartPremium": {
+    "message": "Atsākt Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "Paroļu higiēnas, konta veselības un datu noplūžu pārskati, lai uzturētu glabātavu drošu."
   },
@@ -2452,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Vienums ir neatgriezeniski izdzēsts"
   },
+  "archivedItemRestored": {
+    "message": "Arhīva vienums atjaunots"
+  },
   "restoreItem": {
     "message": "Atjaunot vienumu"
   },
@@ -3342,6 +3369,12 @@
   },
   "error": {
     "message": "Kļūda"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Atšifrēšanas kļūda"
@@ -4718,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Vairāk iespēju"
+  },
   "moreOptionsTitle": {
     "message": "Vairāk iespēju - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4807,6 +4843,39 @@
   },
   "adminConsole": {
     "message": "pārvaldības konsolē,"
+  },
+  "admin": {
+    "message": "Pārvaldītājs"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automātiska lietotāju apstiprināšana"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automātiski apstiprināt ierindotos lietotājus, kamēr šī ierīce ir atslēgta"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Laika ietaupīšana ar automātisku lietotāju apstiprināšanu"
+  },
+  "autoConfirmWarning": {
+    "message": "Tas varētu ietekmēt apvienības datu drošību. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Uzzināt par riskiem"
+  },
+  "autoConfirmSetup": {
+    "message": "Automātiski apstiprināt jaunus lietotājus"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Jauni lietotāji tiks automātiski apstiprināti, kamēr šī ierīce ir atslēgta."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Kādi ir iespējamie drošības riski?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Automātiska apstiprināšana ieslēgta"
+  },
+  "availableNow": {
+    "message": "Pieejams tagad"
   },
   "accountSecurity": {
     "message": "Konta drošība"
@@ -5071,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Paslēpt atbilstības noteikšanu $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Rādīt atbilstības noteikšanu"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Slēpt atbilstības noteikšanu"
   },
   "autoFillOnPageLoad": {
     "message": "Automātiski aizpildīt lapas ielādes brīdī?"
@@ -5616,6 +5682,9 @@
   "extraWide": {
     "message": "Ļoti plats"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Ievadītā parole ir nepareiza."
   },
@@ -5663,6 +5732,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
+  },
+  "vulnerablePassword": {
+    "message": "Ievainojama parole."
+  },
+  "changeNow": {
+    "message": "Mainīt tagad"
   },
   "missingWebsite": {
     "message": "Nav norādīta tīmekļvietne"
@@ -6039,5 +6114,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Mainīt sānu pārvietošanās joslas izmēru"
   }
 }

@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Se connecter avec une clé d'accès"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Utiliser l'authentification unique"
   },
@@ -573,17 +576,29 @@
   "itemWasSentToArchive": {
     "message": "L'élément a été envoyé à l'archive"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "L'élément a été désarchivé"
   },
   "archiveItem": {
     "message": "Archiver l'élément"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Les éléments archivés sont exclus des résultats de recherche généraux et des suggestions de remplissage automatique. Êtes-vous sûr de vouloir archiver cet élément ?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "Une adhésion premium est requise pour utiliser Archive."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "edit": {
     "message": "Modifier"
@@ -1533,6 +1548,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Options de connexion propriétaires à deux facteurs telles que YubiKey et Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "Hygiène du mot de passe, santé du compte et rapports sur les brèches de données pour assurer la sécurité de votre coffre."
   },
@@ -2452,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Élément définitivement supprimé"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoreItem": {
     "message": "Restaurer l'élément"
   },
@@ -3342,6 +3369,12 @@
   },
   "error": {
     "message": "Erreur"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Erreur de déchiffrement"
@@ -4718,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "Plus d'options - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4807,6 +4843,39 @@
   },
   "adminConsole": {
     "message": "Console Admin"
+  },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
   },
   "accountSecurity": {
     "message": "Sécurité du compte"
@@ -5071,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Masquer la détection de correspondance $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Saisir automatiquement lors du chargement de la page ?"
@@ -5616,6 +5682,9 @@
   "extraWide": {
     "message": "Très large"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Le mot de passe saisi est incorrect."
   },
@@ -5663,6 +5732,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "Site Web manquant"
@@ -6039,5 +6114,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }

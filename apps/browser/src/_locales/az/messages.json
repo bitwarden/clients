@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Keçid açarı ilə giriş et"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Vahid daxil olma üsulunu istifadə et"
   },
@@ -573,17 +576,29 @@
   "itemWasSentToArchive": {
     "message": "Element arxivə göndərildi"
   },
+  "itemWasUnarchived": {
+    "message": "Element arxivdən çıxarıldı"
+  },
   "itemUnarchived": {
     "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {
     "message": "Elementi arxivlə"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
+  "archiveItemDialogContent": {
+    "message": "Arxivləndikdən sonra, bu element axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
+  },
+  "archived": {
+    "message": "Arxivləndi"
+  },
+  "unarchiveAndSave": {
+    "message": "Arxivdən çıxart və saxla"
   },
   "upgradeToUseArchive": {
     "message": "Arxivi istifadə etmək üçün premium üzvlük tələb olunur."
+  },
+  "itemRestored": {
+    "message": "Element bərpa edildi"
   },
   "edit": {
     "message": "Düzəliş et"
@@ -1251,7 +1266,7 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində çıxış sonlandırılacaq."
+    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində sonlandırılacaq."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
     "message": "Hesabın geri qaytarılması prosesini tamamlamaq üçün ana parolunuzu dəyişdirin."
@@ -1323,19 +1338,19 @@
     "message": "Buradan xaricə köçür"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Xaricə köçür",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Xaricə köçürmə",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Daxilə köçürmə",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Daxilə köçür",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1532,6 +1547,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey və Duo kimi mülkiyyətçi iki addımlı giriş seçimləri."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Premium abunəliyiniz bitdi"
+  },
+  "archivePremiumRestart": {
+    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
+  },
+  "restartPremium": {
+    "message": "\"Premium\"u yenidən başlat"
   },
   "ppremiumSignUpReports": {
     "message": "Seyfinizi güvəndə saxlamaq üçün parol gigiyenası, hesab sağlamlığı və veri pozuntusu hesabatları."
@@ -2452,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Element birdəfəlik silindi"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoreItem": {
     "message": "Elementi bərpa et"
   },
@@ -2498,7 +2525,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+    "message": "Bu səhifə Bitwarden təcrübəsinə müdaxilə edir. Bitwarden daxili menyusu, təhlükəsizlik tədbiri olaraq müvəqqəti sıradan çıxarılıb."
   },
   "setMasterPassword": {
     "message": "Ana parolu ayarla"
@@ -3343,6 +3370,12 @@
   "error": {
     "message": "Xəta"
   },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+  },
   "decryptionError": {
     "message": "Şifrə açma xətası"
   },
@@ -4124,7 +4157,7 @@
     "message": "Avto-doldurula bilmir"
   },
   "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+    "message": "İlkin uyuşma 'Tam Uyuşur' olaraq ayarlanıb. Hazırkı veb sayt, bu element üçün saxlanılmış giriş məlumatları ilə tam uyuşmur."
   },
   "okay": {
     "message": "Oldu"
@@ -4718,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Daha çox seçim"
+  },
   "moreOptionsTitle": {
     "message": "Daha çox seçim - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4807,6 +4843,39 @@
   },
   "adminConsole": {
     "message": "Admin Konsolu"
+  },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Avtomatik istifadəçi təsdiqi"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Bu cihazın kilidi açıq olduqda gözləyən istifadəçiləri avtomatik təsdiqlə"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Avtomatik istifadəçi təsdiqi ilə vaxta qənaət edin"
+  },
+  "autoConfirmWarning": {
+    "message": "Bu, təşkilatınızın veri təhlükəsizliyinə təsir edə bilər. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Risklər barədə öyrən"
+  },
+  "autoConfirmSetup": {
+    "message": "Yeni istifadəçiləri avtomatik təsdiqlə"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Bu cihazın kilidi açıq olduqda yeni istifadəçilər avtomatik təsdiqlənəcək."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Potensial təhlükəsizlik riskləri nələrdir?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Avtomatik təsdiq işə salındı"
+  },
+  "availableNow": {
+    "message": "İndi mmövcuddur"
   },
   "accountSecurity": {
     "message": "Hesab güvənliyi"
@@ -5071,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "$WEBSITE$ ilə uyuşma aşkarlamasını gizlət",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Uyuşma aşkarlamasını göstər"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Uyuşma aşkarlamasını gizlət"
   },
   "autoFillOnPageLoad": {
     "message": "Səhifə yüklənəndə avto-doldurulsun?"
@@ -5616,6 +5682,9 @@
   "extraWide": {
     "message": "Ekstra enli"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Daxil etdiyiniz parol yanlışdır."
   },
@@ -5663,6 +5732,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
+  },
+  "vulnerablePassword": {
+    "message": "Zəifliyi olan parol."
+  },
+  "changeNow": {
+    "message": "İndi dəyişdir"
   },
   "missingWebsite": {
     "message": "Əskik veb sayt"
@@ -6039,5 +6114,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Bunu niyə görürəm?"
+  },
+  "resizeSideNavigation": {
+    "message": "Yan naviqasiyanı yeni. ölçüləndir"
   }
 }

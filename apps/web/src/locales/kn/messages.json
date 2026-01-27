@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "There are no members to list."
   },
+  "noMembersToExport": {
+    "message": "There are no members to export."
+  },
   "noEventsInList": {
     "message": "ಪಟ್ಟಿ ಮಾಡಲು ಯಾವುದೇ ಘಟನೆಗಳಿಲ್ಲ."
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "ಸಕ್ರಿಯಗೊಳಿಸಿದೆ"
   },
+  "optionEnabled": {
+    "message": "Enabled"
+  },
   "restoreAccess": {
     "message": "Restore access"
   },
@@ -2633,6 +2639,9 @@
   },
   "key": {
     "message": "ಕೀ"
+  },
+  "unnamedKey": {
+    "message": "Unnamed key"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Verification code"
@@ -3142,6 +3151,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "restartPremium": {
     "message": "Restart Premium"
@@ -5406,6 +5418,12 @@
   "restoreSelected": {
     "message": "ಆಯ್ಕೆಮಾಡಿ ಮರುಸ್ಥಾಪಿಸಿ"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
+  "archivedItemsRestored": {
+    "message": "Archived items restored"
+  },
   "restoredItem": {
     "message": "ಐಟಂ ಅನ್ನು ಮರುಸ್ಥಾಪಿಸಲಾಗಿದೆ"
   },
@@ -5604,6 +5622,37 @@
     "message": "ಕಳುಹಿಸು ರಚಿಸಲಾಗಿದೆ",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send created successfully!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "New Text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "New File Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "ಕಳುಹಿಸಿದ ಸಂಪಾದನೆ",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5642,6 +5691,9 @@
   },
   "revoked": {
     "message": "Revoked"
+  },
+  "accepted": {
+    "message": "Accepted"
   },
   "sendLink": {
     "message": "ಲಿಂಕ್ ಕಳುಹಿಸಿ",
@@ -5862,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Benefits"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
@@ -6300,6 +6383,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Enrolled in account recovery"
+  },
+  "enrolled": {
+    "message": "Enrolled"
+  },
+  "notEnrolled": {
+    "message": "Not enrolled"
   },
   "withdrawAccountRecovery": {
     "message": "Withdraw from account recovery"
@@ -10343,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Send vault event data to your Datadog instance"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "Failed to save integration. Please try again later."
   },
@@ -10453,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Select a plan"
@@ -11568,6 +11666,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Missing website"
   },
@@ -11606,6 +11710,9 @@
   "unArchive": {
     "message": "Unarchive"
   },
+  "archived": {
+    "message": "Archived"
+  },
   "unArchiveAndSave": {
     "message": "Unarchive and save"
   },
@@ -11624,6 +11731,9 @@
   "itemsWereSentToArchive": {
     "message": "Items were sent to archive"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "Item was unarchived"
   },
@@ -11637,8 +11747,8 @@
     "message": "Archive item",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archiveBulkItems": {
     "message": "Archive items",
@@ -11991,6 +12101,15 @@
   "verifyNow": {
     "message": "Verify now."
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
+  },
   "additionalStorageGB": {
     "message": "Additional storage GB"
   },
@@ -12298,6 +12417,9 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Delete unrecoverable vault items"
   },
@@ -12479,5 +12601,88 @@
   },
   "planDescPremium": {
     "message": "Complete online security"
+  },
+  "updatePayment": {
+    "message": "Update payment"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Your subscription has expired. Please contact the support team for assistance."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Manage invoices"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Your next charge is for"
+  },
+  "dueOn": {
+    "message": "due on"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Your subscription will be suspended on"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Your subscription was suspended on"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Your subscription will be canceled on"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Your subscription was canceled on"
+  },
+  "storageFull": {
+    "message": "Storage full"
+  },
+  "storageUsedDescription": {
+    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+  },
+  "whenYouRemoveStorage": {
+    "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+  },
+  "youHavePremium": {
+    "message": "You have Premium"
+  },
+  "emailProtected": {
+    "message": "Email protected"
   }
 }

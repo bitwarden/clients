@@ -104,6 +104,7 @@ import {
   EnvironmentService,
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LogLevelType } from "@bitwarden/common/platform/enums";
@@ -124,6 +125,7 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
+import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -145,11 +147,13 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
@@ -252,6 +256,7 @@ export class ServiceContainer {
   twoFactorApiService: TwoFactorApiService;
   hibpApiService: HibpApiService;
   environmentService: EnvironmentService;
+  cipherSdkService: CipherSdkService;
   cipherService: CipherService;
   folderService: InternalFolderService;
   organizationUserApiService: OrganizationUserApiService;
@@ -323,6 +328,7 @@ export class ServiceContainer {
   kdfConfigService: KdfConfigService;
   taskSchedulerService: TaskSchedulerService;
   sdkService: SdkService;
+  registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   ssoUrlService: SsoUrlService;
@@ -632,24 +638,8 @@ export class ServiceContainer {
       this.accountService,
     );
 
-    this.keyConnectorService = new KeyConnectorService(
-      this.accountService,
-      this.masterPasswordService,
-      this.keyService,
-      this.apiService,
-      this.tokenService,
-      this.logService,
-      this.organizationService,
-      this.keyGenerationService,
-      logoutCallback,
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
       this.stateProvider,
-    );
-
-    this.twoFactorService = new DefaultTwoFactorService(
-      this.i18nService,
-      this.platformUtilsService,
-      this.globalStateProvider,
-      this.twoFactorApiService,
     );
 
     const sdkClientFactory = flagEnabled("sdk")
@@ -668,6 +658,41 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       customUserAgent,
+    );
+
+    this.registerSdkService = new DefaultRegisterSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      this.apiService,
+      this.stateProvider,
+      this.configService,
+      customUserAgent,
+    );
+
+    this.keyConnectorService = new KeyConnectorService(
+      this.accountService,
+      this.masterPasswordService,
+      this.keyService,
+      this.apiService,
+      this.tokenService,
+      this.logService,
+      this.organizationService,
+      this.keyGenerationService,
+      logoutCallback,
+      this.stateProvider,
+      this.configService,
+      this.registerSdkService,
+      this.securityStateService,
+      this.accountCryptographicStateService,
+    );
+
+    this.twoFactorService = new DefaultTwoFactorService(
+      this.i18nService,
+      this.platformUtilsService,
+      this.globalStateProvider,
+      this.twoFactorApiService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -717,10 +742,6 @@ export class ServiceContainer {
       this.logService,
       this.configService,
       this.accountService,
-    );
-
-    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
-      this.stateProvider,
     );
 
     this.loginStrategyService = new LoginStrategyService(
@@ -776,6 +797,8 @@ export class ServiceContainer {
       this.logService,
     );
 
+    this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+
     this.cipherService = new CipherService(
       this.keyService,
       this.domainSettingsService,
@@ -791,6 +814,7 @@ export class ServiceContainer {
       this.logService,
       this.cipherEncryptionService,
       this.messagingService,
+      this.cipherSdkService,
     );
 
     this.cipherArchiveService = new DefaultCipherArchiveService(
@@ -1040,7 +1064,6 @@ export class ServiceContainer {
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
-    this.encryptService.init(this.configService);
 
     // If a user has a BW_SESSION key stored in their env (not process.env.BW_SESSION),
     // this should set the user key to unlock the vault on init.

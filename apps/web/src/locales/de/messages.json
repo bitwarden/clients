@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Keine Mitglieder zum Anzeigen vorhanden."
   },
+  "noMembersToExport": {
+    "message": "Es gibt keine Mitglieder zum Exportieren."
+  },
   "noEventsInList": {
     "message": "Keine Ereignisse vorhanden."
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "Aktiviert"
   },
+  "optionEnabled": {
+    "message": "Aktiviert"
+  },
   "restoreAccess": {
     "message": "Zugriff wiederherstellen"
   },
@@ -2633,6 +2639,9 @@
   },
   "key": {
     "message": "Schlüssel"
+  },
+  "unnamedKey": {
+    "message": "Unbenannter Schlüssel"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Verifizierungscode"
@@ -3143,6 +3152,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben."
   },
+  "itemRestored": {
+    "message": "Eintrag wurde wiederhergestellt"
+  },
   "restartPremium": {
     "message": "Premium neu starten"
   },
@@ -3294,7 +3306,7 @@
     "message": "Cloud-Abonnement starten"
   },
   "launchCloudSubscriptionSentenceCase": {
-    "message": "Launch cloud subscription"
+    "message": "Cloud-Abonnement starten"
   },
   "storage": {
     "message": "Speicher"
@@ -4212,10 +4224,10 @@
     }
   },
   "userAcceptedTransfer": {
-    "message": "Accepted transfer to organization ownership."
+    "message": "Eigentumsübertragung an die Organisation akzeptiert."
   },
   "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "Widerrufen wegen Ablehnung der Übertragung an die Organisation."
   },
   "invitedUserId": {
     "message": "Benutzer $ID$ eingeladen.",
@@ -5406,6 +5418,12 @@
   "restoreSelected": {
     "message": "Auswahl wiederherstellen"
   },
+  "archivedItemRestored": {
+    "message": "Archivierter Eintrag wiederhergestellt"
+  },
+  "archivedItemsRestored": {
+    "message": "Archivierte Einträge wiederhergestellt"
+  },
   "restoredItem": {
     "message": "Eintrag wiederhergestellt"
   },
@@ -5604,6 +5622,37 @@
     "message": "Send gespeichert",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send erfolgreich erstellt!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Kopiere und teile diesen Send-Link. Das Send wird für jeden mit dem Link für die nächsten $TIME$ verfügbar sein.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ Stunden",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Neues Text-Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Neues Datei-Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send gespeichert",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5642,6 +5691,9 @@
   },
   "revoked": {
     "message": "Widerrufen"
+  },
+  "accepted": {
+    "message": "Akzeptiert"
   },
   "sendLink": {
     "message": "Send-Link",
@@ -5862,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Zentralisierung der Eigentumsrechte an Organisationen"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Alle Mitgliedereinträge gehen in den Besitz der Organisation über und werden von dieser verwaltet. Administratoren und Eigentümer sind davon ausgenommen. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Erfahre mehr über zentralisierte Eigentumsrechte",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Vorteile"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Verschaffe dir einen vollständigen Überblick über den Zustand deiner Zugangsdaten, einschließlich geteilter und nicht geteilter Einträge."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Übertrage Einträge bei Austritt und Ablösung von Mitgliedern ganz einfach und sorge dafür, dass keine Zugriffslücken entstehen."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Stelle allen Benutzern einen eigenen \"Meine Einträge\"-Bereich für die Verwaltung ihrer eigenen Zugangsdaten zur Verfügung."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Mitglieder auffordern, ihre Einträge zu übertragen"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Wenn Mitglieder Einträge in ihrem eigenen Tresor haben, werden sie aufgefordert, diese entweder an die Organisation zu übertragen oder zu die Organisation verlassen. Wenn sie gehen, wird ihr Zugriff widerrufen, kann aber jederzeit wiederhergestellt werden."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Erfahre mehr über die Übertragung"
   },
   "organizationDataOwnership": {
     "message": "Eigentumsrechte an Unternehmensdaten erzwingen"
@@ -6300,6 +6383,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Für Kontowiederherstellung registriert"
+  },
+  "enrolled": {
+    "message": "Registriert"
+  },
+  "notEnrolled": {
+    "message": "Nicht registriert"
   },
   "withdrawAccountRecovery": {
     "message": "Von Kontowiederherstellung abmelden"
@@ -10343,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Tresor-Ereignisdaten an deine Datadog-Instanz senden"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Sende Ereignisdaten an deine Huntress SIEM-Instanz"
+  },
   "failedToSaveIntegration": {
     "message": "Fehler beim Speichern der Integration. Bitte versuche es später erneut."
   },
@@ -10453,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Ereignissammler-URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Ereignissammler-Token"
   },
   "selectAPlan": {
     "message": "Einen Tarif auswählen"
@@ -11568,6 +11666,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
   },
+  "vulnerablePassword": {
+    "message": "Gefährdetes Passwort."
+  },
+  "changeNow": {
+    "message": "Jetzt ändern"
+  },
   "missingWebsite": {
     "message": "Fehlende Webseite"
   },
@@ -11606,6 +11710,9 @@
   "unArchive": {
     "message": "Nicht mehr archivieren"
   },
+  "archived": {
+    "message": "Archiviert"
+  },
   "unArchiveAndSave": {
     "message": "Nicht mehr archivieren und speichern"
   },
@@ -11624,6 +11731,9 @@
   "itemsWereSentToArchive": {
     "message": "Einträge wurden ins Archiv verschoben"
   },
+  "itemWasUnarchived": {
+    "message": "Eintrag wird nicht mehr archiviert"
+  },
   "itemUnarchived": {
     "message": "Eintrag wird nicht mehr archiviert"
   },
@@ -11637,8 +11747,8 @@
     "message": "Eintrag archivieren",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivierte Einträge werden von allgemeinen Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen. Bist du sicher, dass du diesen Eintrag archivieren möchtest?"
+  "archiveItemDialogContent": {
+    "message": "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
   "archiveBulkItems": {
     "message": "Einträge archivieren",
@@ -11991,6 +12101,15 @@
   "verifyNow": {
     "message": "Jetzt verifizieren."
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
+  },
   "additionalStorageGB": {
     "message": "Zusätzlicher Speicher GB"
   },
@@ -12298,6 +12417,9 @@
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
   },
+  "resizeSideNavigation": {
+    "message": "Größe der Seitennavigation ändern"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Nicht-wiederherstellbare Tresor-Einträge löschen"
   },
@@ -12433,13 +12555,13 @@
     "message": "Warum wird mir das angezeigt?"
   },
   "youHaveBitwardenPremium": {
-    "message": "You have Bitwarden Premium"
+    "message": "Du hast Bitwarden Premium"
   },
   "viewAndManagePremiumSubscription": {
-    "message": "View and manage your Premium subscription"
+    "message": "Dein Premium-Abonnement anzeigen und verwalten"
   },
   "youNeedToUpdateLicenseFile": {
-    "message": "You'll need to update your license file"
+    "message": "Du musst deine Lizenzdatei aktualisieren"
   },
   "youNeedToUpdateLicenseFileDate": {
     "message": "$DATE$.",
@@ -12457,10 +12579,10 @@
     "message": "Lade deine Lizenzdatei hoch"
   },
   "uploadYourPremiumLicenseFile": {
-    "message": "Upload your Premium license file"
+    "message": "Lade deine Premium-Lizenzdatei hoch"
   },
   "uploadLicenseFileDesc": {
-    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "message": "Dein Lizenzdateiname wird in etwa so aussehen: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -12469,15 +12591,98 @@
     }
   },
   "alreadyHaveSubscriptionQuestion": {
-    "message": "Already have a subscription?"
+    "message": "Du hast bereits ein Abonnement?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
-    "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+    "message": "Öffne die Abonnementseite in deinem Bitwarden Cloud-Konto und lade deine Lizenzdatei herunter. Gehe dann zu dieser Seite zurück und lade sie unten hoch."
   },
   "viewAllPlans": {
-    "message": "View all plans"
+    "message": "Alle Tarife anzeigen"
   },
   "planDescPremium": {
     "message": "Umfassende Online-Sicherheit"
+  },
+  "updatePayment": {
+    "message": "Zahlungsmethode aktualisieren"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Wir konnten deine Zahlung nicht verarbeiten. Bitte aktualisiere deine Zahlungsmethode oder wende dich an das Support-Team, um Hilfe zu erhalten."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Dein Abonnement ist abgelaufen. Bitte kontaktiere das Support-Team für Hilfe."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Dein Abonnement wird am $DATE$ gekündigt. Du kannst es davor jederzeit wieder reaktivieren.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Teile noch mehr mit Families oder erhalte eine leistungsstarke und vertrauenswürdige Passwortsicherheit mit Teams oder Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "Du hast eine Nachfrist von $DAYS$ Tagen ab Ablaufdatum deines Abonnements. Bitte begleiche die letzten fälligen Rechnungen bis zum $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Rechnungen verwalten"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Deine nächste Abbuchung erfolgt am"
+  },
+  "dueOn": {
+    "message": "fällig am"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Dein Abonnement wird deaktiviert am"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Dein Abonnement wurde deaktiviert am"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Dein Abonnement wird gekündigt am"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Dein Abonnement wurde gekündigt am"
+  },
+  "storageFull": {
+    "message": "Speicherplatz voll"
+  },
+  "storageUsedDescription": {
+    "message": "Du hast $USED$ von $AVAILABLE$ GB deines verschlüsselten Datenspeichers verwendet.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Du hast die gesamten $GB$ GB deines verschlüsselten Speichers verwendet. Um mit dem Speichern von Dateien fortzufahren, füge mehr Speicher hinzu."
+  },
+  "whenYouRemoveStorage": {
+    "message": "Wenn du Speicherplatz entfernst, erhältst du eine anteilige Gutschrift, die automatisch mit deiner nächsten Rechnung verrechnet wird."
+  },
+  "youHavePremium": {
+    "message": "Du hast Premium"
+  },
+  "emailProtected": {
+    "message": "E-Mail-Adresse geschützt"
   }
 }

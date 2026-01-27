@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Нет участников для отображения."
   },
+  "noMembersToExport": {
+    "message": "Нет участников для экспорта."
+  },
   "noEventsInList": {
     "message": "Нет событий для отображения."
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "Включено"
   },
+  "optionEnabled": {
+    "message": "Включено"
+  },
   "restoreAccess": {
     "message": "Восстановить доступ"
   },
@@ -2633,6 +2639,9 @@
   },
   "key": {
     "message": "Ключ"
+  },
+  "unnamedKey": {
+    "message": "Безымянный ключ"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Код подтверждения"
@@ -3142,6 +3151,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
+  },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
   },
   "restartPremium": {
     "message": "Переподключить Премиум"
@@ -5406,6 +5418,12 @@
   "restoreSelected": {
     "message": "Восстановить выбранные"
   },
+  "archivedItemRestored": {
+    "message": "Архивированный элемент восстановлен"
+  },
+  "archivedItemsRestored": {
+    "message": "Архивированные элементы восстановлены"
+  },
   "restoredItem": {
     "message": "Элемент восстановлен"
   },
@@ -5604,6 +5622,37 @@
     "message": "Send сохранена",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send успешно создана!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Скопируйте и поделитесь этой ссылкой Send. Send будет доступна всем, у кого есть ссылка, в течение следующих $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ час.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Новая текстовая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Новая файловая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send сохранена",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5642,6 +5691,9 @@
   },
   "revoked": {
     "message": "Отозвано"
+  },
+  "accepted": {
+    "message": "Принято"
   },
   "sendLink": {
     "message": "Ссылка на Send",
@@ -5862,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Централизация ответственности за организацию"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Все элементы пользователя будут принадлежать и управляться организацией. Администраторы и владельцы не участвуют в этом процессе. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Узнайте больше о централизованном владении",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Преимущества"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Получите полную информацию о состоянии учетных данных, включая общие и частные элементы."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Легко перемещайте элементы во время увольнения участников и их наследования, гарантируя отсутствие пробелов в доступе."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Предоставьте всем пользователям выделенное пространство \"Мои элементы\" для управления их собственными логинами."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Предложите пользователям перенести их элементы"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Если у участников есть какие-либо элементы в их личном хранилище, им будет предложено либо передать их организации, либо покинуть ее. После выхода из организации их доступ будет аннулирован, но может быть восстановлен в любое время."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Узнайте больше о передаче"
   },
   "organizationDataOwnership": {
     "message": "Принудительное соблюдение прав собственности на данные организации"
@@ -6300,6 +6383,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Зарегистрирован на восстановление аккаунта"
+  },
+  "enrolled": {
+    "message": "Зарегистрировано"
+  },
+  "notEnrolled": {
+    "message": "Не зарегистрировано"
   },
   "withdrawAccountRecovery": {
     "message": "Сняться с восстановления аккаунта"
@@ -10343,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Отправляйте данные о событиях хранилища в ваш экземпляр Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Отправлять данные о событиях в ваш инстанс Huntress SIEM"
+  },
   "failedToSaveIntegration": {
     "message": "Не удалось сохранить интеграцию. Пожалуйста, повторите попытку позже."
   },
@@ -10453,6 +10545,12 @@
   },
   "index": {
     "message": "Индекс"
+  },
+  "httpEventCollectorUrl": {
+    "message": "URL коллектора событий HTTP"
+  },
+  "httpEventCollectorToken": {
+    "message": "Токен коллектора событий HTTP"
   },
   "selectAPlan": {
     "message": "Выберите план"
@@ -11568,6 +11666,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
   },
+  "vulnerablePassword": {
+    "message": "Уязвимый пароль."
+  },
+  "changeNow": {
+    "message": "Изменить сейчас"
+  },
   "missingWebsite": {
     "message": "Отсутствует сайт"
   },
@@ -11606,6 +11710,9 @@
   "unArchive": {
     "message": "Разархивировать"
   },
+  "archived": {
+    "message": "Архивирован"
+  },
   "unArchiveAndSave": {
     "message": "Разархивировать и сохранить"
   },
@@ -11624,6 +11731,9 @@
   "itemsWereSentToArchive": {
     "message": "Элементы были отправлены в архив"
   },
+  "itemWasUnarchived": {
+    "message": "Элемент был разархивирован"
+  },
   "itemUnarchived": {
     "message": "Элемент был разархивирован"
   },
@@ -11637,8 +11747,8 @@
     "message": "Архивировать элемент",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  "archiveItemDialogContent": {
+    "message": "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению."
   },
   "archiveBulkItems": {
     "message": "Архивировать элементы",
@@ -11991,6 +12101,15 @@
   "verifyNow": {
     "message": "Подтвердить сейчас."
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
+  },
   "additionalStorageGB": {
     "message": "Дополнительные ГБ хранилища"
   },
@@ -12298,6 +12417,9 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Удалить невосстановимые элементы хранилища"
   },
@@ -12479,5 +12601,88 @@
   },
   "planDescPremium": {
     "message": "Полная онлайн-защищенность"
+  },
+  "updatePayment": {
+    "message": "Обновить платежную информацию"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Нам не удалось обработать ваш платеж. Пожалуйста, обновите свой способ оплаты или обратитесь за помощью в службу поддержки."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Срок действия вашей подписки истек. Пожалуйста, обратитесь за помощью в службу поддержки."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Ваша подписка будет отменена $DATE$. Вы сможете восстановить ее в любое время до этого момента.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Делитесь еще большим количеством информации с семьями или обеспечьте надежную защиту паролем с командами или организациями."
+  },
+  "youHaveAGracePeriod": {
+    "message": "У вас есть льготный период $DAYS$ дней с даты истечения срока действия вашей подписки. Пожалуйста, оплатите просроченные счета к $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Управление счетами"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Ваша следующая оплата будет за"
+  },
+  "dueOn": {
+    "message": "срок"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Ваша подписка будет приостановлена в"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Ваша подписка была приостановлена"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Ваша подписка будет отменена в"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Ваша подписка была отменена"
+  },
+  "storageFull": {
+    "message": "Хранилище заполнено"
+  },
+  "storageUsedDescription": {
+    "message": "Вы использовали $USED$ из $AVAILABLE$ ГБ вашего зашифрованного файлового хранилища.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Вы использовали все $GB$ вашего зашифрованного хранилища. Чтобы продолжить хранение файлов, добавьте дополнительное хранилище."
+  },
+  "whenYouRemoveStorage": {
+    "message": "При удалении хранилища вы получите пропорциональную сумму на свой счет, которая автоматически пойдет на оплату вашего следующего счета."
+  },
+  "youHavePremium": {
+    "message": "У вас Премиум"
+  },
+  "emailProtected": {
+    "message": "Email защищен"
   }
 }

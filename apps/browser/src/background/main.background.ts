@@ -40,7 +40,7 @@ import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/p
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
@@ -52,7 +52,6 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
-import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
@@ -126,6 +125,7 @@ import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/co
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
@@ -164,6 +164,7 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
+import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
@@ -193,6 +194,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service"
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -210,6 +212,7 @@ import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
@@ -273,6 +276,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
 import { ExtensionLockService } from "../auth/services/extension-lock.service";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
@@ -365,6 +369,7 @@ export default class MainBackground {
   apiService: ApiServiceAbstraction;
   hibpApiService: HibpApiService;
   environmentService: BrowserEnvironmentService;
+  cipherSdkService: CipherSdkService;
   cipherService: CipherServiceAbstraction;
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
@@ -390,7 +395,7 @@ export default class MainBackground {
   serverNotificationsService: ServerNotificationsService;
   systemNotificationService: SystemNotificationsService;
   actionsService: ActionsService;
-  authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction;
+  authRequestAnsweringService: AuthRequestAnsweringService;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -463,6 +468,7 @@ export default class MainBackground {
   themeStateService: DefaultThemeStateService;
   autoSubmitLoginBackground: AutoSubmitLoginBackground;
   sdkService: SdkService;
+  registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
@@ -578,7 +584,7 @@ export default class MainBackground {
           "ephemeral",
           "bitwarden-ephemeral",
         );
-        await sessionStorage.save("session-key", derivedKey);
+        await sessionStorage.save("session-key", derivedKey.toJSON());
         return derivedKey;
       });
 
@@ -797,18 +803,6 @@ export default class MainBackground {
       this.apiService,
       this.accountService,
     );
-    this.keyConnectorService = new KeyConnectorService(
-      this.accountService,
-      this.masterPasswordService,
-      this.keyService,
-      this.apiService,
-      this.tokenService,
-      this.logService,
-      this.organizationService,
-      this.keyGenerationService,
-      logoutCallback,
-      this.stateProvider,
-    );
 
     this.authService = new AuthService(
       this.accountService,
@@ -844,6 +838,37 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+    );
+
+    this.registerSdkService = new DefaultRegisterSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      this.apiService,
+      this.stateProvider,
+      this.configService,
+    );
+
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
+
+    this.keyConnectorService = new KeyConnectorService(
+      this.accountService,
+      this.masterPasswordService,
+      this.keyService,
+      this.apiService,
+      this.tokenService,
+      this.logService,
+      this.organizationService,
+      this.keyGenerationService,
+      logoutCallback,
+      this.stateProvider,
+      this.configService,
+      this.registerSdkService,
+      this.securityStateService,
+      this.accountCryptographicStateService,
     );
 
     this.pinService = new PinService(
@@ -951,6 +976,8 @@ export default class MainBackground {
       this.logService,
     );
 
+    this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+
     this.cipherService = new CipherService(
       this.keyService,
       this.domainSettingsService,
@@ -966,6 +993,7 @@ export default class MainBackground {
       this.logService,
       this.cipherEncryptionService,
       this.messagingService,
+      this.cipherSdkService,
     );
     this.folderService = new FolderService(
       this.keyService,
@@ -1013,9 +1041,7 @@ export default class MainBackground {
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
 
     this.providerService = new ProviderService(this.stateProvider);
-    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
-      this.stateProvider,
-    );
+
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -1188,16 +1214,17 @@ export default class MainBackground {
 
     this.pendingAuthRequestStateService = new PendingAuthRequestsStateService(this.stateProvider);
 
-    this.authRequestAnsweringService = new AuthRequestAnsweringService(
+    this.authRequestAnsweringService = new ExtensionAuthRequestAnsweringService(
       this.accountService,
-      this.actionsService,
       this.authService,
-      this.i18nService,
       this.masterPasswordService,
       this.messagingService,
       this.pendingAuthRequestStateService,
+      this.actionsService,
+      this.i18nService,
       this.platformUtilsService,
       this.systemNotificationService,
+      this.logService,
     );
 
     this.serverNotificationsService = new DefaultServerNotificationsService(
@@ -1489,6 +1516,7 @@ export default class MainBackground {
       this.accountService,
       this.billingAccountProfileStateService,
       this.configService,
+      this.logService,
       this.organizationService,
       this.platformUtilsService,
       this.stateProvider,
@@ -1543,7 +1571,6 @@ export default class MainBackground {
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
-    this.encryptService.init(this.configService);
 
     // This is here instead of in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.

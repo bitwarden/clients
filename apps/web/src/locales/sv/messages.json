@@ -1749,6 +1749,9 @@
   "noMembersInList": {
     "message": "Det finns inga medlemmar att visa."
   },
+  "noMembersToExport": {
+    "message": "Det finns inga medlemmar att exportera."
+  },
   "noEventsInList": {
     "message": "Det finns inga händelser att visa."
   },
@@ -2537,6 +2540,9 @@
   "enabled": {
     "message": "Aktiverad"
   },
+  "optionEnabled": {
+    "message": "Aktiverat"
+  },
   "restoreAccess": {
     "message": "Återställ åtkomst"
   },
@@ -2633,6 +2639,9 @@
   },
   "key": {
     "message": "Nyckel"
+  },
+  "unnamedKey": {
+    "message": "Namnlös nyckel"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Verifieringskod"
@@ -3142,6 +3151,9 @@
   },
   "premiumSubscriptionEndedDesc": {
     "message": "För att återfå åtkomst till ditt arkiv, starta om Premium-prenumerationen. Om du redigerar detaljer för ett arkiverat objekt innan du startar om kommer det att flyttas tillbaka till ditt valv."
+  },
+  "itemRestored": {
+    "message": "Objektet har återställts"
   },
   "restartPremium": {
     "message": "Starta om Premium"
@@ -5406,6 +5418,12 @@
   "restoreSelected": {
     "message": "Återställ markerade"
   },
+  "archivedItemRestored": {
+    "message": "Arkiverat objekt återställt"
+  },
+  "archivedItemsRestored": {
+    "message": "Arkiverade objekt återställda"
+  },
   "restoredItem": {
     "message": "Återställde objekt"
   },
@@ -5604,6 +5622,37 @@
     "message": "Send har sparats",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendCreatedSuccessfully": {
+    "message": "Send skapades!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Kopiera och dela denna Send-länk. Denna Send kommer att vara tillgänglig för alla med länken för nästa $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ timmar",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Ny Send för text",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Ny Send för fil",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send har sparats",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5642,6 +5691,9 @@
   },
   "revoked": {
     "message": "Återkallad"
+  },
+  "accepted": {
+    "message": "Accepterade"
   },
   "sendLink": {
     "message": "Send-länk",
@@ -5862,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralisera organisationens ägarskap"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Alla medlemsobjekt kommer att ägas och hanteras av organisationen. Administratörer och ägare är undantagna. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Läs mer om centraliserat ägarskap",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Fördelar"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Ge alla användare ett dedikerat \"Mina objekt\"-utrymme för att hantera sina egna inloggningar."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Fråga medlemmar att överföra sina objekt"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Läs mer om överföringen"
   },
   "organizationDataOwnership": {
     "message": "Genomför äganderätt till organisationsdata"
@@ -6300,6 +6383,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Registrerad i kontoåterställning"
+  },
+  "enrolled": {
+    "message": "Registrerade"
+  },
+  "notEnrolled": {
+    "message": "Inte registrerade"
   },
   "withdrawAccountRecovery": {
     "message": "Uttag från kontoåterställning"
@@ -10343,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Skicka data om valvhändelser till din Datadog-instans"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Skicka händelsedata till din Huntress SIEM-instans"
+  },
   "failedToSaveIntegration": {
     "message": "Misslyckades med att spara integration. Försök igen senare."
   },
@@ -10453,6 +10545,12 @@
   },
   "index": {
     "message": "Index"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Välj en plan"
@@ -11568,6 +11666,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Denna inloggning är i riskzonen och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för starkare säkerhet."
   },
+  "vulnerablePassword": {
+    "message": "Sårbart lösenord."
+  },
+  "changeNow": {
+    "message": "Ändra nu"
+  },
   "missingWebsite": {
     "message": "Saknar webbplats"
   },
@@ -11606,6 +11710,9 @@
   "unArchive": {
     "message": "Avarkivera"
   },
+  "archived": {
+    "message": "Arkiverade"
+  },
   "unArchiveAndSave": {
     "message": "Avarkivera och spara"
   },
@@ -11624,6 +11731,9 @@
   "itemsWereSentToArchive": {
     "message": "Objekten har skickats till arkivet"
   },
+  "itemWasUnarchived": {
+    "message": "Objektet har avarkiverats"
+  },
   "itemUnarchived": {
     "message": "Objektet har avarkiverats"
   },
@@ -11637,8 +11747,8 @@
     "message": "Arkivera objekt",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arkiverade objekt undantas från allmänna sökresultat och autofyllförslag. Är du säker på att du vill arkivera det här objektet?"
+  "archiveItemDialogContent": {
+    "message": "När du har arkiverat kommer detta objekt att uteslutas från sökresultat och förslag till autofyll."
   },
   "archiveBulkItems": {
     "message": "Arkivera objekt",
@@ -11991,6 +12101,15 @@
   "verifyNow": {
     "message": "Verifiera nu."
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
+  },
   "additionalStorageGB": {
     "message": "Ytterligare lagringsplats (GB)"
   },
@@ -12298,6 +12417,9 @@
   "userVerificationFailed": {
     "message": "Verifiering av användare misslyckades."
   },
+  "resizeSideNavigation": {
+    "message": "Ändra storlek på sidnavigering"
+  },
   "recoveryDeleteCiphersTitle": {
     "message": "Ta bort oåterkalleliga valvobjekt"
   },
@@ -12479,5 +12601,88 @@
   },
   "planDescPremium": {
     "message": "Komplett säkerhet online"
+  },
+  "updatePayment": {
+    "message": "Uppdatera betalning"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Vi kunde inte behandla din betalning. Vänligen uppdatera din betalningsmetod eller kontakta supportteamet för hjälp."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Ditt abonnemang har löpt ut. Kontakta supportteamet för hjälp."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Ditt abonnemang är planerat att avslutas den $DATE$. Du kan återställa det när som helst innan dess.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Dela ännu mer med Familjer eller få kraftfull, betrodd lösenordssäkerhet med Team eller Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Hantera fakturor"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Your next charge is for"
+  },
+  "dueOn": {
+    "message": "due on"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Your subscription will be suspended on"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Your subscription was suspended on"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Your subscription will be canceled on"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Your subscription was canceled on"
+  },
+  "storageFull": {
+    "message": "Lagringen är full"
+  },
+  "storageUsedDescription": {
+    "message": "Du har använt $USED$ av $AVAILABLE$ GB av din krypterade fillagring.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Du har använt alla $GB$ GB av din krypterade lagring. För att fortsätta lagra filer, lägg till mer lagringsutrymme."
+  },
+  "whenYouRemoveStorage": {
+    "message": "När du tar bort lagring kommer du att få en proportionell kontokredit som automatiskt går mot din nästa faktura."
+  },
+  "youHavePremium": {
+    "message": "Du har Premium"
+  },
+  "emailProtected": {
+    "message": "Email protected"
   }
 }

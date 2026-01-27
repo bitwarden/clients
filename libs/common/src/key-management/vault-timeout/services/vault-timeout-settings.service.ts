@@ -196,7 +196,20 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
   private async determineVaultTimeout(
     currentVaultTimeout: VaultTimeout | null,
     maxSessionTimeoutPolicyData: MaximumSessionTimeoutPolicyData | null,
-  ): Promise<VaultTimeout | null> {
+  ): Promise<VaultTimeout> {
+    const determinedTimeout = await this.determineVaultTimeoutInternal(
+      currentVaultTimeout,
+      maxSessionTimeoutPolicyData,
+    );
+
+    // Ensures the timeout is available on this client
+    return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(determinedTimeout);
+  }
+
+  private async determineVaultTimeoutInternal(
+    currentVaultTimeout: VaultTimeout | null,
+    maxSessionTimeoutPolicyData: MaximumSessionTimeoutPolicyData | null,
+  ): Promise<VaultTimeout> {
     // if current vault timeout is null, apply the client specific default
     currentVaultTimeout = currentVaultTimeout ?? this.defaultVaultTimeout;
 
@@ -207,9 +220,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
     switch (maxSessionTimeoutPolicyData.type) {
       case "immediately":
-        return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
-          VaultTimeoutNumberType.Immediately,
-        );
+        return VaultTimeoutNumberType.Immediately;
       case "custom":
       case null:
       case undefined:
@@ -228,9 +239,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
           currentVaultTimeout === VaultTimeoutStringType.OnIdle ||
           currentVaultTimeout === VaultTimeoutStringType.OnSleep
         ) {
-          return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
-            VaultTimeoutStringType.OnLocked,
-          );
+          return VaultTimeoutStringType.OnLocked;
         }
         break;
       case "onAppRestart":
@@ -244,11 +253,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
         }
         break;
       case "never":
-        if (currentVaultTimeout === VaultTimeoutStringType.Never) {
-          return await this.sessionTimeoutTypeService.getOrPromoteToAvailable(
-            VaultTimeoutStringType.Never,
-          );
-        }
+        // Policy doesn't override user preference for "never"
         break;
     }
     return currentVaultTimeout;

@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
@@ -573,17 +576,29 @@
   "itemWasSentToArchive": {
     "message": "Item was sent to archive"
   },
+  "itemWasUnarchived": {
+    "message": "Item was unarchived"
+  },
   "itemUnarchived": {
     "message": "Item was unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "edit": {
     "message": "Edit"
@@ -1533,6 +1548,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
@@ -2452,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Item permanently deleted"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoreItem": {
     "message": "Restore item"
   },
@@ -3342,6 +3369,12 @@
   },
   "error": {
     "message": "Error"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Decryption error"
@@ -4718,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "More options - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4807,6 +4843,39 @@
   },
   "adminConsole": {
     "message": "Admin Console"
+  },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
   },
   "accountSecurity": {
     "message": "Account security"
@@ -5071,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
@@ -5616,6 +5682,9 @@
   "extraWide": {
     "message": "Extra wide"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."
   },
@@ -5663,6 +5732,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "Missing website"
@@ -6039,5 +6114,8 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
   }
 }
