@@ -67,7 +67,13 @@ export class AccountBillingClient {
     await this.apiService.send(
       "POST",
       path,
-      { organizationName, key: organizationKey, tier: planTier, cadence, billingAddress },
+      {
+        organizationName,
+        key: organizationKey,
+        targetProductTierType: planTier,
+        cadence,
+        billingAddress,
+      },
       true,
       false,
     );
