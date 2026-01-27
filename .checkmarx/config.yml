@@ -10,3 +10,5 @@ checkmarx:
         presetName: "BW ASA Premium"
         # Exclude spec files, and test specific files
         filter: "!*.spec.ts,!**/spec/**,!apps/desktop/native-messaging-test-runner/**"
+      kics:
+        filter: "!.devcontainer"
