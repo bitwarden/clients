@@ -20,9 +20,9 @@ const {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   DynamicContentNotAllowedError: _DynamicContentNotAllowedError,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  isIcon,
+  isBitSvg,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  svgIcon,
+  svg,
   ...Icons
 }: {
   [key: string]: any;

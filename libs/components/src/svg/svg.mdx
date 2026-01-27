@@ -26,12 +26,12 @@ import { SvgModule } from "@bitwarden/components";
 2. **Rename the file** as a `<name>.icon.ts` TypeScript file and place it in the `libs/assets/svg`
    lib.
 
-3. **Import** `svgIcon` from `./icon-service`.
+3. **Import** `svg` from `./svg`.
 
-4. **Define and export** a `const` to represent your `svgIcon`.
+4. **Define and export** a `const` to represent your `svg`.
 
    ```typescript
-   export const ExampleIcon = svgIcon`<svg … </svg>`;
+   export const ExampleIcon = svg`<svg … </svg>`;
    ```
 
 5. **Replace any hardcoded strokes or fills** with the appropriate Tailwind class.
