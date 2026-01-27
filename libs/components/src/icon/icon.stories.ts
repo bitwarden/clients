@@ -53,3 +53,9 @@ export const WithAriaLabel: Story = {
     ariaLabel: "Secure lock icon",
   },
 };
+
+export const CompareWithLegacy: Story = {
+  render: () => ({
+    template: `<bit-icon name="bwi-lock"></bit-icon> <i class="bwi bwi-lock"></i>`,
+  }),
+};
