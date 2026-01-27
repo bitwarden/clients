@@ -1,4 +1,6 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, viewChild } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -6,7 +8,6 @@ import {
   firstValueFrom,
   lastValueFrom,
   Observable,
-  of,
   Subject,
   zip,
 } from "rxjs";
@@ -92,6 +93,7 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
+  AttachmentDialogCloseResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
   CipherFormConfig,
@@ -185,11 +187,15 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
-  readonly filterComponent = viewChild(VaultFilterComponent);
-  readonly vaultItemsComponent = viewChild(VaultItemsComponent);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild("vaultFilter", { static: true }) filterComponent: VaultFilterComponent;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent<C>;
 
-  trashCleanupWarning: string | null = null;
-  kdfIterations: number | null = null;
+  trashCleanupWarning: string = null;
+  kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
 
   protected deactivatedOrgIcon = DeactivatedOrg;
@@ -201,20 +207,20 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected refreshing = false;
   protected processingEvent = false;
   protected filter: RoutedVaultFilterModel = {};
-  protected showBulkMove: boolean | null = null;
-  protected canAccessPremium: boolean | null = null;
-  protected allCollections: CollectionView[] | null = null;
+  protected showBulkMove: boolean;
+  protected canAccessPremium: boolean;
+  protected allCollections: CollectionView[];
   protected allOrganizations: Organization[] = [];
-  protected ciphers: C[] | null = null;
-  protected collections: CollectionView[] | null = null;
-  protected isEmpty: boolean = false;
+  protected ciphers: C[];
+  protected collections: CollectionView[];
+  protected isEmpty: boolean;
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
   protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(
     map((queryParams) => queryParams.search),
   );
   private searchText$ = new Subject<string>();
-  private refresh$ = new BehaviorSubject(undefined);
+  private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
@@ -224,7 +230,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
-    .pipe(switchMap((id) => (id ? this.organizationService.organizations$(id) : of([]))));
+    .pipe(switchMap((id) => this.organizationService.organizations$(id)));
 
   emptyState$ = combineLatest([
     this.currentSearchText$,
@@ -722,7 +728,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async handleUnknownCipher() {
     this.toastService.showToast({
       variant: "error",
-      title: "",
+      title: null,
       message: this.i18nService.t("unknownCipher"),
     });
     await this.router.navigate([], {
@@ -852,13 +858,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (orgId == null) {
       orgId = "MyVault";
     }
-    const data = this.filterComponent()?.filters?.organizationFilter?.data$;
-    if (data == undefined) {
-      return;
-    }
-    const orgs = await firstValueFrom(data);
+    const orgs = await firstValueFrom(this.filterComponent.filters.organizationFilter.data$);
     const orgNode = ServiceUtils.getTreeNodeObject(orgs, orgId) as TreeNode<OrganizationFilter>;
-    await this.filterComponent()?.filters?.organizationFilter?.action(orgNode);
+    await this.filterComponent.filters?.organizationFilter?.action(orgNode);
   }
 
   addFolder = (): void => {
@@ -925,10 +927,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       organizationId: cipher.organizationId as OrganizationId,
     });
 
-    const result = await lastValueFrom(dialogRef.closed);
-    if (result === undefined) {
-      return;
-    }
+    const result: AttachmentDialogCloseResult = await lastValueFrom(dialogRef.closed);
 
     if (
       result.action === AttachmentDialogResult.Uploaded ||
@@ -982,7 +981,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    */
   async addCipher(cipherType?: CipherType) {
     const type = cipherType ?? this.activeFilter.cipherType;
-    const cipherFormConfig = await this.cipherFormConfigService.buildConfig("add", undefined, type);
+    const cipherFormConfig = await this.cipherFormConfigService.buildConfig("add", null, type);
     const collectionId =
       this.activeFilter.collectionId !== "AllCollections" && this.activeFilter.collectionId != null
         ? this.activeFilter.collectionId
@@ -1104,9 +1103,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       },
     });
     const result = await lastValueFrom(dialog.closed);
-    if (result === undefined) {
-      return;
-    }
     if (result.action === CollectionDialogAction.Saved) {
       if (result.collection) {
         // Update CollectionService with the new collection
@@ -1131,9 +1127,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
 
     const result = await lastValueFrom(dialog.closed);
-    if (result === undefined) {
-      return;
-    }
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (result.action === CollectionDialogAction.Saved) {
       if (result.collection) {
@@ -1185,7 +1178,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
       this.toastService.showToast({
         variant: "success",
-        title: "",
+        title: null,
         message: this.i18nService.t("deletedCollectionId", collection.name),
       });
       if (navigateAway) {
@@ -1218,12 +1211,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     let availableCollections: CollectionView[] = [];
     const orgId =
       this.activeFilter.organizationId ||
-      ciphers.find((c) => c.organizationId !== undefined)?.organizationId;
+      ciphers.find((c) => c.organizationId !== null)?.organizationId;
 
     if (orgId && orgId !== "MyVault") {
       const organization = this.allOrganizations.find((o) => o.id === orgId);
-      availableCollections =
-        this.allCollections?.filter((c) => c.organizationId === organization?.id) ?? [];
+      availableCollections = this.allCollections.filter(
+        (c) => c.organizationId === organization.id,
+      );
     }
 
     let ciphersToAssign: CipherView[];
@@ -1276,19 +1270,19 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.editCipher(cipher, true);
   }
 
-  restore = async (c: CipherViewLike) => {
+  restore = async (c: C): Promise<boolean> => {
     let toastMessage;
     if (!CipherViewLikeUtils.isDeleted(c)) {
-      return false;
+      return;
     }
 
     if (!c.edit) {
       this.showMissingPermissionsError();
-      return false;
+      return;
     }
 
     if (!(await this.repromptCipher([c]))) {
-      return false;
+      return;
     }
 
     if (CipherViewLikeUtils.isArchived(c)) {
@@ -1302,14 +1296,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       await this.cipherService.restoreWithServer(uuidAsString(c.id), activeUserId);
       this.toastService.showToast({
         variant: "success",
-        title: "",
+        title: null,
         message: toastMessage,
       });
       this.refresh();
     } catch (e) {
       this.logService.error(e);
     }
-    return true;
   };
 
   async bulkRestore(ciphers: C[]) {
@@ -1333,7 +1326,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (selectedCipherIds.length === 0) {
       this.toastService.showToast({
         variant: "error",
-        title: "",
+        title: null,
         message: this.i18nService.t("nothingSelected"),
       });
       return;
@@ -1343,25 +1336,23 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.cipherService.restoreManyWithServer(selectedCipherIds, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      title: "",
+      title: null,
       message: toastMessage,
     });
     this.refresh();
   }
 
   private async handleDeleteEvent(items: VaultItem<C>[]) {
-    const ciphers = items
-      .filter((i) => i.collection === undefined && i.cipher !== undefined)
-      .map((i) => i.cipher as C);
-    const collections = items
-      .filter((i) => i.collection !== undefined)
-      .map((i) => i.collection as CollectionView);
+    const ciphers: C[] = items.filter((i) => i.collection === undefined).map((i) => i.cipher);
+    const collections = items.filter((i) => i.cipher === undefined).map((i) => i.collection);
     if (ciphers.length === 1 && collections.length === 0) {
       await this.deleteCipher(ciphers[0]);
     } else if (ciphers.length === 0 && collections.length === 1) {
       await this.deleteCollection(collections[0]);
     } else {
-      const orgIds = collections.map((c) => c.organizationId);
+      const orgIds = items
+        .filter((i) => i.cipher === undefined)
+        .map((i) => i.collection.organizationId);
       const orgs = await firstValueFrom(
         this.organizations$.pipe(map((orgs) => orgs.filter((o) => orgIds.includes(o.id)))),
       );
@@ -1369,7 +1360,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
-  async deleteCipher(c: C) {
+  async deleteCipher(c: C): Promise<boolean> {
     if (!(await this.repromptCipher([c]))) {
       return;
     }
@@ -1388,7 +1379,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
 
     if (!confirmed) {
-      return;
+      return false;
     }
 
     try {
@@ -1397,7 +1388,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
       this.toastService.showToast({
         variant: "success",
-        title: "",
+        title: null,
         message: this.i18nService.t(permanent ? "permanentlyDeletedItem" : "deletedItem"),
       });
       this.refresh();
@@ -1414,7 +1405,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (ciphers.length === 0 && collections.length === 0) {
       this.toastService.showToast({
         variant: "error",
-        title: "",
+        title: null,
         message: this.i18nService.t("nothingSelected"),
       });
       return;
@@ -1454,7 +1445,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (selectedCipherIds.length === 0) {
       this.toastService.showToast({
         variant: "error",
-        title: "",
+        title: null,
         message: this.i18nService.t("nothingSelected"),
       });
       return;
@@ -1478,8 +1469,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const login = CipherViewLikeUtils.getLogin(cipher);
 
     if (!login) {
-      this.showErrorToast();
-      return;
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("unexpectedError"),
+      });
     }
 
     if (field === "username") {
@@ -1492,15 +1486,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       typeI18nKey = "password";
     } else if (field === "totp") {
       aType = "TOTP";
-      if (!login.totp) {
-        this.showErrorToast();
-        return;
-      }
       const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
       value = totpResponse.code;
       typeI18nKey = "verificationCodeTotp";
     } else {
-      this.showErrorToast();
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("unexpectedError"),
+      });
       return;
     }
 
@@ -1515,14 +1509,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
-    if (!value) {
-      this.showErrorToast();
-      return;
-    }
     this.platformUtilsService.copyToClipboard(value, { window: window });
     this.toastService.showToast({
       variant: "info",
-      title: "",
+      title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
     });
 
@@ -1539,14 +1529,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
-  showErrorToast() {
-    this.toastService.showToast({
-      variant: "error",
-      title: "",
-      message: this.i18nService.t("unexpectedError"),
-    });
-  }
-
   /**
    * Toggles the favorite status of the cipher and updates it on the server.
    */
@@ -1558,7 +1540,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     this.toastService.showToast({
       variant: "success",
-      title: "",
+      title: null,
       message: this.i18nService.t(
         cipherFullView.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
       ),
@@ -1573,15 +1555,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       : this.cipherService.softDeleteWithServer(id, userId);
   }
 
-  protected async repromptCipher(ciphers: CipherViewLike[]) {
+  protected async repromptCipher(ciphers: C[]) {
     const notProtected = !ciphers.find((cipher) => cipher.reprompt !== CipherRepromptType.None);
 
     return notProtected || (await this.passwordRepromptService.showPasswordPrompt());
   }
 
   private refresh() {
-    this.refresh$.next(undefined);
-    this.vaultItemsComponent()?.clearSelection();
+    this.refresh$.next();
+    this.vaultItemsComponent?.clearSelection();
   }
 
   private async go(queryParams: any = null) {
@@ -1606,7 +1588,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private showMissingPermissionsError() {
     this.toastService.showToast({
       variant: "error",
-      title: "",
+      title: null,
       message: this.i18nService.t("missingPermissions"),
     });
   }
