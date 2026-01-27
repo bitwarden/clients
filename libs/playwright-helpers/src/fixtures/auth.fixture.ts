@@ -14,6 +14,8 @@ import { extractTUpType } from "../scene-templates/scene-template";
 
 import { addInitScriptForPlayId } from "./page-extension";
 
+import { playId } from "@bitwarden-playwright-test";
+
 const hostname = new URL(webServerBaseUrl).hostname;
 const dataDir = process.env.PLAYWRIGHT_DATA_DIR ?? "playwright-data";
 // Ensure data directory exists
@@ -87,7 +89,7 @@ export class AuthFixture {
     }
     const context = await this._browser.newContext();
     const page = await context.newPage();
-    await addInitScriptForPlayId(page, process.env.PLAY_ID!);
+    await addInitScriptForPlayId(page, playId);
     return page;
   }
 
