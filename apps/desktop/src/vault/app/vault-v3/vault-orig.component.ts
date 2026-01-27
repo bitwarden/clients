@@ -100,7 +100,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-v3",
-  templateUrl: "vault.component.html",
+  templateUrl: "vault-orig.component.html",
   imports: [
     BadgeModule,
     CommonModule,
