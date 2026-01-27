@@ -9,7 +9,16 @@ const ruleTester = new RuleTester({
 });
 
 ruleTester.run("no-bwi-class-usage", rule.default, {
-  valid: [],
+  valid: [
+    {
+      name: "should allow bit-icon component usage",
+      code: `<bit-icon icon="bwi-lock"></bit-icon>`,
+    },
+    {
+      name: "should allow elements without bwi classes",
+      code: `<div class="tw-flex tw-p-4"></div>`,
+    },
+  ],
   invalid: [
     {
       name: "should error on direct bwi class usage",
