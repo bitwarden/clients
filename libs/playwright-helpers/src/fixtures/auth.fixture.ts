@@ -263,4 +263,5 @@ test.afterAll(async () => {
       fs.unlinkSync(localPath);
     }
   }
+  AuthenticatedEmails.clear();
 });

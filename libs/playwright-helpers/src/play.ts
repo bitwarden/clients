@@ -16,7 +16,7 @@ export class Play {
    * import { Play, SingleUserScene } from "@bitwarden/playwright-helpers";
    *
    * test("my test", async ({ page }) => {
-   *  const scene = await Play.scene(new SingleUserScene({ email: "
+   *  const scene = await Play.scene(new SingleUserSceneTemplate({ email: "test@example.com" }));
    *  expect(scene.mangle("my-id")).not.toBe("my-id");
    * });
    *
