@@ -303,6 +303,25 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
+  describe("archive badge", () => {
+    it('should show "archived" badge when the item is archived and not an admin console action', () => {
+      component.setTestCipher({ isArchived: true });
+      component.setTestParams({ mode: "view" });
+      fixture.detectChanges();
+      const archivedBadge = fixture.debugElement.query(By.css("span[bitBadge]"));
+      expect(archivedBadge).toBeTruthy();
+      expect(archivedBadge.nativeElement.textContent.trim()).toBe("archived");
+    });
+
+    it('should not show "archived" badge when the item is archived and is an admin console action', () => {
+      component.setTestCipher({ isArchived: true });
+      component.setTestParams({ mode: "view", isAdminConsoleAction: true });
+      fixture.detectChanges();
+      const archivedBadge = fixture.debugElement.query(By.css("span[bitBadge]"));
+      expect(archivedBadge).toBeFalsy();
+    });
+  });
+
   describe("submitButtonText$", () => {
     it("should return 'unArchiveAndSave' when premium is false and cipher is archived", (done) => {
       jest.spyOn(component as any, "userHasPremium$", "get").mockReturnValue(of(false));

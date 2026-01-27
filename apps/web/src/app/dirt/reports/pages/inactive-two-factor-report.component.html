@@ -18,19 +18,32 @@
       <bit-callout type="danger" title="{{ 'inactive2faFound' | i18n }}">
         {{ "inactive2faFoundReportDesc" | i18n: (ciphers.length | number) : vaultMsg }}
       </bit-callout>
-      <bit-toggle-group
-        *ngIf="showFilterToggle && !isAdminConsoleActive"
-        [selected]="filterOrgStatus$ | async"
-        (selectedChange)="filterOrgToggle($event)"
-        [attr.aria-label]="'addAccessFilter' | i18n"
-      >
-        <ng-container *ngFor="let status of filterStatus">
-          <bit-toggle [value]="status">
-            {{ getName(status) }}
-            <span bitBadge variant="info"> {{ getCount(status) }} </span>
-          </bit-toggle>
-        </ng-container>
-      </bit-toggle-group>
+
+      @if (showFilterToggle && !isAdminConsoleActive) {
+        @if (canDisplayToggleGroup()) {
+          <bit-toggle-group
+            [selected]="filterOrgStatus$ | async"
+            (selectedChange)="filterOrgToggle($event)"
+            [attr.aria-label]="'addAccessFilter' | i18n"
+          >
+            <ng-container *ngFor="let status of filterStatus">
+              <bit-toggle [value]="status">
+                {{ getName(status) }}
+                <span bitBadge variant="info"> {{ getCount(status) }} </span>
+              </bit-toggle>
+            </ng-container>
+          </bit-toggle-group>
+        } @else {
+          <bit-chip-select
+            [placeholderText]="chipSelectOptions[0].label"
+            [options]="chipSelectOptions"
+            [ngModel]="selectedFilterChip"
+            (ngModelChange)="filterOrgToggleChipSelect($event)"
+            fullWidth="true"
+          ></bit-chip-select>
+        }
+      }
+
       <bit-table-scroll [dataSource]="dataSource" [rowSize]="75">
         <ng-container header *ngIf="!isAdminConsoleActive">
           <th bitCell></th>
