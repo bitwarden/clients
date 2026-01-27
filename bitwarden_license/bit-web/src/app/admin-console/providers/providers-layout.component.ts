@@ -7,7 +7,7 @@ import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BusinessUnitPortalLogo, Icon, ProviderPortalLogo } from "@bitwarden/assets/svg";
+import { BusinessUnitPortalLogo, BitSvg, ProviderPortalLogo } from "@bitwarden/assets/svg";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
@@ -41,7 +41,7 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected provider$: Observable<Provider>;
 
-  protected logo$: Observable<Icon>;
+  protected logo$: Observable<BitSvg>;
 
   protected canAccessBilling$: Observable<boolean>;
 
