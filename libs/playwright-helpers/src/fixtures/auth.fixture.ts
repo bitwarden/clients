@@ -44,7 +44,10 @@ type AuthenticatedContext = {
   scene: SingleUserScene;
 };
 
-type SessionOptions = Simplify<Except<extractTUpType<SingleUserSceneTemplate>, "email">>;
+type SessionOptions = Simplify<Except<extractTUpType<SingleUserSceneTemplate>, "email">> & {
+  /** The page to use for authenticating */
+  page?: Page;
+};
 
 /**
  * A map of already authenticated emails to their scenes.
@@ -53,7 +56,6 @@ const AuthenticatedEmails = new Map<string, AuthedUserData>();
 
 export class AuthFixture {
   private _browser!: Browser;
-  private _page!: Page;
 
   constructor(private readonly browserName: BrowserName) {}
 
@@ -92,7 +94,7 @@ export class AuthFixture {
   /**
    * Creates a testing {@link Scene} with a user and a {@link Page} authenticated as that user.
    * If the user has already been authenticated in this worker, it will reuse the existing session,
-   * but the pages are independent.
+   * but the pages are independent unless a page is provided in the options.
    *
    * @param email email of the user
    * @param password password of the user
@@ -104,16 +106,24 @@ export class AuthFixture {
     options: SessionOptions = {},
   ): Promise<AuthenticatedContext> {
     if (AuthenticatedEmails.has(email)) {
-      return await this.resumeSession(email, password);
+      return await this.resumeSession(email, password, options);
     }
 
     // start a new session
     return await this.newSession(email, password, options);
   }
 
-  async resumeSession(email: string, password: string): Promise<AuthenticatedContext> {
-    const page = await this.newPage();
-    if (AuthenticatedEmails.get(email)!.password !== password) {
+  /** Attempts to reload a page with session details for the given account. This will fail
+   * if the account has not already been authenticated in this worker.
+   */
+  async resumeSession(
+    email: string,
+    password: string,
+    options: SessionOptions = {},
+  ): Promise<AuthenticatedContext> {
+    const page = options?.page || (await this.newPage());
+    const previousAuth = AuthenticatedEmails.get(email);
+    if (previousAuth != null && previousAuth.password !== password) {
       throw new Error(
         `Email ${email} is already authenticated with a different password (${
           AuthenticatedEmails.get(email)!.password
@@ -140,6 +150,7 @@ export class AuthFixture {
     };
   }
 
+  /** Create the given account with the seeder API, and authenticates */
   async newSession(
     email: string,
     password: string,
@@ -150,11 +161,14 @@ export class AuthFixture {
     return await this.authenticateForScene(scene, password);
   }
 
+  /** Authenticates the given account without first creating it with the
+   * Seeder or attempting to resume a previous session */
   async authenticateForScene(
     scene: SingleUserScene,
     password: string,
+    page?: Page,
   ): Promise<AuthenticatedContext> {
-    const page = await this.newPage();
+    page = page || (await this.newPage());
     const email = scene.upArgs.email;
     const mangledEmail = scene.mangle(email);
     await page.goto("/#/login");
