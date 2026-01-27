@@ -19,7 +19,7 @@ describe("SvgComponent", () => {
   it("should have empty innerHtml when input is not an Icon", () => {
     const fakeIcon = { svg: "harmful user input" } as Icon;
 
-    fixture.componentRef.setInput("icon", fakeIcon);
+    fixture.componentRef.setInput("content", fakeIcon);
     fixture.detectChanges();
 
     const el = fixture.nativeElement as HTMLElement;
@@ -29,7 +29,7 @@ describe("SvgComponent", () => {
   it("should contain icon when input is a safe Icon", () => {
     const icon = svgIcon`<svg><text x="0" y="15">safe icon</text></svg>`;
 
-    fixture.componentRef.setInput("icon", icon);
+    fixture.componentRef.setInput("content", icon);
     fixture.detectChanges();
 
     const el = fixture.nativeElement as HTMLElement;

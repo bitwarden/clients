@@ -1,5 +1,5 @@
 export const errorMessage =
-  "Use <bit-icon> component instead of applying 'bwi' classes directly. Example: <bit-icon icon=\"bwi-lock\"></bit-icon>";
+  "Use <bit-icon> component instead of applying 'bwi' classes directly. Example: <bit-icon name=\"bwi-lock\"></bit-icon>";
 
 export default {
   meta: {

@@ -15,7 +15,7 @@ The `bit-icon` component renders Bitwarden Web Icons (bwi) using icon font class
 ## Basic Usage
 
 ```html
-<bit-icon icon="bwi-lock"></bit-icon>
+<bit-icon name="bwi-lock"></bit-icon>
 ```
 
 ## Icon Names
@@ -23,43 +23,13 @@ The `bit-icon` component renders Bitwarden Web Icons (bwi) using icon font class
 All available icon names are defined in the `BitwardenIcon` type. Icons use the `bwi-*` naming
 convention (e.g., `bwi-lock`, `bwi-user`, `bwi-key`).
 
-## Modifiers
-
-### Fixed Width
-
-Use the `fw` input to give icons a fixed width for alignment:
-
-```html
-<bit-icon icon="bwi-lock" [fw]="true"></bit-icon>
-```
-
-This is useful when aligning icons in lists or menus.
-
-### Spin
-
-Use the `spin` input to animate icons:
-
-```html
-<bit-icon icon="bwi-spinner" [spin]="true"></bit-icon>
-```
-
-### Size
-
-Use the `size` input to control icon size:
-
-```html
-<bit-icon icon="bwi-lock" size="lg"></bit-icon>
-```
-
-Available sizes: `xs`, `sm`, `md`, `lg`, `xl`
-
 ## Accessibility
 
 By default, icons are decorative and marked with `aria-hidden="true"`. To make an icon accessible,
 provide an `ariaLabel`:
 
 ```html
-<bit-icon icon="bwi-lock" [ariaLabel]="'Secure lock'"></bit-icon>
+<bit-icon name="bwi-lock" [ariaLabel]="'Secure lock'"></bit-icon>
 ```
 
 ## Styling
@@ -68,7 +38,7 @@ The component renders as an inline element. Apply standard CSS classes or styles
 appearance:
 
 ```html
-<bit-icon icon="bwi-lock" class="tw-text-primary-500 tw-text-2xl"></bit-icon>
+<bit-icon name="bwi-lock" class="tw-text-primary-500 tw-text-2xl"></bit-icon>
 ```
 
 ## Note on SVG Icons

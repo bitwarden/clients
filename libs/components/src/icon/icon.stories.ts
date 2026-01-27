@@ -14,13 +14,9 @@ export default {
     },
   },
   argTypes: {
-    icon: {
+    name: {
       control: { type: "select" },
       options: BITWARDEN_ICONS,
-    },
-    size: {
-      control: { type: "select" },
-      options: ["xs", "sm", "md", "lg", "xl"],
     },
   },
 } as Meta<BitIconComponent>;
@@ -29,7 +25,7 @@ type Story = StoryObj<BitIconComponent>;
 
 export const Default: Story = {
   args: {
-    icon: "bwi-lock",
+    name: "bwi-lock",
   },
 };
 
@@ -39,7 +35,7 @@ export const AllIcons: Story = {
       <div class="tw-grid tw-grid-cols-[repeat(auto-fit,minmax(150px,1fr))] tw-gap-4 tw-p-4">
         @for (icon of icons; track icon) {
           <div class="tw-flex tw-flex-col tw-items-center tw-p-2 tw-border tw-border-secondary-300 tw-rounded">
-            <bit-icon [icon]="icon" class="tw-text-2xl tw-mb-2"></bit-icon>
+            <bit-icon [name]="icon" class="tw-text-2xl tw-mb-2"></bit-icon>
             <span class="tw-text-xs tw-text-center">{{ icon }}</span>
           </div>
         }
@@ -51,35 +47,9 @@ export const AllIcons: Story = {
   }),
 };
 
-export const WithFixedWidth: Story = {
-  render: () => ({
-    template: `
-      <div class="tw-space-y-2">
-        <div><bit-icon icon="bwi-lock" [fw]="true"></bit-icon> Lock</div>
-        <div><bit-icon icon="bwi-user" [fw]="true"></bit-icon> User</div>
-        <div><bit-icon icon="bwi-key" [fw]="true"></bit-icon> Key</div>
-      </div>
-    `,
-  }),
-};
-
-export const WithSizes: Story = {
-  render: () => ({
-    template: `
-      <div class="tw-flex tw-items-end tw-gap-4">
-        <bit-icon icon="bwi-lock" size="xs"></bit-icon>
-        <bit-icon icon="bwi-lock" size="sm"></bit-icon>
-        <bit-icon icon="bwi-lock" size="md"></bit-icon>
-        <bit-icon icon="bwi-lock" size="lg"></bit-icon>
-        <bit-icon icon="bwi-lock" size="xl"></bit-icon>
-      </div>
-    `,
-  }),
-};
-
 export const WithAriaLabel: Story = {
   args: {
-    icon: "bwi-lock",
+    name: "bwi-lock",
     ariaLabel: "Secure lock icon",
   },
 };

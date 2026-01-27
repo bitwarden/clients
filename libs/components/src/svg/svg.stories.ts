@@ -37,7 +37,7 @@ export const Default = {
         <div class="tw-size-56 tw-border tw-border-secondary-300 tw-rounded-md">
           <div class="tw-text-xs tw-text-center">{{icon[0]}}</div>
           <div class="tw-size-52 tw-w-full tw-content-center">
-            <bit-svg [icon]="icon[1]"></bit-svg>
+            <bit-svg [content]="icon[1]"></bit-svg>
           </div>
         </div>
       }

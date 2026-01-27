@@ -6,7 +6,7 @@
     [pageTitle]="''"
   >
     <div class="tw-w-32">
-      <bit-svg *ngIf="showLogo" [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-svg>
+      <bit-svg *ngIf="showLogo" [content]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-svg>
     </div>
 
     <ng-container slot="end">
@@ -17,7 +17,7 @@
   <auth-anon-layout
     [title]="pageTitle"
     [subtitle]="pageSubtitle"
-    [icon]="pageIcon"
+    [content]="pageIcon"
     [showReadonlyHostname]="showReadonlyHostname"
     [hideLogo]="true"
     [maxWidth]="maxWidth"

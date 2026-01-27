@@ -107,13 +107,13 @@ import { SvgModule } from "@bitwarden/components";
        > `ariaLabel` is explicitly provided to the `<bit-svg>` component
 
        ```html
-       <bit-svg [icon]="Icons.ExampleIcon"></bit-svg>
+       <bit-svg [content]="Icons.ExampleIcon"></bit-svg>
        ```
 
        With `ariaLabel`
 
        ```html
-       <bit-svg [icon]="Icons.ExampleIcon" [ariaLabel]="Your custom label text here"></bit-svg>
+       <bit-svg [content]="Icons.ExampleIcon" [ariaLabel]="Your custom label text here"></bit-svg>
        ```
 
 9. **Ensure your SVG renders properly** according to Figma in both light and dark modes on a client

@@ -17,15 +17,15 @@ import { Icon, isIcon } from "@bitwarden/assets/svg";
 export class SvgComponent {
   private domSanitizer = inject(DomSanitizer);
 
-  readonly icon = input<Icon>();
+  readonly content = input<Icon>();
   readonly ariaLabel = input<string>();
 
   protected readonly innerHtml = computed<SafeHtml | null>(() => {
-    const icon = this.icon();
-    if (!isIcon(icon)) {
+    const content = this.content();
+    if (!isIcon(content)) {
       return null;
     }
-    const svg = icon.svg;
+    const svg = content.svg;
     return this.domSanitizer.bypassSecurityTrustHtml(svg);
   });
 }
