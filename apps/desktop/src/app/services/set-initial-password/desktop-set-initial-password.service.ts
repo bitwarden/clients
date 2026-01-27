@@ -54,6 +54,9 @@ export class DesktopSetInitialPasswordService
     );
   }
 
+  /**
+   * @deprecated To be removed in PM-28143
+   */
   override async setInitialPassword(
     credentials: SetInitialPasswordCredentials,
     userType: SetInitialPasswordUserType,
