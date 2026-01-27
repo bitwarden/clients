@@ -12,7 +12,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   name = "activateAutofill";
-  description = "activateAutofillPolicyDesc";
+  description = "activateAutofillPolicyDescription";
   type = PolicyType.ActivateAutofill;
   component = ActivateAutofillPolicyComponent;
 
