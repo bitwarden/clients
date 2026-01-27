@@ -98,7 +98,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Publish to Chromatic
-        uses: chromaui/action@ac86f2ff0a458ffbce7b40698abd44c0fa34d4b6 # v13.3.3
+        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0 # v13.3.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN }}
