@@ -19,7 +19,11 @@
 use std::fmt;
 
 use anyhow::anyhow;
+use rkyv::{Archive, Deserialize, Serialize};
 use ssh_key::private::{Ed25519Keypair, RsaKeypair};
+
+mod keystore;
+mod serialization;
 
 /// Represents an SSH key with its associated metadata.
 ///
@@ -124,7 +128,7 @@ impl TryFrom<ssh_key::private::PrivateKey> for PrivateKey {
 ///
 /// Contains the algorithm identifier (e.g., "ssh-ed25519", "ssh-rsa")
 /// and the binary blob of the public key data.
-#[derive(Clone, Ord, Eq, PartialOrd, PartialEq)]
+#[derive(Clone, Ord, Eq, PartialOrd, PartialEq, Archive, Serialize, Deserialize)]
 pub(crate) struct PublicKey {
     pub alg: String,
     pub blob: Vec<u8>,
