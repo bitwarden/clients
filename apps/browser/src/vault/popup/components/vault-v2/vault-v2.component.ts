@@ -23,7 +23,6 @@ import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/compon
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import {
   AutoConfirmExtensionSetupDialogComponent,
@@ -272,7 +271,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private autoConfirmService: AutomaticUserConfirmationService,
     private toastService: ToastService,
-    private vaultProfileService: VaultProfileService,
     private billingAccountService: BillingAccountProfileStateService,
     private liveAnnouncer: LiveAnnouncer,
     private i18nService: I18nService,
