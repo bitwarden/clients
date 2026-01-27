@@ -60,7 +60,9 @@
           {{ "yourSubscriptionWillBeCanceledOn" | i18n }}
           <span class="tw-font-bold">{{ cancelAt | date: dateFormat }}</span>
         } @else {
-          {{ "yourNextChargeIsOn" | i18n }}
+          {{ "yourNextChargeIsFor" | i18n }}
+          <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+          {{ "dueOn" | i18n }}
           <span class="tw-font-bold">{{ nextCharge() | date: dateFormat }}</span>
         }
       }
@@ -69,7 +71,9 @@
           {{ "yourSubscriptionWillBeCanceledOn" | i18n }}
           <span class="tw-font-bold">{{ cancelAt | date: dateFormat }}</span>
         } @else {
-          {{ "yourNextChargeIsOn" | i18n }}
+          {{ "yourNextChargeIsFor" | i18n }}
+          <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+          {{ "dueOn" | i18n }}
           <span class="tw-font-bold">{{ nextCharge() | date: dateFormat }}</span>
         }
       }
