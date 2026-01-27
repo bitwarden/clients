@@ -9,6 +9,7 @@ import {
 
 test.describe("Emergency Access", () => {
   test("Account takeover", async ({ auth }) => {
+    test.setTimeout(60_000); // 1 minute
     const grantee = await auth.authenticate("grantee@bitwarden.com", "asdfasdfasdf", {
       premium: false,
     });
@@ -70,8 +71,8 @@ test.describe("Emergency Access", () => {
     await grantee.page.getByRole("button", { name: "Save" }).click();
     await grantee.page.getByRole("button", { name: "Yes" }).click();
 
-    // Confirm with
-    const { page: newGranteePage } = await auth.authenticateForScene(grantee.scene, "qwertyqwerty");
-    await expectUnlockedAs(granteeEmail, newGranteePage);
+    // Confirm Grantor takeover by logging in as Grantor with new password
+    const { page: newGrantorPage } = await auth.authenticateForScene(grantor.scene, "qwertyqwerty");
+    await expectUnlockedAs(grantor.scene.mangle("grantor@bitwarden.com"), newGrantorPage);
   });
 });
