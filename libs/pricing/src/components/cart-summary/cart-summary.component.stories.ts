@@ -341,3 +341,41 @@ export const WithAmountDiscount: Story = {
     } satisfies Cart,
   },
 };
+
+export const WithHiddenBreakdown: Story = {
+  name: "Hidden Cost Breakdown",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          hideBreakdown: true,
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+          hideBreakdown: true,
+        },
+      },
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          translationKey: "members",
+          cost: 30.0,
+          hideBreakdown: true,
+        },
+        additionalServiceAccounts: {
+          quantity: 2,
+          translationKey: "additionalServiceAccountsV2",
+          cost: 6.0,
+          hideBreakdown: true,
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 19.2,
+    } satisfies Cart,
+  },
+};
