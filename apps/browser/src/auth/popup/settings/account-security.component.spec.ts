@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
@@ -19,11 +19,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import {
-  VaultTimeoutSettingsService,
-  VaultTimeoutStringType,
-  VaultTimeoutAction,
-} from "@bitwarden/common/key-management/vault-timeout";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -44,6 +40,7 @@ import {
   BiometricsStatus,
   KeyService,
 } from "@bitwarden/key-management";
+import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -59,6 +56,16 @@ import { AccountSecurityComponent } from "./account-security.component";
   template: ` <ng-content></ng-content>`,
 })
 class MockPopOutComponent {}
+
+@Component({
+  selector: "bit-session-timeout-settings",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockSessionTimeoutSettingsComponent {
+  readonly refreshTimeoutActionSettings = input<any>();
+}
 
 describe("AccountSecurityComponent", () => {
   let component: AccountSecurityComponent;
@@ -136,11 +143,11 @@ describe("AccountSecurityComponent", () => {
     })
       .overrideComponent(AccountSecurityComponent, {
         remove: {
-          imports: [PopOutComponent],
+          imports: [PopOutComponent, SessionTimeoutSettingsComponent],
           providers: [DialogService],
         },
         add: {
-          imports: [MockPopOutComponent],
+          imports: [MockPopOutComponent, MockSessionTimeoutSettingsComponent],
           providers: [{ provide: DialogService, useValue: dialogService }],
         },
       })
@@ -153,16 +160,6 @@ describe("AccountSecurityComponent", () => {
       }),
     );
     vaultNudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
-    vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
-      of(VaultTimeoutStringType.OnLocked),
-    );
-    vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
-      of(VaultTimeoutAction.Lock),
-    );
-    vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
-      of(VaultTimeoutAction.Lock),
-    );
-    vaultTimeoutSettingsService.availableVaultTimeoutActions$.mockReturnValue(of([]));
     biometricStateService.promptAutomatically$ = of(false);
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     configService.getFeatureFlag$.mockReturnValue(of(false));
