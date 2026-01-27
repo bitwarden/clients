@@ -4,7 +4,9 @@ import { UserKeyDefinition } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
 export class UserStateFixture {
-  static fixtureValue(): TestFixture<UserStateFixture, any> {
+  /** Creates a fixture method for {@link UserStateFixture} to extend playwright tests */
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  static fixtureValue(): TestFixture<UserStateFixture, {}> {
     // eslint-disable-next-line no-empty-pattern
     return async ({}, use) => {
       const userState = new UserStateFixture();
