@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Logga in med nyckel"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Använd Single Sign-On"
   },
@@ -582,8 +585,14 @@
   "archiveItem": {
     "message": "Arkivera objekt"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arkiverade objekt är exkluderade från allmänna sökresultat och förslag för autofyll. Är du säker på att du vill arkivera detta objekt?"
+  "archiveItemDialogContent": {
+    "message": "När du har arkiverat kommer detta objekt att uteslutas från sökresultat och förslag till autofyll."
+  },
+  "archived": {
+    "message": "Arkiverade"
+  },
+  "unarchiveAndSave": {
+    "message": "Avarkivera och spara"
   },
   "upgradeToUseArchive": {
     "message": "Ett premium-medlemskap krävs för att använda Arkiv."
@@ -1539,6 +1548,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Premium-alternativ för tvåstegsverifiering, såsom YubiKey och Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Ditt Premium-abonnemang avslutades"
+  },
+  "archivePremiumRestart": {
+    "message": "För att återfå åtkomst till ditt arkiv, starta om Premium-abonnemanget. Om du redigerar detaljer för ett arkiverat objekt innan du startar om kommer det att flyttas tillbaka till ditt valv."
+  },
+  "restartPremium": {
+    "message": "Starta om Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "Lösenordshygien, kontohälsa och dataintrångsrapporter för att hålla ditt valv säkert."
   },
@@ -2458,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Raderade objekt permanent"
   },
+  "archivedItemRestored": {
+    "message": "Arkiverat objekt återställt"
+  },
   "restoreItem": {
     "message": "Återställ objekt"
   },
@@ -3348,6 +3369,12 @@
   },
   "error": {
     "message": "Fel"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Dekrypteringsfel"
@@ -4724,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Fler alternativ"
+  },
   "moreOptionsTitle": {
     "message": "Fler alternativ - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5110,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Detektering av dold matchning $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Visa matchningsdetektering"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Dölj matchdetektering"
   },
   "autoFillOnPageLoad": {
     "message": "Autofyll vid sidladdning?"
@@ -5654,6 +5681,9 @@
   },
   "extraWide": {
     "message": "Extra bred"
+  },
+  "narrow": {
+    "message": "Smal"
   },
   "sshKeyWrongPassword": {
     "message": "Lösenordet du har angett är felaktigt."

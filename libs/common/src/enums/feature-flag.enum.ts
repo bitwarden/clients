@@ -14,14 +14,17 @@ export enum FeatureFlag {
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
   IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
+  MembersComponentRefactor = "pm-29503-refactor-members-inheritance",
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
+  SafariAccountSwitching = "pm-5594-safari-account-switching",
 
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
+  SSHAgentV2 = "ssh-agent-v2",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
@@ -38,16 +41,16 @@ export enum FeatureFlag {
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
-  PM25174_DisableType0Decryption = "pm-25174-disable-type-0-decryption",
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
+  PasskeyUnlock = "pm-2035-passkey-unlock",
   DataRecoveryTool = "pm-28813-data-recovery-tool",
   ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
+  EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
 
   /* Tools */
-  DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   ChromiumImporterWithABE = "pm-25855-chromium-importer-abe",
   SendUIRefresh = "pm-28175-send-ui-refresh",
@@ -55,6 +58,7 @@ export enum FeatureFlag {
 
   /* DIRT */
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
+  EventManagementForHuntress = "event-management-for-huntress",
   PhishingDetection = "phishing-detection",
 
   /* Vault */
@@ -62,10 +66,9 @@ export enum FeatureFlag {
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
-  RiskInsightsForPremium = "pm-23904-risk-insights-for-premium",
-  VaultLoadingSkeletons = "pm-25081-vault-skeleton-loaders",
   BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
+  PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -75,6 +78,7 @@ export enum FeatureFlag {
 
   /* Desktop */
   DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
+  DesktopUiMigrationMilestone2 = "desktop-ui-migration-milestone-2",
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
@@ -101,14 +105,15 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
   [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
+  [FeatureFlag.MembersComponentRefactor]: FALSE,
 
   /* Autofill */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
+  [FeatureFlag.SSHAgentV2]: FALSE,
 
   /* Tools */
-  [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.ChromiumImporterWithABE]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
@@ -116,6 +121,7 @@ export const DefaultFeatureFlagValue = {
 
   /* DIRT */
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
+  [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
 
   /* Vault */
@@ -123,13 +129,13 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
-  [FeatureFlag.RiskInsightsForPremium]: FALSE,
-  [FeatureFlag.VaultLoadingSkeletons]: FALSE,
   [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
+  [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
+  [FeatureFlag.SafariAccountSwitching]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
@@ -146,13 +152,14 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
-  [FeatureFlag.PM25174_DisableType0Decryption]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
+  [FeatureFlag.PasskeyUnlock]: FALSE,
   [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
+  [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
@@ -162,6 +169,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
+  [FeatureFlag.DesktopUiMigrationMilestone2]: FALSE,
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,

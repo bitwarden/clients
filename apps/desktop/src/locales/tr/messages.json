@@ -100,6 +100,70 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "Bu Send belirtilen tarihte kalıcı olacak silinecek.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Paylaşılacak dosya"
+  },
+  "hideTextByDefault": {
+    "message": "Metni varsayılan olarak gizle"
+  },
+  "hideYourEmail": {
+    "message": "E-posta adresimi Send'i görüntüleyenlerden gizle."
+  },
+  "limitSendViews": {
+    "message": "Gösterimi sınırla"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ gösterim kaldı",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Bu sınıra ulaşıldıktan sonra bu Send'i kimse göremez.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Özel not"
+  },
+  "sendDetails": {
+    "message": "Send ayrıntıları",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV3": {
+    "message": "Alıcıların bu Send'e erişmesi için isterseniz parola ekleyebilirsiniz.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Paylaşılacak metin"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Yeni Send metni",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Yeni Send dosyası",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send metnini düzenle",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send dosyasını düzenle",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Bu Send'i kalıcı olarak silmek istediğinizden emin misiniz?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
     "message": "Yeni",
     "description": "for adding new items"
@@ -2027,6 +2091,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Kayıt kalıcı olarak silindi"
+  },
+  "archivedItemRestored": {
+    "message": "Arşivlenmiş kayıt geri getirildi"
   },
   "restoredItem": {
     "message": "Kayıt geri yüklendi"
@@ -4011,6 +4078,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu hesap risk altında ve web sitesi eksik. Bir web sitesi ekleyin ve güvenliğinizi artırmak için parolayı değiştirin."
   },
+  "vulnerablePassword": {
+    "message": "Güvensiz parola."
+  },
+  "changeNow": {
+    "message": "Şimdi değiştir"
+  },
   "missingWebsite": {
     "message": "Web sitesi eksik"
   },
@@ -4327,8 +4400,8 @@
   "archiveItem": {
     "message": "Kaydı arşivle"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğinizden emin misiniz?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
     "message": "Arşivden çıkar ve kaydet"

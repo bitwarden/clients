@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Conectar-se com chave de acesso"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Usar autenticação única"
   },
@@ -574,7 +577,7 @@
     "message": "O item foi enviado para o arquivo"
   },
   "itemWasUnarchived": {
-    "message": "Item was unarchived"
+    "message": "O item foi desarquivado"
   },
   "itemUnarchived": {
     "message": "O item foi desarquivado"
@@ -582,8 +585,14 @@
   "archiveItem": {
     "message": "Arquivar item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Itens arquivados são excluídos dos resultados gerais de busca e das sugestões de preenchimento automático. Tem certeza de que deseja arquivar este item?"
+  "archiveItemDialogContent": {
+    "message": "Ao arquivar, o item será excluído dos resultados de busca e sugestões de preenchimento automático."
+  },
+  "archived": {
+    "message": "Arquivados"
+  },
+  "unarchiveAndSave": {
+    "message": "Desarquivar e salvar"
   },
   "upgradeToUseArchive": {
     "message": "Um plano Premium é necessário para usar o arquivamento."
@@ -1539,6 +1548,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "Opções de autenticação em duas etapas proprietárias como YubiKey e Duo."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Sua assinatura Premium terminou"
+  },
+  "archivePremiumRestart": {
+    "message": "Para recuperar o seu acesso ao seu arquivo, retoma sua assinatura Premium. Se editar detalhes de um item arquivado antes de retomar, ele será movido de volta para o seu cofre."
+  },
+  "restartPremium": {
+    "message": "Retomar Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "Relatórios de higiene de senha, saúde da conta, e vazamentos de dados para manter o seu cofre seguro."
   },
@@ -2458,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Item apagado para sempre"
   },
+  "archivedItemRestored": {
+    "message": "Item arquivado restaurado"
+  },
   "restoreItem": {
     "message": "Restaurar item"
   },
@@ -3348,6 +3369,12 @@
   },
   "error": {
     "message": "Erro"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Erro de descriptografia"
@@ -4724,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Mais opções"
+  },
   "moreOptionsTitle": {
     "message": "Mais opções - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4833,19 +4863,19 @@
     "message": "Saiba mais sobre os riscos"
   },
   "autoConfirmSetup": {
-    "message": "Automatically confirm new users"
+    "message": "Confirmar automaticamente usuários novos"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "Usuários novos serão confirmados automaticamente quando este dispositivo for desbloqueado."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "Quais são os possíveis problemas de segurança?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "Ativou a confirmação automática"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Disponível agora"
   },
   "accountSecurity": {
     "message": "Segurança da conta"
@@ -5110,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Ocultar detecção de correspondência $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Mostrar detecção de correspondência"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ocultar detecção de correspondência"
   },
   "autoFillOnPageLoad": {
     "message": "Preencher ao carregar a página?"
@@ -5654,6 +5681,9 @@
   },
   "extraWide": {
     "message": "Extra larga"
+  },
+  "narrow": {
+    "message": "Estreita"
   },
   "sshKeyWrongPassword": {
     "message": "A senha que você digitou está incorreta."

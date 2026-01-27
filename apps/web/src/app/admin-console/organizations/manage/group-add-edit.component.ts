@@ -18,7 +18,6 @@ import {
 
 import {
   CollectionAdminService,
-  CollectionAdminView,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -26,6 +25,7 @@ import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";

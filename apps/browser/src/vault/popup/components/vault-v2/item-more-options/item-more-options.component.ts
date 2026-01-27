@@ -277,8 +277,7 @@ export class ItemMoreOptionsComponent {
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     )) as UserId;
 
-    const encryptedCipher = await this.cipherService.encrypt(cipher, activeUserId);
-    await this.cipherService.updateWithServer(encryptedCipher);
+    await this.cipherService.updateWithServer(cipher, activeUserId);
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(
@@ -376,7 +375,8 @@ export class ItemMoreOptionsComponent {
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
-      content: { key: "archiveItemConfirmDesc" },
+      content: { key: "archiveItemDialogContent" },
+      acceptButtonText: { key: "archiveVerb" },
       type: "info",
     });
 

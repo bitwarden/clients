@@ -25,13 +25,7 @@ import {
   tap,
 } from "rxjs/operators";
 
-import {
-  CollectionData,
-  CollectionDetailsResponse,
-  CollectionService,
-  CollectionView,
-  Unassigned,
-} from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import {
   NoResults,
@@ -50,7 +44,17 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  CollectionDetailsResponse,
+  CollectionView,
+  Unassigned,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import {
+  getNestedCollectionTree,
+  getFlatCollectionTree,
+} from "@bitwarden/common/admin-console/utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -97,6 +101,15 @@ import {
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
+  VaultFilterServiceAbstraction as VaultFilterService,
+  RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
+  createFilterFunction,
+  All,
+  RoutedVaultFilterModel,
+  VaultFilter,
+  FolderFilter,
+  OrganizationFilter,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
@@ -104,10 +117,6 @@ import { UnifiedUpgradePromptService } from "@bitwarden/web-vault/app/billing/in
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
-import {
-  getNestedCollectionTree,
-  getFlatCollectionTree,
-} from "../../admin-console/organizations/collections";
 import {
   AutoConfirmPolicy,
   AutoConfirmPolicyDialogComponent,
@@ -140,16 +149,6 @@ import {
 } from "./bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
-import { VaultFilterService } from "./vault-filter/services/abstractions/vault-filter.service";
-import { RoutedVaultFilterBridgeService } from "./vault-filter/services/routed-vault-filter-bridge.service";
-import { RoutedVaultFilterService } from "./vault-filter/services/routed-vault-filter.service";
-import { createFilterFunction } from "./vault-filter/shared/models/filter-function";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "./vault-filter/shared/models/routed-vault-filter.model";
-import { VaultFilter } from "./vault-filter/shared/models/vault-filter.model";
-import { FolderFilter, OrganizationFilter } from "./vault-filter/shared/models/vault-filter.type";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
@@ -747,7 +746,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "archiveItem" },
-      content: { key: "archiveItemConfirmDesc" },
+      content: { key: "archiveItemDialogContent" },
+      acceptButtonText: { key: "archiveVerb" },
       type: "info",
     });
 
@@ -1271,6 +1271,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   restore = async (c: C): Promise<boolean> => {
+    let toastMessage;
     if (!CipherViewLikeUtils.isDeleted(c)) {
       return;
     }
@@ -1284,13 +1285,19 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
+    if (CipherViewLikeUtils.isArchived(c)) {
+      toastMessage = this.i18nService.t("archivedItemRestored");
+    } else {
+      toastMessage = this.i18nService.t("restoredItem");
+    }
+
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.cipherService.restoreWithServer(uuidAsString(c.id), activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("restoredItem"),
+        message: toastMessage,
       });
       this.refresh();
     } catch (e) {
@@ -1299,9 +1306,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   };
 
   async bulkRestore(ciphers: C[]) {
+    let toastMessage;
     if (ciphers.some((c) => !c.edit)) {
       this.showMissingPermissionsError();
       return;
+    }
+
+    if (ciphers.some((c) => !CipherViewLikeUtils.isArchived(c))) {
+      toastMessage = this.i18nService.t("restoredItems");
+    } else {
+      toastMessage = this.i18nService.t("archivedItemsRestored");
     }
 
     if (!(await this.repromptCipher(ciphers))) {
@@ -1323,7 +1337,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("restoredItems"),
+      message: toastMessage,
     });
     this.refresh();
   }
@@ -1522,8 +1536,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipherFullView = await this.cipherService.getFullCipherView(cipher);
     cipherFullView.favorite = !cipherFullView.favorite;
-    const encryptedCipher = await this.cipherService.encrypt(cipherFullView, activeUserId);
-    await this.cipherService.updateWithServer(encryptedCipher);
+    await this.cipherService.updateWithServer(cipherFullView, activeUserId);
 
     this.toastService.showToast({
       variant: "success",

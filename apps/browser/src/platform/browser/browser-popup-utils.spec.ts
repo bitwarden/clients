@@ -1,7 +1,7 @@
 import { createChromeTabMock } from "../../autofill/spec/autofill-mocks";
 
 import { BrowserApi } from "./browser-api";
-import BrowserPopupUtils from "./browser-popup-utils";
+import BrowserPopupUtils, { PopupWidthOptions } from "./browser-popup-utils";
 
 describe("BrowserPopupUtils", () => {
   afterEach(() => {
@@ -147,7 +147,7 @@ describe("BrowserPopupUtils", () => {
         focused: false,
         alwaysOnTop: false,
         incognito: false,
-        width: 380,
+        width: PopupWidthOptions.default,
       });
       jest.spyOn(BrowserApi, "createWindow").mockImplementation();
     });
@@ -161,7 +161,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: PopupWidthOptions.default,
         height: 630,
         left: 85,
         top: 190,
@@ -190,7 +190,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: PopupWidthOptions.default,
         height: 630,
         left: 85,
         top: 190,
@@ -207,7 +207,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: PopupWidthOptions.default,
         height: 630,
         left: 85,
         top: 190,
@@ -260,7 +260,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: PopupWidthOptions.default,
         height: 630,
         left: 85,
         top: 190,
