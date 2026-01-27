@@ -48,13 +48,6 @@
     </app-org-badge>
   </td>
 }
-@if (viewingOrgVault()) {
-  <td bitCell [ngClass]="RowHeightClass">
-    <p class="tw-mb-0 tw-text-muted">
-      {{ permissionText() }}
-    </p>
-  </td>
-}
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right tw-whitespace-nowrap">
   @if (decryptionFailure()) {
     <button
@@ -222,13 +215,11 @@
       @if (showMenuDivider()) {
         <bit-menu-divider />
       }
-      @if (!viewingOrgVault()) {
-        @if (showFavorite()) {
-          <button bitMenuItem type="button" (click)="toggleFavorite()">
-            <i class="bwi bwi-fw bwi-star" aria-hidden="true"></i>
-            {{ (cipher().favorite ? "unfavorite" : "favorite") | i18n }}
-          </button>
-        }
+      @if (showFavorite()) {
+        <button bitMenuItem type="button" (click)="toggleFavorite()">
+          <i class="bwi bwi-fw bwi-star" aria-hidden="true"></i>
+          {{ (cipher().favorite ? "unfavorite" : "favorite") | i18n }}
+        </button>
       }
       @if (canEditCipher()) {
         <button bitMenuItem type="button" (click)="editCipher()">

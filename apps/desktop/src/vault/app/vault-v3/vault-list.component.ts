@@ -73,19 +73,12 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected readonly showOwner = input<boolean>();
   protected readonly useEvents = input<boolean>();
   protected readonly showPremiumFeatures = input<boolean>();
-  // Encompasses functionality only available from the organization vault context
-  protected readonly showAdminActions = input<boolean>(false);
   protected readonly allOrganizations = input<Organization[]>([]);
   protected readonly allCollections = input<CollectionView[]>([]);
-  protected readonly showPermissionsColumn = input<boolean>(false);
-  protected readonly viewingOrgVault = input<boolean>();
-  protected readonly activeCollection = input<CollectionView | undefined>();
   protected readonly userCanArchive = input<boolean>();
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
   protected readonly placeholderText = input<string>("");
-
   protected readonly ciphers = input<C[]>([]);
-
   protected readonly collections = input<CollectionView[]>([]);
 
   protected onEvent = output<VaultItemEvent<C>>();
@@ -148,10 +141,7 @@ export class VaultListComponent<C extends CipherViewLike> {
         if (isItemRestricted) {
           return of(false);
         }
-        return this.cipherAuthorizationService.canCloneCipher$(
-          vaultItem.cipher,
-          this.showAdminActions(),
-        );
+        return this.cipherAuthorizationService.canCloneCipher$(vaultItem.cipher);
       }),
     );
   }
@@ -160,45 +150,18 @@ export class VaultListComponent<C extends CipherViewLike> {
     if (cipher.organizationId == null) {
       return true;
     }
-
-    const organization = this.allOrganizations().find((o) => o.id === cipher.organizationId);
-    return (organization.canEditAllCiphers && this.viewingOrgVault()) || cipher.edit;
+    return cipher.edit;
   }
 
   protected canAssignCollections(cipher: C) {
-    const organization = this.allOrganizations().find((o) => o.id === cipher.organizationId);
     const editableCollections = this.allCollections().filter((c) => !c.readOnly);
-
-    return (
-      (organization?.canEditAllCiphers && this.viewingOrgVault()) ||
-      (CipherViewLikeUtils.canAssignToCollections(cipher) && editableCollections.length > 0)
-    );
+    return CipherViewLikeUtils.canAssignToCollections(cipher) && editableCollections.length > 0;
   }
 
   protected canManageCollection(cipher: C) {
     // If the cipher is not part of an organization (personal item), user can manage it
     if (cipher.organizationId == null) {
       return true;
-    }
-
-    // Check for admin access in AC vault
-    if (this.showAdminActions()) {
-      const organization = this.allOrganizations().find((o) => o.id === cipher.organizationId);
-      // If the user is an admin, they can delete an unassigned cipher
-      if (cipher.collectionIds.length === 0) {
-        return organization?.canEditUnmanagedCollections === true;
-      }
-
-      if (
-        organization?.permissions.editAnyCollection ||
-        (organization?.allowAdminAccessToAllCollectionItems && organization.isAdmin)
-      ) {
-        return true;
-      }
-    }
-
-    if (this.activeCollection()) {
-      return this.activeCollection().manage === true;
     }
 
     return this.allCollections()
@@ -266,19 +229,10 @@ export class VaultListComponent<C extends CipherViewLike> {
       return hasPersonalItems;
     }
 
-    const [orgId] = uniqueCipherOrgIds;
-    const organization = this.allOrganizations().find((o) => o.id === orgId);
-
-    const canEditOrManageAllCiphers = organization?.canEditAllCiphers && this.viewingOrgVault();
-
     const collectionNotSelected =
       this.selection.selected.filter((item) => item.collection).length === 0;
 
-    return (
-      (canEditOrManageAllCiphers || this.allCiphersHaveEditAccess()) &&
-      collectionNotSelected &&
-      hasEditableCollections
-    );
+    return this.allCiphersHaveEditAccess() && collectionNotSelected && hasEditableCollections;
   }
 
   /**

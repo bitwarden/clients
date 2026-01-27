@@ -71,19 +71,14 @@
                 [showOwner]="showOwner()"
                 [showPremiumFeatures]="showPremiumFeatures()"
                 [useEvents]="useEvents()"
-                [viewingOrgVault]="viewingOrgVault()"
                 [cloneable]="canClone$(item) | async"
                 [organizations]="allOrganizations()"
                 [canEditCipher]="canEditCipher(item.cipher)"
                 [canAssignCollections]="canAssignCollections(item.cipher)"
                 [canManageCollection]="canManageCollection(item.cipher)"
-                [canDeleteCipher]="
-                  cipherAuthorizationService.canDeleteCipher$(item.cipher, showAdminActions())
-                    | async
-                "
+                [canDeleteCipher]="cipherAuthorizationService.canDeleteCipher$(item.cipher) | async"
                 [canRestoreCipher]="
-                  cipherAuthorizationService.canRestoreCipher$(item.cipher, showAdminActions())
-                    | async
+                  cipherAuthorizationService.canRestoreCipher$(item.cipher) | async
                 "
                 (onEvent)="event($event)"
                 [userCanArchive]="userCanArchive()"

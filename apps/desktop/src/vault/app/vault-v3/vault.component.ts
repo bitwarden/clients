@@ -30,7 +30,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { CollectionView, Unassigned } from "@bitwarden/common/admin-console/models/collections";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -304,9 +304,7 @@ export class VaultComponent<C extends CipherViewLike>
   protected canAccessPremium: boolean;
   protected allOrganizations: Organization[] = [];
   protected allCollections: CollectionView[] = [];
-  protected filteredCollections: CollectionView[] = [];
   protected collectionsToDisplay: CollectionView[] = [];
-  protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected searchPlaceholderText: string;
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected ciphers: C[] = [];
@@ -430,7 +428,7 @@ export class VaultComponent<C extends CipherViewLike>
     const collections$ = combineLatest([nestedCollections$, filter$]).pipe(
       filter(([collections, filter]) => collections != undefined && filter != undefined),
       map(([collections, filter]) => {
-        if (filter.collectionId === undefined || filter.collectionId === Unassigned) {
+        if (filter.collectionId === undefined) {
           return [];
         }
         let searchableCollectionNodes: TreeNode<CollectionView>[] = [];
@@ -449,22 +447,6 @@ export class VaultComponent<C extends CipherViewLike>
         }
 
         return searchableCollectionNodes.map((treeNode: TreeNode<CollectionView>) => treeNode.node);
-      }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
-    );
-
-    const selectedCollection$ = combineLatest([nestedCollections$, filter$]).pipe(
-      filter(([collections, filter]) => collections != undefined && filter != undefined),
-      map(([collections, filter]) => {
-        if (
-          filter.collectionId === undefined ||
-          filter.collectionId === All ||
-          filter.collectionId === Unassigned
-        ) {
-          return undefined;
-        }
-
-        return ServiceUtils.getTreeNodeObjectFromList(collections, filter.collectionId);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -554,28 +536,18 @@ export class VaultComponent<C extends CipherViewLike>
             this.organizations$,
             ciphers$,
             collections$,
-            selectedCollection$,
           ]),
         ),
         takeUntil(this.destroy$),
       )
       .subscribe(
-        ([
-          filter,
-          canAccessPremium,
-          allCollections,
-          allOrganizations,
-          ciphers,
-          collections,
-          selectedCollection,
-        ]) => {
+        ([filter, canAccessPremium, allCollections, allOrganizations, ciphers, collections]) => {
           this.filter = filter;
           this.canAccessPremium = canAccessPremium;
           this.allCollections = allCollections;
           this.allOrganizations = allOrganizations;
           this.ciphers = ciphers;
-          this.collections = collections;
-          this.selectedCollection = selectedCollection;
+          this.collectionsToDisplay = collections;
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           this.performingInitialLoad = false;
           this.refreshing = false;
@@ -693,7 +665,7 @@ export class VaultComponent<C extends CipherViewLike>
     this.cipherId = cipher.id;
     this.cipher.set(cipher);
     this.collections =
-      this.filteredCollections?.filter((c) => cipher.collectionIds.includes(c.id)) ?? null;
+      this.allCollections.filter((c) => cipher.collectionIds.includes(c.id)) ?? null;
     this.action.set("view");
 
     this.changeDetectorRef.detectChanges();
@@ -1200,10 +1172,10 @@ export class VaultComponent<C extends CipherViewLike>
 
   private prefillCipherFromFilter() {
     if (this.activeFilter.collectionId != null) {
-      const collections = this.filteredCollections?.filter(
+      const collections = this.allCollections.filter(
         (c) => c.id === this.activeFilter.collectionId,
       );
-      if (collections?.length > 0) {
+      if (collections.length > 0) {
         this.addOrganizationId = collections[0].organizationId;
         this.addCollectionIds = [this.activeFilter.collectionId];
       }

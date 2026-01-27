@@ -64,7 +64,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   protected readonly useEvents = input<boolean>();
   protected readonly cloneable = input<boolean>();
   protected readonly organizations = input<Organization[]>();
-  protected readonly viewingOrgVault = input<boolean>();
   protected readonly canEditCipher = input<boolean>();
   protected readonly canAssignCollections = input<boolean>();
   protected readonly canManageCollection = input<boolean>();
@@ -92,9 +91,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   private i18nService = inject(I18nService);
 
-  // Archive button will not show in Admin Console
   protected readonly showArchiveButton = computed(() => {
-    if (!this.archiveEnabled() || this.viewingOrgVault()) {
+    if (!this.archiveEnabled()) {
       return false;
     }
 
