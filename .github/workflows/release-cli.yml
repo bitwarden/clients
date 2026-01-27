@@ -89,6 +89,7 @@ jobs:
                       apps/cli/bw-oss-macos-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-oss-macos-arm64-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-macos-${{ env.PKG_VERSION }}.zip,
+                      apps/cli/bw-linux-arm64-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-macos-arm64-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-oss-linux-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-linux-${{ env.PKG_VERSION }}.zip,
