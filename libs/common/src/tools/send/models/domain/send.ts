@@ -20,7 +20,6 @@ export class Send extends Domain {
   id: string;
   accessId: string;
   type: SendType;
-  authType: AuthType;
   name: EncString;
   notes: EncString;
   file: SendFile;
@@ -35,6 +34,7 @@ export class Send extends Domain {
   emails: string;
   disabled: boolean;
   hideEmail: boolean;
+  authType: AuthType;
 
   constructor(obj?: SendData) {
     super();
@@ -66,6 +66,7 @@ export class Send extends Domain {
     this.deletionDate = obj.deletionDate != null ? new Date(obj.deletionDate) : null;
     this.expirationDate = obj.expirationDate != null ? new Date(obj.expirationDate) : null;
     this.hideEmail = obj.hideEmail;
+    this.authType = obj.authType;
 
     switch (this.type) {
       case SendType.Text:
