@@ -15,7 +15,7 @@ import {
   FormArray,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Observable, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -35,7 +35,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { enableAccountSwitching } from "../../../platform/flags";
+import { AccountSwitcherService } from "../../../auth/popup/account-switching/services/account-switcher.service";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -74,7 +74,8 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
   @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>> =
     new QueryList();
 
-  accountSwitcherEnabled = false;
+  readonly accountSwitcherEnabled$: Observable<boolean> =
+    this.accountSwitcherService.accountSwitchingEnabled$();
   dataIsPristine = true;
   isLoading = false;
   excludedDomainsState: string[] = [];
@@ -95,9 +96,8 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
     private toastService: ToastService,
     private formBuilder: FormBuilder,
     private popupRouterCacheService: PopupRouterCacheService,
-  ) {
-    this.accountSwitcherEnabled = enableAccountSwitching();
-  }
+    private accountSwitcherService: AccountSwitcherService,
+  ) {}
 
   get domainForms() {
     return this.domainListForm.get("domains") as FormArray;
