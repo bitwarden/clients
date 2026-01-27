@@ -3,7 +3,8 @@ import { of } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { UserId, CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { UserId, CipherId, OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { CipherType } from "../enums/cipher-type";
@@ -46,6 +47,8 @@ describe("DefaultCipherSdkService", () => {
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
       list: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
+      share_cipher: jest.fn(),
+      share_ciphers_bulk: jest.fn(),
       admin: jest.fn().mockReturnValue(mockAdminSdk),
     };
     mockVaultSdk = {
@@ -661,6 +664,227 @@ describe("DefaultCipherSdkService", () => {
       ).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to list organization ciphers"),
+      );
+    });
+  });
+
+  describe("shareWithServer()", () => {
+    const collectionId1 = "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CollectionId;
+    const collectionId2 = "7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24" as CollectionId;
+
+    const createMockSdkCipher = (id: string): any => ({
+      id: id,
+      organizationId: orgId,
+      folderId: null,
+      collectionIds: [],
+      key: null,
+      name: "EncryptedString",
+      notes: null,
+      type: CipherType.Login,
+      login: null,
+      identity: null,
+      card: null,
+      secureNote: null,
+      sshKey: null,
+      data: null,
+      favorite: false,
+      reprompt: 0,
+      organizationUseTotp: false,
+      edit: true,
+      permissions: null,
+      viewPassword: true,
+      localData: null,
+      attachments: null,
+      fields: null,
+      passwordHistory: null,
+      creationDate: "2022-01-01T12:00:00.000Z",
+      deletedDate: null,
+      archivedDate: null,
+      revisionDate: "2022-01-31T12:00:00.000Z",
+    });
+
+    it("should share cipher using SDK", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.name = "Test Cipher";
+
+      const mockSdkCipher = createMockSdkCipher(cipherId);
+      mockCiphersSdk.share_cipher.mockResolvedValue(mockSdkCipher);
+
+      const result = await cipherSdkService.shareWithServer(
+        cipherView,
+        orgId,
+        [collectionId1, collectionId2],
+        userId,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.share_cipher).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: cipherView.name,
+        }),
+        orgId,
+        [collectionId1, collectionId2],
+        null,
+      );
+      expect(result).toBeInstanceOf(Cipher);
+    });
+
+    it("should pass null for original cipher when originalCipherView is provided", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.name = "Test Cipher";
+
+      const originalCipherView = new CipherView();
+      originalCipherView.id = cipherId;
+      originalCipherView.name = "Original Cipher";
+
+      const mockSdkCipher = createMockSdkCipher(cipherId);
+      mockCiphersSdk.share_cipher.mockResolvedValue(mockSdkCipher);
+
+      await cipherSdkService.shareWithServer(
+        cipherView,
+        orgId,
+        [collectionId1],
+        userId,
+        originalCipherView,
+      );
+
+      // SDK handles history internally, so we always pass null for original_cipher
+      expect(mockCiphersSdk.share_cipher).toHaveBeenCalledWith(
+        expect.anything(),
+        orgId,
+        [collectionId1],
+        null,
+      );
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+      const cipherView = new CipherView();
+      cipherView.name = "Test Cipher";
+
+      await expect(
+        cipherSdkService.shareWithServer(cipherView, orgId, [collectionId1], userId),
+      ).rejects.toThrow("SDK not available");
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to share cipher"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      const cipherView = new CipherView();
+      cipherView.name = "Test Cipher";
+
+      mockCiphersSdk.share_cipher.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.shareWithServer(cipherView, orgId, [collectionId1], userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to share cipher"),
+      );
+    });
+  });
+
+  describe("shareManyWithServer()", () => {
+    const collectionId1 = "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CollectionId;
+    const cipherId2 = "8ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b25" as CipherId;
+
+    const createMockSdkCipher = (id: string): any => ({
+      id: id,
+      organizationId: orgId,
+      folderId: null,
+      collectionIds: [],
+      key: null,
+      name: "EncryptedString",
+      notes: null,
+      type: CipherType.Login,
+      login: null,
+      identity: null,
+      card: null,
+      secureNote: null,
+      sshKey: null,
+      data: null,
+      favorite: false,
+      reprompt: 0,
+      organizationUseTotp: false,
+      edit: true,
+      permissions: null,
+      viewPassword: true,
+      localData: null,
+      attachments: null,
+      fields: null,
+      passwordHistory: null,
+      creationDate: "2022-01-01T12:00:00.000Z",
+      deletedDate: null,
+      archivedDate: null,
+      revisionDate: "2022-01-31T12:00:00.000Z",
+    });
+
+    it("should share multiple ciphers using SDK", async () => {
+      const cipherView1 = new CipherView();
+      cipherView1.id = cipherId;
+      cipherView1.type = CipherType.Login;
+      cipherView1.name = "Test Cipher 1";
+
+      const cipherView2 = new CipherView();
+      cipherView2.id = cipherId2;
+      cipherView2.type = CipherType.Login;
+      cipherView2.name = "Test Cipher 2";
+
+      const mockSdkCiphers = [createMockSdkCipher(cipherId), createMockSdkCipher(cipherId2)];
+      mockCiphersSdk.share_ciphers_bulk.mockResolvedValue(mockSdkCiphers);
+
+      const result = await cipherSdkService.shareManyWithServer(
+        [cipherView1, cipherView2],
+        orgId,
+        [collectionId1],
+        userId,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.share_ciphers_bulk).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ name: cipherView1.name }),
+          expect.objectContaining({ name: cipherView2.name }),
+        ]),
+        orgId,
+        [collectionId1],
+      );
+      expect(result).toHaveLength(2);
+      expect(result[0]).toBeInstanceOf(Cipher);
+      expect(result[1]).toBeInstanceOf(Cipher);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+      const cipherView = new CipherView();
+      cipherView.name = "Test Cipher";
+
+      await expect(
+        cipherSdkService.shareManyWithServer([cipherView], orgId, [collectionId1], userId),
+      ).rejects.toThrow("SDK not available");
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to share multiple ciphers"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      const cipherView = new CipherView();
+      cipherView.name = "Test Cipher";
+
+      mockCiphersSdk.share_ciphers_bulk.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.shareManyWithServer([cipherView], orgId, [collectionId1], userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to share multiple ciphers"),
       );
     });
   });
