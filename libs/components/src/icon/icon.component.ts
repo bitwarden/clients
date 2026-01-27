@@ -13,7 +13,7 @@ import { BitwardenIcon } from "../shared/icon";
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BitIconComponent {
+export class IconComponent {
   /**
    * The Bitwarden icon name (e.g., "bwi-lock", "bwi-user")
    */

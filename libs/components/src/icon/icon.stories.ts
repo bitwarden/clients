@@ -2,11 +2,11 @@ import { Meta, StoryObj } from "@storybook/angular";
 
 import { BITWARDEN_ICONS } from "../shared/icon";
 
-import { BitIconComponent } from "./icon.component";
+import { IconComponent } from "./icon.component";
 
 export default {
   title: "Component Library/Icon",
-  component: BitIconComponent,
+  component: IconComponent,
   parameters: {
     design: {
       type: "figma",
@@ -19,9 +19,9 @@ export default {
       options: BITWARDEN_ICONS,
     },
   },
-} as Meta<BitIconComponent>;
+} as Meta<IconComponent>;
 
-type Story = StoryObj<BitIconComponent>;
+type Story = StoryObj<IconComponent>;
 
 export const Default: Story = {
   args: {
