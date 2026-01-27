@@ -13,7 +13,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { IconModule } from "@bitwarden/components";
@@ -42,7 +41,6 @@ export class UserLayoutComponent implements OnInit {
   protected hasFamilySponsorshipAvailable$: Observable<boolean>;
   protected showSponsoredFamilies$: Observable<boolean>;
   protected showSubscription$: Observable<boolean>;
-  protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
 
   constructor(
     private syncService: SyncService,
@@ -64,10 +62,6 @@ export class UserLayoutComponent implements OnInit {
           canAccessEmergencyAccess(userId, this.configService, this.policyService),
         ),
       ),
-    );
-
-    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
-      FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
   }
 

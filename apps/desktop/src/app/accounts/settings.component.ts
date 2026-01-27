@@ -1,11 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { BehaviorSubject, Observable, Subject, combineLatest, firstValueFrom, of } from "rxjs";
-import { concatMap, map, pairwise, startWith, switchMap, takeUntil, timeout } from "rxjs/operators";
+import { BehaviorSubject, Observable, Subject, firstValueFrom, of } from "rxjs";
+import { concatMap, map, switchMap, takeUntil, timeout } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -21,13 +21,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import {
-  VaultTimeout,
-  VaultTimeoutAction,
-  VaultTimeoutOption,
-  VaultTimeoutSettingsService,
-  VaultTimeoutStringType,
-} from "@bitwarden/common/key-management/vault-timeout";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -50,14 +44,10 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   SelectModule,
-  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
-import {
-  SessionTimeoutInputLegacyComponent,
-  SessionTimeoutSettingsComponent,
-} from "@bitwarden/key-management-ui";
+import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
@@ -97,16 +87,12 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SectionHeaderComponent,
     SelectModule,
     TypographyModule,
-    SessionTimeoutInputLegacyComponent,
     SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-  // For use in template
-  protected readonly VaultTimeoutAction = VaultTimeoutAction;
-
   showMinToTray = false;
   localeOptions: any[];
   themeOptions: any[];
@@ -140,21 +126,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   currentUserEmail: string;
   currentUserId: UserId;
 
-  availableVaultTimeoutActions: VaultTimeoutAction[] = [];
-  vaultTimeoutOptions: VaultTimeoutOption[] = [];
-  hasVaultTimeoutPolicy = false;
-
   userHasMasterPassword: boolean;
   userHasPinSet: boolean;
 
   pinEnabled$: Observable<boolean> = of(true);
 
-  consolidatedSessionTimeoutComponent$: Observable<boolean>;
-
   form = this.formBuilder.group({
     // Security
-    vaultTimeout: [null as VaultTimeout | null],
-    vaultTimeoutAction: [VaultTimeoutAction.Lock],
     pin: [null as boolean | null],
     biometric: false,
     requireMasterPasswordOnAppRestart: true,
@@ -217,8 +195,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private nativeMessagingManifestService: NativeMessagingManifestService,
     private configService: ConfigService,
     private validationService: ValidationService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private toastService: ToastService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
@@ -287,15 +263,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
         value: SshAgentPromptType.RememberUntilLock,
       },
     ];
-
-    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
-      FeatureFlag.ConsolidatedSessionTimeoutComponent,
-    );
   }
 
   async ngOnInit() {
-    this.vaultTimeoutOptions = await this.generateVaultTimeoutOptions();
-
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
     // Autotype is for Windows initially
@@ -314,55 +284,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.currentUserEmail = activeAccount.email;
     this.currentUserId = activeAccount.id;
 
-    const maximumVaultTimeoutPolicy = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
-      ),
-      getFirstPolicy,
-    );
-    if ((await firstValueFrom(maximumVaultTimeoutPolicy)) != null) {
-      this.hasVaultTimeoutPolicy = true;
-    }
-
-    this.refreshTimeoutSettings$
-      .pipe(
-        switchMap(() =>
-          combineLatest([
-            this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
-            this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
-          ]),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(([availableActions, action]) => {
-        this.availableVaultTimeoutActions = availableActions;
-        this.form.controls.vaultTimeoutAction.setValue(action, { emitEvent: false });
-        // NOTE: The UI doesn't properly update without detect changes.
-        // I've even tried using an async pipe, but it still doesn't work. I'm not sure why.
-        // Using an async pipe means that we can't call `detectChanges` AFTER the data has change
-        // meaning that we are forced to use regular class variables instead of observables.
-        this.changeDetectorRef.detectChanges();
-      });
-
-    this.refreshTimeoutSettings$
-      .pipe(
-        switchMap(() =>
-          combineLatest([
-            this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
-            maximumVaultTimeoutPolicy,
-          ]),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(([availableActions, policy]) => {
-        if (policy?.data?.action || availableActions.length <= 1) {
-          this.form.controls.vaultTimeoutAction.disable({ emitEvent: false });
-        } else {
-          this.form.controls.vaultTimeoutAction.enable({ emitEvent: false });
-        }
-      });
-
     // Load initial values
     this.userHasPinSet = await this.pinService.isPinSet(activeAccount.id);
 
@@ -378,12 +299,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     );
 
     const initialValues = {
-      vaultTimeout: await firstValueFrom(
-        this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(activeAccount.id),
-      ),
-      vaultTimeoutAction: await firstValueFrom(
-        this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
-      ),
       pin: this.userHasPinSet,
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
@@ -433,17 +348,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.showMinToTray = this.platformUtilsService.getDevice() !== DeviceType.LinuxDesktop;
     this.showAlwaysShowDock = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
-    this.refreshTimeoutSettings$
-      .pipe(
-        switchMap(() =>
-          this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((action) => {
-        this.form.controls.vaultTimeoutAction.setValue(action, { emitEvent: false });
-      });
-
     if (isWindows) {
       this.billingAccountProfileStateService
         .hasPremiumFromAnySource$(activeAccount.id)
@@ -456,26 +360,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     // Form events
-    this.form.controls.vaultTimeout.valueChanges
-      .pipe(
-        startWith(initialValues.vaultTimeout), // emit to init pairwise
-        pairwise(),
-        concatMap(async ([previousValue, newValue]) => {
-          await this.saveVaultTimeout(previousValue, newValue);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
-    this.form.controls.vaultTimeoutAction.valueChanges
-      .pipe(
-        concatMap(async (action) => {
-          await this.saveVaultTimeoutAction(action);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
     this.form.controls.pin.valueChanges
       .pipe(
         concatMap(async (value) => {
@@ -519,74 +403,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.timerId = setInterval(async () => {
       this.supportsBiometric = await this.biometricsService.canEnableBiometricUnlock();
     }, 1000);
-  }
-
-  async saveVaultTimeout(previousValue: VaultTimeout, newValue: VaultTimeout) {
-    if (newValue === VaultTimeoutStringType.Never) {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "warning" },
-        content: { key: "neverLockWarning" },
-        type: "warning",
-      });
-
-      if (!confirmed) {
-        this.form.controls.vaultTimeout.setValue(previousValue, { emitEvent: false });
-        return;
-      }
-    }
-
-    // Avoid saving 0 since it's useless as a timeout value.
-    if (newValue === 0) {
-      return;
-    }
-
-    if (!this.form.controls.vaultTimeout.valid) {
-      return;
-    }
-
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-
-    await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
-      activeAccount.id,
-      newValue,
-      this.form.getRawValue().vaultTimeoutAction,
-    );
-    this.refreshTimeoutSettings$.next();
-  }
-
-  async saveVaultTimeoutAction(value: VaultTimeoutAction) {
-    if (value === VaultTimeoutAction.LogOut) {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "vaultTimeoutLogOutConfirmationTitle" },
-        content: { key: "vaultTimeoutLogOutConfirmation" },
-        type: "warning",
-      });
-
-      if (!confirmed) {
-        this.form.controls.vaultTimeoutAction.setValue(VaultTimeoutAction.Lock, {
-          emitEvent: false,
-        });
-        return;
-      }
-    }
-
-    if (this.form.controls.vaultTimeout.hasError("policyError")) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("vaultTimeoutTooLarge"),
-      });
-      return;
-    }
-
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-
-    await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
-      activeAccount.id,
-      this.form.value.vaultTimeout,
-      value,
-    );
-    this.refreshTimeoutSettings$.next();
   }
 
   async updatePinHandler(value: boolean) {
@@ -992,33 +808,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.getFormattedAutotypeShortcutText(newShortcutArray),
     );
     await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
-  }
-
-  private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {
-    let vaultTimeoutOptions: VaultTimeoutOption[] = [
-      { name: this.i18nService.t("oneMinute"), value: 1 },
-      { name: this.i18nService.t("fiveMinutes"), value: 5 },
-      { name: this.i18nService.t("fifteenMinutes"), value: 15 },
-      { name: this.i18nService.t("thirtyMinutes"), value: 30 },
-      { name: this.i18nService.t("oneHour"), value: 60 },
-      { name: this.i18nService.t("fourHours"), value: 240 },
-      { name: this.i18nService.t("onIdle"), value: VaultTimeoutStringType.OnIdle },
-      { name: this.i18nService.t("onSleep"), value: VaultTimeoutStringType.OnSleep },
-    ];
-
-    if (await ipc.platform.powermonitor.isLockMonitorAvailable()) {
-      vaultTimeoutOptions.push({
-        name: this.i18nService.t("onLocked"),
-        value: VaultTimeoutStringType.OnLocked,
-      });
-    }
-
-    vaultTimeoutOptions = vaultTimeoutOptions.concat([
-      { name: this.i18nService.t("onRestart"), value: VaultTimeoutStringType.OnRestart },
-      { name: this.i18nService.t("never"), value: VaultTimeoutStringType.Never },
-    ]);
-
-    return vaultTimeoutOptions;
   }
 
   ngOnDestroy() {
