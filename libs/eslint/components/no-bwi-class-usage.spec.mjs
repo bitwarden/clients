@@ -8,7 +8,8 @@ const ruleTester = new RuleTester({
   },
 });
 
-ruleTester.run("no-bwi-class-usage", rule, {
+ruleTester.run("no-bwi-class-usage", rule.default, {
+  valid: [],
   invalid: [
     {
       name: "should error on direct bwi class usage",
