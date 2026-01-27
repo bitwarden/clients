@@ -225,7 +225,6 @@ export class AccountSubscriptionComponent {
             account,
             initialStep: UnifiedUpgradeDialogStep.Payment,
             selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
-            redirectOnCompletion: true,
           },
         });
 
