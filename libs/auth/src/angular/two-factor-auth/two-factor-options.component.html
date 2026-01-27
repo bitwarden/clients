@@ -13,27 +13,27 @@
           >
             <bit-svg
               *ngSwitchCase="TwoFactorProviderType.Authenticator"
-              [icon]="Icons.TwoFactorAuthAuthenticatorIcon"
+              [content]="Icons.TwoFactorAuthAuthenticatorIcon"
             ></bit-svg>
             <bit-svg
               *ngSwitchCase="TwoFactorProviderType.Email"
-              [icon]="Icons.TwoFactorAuthEmailIcon"
+              [content]="Icons.TwoFactorAuthEmailIcon"
             ></bit-svg>
             <bit-svg
               *ngSwitchCase="TwoFactorProviderType.Duo"
-              [icon]="Icons.TwoFactorAuthDuoIcon"
+              [content]="Icons.TwoFactorAuthDuoIcon"
             ></bit-svg>
             <bit-svg
               *ngSwitchCase="TwoFactorProviderType.Yubikey"
-              [icon]="Icons.TwoFactorAuthYubicoIcon"
+              [content]="Icons.TwoFactorAuthYubicoIcon"
             ></bit-svg>
             <bit-svg
               *ngSwitchCase="TwoFactorProviderType.OrganizationDuo"
-              [icon]="Icons.TwoFactorAuthDuoIcon"
+              [content]="Icons.TwoFactorAuthDuoIcon"
             ></bit-svg>
             <bit-svg
               *ngSwitchCase="TwoFactorProviderType.WebAuthn"
-              [icon]="Icons.TwoFactorAuthWebAuthnIcon"
+              [content]="Icons.TwoFactorAuthWebAuthnIcon"
             ></bit-svg>
           </div>
           {{ provider.name }}
