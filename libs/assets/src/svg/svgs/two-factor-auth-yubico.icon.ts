@@ -1,5 +1,5 @@
 // this svg includes the Yubico logo, which contains colors not part of our bitwarden theme colors
- 
+
 import { svg } from "../svg";
 
 export const TwoFactorAuthYubicoIcon = svg`
