@@ -38,7 +38,8 @@ import { NewCipherMenuComponent, VaultItem, VaultItemEvent } from "@bitwarden/va
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
 
-import { VaultItemsModule } from "./vault-items/vault-items.module";
+import { VaultCipherRowComponent } from "./vault-items/vault-cipher-row.component";
+import { VaultCollectionRowComponent } from "./vault-items/vault-collection-row.component";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
 export const RowHeight = 75;
@@ -57,11 +58,12 @@ export const RowHeightClass = `tw-h-[75px]`;
     MenuModule,
     ButtonModule,
     IconButtonModule,
-    VaultItemsModule,
     SearchModule,
     FormsModule,
     DesktopHeaderComponent,
     NewCipherMenuComponent,
+    VaultCollectionRowComponent,
+    VaultCipherRowComponent,
   ],
 })
 export class VaultListComponent<C extends CipherViewLike> {

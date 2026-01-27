@@ -1,7 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, HostListener, ViewChild, computed, input, output, inject } from "@angular/core";
+import { NgClass } from "@angular/common";
+import { Component, HostListener, ViewChild, computed, inject, input, output } from "@angular/core";
+import { RouterLink } from "@angular/router";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -9,15 +13,42 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { MenuTriggerForDirective } from "@bitwarden/components";
-import { VaultItemEvent } from "@bitwarden/vault";
+import {
+  AriaDisableDirective,
+  BitIconButtonComponent,
+  ButtonLinkDirective,
+  MenuModule,
+  MenuTriggerForDirective,
+  TooltipDirective,
+  TableModule,
+} from "@bitwarden/components";
+import {
+  CopyCipherFieldDirective,
+  GetOrgNameFromIdPipe,
+  OrganizationNameBadgeComponent,
+  VaultItemEvent,
+} from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tr[appVaultCipherRow]",
   templateUrl: "vault-cipher-row.component.html",
-  standalone: false,
+  imports: [
+    NgClass,
+    JslibModule,
+    TableModule,
+    AriaDisableDirective,
+    ButtonLinkDirective,
+    RouterLink,
+    OrganizationNameBadgeComponent,
+    TooltipDirective,
+    BitIconButtonComponent,
+    MenuModule,
+    CopyCipherFieldDirective,
+    PremiumBadgeComponent,
+    GetOrgNameFromIdPipe,
+  ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
   protected RowHeightClass = `tw-h-[75px]`;
