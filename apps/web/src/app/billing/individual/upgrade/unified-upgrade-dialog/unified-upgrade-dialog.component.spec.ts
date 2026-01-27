@@ -544,6 +544,7 @@ describe("UnifiedUpgradeDialogComponent", () => {
 
       it("should display app-premium-org-upgrade-payment when user has premium personally", async () => {
         mockBillingAccountProfileStateService.hasPremiumPersonally$.mockReturnValue(of(true));
+        mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
 
         const customDialogData: UnifiedUpgradeDialogParams = {
           account: mockAccount,

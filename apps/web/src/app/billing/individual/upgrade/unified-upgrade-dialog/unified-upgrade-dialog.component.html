@@ -1,26 +1,28 @@
-@if (step() == PlanSelectionStep) {
-  @if (hasPremiumPersonally() && premiumToOrganizationUpgradeEnabled()) {
+<!-- Premium-to-Organization upgrade flow: User already has premium personally and is upgrading to Teams/Enterprise -->
+@if (showPremiumOrgFlow()) {
+  @if (step() == PlanSelectionStep) {
     <app-premium-org-upgrade
       (planSelected)="onPlanSelected($event)"
       (closeClicked)="onCloseClicked()"
     />
-  } @else {
-    <app-upgrade-account
-      [dialogTitleMessageOverride]="planSelectionStepTitleOverride()"
-      [hideContinueWithoutUpgradingButton]="hideContinueWithoutUpgradingButton()"
-      (planSelected)="onPlanSelected($event)"
-      (closeClicked)="onCloseClicked()"
-    />
-  }
-} @else if (step() == PaymentStep && selectedPlan() !== null && account() !== null) {
-  @if (hasPremiumPersonally()) {
+  } @else if (step() == PaymentStep && selectedPlan() !== null && account() !== null) {
     <app-premium-org-upgrade-payment
       [selectedPlanId]="selectedPlan()"
       [account]="account()"
       (goBack)="previousStep()"
       (complete)="onComplete($event)"
     />
-  } @else {
+  }
+} @else {
+  <!-- Standard upgrade flow: User upgrading from free to Premium or Families -->
+  @if (step() == PlanSelectionStep) {
+    <app-upgrade-account
+      [dialogTitleMessageOverride]="planSelectionStepTitleOverride()"
+      [hideContinueWithoutUpgradingButton]="hideContinueWithoutUpgradingButton()"
+      (planSelected)="onPlanSelected($event)"
+      (closeClicked)="onCloseClicked()"
+    />
+  } @else if (step() == PaymentStep && selectedPlan() !== null && account() !== null) {
     <app-upgrade-payment
       [selectedPlanId]="selectedPersonalPlanId()"
       [account]="account()"

@@ -116,12 +116,13 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     this.billingAccountProfileStateService.hasPremiumPersonally$(this.params.account.id),
     { initialValue: false },
   );
-
-  readonly premiumToOrganizationUpgradeEnabled = toSignal(
+  protected readonly premiumToOrganizationUpgradeEnabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM29593_PremiumToOrganizationUpgrade),
     { initialValue: false },
   );
-
+  protected readonly showPremiumOrgFlow = computed(
+    () => this.hasPremiumPersonally() && this.premiumToOrganizationUpgradeEnabled(),
+  );
   // Type-narrowed computed signal for app-upgrade-payment
   // When hasPremiumPersonally is false, selectedPlan will only contain PersonalSubscriptionPricingTierId
   protected readonly selectedPersonalPlanId = computed<PersonalSubscriptionPricingTierId | null>(
