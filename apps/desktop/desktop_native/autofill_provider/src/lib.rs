@@ -712,7 +712,7 @@ mod tests {
     }
 
     #[test]
-    fn test_disconnected_gives_error() {
+    fn test_client_throws_error_on_method_call_when_disconnected() {
         // There is no server running at this path, so this client should always be disconnected.
         let client = AutofillProviderClient::connect_to_path(get_server_path());
 
@@ -727,7 +727,7 @@ mod tests {
     }
 
     #[test]
-    fn test_get_lock_status() {
+    fn test_client_parses_get_lock_status_response_when_valid_json_is_returned() {
         // The server should expect a lock status request and return a valid response.
         let handler = |value: Result<Value, BitwardenError>| {
             let value = value.unwrap();
