@@ -435,6 +435,89 @@ describe("PhishingIndexedDbService", () => {
     });
   });
 
+  describe("findMatchingUrl", () => {
+    it("returns true when matcher finds a match", async () => {
+      mockStore.set("https://example.com", { url: "https://example.com" });
+      mockStore.set("https://phishing.net", { url: "https://phishing.net" });
+      mockStore.set("https://test.org", { url: "https://test.org" });
+
+      const matcher = (url: string) => url.includes("phishing");
+      const result = await service.findMatchingUrl(matcher);
+
+      expect(result).toBe(true);
+      expect(mockDb.transaction).toHaveBeenCalledWith("phishing-urls", "readonly");
+      expect(mockObjectStore.openCursor).toHaveBeenCalled();
+    });
+
+    it("returns false when no URLs match", async () => {
+      mockStore.set("https://example.com", { url: "https://example.com" });
+      mockStore.set("https://test.org", { url: "https://test.org" });
+
+      const matcher = (url: string) => url.includes("notfound");
+      const result = await service.findMatchingUrl(matcher);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when store is empty", async () => {
+      const matcher = (url: string) => url.includes("anything");
+      const result = await service.findMatchingUrl(matcher);
+
+      expect(result).toBe(false);
+    });
+
+    it("exits early on first match without iterating all records", async () => {
+      mockStore.set("https://match1.com", { url: "https://match1.com" });
+      mockStore.set("https://match2.com", { url: "https://match2.com" });
+      mockStore.set("https://match3.com", { url: "https://match3.com" });
+
+      const matcherCallCount = jest
+        .fn()
+        .mockImplementation((url: string) => url.includes("match2"));
+      await service.findMatchingUrl(matcherCallCount);
+
+      // Matcher should be called for match1.com and match2.com, but NOT match3.com
+      // because it exits early on first match
+      expect(matcherCallCount).toHaveBeenCalledWith("https://match1.com");
+      expect(matcherCallCount).toHaveBeenCalledWith("https://match2.com");
+      expect(matcherCallCount).not.toHaveBeenCalledWith("https://match3.com");
+      expect(matcherCallCount).toHaveBeenCalledTimes(2);
+    });
+
+    it("supports complex matcher logic", async () => {
+      mockStore.set("https://example.com/path", { url: "https://example.com/path" });
+      mockStore.set("https://test.org", { url: "https://test.org" });
+      mockStore.set("https://phishing.net/login", { url: "https://phishing.net/login" });
+
+      const matcher = (url: string) => {
+        return url.includes("phishing") && url.includes("login");
+      };
+      const result = await service.findMatchingUrl(matcher);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false on error", async () => {
+      const error = new Error("IndexedDB error");
+      mockOpenRequest.error = error;
+      (global.indexedDB.open as jest.Mock).mockImplementation(() => {
+        setTimeout(() => {
+          mockOpenRequest.onerror?.();
+        }, 0);
+        return mockOpenRequest;
+      });
+
+      const matcher = (url: string) => url.includes("test");
+      const result = await service.findMatchingUrl(matcher);
+
+      expect(result).toBe(false);
+      expect(logService.error).toHaveBeenCalledWith(
+        "[PhishingIndexedDbService] Cursor search failed",
+        expect.any(Error),
+      );
+    });
+  });
+
   describe("database initialization", () => {
     it("creates object store with keyPath on upgrade", async () => {
       mockDb.objectStoreNames.contains.mockReturnValue(false);

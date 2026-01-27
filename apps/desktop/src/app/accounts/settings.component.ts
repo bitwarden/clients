@@ -300,7 +300,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     const initialValues = {
       pin: this.userHasPinSet,
-      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
+      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(activeAccount.id),
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
         activeAccount.id,
       )),
