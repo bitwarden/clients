@@ -65,8 +65,8 @@ sysinfo = "=0.37.2"
 thiserror = "=2.0.17"
 tokio = "=1.48.0"
 tokio-util = "=0.7.17"
-tracing = "=0.1.41"
-tracing-subscriber = { version = "=0.3.20", features = [
+tracing = "=0.1.44"
+tracing-subscriber = { version = "=0.3.22", features = [
     "fmt",
     "env-filter",
     "tracing-log",
