@@ -79,7 +79,8 @@ export default defineConfig({
   webServer: {
     command: "cd apps/web && npm run build:bit:watch",
     url: webServerBaseUrl,
-    reuseExistingServer: true, //!process.env.CI,
+    reuseExistingServer: !process.env.CI,
     ignoreHTTPSErrors: true,
+    timeout: 120 * 1000, // 2 minutes
   },
 });
