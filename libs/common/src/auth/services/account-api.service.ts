@@ -7,6 +7,7 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { AccountApiService } from "../abstractions/account-api.service";
 import { InternalAccountService } from "../abstractions/account.service";
 import { UserVerificationService } from "../abstractions/user-verification/user-verification.service.abstraction";
+import { RegisterFinishV2Request } from "../models/request/registration/register-finish-v2.request";
 import { RegisterFinishRequest } from "../models/request/registration/register-finish.request";
 import { RegisterSendVerificationEmailRequest } from "../models/request/registration/register-send-verification-email.request";
 import { RegisterVerificationEmailClickedRequest } from "../models/request/registration/register-verification-email-clicked.request";
@@ -84,7 +85,7 @@ export class AccountApiServiceImplementation implements AccountApiService {
     }
   }
 
-  async registerFinish(request: RegisterFinishRequest): Promise<void> {
+  async registerFinish(request: RegisterFinishRequest | RegisterFinishV2Request): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
     try {

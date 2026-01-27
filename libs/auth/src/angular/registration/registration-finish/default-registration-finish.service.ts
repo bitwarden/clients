@@ -2,13 +2,18 @@
 // @ts-strict-ignore
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { RegisterFinishV2Request } from "@bitwarden/common/auth/models/request/registration/register-finish-v2.request";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
-import { KeyService } from "@bitwarden/key-management";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { UserKey } from "@bitwarden/common/types/key";
+import { Argon2KdfConfig, KeyService, KdfType } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
@@ -18,6 +23,8 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
   constructor(
     protected keyService: KeyService,
     protected accountApiService: AccountApiService,
+    protected masterPasswordService: MasterPasswordServiceAbstraction,
+    protected configService: ConfigService,
   ) {}
 
   getOrgNameFromOrgInvite(): Promise<string | null> {
@@ -48,6 +55,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     const userAsymmetricKeys = await this.keyService.makeKeyPair(newUserKey);
 
     const registerRequest = await this.buildRegisterRequest(
+      newUserKey,
       email,
       passwordInputResult,
       newEncUserKey.encryptedString,
@@ -64,6 +72,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
   }
 
   protected async buildRegisterRequest(
+    newUserKey: UserKey,
     email: string,
     passwordInputResult: PasswordInputResult,
     encryptedUserKey: EncryptedString,
@@ -74,26 +83,71 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     emergencyAccessId?: string, // web only
     providerInviteToken?: string, // web only
     providerUserId?: string, // web only
-  ): Promise<RegisterFinishRequest> {
+  ): Promise<RegisterFinishRequest | RegisterFinishV2Request> {
     const userAsymmetricKeysRequest = new KeysRequest(
       userAsymmetricKeys[0],
       userAsymmetricKeys[1].encryptedString,
     );
 
-    const registerFinishRequest = new RegisterFinishRequest(
-      email,
-      passwordInputResult.newServerMasterKeyHash,
-      passwordInputResult.newPasswordHint,
-      encryptedUserKey,
-      userAsymmetricKeysRequest,
-      passwordInputResult.kdfConfig.kdfType,
-      passwordInputResult.kdfConfig.iterations,
+    const useNewApi = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27044_UpdateRegistrationApis,
     );
 
-    if (emailVerificationToken) {
-      registerFinishRequest.emailVerificationToken = emailVerificationToken;
-    }
+    if (useNewApi) {
+      // New API path - use V2 request with new data types
+      const salt = this.masterPasswordService.emailToSalt(email);
 
-    return registerFinishRequest;
+      const masterPasswordAuthentication =
+        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+          passwordInputResult.newPassword,
+          passwordInputResult.kdfConfig,
+          salt,
+        );
+
+      const masterPasswordUnlock = await this.masterPasswordService.makeMasterPasswordUnlockData(
+        passwordInputResult.newPassword,
+        passwordInputResult.kdfConfig,
+        salt,
+        newUserKey,
+      );
+
+      const registerFinishRequest = new RegisterFinishV2Request(
+        email,
+        passwordInputResult.newPasswordHint,
+        encryptedUserKey,
+        userAsymmetricKeysRequest,
+        masterPasswordAuthentication,
+        masterPasswordUnlock,
+      );
+
+      if (emailVerificationToken) {
+        registerFinishRequest.emailVerificationToken = emailVerificationToken;
+      }
+
+      return registerFinishRequest;
+    } else {
+      // Old API path - use original request with KDF fields
+      const kdfConfig = passwordInputResult.kdfConfig;
+
+      const registerFinishRequest = new RegisterFinishRequest(
+        email,
+        passwordInputResult.newServerMasterKeyHash,
+        passwordInputResult.newPasswordHint,
+        encryptedUserKey,
+        userAsymmetricKeysRequest,
+        kdfConfig.kdfType,
+        kdfConfig.iterations,
+        kdfConfig.kdfType === KdfType.Argon2id ? (kdfConfig as Argon2KdfConfig).memory : undefined,
+        kdfConfig.kdfType === KdfType.Argon2id
+          ? (kdfConfig as Argon2KdfConfig).parallelism
+          : undefined,
+      );
+
+      if (emailVerificationToken) {
+        registerFinishRequest.emailVerificationToken = emailVerificationToken;
+      }
+
+      return registerFinishRequest;
+    }
   }
 }
