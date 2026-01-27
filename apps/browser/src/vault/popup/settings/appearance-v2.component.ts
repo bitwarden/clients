@@ -66,7 +66,6 @@ export class AppearanceV2Component implements OnInit {
     enableCompactMode: false,
     showQuickCopyActions: false,
     width: "default" as PopupWidthOption,
-    clickItemsToAutofillVaultView: false,
   });
 
   /** To avoid flashes of inaccurate values, only show the form after the entire form is populated. */
@@ -112,9 +111,6 @@ export class AppearanceV2Component implements OnInit {
       this.copyButtonsService.showQuickCopyActions$,
     );
     const width = await firstValueFrom(this.popupSizeService.width$);
-    const clickItemsToAutofillVaultView = await firstValueFrom(
-      this.vaultSettingsService.clickItemsToAutofillVaultView$,
-    );
 
     // Set initial values for the form
     this.appearanceForm.setValue({
@@ -125,7 +121,6 @@ export class AppearanceV2Component implements OnInit {
       enableCompactMode,
       showQuickCopyActions,
       width,
-      clickItemsToAutofillVaultView,
     });
 
     this.formLoading = false;
@@ -171,16 +166,6 @@ export class AppearanceV2Component implements OnInit {
       .subscribe((width) => {
         void this.updateWidth(width);
       });
-
-    this.appearanceForm.controls.clickItemsToAutofillVaultView.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((clickItemsToAutofillVaultView) => {
-        void this.updateClickItemsToAutofillVaultView(clickItemsToAutofillVaultView);
-      });
-  }
-
-  async updateClickItemsToAutofillVaultView(clickItemsToAutofillVaultView: boolean) {
-    await this.vaultSettingsService.setClickItemsToAutofillVaultView(clickItemsToAutofillVaultView);
   }
 
   async updateFavicon(enableFavicon: boolean) {
