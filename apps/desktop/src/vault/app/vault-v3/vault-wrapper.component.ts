@@ -1,5 +1,7 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, Type } from "@angular/core";
+import { Component, computed, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { from } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -11,20 +13,17 @@ import { VaultComponent } from "./vault.component";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-wrapper",
-  template: '<ng-container *ngComponentOutlet="componentToRender"></ng-container>',
+  template: '<ng-container *ngComponentOutlet="componentToRender()"></ng-container>',
   imports: [CommonModule],
 })
-export class VaultWrapperComponent implements OnInit {
-   
-  componentToRender: Type<any> | null = null;
+export class VaultWrapperComponent {
+  private configService: ConfigService = inject(ConfigService);
 
-  constructor(private configService: ConfigService) {}
+  protected readonly useMilestone3 = toSignal(
+    from(this.configService.getFeatureFlag(FeatureFlag.DesktopUiMigrationMilestone3)),
+  );
 
-  async ngOnInit() {
-    const useMilestone3 = await this.configService.getFeatureFlag(
-      FeatureFlag.DesktopUiMigrationMilestone3,
-    );
-
-    this.componentToRender = useMilestone3 ? VaultComponent : VaultOrigComponent;
-  }
+  protected readonly componentToRender = computed(() =>
+    this.useMilestone3() ? VaultComponent : VaultOrigComponent,
+  );
 }
