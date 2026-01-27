@@ -267,7 +267,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
   private async getRpIdForUser(userId: UserId): Promise<string | undefined> {
     try {
       const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
-      const hostname = environment.getHostname();
+      const hostname = Utils.getHost(environment.getWebVaultUrl());
 
       // The navigator.credentials.get call will fail if rpId is set but is null/empty. Undefined uses the current host.
       if (!hostname) {
