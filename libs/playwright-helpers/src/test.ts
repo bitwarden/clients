@@ -36,9 +36,9 @@ base.beforeAll(async () => {
 });
 
 // restore the original fetch after all tests are done
-base.afterAll(() => {
+base.afterAll(async () => {
   global.fetch = originalFetch;
-  void cleanStage();
+  await cleanStage();
 });
 
 async function fetchWithPlayId(
