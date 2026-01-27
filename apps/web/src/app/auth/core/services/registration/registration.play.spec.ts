@@ -5,7 +5,7 @@ import { Play, test, expectUnlockedAs } from "@bitwarden/playwright-helpers";
 test("registration", async ({ page }) => {
   const name = "John Doe";
 
-  await page.goto("https://localhost:8080/#/signup");
+  await page.goto("/#/signup");
 
   await page
     .getByRole("textbox", { name: "Email address (required)" })
