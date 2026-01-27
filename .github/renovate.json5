@@ -312,7 +312,6 @@
         "@types/inquirer",
         "@types/koa",
         "@types/koa__multer",
-        "@types/koa__router",
         "@types/koa-bodyparser",
         "@types/koa-json",
         "@types/lunr",
