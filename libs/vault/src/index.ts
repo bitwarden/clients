@@ -33,6 +33,7 @@ export * from "./components/permit-cipher-details-popover/permit-cipher-details-
 export * from "./components/vault-items-transfer";
 export { VaultItem } from "./components/vault-item";
 export { VaultItemEvent } from "./components/vault-item-event";
+export * from "./components/organization-name-badge/organization-name-badge.component";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";

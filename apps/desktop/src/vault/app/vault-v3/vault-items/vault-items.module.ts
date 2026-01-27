@@ -14,10 +14,11 @@ import {
   ScrollLayoutDirective,
   TableModule,
 } from "@bitwarden/components";
-import { CopyCipherFieldDirective } from "@bitwarden/vault";
-
-import { OrganizationNameBadgeComponent } from "../organization-badge/organization-name-badge.component";
-import { PipesModule } from "../pipes/pipes.module";
+import {
+  CopyCipherFieldDirective,
+  GetOrgNameFromIdPipe,
+  OrganizationNameBadgeComponent,
+} from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 import { VaultCollectionRowComponent } from "./vault-collection-row.component";
@@ -38,7 +39,7 @@ import { VaultCollectionRowComponent } from "./vault-collection-row.component";
     ScrollLayoutDirective,
     PremiumBadgeComponent,
     OrganizationNameBadgeComponent,
-    PipesModule,
+    GetOrgNameFromIdPipe,
   ],
   declarations: [VaultCipherRowComponent, VaultCollectionRowComponent],
   exports: [VaultCipherRowComponent, VaultCollectionRowComponent],
