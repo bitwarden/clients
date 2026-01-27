@@ -1,3 +1,4 @@
+/* eslint-disable @bitwarden/components/require-theme-colors-in-svg */
 // this svg includes the Yubico logo, which contains colors not part of our bitwarden theme colors
 
 import { svg } from "../svg";
