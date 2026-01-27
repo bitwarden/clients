@@ -3,15 +3,15 @@ import { Component, Input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { Icon } from "@bitwarden/assets/svg";
+import { BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SvgModule, LinkModule } from "@bitwarden/components";
 
 export type NavButton = {
   label: string;
   page: string;
-  icon: Icon;
-  iconActive: Icon;
+  icon: BitSvg;
+  iconActive: BitSvg;
   showBerry?: boolean;
 };
 

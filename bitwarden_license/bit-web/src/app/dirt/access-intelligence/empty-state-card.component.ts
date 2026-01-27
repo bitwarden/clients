@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, isDevMode, OnInit } from "@angular/core";
 
-import { Icon } from "@bitwarden/assets/svg";
+import { BitSvg } from "@bitwarden/assets/svg";
 import { ButtonModule, SvgModule } from "@bitwarden/components";
 
 @Component({
@@ -11,7 +11,7 @@ import { ButtonModule, SvgModule } from "@bitwarden/components";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmptyStateCardComponent implements OnInit {
-  readonly icon = input<Icon | null>(null);
+  readonly icon = input<BitSvg | null>(null);
   readonly videoSrc = input<string | null>(null);
   readonly title = input<string>("");
   readonly description = input<string>("");
