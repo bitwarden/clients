@@ -61,13 +61,7 @@
                 [organizations]="allOrganizations()"
               ></tr>
             }
-            <!--
-          addAccessStatus check here so ciphers do not show if user
-          has filtered for collections with addAccess
-        -->
-            @if (
-              item.cipher && (!addAccessToggle() || (addAccessToggle() && addAccessStatus() !== 1))
-            ) {
+            @if (item.cipher) {
               <tr
                 bitRow
                 appVaultCipherRow
