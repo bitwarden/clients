@@ -12,6 +12,7 @@ import {
 } from "@angular/core";
 import { ActivatedRoute, Router, Params } from "@angular/router";
 import {
+  combineLatest,
   firstValueFrom,
   Subject,
   takeUntil,
@@ -85,6 +86,7 @@ import {
   CipherFormModule,
   CipherViewComponent,
   CollectionAssignmentResult,
+  createFilterFunction,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
@@ -96,7 +98,6 @@ import {
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
   RoutedVaultFilterModel,
-  createFilterFunction,
   All,
   VaultItem,
   VaultItemEvent,
