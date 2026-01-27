@@ -5,6 +5,12 @@ const seedApiUrl = new URL("/seed/seed/", webServerBaseUrl).toString();
 
 export type extractTUpType<T> = T extends SceneTemplate<infer U, any> ? U : never;
 
+/**
+ * A SceneTemplate represents a predefined set of data and state to be created on the server for testing purposes.
+ * It contains the arguments required by the server to create the data.
+ *
+ * SceneTemplates are intended to be used to create {@link Scene} instances through the {@link Play.scene} method.
+ */
 export abstract class SceneTemplate<TUp, TReturns = void> {
   abstract template: string;
   private seedId?: string;

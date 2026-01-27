@@ -3,6 +3,7 @@ import { Page, TestFixture } from "@playwright/test";
 import { UserKeyDefinition } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
+/** Fixture to provide direct access to User state */
 export class UserStateFixture {
   /** Creates a fixture method for {@link UserStateFixture} to extend playwright tests */
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -14,6 +15,7 @@ export class UserStateFixture {
     };
   }
 
+  /** Gets a value from user state */
   async get<T>(page: Page, userId: UserId, keyDefinition: UserKeyDefinition<T>): Promise<T | null> {
     let json: string | null;
     switch (keyDefinition.stateDefinition.defaultStorageLocation) {
@@ -35,6 +37,7 @@ export class UserStateFixture {
     return json == null ? null : (JSON.parse(json) as T);
   }
 
+  /** Sets a value to user state */
   async set<T>(
     page: Page,
     userId: UserId,

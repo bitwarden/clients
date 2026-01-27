@@ -1,6 +1,9 @@
 import { Page } from "playwright";
 import { expect } from "playwright/test";
 
+/**
+ * Asserts that the application is unlocked as the specified user (by email or name).
+ */
 export async function expectUnlockedAs(emailOrName: string, page: Page) {
   const currentUri = page.url();
 

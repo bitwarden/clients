@@ -1,5 +1,6 @@
 import { Page, TestFixture } from "@playwright/test";
 
+/** Creates a fixture method which updates the page fixture to monkey-patch fetch requests to include an `x-play-id` header*/
 export function pageExtension(): TestFixture<Page, { page: Page; playId: string }> {
   return async ({ page, playId }, use) => {
     await addInitScriptForPlayId(page, playId);
@@ -7,6 +8,7 @@ export function pageExtension(): TestFixture<Page, { page: Page; playId: string 
   };
 }
 
+/** Adds an init script to the given page that monkey-patches fetch requests to include an `x-play-id` header */
 export function addInitScriptForPlayId(page: Page, playId: string): Promise<void> {
   return page.addInitScript(
     ({ p }) => {

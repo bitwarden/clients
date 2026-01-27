@@ -1,3 +1,6 @@
+// This file contains example tests that demonstrate some of the helpers provided
+// by the playwright-helpers library.
+
 import { expectUnlockedAs } from "./expect/auth";
 
 import { test } from "./";
