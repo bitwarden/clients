@@ -28,6 +28,41 @@ export const EVENTS = {
   SUBMIT: "submit",
 } as const;
 
+/**
+ * HTML attributes observed by the MutationObserver for autofill form/field tracking.
+ * If you need to observe a new attribute, add it here.
+ */
+export const AUTOFILL_ATTRIBUTES = {
+  ACTION: "action",
+  ARIA_DESCRIBEDBY: "aria-describedby",
+  ARIA_DISABLED: "aria-disabled",
+  ARIA_HASPOPUP: "aria-haspopup",
+  ARIA_HIDDEN: "aria-hidden",
+  ARIA_LABEL: "aria-label",
+  ARIA_LABELLEDBY: "aria-labelledby",
+  AUTOCOMPLETE: "autocomplete",
+  AUTOCOMPLETE_TYPE: "autocompletetype",
+  X_AUTOCOMPLETE_TYPE: "x-autocompletetype",
+  CHECKED: "checked",
+  CLASS: "class",
+  DATA_LABEL: "data-label",
+  DATA_STRIPE: "data-stripe",
+  DISABLED: "disabled",
+  ID: "id",
+  MAXLENGTH: "maxlength",
+  METHOD: "method",
+  NAME: "name",
+  PLACEHOLDER: "placeholder",
+  POPOVER: "popover",
+  POPOVERTARGET: "popovertarget",
+  POPOVERTARGETACTION: "popovertargetaction",
+  READONLY: "readonly",
+  REL: "rel",
+  TABINDEX: "tabindex",
+  TITLE: "title",
+  TYPE: "type",
+} as const;
+
 export const ClearClipboardDelay = {
   Never: null as null,
   TenSeconds: 10,
