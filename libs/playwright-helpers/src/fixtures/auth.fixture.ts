@@ -4,10 +4,13 @@ import * as path from "path";
 import { Browser, Page, test, TestFixture } from "@playwright/test";
 import { webServerBaseUrl } from "@playwright-config";
 import * as playwright from "playwright";
+import { Except, Simplify } from "type-fest";
 // Playwright doesn't expose this type, so we duplicate it here
 type BrowserName = "chromium" | "firefox" | "webkit";
 
 import { Play, SingleUserScene, SingleUserSceneTemplate } from "@bitwarden/playwright-helpers";
+
+import { extractTUpType } from "../scene-templates/scene-template";
 
 import { addInitScriptForPlayId } from "./page-extension";
 
@@ -40,6 +43,8 @@ type AuthenticatedContext = {
   /** The Scene used to authenticate */
   scene: SingleUserScene;
 };
+
+type SessionOptions = Simplify<Except<extractTUpType<SingleUserSceneTemplate>, "email">>;
 
 /**
  * A map of already authenticated emails to their scenes.
@@ -74,16 +79,14 @@ export class AuthFixture {
     }
   }
 
-  async page(): Promise<Page> {
-    if (!this._page) {
-      if (!this._browser) {
-        await this.init();
-      }
-      const context = await this._browser.newContext();
-      this._page = await context.newPage();
-      await addInitScriptForPlayId(this._page, process.env.PLAY_ID!);
+  async newPage(): Promise<Page> {
+    if (!this._browser) {
+      await this.init();
     }
-    return this._page;
+    const context = await this._browser.newContext();
+    const page = await context.newPage();
+    await addInitScriptForPlayId(page, process.env.PLAY_ID!);
+    return page;
   }
 
   /**
@@ -95,17 +98,21 @@ export class AuthFixture {
    * @param password password of the user
    * @returns The authenticated page and scene used to scaffold the user
    */
-  async authenticate(email: string, password: string): Promise<AuthenticatedContext> {
+  async authenticate(
+    email: string,
+    password: string,
+    options: SessionOptions = {},
+  ): Promise<AuthenticatedContext> {
     if (AuthenticatedEmails.has(email)) {
       return await this.resumeSession(email, password);
     }
 
     // start a new session
-    return await this.newSession(email, password);
+    return await this.newSession(email, password, options);
   }
 
   async resumeSession(email: string, password: string): Promise<AuthenticatedContext> {
-    const page = await this.page();
+    const page = await this.newPage();
     if (AuthenticatedEmails.get(email)!.password !== password) {
       throw new Error(
         `Email ${email} is already authenticated with a different password (${
@@ -133,15 +140,26 @@ export class AuthFixture {
     };
   }
 
-  async newSession(email: string, password: string): Promise<AuthenticatedContext> {
-    const page = await this.page();
-    const scene = await Play.scene(new SingleUserSceneTemplate({ email }));
+  async newSession(
+    email: string,
+    password: string,
+    options: SessionOptions = {},
+  ): Promise<AuthenticatedContext> {
+    const scene = await Play.scene(new SingleUserSceneTemplate({ ...options, email }));
+
+    return await this.authenticateForScene(scene, password);
+  }
+
+  async authenticateForScene(
+    scene: SingleUserScene,
+    password: string,
+  ): Promise<AuthenticatedContext> {
+    const page = await this.newPage();
+    const email = scene.upArgs.email;
     const mangledEmail = scene.mangle(email);
     await page.goto("/#/login");
 
-    await page
-      .getByRole("textbox", { name: "Email address (required)" })
-      .fill(scene.mangle("test@example.com"));
+    await page.getByRole("textbox", { name: "Email address (required)" }).fill(scene.mangle(email));
     await page.getByRole("textbox", { name: "Email address (required)" }).press("Enter");
     await page
       .getByRole("textbox", { name: "Master password (required)" })
@@ -149,6 +167,9 @@ export class AuthFixture {
     await page.getByRole("button", { name: "Log in with master password" }).click();
     await page.getByRole("button", { name: "Add it later" }).click();
     await page.getByRole("link", { name: "Skip to web app" }).click();
+    if (!scene.upArgs.premium) {
+      await page.getByRole("button", { name: "Continue without upgrading" }).click();
+    }
 
     // Store the scene for future use
     AuthenticatedEmails.set(email, { email, password, scene });
