@@ -34,7 +34,7 @@ export class Scene<UpParams = unknown, Returns = void> {
     if (!this.inited) {
       throw new Error("Scene must be initialized before accessing returnValue");
     }
-    return this._returnValue!;
+    return this._returnValue as Returns;
   }
 
   mangle(id: string): string {
