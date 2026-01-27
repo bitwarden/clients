@@ -20,6 +20,7 @@ export type PremiumOrgUpgradePlanDetails = {
   tier: PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId;
   details: PersonalSubscriptionPricingTier | BusinessSubscriptionPricingTier;
   cost: number;
+  proratedAmount?: number;
 };
 
 export type PaymentFormValues = {
@@ -34,6 +35,7 @@ export interface InvoicePreview {
   tax: number;
   total: number;
   credit: number;
+  proratedAmountOfMonths: number;
 }
 
 @Injectable()
@@ -58,6 +60,7 @@ export class PremiumOrgUpgradeService {
       tax: invoicePreviewResponse.tax,
       total: invoicePreviewResponse.total,
       credit: invoicePreviewResponse.credit,
+      proratedAmountOfMonths: invoicePreviewResponse.proratedAmountOfMonths,
     };
   }
 
@@ -80,7 +83,7 @@ export class PremiumOrgUpgradeService {
 
     await this.accountBillingClient.upgradePremiumToOrganization(
       organizationName,
-      encryptedKey,
+      encryptedKey.encryptedString,
       tier,
       SubscriptionCadenceIds.Annually,
       billingAddress,

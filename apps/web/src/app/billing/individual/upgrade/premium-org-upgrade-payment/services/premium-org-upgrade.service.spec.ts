@@ -57,7 +57,9 @@ describe("PremiumOrgUpgradeService", () => {
       fullSync: jest.fn().mockResolvedValue(undefined),
     } as any;
     keyService = {
-      makeOrgKey: jest.fn().mockResolvedValue(["encrypted-key", "decrypted-key"]),
+      makeOrgKey: jest
+        .fn()
+        .mockResolvedValue([{ encryptedString: "encrypted-string" }, "decrypted-key"]),
     } as any;
 
     TestBed.configureTestingModule({
@@ -85,7 +87,7 @@ describe("PremiumOrgUpgradeService", () => {
 
       expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith(
         "Test Organization",
-        "encrypted-key",
+        "encrypted-string",
         2, // ProductTierType.Teams
         "annually",
         mockBillingAddress,

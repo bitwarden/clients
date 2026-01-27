@@ -146,6 +146,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
   const mockAccountBillingClient = mock<AccountBillingClient>();
   const mockPreviewInvoiceClient = mock<PreviewInvoiceClient>();
   const mockLogService = mock<LogService>();
+  const mockI18nService = { t: jest.fn((key: string, ...params: any[]) => key) };
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
   const mockTeamsPlan: BusinessSubscriptionPricingTier = {
@@ -181,6 +182,12 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     jest.clearAllMocks();
     mockAccountBillingClient.upgradePremiumToOrganization.mockResolvedValue(undefined);
     mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValue(undefined);
+    mockPremiumOrgUpgradeService.previewProratedInvoice.mockResolvedValue({
+      tax: 5.0,
+      total: 53.0,
+      credit: 10.0,
+      proratedAmountOfMonths: 1,
+    });
 
     mockSubscriptionPricingService.getBusinessSubscriptionPricingTiers$.mockReturnValue(
       of([mockTeamsPlan]),
@@ -199,7 +206,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         },
         { provide: ToastService, useValue: mockToastService },
         { provide: LogService, useValue: mockLogService },
-        { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: I18nService, useValue: mockI18nService },
         { provide: AccountBillingClient, useValue: mockAccountBillingClient },
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         {
@@ -251,7 +258,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
   it("should initialize with the correct plan details", () => {
     expect(component["selectedPlan"]()).not.toBeNull();
     expect(component["selectedPlan"]()?.details.id).toBe("teams");
-    expect(component["upgradeToMessage"]()).toContain("startFreeTrial");
+    expect(component["upgradeToMessage"]()).toContain("upgradeToTeams");
   });
 
   it("should handle invalid plan id that doesn't exist in pricing tiers", async () => {
@@ -405,5 +412,214 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     expect(component["getUpgradeStatus"]("some-other-plan" as any)).toBe(
       PremiumOrgUpgradePaymentStatus.Closed,
     );
+  });
+
+  describe("Invoice Preview", () => {
+    it("should return zero values when billing address is incomplete", fakeAsync(() => {
+      component["formGroup"].patchValue({
+        organizationName: "Test Org",
+        billingAddress: {
+          country: "US",
+          postalCode: "", // Missing postal code
+        },
+      });
+
+      tick(1000);
+      fixture.detectChanges();
+
+      const estimatedInvoice = component["estimatedInvoice"]();
+      expect(estimatedInvoice.tax).toBe(0);
+      expect(estimatedInvoice.total).toBe(0);
+    }));
+  });
+
+  describe("Form Validation", () => {
+    it("should validate organization name is required", () => {
+      component["formGroup"].patchValue({ organizationName: "" });
+      expect(component["formGroup"].get("organizationName")?.invalid).toBe(true);
+    });
+
+    it("should validate organization name when provided", () => {
+      component["formGroup"].patchValue({ organizationName: "My Organization" });
+      expect(component["formGroup"].get("organizationName")?.valid).toBe(true);
+    });
+
+    it("should return false when payment component validation fails", () => {
+      component["formGroup"].patchValue({
+        organizationName: "Test Org",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+        },
+      });
+
+      const mockPaymentComponent = {
+        validate: jest.fn().mockReturnValue(false),
+      } as any;
+      jest.spyOn(component, "paymentComponent").mockReturnValue(mockPaymentComponent);
+
+      expect(component["isFormValid"]()).toBe(false);
+    });
+  });
+
+  describe("Cart Calculation", () => {
+    it("should calculate cart with correct values for selected plan", () => {
+      const cart = component["cart"]();
+      expect(cart.passwordManager.seats.cost).toBe(48); // Teams annual price per user
+      expect(cart.passwordManager.seats.quantity).toBe(1);
+      expect(cart.cadence).toBe("annually");
+    });
+
+    it("should return default cart when no plan is selected", () => {
+      component["selectedPlan"].set(null);
+      const cart = component["cart"]();
+
+      expect(cart.passwordManager.seats.cost).toBe(0);
+      expect(cart.passwordManager.seats.quantity).toBe(0);
+      expect(cart.estimatedTax).toBe(0);
+    });
+  });
+
+  describe("ngAfterViewInit", () => {
+    it("should collapse cart summary after view init", () => {
+      const mockCartSummary = {
+        isExpanded: signal(true),
+      } as any;
+      jest.spyOn(component, "cartSummaryComponent").mockReturnValue(mockCartSummary);
+
+      component.ngAfterViewInit();
+
+      expect(mockCartSummary.isExpanded()).toBe(false);
+    });
+  });
+
+  describe("Plan Price Calculation", () => {
+    it("should calculate price for personal plan with annualPrice", () => {
+      const price = component["getPlanPrice"](mockFamiliesPlan);
+      expect(price).toBe(40);
+    });
+
+    it("should calculate price for business plan with annualPricePerUser", () => {
+      const price = component["getPlanPrice"](mockTeamsPlan);
+      expect(price).toBe(48);
+    });
+
+    it("should return 0 when passwordManager is missing", () => {
+      const invalidPlan = { ...mockTeamsPlan, passwordManager: undefined } as any;
+      const price = component["getPlanPrice"](invalidPlan);
+      expect(price).toBe(0);
+    });
+  });
+
+  describe("processUpgrade", () => {
+    it("should throw error when billing address is incomplete", async () => {
+      component["formGroup"].patchValue({
+        organizationName: "Test Org",
+        billingAddress: {
+          country: "",
+          postalCode: "",
+        },
+      });
+
+      const mockPaymentComponent = {
+        tokenize: jest.fn().mockResolvedValue({ type: "card", token: "mock-token" }),
+      } as any;
+      jest.spyOn(component, "paymentComponent").mockReturnValue(mockPaymentComponent);
+
+      await expect(component["processUpgrade"]()).rejects.toThrow("Billing address is incomplete");
+    });
+
+    it("should throw error when organization name is missing", async () => {
+      component["formGroup"].patchValue({
+        organizationName: "",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+        },
+      });
+
+      const mockPaymentComponent = {
+        tokenize: jest.fn().mockResolvedValue({ type: "card", token: "mock-token" }),
+      } as any;
+      jest.spyOn(component, "paymentComponent").mockReturnValue(mockPaymentComponent);
+
+      await expect(component["processUpgrade"]()).rejects.toThrow("Organization name is required");
+    });
+
+    it("should throw error when payment method tokenization fails", async () => {
+      component["formGroup"].patchValue({
+        organizationName: "Test Org",
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+        },
+      });
+
+      const mockPaymentComponent = {
+        tokenize: jest.fn().mockResolvedValue(null),
+      } as any;
+      jest.spyOn(component, "paymentComponent").mockReturnValue(mockPaymentComponent);
+
+      await expect(component["processUpgrade"]()).rejects.toThrow("Payment method is required");
+    });
+  });
+
+  describe("Plan Membership Messages", () => {
+    it("should return correct membership message for families plan", async () => {
+      const newFixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
+      const newComponent = newFixture.componentInstance;
+
+      newFixture.componentRef.setInput(
+        "selectedPlanId",
+        "families" as PersonalSubscriptionPricingTierId,
+      );
+      newFixture.componentRef.setInput("account", mockAccount);
+      newFixture.detectChanges();
+      await newFixture.whenStable();
+
+      expect(newComponent["planMembershipMessage"]()).toBe("familiesMembership");
+    });
+
+    it("should return correct membership message for teams plan", () => {
+      expect(component["planMembershipMessage"]()).toBe("teamsMembership");
+    });
+
+    it("should return correct membership message for enterprise plan", async () => {
+      const newFixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
+      const newComponent = newFixture.componentInstance;
+
+      newFixture.componentRef.setInput(
+        "selectedPlanId",
+        "enterprise" as BusinessSubscriptionPricingTierId,
+      );
+      newFixture.componentRef.setInput("account", mockAccount);
+      newFixture.detectChanges();
+      await newFixture.whenStable();
+
+      expect(newComponent["planMembershipMessage"]()).toBe("enterpriseMembership");
+    });
+  });
+
+  describe("Error Handling", () => {
+    it("should log error and continue when submit fails", async () => {
+      jest.spyOn(component as any, "isFormValid").mockReturnValue(true);
+      jest.spyOn(component as any, "processUpgrade").mockRejectedValue(new Error("Network error"));
+
+      await component["submit"]();
+
+      expect(mockLogService.error).toHaveBeenCalledWith("Upgrade failed:", expect.any(Error));
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "upgradeErrorMessage",
+      });
+    });
+  });
+
+  describe("goBack Output", () => {
+    it("should emit goBack event when back action is triggered", () => {
+      const goBackSpy = jest.spyOn(component["goBack"], "emit");
+      component["goBack"].emit();
+      expect(goBackSpy).toHaveBeenCalled();
+    });
   });
 });

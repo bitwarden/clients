@@ -103,18 +103,36 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   protected readonly selectedPlan = signal<PremiumOrgUpgradePlanDetails | null>(null);
   protected readonly loading = signal(true);
   protected readonly upgradeToMessage = signal("");
+  protected readonly planMembershipMessage = computed<string>(() => {
+    switch (this.selectedPlanId()) {
+      case "families":
+        return "familiesMembership";
+      case "teams":
+        return "teamsMembership";
+      case "enterprise":
+        return "enterpriseMembership";
+      default:
+        return "";
+    }
+  });
 
   // Use defer to lazily create the observable when subscribed to
   protected estimatedInvoice$ = defer(() =>
-    this.formGroup.controls.billingAddress.valueChanges.pipe(
-      startWith(this.formGroup.controls.billingAddress.value),
+    combineLatest([
+      this.formGroup.controls.billingAddress.valueChanges,
+      this.formGroup.controls.organizationName.valueChanges,
+    ]).pipe(
+      startWith(
+        this.formGroup.controls.billingAddress.value,
+        this.formGroup.controls.organizationName.value,
+      ),
       debounceTime(1000),
       switchMap(() => this.refreshInvoicePreview$()),
     ),
   );
 
   protected readonly estimatedInvoice = toSignal(this.estimatedInvoice$, {
-    initialValue: { tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0 },
+    initialValue: { tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0, proratedAmountOfMonths: 0 },
   });
 
   // Cart Summary data
@@ -122,7 +140,12 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     if (!this.selectedPlan()) {
       return {
         passwordManager: {
-          seats: { translationKey: "", cost: 0, quantity: 0 },
+          seats: {
+            translationKey: this.planMembershipMessage(),
+            cost: 0,
+            quantity: 0,
+            hideBreakdown: true,
+          },
         },
         cadence: this.DEFAULT_CADENCE,
         estimatedTax: this.INITIAL_TAX_VALUE,
@@ -132,14 +155,30 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     return {
       passwordManager: {
         seats: {
-          translationKey: this.selectedPlan()?.details.name ?? "",
+          translationKey:
+            this.estimatedInvoice()?.proratedAmountOfMonths > 0
+              ? "planProratedMembershipInMonths"
+              : this.planMembershipMessage(),
+          translationParams:
+            this.estimatedInvoice()?.proratedAmountOfMonths > 0
+              ? [
+                  this.selectedPlan()!.details.name,
+                  `${this.estimatedInvoice()?.proratedAmountOfMonths} month${this.estimatedInvoice()?.proratedAmountOfMonths > 1 ? "s" : ""}`,
+                ]
+              : [],
           cost: this.selectedPlan()?.cost ?? 0,
           quantity: this.DEFAULT_SEAT_COUNT,
+          hideBreakdown: true,
         },
       },
       cadence: this.DEFAULT_CADENCE,
       estimatedTax: this.estimatedInvoice().tax,
-      discount: { type: "amount-off", value: this.estimatedInvoice().credit },
+      discount: {
+        type: "amount-off",
+        value: this.estimatedInvoice().credit,
+        translationKey: "premiumMembershipDiscount",
+        quantity: 1,
+      },
     };
   });
 
@@ -183,7 +222,22 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
             cost: this.getPlanPrice(planDetails),
           });
 
-          this.upgradeToMessage.set(this.i18nService.t("startFreeTrial", planDetails.name));
+          switch (this.selectedPlanId()) {
+            case "families":
+              this.upgradeToMessage.set(this.i18nService.t("upgradeToFamilies", planDetails.name));
+              break;
+            case "teams":
+              this.upgradeToMessage.set(this.i18nService.t("upgradeToTeams", planDetails.name));
+              break;
+            case "enterprise":
+              this.upgradeToMessage.set(
+                this.i18nService.t("upgradeToEnterprise", planDetails.name),
+              );
+              break;
+            default:
+              this.upgradeToMessage.set("");
+              break;
+          }
         } else {
           this.complete.emit({
             status: PremiumOrgUpgradePaymentStatus.Closed,
@@ -215,7 +269,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       const result = await this.processUpgrade();
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("organizationUpdated", this.selectedPlan()?.details.name),
+        message: this.i18nService.t("plansUpdated", this.selectedPlan()?.details.name),
       });
       this.complete.emit(result);
     } catch (error: unknown) {
@@ -306,12 +360,12 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
    */
   private refreshInvoicePreview$(): Observable<InvoicePreview> {
     if (this.formGroup.invalid || !this.selectedPlan()) {
-      return of({ tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0 });
+      return of({ tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0, proratedAmountOfMonths: 0 });
     }
 
     const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
     if (!billingAddress.country || !billingAddress.postalCode) {
-      return of({ tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0 });
+      return of({ tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0, proratedAmountOfMonths: 0 });
     }
     return from(
       this.premiumOrgUpgradeService.previewProratedInvoice(this.selectedPlan()!, billingAddress),
@@ -322,7 +376,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
           variant: "error",
           message: this.i18nService.t("invoicePreviewErrorMessage"),
         });
-        return of({ tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0 });
+        return of({ tax: this.INITIAL_TAX_VALUE, total: 0, credit: 0, proratedAmountOfMonths: 0 });
       }),
     );
   }
