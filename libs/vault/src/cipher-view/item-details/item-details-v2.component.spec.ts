@@ -11,6 +11,7 @@ import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -21,6 +22,7 @@ describe("ItemDetailsV2Component", () => {
   let fixture: ComponentFixture<ItemDetailsV2Component>;
   let componentRef: ComponentRef<ItemDetailsV2Component>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
+  let mockCipherArchiveService: MockProxy<CipherArchiveService>;
 
   const cipher = {
     id: "cipher1",
@@ -52,6 +54,7 @@ describe("ItemDetailsV2Component", () => {
 
   beforeEach(async () => {
     mockPlatformUtilsService = mock<PlatformUtilsService>();
+    mockCipherArchiveService = mock<CipherArchiveService>();
 
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
@@ -64,6 +67,7 @@ describe("ItemDetailsV2Component", () => {
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: CipherArchiveService, useValue: mockCipherArchiveService },
       ],
     }).compileComponents();
   });
