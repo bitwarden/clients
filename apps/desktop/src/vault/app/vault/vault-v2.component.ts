@@ -947,14 +947,21 @@ export class VaultV2Component<C extends CipherViewLike>
       return;
     }
 
-    this.cipher.set(
-      await firstValueFrom(
-        this.cipherService.cipherViews$(this.activeUserId!).pipe(
-          filter((c) => !!c),
-          map((ciphers) => ciphers.find((c) => c.id === this.cipherId) ?? null),
-        ),
+    const updatedCipher = await firstValueFrom(
+      this.cipherService.cipherViews$(this.activeUserId!).pipe(
+        filter((c) => !!c),
+        map((ciphers) => ciphers.find((c) => c.id === this.cipherId) ?? null),
       ),
     );
+
+    if (!updatedCipher) {
+      return;
+    }
+    this.cipher.set(updatedCipher);
+
+    this.cipherFormComponent?.clearCachedCipherView();
+
+    await this.buildFormConfig("edit");
   }
 
   private dirtyInput(): boolean {

@@ -218,6 +218,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     this.cipherFormCacheService.cacheCipherView(this.updatedCipherView);
   }
 
+  clearCachedCipherView(): void {
+    this.cipherFormCacheService.clearCache();
+  }
+
   /**
    * Return initial values for given keys of a cipher
    */
