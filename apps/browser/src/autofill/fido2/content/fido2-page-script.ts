@@ -244,9 +244,7 @@ import { Messenger } from "./messaging/messenger";
     const topWindow = globalContext.top;
     const focusPromise = new Promise<void>((resolve) => {
       focusListenerHandler = () => resolve();
-      if (topWindow) {
-        topWindow.addEventListener("focus", focusListenerHandler);
-      }
+      topWindow.addEventListener("focus", focusListenerHandler);
     });
 
     const timeoutPromise = new Promise<void>((_, reject) => {
