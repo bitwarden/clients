@@ -11,7 +11,6 @@ export class SendData {
   id: string;
   accessId: string;
   type: SendType;
-  authType: AuthType;
   name: string;
   notes: string;
   file: SendFileData;
@@ -24,8 +23,10 @@ export class SendData {
   deletionDate: string;
   password: string;
   emails: string;
+  emailHashes: string;
   disabled: boolean;
   hideEmail: boolean;
+  authType: AuthType;
 
   constructor(response?: SendResponse) {
     if (response == null) {
@@ -46,8 +47,10 @@ export class SendData {
     this.deletionDate = response.deletionDate;
     this.password = response.password;
     this.emails = response.emails;
+    this.emailHashes = "";
     this.disabled = response.disable;
     this.hideEmail = response.hideEmail;
+    this.authType = response.authType;
 
     switch (this.type) {
       case SendType.Text:

@@ -189,6 +189,7 @@ export class SendApiService implements SendApiServiceAbstraction {
 
   private async upload(sendData: [Send, EncArrayBuffer]): Promise<SendResponse> {
     const request = new SendRequest(sendData[0], sendData[1]?.buffer.byteLength);
+
     let response: SendResponse;
     if (sendData[0].id == null) {
       if (sendData[0].type === SendType.Text) {
