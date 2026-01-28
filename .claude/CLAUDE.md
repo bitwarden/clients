@@ -157,10 +157,6 @@ type CollectionId = Opaque<string, "CollectionId">;
 ...
 ```
 
-## Angular Patterns
-
-When working with Angular related files (files that import anything from `@angular/*`), you MUST READ AND FOLLOW THIS FILE: `./angular.md`.
-
 ## State Management
 
 State is managed through `StateProvider` in [`libs/state`](libs/state/README.md) with typed `KeyDefinition`s:
