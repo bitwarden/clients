@@ -1,0 +1,9 @@
+name: bitwarden_common
+
+services:
+  bitwarden_clients:
+    image: mcr.microsoft.com/devcontainers/typescript-node:22
+    volumes:
+      - ../../:/workspace:cached
+    shm_size: "1gb"
+    command: sleep infinity
