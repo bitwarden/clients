@@ -71,7 +71,7 @@ export enum FeatureFlag {
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
 
   /* Platform */
-  IpcChannelFramework = "ipc-channel-framework",
+  ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
 
   /* Innovation */
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
@@ -162,7 +162,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
 
   /* Platform */
-  [FeatureFlag.IpcChannelFramework]: FALSE,
+  [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
 
   /* Innovation */
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,
