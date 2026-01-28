@@ -291,3 +291,33 @@ jobs:
             ./jest-coverage-cli/lcov.info
             ./jest-coverage-libs/lcov.info
             ./apps/desktop/desktop_native/lcov.info
+
+  run-tests: # Verifies all required tests complete successfully
+    name: Run tests
+    runs-on: ubuntu-24.04
+    if: always()
+    needs:
+      - typecheck
+      - testing
+      - rust
+      - rust-coverage
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check job results
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          # Print status of all jobs
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+
+          # Collect failed jobs
+          failed_jobs=$(echo "$NEEDS" | jq -r 'to_entries[] | select(.value.result != "success") | .key' | tr '\n' ' ')
+
+          if [ -n "$failed_jobs" ]; then
+            echo "::error::The following jobs failed:$failed_jobs"
+            exit 1
+          fi
+
+          echo "All required jobs passed successfully!"
