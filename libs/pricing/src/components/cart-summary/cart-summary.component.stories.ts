@@ -57,8 +57,6 @@ export default {
                   return "Your next charge is for";
                 case "dueOn":
                   return "due on";
-                case "premiumMembershipDiscount":
-                  return "Premium membership discount";
                 default:
                   return key;
               }
@@ -340,35 +338,6 @@ export const WithAmountDiscount: Story = {
         value: 50.0,
       },
       estimatedTax: 95.0,
-    } satisfies Cart,
-  },
-};
-
-export const WithQuantityDiscount: Story = {
-  args: {
-    cart: {
-      passwordManager: {
-        seats: {
-          quantity: 5,
-          translationKey: "members",
-          cost: 50.0,
-          hideBreakdown: true,
-        },
-        additionalStorage: {
-          quantity: 2,
-          translationKey: "additionalStorageGB",
-          cost: 10.0,
-          hideBreakdown: true,
-        },
-      },
-      cadence: "monthly",
-      discount: {
-        type: DiscountTypes.AmountOff,
-        value: 3.0,
-        quantity: 1,
-        translationKey: "premiumMembershipDiscount",
-      },
-      estimatedTax: 10.8,
     } satisfies Cart,
   },
 };
