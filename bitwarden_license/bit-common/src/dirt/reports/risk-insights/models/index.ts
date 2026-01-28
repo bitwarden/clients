@@ -1,4 +1,5 @@
 export * from "./api-models.types";
+export * from "./member-access-report.types";
 export * from "./password-health";
 export * from "./report-data-service.types";
 export * from "./report-encryption.types";

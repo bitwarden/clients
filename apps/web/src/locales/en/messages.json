@@ -10715,6 +10715,12 @@
   "memberAccessReportDesc": {
     "message": "Ensure members have access to the right credentials and their accounts are secure. Use this report to obtain a CSV of member access and account configurations."
   },
+  "memberAccessReportPrototype": {
+    "message": "Member access (Prototype)"
+  },
+  "memberAccessReportPrototypeDesc": {
+    "message": "Prototype: Faster member access report using client-side data assembly instead of the server-side API."
+  },
   "memberAccessReportPageDesc": {
     "message": "Audit organization member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
   },

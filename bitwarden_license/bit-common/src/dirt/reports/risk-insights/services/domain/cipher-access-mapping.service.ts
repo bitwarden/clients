@@ -16,6 +16,7 @@ import {
   CollectionAdminService,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -176,6 +177,7 @@ export class CipherAccessMappingService {
   private readonly cipherService = inject(CipherService);
   private readonly collectionAdminService = inject(CollectionAdminService);
   private readonly organizationUserApiService = inject(OrganizationUserApiService);
+  private readonly apiService = inject(ApiService);
   private readonly logService = inject(LogService);
 
   /** Cache for organization users to avoid duplicate API calls */
@@ -738,7 +740,7 @@ export class CipherAccessMappingService {
         let groupData = groupMemberMap.get(groupId);
         if (!groupData) {
           // Initialize group data (name will be updated if we have it)
-          groupData = { groupName: "Unknown Group", memberIds: [] };
+          groupData = { groupName: "", memberIds: [] };
           groupMemberMap.set(groupId, groupData);
         }
         // Use orgUser.id (organization user ID) to match collection assignments and email map
@@ -804,13 +806,22 @@ export class CipherAccessMappingService {
     }
 
     this.logService.info(
-      `[CipherAccessMappingService] Fetching organization users (single API call) for ${organizationId}`,
+      `[CipherAccessMappingService] Fetching organization users and groups for ${organizationId}`,
     );
 
-    // Single API call with includeGroups: true - gets all user data needed
-    const orgUsersResponse = await this.organizationUserApiService.getAllUsers(organizationId, {
-      includeGroups: true,
-    });
+    // Fetch users and groups in parallel
+    const [orgUsersResponse, groupsResponse] = await Promise.all([
+      this.organizationUserApiService.getAllUsers(organizationId, {
+        includeGroups: true,
+      }),
+      this.fetchGroupNames(organizationId),
+    ]);
+
+    // Build group name lookup map
+    const groupNameMap = new Map<string, string>();
+    for (const group of groupsResponse) {
+      groupNameMap.set(group.id, group.name);
+    }
 
     // Build both maps from the same response
     const groupMemberMap = new Map<string, { groupName: string; memberIds: string[] }>();
@@ -827,7 +838,9 @@ export class CipherAccessMappingService {
         for (const groupId of orgUser.groups) {
           let groupData = groupMemberMap.get(groupId);
           if (!groupData) {
-            groupData = { groupName: "Unknown Group", memberIds: [] };
+            // Look up the actual group name
+            const groupName = groupNameMap.get(groupId) ?? "";
+            groupData = { groupName, memberIds: [] };
             groupMemberMap.set(groupId, groupData);
           }
           groupData.memberIds.push(orgUser.id);
@@ -986,6 +999,42 @@ export class CipherAccessMappingService {
     // Can manage if at least one path grants manage permission
     if (accessPermissions.manage) {
       memberAccess.effectivePermissions.canManage = true;
+    }
+  }
+
+  /**
+   * Fetches all group names for an organization.
+   *
+   * @param organizationId - The organization ID
+   * @returns Array of groups with id and name
+   */
+  private async fetchGroupNames(
+    organizationId: OrganizationId,
+  ): Promise<{ id: string; name: string }[]> {
+    try {
+      const response = await this.apiService.send(
+        "GET",
+        `/organizations/${organizationId}/groups`,
+        null,
+        true,
+        true,
+      );
+
+      // The response is a ListResponse with data array containing group objects
+      if (response?.data && Array.isArray(response.data)) {
+        return response.data.map((g: { id: string; name: string }) => ({
+          id: g.id,
+          name: g.name,
+        }));
+      }
+
+      return [];
+    } catch (error) {
+      this.logService.warning(
+        `[CipherAccessMappingService] Failed to fetch group names for org ${organizationId}`,
+        error,
+      );
+      return [];
     }
   }
 }

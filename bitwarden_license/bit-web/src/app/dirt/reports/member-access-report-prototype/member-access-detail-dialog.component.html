@@ -1,0 +1,73 @@
+<bit-dialog title="Member Access Details">
+  <div bitDialogContent>
+    <ng-container *ngIf="loading">
+      <div class="tw-flex tw-justify-center tw-items-center tw-py-8">
+        <i class="bwi bwi-spinner bwi-spin tw-text-primary-600" aria-hidden="true"></i>
+        <span class="tw-ml-2">Loading access details...</span>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading && !detailView">
+      <div class="tw-text-center tw-py-8 tw-text-muted">
+        No access details found for this member.
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading && detailView">
+      <!-- Member Info -->
+      <div class="tw-mb-4">
+        <p bitTypography="body1" class="tw-font-semibold tw-mb-1">
+          {{ detailView.name || detailView.email }}
+        </p>
+        <p bitTypography="body2" class="tw-text-muted" *ngIf="detailView.name">
+          {{ detailView.email }}
+        </p>
+      </div>
+
+      <!-- Summary -->
+      <div class="tw-mb-4 tw-p-3 tw-bg-background-alt tw-rounded">
+        <p bitTypography="body2">
+          <strong>{{ detailView.totalCipherCount }}</strong> items accessible via
+          <strong>{{ detailView.collectionDetails.length }}</strong> access paths
+        </p>
+      </div>
+
+      <!-- Access Details Table -->
+      <div class="tw-max-h-[400px] tw-overflow-y-auto">
+        <table class="tw-w-full tw-text-sm">
+          <thead class="tw-bg-background-alt tw-sticky tw-top-0">
+            <tr>
+              <th class="tw-text-left tw-p-2 tw-font-medium">Collection</th>
+              <th class="tw-text-left tw-p-2 tw-font-medium">Access Via</th>
+              <th class="tw-text-right tw-p-2 tw-font-medium tw-w-[80px]">Items</th>
+              <th class="tw-text-left tw-p-2 tw-font-medium tw-w-[120px]">Permission</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let detail of detailView.collectionDetails"
+              class="tw-border-b tw-border-secondary-300"
+            >
+              <td class="tw-p-2">{{ detail.collectionName }}</td>
+              <td class="tw-p-2 tw-text-muted">
+                <ng-container *ngIf="detail.accessType === 'direct'"> Direct </ng-container>
+                <ng-container *ngIf="detail.accessType === 'group'">
+                  via {{ detail.groupName || "Group" }}
+                </ng-container>
+              </td>
+              <td class="tw-p-2 tw-text-right">{{ detail.cipherCount }}</td>
+              <td class="tw-p-2">
+                <span bitBadge [variant]="getPermissionBadgeVariant(detail.permission)">
+                  {{ getPermissionLabel(detail.permission) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </div>
+  <div bitDialogFooter>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>Close</button>
+  </div>
+</bit-dialog>

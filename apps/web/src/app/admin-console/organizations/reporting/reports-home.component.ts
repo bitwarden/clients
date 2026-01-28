@@ -84,6 +84,13 @@ export class ReportsHomeComponent implements OnInit {
             : ReportVariant.RequiresEnterprise,
       },
       {
+        ...reports[ReportType.MemberAccessReportPrototype],
+        variant:
+          productType == ProductTierType.Enterprise
+            ? ReportVariant.Enabled
+            : ReportVariant.RequiresEnterprise,
+      },
+      {
         ...reports[ReportType.RiskInsightsPrototype],
         variant: reportRequiresUpgrade,
       },

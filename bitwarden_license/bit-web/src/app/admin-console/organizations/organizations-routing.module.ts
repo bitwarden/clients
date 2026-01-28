@@ -78,6 +78,17 @@ const routes: Routes = [
             },
             canActivate: [isEnterpriseOrgGuard()],
           },
+          {
+            path: "member-access-report-prototype",
+            loadComponent: () =>
+              import("../../dirt/reports/member-access-report-prototype/member-access-report-prototype.component").then(
+                (mod) => mod.MemberAccessReportPrototypeComponent,
+              ),
+            data: {
+              titleId: "memberAccessReport",
+            },
+            canActivate: [isEnterpriseOrgGuard()],
+          },
         ],
       },
       {
