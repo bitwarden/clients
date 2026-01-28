@@ -1,0 +1,121 @@
+.TH BW-EDIT 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw-edit \- edit an object in the vault
+
+.SH SYNOPSIS
+.B bw edit
+\fIobject\fP \fIid\fP [\fIencodedJson\fP] [\fIoptions\fP]
+
+.SH DESCRIPTION
+Edit an existing object in the vault. The object data should be provided as
+base64-encoded JSON containing the complete updated object.
+
+The recommended workflow is to get the existing object with \fBbw get\fP,
+modify it, encode with \fBbw encode\fP, and then edit.
+
+.SH ARGUMENTS
+.TP
+.I object
+Type of object to edit. Valid values:
+.RS
+.IP \(bu 2
+.B item
+\- A vault item
+.IP \(bu 2
+.B item-collections
+\- Update which collections an item belongs to
+.IP \(bu 2
+.B folder
+\- A folder
+.IP \(bu 2
+.B org-collection
+\- An organization collection
+.RE
+.TP
+.I id
+Object UUID to edit.
+.TP
+.I encodedJson
+Base64-encoded JSON with updated object data. Can also be piped via stdin.
+
+.SH OPTIONS
+.TP
+.BI \-\-organizationid\  id
+Organization ID (required for item-collections and org-collection).
+
+.SH EXAMPLES
+.TP
+Edit an item (update password):
+.nf
+$ bw get item 12345678-1234-1234-1234-123456789012 | jq '.login.password="newpassword"' | bw encode | bw edit item 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Rename a folder:
+.nf
+$ bw get folder 12345678-1234-1234-1234-123456789012 | jq '.name="New Name"' | bw encode | bw edit folder 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Update item collections (assign to collections):
+.nf
+$ echo '["collection-id-1","collection-id-2"]' | bw encode | bw edit item-collections 12345678-1234-1234-1234-123456789012 --organizationid org-id
+.fi
+.TP
+Add a URI to a login item:
+.nf
+$ bw get item 12345678-1234-1234-1234-123456789012 | jq '.login.uris += [{"uri":"https://example.com"}]' | bw encode | bw edit item 12345678-1234-1234-1234-123456789012
+.fi
+.TP
+Add a custom field to an item:
+.nf
+$ bw get item 12345678-1234-1234-1234-123456789012 | jq '.fields += [{"name":"API Key","value":"secret","type":1}]' | bw encode | bw edit item 12345678-1234-1234-1234-123456789012
+.fi
+
+.SH NOTES
+.TP
+\(bu
+Requires an active session (vault must be unlocked).
+.TP
+\(bu
+The encoded JSON must contain the complete object, not just the changed fields.
+.TP
+\(bu
+All JSON must be base64-encoded. Use \fBbw encode\fP for this.
+.TP
+\(bu
+Changes are synced to the server immediately.
+.TP
+\(bu
+To edit collections for an organization item, use \fBitem-collections\fP.
+
+.SH FIELD TYPES
+When adding custom fields, the \fBtype\fP values are:
+.RS
+.IP \(bu 2
+.B 0
+\- Text
+.IP \(bu 2
+.B 1
+\- Hidden
+.IP \(bu 2
+.B 2
+\- Boolean
+.IP \(bu 2
+.B 3
+\- Linked
+.RE
+
+.SH EXIT STATUS
+.TP
+.B 0
+Object edited successfully.
+.TP
+.B 1
+Edit failed or error occurred.
+
+.SH SEE ALSO
+.BR bw (1),
+.BR bw-get (1),
+.BR bw-create (1),
+.BR bw-delete (1),
+.BR bw-encode (1)

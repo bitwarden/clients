@@ -1,0 +1,273 @@
+.TH BW 1 "January 2026" "Bitwarden CLI" "User Commands"
+
+.SH NAME
+bw \- Bitwarden command-line password manager
+
+.SH SYNOPSIS
+.B bw
+[\fIglobal-options\fP] \fIcommand\fP [\fIcommand-options\fP] [\fIarguments\fP]
+
+.SH DESCRIPTION
+.B bw
+is a powerful, full-featured command-line interface (CLI) tool to access and
+manage a Bitwarden vault. It provides complete access to vault management,
+secure password generation, organization administration, and secure file
+sharing through Bitwarden Send.
+
+The CLI can be used for scripting and automation, integrating Bitwarden into
+your workflows, or as a standalone password manager interface.
+
+.SH COMMANDS
+.SS Authentication
+.TP
+.BR bw-login (1)
+Log into a Bitwarden user account.
+.TP
+.BR bw-logout (1)
+Log out of the current user account.
+.TP
+.BR bw-lock (1)
+Lock the vault and destroy active session keys.
+.TP
+.BR bw-unlock (1)
+Unlock the vault and return a new session key.
+
+.SS Vault Management
+.TP
+.BR bw-sync (1)
+Pull the latest vault data from the server.
+.TP
+.BR bw-list (1)
+List objects from the vault (items, folders, collections, organizations).
+.TP
+.BR bw-get (1)
+Get an object from the vault.
+.TP
+.BR bw-create (1)
+Create an object in the vault.
+.TP
+.BR bw-edit (1)
+Edit an object in the vault.
+.TP
+.BR bw-delete (1)
+Delete an object from the vault.
+.TP
+.BR bw-restore (1)
+Restore an object from the trash.
+.TP
+.BR bw-move (1)
+Move an item to an organization.
+.TP
+.BR bw-confirm (1)
+Confirm an object (organization member).
+
+.SS Data Exchange
+.TP
+.BR bw-import (1)
+Import vault data from various formats.
+.TP
+.BR bw-export (1)
+Export vault data to CSV, JSON, or encrypted JSON.
+
+.SS Secure Sharing
+.TP
+.BR bw-send (1)
+Create and manage Bitwarden Sends for secure sharing.
+.TP
+.BR bw-receive (1)
+Access a Bitwarden Send from a URL.
+
+.SS Utilities
+.TP
+.BR bw-generate (1)
+Generate a password or passphrase.
+.TP
+.BR bw-encode (1)
+Base64 encode stdin for use with create/edit commands.
+.TP
+.BR bw-config (1)
+Configure CLI settings (server URLs).
+.TP
+.BR bw-status (1)
+Show account and vault status.
+.TP
+.BR bw-update (1)
+Check for CLI updates.
+.TP
+.BR bw-completion (1)
+Generate shell completion scripts.
+
+.SS API Server
+.TP
+.BR bw-serve (1)
+Start a local RESTful API web server.
+
+.SH GLOBAL OPTIONS
+.TP
+.BR \-\-pretty
+Format output with indentation (JSON is printed with 2-space tabs).
+.TP
+.BR \-\-raw
+Return raw output instead of a descriptive message.
+.TP
+.BR \-\-response
+Return a JSON formatted version of response output. Includes status code,
+data, and error message if applicable.
+.TP
+.BR \-\-cleanexit
+Exit with code 0 unless there is an error. Useful for scripting.
+.TP
+.BR \-\-quiet
+Don't return anything to stdout. Errors still go to stderr.
+.TP
+.BR \-\-nointeraction
+Do not prompt for interactive user input. Useful for scripting and CI/CD.
+.TP
+.BI \-\-session\  session
+Pass session key instead of reading from environment variable.
+.TP
+.BR \-v ", " \-\-version
+Output the version number.
+.TP
+.BR \-h ", " \-\-help
+Display help for the command.
+
+.SH ENVIRONMENT VARIABLES
+.TP
+.B BW_SESSION
+Session key for authenticated operations. Set after \fBbw unlock\fP.
+.TP
+.B BW_CLIENTID
+API client ID for API key authentication.
+.TP
+.B BW_CLIENTSECRET
+API client secret for API key authentication.
+.TP
+.B BW_PRETTY
+Set to "true" to enable pretty-printed output by default.
+.TP
+.B BW_RAW
+Set to "true" to enable raw output by default.
+.TP
+.B BW_RESPONSE
+Set to "true" to enable JSON response format by default.
+.TP
+.B BW_QUIET
+Set to "true" to suppress stdout output by default.
+.TP
+.B BW_CLEANEXIT
+Set to "true" to exit with code 0 by default (unless error).
+.TP
+.B BW_NOINTERACTION
+Set to "true" to disable interactive prompts by default.
+.TP
+.B BITWARDENCLI_APPDATA_DIR
+Custom directory for CLI data storage.
+.TP
+.B NODE_EXTRA_CA_CERTS
+Path to additional CA certificates for self-signed server certificates.
+
+.SH SESSION MANAGEMENT
+The Bitwarden CLI uses session keys to access the vault after authentication.
+After logging in, you must unlock the vault to obtain a session key:
+
+.RS
+.nf
+$ bw login
+$ export BW_SESSION=$(bw unlock --raw)
+.fi
+.RE
+
+The session key can also be passed directly to commands:
+
+.RS
+.nf
+$ bw list items --session "YOUR_SESSION_KEY"
+.fi
+.RE
+
+.SH EXAMPLES
+.TP
+Log in and set up session:
+.nf
+$ bw login user@example.com
+$ export BW_SESSION=$(bw unlock --raw)
+.fi
+.TP
+List all login items:
+.nf
+$ bw list items --search "github"
+.fi
+.TP
+Get a specific item's password:
+.nf
+$ bw get password "My Login"
+.fi
+.TP
+Generate a secure password:
+.nf
+$ bw generate -ulns --length 20
+.fi
+.TP
+Create a new login item:
+.nf
+$ bw get template item | jq '.name="New Login"' | bw encode | bw create item
+.fi
+.TP
+Export vault to JSON:
+.nf
+$ bw export --format json --output ~/backup.json
+.fi
+
+.SH FILES
+.TP
+.I ~/.config/Bitwarden CLI/
+Default data directory on Linux.
+.TP
+.I ~/Library/Application Support/Bitwarden CLI/
+Default data directory on macOS.
+.TP
+.I %AppData%\\Bitwarden CLI\\
+Default data directory on Windows.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Successful execution (or any exit when \-\-cleanexit is set).
+.TP
+.B 1
+An error occurred.
+
+.SH SECURITY
+.TP
+\(bu
+Session keys should be treated as sensitive data and not logged or exposed.
+.TP
+\(bu
+Use \fB--nointeraction\fP in scripts to prevent hanging on prompts.
+.TP
+\(bu
+Consider using API keys (\fBBW_CLIENTID\fP, \fBBW_CLIENTSECRET\fP) for automation.
+.TP
+\(bu
+The vault data is encrypted at rest and in transit.
+
+.SH BUGS
+Report bugs at https://github.com/bitwarden/clients/issues
+
+.SH AUTHOR
+Bitwarden Inc. <https://bitwarden.com>
+
+.SH COPYRIGHT
+Copyright (C) Bitwarden Inc. Licensed under GPL-3.0.
+
+.SH SEE ALSO
+.BR bw-login (1),
+.BR bw-unlock (1),
+.BR bw-list (1),
+.BR bw-get (1),
+.BR bw-generate (1),
+.BR bw-send (1),
+.BR bw-serve (1)
+
+Full documentation at: https://bitwarden.com/help/cli/
