@@ -2,7 +2,7 @@
 
 A library for native autofill providers to interact with a host Bitwarden desktop app.
 
-In this desktop context, "native autofill providers" are operating system frameworks or api's (like the macOS [autofill framework](https://developer.apple.com/documentation/Security/password-autofill)) that allow Bitwarden to provide provide user credentials for things like autofill, passkey operations, etc.
+In this desktop context, "native autofill providers" are operating system frameworks or APIs (like the macOS [autofill framework](https://developer.apple.com/documentation/Security/password-autofill)) that allow Bitwarden to provide provide user credentials for things like autofill, passkey operations, etc.
 
 # Explainer: Mac OS Native Passkey Provider
 
