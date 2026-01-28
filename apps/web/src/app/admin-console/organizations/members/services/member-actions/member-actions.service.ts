@@ -16,9 +16,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
@@ -45,7 +43,6 @@ export interface BulkActionResult {
 export class MemberActionsService {
   private organizationUserApiService = inject(OrganizationUserApiService);
   private organizationUserService = inject(OrganizationUserService);
-  private configService = inject(ConfigService);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private apiService = inject(ApiService);
   private dialogService = inject(DialogService);
@@ -175,18 +172,9 @@ export class MemberActionsService {
   async bulkReinvite(organization: Organization, userIds: UserId[]): Promise<BulkActionResult> {
     this.startProcessing();
     try {
-      const increaseBulkReinviteLimitForCloud = await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.IncreaseBulkReinviteLimitForCloud),
+      return this.processBatchedOperation(userIds, REQUESTS_PER_BATCH, (batch) =>
+        this.organizationUserApiService.postManyOrganizationUserReinvite(organization.id, batch),
       );
-      if (increaseBulkReinviteLimitForCloud) {
-        return await this.vNextBulkReinvite(organization, userIds);
-      } else {
-        const result = await this.organizationUserApiService.postManyOrganizationUserReinvite(
-          organization.id,
-          userIds,
-        );
-        return { successful: result, failed: [] };
-      }
     } catch (error) {
       return {
         failed: userIds.map((id) => ({ id, error: (error as Error).message ?? String(error) })),
@@ -194,15 +182,6 @@ export class MemberActionsService {
     } finally {
       this.endProcessing();
     }
-  }
-
-  async vNextBulkReinvite(
-    organization: Organization,
-    userIds: UserId[],
-  ): Promise<BulkActionResult> {
-    return this.processBatchedOperation(userIds, REQUESTS_PER_BATCH, (batch) =>
-      this.organizationUserApiService.postManyOrganizationUserReinvite(organization.id, batch),
-    );
   }
 
   allowResetPassword(
