@@ -115,7 +115,7 @@
             collapsibleKey="favorites"
           ></app-vault-list-items-container>
           <app-vault-list-items-container
-            [title]="'allItems' | i18n"
+            [title]="getTitleText()"
             [ciphers]="(remainingCiphers$ | async) || []"
             id="allItems"
             disableSectionMargin

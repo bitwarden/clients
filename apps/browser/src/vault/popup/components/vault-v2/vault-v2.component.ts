@@ -2,7 +2,7 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
   combineLatest,
@@ -165,6 +165,10 @@ export class VaultV2Component implements OnInit, OnDestroy {
   private showPremiumNudgeSpotlight$ = this.activeUserId$.pipe(
     switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
   );
+
+  private readonly searchTextSignal = toSignal(this.vaultPopupItemsService.searchText$, {
+    initialValue: "",
+  });
 
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
@@ -367,6 +371,15 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.vaultScrollPositionService.stop();
+  }
+
+  getTitleText(): string {
+    const searchText = this.searchTextSignal();
+    if (searchText.length < 2) {
+      return this.i18nService.t("allItems");
+    } else {
+      return this.i18nService.t("searchResults");
+    }
   }
 
   async navigateToImport() {

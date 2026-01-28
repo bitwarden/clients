@@ -177,6 +177,7 @@ describe("VaultV2Component", () => {
     remainingCiphers$: new BehaviorSubject<any[]>([]),
     cipherCount$: new BehaviorSubject<number>(0),
     loading$: new BehaviorSubject<boolean>(true),
+    searchText$: new BehaviorSubject<string>(""),
   } as Partial<VaultPopupItemsService>;
 
   const filtersSvc = {
@@ -697,6 +698,107 @@ describe("VaultV2Component", () => {
       tick();
 
       expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe("getTitleText", () => {
+    it("returns 'allItems' when search text is empty", fakeAsync(() => {
+      itemsSvc.searchText$.next("");
+
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      fixture.detectChanges();
+      tick();
+
+      expect(component["getTitleText"]()).toBe("allItems");
+    }));
+
+    it("returns 'allItems' when search text has only 1 character", fakeAsync(() => {
+      itemsSvc.searchText$.next("a");
+
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      fixture.detectChanges();
+      tick();
+
+      expect(component["getTitleText"]()).toBe("allItems");
+    }));
+
+    it("returns 'searchResults' when search text has 2 characters", fakeAsync(() => {
+      itemsSvc.searchText$.next("ab");
+
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      fixture.detectChanges();
+      tick();
+
+      expect(component["getTitleText"]()).toBe("searchResults");
+    }));
+
+    it("returns 'searchResults' when search text has more than 2 characters", fakeAsync(() => {
+      itemsSvc.searchText$.next("password");
+
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      fixture.detectChanges();
+      tick();
+
+      expect(component["getTitleText"]()).toBe("searchResults");
+    }));
+
+    it("updates title when search text changes from empty to non-empty", fakeAsync(() => {
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      itemsSvc.searchText$.next("");
+      fixture.detectChanges();
+      tick();
+
+      expect(component["getTitleText"]()).toBe("allItems");
+
+      itemsSvc.searchText$.next("test");
+      fixture.detectChanges();
+      tick();
+
+      expect(component["getTitleText"]()).toBe("searchResults");
+    }));
+
+    it("updates title when search text changes from non-empty to empty", fakeAsync(() => {
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      itemsSvc.searchText$.next("search");
+      fixture.detectChanges();
+      tick();
+
+      expect(component["getTitleText"]()).toBe("searchResults");
+
+      itemsSvc.searchText$.next("");
+      fixture.detectChanges();
+      tick();
+
+      expect(component["getTitleText"]()).toBe("allItems");
+    }));
+
+    it("updates title when search text changes from 2+ chars to 1 char", fakeAsync(() => {
+      const fixture = TestBed.createComponent(VaultV2Component);
+      const component = fixture.componentInstance;
+
+      itemsSvc.searchText$.next("ab");
+      fixture.detectChanges();
+      tick();
+
+      expect(component["getTitleText"]()).toBe("searchResults");
+
+      itemsSvc.searchText$.next("a");
+      fixture.detectChanges();
+      tick();
+
+      expect(component["getTitleText"]()).toBe("allItems");
     }));
   });
 });
