@@ -722,6 +722,8 @@ export class EventService {
         return ["bwi-browser", this.i18nService.t("webVault") + " - Edge"];
       case DeviceType.IEBrowser:
         return ["bwi-browser", this.i18nService.t("webVault") + " - IE"];
+      case DeviceType.DuckDuckGoBrowser:
+        return ["bwi-browser", this.i18nService.t("webVault") + " - DuckDuckGo"];
       case DeviceType.Server:
         return ["bwi-user-monitor", this.i18nService.t("server")];
       case DeviceType.WindowsCLI:
