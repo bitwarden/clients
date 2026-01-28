@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, map } from "rxjs";
+import { lastValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -34,6 +34,11 @@ import {
   AdjustAccountSubscriptionStorageDialogComponent,
   AdjustAccountSubscriptionStorageDialogParams,
 } from "@bitwarden/web-vault/app/billing/individual/subscription/adjust-account-subscription-storage-dialog.component";
+import {
+  UnifiedUpgradeDialogComponent,
+  UnifiedUpgradeDialogStatus,
+  UnifiedUpgradeDialogStep,
+} from "@bitwarden/web-vault/app/billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
 import {
   OffboardingSurveyDialogResultType,
   openOffboardingSurvey,
@@ -71,17 +76,15 @@ export class AccountSubscriptionComponent {
         await this.router.navigate(["/settings/subscription/premium"]);
         return null;
       };
-      const account = await firstValueFrom(this.accountService.activeAccount$);
+      const account = this.activeAccount();
       if (!account) {
         return await redirectToPremiumPage();
       }
-      const hasPremiumPersonally = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
-      );
-      if (!hasPremiumPersonally) {
+      const subscription = await this.accountBillingClient.getSubscription();
+      if (!subscription) {
         return await redirectToPremiumPage();
       }
-      return await this.accountBillingClient.getSubscription();
+      return subscription;
     },
   });
 
@@ -91,6 +94,7 @@ export class AccountSubscriptionComponent {
     const subscription = this.subscription.value();
     if (subscription) {
       return (
+        subscription.status === SubscriptionStatuses.Incomplete ||
         subscription.status === SubscriptionStatuses.IncompleteExpired ||
         subscription.status === SubscriptionStatuses.Canceled ||
         subscription.status === SubscriptionStatuses.Unpaid
@@ -177,6 +181,8 @@ export class AccountSubscriptionComponent {
     { initialValue: false },
   );
 
+  readonly activeAccount = toSignal(this.accountService.activeAccount$);
+
   onSubscriptionCardAction = async (action: SubscriptionCardAction) => {
     switch (action) {
       case SubscriptionCardActions.ContactSupport:
@@ -208,6 +214,27 @@ export class AccountSubscriptionComponent {
       case SubscriptionCardActions.UpdatePayment:
         await this.router.navigate(["../payment-details"], { relativeTo: this.activatedRoute });
         break;
+      case SubscriptionCardActions.Resubscribe: {
+        const account = this.activeAccount();
+        if (!account) {
+          return;
+        }
+
+        const dialogRef = UnifiedUpgradeDialogComponent.open(this.dialogService, {
+          data: {
+            account,
+            initialStep: UnifiedUpgradeDialogStep.Payment,
+            selectedPlan: PersonalSubscriptionPricingTierIds.Premium,
+          },
+        });
+
+        const result = await lastValueFrom(dialogRef.closed);
+
+        if (result?.status === UnifiedUpgradeDialogStatus.UpgradedToPremium) {
+          this.subscription.reload();
+        }
+        break;
+      }
       case SubscriptionCardActions.UpgradePlan:
         // TODO: Implement upgrade plan navigation
         break;
