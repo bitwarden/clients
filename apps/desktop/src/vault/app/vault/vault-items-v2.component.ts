@@ -35,7 +35,7 @@ export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultIt
   readonly showPremiumCallout = input<boolean>(false);
   readonly organizationId = input<OrganizationId | undefined>(undefined);
 
-  onAddFolder = output<void>();
+  readonly onAddFolder = output<void>();
 
   protected readonly desktopMigrationMilestone1 = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone1),
@@ -67,9 +67,5 @@ export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultIt
 
   trackByFn(index: number, c: C): string {
     return uuidAsString(c.id!);
-  }
-
-  protected addFolder() {
-    this.onAddFolder.emit();
   }
 }
