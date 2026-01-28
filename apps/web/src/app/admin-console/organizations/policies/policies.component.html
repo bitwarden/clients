@@ -15,7 +15,7 @@
   } @else {
     <bit-table>
       <ng-template body>
-        @for (p of policies$ | async; track $index) {
+        @for (p of policies$ | async | policyOrder; track $index) {
           @if (p.display$(organization, configService) | async) {
             <tr bitRow>
               <td bitCell ngPreserveWhitespaces>
