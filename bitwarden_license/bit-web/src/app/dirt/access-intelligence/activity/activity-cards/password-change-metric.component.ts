@@ -58,7 +58,9 @@ export class PasswordChangeMetricComponent implements OnInit {
   private readonly _tasks: Signal<SecurityTask[]> = signal<SecurityTask[]>([]);
   private readonly _atRiskCipherIds: Signal<CipherId[]> = signal<CipherId[]>([]);
   private readonly _hasCriticalApplications: Signal<boolean> = signal<boolean>(false);
-  private readonly _reportGeneratedAt: Signal<Date> = signal<Date>(null);
+  private readonly _reportGeneratedAt: Signal<Date | undefined> = signal<Date | undefined>(
+    undefined,
+  );
 
   // Computed properties
   readonly tasksCount = computed(() => this._tasks().length);
@@ -82,11 +84,14 @@ export class PasswordChangeMetricComponent implements OnInit {
     const inProgressTasks = tasks.filter((task) => task.status === SecurityTaskStatus.Pending);
     const inProgressTaskIds = new Set(inProgressTasks.map((task) => task.cipherId));
 
-    const completedTasksAfterReportGeneration = tasks.filter(
-      (task) =>
-        task.status === SecurityTaskStatus.Completed &&
-        new Date(task.revisionDate) >= this._reportGeneratedAt(),
-    );
+    const reportGeneratedAt = this._reportGeneratedAt();
+    const completedTasksAfterReportGeneration = reportGeneratedAt
+      ? tasks.filter(
+          (task) =>
+            task.status === SecurityTaskStatus.Completed &&
+            new Date(task.revisionDate) >= reportGeneratedAt,
+        )
+      : [];
     const completedTaskIds = new Set(
       completedTasksAfterReportGeneration.map((task) => task.cipherId),
     );
@@ -140,7 +145,7 @@ export class PasswordChangeMetricComponent implements OnInit {
       { initialValue: false },
     );
     this._reportGeneratedAt = toSignal(
-      this.riskInsightsDataService.enrichedReportData$.pipe(map((report) => report.creationDate)),
+      this.riskInsightsDataService.enrichedReportData$.pipe(map((report) => report?.creationDate)),
       { initialValue: undefined },
     );
 
