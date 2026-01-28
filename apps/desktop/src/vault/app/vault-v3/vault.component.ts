@@ -72,6 +72,7 @@ import {
   CopyClickListener,
   COPY_CLICK_LISTENER,
   IconButtonModule,
+  HeaderComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -104,7 +105,6 @@ import {
   DefaultVaultItemsTransferService,
 } from "@bitwarden/vault";
 
-import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
@@ -132,7 +132,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
     IconButtonModule,
     PremiumBadgeComponent,
     VaultListComponent,
-    DesktopHeaderComponent,
+    HeaderComponent,
   ],
   providers: [
     {

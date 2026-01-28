@@ -6,10 +6,12 @@ import { map } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HeaderComponent, BannerModule } from "@bitwarden/components";
 
+import { AccountSwitcherComponent } from "../account-switcher.component";
+
 @Component({
   selector: "app-header",
   templateUrl: "./desktop-header.component.html",
-  imports: [BannerModule, HeaderComponent],
+  imports: [BannerModule, HeaderComponent, AccountSwitcherComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopHeaderComponent {
