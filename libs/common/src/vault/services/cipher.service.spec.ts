@@ -1209,7 +1209,7 @@ describe("Cipher Service", () => {
 
       await cipherService.softDeleteManyWithServer(testCipherIds, userId, true, orgId);
 
-      expect(apiSpy).toHaveBeenCalled();
+      expect(apiSpy).toHaveBeenCalledWith({ ids: testCipherIds, organizationId: orgId });
     });
 
     it("should use SDK to soft delete multiple ciphers when feature flag is enabled", async () => {

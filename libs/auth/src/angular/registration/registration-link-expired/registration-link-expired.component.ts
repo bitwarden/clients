@@ -9,7 +9,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TwoFactorTimeoutIcon } from "@bitwarden/assets/svg";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { ButtonModule, IconModule } from "@bitwarden/components";
+import { ButtonModule, SvgModule } from "@bitwarden/components";
 
 /**
  * RegistrationLinkExpiredComponentData
@@ -24,7 +24,7 @@ export interface RegistrationLinkExpiredComponentData {
 @Component({
   selector: "auth-registration-link-expired",
   templateUrl: "./registration-link-expired.component.html",
-  imports: [CommonModule, JslibModule, RouterModule, IconModule, ButtonModule],
+  imports: [CommonModule, JslibModule, RouterModule, SvgModule, ButtonModule],
 })
 export class RegistrationLinkExpiredComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

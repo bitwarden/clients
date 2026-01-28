@@ -12,7 +12,7 @@ import { ActivatedRoute } from "@angular/router";
 import { map, Observable, of, tap } from "rxjs";
 
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
-import { ButtonComponent, IconModule } from "@bitwarden/components";
+import { ButtonComponent, SvgModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -24,7 +24,7 @@ import { ManuallyOpenExtensionComponent } from "../manually-open-extension/manua
 @Component({
   selector: "vault-browser-extension-prompt",
   templateUrl: "./browser-extension-prompt.component.html",
-  imports: [CommonModule, I18nPipe, ButtonComponent, IconModule, ManuallyOpenExtensionComponent],
+  imports: [CommonModule, I18nPipe, ButtonComponent, SvgModule, ManuallyOpenExtensionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BrowserExtensionPromptComponent implements OnInit, OnDestroy {
