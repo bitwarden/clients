@@ -613,6 +613,7 @@ dependencies = [
  "async-trait",
  "base64",
  "cbc",
+ "desktop_objc",
  "dirs",
  "hex",
  "oo7",
