@@ -81,6 +81,11 @@
               <bit-tab label="{{ 'activity' | i18n }}">
                 <dirt-all-activity [organizationId]="this.organizationId"></dirt-all-activity>
               </bit-tab>
+              @if (milestone11Enabled) {
+                <bit-tab label="{{ 'applications' | i18n }}">
+                  <dirt-applications></dirt-applications>
+                </bit-tab>
+              }
               <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount }}">
                 <dirt-all-applications></dirt-all-applications>
               </bit-tab>
