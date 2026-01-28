@@ -31,7 +31,7 @@ export class WebHeaderComponent {
   readonly icon: InputSignal<string | undefined> = input();
 
   protected routeData$: Observable<{ titleId: string }>;
-  protected account$: Observable<User & { id: UserId }>;
+  protected account$: Observable<(User & { id: UserId }) | null>;
   protected canLock$: Observable<boolean>;
   protected selfHosted: boolean;
   protected hostname = location.hostname;
