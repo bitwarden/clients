@@ -186,11 +186,73 @@ describe("PhishingDataService", () => {
 
       expect(result).toBe(false);
       expect(logService.error).toHaveBeenCalledWith(
-        "[PhishingDataService] IndexedDB lookup via hasUrl failed",
+        "[PhishingDataService] IndexedDB lookup failed",
         expect.any(Error),
       );
       // Custom matcher is disabled, so no custom matcher error is expected
       expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
+    });
+
+    it("should use cursor-based search when useCustomMatcher is enabled", async () => {
+      // Temporarily enable custom matcher for this test
+      const originalValue = (PhishingDataService as any).USE_CUSTOM_MATCHER;
+      (PhishingDataService as any).USE_CUSTOM_MATCHER = true;
+
+      try {
+        // Mock hasUrl to return false (no direct match)
+        mockIndexedDbService.hasUrl.mockResolvedValue(false);
+        // Mock findMatchingUrl to return true (custom matcher finds it)
+        mockIndexedDbService.findMatchingUrl.mockResolvedValue(true);
+
+        const url = new URL("http://phish.com/path");
+        const result = await service.isPhishingWebAddress(url);
+
+        expect(result).toBe(true);
+        expect(mockIndexedDbService.hasUrl).toHaveBeenCalled();
+        expect(mockIndexedDbService.findMatchingUrl).toHaveBeenCalled();
+      } finally {
+        // Restore original value
+        (PhishingDataService as any).USE_CUSTOM_MATCHER = originalValue;
+      }
+    });
+
+    it("should return false when custom matcher finds no match (when enabled)", async () => {
+      const originalValue = (PhishingDataService as any).USE_CUSTOM_MATCHER;
+      (PhishingDataService as any).USE_CUSTOM_MATCHER = true;
+
+      try {
+        mockIndexedDbService.hasUrl.mockResolvedValue(false);
+        mockIndexedDbService.findMatchingUrl.mockResolvedValue(false);
+
+        const url = new URL("http://safe.com/path");
+        const result = await service.isPhishingWebAddress(url);
+
+        expect(result).toBe(false);
+        expect(mockIndexedDbService.findMatchingUrl).toHaveBeenCalled();
+      } finally {
+        (PhishingDataService as any).USE_CUSTOM_MATCHER = originalValue;
+      }
+    });
+
+    it("should handle custom matcher errors gracefully (when enabled)", async () => {
+      const originalValue = (PhishingDataService as any).USE_CUSTOM_MATCHER;
+      (PhishingDataService as any).USE_CUSTOM_MATCHER = true;
+
+      try {
+        mockIndexedDbService.hasUrl.mockResolvedValue(false);
+        mockIndexedDbService.findMatchingUrl.mockRejectedValue(new Error("Cursor error"));
+
+        const url = new URL("http://error.com/path");
+        const result = await service.isPhishingWebAddress(url);
+
+        expect(result).toBe(false);
+        expect(logService.error).toHaveBeenCalledWith(
+          "[PhishingDataService] Custom matcher failed",
+          expect.any(Error),
+        );
+      } finally {
+        (PhishingDataService as any).USE_CUSTOM_MATCHER = originalValue;
+      }
     });
   });
 
