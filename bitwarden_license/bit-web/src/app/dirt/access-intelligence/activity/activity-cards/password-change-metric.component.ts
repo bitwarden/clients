@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -43,7 +42,7 @@ export type PasswordChangeView = (typeof PasswordChangeView)[keyof typeof Passwo
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-password-change-metric",
-  imports: [CommonModule, TypographyModule, JslibModule, ProgressModule, ButtonModule],
+  imports: [TypographyModule, JslibModule, ProgressModule, ButtonModule],
   templateUrl: "./password-change-metric.component.html",
 })
 export class PasswordChangeMetricComponent implements OnInit {
