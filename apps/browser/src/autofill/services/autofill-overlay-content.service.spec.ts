@@ -2737,5 +2737,181 @@ describe("AutofillOverlayContentService", () => {
 
       expect(autofillOverlayContentService["userFilledFields"]).toEqual(null);
     });
+
+    it("restores History API methods and removes event listeners", () => {
+      autofillOverlayContentService.init();
+
+      autofillOverlayContentService.destroy();
+
+      expect(globalThis.removeEventListener).toHaveBeenCalledWith(
+        "beforeunload",
+        autofillOverlayContentService["handleBeforeUnloadEvent"],
+      );
+      expect(globalThis.removeEventListener).toHaveBeenCalledWith(
+        "popstate",
+        autofillOverlayContentService["handlePopStateEvent"],
+      );
+    });
+
+    it("disconnects the password field removal observer", () => {
+      autofillOverlayContentService.init();
+      const mockObserver = { disconnect: jest.fn() };
+      autofillOverlayContentService["passwordFieldRemovalObserver"] =
+        mockObserver as unknown as MutationObserver;
+
+      autofillOverlayContentService.destroy();
+
+      expect(mockObserver.disconnect).toHaveBeenCalled();
+      expect(autofillOverlayContentService["passwordFieldRemovalObserver"]).toBeNull();
+    });
+  });
+
+  describe("Chrome-like SPA navigation detection", () => {
+    let autofillFieldElement: ElementWithOpId<FormFieldElement>;
+    let passwordFieldElement: ElementWithOpId<FormFieldElement>;
+
+    beforeEach(() => {
+      document.body.innerHTML = `
+        <form id="loginForm">
+          <input type="text" id="username-field" placeholder="username" />
+          <input type="password" id="password-field" placeholder="password" />
+        </form>
+      `;
+
+      autofillFieldElement = document.getElementById(
+        "username-field",
+      ) as ElementWithOpId<FormFieldElement>;
+      autofillFieldElement.opid = "op-1";
+      passwordFieldElement = document.getElementById(
+        "password-field",
+      ) as ElementWithOpId<FormFieldElement>;
+      passwordFieldElement.opid = "op-2";
+    });
+
+    describe("History API monitoring", () => {
+      beforeEach(() => {
+        autofillOverlayContentService.init();
+      });
+
+      it("intercepts history.pushState calls", () => {
+        const originalPushState = autofillOverlayContentService["originalHistoryPushState"];
+
+        expect(originalPushState).toBeDefined();
+        expect(history.pushState).not.toBe(originalPushState);
+      });
+
+      it("intercepts history.replaceState calls", () => {
+        const originalReplaceState = autofillOverlayContentService["originalHistoryReplaceState"];
+
+        expect(originalReplaceState).toBeDefined();
+        expect(history.replaceState).not.toBe(originalReplaceState);
+      });
+
+      it("calls handleHistoryNavigation when pushState is invoked", () => {
+        const handleHistoryNavigationSpy = jest.spyOn(
+          autofillOverlayContentService as any,
+          "handleHistoryNavigation",
+        );
+
+        history.pushState({}, "", "/test");
+
+        expect(handleHistoryNavigationSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe("visibility change handling", () => {
+      beforeEach(() => {
+        autofillOverlayContentService.init();
+      });
+
+      it("triggers form submission when page becomes hidden and credentials are filled", async () => {
+        // Disconnect the MutationObserver to avoid interference
+        autofillOverlayContentService["disconnectPasswordFieldRemovalObserver"]();
+
+        const passwordFieldData = createAutofillFieldMock({
+          opid: "password-field",
+          type: "password",
+        });
+        autofillOverlayContentService["formFieldElements"].set(
+          passwordFieldElement,
+          passwordFieldData,
+        );
+        autofillOverlayContentService["userFilledFields"] = {
+          username: autofillFieldElement as FillableFormFieldElement,
+          password: passwordFieldElement as FillableFormFieldElement,
+        };
+        (autofillFieldElement as HTMLInputElement).value = "testuser";
+        (passwordFieldElement as HTMLInputElement).value = "testpass";
+
+        Object.defineProperty(document, "visibilityState", {
+          value: "hidden",
+          writable: true,
+        });
+
+        document.dispatchEvent(new Event(EVENTS.VISIBILITYCHANGE));
+        await flushPromises();
+
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+          "formFieldSubmitted",
+          expect.any(Object),
+        );
+      });
+    });
+
+    describe("password field removal detection", () => {
+      it("detects when password fields are removed from the DOM", () => {
+        const nodeContainsPasswordField =
+          autofillOverlayContentService["nodeContainsPasswordField"];
+
+        const formElement = document.getElementById("loginForm");
+        expect(nodeContainsPasswordField(formElement as Node)).toBe(true);
+
+        const usernameElement = document.getElementById("username-field");
+        expect(nodeContainsPasswordField(usernameElement as Node)).toBe(false);
+      });
+
+      it("returns false for non-element nodes", () => {
+        const nodeContainsPasswordField =
+          autofillOverlayContentService["nodeContainsPasswordField"];
+        const textNode = document.createTextNode("test");
+
+        expect(nodeContainsPasswordField(textNode)).toBe(false);
+      });
+    });
+
+    describe("credential data detection", () => {
+      it("returns true when username is filled", () => {
+        // Don't call init() to avoid setting up MutationObserver
+        autofillOverlayContentService["userFilledFields"] = {
+          username: autofillFieldElement as FillableFormFieldElement,
+        };
+        (autofillFieldElement as HTMLInputElement).value = "testuser";
+
+        expect(autofillOverlayContentService["hasUserFilledCredentialsData"]()).toBe(true);
+      });
+
+      it("returns true when password is filled", () => {
+        // Don't call init() to avoid setting up MutationObserver
+        autofillOverlayContentService["userFilledFields"] = {
+          password: passwordFieldElement as FillableFormFieldElement,
+        };
+        (passwordFieldElement as HTMLInputElement).value = "testpass";
+
+        expect(autofillOverlayContentService["hasUserFilledCredentialsData"]()).toBe(true);
+      });
+
+      it("returns false when no credentials are filled", () => {
+        // Don't call init() to avoid setting up MutationObserver
+        autofillOverlayContentService["userFilledFields"] = {};
+
+        expect(autofillOverlayContentService["hasUserFilledCredentialsData"]()).toBe(false);
+      });
+
+      it("returns false when userFilledFields is null", () => {
+        autofillOverlayContentService["userFilledFields"] = null;
+
+        expect(autofillOverlayContentService["hasUserFilledCredentialsData"]()).toBe(false);
+      });
+    });
   });
 });

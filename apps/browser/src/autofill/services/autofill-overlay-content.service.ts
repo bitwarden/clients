@@ -76,6 +76,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private closeInlineMenuOnRedirectTimeout: number | NodeJS.Timeout;
   private focusInlineMenuListTimeout: number | NodeJS.Timeout;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
+  // Chrome-like History API monitoring for SPA navigation detection
+  private originalHistoryPushState: typeof history.pushState | null = null;
+  private originalHistoryReplaceState: typeof history.replaceState | null = null;
+  private passwordFieldsSnapshot: WeakSet<HTMLInputElement> = new WeakSet();
+  private hasUserFilledCredentials = false;
+  private passwordFieldRemovalObserver: MutationObserver | null = null;
+  private pendingPasswordFieldRemovalCheck: number | NodeJS.Timeout | null = null;
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     addNewVaultItemFromOverlay: ({ message }) => this.addNewVaultItem(message),
     focusMostRecentlyFocusedField: () => this.focusMostRecentlyFocusedField(),
@@ -1571,6 +1578,259 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChangeEvent);
     globalThis.addEventListener(EVENTS.FOCUSOUT, this.handleWindowFocusOutEvent);
     this.setOverlayRepositionEventListeners();
+    this.setupHistoryApiMonitoring();
+    this.setupPasswordFieldRemovalObserver();
+    globalThis.addEventListener("beforeunload", this.handleBeforeUnloadEvent);
+    globalThis.addEventListener("popstate", this.handlePopStateEvent);
+  };
+
+  /**
+   * Sets up monitoring for History API calls (pushState/replaceState).
+   * This is critical for detecting navigation in Single Page Applications
+   * that don't trigger traditional page loads. Chrome's password manager
+   * uses this technique to detect when a login form has been submitted
+   * and removed from the DOM.
+   */
+  private setupHistoryApiMonitoring = () => {
+    if (this.originalHistoryPushState || this.originalHistoryReplaceState) {
+      return;
+    }
+
+    this.originalHistoryPushState = globalThis.history.pushState.bind(globalThis.history);
+    this.originalHistoryReplaceState = globalThis.history.replaceState.bind(globalThis.history);
+
+    globalThis.history.pushState = (...args: Parameters<typeof history.pushState>) => {
+      this.handleHistoryNavigation();
+      return this.originalHistoryPushState?.(...args);
+    };
+
+    globalThis.history.replaceState = (...args: Parameters<typeof history.replaceState>) => {
+      this.handleHistoryNavigation();
+      return this.originalHistoryReplaceState?.(...args);
+    };
+  };
+
+  /**
+   * Handles History API navigation events. When navigation occurs via pushState
+   * or replaceState, checks if password fields have been removed from the DOM.
+   * If they have been removed and user has entered credentials, triggers
+   * form submission to prompt for credential saving.
+   */
+  private handleHistoryNavigation = () => {
+    // Schedule the check for the next tick to allow DOM updates to complete
+    globalThis.setTimeout(() => {
+      this.checkPasswordFieldRemovalAndSubmit();
+    }, 0);
+  };
+
+  /**
+   * Handles the popstate event (browser back/forward navigation).
+   * Similar to pushState/replaceState, checks for password field removal.
+   */
+  private handlePopStateEvent = () => {
+    globalThis.setTimeout(() => {
+      this.checkPasswordFieldRemovalAndSubmit();
+    }, 0);
+  };
+
+  /**
+   * Handles the beforeunload event. When the page is about to unload
+   * and user has entered credentials, triggers form submission to ensure
+   * credentials are captured before the page navigates away.
+   */
+  private handleBeforeUnloadEvent = () => {
+    if (this.hasUserFilledCredentialsData()) {
+      this.handleFormFieldSubmitEvent();
+    }
+  };
+
+  /**
+   * Checks if password fields have been removed from the DOM after navigation.
+   * If removed and user had entered credentials, triggers the form submission
+   * event to prompt for credential saving. This mimics Chrome's behavior of
+   * detecting successful form submissions in SPAs.
+   */
+  private checkPasswordFieldRemovalAndSubmit = () => {
+    if (!this.hasUserFilledCredentialsData()) {
+      return;
+    }
+
+    // Check if the password fields are still in the DOM
+    const passwordFieldsStillPresent = this.arePasswordFieldsStillInDom();
+
+    if (!passwordFieldsStillPresent) {
+      // Password fields removed from DOM after navigation - this indicates
+      // a successful form submission in an SPA
+      this.handleFormFieldSubmitEvent();
+    }
+  };
+
+  /**
+   * Checks if any tracked password fields are still present in the DOM.
+   * Returns true if at least one password field is still connected to the document.
+   */
+  private arePasswordFieldsStillInDom = (): boolean => {
+    for (const [element, fieldData] of this.formFieldElements) {
+      if (
+        fieldData.type === "password" &&
+        element instanceof HTMLInputElement &&
+        element.isConnected
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  /**
+   * Checks if user has filled in any credential data that should be saved.
+   * Returns true if there's a username or password value entered by the user.
+   */
+  private hasUserFilledCredentialsData = (): boolean => {
+    // Check if userFilledFields has been initialized and has any entries
+    if (!this.userFilledFields) {
+      return false;
+    }
+
+    const formData = this.getFormFieldData();
+    return !!(
+      (formData.username && formData.username.length > 0) ||
+      (formData.password && formData.password.length > 0) ||
+      (formData.newPassword && formData.newPassword.length > 0)
+    );
+  };
+
+  /**
+   * Restores the original History API methods. Called during cleanup
+   * to ensure we don't leave modified global state.
+   */
+  private restoreHistoryApiMethods = () => {
+    if (this.originalHistoryPushState) {
+      globalThis.history.pushState = this.originalHistoryPushState;
+      this.originalHistoryPushState = null;
+    }
+    if (this.originalHistoryReplaceState) {
+      globalThis.history.replaceState = this.originalHistoryReplaceState;
+      this.originalHistoryReplaceState = null;
+    }
+  };
+
+  /**
+   * Sets up a MutationObserver to detect when password fields are removed from
+   * the DOM. This is a Chrome-like technique for detecting form submissions in
+   * SPAs that manipulate the DOM without triggering navigation events.
+   */
+  private setupPasswordFieldRemovalObserver = () => {
+    if (this.passwordFieldRemovalObserver) {
+      return;
+    }
+
+    this.passwordFieldRemovalObserver = new MutationObserver(
+      this.handlePasswordFieldRemovalMutation,
+    );
+    this.passwordFieldRemovalObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
+  };
+
+  /**
+   * Handles DOM mutations to detect when password fields are removed.
+   * When a password field is removed and user has entered credentials,
+   * schedules a check to trigger form submission.
+   *
+   * @param mutations - The list of DOM mutations
+   */
+  private handlePasswordFieldRemovalMutation = (mutations: MutationRecord[]) => {
+    // Only process if user has filled credentials
+    if (!this.hasUserFilledCredentialsData()) {
+      return;
+    }
+
+    let passwordFieldRemoved = false;
+
+    for (const mutation of mutations) {
+      if (mutation.type !== "childList" || mutation.removedNodes.length === 0) {
+        continue;
+      }
+
+      for (const removedNode of Array.from(mutation.removedNodes)) {
+        if (this.nodeContainsPasswordField(removedNode)) {
+          passwordFieldRemoved = true;
+          break;
+        }
+      }
+
+      if (passwordFieldRemoved) {
+        break;
+      }
+    }
+
+    if (passwordFieldRemoved) {
+      // Schedule the form submission check with a small delay
+      // to batch multiple related mutations together
+      this.schedulePasswordFieldRemovalCheck();
+    }
+  };
+
+  /**
+   * Checks if a DOM node contains any password input fields.
+   *
+   * @param node - The DOM node to check
+   * @returns True if the node or its descendants contain a password field
+   */
+  private nodeContainsPasswordField = (node: Node): boolean => {
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return false;
+    }
+
+    const element = node as Element;
+
+    // Check if the removed node is a password field
+    if (element.tagName === "INPUT" && (element as HTMLInputElement).type === "password") {
+      return true;
+    }
+
+    // Check if any descendants are password fields
+    if (element.querySelector) {
+      const passwordFields = element.querySelectorAll('input[type="password"]');
+      return passwordFields.length > 0;
+    }
+
+    return false;
+  };
+
+  /**
+   * Schedules a password field removal check with debouncing to batch
+   * multiple related DOM mutations together.
+   */
+  private schedulePasswordFieldRemovalCheck = () => {
+    if (this.pendingPasswordFieldRemovalCheck) {
+      globalThis.clearTimeout(this.pendingPasswordFieldRemovalCheck);
+    }
+
+    this.pendingPasswordFieldRemovalCheck = globalThis.setTimeout(() => {
+      this.pendingPasswordFieldRemovalCheck = null;
+
+      // Verify password fields are actually gone from the DOM
+      if (!this.arePasswordFieldsStillInDom() && this.hasUserFilledCredentialsData()) {
+        this.handleFormFieldSubmitEvent();
+      }
+    }, 100);
+  };
+
+  /**
+   * Disconnects the password field removal observer. Called during cleanup.
+   */
+  private disconnectPasswordFieldRemovalObserver = () => {
+    if (this.passwordFieldRemovalObserver) {
+      this.passwordFieldRemovalObserver.disconnect();
+      this.passwordFieldRemovalObserver = null;
+    }
+    if (this.pendingPasswordFieldRemovalCheck) {
+      globalThis.clearTimeout(this.pendingPasswordFieldRemovalCheck);
+      this.pendingPasswordFieldRemovalCheck = null;
+    }
   };
 
   /**
@@ -1603,10 +1863,20 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
   /**
    * Handles the visibility change event. This method will remove the
-   * autofill overlay if the document is not visible.
+   * autofill overlay if the document is not visible. Additionally,
+   * when the page becomes hidden and user has entered credentials,
+   * triggers form submission to ensure credentials are captured.
+   * This mimics Chrome's behavior of prompting to save credentials
+   * when users navigate away from a page.
    */
   private handleVisibilityChangeEvent = () => {
     if (globalThis.document.visibilityState === "hidden") {
+      // Trigger form submission if user has entered credentials
+      // This ensures credentials are captured when user switches tabs or minimizes
+      if (this.hasUserFilledCredentialsData()) {
+        this.handleFormFieldSubmitEvent();
+      }
+
       void this.sendExtensionMessage("closeAutofillInlineMenu", {
         forceCloseInlineMenu: true,
       });
@@ -1823,6 +2093,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.handleVisibilityChangeEvent,
     );
     globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
+    globalThis.removeEventListener("beforeunload", this.handleBeforeUnloadEvent);
+    globalThis.removeEventListener("popstate", this.handlePopStateEvent);
+    this.restoreHistoryApiMethods();
+    this.disconnectPasswordFieldRemovalObserver();
     this.removeOverlayRepositionEventListeners();
     this.removeRebuildSubFrameOffsetsListeners();
     this.removeSubFrameFocusOutListeners();

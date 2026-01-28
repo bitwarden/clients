@@ -1059,32 +1059,51 @@ describe("InsertAutofillContentService", () => {
   });
 
   describe("simulateUserKeyboardEventInteractions", () => {
-    it("will trigger `keydown` and `keyup` events on the passed element", () => {
+    it("will trigger `keydown`, `keypress`, and `keyup` events on the passed element (Chrome-like)", () => {
       const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
       jest.spyOn(inputElement, "dispatchEvent");
 
       insertAutofillContentService["simulateUserKeyboardEventInteractions"](inputElement);
 
-      [EVENTS.KEYDOWN, EVENTS.KEYUP].forEach((eventName) => {
-        expect(inputElement.dispatchEvent).toHaveBeenCalledWith(
-          new KeyboardEvent(eventName, { bubbles: true }),
-        );
-      });
+      // Chrome dispatches keydown -> keypress -> keyup sequence
+      expect(inputElement.dispatchEvent).toHaveBeenCalledTimes(3);
+      expect(inputElement.dispatchEvent).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ type: EVENTS.KEYDOWN, bubbles: true, cancelable: true }),
+      );
+      expect(inputElement.dispatchEvent).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ type: EVENTS.KEYPRESS, bubbles: true, cancelable: true }),
+      );
+      expect(inputElement.dispatchEvent).toHaveBeenNthCalledWith(
+        3,
+        expect.objectContaining({ type: EVENTS.KEYUP, bubbles: true, cancelable: true }),
+      );
     });
   });
 
   describe("simulateInputElementChangedEvent", () => {
-    it("will trigger `input` and `change` events on the passed element", () => {
+    it("will trigger `input` (InputEvent) and `change` events on the passed element (Chrome-like)", () => {
       const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
       jest.spyOn(inputElement, "dispatchEvent");
 
       insertAutofillContentService["simulateInputElementChangedEvent"](inputElement);
 
-      [EVENTS.INPUT, EVENTS.CHANGE].forEach((eventName) => {
-        expect(inputElement.dispatchEvent).toHaveBeenCalledWith(
-          new Event(eventName, { bubbles: true }),
-        );
-      });
+      expect(inputElement.dispatchEvent).toHaveBeenCalledTimes(2);
+      // Chrome uses InputEvent with inputType for the input event
+      expect(inputElement.dispatchEvent).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          type: EVENTS.INPUT,
+          bubbles: true,
+          cancelable: true,
+          inputType: "insertText",
+        }),
+      );
+      expect(inputElement.dispatchEvent).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ type: EVENTS.CHANGE, bubbles: true, cancelable: true }),
+      );
     });
   });
 });
