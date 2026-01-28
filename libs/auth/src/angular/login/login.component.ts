@@ -29,7 +29,7 @@ import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstraction
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+// import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -668,20 +668,24 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async makePasswordPreloginCall() {
-    // Prefetch prelogin KDF config when enabled
-    try {
-      const flagEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM23801_PrefetchPasswordPrelogin,
-      );
-      if (flagEnabled) {
-        const email = this.formGroup.value.email;
-        if (email) {
-          void this.loginStrategyService.getPasswordPrelogin(email);
-        }
-      }
-    } catch (error) {
-      this.logService.error("Failed to prefetch prelogin data.", error);
+    if (this.formGroup.value.email) {
+      await this.loginComponentService.sdkPasswordPrelogin?.(this.formGroup.value.email);
     }
+
+    // // Prefetch prelogin KDF config when enabled
+    // try {
+    //   const flagEnabled = await this.configService.getFeatureFlag(
+    //     FeatureFlag.PM23801_PrefetchPasswordPrelogin,
+    //   );
+    //   if (flagEnabled) {
+    //     const email = this.formGroup.value.email;
+    //     if (email) {
+    //       void this.loginStrategyService.getPasswordPrelogin(email);
+    //     }
+    //   }
+    // } catch (error) {
+    //   this.logService.error("Failed to prefetch prelogin data.", error);
+    // }
   }
 
   /**

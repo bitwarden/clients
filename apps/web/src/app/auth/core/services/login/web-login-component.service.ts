@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import {
   DefaultLoginComponentService,
@@ -16,10 +17,21 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService, toSdkDevice } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import {
+  ClientSettings,
+  PasswordManagerClient,
+  PasswordPreloginResponse,
+  PasswordLoginRequest,
+  LoginResponse,
+} from "@bitwarden/sdk-internal";
 
 import { RouterService } from "../../../../core/router.service";
 
@@ -42,6 +54,7 @@ export class WebLoginComponentService
     private router: Router,
     private accountService: AccountService,
     private configService: ConfigService,
+    private sdkService: SdkService,
   ) {
     super(
       cryptoFunctionService,
@@ -124,5 +137,34 @@ export class WebLoginComponentService
         enforcedPasswordPolicyOptions,
       };
     }
+  }
+
+  async sdkPasswordPrelogin(email: string): Promise<PasswordPreloginResponse> {
+    const anonSdkClient: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+
+    const env = await firstValueFrom(this.environmentService.environment$);
+
+    const settings = this.toSettings(env);
+
+    return await anonSdkClient.auth().login(settings).get_password_prelogin(email);
+  }
+
+  async sdkLoginWithPassword(request: PasswordLoginRequest): Promise<LoginResponse> {
+    const anonSdkClient: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+
+    const env = await firstValueFrom(this.environmentService.environment$);
+
+    const settings = this.toSettings(env);
+
+    return await anonSdkClient.auth().login(settings).login_via_password(request);
+  }
+
+  private toSettings(env: Environment): ClientSettings {
+    return {
+      apiUrl: env.getApiUrl(),
+      identityUrl: env.getIdentityUrl(),
+      deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
+      userAgent: navigator.userAgent,
+    };
   }
 }
