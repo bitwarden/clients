@@ -78,6 +78,10 @@ export const PHISHING_DOMAINS_BLOB_KEY = new KeyDefinition<string>(
 
 /** Coordinates fetching, caching, and patching of known phishing web addresses */
 export class PhishingDataService {
+  // Cursor-based search is disabled due to performance (6+ minutes on large databases)
+  // Enable when performance is optimized via indexing or other improvements
+  private static readonly USE_CUSTOM_MATCHER = false;
+
   // While background scripts do not necessarily need destroying,
   // processes in PhishingDataService are memory intensive.
   // We are adding the destroy to guard against accidental leaks.
@@ -153,12 +157,8 @@ export class PhishingDataService {
    * @returns True if the URL is a known phishing web address, false otherwise
    */
   async isPhishingWebAddress(url: URL): Promise<boolean> {
-    this.logService.debug("[PhishingDataService] isPhishingWebAddress called for: " + url.href);
-
     // Skip non-http(s) protocols - phishing database only contains web URLs
-    // This prevents expensive fallback checks for chrome://, about:, file://, etc.
     if (url.protocol !== "http:" && url.protocol !== "https:") {
-      this.logService.debug("[PhishingDataService] Skipping non-http(s) protocol: " + url.protocol);
       return false;
     }
 
@@ -176,69 +176,37 @@ export class PhishingDataService {
       const urlHref = url.href;
       const urlWithoutTrailingSlash = urlHref.endsWith("/") ? urlHref.slice(0, -1) : null;
 
-      this.logService.debug("[PhishingDataService] Checking hasUrl on this string: " + urlHref);
       let hasUrl = await this.indexedDbService.hasUrl(urlHref);
 
-      // If not found and URL has trailing slash, try without it
       if (!hasUrl && urlWithoutTrailingSlash) {
-        this.logService.debug(
-          "[PhishingDataService] Checking hasUrl without trailing slash: " +
-            urlWithoutTrailingSlash,
-        );
         hasUrl = await this.indexedDbService.hasUrl(urlWithoutTrailingSlash);
       }
 
       if (hasUrl) {
-        this.logService.info(
-          "[PhishingDataService] Found phishing web address through direct lookup: " + urlHref,
-        );
+        this.logService.info("[PhishingDataService] Found phishing URL: " + urlHref);
         return true;
       }
     } catch (err) {
-      this.logService.error("[PhishingDataService] IndexedDB lookup via hasUrl failed", err);
+      this.logService.error("[PhishingDataService] IndexedDB lookup failed", err);
     }
 
-    // If a custom matcher is provided and enabled, use cursor-based search.
-    // This avoids loading all URLs into memory and allows early exit on first match.
-    // Can be disabled via useCustomMatcher: false for performance reasons.
-    if (resource && resource.match && resource.useCustomMatcher !== false) {
+    // Custom matcher is disabled for performance (see USE_CUSTOM_MATCHER)
+    if (resource && resource.match && PhishingDataService.USE_CUSTOM_MATCHER) {
       try {
-        this.logService.debug(
-          "[PhishingDataService] Starting cursor-based search for: " + url.href,
-        );
-        const startTime = performance.now();
-
         const found = await this.indexedDbService.findMatchingUrl((entry) =>
           resource.match(url, entry),
         );
 
-        const endTime = performance.now();
-        const duration = (endTime - startTime).toFixed(2);
-        this.logService.debug(
-          `[PhishingDataService] Cursor-based search completed in ${duration}ms for: ${url.href} (found: ${found})`,
-        );
-
         if (found) {
-          this.logService.info(
-            "[PhishingDataService] Found phishing web address through custom matcher: " + url.href,
-          );
-        } else {
-          this.logService.debug(
-            "[PhishingDataService] No match found, returning false for: " + url.href,
-          );
+          this.logService.info("[PhishingDataService] Found phishing URL via matcher: " + url.href);
         }
         return found;
       } catch (err) {
-        this.logService.error("[PhishingDataService] Error running custom matcher", err);
-        this.logService.debug(
-          "[PhishingDataService] Returning false due to error for: " + url.href,
-        );
+        this.logService.error("[PhishingDataService] Custom matcher failed", err);
         return false;
       }
     }
-    this.logService.debug(
-      "[PhishingDataService] No custom matcher, returning false for: " + url.href,
-    );
+
     return false;
   }
 
