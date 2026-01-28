@@ -13,16 +13,9 @@
 
 ## Standard Auth Request Flows
 
-### Flow 1: Unauthed user requests approval from device; Approving device has a masterKey in memory
+### Flow 1: This flow was removed
 
-1. Unauthed user clicks "Login with device"
-2. Navigates to `/login-with-device` which creates a `StandardAuthRequest`
-3. Receives approval from a device with authRequestPublicKey(masterKey)
-4. Decrypts masterKey
-5. Decrypts userKey
-6. Proceeds to vault
-
-### Flow 2: Unauthed user requests approval from device; Approving device does NOT have a masterKey in memory
+### Flow 2: Unauthed user requests approval from device; Approving device does NOT need to have a masterKey in memory
 
 1. Unauthed user clicks "Login with device"
 2. Navigates to `/login-with-device` which creates a `StandardAuthRequest`
@@ -33,28 +26,18 @@
 **Note:** This flow is an uncommon scenario and relates to TDE off-boarding. The following describes how a user could
 get into this flow:
 
-1. An SSO TD user logs into a device via an Admin auth request approval, therefore this device does NOT have a masterKey
+1. An SSO TD user logs into a device via an Admin auth request approval, therefore this device does NOT need to have a masterKey
    in memory
 2. The org admin:
    - Changes the member decryption options from "Trusted devices" to "Master password" AND
    - Turns off the "Require single sign-on authentication" policy
 3. On another device, the user clicks "Login with device", which they can do because the org no longer requires SSO
-4. The user approves from the device they had previously logged into with SSO TD, which does NOT have a masterKey in
+4. The user approves from the device they had previously logged into with SSO TD, which does NOT need to have a masterKey in
    memory
 
-### Flow 3: Authed SSO TD user requests approval from device; Approving device has a masterKey in memory
+### Flow 3: This flow was removed
 
-1. SSO TD user authenticates via SSO
-2. Navigates to `/login-initiated`
-3. Clicks "Approve from your other device"
-4. Navigates to `/login-with-device` which creates a `StandardAuthRequest`
-5. Receives approval from device with authRequestPublicKey(masterKey)
-6. Decrypts masterKey
-7. Decrypts userKey
-8. Establishes trust (if required)
-9. Proceeds to vault
-
-### Flow 4: Authed SSO TD user requests approval from device; Approving device does NOT have a masterKey in memory
+### Flow 4: Authed SSO TD user requests approval from device; Approving device does NOT need to have a masterKey in memory
 
 1. SSO TD user authenticates via SSO
 2. Navigates to `/login-initiated`
@@ -89,9 +72,7 @@ userKey. This is how admins are able to send over the authRequestPublicKey(userK
 
 | Flow            | Auth Status | Clicks Button [active route]                          | Navigates to                | Approving device has masterKey in memory\*        |
 | --------------- | ----------- | ----------------------------------------------------- | --------------------------- | ------------------------------------------------- |
-| Standard Flow 1 | unauthed    | "Login with device" [`/login`]                        | `/login-with-device`        | yes                                               |
 | Standard Flow 2 | unauthed    | "Login with device" [`/login`]                        | `/login-with-device`        | no                                                |
-| Standard Flow 3 | authed      | "Approve from your other device" [`/login-initiated`] | `/login-with-device`        | yes                                               |
 | Standard Flow 4 | authed      | "Approve from your other device" [`/login-initiated`] | `/login-with-device`        | no                                                |
 | Admin Flow      | authed      | "Request admin approval"<br>[`/login-initiated`]      | `/admin-approval-requested` | NA - admin requests always send encrypted userKey |
 
