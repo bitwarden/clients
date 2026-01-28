@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 
 import { IntegrationType } from "@bitwarden/common/enums/integration-type.enum";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -14,11 +14,9 @@ import { OrganizationIntegrationsState } from "../organization-integrations.stat
   templateUrl: "event-management.component.html",
   imports: [SharedModule, IntegrationGridComponent, FilterIntegrationsPipe],
 })
-export class EventManagementComponent implements OnInit {
+export class EventManagementComponent {
   integrations = this.state.integrations;
   constructor(private state: OrganizationIntegrationsState) {}
-
-  ngOnInit() {}
 
   get IntegrationType(): typeof IntegrationType {
     return IntegrationType;
