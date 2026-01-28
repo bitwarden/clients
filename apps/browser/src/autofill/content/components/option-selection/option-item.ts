@@ -41,6 +41,14 @@ export function OptionItem({
     return;
   };
 
+  const handleSelectionClickProxy = (event: MouseEvent) => {
+    if (!event.isTrusted) {
+      return;
+    }
+
+    handleSelection();
+  };
+
   const iconProps: IconProps = { color: themes[theme].text.main, theme };
   const itemIcon = icon?.(iconProps);
   const ariaLabel =
@@ -56,7 +64,7 @@ export function OptionItem({
     title=${text}
     role="option"
     aria-label=${ariaLabel}
-    @click=${handleSelection}
+    @click=${handleSelectionClickProxy}
     @keyup=${handleSelectionKeyUpProxy}
   >
     ${itemIcon ? html`<div class=${optionItemIconContainerStyles}>${itemIcon}</div>` : nothing}
