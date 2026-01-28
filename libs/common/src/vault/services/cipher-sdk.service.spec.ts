@@ -34,6 +34,7 @@ describe("DefaultCipherSdkService", () => {
       soft_delete_many: jest.fn().mockResolvedValue(undefined),
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
+      list_org_ciphers: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
     };
     mockCiphersSdk = {
       create: jest.fn(),
@@ -44,6 +45,7 @@ describe("DefaultCipherSdkService", () => {
       soft_delete_many: jest.fn().mockResolvedValue(undefined),
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
+      list: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       admin: jest.fn().mockReturnValue(mockAdminSdk),
     };
     mockVaultSdk = {
@@ -528,6 +530,137 @@ describe("DefaultCipherSdkService", () => {
       await expect(cipherSdkService.restoreManyWithServer(testCipherIds, userId)).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to restore multiple ciphers"),
+      );
+    });
+  });
+
+  describe("getAllDecrypted()", () => {
+    it("should list and decrypt ciphers using SDK", async () => {
+      const mockSdkCipherView = new CipherView().toSdkCipherView();
+      mockSdkCipherView.name = "Test Cipher";
+      mockCiphersSdk.list.mockResolvedValue({
+        successes: [mockSdkCipherView],
+        failures: [],
+      });
+
+      const result = await cipherSdkService.getAllDecrypted(userId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.list).toHaveBeenCalled();
+      expect(result.successes).toHaveLength(1);
+      expect(result.successes[0]).toBeInstanceOf(CipherView);
+      expect(result.failures).toHaveLength(0);
+    });
+
+    it("should return failures with decryptionFailure flag set", async () => {
+      // Create a minimal mock that matches what fromSdkCipher expects
+      const mockFailedCipher: any = {
+        id: cipherId,
+        name: "2.encryptedName|iv|data",
+        type: CipherType.Login,
+        organizationId: null,
+        folderId: null,
+        favorite: false,
+        edit: true,
+        viewPassword: true,
+        organizationUseTotp: false,
+        revisionDate: new Date().toISOString(),
+        collectionIds: [],
+        deletedDate: null,
+        reprompt: 0,
+        key: null,
+        localData: null,
+        attachments: null,
+        fields: null,
+        passwordHistory: null,
+        creationDate: new Date().toISOString(),
+        login: null,
+        secureNote: null,
+        card: null,
+        identity: null,
+        sshKey: null,
+      };
+      mockCiphersSdk.list.mockResolvedValue({
+        successes: [],
+        failures: [mockFailedCipher],
+      });
+
+      const result = await cipherSdkService.getAllDecrypted(userId);
+
+      expect(result.successes).toHaveLength(0);
+      expect(result.failures).toHaveLength(1);
+      expect(result.failures[0].decryptionFailure).toBe(true);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(cipherSdkService.getAllDecrypted(userId)).rejects.toThrow("SDK not available");
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to list and decrypt ciphers"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.list.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.getAllDecrypted(userId)).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to list and decrypt ciphers"),
+      );
+    });
+  });
+
+  describe("getAllFromApiForOrganization()", () => {
+    it("should list organization ciphers using SDK admin API", async () => {
+      const mockSdkCipherView = new CipherView().toSdkCipherView();
+      mockSdkCipherView.name = "Org Cipher";
+      mockAdminSdk.list_org_ciphers.mockResolvedValue({
+        successes: [mockSdkCipherView],
+        failures: [],
+      });
+
+      const result = await cipherSdkService.getAllFromApiForOrganization(orgId, userId, false);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(orgId, false);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(CipherView);
+    });
+
+    it("should pass includeMemberItems parameter to SDK", async () => {
+      mockAdminSdk.list_org_ciphers.mockResolvedValue({
+        successes: [],
+        failures: [],
+      });
+
+      await cipherSdkService.getAllFromApiForOrganization(orgId, userId, true);
+
+      expect(mockAdminSdk.list_org_ciphers).toHaveBeenCalledWith(orgId, true);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(
+        cipherSdkService.getAllFromApiForOrganization(orgId, userId, false),
+      ).rejects.toThrow("SDK not available");
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to list organization ciphers"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockAdminSdk.list_org_ciphers.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.getAllFromApiForOrganization(orgId, userId, false),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to list organization ciphers"),
       );
     });
   });

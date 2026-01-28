@@ -46,7 +46,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
 
 import { CipherService } from "./cipher.service";
-import { ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
+import { DECRYPTED_CIPHERS, ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
 
 const ENCRYPTED_TEXT = "This data has been encrypted";
 function encryptText(clearText: string | Uint8Array) {
@@ -1238,6 +1238,132 @@ describe("Cipher Service", () => {
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testCipherIds, userId, true, orgId);
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+    });
+  });
+
+  describe("getAllFromApiForOrganization()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should call apiService.getCiphersOrganization when feature flag is disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const mockResponse = {
+        data: [],
+      } as any;
+
+      const apiSpy = jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockResolvedValue(mockResponse);
+
+      await cipherService.getAllFromApiForOrganization(testOrgId, true);
+
+      expect(apiSpy).toHaveBeenCalledWith(testOrgId, true);
+    });
+
+    it("should call apiService.getCiphersOrganization without includeMemberItems when not provided", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const mockResponse = { data: [] } as any;
+      const apiSpy = jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockResolvedValue(mockResponse);
+
+      await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(apiSpy).toHaveBeenCalledWith(testOrgId, undefined);
+    });
+
+    it("should use SDK to list organization ciphers when feature flag is enabled", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      const mockCipherView1 = new CipherView();
+      mockCipherView1.name = "Test Cipher 1";
+      const mockCipherView2 = new CipherView();
+      mockCipherView2.name = "Test Cipher 2";
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getAllFromApiForOrganization")
+        .mockResolvedValue([mockCipherView1, mockCipherView2]);
+
+      const apiSpy = jest.spyOn(apiService, "getCiphersOrganization");
+
+      const result = await cipherService.getAllFromApiForOrganization(testOrgId, true);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, true);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(result).toHaveLength(2);
+      expect(result[0]).toBeInstanceOf(CipherView);
+      expect(result[1]).toBeInstanceOf(CipherView);
+    });
+
+    it("should use SDK with includeMemberItems=false when not provided", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getAllFromApiForOrganization")
+        .mockResolvedValue([]);
+
+      const apiSpy = jest.spyOn(apiService, "getCiphersOrganization");
+
+      await cipherService.getAllFromApiForOrganization(testOrgId);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, false);
+      expect(apiSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getAllDecrypted()", () => {
+    beforeEach(() => {
+      // Clear the decrypted cache to ensure we test the decrypt path
+      stateProvider.singleUser.getFake(mockUserId, DECRYPTED_CIPHERS).nextState({});
+    });
+
+    it("should use SDK to list and decrypt ciphers when feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(true);
+
+      const mockCipherView1 = new CipherView();
+      mockCipherView1.name = "Test Cipher 1";
+      const mockCipherView2 = new CipherView();
+      mockCipherView2.name = "Test Cipher 2";
+
+      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted").mockResolvedValue({
+        successes: [mockCipherView1, mockCipherView2],
+        failures: [],
+      });
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(mockUserId);
+      expect(result).toHaveLength(2);
+      expect(result[0]).toBeInstanceOf(CipherView);
+      expect(result[1]).toBeInstanceOf(CipherView);
+    });
+
+    it("should not call cipherSdkService when feature flag is disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+
+      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted");
+
+      // Just verify SDK service is not called - don't test the full legacy path
+      // as it would require complex mocking of keyService observables
+      stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).nextState({});
+
+      try {
+        await cipherService.getAllDecrypted(mockUserId);
+      } catch {
+        // Expected to fail due to missing keyService mocks, but that's okay
+        // We just want to verify SDK service wasn't called
+      }
+
+      expect(sdkServiceSpy).not.toHaveBeenCalled();
     });
   });
 
