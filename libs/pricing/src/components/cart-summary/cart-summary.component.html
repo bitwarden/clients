@@ -163,8 +163,14 @@
           class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
           data-testid="discount-section"
         >
-          <h3 bitTypography="h5" class="tw-text-success-600">{{ discountLabel() }}</h3>
-          <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
+          <h3 bitTypography="h5" class="tw-text-success-600 tw-text-base tw-font-medium">
+            {{ discountLabel() }}
+          </h3>
+          <div
+            bitTypography="body1"
+            class="tw-text-success-600 tw-text-base tw-font-medium"
+            data-testid="discount-amount"
+          >
             -{{ discountAmount() | currency: "USD" : "symbol" }}
           </div>
         </div>
