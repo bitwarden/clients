@@ -20,7 +20,7 @@ const POLICY_ORDER_MAP = new Map<string, number>([
   ["removeUnlockWithPinPolicyTitle", 10],
   ["passwordGenerator", 11],
   ["uriMatchDetectionPolicy", 12],
-  ["activateAutofill", 13],
+  ["activateAutofillPolicy", 13],
   ["sendOptions", 14],
   ["disableSend", 15],
   ["restrictedItemTypePolicy", 16],
