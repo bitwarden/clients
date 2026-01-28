@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const TwoFactorAuthAuthenticatorIcon = svgIcon`
+export const TwoFactorAuthAuthenticatorIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 10 80 66.67">
     <path class="tw-fill-illustration-bg-secondary" d="M13.333 15a5 5 0 0 1 5-5H75a5 5 0 0 1 5 5v40a5 5 0 0 1-5 5H18.333a5 5 0 0 1-5-5V15Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M75 11.667H18.333A3.333 3.333 0 0 0 15 15v40a3.333 3.333 0 0 0 3.333 3.333H75A3.333 3.333 0 0 0 78.333 55V15A3.333 3.333 0 0 0 75 11.667ZM18.333 10a5 5 0 0 0-5 5v40a5 5 0 0 0 5 5H75a5 5 0 0 0 5-5V15a5 5 0 0 0-5-5H18.333Z" clip-rule="evenodd"/>

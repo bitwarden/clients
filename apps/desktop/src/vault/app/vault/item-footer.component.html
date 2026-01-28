@@ -11,61 +11,66 @@
     >
       {{ submitButtonText() }}
     </button>
-    <button
-      type="button"
-      class="primary"
-      (click)="edit()"
-      appA11yTitle="{{ 'edit' | i18n }}"
-      *ngIf="!cipher.isDeleted && action === 'view'"
-    >
-      <i class="bwi bwi-pencil bwi-fw bwi-lg" aria-hidden="true"></i>
-    </button>
-    <button
-      *ngIf="action === 'edit' || action === 'clone' || action === 'add'"
-      type="button"
-      (click)="cancel()"
-    >
-      {{ "cancel" | i18n }}
-    </button>
-    <button
-      type="button"
-      class="primary"
-      (click)="restore()"
-      appA11yTitle="{{ 'restore' | i18n }}"
-      *ngIf="cipher.isDeleted && cipher.permissions.restore"
-    >
-      <i class="bwi bwi-undo bwi-fw bwi-lg" aria-hidden="true"></i>
-    </button>
+    @if (!cipher.isDeleted && action === "view") {
+      <button type="button" class="primary" (click)="edit()" appA11yTitle="{{ 'edit' | i18n }}">
+        <i class="bwi bwi-pencil bwi-fw bwi-lg" aria-hidden="true" style="pointer-events: none">
+        </i>
+      </button>
+    }
+
+    @if (action === "edit" || action === "clone" || action === "add") {
+      <button type="button" (click)="cancel()">
+        {{ "cancel" | i18n }}
+      </button>
+    }
+
+    @if (cipher.isDeleted && cipher.permissions.restore) {
+      <button
+        type="button"
+        class="primary"
+        (click)="restore()"
+        appA11yTitle="{{ 'restore' | i18n }}"
+      >
+        <i class="bwi bwi-undo bwi-fw bwi-lg" aria-hidden="true" style="pointer-events: none"></i>
+      </button>
+    }
+
     @if (showCloneOption) {
       <button type="button" class="primary" (click)="clone()" appA11yTitle="{{ 'clone' | i18n }}">
-        <i class="bwi bwi-files bwi-fw bwi-lg" aria-hidden="true"></i>
+        <i class="bwi bwi-files bwi-fw bwi-lg" aria-hidden="true" style="pointer-events: none"></i>
       </button>
     }
   </ng-container>
-  <div class="right" *ngIf="hasFooterAction">
-    <button
-      type="button"
-      *ngIf="showArchiveButton"
-      (click)="archive()"
-      appA11yTitle="{{ 'archiveVerb' | i18n }}"
-    >
-      <i class="bwi bwi-archive bwi-lg bwi-fw" aria-hidden="true"></i>
-    </button>
-    <button
-      type="button"
-      *ngIf="showUnarchiveButton"
-      (click)="unarchive()"
-      appA11yTitle="{{ 'unArchive' | i18n }}"
-    >
-      <i class="bwi bwi-unarchive bwi-lg bwi-fw" aria-hidden="true"></i>
-    </button>
-    <button
-      type="button"
-      (click)="delete()"
-      class="danger"
-      appA11yTitle="{{ (cipher.isDeleted ? 'permanentlyDelete' : 'delete') | i18n }}"
-    >
-      <i class="bwi bwi-trash bwi-lg bwi-fw" aria-hidden="true"></i>
-    </button>
-  </div>
+  @if (hasFooterAction) {
+    <div class="right">
+      @if (showArchiveButton) {
+        <button type="button" (click)="archive()" appA11yTitle="{{ 'archiveVerb' | i18n }}">
+          <i
+            class="bwi bwi-archive bwi-lg bwi-fw"
+            aria-hidden="true"
+            style="pointer-events: none"
+          ></i>
+        </button>
+      }
+
+      @if (showUnarchiveButton) {
+        <button type="button" (click)="unarchive()" appA11yTitle="{{ 'unArchive' | i18n }}">
+          <i
+            class="bwi bwi-unarchive bwi-lg bwi-fw"
+            aria-hidden="true"
+            style="pointer-events: none"
+          ></i>
+        </button>
+      }
+
+      <button
+        type="button"
+        (click)="delete()"
+        class="danger"
+        appA11yTitle="{{ (cipher.isDeleted ? 'permanentlyDelete' : 'delete') | i18n }}"
+      >
+        <i class="bwi bwi-trash bwi-lg bwi-fw" aria-hidden="true" style="pointer-events: none"></i>
+      </button>
+    </div>
+  }
 </div>
