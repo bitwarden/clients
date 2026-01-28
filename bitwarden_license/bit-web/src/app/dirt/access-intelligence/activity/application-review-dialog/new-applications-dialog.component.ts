@@ -40,6 +40,8 @@ import { ReviewApplicationsViewComponent } from "./review-applications-view.comp
 
 export interface NewApplicationsDialogData {
   newApplications: ApplicationHealthReportDetail[];
+  /** Set of critical application names to preselect */
+  criticalApplicationIds: Set<string>;
   /**
    * Organization ID is passed via dialog data instead of being retrieved from route params.
    * This ensures organizationId is available immediately when the dialog opens,
@@ -160,6 +162,8 @@ export class NewApplicationsDialogComponent {
     private toastService: ToastService,
   ) {
     this.setApplicationIconMap(this.dialogParams.newApplications);
+    this.selectedApplications.set(new Set(this.dialogParams.criticalApplicationIds));
+
     // Setup the _tasks signal by manually passing in the injector
     this._tasks = toSignal(this.securityTasksService.tasks$, {
       initialValue: [],

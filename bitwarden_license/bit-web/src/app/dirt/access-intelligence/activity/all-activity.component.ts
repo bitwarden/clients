@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, input, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { lastValueFrom } from "rxjs";
@@ -48,6 +48,8 @@ export class AllActivityComponent implements OnInit {
   hasLoadedApplicationData = false;
   showNeedsReviewState = false;
 
+  private readonly criticalApplicationIds = signal(new Set<string>());
+
   destroyRef = inject(DestroyRef);
 
   protected ReportStatusEnum = ReportStatus;
@@ -82,6 +84,19 @@ export class AllActivityComponent implements OnInit {
         this.newApplicationsCount = newApps.length;
         this.updateIsAllCaughtUp();
         this.updateShowNeedsReviewState();
+      });
+
+    // Subscribe to critical report results to get critical application IDs
+    this.dataService.criticalReportResults$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((criticalResults) => {
+        const criticalAppIds = new Set<string>();
+        if (criticalResults?.applicationData) {
+          for (const app of criticalResults.applicationData) {
+            criticalAppIds.add(app.applicationName);
+          }
+        }
+        this.criticalApplicationIds.set(criticalAppIds);
       });
 
     this.allActivitiesService.extendPasswordChangeWidget$
@@ -152,6 +167,7 @@ export class AllActivityComponent implements OnInit {
     // organizationId is populated via async route subscription.
     const dialogRef = NewApplicationsDialogComponent.open(this.dialogService, {
       newApplications: this.newApplications,
+      criticalApplicationIds: this.criticalApplicationIds(),
       organizationId: organizationId as OrganizationId,
       hasExistingCriticalApplications: this.totalCriticalAppsCount > 0,
     });
