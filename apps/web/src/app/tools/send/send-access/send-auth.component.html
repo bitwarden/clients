@@ -1,14 +1,38 @@
-<form (ngSubmit)="onSubmit(password)">
-  <div class="tw-text-main tw-text-center" *ngIf="unavailable">
-    <p bitTypography="body1">{{ "sendAccessUnavailable" | i18n }}</p>
+@if (loading()) {
+  <div class="tw-text-center">
+    <i
+      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </div>
-  <div class="tw-text-main tw-text-center" *ngIf="error">
-    <p bitTypography="body1">{{ "unexpectedErrorSend" | i18n }}</p>
-  </div>
-
-  <app-send-access-password
-    *ngIf="!unavailable"
-    (setPasswordEvent)="password = $event"
-    [loading]="loading"
-  ></app-send-access-password>
+}
+<form [formGroup]="sendAccessForm" (ngSubmit)="onSubmit()">
+  @if (error()) {
+    <div class="tw-text-main tw-text-center">
+      <p bitTypography="body1">{{ "unexpectedErrorSend" | i18n }}</p>
+    </div>
+  }
+  @if (unavailable()) {
+    <div class="tw-text-main tw-text-center">
+      <p bitTypography="body1">{{ "sendAccessUnavailable" | i18n }}</p>
+    </div>
+  } @else {
+    @switch (sendAuthType()) {
+      @case (authType.Password) {
+        <app-send-access-password
+          [loading]="loading()"
+          [formGroup]="sendAccessForm"
+        ></app-send-access-password>
+      }
+      @case (authType.Email) {
+        <app-send-access-email
+          [formGroup]="sendAccessForm"
+          [enterOtp]="enterOtp()"
+          [loading]="loading()"
+        ></app-send-access-email>
+      }
+    }
+  }
 </form>
