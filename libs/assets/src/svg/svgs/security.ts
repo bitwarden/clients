@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const Security = svgIcon`
+export const Security = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="4 4 88 89">
     <path class="tw-fill-illustration-bg-secondary" d="M4 12a8 8 0 0 1 8-8h72a8 8 0 0 1 8 8v63a8 8 0 0 1-8 8H12a8 8 0 0 1-8-8V12Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M84 6H12a6 6 0 0 0-6 6v63a6 6 0 0 0 6 6h72a6 6 0 0 0 6-6V12a6 6 0 0 0-6-6ZM12 4a8 8 0 0 0-8 8v63a8 8 0 0 0 8 8h72a8 8 0 0 0 8-8V12a8 8 0 0 0-8-8H12Z" clip-rule="evenodd"/>
