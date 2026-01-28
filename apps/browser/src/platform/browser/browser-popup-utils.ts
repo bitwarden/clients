@@ -168,29 +168,8 @@ export default class BrowserPopupUtils {
     ) {
       return;
     }
-    const platform = await BrowserApi.getPlatformInfo();
-    const isMacOS = platform.os === "mac";
-    const isFullscreen = senderWindow.state === "fullscreen";
-    const isFullscreenAndMacOS = isFullscreen && isMacOS;
-    //macOS specific handling for improved UX when sender in fullscreen aka green button;
-    if (isFullscreenAndMacOS) {
-      await BrowserApi.updateWindowProperties(senderWindow.id, {
-        state: "maximized",
-      });
 
-      //wait for macOS animation to finish
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-
-    const newWindow = await BrowserApi.createWindow(popoutWindowOptions);
-
-    if (isFullscreenAndMacOS) {
-      await BrowserApi.updateWindowProperties(newWindow.id, {
-        focused: true,
-      });
-    }
-
-    return newWindow;
+    return await BrowserApi.createWindow(popoutWindowOptions);
   }
 
   /**
