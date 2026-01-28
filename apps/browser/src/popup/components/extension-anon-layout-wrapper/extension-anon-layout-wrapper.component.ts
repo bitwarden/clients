@@ -5,10 +5,10 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
 import { Subject, filter, switchMap, takeUntil, tap } from "rxjs";
 
-import { BitwardenLogo, Icon } from "@bitwarden/assets/svg";
+import { BitwardenLogo, BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
-  IconModule,
+  SvgModule,
   Translation,
   AnonLayoutComponent,
   AnonLayoutWrapperData,
@@ -38,7 +38,7 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
     CommonModule,
     CurrentAccountComponent,
     I18nPipe,
-    IconModule,
+    SvgModule,
     PopOutComponent,
     PopupPageComponent,
     PopupHeaderComponent,
@@ -54,7 +54,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
 
   protected pageTitle: string;
   protected pageSubtitle: string;
-  protected pageIcon: Icon;
+  protected pageIcon: BitSvg;
   protected showReadonlyHostname: boolean;
   protected maxWidth: "md" | "3xl";
   protected hasLoggedInAccount: boolean = false;
