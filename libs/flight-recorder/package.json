@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/flight-recorder",
+  "version": "0.0.1",
+  "description": "SDK Flight Recorder integration for capturing and exporting diagnostic logs",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}
