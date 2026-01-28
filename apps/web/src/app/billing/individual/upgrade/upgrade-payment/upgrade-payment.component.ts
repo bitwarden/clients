@@ -63,7 +63,6 @@ import {
  * Status types for upgrade payment dialog
  */
 export const UpgradePaymentStatus = {
-  Back: "back",
   Closed: "closed",
   UpgradedToPremium: "upgradedToPremium",
   UpgradedToFamilies: "upgradedToFamilies",
