@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, isDevMode, OnInit } from "@angular/core";
 
 import { BitSvg } from "@bitwarden/assets/svg";
@@ -7,7 +6,7 @@ import { ButtonModule, SvgModule } from "@bitwarden/components";
 @Component({
   selector: "empty-state-card",
   templateUrl: "./empty-state-card.component.html",
-  imports: [CommonModule, SvgModule, ButtonModule],
+  imports: [SvgModule, ButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmptyStateCardComponent implements OnInit {

@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -79,7 +78,6 @@ export type NewApplicationsDialogResultType =
   selector: "dirt-new-applications-dialog",
   templateUrl: "./new-applications-dialog.component.html",
   imports: [
-    CommonModule,
     ButtonModule,
     DialogModule,
     TypographyModule,

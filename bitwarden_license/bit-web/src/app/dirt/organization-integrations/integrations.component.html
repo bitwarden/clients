@@ -24,28 +24,32 @@
 
     @if (organization?.useScim || organization?.useDirectory) {
       <bit-tab [label]="'userProvisioning' | i18n">
-        <section class="tw-mb-9" *ngIf="organization?.useScim">
-          <h2 bitTypography="h2">
-            {{ "scimIntegration" | i18n }}
-          </h2>
-          <p bitTypography="body1">
-            {{ "scimIntegrationDescStart" | i18n }}
-            <a bitLink routerLink="../settings/scim">{{ "scimIntegration" | i18n }}</a>
-            {{ "scimIntegrationDescEnd" | i18n }}
-          </p>
-          <app-integration-grid
-            [integrations]="integrationsList | filterIntegrations: IntegrationType.SCIM"
-          ></app-integration-grid>
-        </section>
-        <section class="tw-mb-9" *ngIf="organization?.useDirectory">
-          <h2 bitTypography="h2">
-            {{ "bwdc" | i18n }}
-          </h2>
-          <p bitTypography="body1">{{ "bwdcDesc" | i18n }}</p>
-          <app-integration-grid
-            [integrations]="integrationsList | filterIntegrations: IntegrationType.BWDC"
-          ></app-integration-grid>
-        </section>
+        @if (organization?.useScim) {
+          <section class="tw-mb-9">
+            <h2 bitTypography="h2">
+              {{ "scimIntegration" | i18n }}
+            </h2>
+            <p bitTypography="body1">
+              {{ "scimIntegrationDescStart" | i18n }}
+              <a bitLink routerLink="../settings/scim">{{ "scimIntegration" | i18n }}</a>
+              {{ "scimIntegrationDescEnd" | i18n }}
+            </p>
+            <app-integration-grid
+              [integrations]="integrationsList | filterIntegrations: IntegrationType.SCIM"
+            ></app-integration-grid>
+          </section>
+        }
+        @if (organization?.useDirectory) {
+          <section class="tw-mb-9">
+            <h2 bitTypography="h2">
+              {{ "bwdc" | i18n }}
+            </h2>
+            <p bitTypography="body1">{{ "bwdcDesc" | i18n }}</p>
+            <app-integration-grid
+              [integrations]="integrationsList | filterIntegrations: IntegrationType.BWDC"
+            ></app-integration-grid>
+          </section>
+        }
       </bit-tab>
     }
 
