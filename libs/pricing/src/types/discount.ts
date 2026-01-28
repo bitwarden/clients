@@ -10,22 +10,27 @@ export type DiscountType = (typeof DiscountTypes)[keyof typeof DiscountTypes];
 export type Discount = {
   type: DiscountType;
   value: number;
+  translationKey?: string;
+  hideFormattedAmount?: boolean;
 };
 
 export const getLabel = (i18nService: I18nService, discount: Discount): string => {
   switch (discount.type) {
     case DiscountTypes.AmountOff: {
+      if (discount.hideFormattedAmount) {
+        return i18nService.t(discount.translationKey ?? "discount");
+      }
       const formattedAmount = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(discount.value);
-      return `${formattedAmount} ${i18nService.t("discount")}`;
+      return `${formattedAmount} ${i18nService.t(discount.translationKey ?? "discount")}`;
     }
     case DiscountTypes.PercentOff: {
       const percentValue = discount.value < 1 ? discount.value * 100 : discount.value;
-      return `${Math.round(percentValue)}% ${i18nService.t("discount")}`;
+      return `${Math.round(percentValue)}% ${i18nService.t(discount.translationKey ?? "discount")}`;
     }
   }
 };

@@ -2,9 +2,11 @@ import { Discount } from "@bitwarden/pricing";
 
 export type CartItem = {
   translationKey: string;
+  translationParams?: Array<string | number>;
   quantity: number;
   cost: number;
   discount?: Discount;
+  hideBreakdown?: boolean;
 };
 
 export type Cart = {

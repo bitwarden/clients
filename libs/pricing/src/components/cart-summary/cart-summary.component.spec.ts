@@ -253,6 +253,126 @@ describe("CartSummaryComponent", () => {
     });
   });
 
+  describe("hideBreakdown Property", () => {
+    it("should hide cost breakdown when hideBreakdown is true for password manager seats", () => {
+      // Arrange
+      const cartWithHiddenBreakdown: Cart = {
+        ...mockCart,
+        passwordManager: {
+          seats: {
+            quantity: 5,
+            translationKey: "members",
+            cost: 50,
+            hideBreakdown: true,
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithHiddenBreakdown);
+      fixture.detectChanges();
+
+      const pmLineItem = fixture.debugElement.query(
+        By.css('[id="password-manager-members"] .tw-flex-1 .tw-text-muted'),
+      );
+
+      // Act / Assert
+      expect(pmLineItem.nativeElement.textContent).toContain("5 Members");
+    });
+
+    it("should show cost breakdown when hideBreakdown is false for password manager seats", () => {
+      // Arrange / Act
+      const pmLineItem = fixture.debugElement.query(
+        By.css('[id="password-manager-members"] .tw-flex-1 .tw-text-muted'),
+      );
+
+      // Assert
+      expect(pmLineItem.nativeElement.textContent).toContain("5 Members  x $50.00 / month");
+    });
+
+    it("should hide cost breakdown for additional storage when hideBreakdown is true", () => {
+      // Arrange
+      const cartWithHiddenBreakdown: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          additionalStorage: {
+            quantity: 2,
+            translationKey: "additionalStorageGB",
+            cost: 10,
+            hideBreakdown: true,
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithHiddenBreakdown);
+      fixture.detectChanges();
+
+      const storageItem = fixture.debugElement.query(By.css("[id='additional-storage']"));
+      const storageLineItem = storageItem.query(By.css(".tw-flex-1 .tw-text-muted"));
+      const storageTotal = storageItem.query(By.css("[data-testid='additional-storage-total']"));
+
+      // Act / Assert
+      expect(storageLineItem.nativeElement.textContent).toContain("2 Additional storage GB");
+      expect(storageTotal.nativeElement.textContent).toContain("$20.00");
+    });
+
+    it("should hide cost breakdown for secrets manager seats when hideBreakdown is true", () => {
+      // Arrange
+      const cartWithHiddenBreakdown: Cart = {
+        ...mockCart,
+        secretsManager: {
+          seats: {
+            quantity: 3,
+            translationKey: "secretsManagerSeats",
+            cost: 30,
+            hideBreakdown: true,
+          },
+          additionalServiceAccounts: mockCart.secretsManager!.additionalServiceAccounts,
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithHiddenBreakdown);
+      fixture.detectChanges();
+
+      const smLineItem = fixture.debugElement.query(
+        By.css('[id="secrets-manager-members"] .tw-text-muted'),
+      );
+      const smTotal = fixture.debugElement.query(
+        By.css('[data-testid="secrets-manager-seats-total"]'),
+      );
+
+      // Act / Assert
+      expect(smLineItem.nativeElement.textContent).toContain("3 Secrets Manager seats");
+      expect(smTotal.nativeElement.textContent).toContain("$90.00");
+    });
+
+    it("should hide cost breakdown for additional service accounts when hideBreakdown is true", () => {
+      // Arrange
+      const cartWithHiddenBreakdown: Cart = {
+        ...mockCart,
+        secretsManager: {
+          seats: mockCart.secretsManager!.seats,
+          additionalServiceAccounts: {
+            quantity: 2,
+            translationKey: "additionalServiceAccountsV2",
+            cost: 6,
+            hideBreakdown: true,
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithHiddenBreakdown);
+      fixture.detectChanges();
+
+      const saLineItem = fixture.debugElement.query(
+        By.css('[id="additional-service-accounts"] .tw-text-muted'),
+      );
+      const saTotal = fixture.debugElement.query(
+        By.css('[data-testid="additional-service-accounts-total"]'),
+      );
+
+      // Act / Assert
+      expect(saLineItem.nativeElement.textContent).toContain("2 Additional machine accounts");
+      expect(saTotal.nativeElement.textContent).toContain("$12.00");
+    });
+  });
+
   describe("Discount Display", () => {
     it("should not display discount section when no discount is present", () => {
       // Arrange / Act
