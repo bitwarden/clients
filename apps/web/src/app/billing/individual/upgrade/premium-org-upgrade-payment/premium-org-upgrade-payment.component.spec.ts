@@ -337,7 +337,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "organizationUpdated",
+        message: "plansUpdated",
       });
       expect(completeSpy).toHaveBeenCalledWith({
         status: PremiumOrgUpgradePaymentStatus.UpgradedToTeams,

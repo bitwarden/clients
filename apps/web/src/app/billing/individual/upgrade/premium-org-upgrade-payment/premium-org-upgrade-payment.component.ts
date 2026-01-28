@@ -177,7 +177,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
         type: "amount-off",
         value: this.estimatedInvoice().credit,
         translationKey: "premiumMembershipDiscount",
-        quantity: 1,
+        hideFormattedAmount: true,
       },
     };
   });

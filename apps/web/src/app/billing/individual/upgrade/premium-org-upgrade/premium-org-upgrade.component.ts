@@ -1,6 +1,13 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit, output, signal } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { combineLatest, catchError, of } from "rxjs";
 
@@ -16,15 +23,21 @@ import {
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonType, DialogModule, ToastService } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 
 import { SharedModule } from "../../../../shared";
 import { BillingServicesModule } from "../../../services";
+export const PremiumOrgUpgradeStatus = {
+  Closed: "closed",
+  ProceededToPayment: "proceeded-to-payment",
+} as const;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+export type PremiumOrgUpgradeStatus = UnionOfValues<typeof PremiumOrgUpgradeStatus>;
+
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-premium-org-upgrade",
   imports: [
     CommonModule,
@@ -38,6 +51,9 @@ import { BillingServicesModule } from "../../../services";
 })
 export class PremiumOrgUpgradeComponent implements OnInit {
   planSelected = output<PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId>();
+  closeClicked = output<PremiumOrgUpgradeStatus>();
+  protected closedStatus = PremiumOrgUpgradeStatus.Closed;
+
   protected readonly loading = signal(true);
   protected familiesCardDetails!: SubscriptionPricingCardDetails;
   protected teamsCardDetails!: SubscriptionPricingCardDetails;
@@ -129,11 +145,13 @@ export class PremiumOrgUpgradeComponent implements OnInit {
     }
 
     let priceAmount: number | undefined;
+    let shouldShowPerUser = false;
 
     if ("annualPrice" in tier.passwordManager) {
       priceAmount = tier.passwordManager.annualPrice;
     } else if ("annualPricePerUser" in tier.passwordManager) {
       priceAmount = tier.passwordManager.annualPricePerUser;
+      shouldShowPerUser = true;
     }
 
     return {
@@ -144,6 +162,7 @@ export class PremiumOrgUpgradeComponent implements OnInit {
           ? {
               amount: priceAmount / 12,
               cadence: SubscriptionCadenceIds.Monthly,
+              showPerUser: shouldShowPerUser,
             }
           : undefined,
       button: {
