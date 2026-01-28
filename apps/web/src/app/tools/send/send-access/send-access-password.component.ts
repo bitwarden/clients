@@ -1,43 +1,30 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
+import { ChangeDetectionStrategy, Component, input, OnDestroy, OnInit } from "@angular/core";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { SharedModule } from "../../../shared";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-access-password",
   templateUrl: "send-access-password.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendAccessPasswordComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  protected formGroup = this.formBuilder.group({
-    password: ["", [Validators.required]],
-  });
+  protected readonly formGroup = input.required<FormGroup>();
+  protected password: FormControl;
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() loading: boolean;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() setPasswordEvent = new EventEmitter<string>();
+  readonly loading = input.required<boolean>();
 
-  constructor(private formBuilder: FormBuilder) {}
+  constructor() {}
 
-  async ngOnInit() {
-    this.formGroup.controls.password.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((val) => {
-        this.setPasswordEvent.emit(val);
-      });
+  ngOnInit() {
+    this.password = new FormControl("", Validators.required);
+    this.formGroup().addControl("password", this.password);
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.formGroup().removeControl("password");
   }
 }

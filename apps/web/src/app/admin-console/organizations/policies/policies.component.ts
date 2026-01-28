@@ -21,13 +21,14 @@ import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
+import { PolicyOrderPipe } from "./pipes/policy-order.pipe";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
 import { PolicyListService } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule],
+  imports: [SharedModule, HeaderModule, PolicyOrderPipe],
   providers: [
     safeProvider({
       provide: PolicyListService,

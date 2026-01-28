@@ -3,7 +3,7 @@ import { Component, ChangeDetectionStrategy, inject, input } from "@angular/core
 import { BackgroundLeftIllustration, BackgroundRightIllustration } from "@bitwarden/assets/svg";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { IconModule } from "../icon";
+import { SvgModule } from "../svg";
 
 /**
  * Root layout component for landing pages providing a full-screen container with optional decorative background illustrations.
@@ -27,7 +27,7 @@ import { IconModule } from "../icon";
   selector: "bit-landing-layout",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-layout.component.html",
-  imports: [IconModule],
+  imports: [SvgModule],
 })
 export class LandingLayoutComponent {
   readonly hideBackgroundIllustration = input<boolean>(false);
