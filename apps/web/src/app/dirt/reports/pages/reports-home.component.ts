@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -9,14 +9,14 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { reports, ReportType } from "../reports";
 import { ReportEntry, ReportVariant } from "../shared";
 
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-reports-home",
   templateUrl: "reports-home.component.html",
   standalone: false,
 })
 export class ReportsHomeComponent implements OnInit {
-  reports: ReportEntry[];
+  readonly reports = signal<ReportEntry[]>([]);
 
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -32,7 +32,7 @@ export class ReportsHomeComponent implements OnInit {
       ? ReportVariant.Enabled
       : ReportVariant.RequiresPremium;
 
-    this.reports = [
+    this.reports.set([
       {
         ...reports[ReportType.ExposedPasswords],
         variant: reportRequiresPremium,
@@ -57,6 +57,6 @@ export class ReportsHomeComponent implements OnInit {
         ...reports[ReportType.DataBreach],
         variant: ReportVariant.Enabled,
       },
-    ];
+    ]);
   }
 }
