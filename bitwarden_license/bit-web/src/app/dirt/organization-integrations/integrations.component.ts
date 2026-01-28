@@ -1,39 +1,24 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, Observable, Subject, switchMap, takeUntil, takeWhile } from "rxjs";
+import { Component } from "@angular/core";
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
-import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
-import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
-import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { IntegrationType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { getById } from "@bitwarden/common/platform/misc";
+import { IntegrationType } from "@bitwarden/common/enums/integration-type.enum";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { IntegrationGridComponent } from "./integration-grid/integration-grid.component";
-import { FilterIntegrationsPipe } from "./integrations.pipe";
+import { OrganizationIntegrationsState } from "./organization-integrations.state";
 
-// attempted, but because bit-tab-group is not OnPush, caused more issues than it solved
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "ac-integrations",
   templateUrl: "./integrations.component.html",
-  imports: [SharedModule, IntegrationGridComponent, HeaderModule, FilterIntegrationsPipe],
+  imports: [SharedModule, HeaderModule],
 })
-export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
-  tabIndex: number = 0;
-  organization$: Observable<Organization> = new Observable<Organization>();
-  isEventManagementForDataDogAndCrowdStrikeEnabled: boolean = false;
-  isEventManagementForHuntressEnabled: boolean = false;
-  private destroy$ = new Subject<void>();
+export class AdminConsoleIntegrationsComponent {
+  integrations = this.state.integrations;
+  organization = this.state.organization;
+
+  constructor(private state: OrganizationIntegrationsState) {}
 
   // initialize the integrations list with default integrations
   integrationsList: Integration[] = [
@@ -219,118 +204,6 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       type: IntegrationType.DEVICE,
     },
   ];
-
-  async ngOnInit() {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    if (!userId) {
-      throw new Error("User ID not found");
-    }
-
-    this.organization$ = this.route.params.pipe(
-      switchMap((params) =>
-        this.organizationService.organizations$(userId).pipe(
-          getById(params.organizationId),
-          // Filter out undefined values
-          takeWhile((org: Organization | undefined) => !!org),
-        ),
-      ),
-    );
-
-    // Sets the organization ID which also loads the integrations$
-    this.organization$
-      .pipe(
-        switchMap((org) => this.organizationIntegrationService.setOrganizationId(org.id)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-  }
-
-  constructor(
-    private route: ActivatedRoute,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-    private configService: ConfigService,
-    private organizationIntegrationService: OrganizationIntegrationService,
-  ) {
-    this.configService
-      .getFeatureFlag$(FeatureFlag.EventManagementForDataDogAndCrowdStrike)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((isEnabled) => {
-        this.isEventManagementForDataDogAndCrowdStrikeEnabled = isEnabled;
-      });
-
-    this.configService
-      .getFeatureFlag$(FeatureFlag.EventManagementForHuntress)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((isEnabled) => {
-        this.isEventManagementForHuntressEnabled = isEnabled;
-      });
-
-    // Add the new event based items to the list
-    if (this.isEventManagementForDataDogAndCrowdStrikeEnabled) {
-      const crowdstrikeIntegration: Integration = {
-        name: OrganizationIntegrationServiceName.CrowdStrike,
-        linkURL: "https://bitwarden.com/help/crowdstrike-siem/",
-        image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
-        type: IntegrationType.EVENT,
-        description: "crowdstrikeEventIntegrationDesc",
-        canSetupConnection: true,
-        integrationType: OrganizationIntegrationType.Hec,
-      };
-
-      this.integrationsList.push(crowdstrikeIntegration);
-
-      const datadogIntegration: Integration = {
-        name: OrganizationIntegrationServiceName.Datadog,
-        linkURL: "https://bitwarden.com/help/datadog-siem/",
-        image: "../../../../../../../images/integrations/logo-datadog-color.svg",
-        type: IntegrationType.EVENT,
-        description: "datadogEventIntegrationDesc",
-        canSetupConnection: true,
-        integrationType: OrganizationIntegrationType.Datadog,
-      };
-
-      this.integrationsList.push(datadogIntegration);
-    }
-
-    // Add Huntress SIEM integration (separate feature flag)
-    if (this.isEventManagementForHuntressEnabled) {
-      const huntressIntegration: Integration = {
-        name: OrganizationIntegrationServiceName.Huntress,
-        linkURL: "https://bitwarden.com/help/huntress-siem/",
-        image: "../../../../../../../images/integrations/logo-huntress-siem.svg",
-        type: IntegrationType.EVENT,
-        description: "huntressEventIntegrationDesc",
-        canSetupConnection: true,
-        integrationType: OrganizationIntegrationType.Hec,
-      };
-
-      this.integrationsList.push(huntressIntegration);
-    }
-
-    // For all existing event based configurations loop through and assign the
-    // organizationIntegration for the correct services.
-    this.organizationIntegrationService.integrations$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((integrations) => {
-        // reset all event based integrations to null first - in case one was deleted
-        this.integrationsList.forEach((i) => {
-          i.organizationIntegration = null;
-        });
-
-        integrations.forEach((integration) => {
-          const item = this.integrationsList.find((i) => i.name === integration.serviceName);
-          if (item) {
-            item.organizationIntegration = integration;
-          }
-        });
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   // use in the view
   get IntegrationType(): typeof IntegrationType {

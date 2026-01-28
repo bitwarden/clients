@@ -1,0 +1,25 @@
+@let org = organization();
+@let integrationsList = integrations();
+
+<section class="tw-mb-9" *ngIf="org?.useScim">
+  <h2 bitTypography="h2">
+    {{ "scimIntegration" | i18n }}
+  </h2>
+  <p bitTypography="body1">
+    {{ "scimIntegrationDescStart" | i18n }}
+    <a bitLink routerLink="../settings/scim">{{ "scimIntegration" | i18n }}</a>
+    {{ "scimIntegrationDescEnd" | i18n }}
+  </p>
+  <app-integration-grid
+    [integrations]="integrationsList | filterIntegrations: IntegrationType.SCIM"
+  ></app-integration-grid>
+</section>
+<section class="tw-mb-9" *ngIf="org?.useDirectory">
+  <h2 bitTypography="h2">
+    {{ "bwdc" | i18n }}
+  </h2>
+  <p bitTypography="body1">{{ "bwdcDesc" | i18n }}</p>
+  <app-integration-grid
+    [integrations]="integrationsList | filterIntegrations: IntegrationType.BWDC"
+  ></app-integration-grid>
+</section>
