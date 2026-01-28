@@ -6,7 +6,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 @Injectable()
 export class OrganizationIntegrationsState {
   private readonly _integrations = signal<Integration[]>([]);
-  private readonly _organization = signal<Organization | null>(null);
+  private readonly _organization = signal<Organization | undefined>(undefined);
 
   // Signals
   integrations = this._integrations.asReadonly();
