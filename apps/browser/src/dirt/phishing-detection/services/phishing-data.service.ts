@@ -78,6 +78,10 @@ export const PHISHING_DOMAINS_BLOB_KEY = new KeyDefinition<string>(
 
 /** Coordinates fetching, caching, and patching of known phishing web addresses */
 export class PhishingDataService {
+  // Cursor-based search is disabled due to performance (6+ minutes on large databases)
+  // Enable when performance is optimized via indexing or other improvements
+  private static readonly USE_CUSTOM_MATCHER = false;
+
   // While background scripts do not necessarily need destroying,
   // processes in PhishingDataService are memory intensive.
   // We are adding the destroy to guard against accidental leaks.
@@ -198,10 +202,8 @@ export class PhishingDataService {
       this.logService.error("[PhishingDataService] IndexedDB lookup via hasUrl failed", err);
     }
 
-    // If a custom matcher is provided and enabled, use cursor-based search.
-    // This avoids loading all URLs into memory and allows early exit on first match.
-    // Can be disabled via useCustomMatcher: false for performance reasons.
-    if (resource && resource.match && resource.useCustomMatcher !== false) {
+    // Custom matcher is disabled for performance (see USE_CUSTOM_MATCHER)
+    if (resource && resource.match && PhishingDataService.USE_CUSTOM_MATCHER) {
       try {
         this.logService.debug(
           "[PhishingDataService] Starting cursor-based search for: " + url.href,
