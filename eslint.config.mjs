@@ -207,6 +207,7 @@ export default tseslint.config(
         "error",
         { ignoreIfHas: ["bitPasswordInputToggle"] },
       ],
+      "@bitwarden/components/no-bwi-class-usage": "warn",
     },
   },
 

@@ -1,5 +1,5 @@
-import * as IconExports from "./icon-service";
-import { DynamicContentNotAllowedError, isIcon, svgIcon } from "./icon-service";
+import * as IconExports from "./svg";
+import { DynamicContentNotAllowedError, isBitSvg, svg } from "./svg";
 
 describe("Icon", () => {
   it("exports should not expose Icon class", () => {
@@ -8,13 +8,13 @@ describe("Icon", () => {
 
   describe("isIcon", () => {
     it("should return true when input is icon", () => {
-      const result = isIcon(svgIcon`icon`);
+      const result = isBitSvg(svg`icon`);
 
       expect(result).toBe(true);
     });
 
     it("should return false when input is not an icon", () => {
-      const result = isIcon({ svg: "not an icon" });
+      const result = isBitSvg({ svg: "not an icon" });
 
       expect(result).toBe(false);
     });
@@ -24,13 +24,13 @@ describe("Icon", () => {
     it("should throw when attempting to create dynamic icons", () => {
       const dynamic = "some user input";
 
-      const f = () => svgIcon`static and ${dynamic}`;
+      const f = () => svg`static and ${dynamic}`;
 
       expect(f).toThrow(DynamicContentNotAllowedError);
     });
 
     it("should return svg content when supplying icon with svg string", () => {
-      const icon = svgIcon`safe static content`;
+      const icon = svg`safe static content`;
 
       expect(icon.svg).toBe("safe static content");
     });

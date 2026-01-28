@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const BackgroundRightIllustration = svgIcon`
+export const BackgroundRightIllustration = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 506 297">
     <g clip-path="url(#right-bg-illustration-clip)">
       <path class="tw-fill-illustration-bg-primary" d="M45.673 294.742v-29.124l22.323 16.198-15.395 15.75a4.04 4.04 0 0 1-6.928-2.824Z"/>

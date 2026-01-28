@@ -69,7 +69,7 @@ export class ExtensionLockComponentService implements LockComponentService {
     return combineLatest([
       // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
       defer(async () => {
-        if (!(await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$))) {
+        if (!(await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId)))) {
           return BiometricsStatus.NotEnabledLocally;
         } else {
           // TODO remove after 2025.3

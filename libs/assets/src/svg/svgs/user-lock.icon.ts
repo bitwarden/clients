@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const UserLockIcon = svgIcon`
+export const UserLockIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 10 80 60">
     <path class="tw-fill-illustration-bg-primary" d="M0 15a5 5 0 0 1 5-5h45a5 5 0 0 1 5 5v31.667a5 5 0 0 1-5 5H5a5 5 0 0 1-5-5V15Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M50 11.667H5A3.333 3.333 0 0 0 1.667 15v31.667A3.333 3.333 0 0 0 5 50h45a3.333 3.333 0 0 0 3.333-3.333V15A3.333 3.333 0 0 0 50 11.667ZM5 10a5 5 0 0 0-5 5v31.667a5 5 0 0 0 5 5h45a5 5 0 0 0 5-5V15a5 5 0 0 0-5-5H5Z" clip-rule="evenodd"/>
