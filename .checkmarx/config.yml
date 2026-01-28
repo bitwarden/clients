@@ -12,7 +12,3 @@ checkmarx:
         filter: "!*.spec.ts,!**/spec/**,!apps/desktop/native-messaging-test-runner/**"
       kics:
         filter: "!.devcontainer"
-      sca:
-        filter: "!.devcontainer"
-      containers:
-        filter: "!.devcontainer"
