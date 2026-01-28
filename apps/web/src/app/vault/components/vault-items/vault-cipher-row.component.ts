@@ -157,7 +157,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   // If item is archived always show unarchive button, even if user is not premium
   protected get showUnArchiveButton() {
-    if (!this.archiveEnabled()) {
+    if (!this.archiveEnabled() || this.viewingOrgVault) {
       return false;
     }
 
