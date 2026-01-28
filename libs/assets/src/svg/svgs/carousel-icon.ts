@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const CarouselIcon = svgIcon`
+export const CarouselIcon = svg`
   <svg class="tw-block" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" data-testid="inactive-carousel-icon">
     <rect class="tw-stroke-current" x="0.5" y="0.5" width="11" height="11" rx="5.5" />
   </svg>
