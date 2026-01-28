@@ -13,7 +13,7 @@ export class OrganizationIntegrationsState {
   organization = this._organization.asReadonly();
 
   setOrganization(val: Organization | null) {
-    this._organization.set(val);
+    this._organization.set(val ?? undefined);
   }
 
   setIntegrations(val: Integration[]) {
