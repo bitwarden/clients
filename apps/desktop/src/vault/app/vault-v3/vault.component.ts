@@ -10,6 +10,7 @@ import {
   signal,
   ViewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router, Params } from "@angular/router";
 import {
   firstValueFrom,
@@ -37,7 +38,9 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -111,6 +114,7 @@ import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-pr
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 
 import { ItemFooterComponent } from "./cipher-form/item-footer.component";
+import { VaultItemDrawerComponent, VaultItemDrawerResult } from "./vault-item-drawer.component";
 import { VaultListComponent } from "./vault-list.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
@@ -194,6 +198,16 @@ export class VaultComponent<C extends CipherViewLike>
   private routedVaultFilterService = inject(RoutedVaultFilterService);
   private vaultItemTransferService: VaultItemsTransferService = inject(VaultItemsTransferService);
   private searchBarService = inject(SearchBarService);
+  private configService = inject(ConfigService);
+
+  /**
+   * Feature flag for drawer mode.
+   * When enabled, vault items open in a drawer instead of inline panel.
+   */
+  protected readonly useDrawerMode = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone3),
+    { initialValue: false },
+  );
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -680,6 +694,7 @@ export class VaultComponent<C extends CipherViewLike>
   }
 
   async viewCipher(c: CipherViewLike) {
+    // Shared validation (both modes)
     if (CipherViewLikeUtils.decryptionFailure(c)) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
         cipherIds: [c.id as CipherId],
@@ -687,23 +702,51 @@ export class VaultComponent<C extends CipherViewLike>
       return;
     }
     const cipher = await this.cipherService.getFullCipherView(c);
+
+    // Password reprompt must happen BEFORE drawer opens
     if (await this.shouldReprompt(cipher, "view")) {
       return;
     }
-    this.cipherId = cipher.id;
-    this.cipher.set(cipher);
-    this.collections =
-      this.filteredCollections?.filter((c) => cipher.collectionIds.includes(c.id)) ?? null;
-    this.action.set("view");
 
-    this.changeDetectorRef.detectChanges();
-    await this.go().catch(() => {});
-    await this.eventCollectionService.collect(
-      EventType.Cipher_ClientViewed,
-      cipher.id,
-      false,
-      cipher.organizationId,
-    );
+    if (this.useDrawerMode()) {
+      // DRAWER MODE: Open in drawer with view params
+      const collections =
+        this.filteredCollections?.filter((c) => cipher.collectionIds.includes(c.id)) ?? [];
+
+      const drawerRef = VaultItemDrawerComponent.openDrawer(this.dialogService, {
+        mode: "view",
+        cipher,
+        collections,
+      });
+
+      const result = await lastValueFrom(drawerRef.closed);
+
+      // Handle result - refresh list if modified
+      if (
+        result?.result === VaultItemDrawerResult.Saved ||
+        result?.result === VaultItemDrawerResult.Deleted ||
+        result?.result === VaultItemDrawerResult.Restored
+      ) {
+        // Refresh the list in background
+        // Note: The list component should handle its own refresh via observables
+      }
+    } else {
+      // INLINE MODE: Keep existing logic
+      this.cipherId = cipher.id;
+      this.cipher.set(cipher);
+      this.collections =
+        this.filteredCollections?.filter((c) => cipher.collectionIds.includes(c.id)) ?? null;
+      this.action.set("view");
+
+      this.changeDetectorRef.detectChanges();
+      await this.go().catch(() => {});
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientViewed,
+        cipher.id,
+        false,
+        cipher.organizationId,
+      );
+    }
   }
 
   formStatusChanged(status: "disabled" | "enabled") {
@@ -776,30 +819,78 @@ export class VaultComponent<C extends CipherViewLike>
   }
 
   async editCipher(cipher: CipherView) {
+    // Password reprompt before opening drawer
     if (await this.shouldReprompt(cipher, "edit")) {
       return;
     }
-    this.cipherId = cipher.id;
-    this.cipher.set(cipher);
-    await this.buildFormConfig("edit");
-    if (!cipher.edit && this.config) {
-      this.config.mode = "partial-edit";
+
+    if (this.useDrawerMode()) {
+      // DRAWER MODE: Open in drawer
+      const config = await this.formConfigService.buildConfig("edit", cipher.id as CipherId);
+
+      // Handle partial-edit mode for ciphers without full edit permissions
+      if (!cipher.edit && config) {
+        config.mode = "partial-edit";
+      }
+
+      const drawerRef = VaultItemDrawerComponent.openDrawer(this.dialogService, {
+        mode: "edit",
+        formConfig: config,
+      });
+
+      const result = await lastValueFrom(drawerRef.closed);
+
+      // Handle result - refresh list if modified
+      if (
+        result?.result === VaultItemDrawerResult.Saved ||
+        result?.result === VaultItemDrawerResult.Deleted
+      ) {
+        // List will refresh via observables
+      }
+    } else {
+      // INLINE MODE: Keep existing logic
+      this.cipherId = cipher.id;
+      this.cipher.set(cipher);
+      await this.buildFormConfig("edit");
+      if (!cipher.edit && this.config) {
+        this.config.mode = "partial-edit";
+      }
+      this.action.set("edit");
+      this.changeDetectorRef.detectChanges();
+      await this.go().catch(() => {});
     }
-    this.action.set("edit");
-    this.changeDetectorRef.detectChanges();
-    await this.go().catch(() => {});
   }
 
   async cloneCipher(cipher: CipherView) {
+    // Password reprompt before opening drawer
     if (await this.shouldReprompt(cipher, "clone")) {
       return;
     }
-    this.cipherId = cipher.id;
-    this.cipher.set(cipher);
-    await this.buildFormConfig("clone");
-    this.action.set("clone");
-    this.changeDetectorRef.detectChanges();
-    await this.go().catch(() => {});
+
+    if (this.useDrawerMode()) {
+      // DRAWER MODE: Open in drawer
+      const config = await this.formConfigService.buildConfig("clone", cipher.id as CipherId);
+
+      const drawerRef = VaultItemDrawerComponent.openDrawer(this.dialogService, {
+        mode: "clone",
+        formConfig: config,
+      });
+
+      const result = await lastValueFrom(drawerRef.closed);
+
+      // Handle result - refresh list if new cipher was created
+      if (result?.result === VaultItemDrawerResult.Saved) {
+        // List will refresh via observables
+      }
+    } else {
+      // INLINE MODE: Keep existing logic
+      this.cipherId = cipher.id;
+      this.cipher.set(cipher);
+      await this.buildFormConfig("clone");
+      this.action.set("clone");
+      this.changeDetectorRef.detectChanges();
+      await this.go().catch(() => {});
+    }
   }
 
   async shareCipher(cipher: CipherView) {
@@ -844,21 +935,50 @@ export class VaultComponent<C extends CipherViewLike>
     if (this.action() === "add") {
       return;
     }
-    this.addType = type || this.activeFilter.cipherType;
-    this.cipher.set(new CipherView());
-    this.cipherId = null;
-    await this.buildFormConfig("add");
-    this.action.set("add");
-    this.prefillCipherFromFilter();
-    this.changeDetectorRef.detectChanges();
-    await this.go().catch(() => {});
 
-    if (type === CipherType.SshKey) {
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("sshKeyGenerated"),
+    const cipherType = type || this.activeFilter.cipherType;
+
+    if (this.useDrawerMode()) {
+      // DRAWER MODE: Open in drawer
+      const config = await this.formConfigService.buildConfig("add", undefined, cipherType);
+
+      const drawerRef = VaultItemDrawerComponent.openDrawer(this.dialogService, {
+        mode: "add",
+        formConfig: config,
       });
+
+      const result = await lastValueFrom(drawerRef.closed);
+
+      // Handle result - refresh list if new cipher was created
+      if (result?.result === VaultItemDrawerResult.Saved) {
+        // List will refresh via observables
+      }
+
+      if (cipherType === CipherType.SshKey) {
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("sshKeyGenerated"),
+        });
+      }
+    } else {
+      // INLINE MODE: Keep existing logic
+      this.addType = cipherType;
+      this.cipher.set(new CipherView());
+      this.cipherId = null;
+      await this.buildFormConfig("add");
+      this.action.set("add");
+      this.prefillCipherFromFilter();
+      this.changeDetectorRef.detectChanges();
+      await this.go().catch(() => {});
+
+      if (cipherType === CipherType.SshKey) {
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("sshKeyGenerated"),
+        });
+      }
     }
   }
 
@@ -1227,6 +1347,43 @@ export class VaultComponent<C extends CipherViewLike>
       organizationId: this.addOrganizationId as OrganizationId,
       collectionIds: this.addCollectionIds as CollectionId[],
     };
+  }
+
+  /**
+   * Helper method to prefill cipher from active filter.
+   * Used for drawer mode when creating new ciphers.
+   */
+  private prefillCipherConfig(cipher: CipherView) {
+    let organizationId: string | null = null;
+    let collectionIds: string[] | null = null;
+    let folderId: string | null | undefined = null;
+
+    if (this.activeFilter.collectionId != null) {
+      const collections = this.filteredCollections?.filter(
+        (c) => c.id === this.activeFilter.collectionId,
+      );
+      if (collections?.length > 0) {
+        organizationId = collections[0].organizationId;
+        collectionIds = [this.activeFilter.collectionId];
+      }
+    } else if (this.activeFilter.organizationId) {
+      organizationId = this.activeFilter.organizationId;
+    }
+
+    if (this.activeFilter.folderId && this.activeFilter.selectedFolderNode) {
+      folderId = this.activeFilter.folderId;
+    }
+
+    // Apply prefill values to cipher
+    if (folderId) {
+      cipher.folderId = folderId;
+    }
+    if (organizationId) {
+      cipher.organizationId = organizationId;
+    }
+    if (collectionIds) {
+      cipher.collectionIds = collectionIds;
+    }
   }
 
   private async canNavigateAway(action: string, cipher?: CipherView) {

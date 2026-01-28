@@ -1,87 +1,26 @@
-<div id="vault" class="vault vault-v2">
-  <app-vault-list
-    id="items"
-    class="items"
-    #vaultItems
-    [ciphers]="ciphers"
-    [collections]="collections"
-    [allCollections]="allCollections"
-    [allOrganizations]="allOrganizations"
-    [disabled]="refreshing"
-    [showOwner]="true"
-    [showPremiumFeatures]="canAccessPremium"
-    [useEvents]="false"
-    [showAdminActions]="false"
-    [userCanArchive]="userCanArchive$ | async"
-    [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
-    [placeholderText]="searchPlaceholderText"
-    (onEvent)="onVaultItemsEvent($event)"
-    (onAddCipher)="addCipher($event)"
-    (onAddFolder)="addFolder()"
-  />
-  @if (!!action()) {
-    <div class="details">
-      <app-vault-item-footer
-        id="footer"
-        #footer
-        [cipher]="cipher()"
-        [action]="action()"
-        (onEdit)="editCipher($event)"
-        (onRestore)="restoreCipher($event)"
-        (onClone)="cloneCipher($event)"
-        (onDelete)="deleteCipher($event)"
-        (onCancel)="cancelCipher()"
-        (onArchiveToggle)="refreshCurrentCipher()"
-        [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
-      ></app-vault-item-footer>
-      <div class="content">
-        <div class="inner-content">
-          <div class="box">
-            @if (action() === "view") {
-              <app-cipher-view [cipher]="cipher()" [collections]="collections"> </app-cipher-view>
-            }
-            @if (action() === "add" || action() === "edit" || action() === "clone") {
-              <vault-cipher-form
-                #vaultForm
-                formId="cipherForm"
-                [config]="config"
-                (cipherSaved)="savedCipher($event)"
-                [submitBtn]="footer?.submitBtn"
-                (formStatusChange$)="formStatusChanged($event)"
-              >
-                <bit-item slot="attachment-button">
-                  <button
-                    bit-item-content
-                    type="button"
-                    (click)="openAttachmentsDialog()"
-                    [disabled]="formDisabled"
-                  >
-                    <div class="tw-flex tw-items-center tw-gap-2">
-                      {{ "attachments" | i18n }}
-                      <app-premium-badge></app-premium-badge>
-                    </div>
-                    <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-                  </button>
-                </bit-item>
-              </vault-cipher-form>
-            }
-          </div>
-        </div>
-      </div>
-      <div class="tw-bg-bg-secondary tw-px-8 tw-pt-6">
-        <app-header [title]="headerTitleKey() | i18n">
-          <button
-            type="button"
-            bitIconButton="bwi-close"
-            [label]="'close' | i18n"
-            [disabled]="formDisabled"
-            (click)="cancelCipher()"
-          ></button>
-        </app-header>
-      </div>
-    </div>
-  }
-  @if (action() !== "add" && action() !== "edit" && action() !== "view" && action() !== "clone") {
+<div id="vault" class="vault vault-v2" [class.vault-drawer-mode]="useDrawerMode()">
+  @if (useDrawerMode()) {
+    <!-- DRAWER MODE: Simplified layout -->
+    <app-vault-list
+      id="items"
+      class="items"
+      #vaultItems
+      [ciphers]="ciphers"
+      [collections]="collections"
+      [allCollections]="allCollections"
+      [allOrganizations]="allOrganizations"
+      [disabled]="refreshing"
+      [showOwner]="true"
+      [showPremiumFeatures]="canAccessPremium"
+      [useEvents]="false"
+      [showAdminActions]="false"
+      [userCanArchive]="userCanArchive$ | async"
+      [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
+      [placeholderText]="searchPlaceholderText"
+      (onEvent)="onVaultItemsEvent($event)"
+      (onAddCipher)="addCipher($event)"
+      (onAddFolder)="addFolder()"
+    />
     <div id="logo" class="logo">
       <div class="content">
         <div class="inner-content">
@@ -89,6 +28,99 @@
         </div>
       </div>
     </div>
+  } @else {
+    <!-- INLINE MODE: Keep existing two-column layout -->
+    <app-vault-list
+      id="items"
+      class="items"
+      #vaultItems
+      [ciphers]="ciphers"
+      [collections]="collections"
+      [allCollections]="allCollections"
+      [allOrganizations]="allOrganizations"
+      [disabled]="refreshing"
+      [showOwner]="true"
+      [showPremiumFeatures]="canAccessPremium"
+      [useEvents]="false"
+      [showAdminActions]="false"
+      [userCanArchive]="userCanArchive$ | async"
+      [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
+      [placeholderText]="searchPlaceholderText"
+      (onEvent)="onVaultItemsEvent($event)"
+      (onAddCipher)="addCipher($event)"
+      (onAddFolder)="addFolder()"
+    />
+    @if (!!action()) {
+      <div class="details">
+        <app-vault-item-footer
+          id="footer"
+          #footer
+          [cipher]="cipher()"
+          [action]="action()"
+          (onEdit)="editCipher($event)"
+          (onRestore)="restoreCipher($event)"
+          (onClone)="cloneCipher($event)"
+          (onDelete)="deleteCipher($event)"
+          (onCancel)="cancelCipher()"
+          (onArchiveToggle)="refreshCurrentCipher()"
+          [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
+        ></app-vault-item-footer>
+        <div class="content">
+          <div class="inner-content">
+            <div class="box">
+              @if (action() === "view") {
+                <app-cipher-view [cipher]="cipher()" [collections]="collections"> </app-cipher-view>
+              }
+              @if (action() === "add" || action() === "edit" || action() === "clone") {
+                <vault-cipher-form
+                  #vaultForm
+                  formId="cipherForm"
+                  [config]="config"
+                  (cipherSaved)="savedCipher($event)"
+                  [submitBtn]="footer?.submitBtn"
+                  (formStatusChange$)="formStatusChanged($event)"
+                >
+                  <bit-item slot="attachment-button">
+                    <button
+                      bit-item-content
+                      type="button"
+                      (click)="openAttachmentsDialog()"
+                      [disabled]="formDisabled"
+                    >
+                      <div class="tw-flex tw-items-center tw-gap-2">
+                        {{ "attachments" | i18n }}
+                        <app-premium-badge></app-premium-badge>
+                      </div>
+                      <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+                    </button>
+                  </bit-item>
+                </vault-cipher-form>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="tw-bg-bg-secondary tw-px-8 tw-pt-6">
+          <app-header [title]="headerTitleKey() | i18n">
+            <button
+              type="button"
+              bitIconButton="bwi-close"
+              [label]="'close' | i18n"
+              [disabled]="formDisabled"
+              (click)="cancelCipher()"
+            ></button>
+          </app-header>
+        </div>
+      </div>
+    }
+    @if (action() !== "add" && action() !== "edit" && action() !== "view" && action() !== "clone") {
+      <div id="logo" class="logo">
+        <div class="content">
+          <div class="inner-content">
+            <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+          </div>
+        </div>
+      </div>
+    }
   }
 </div>
 <ng-template #folderAddEdit></ng-template>
