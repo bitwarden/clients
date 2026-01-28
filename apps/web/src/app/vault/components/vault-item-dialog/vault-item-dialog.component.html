@@ -3,7 +3,7 @@
     {{ title }}
   </span>
 
-  @if (isCipherArchived) {
+  @if (isCipherArchived && !params.isAdminConsoleAction) {
     <span bitBadge bitDialogHeaderEnd> {{ "archived" | i18n }} </span>
   }
 

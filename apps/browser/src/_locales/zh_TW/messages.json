@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "使用密碼金鑰登入"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "使用單一登入"
   },
@@ -3366,6 +3369,12 @@
   },
   "error": {
     "message": "錯誤"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "解密發生錯誤"

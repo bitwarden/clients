@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Вписване със секретен ключ"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Използване на еднократна идентификация"
   },
@@ -3366,6 +3369,12 @@
   },
   "error": {
     "message": "Грешка"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Грешка при дешифриране"

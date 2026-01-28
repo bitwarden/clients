@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
 import { Subject, filter, of, switchMap, tap } from "rxjs";
 
-import { Icon } from "@bitwarden/assets/svg";
+import { BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { Translation } from "../dialog";
@@ -27,7 +27,7 @@ export interface AnonLayoutWrapperData {
   /**
    * The icon to display on the page. Pass null to hide the icon.
    */
-  pageIcon: Icon | null;
+  pageIcon: BitSvg | null;
   /**
    * Optional flag to either show the optional environment selector (false) or just a readonly hostname (true).
    */
@@ -57,7 +57,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
 
   protected pageTitle?: string | null;
   protected pageSubtitle?: string | null;
-  protected pageIcon: Icon | null = null;
+  protected pageIcon: BitSvg | null = null;
   protected showReadonlyHostname?: boolean | null;
   protected maxWidth?: LandingContentMaxWidthType | null;
   protected hideCardWrapper?: boolean | null;
