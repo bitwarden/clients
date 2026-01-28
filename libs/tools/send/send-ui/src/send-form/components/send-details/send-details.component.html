@@ -6,7 +6,7 @@
   <bit-card>
     <bit-form-field>
       <bit-label>{{ "name" | i18n }}</bit-label>
-      <input appAutofocus bitInput type="text" formControlName="name" />
+      <input bitInput type="text" formControlName="name" />
     </bit-form-field>
 
     <tools-send-text-details
@@ -112,7 +112,7 @@
     }
 
     @if (sendDetailsForm.get("authType").value === AuthType.Email) {
-      <bit-form-field disableMargin>
+      <bit-form-field disableMargin class="tw-mt-4">
         <bit-label>{{ "emails" | i18n }}</bit-label>
         <textarea
           bitInput

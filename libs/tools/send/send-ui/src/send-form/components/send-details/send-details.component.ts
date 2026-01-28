@@ -144,8 +144,8 @@ export class SendDetailsComponent implements OnInit {
 
   authTypes: { name: string; value: AuthType; disabled?: boolean }[] = [
     { name: this.i18nService.t("noAuth"), value: AuthType.None },
-    { name: this.i18nService.t("password"), value: AuthType.Password },
     { name: this.i18nService.t("specificPeople"), value: AuthType.Email },
+    { name: this.i18nService.t("anyOneWithPassword"), value: AuthType.Password },
   ];
 
   availableAuthTypes$ = combineLatest([this.emailVerificationFeatureFlag$, this.hasPremium$]).pipe(
@@ -166,7 +166,7 @@ export class SendDetailsComponent implements OnInit {
   });
 
   get hasPassword(): boolean {
-    return this.originalSendView?.password !== null;
+    return this.originalSendView?.password != null;
   }
 
   constructor(
@@ -312,7 +312,7 @@ export class SendDetailsComponent implements OnInit {
       const emails = control.value.split(",").map((e: string) => e.trim());
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const invalidEmails = emails.filter((e: string) => e.length > 0 && !emailRegex.test(e));
-      return invalidEmails.length > 0 ? { invalidEmails: true } : null;
+      return invalidEmails.length > 0 ? { email: true } : null;
     };
   }
 

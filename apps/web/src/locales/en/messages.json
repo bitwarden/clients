@@ -1371,6 +1371,9 @@
   "noAuth": {
     "message": "Anyone with the link"
   },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
   "location": {
     "message": "Location"
   },
@@ -12671,10 +12674,10 @@
     "message": "Specific people"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send"
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma"
+    "message": "Enter multiple emails by separating with a comma."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
