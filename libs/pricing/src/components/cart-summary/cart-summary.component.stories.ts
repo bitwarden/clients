@@ -57,6 +57,8 @@ export default {
                   return "Your next charge is for";
                 case "dueOn":
                   return "due on";
+                case "specialOfferDiscount":
+                  return "Special Offer Discount";
                 default:
                   return key;
               }
@@ -336,6 +338,36 @@ export const WithAmountDiscount: Story = {
       discount: {
         type: DiscountTypes.AmountOff,
         value: 50.0,
+      },
+      estimatedTax: 95.0,
+    } satisfies Cart,
+  },
+};
+
+export const WithAmountDiscountHidden: Story = {
+  name: "Amount Discount (Hidden Formatted Amount)",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+      },
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          translationKey: "members",
+          cost: 30.0,
+        },
+      },
+      cadence: "annually",
+      discount: {
+        type: DiscountTypes.AmountOff,
+        value: 50.0,
+        translationKey: "specialOfferDiscount",
+        hideFormattedAmount: true,
       },
       estimatedTax: 95.0,
     } satisfies Cart,
