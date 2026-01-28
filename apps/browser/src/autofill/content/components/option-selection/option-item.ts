@@ -29,12 +29,24 @@ export function OptionItem({
   handleSelection,
 }: OptionItemProps) {
   const handleSelectionKeyUpProxy = (event: KeyboardEvent) => {
+    if (!event.isTrusted) {
+      return;
+    }
+
     const listenedForKeys = new Set(["Enter", "Space"]);
     if (listenedForKeys.has(event.code) && event.target instanceof Element) {
       handleSelection();
     }
 
     return;
+  };
+
+  const handleSelectionClickProxy = (event: MouseEvent) => {
+    if (!event.isTrusted) {
+      return;
+    }
+
+    handleSelection();
   };
 
   const iconProps: IconProps = { color: themes[theme].text.main, theme };
@@ -52,7 +64,7 @@ export function OptionItem({
     title=${text}
     role="option"
     aria-label=${ariaLabel}
-    @click=${handleSelection}
+    @click=${handleSelectionClickProxy}
     @keyup=${handleSelectionKeyUpProxy}
   >
     ${itemIcon ? html`<div class=${optionItemIconContainerStyles}>${itemIcon}</div>` : nothing}

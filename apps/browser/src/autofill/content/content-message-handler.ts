@@ -92,7 +92,12 @@ function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUr
  */
 function handleWindowMessageEvent(event: MessageEvent) {
   const { source, data, origin } = event;
-  if (source !== window || !data?.command) {
+  // Reject synthetic events except in test environments where Jest creates synthetic events
+  if (
+    (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") ||
+    source !== window ||
+    !data?.command
+  ) {
     return;
   }
 

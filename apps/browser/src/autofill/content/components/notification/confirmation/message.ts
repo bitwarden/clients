@@ -127,7 +127,7 @@ const AdditionalMessageStyles = ({ theme }: { theme: Theme }) => css`
 `;
 
 function handleButtonKeyDown(event: KeyboardEvent, handleClick: () => void) {
-  if (event.key === "Enter" || event.key === " ") {
+  if (event.isTrusted && (event.key === "Enter" || event.key === " ")) {
     event.preventDefault();
     handleClick();
   }
