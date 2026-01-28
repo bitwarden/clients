@@ -189,6 +189,9 @@
   "verificationCodeTotp": {
     "message": "Verification code (TOTP)"
   },
+  "userVerificationFailed": {
+    "message": "User verification failed."
+  },
   "website": {
     "message": "Website"
   },
