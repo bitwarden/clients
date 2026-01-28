@@ -323,10 +323,7 @@ import BrowserLocalStorageService from "../platform/services/browser-local-stora
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import I18nService from "../platform/services/i18n.service";
-import {
-  LocalBackedSessionStorageService,
-  SessionKeyResolveService,
-} from "../platform/services/local-backed-session-storage.service";
+import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { PopupRouterCacheBackgroundService } from "../platform/services/popup-router-cache-background.service";
@@ -570,14 +567,10 @@ export default class MainBackground {
     );
 
     if (BrowserApi.isManifestVersion(3)) {
-      const sessionKeyResolveService = new SessionKeyResolveService(
-        new BrowserMemoryStorageService(),
-        this.keyGenerationService,
-      );
-
       this.largeObjectMemoryStorageForStateProviders = new LocalBackedSessionStorageService(
-        sessionKeyResolveService,
+        new BrowserMemoryStorageService(),
         this.storageService,
+        this.keyGenerationService,
         this.encryptService,
         this.platformUtilsService,
         this.logService,

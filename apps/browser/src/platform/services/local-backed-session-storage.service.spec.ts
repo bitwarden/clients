@@ -6,6 +6,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeStorageService, makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
+import { StorageService } from "@bitwarden/storage-core";
 
 import BrowserLocalStorageService from "./browser-local-storage.service";
 import {
@@ -80,7 +81,8 @@ describe("SessionKeyResolveService", () => {
 
 describe("LocalBackedSessionStorage", () => {
   const sessionKey = makeSymmetricCryptoKey();
-  let sessionKeyResolveService: MockProxy<SessionKeyResolveService>;
+  let memoryStorage: MockProxy<StorageService>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
   let localStorage: MockProxy<BrowserLocalStorageService>;
   let encryptService: MockProxy<EncryptService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
@@ -89,18 +91,23 @@ describe("LocalBackedSessionStorage", () => {
   let sut: LocalBackedSessionStorageService;
 
   beforeEach(() => {
-    sessionKeyResolveService = mock<SessionKeyResolveService>();
+    memoryStorage = mock<StorageService>();
+    keyGenerationService = mock<KeyGenerationService>();
     localStorage = mock<BrowserLocalStorageService>();
     encryptService = mock<EncryptService>();
     platformUtilsService = mock<PlatformUtilsService>();
     logService = mock<LogService>();
 
     // Default: session key exists
-    sessionKeyResolveService.get.mockResolvedValue(sessionKey);
+    memoryStorage.get.mockResolvedValue(sessionKey);
+    Object.defineProperty(memoryStorage, "valuesRequireDeserialization", {
+      get: () => true,
+    });
 
     sut = new LocalBackedSessionStorageService(
-      sessionKeyResolveService,
+      memoryStorage,
       localStorage,
+      keyGenerationService,
       encryptService,
       platformUtilsService,
       logService,
@@ -163,13 +170,18 @@ describe("LocalBackedSessionStorage", () => {
     it("creates new session key, clears old data, and returns null when session key is missing", async () => {
       const newSessionKey = makeSymmetricCryptoKey();
       const clearSpy = jest.spyOn(sut as any, "clear");
-      sessionKeyResolveService.get.mockResolvedValue(null);
-      sessionKeyResolveService.create.mockResolvedValue(newSessionKey);
+      memoryStorage.get.mockResolvedValue(null);
+      keyGenerationService.createKeyWithPurpose.mockResolvedValue({
+        salt: "salt",
+        material: new Uint8Array(16) as any,
+        derivedKey: newSessionKey,
+      });
       localStorage.get.mockResolvedValue(null);
+      localStorage.getKeys.mockResolvedValue([]);
 
       const result = await sut.get("test");
 
-      expect(sessionKeyResolveService.create).toHaveBeenCalled();
+      expect(keyGenerationService.createKeyWithPurpose).toHaveBeenCalled();
       expect(clearSpy).toHaveBeenCalled();
       expect(result).toBeNull();
     });
@@ -230,7 +242,7 @@ describe("LocalBackedSessionStorage", () => {
     it("uses the session key when encrypting", async () => {
       await sut.save("test", "value");
 
-      expect(sessionKeyResolveService.get).toHaveBeenCalled();
+      expect(memoryStorage.get).toHaveBeenCalledWith("session-key");
       expect(encryptService.encryptString).toHaveBeenCalledWith(
         JSON.stringify("value"),
         sessionKey,
@@ -245,13 +257,17 @@ describe("LocalBackedSessionStorage", () => {
 
     it("creates a new session key when session key is missing before saving", async () => {
       const newSessionKey = makeSymmetricCryptoKey();
-      sessionKeyResolveService.get.mockResolvedValue(null);
-      sessionKeyResolveService.create.mockResolvedValue(newSessionKey);
+      memoryStorage.get.mockResolvedValue(null);
+      keyGenerationService.createKeyWithPurpose.mockResolvedValue({
+        salt: "salt",
+        material: new Uint8Array(16) as any,
+        derivedKey: newSessionKey,
+      });
       localStorage.getKeys.mockResolvedValue([]);
 
       await sut.save("test", "value");
 
-      expect(sessionKeyResolveService.create).toHaveBeenCalled();
+      expect(keyGenerationService.createKeyWithPurpose).toHaveBeenCalled();
       expect(encryptService.encryptString).toHaveBeenCalledWith(
         JSON.stringify("value"),
         newSessionKey,

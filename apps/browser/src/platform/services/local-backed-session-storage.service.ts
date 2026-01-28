@@ -33,6 +33,9 @@ const SESSION_KEY_PREFIX = "session_";
  * in local storage cannot be decrypted and must be cleared to maintain data consistency.
  *
  * This provides session-scoped security for sensitive data while using persistent local storage as the backing store.
+ *
+ * @internal Internal implementation detail. Exported only for testing purposes.
+ * Do not use this class directly outside of tests. Use LocalBackedSessionStorageService instead.
  */
 export class SessionKeyResolveService {
   constructor(
@@ -81,15 +84,22 @@ export class LocalBackedSessionStorageService
   private cache: Record<string, unknown> = {};
   private updatesSubject = new Subject<StorageUpdate>();
   updates$ = this.updatesSubject.asObservable();
+  private readonly sessionKeyResolveService: SessionKeyResolveService;
 
   constructor(
-    private readonly sessionKeyResolveService: SessionKeyResolveService,
+    private readonly memoryStorage: StorageService,
     private readonly localStorage: BrowserLocalStorageService,
+    private readonly keyGenerationService: KeyGenerationService,
     private readonly encryptService: EncryptService,
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly logService: LogService,
   ) {
     super();
+
+    this.sessionKeyResolveService = new SessionKeyResolveService(
+      this.memoryStorage,
+      this.keyGenerationService,
+    );
 
     BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
       if (port.name !== portName(chrome.storage.session)) {
