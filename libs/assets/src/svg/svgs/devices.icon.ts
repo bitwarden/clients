@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const DevicesIcon = svgIcon`
+export const DevicesIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 10 80 60">
     <path class="tw-fill-illustration-bg-primary" d="M7.5 15a5 5 0 0 1 5-5h55a5 5 0 0 1 5 5v35a5 5 0 0 1-5 5h-55a5 5 0 0 1-5-5V15Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M67.5 11.667h-55A3.333 3.333 0 0 0 9.167 15v35a3.333 3.333 0 0 0 3.333 3.333h55A3.333 3.333 0 0 0 70.833 50V15a3.333 3.333 0 0 0-3.333-3.333ZM12.5 10a5 5 0 0 0-5 5v35a5 5 0 0 0 5 5h55a5 5 0 0 0 5-5V15a5 5 0 0 0-5-5h-55Z" clip-rule="evenodd"/>

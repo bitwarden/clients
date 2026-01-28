@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const AccountWarning = svgIcon`
+export const AccountWarning = svg`
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 12.75 96 72">
   <path class="tw-fill-illustration-bg-primary" d="M0 18.512a5.76 5.76 0 0 1 5.76-5.76h54.48a5.76 5.76 0 0 1 5.76 5.76v38.48a5.76 5.76 0 0 1-5.76 5.76H5.76A5.76 5.76 0 0 1 0 56.992v-38.48Z"/>
   <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M60.24 14.672H5.76a3.84 3.84 0 0 0-3.84 3.84v38.48a3.84 3.84 0 0 0 3.84 3.84h54.48a3.84 3.84 0 0 0 3.84-3.84v-38.48a3.84 3.84 0 0 0-3.84-3.84Zm-54.48-1.92A5.76 5.76 0 0 0 0 18.512v38.48a5.76 5.76 0 0 0 5.76 5.76h54.48a5.76 5.76 0 0 0 5.76-5.76v-38.48a5.76 5.76 0 0 0-5.76-5.76H5.76Z" clip-rule="evenodd"/>

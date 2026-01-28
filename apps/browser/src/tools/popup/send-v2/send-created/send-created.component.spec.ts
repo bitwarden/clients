@@ -14,7 +14,7 @@ import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/defau
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { ButtonModule, I18nMockService, IconModule, ToastService } from "@bitwarden/components";
+import { ButtonModule, I18nMockService, SvgModule, ToastService } from "@bitwarden/components";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
@@ -76,7 +76,7 @@ describe("SendCreatedComponent", () => {
         RouterTestingModule,
         JslibModule,
         ButtonModule,
-        IconModule,
+        SvgModule,
         PopOutComponent,
         PopupHeaderComponent,
         PopupPageComponent,

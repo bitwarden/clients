@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const TwoFactorTimeoutIcon = svgIcon`
+export const TwoFactorTimeoutIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="5 4 87 87">
     <circle cx="48" cy="48" r="42" class="tw-fill-illustration-bg-primary tw-stroke-illustration-outline" stroke-width="2"/>
     <rect width="18" height="14" x="12" y="70" class="tw-fill-illustration-bg-secondary tw-stroke-illustration-outline" stroke-width="2" rx="2"/>

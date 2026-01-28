@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const ActiveSendIcon = svgIcon`
+export const ActiveSendIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="5 4 87 87">
     <path class="tw-fill-illustration-bg-primary" d="M90 48c0 23.196-18.804 42-42 42S6 71.196 6 48 24.804 6 48 6s42 18.804 42 42Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M48 7C25.356 7 7 25.356 7 48s18.356 41 41 41 41-18.356 41-41S70.644 7 48 7ZM5 48C5 24.252 24.252 5 48 5s43 19.252 43 43-19.252 43-43 43S5 71.748 5 48Z" clip-rule="evenodd"/>

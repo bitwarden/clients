@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const SsoKeyIcon = svgIcon`
+export const SsoKeyIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 12.12 96 76">
     <path class="tw-fill-illustration-bg-secondary" fill-rule="evenodd" d="M77 43.121h2c9.389 0 17 7.611 17 17s-7.611 17-17 17H21v-.086C9.234 76.022 0 66.15 0 54.121c0-10.663 7.256-19.63 17.099-22.236C21.599 20.32 32.842 12.121 46 12.121c17.12 0 31 13.88 31 31Z" clip-rule="evenodd"/>
     <path class="tw-fill-illustration-bg-primary" fill-rule="evenodd" d="M56 53.121c2.903 0 5.707-.427 8.352-1.22 3.427 4.966 9.157 8.22 15.648 8.22 5.856 0 11.094-2.65 14.579-6.815C91.952 47.31 85.965 43.121 79 43.121h-2c0-17.12-13.88-31-31-31a30.861 30.861 0 0 0-18.387 6.039A29.12 29.12 0 0 0 27 24.121c0 16.016 12.984 29 29 29Z" clip-rule="evenodd"/>

@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const DomainIcon = svgIcon`
+export const DomainIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0.52 0.12 120 120">
     <path class="tw-fill-illustration-bg-primary" d="M120.518 60.121c0 33.137-26.863 60-60 60s-60-26.863-60-60 26.863-60 60-60 60 26.863 60 60Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M60.518 117.621c31.756 0 57.5-25.743 57.5-57.5 0-31.756-25.744-57.5-57.5-57.5s-57.5 25.744-57.5 57.5 25.744 57.5 57.5 57.5Zm0 2.5c33.137 0 60-26.863 60-60s-26.863-60-60-60-60 26.863-60 60 26.863 60 60 60Z" clip-rule="evenodd"/>

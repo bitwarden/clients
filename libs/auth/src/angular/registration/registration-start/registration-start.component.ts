@@ -20,7 +20,7 @@ import {
   ButtonModule,
   CheckboxModule,
   FormFieldModule,
-  IconModule,
+  SvgModule,
   LinkModule,
 } from "@bitwarden/components";
 
@@ -54,7 +54,7 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
     CheckboxModule,
     ButtonModule,
     LinkModule,
-    IconModule,
+    SvgModule,
     RegistrationEnvSelectorComponent,
   ],
 })

@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
 
 import { CarouselIcon } from "@bitwarden/assets/svg";
-import { IconModule } from "@bitwarden/components";
+import { SvgModule } from "@bitwarden/components";
 
 import { VaultCarouselSlideComponent } from "../carousel-slide/carousel-slide.component";
 
@@ -12,7 +12,7 @@ import { VaultCarouselSlideComponent } from "../carousel-slide/carousel-slide.co
 @Component({
   selector: "vault-carousel-button",
   templateUrl: "carousel-button.component.html",
-  imports: [CommonModule, IconModule],
+  imports: [CommonModule, SvgModule],
 })
 export class VaultCarouselButtonComponent implements FocusableOption {
   /** Slide component that is associated with the individual button */
