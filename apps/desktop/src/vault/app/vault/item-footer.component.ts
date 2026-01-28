@@ -97,7 +97,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   async ngOnChanges(changes: SimpleChanges) {
-    if (changes.cipher) {
+    if (changes.cipher || changes.action) {
       await this.checkArchiveState();
     }
   }
