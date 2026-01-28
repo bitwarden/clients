@@ -17,6 +17,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
@@ -31,6 +32,7 @@ describe("MemberActionsService", () => {
   let service: MemberActionsService;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationUserService: MockProxy<OrganizationUserService>;
+  let configService: MockProxy<ConfigService>;
   let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
 
   const organizationId = newGuid() as OrganizationId;
@@ -42,6 +44,7 @@ describe("MemberActionsService", () => {
   beforeEach(() => {
     organizationUserApiService = mock<OrganizationUserApiService>();
     organizationUserService = mock<OrganizationUserService>();
+    configService = mock<ConfigService>();
     organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
 
     mockOrganization = {
@@ -65,6 +68,7 @@ describe("MemberActionsService", () => {
         MemberActionsService,
         { provide: OrganizationUserApiService, useValue: organizationUserApiService },
         { provide: OrganizationUserService, useValue: organizationUserService },
+        { provide: ConfigService, useValue: configService },
         {
           provide: OrganizationMetadataServiceAbstraction,
           useValue: organizationMetadataService,

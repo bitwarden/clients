@@ -16,7 +16,9 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
@@ -43,6 +45,7 @@ export interface BulkActionResult {
 export class MemberActionsService {
   private organizationUserApiService = inject(OrganizationUserApiService);
   private organizationUserService = inject(OrganizationUserService);
+  private configService = inject(ConfigService);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private apiService = inject(ApiService);
   private dialogService = inject(DialogService);
