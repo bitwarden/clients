@@ -1,5 +1,6 @@
 <span class="tw-relative">
-  <span [ngClass]="{ 'tw-invisible': showLoadingStyle() }">
+  <!-- tw-text-[inherit] is necessary for axe to correctly tests the contrast ratio-->
+  <span class="tw-text-[inherit]" [ngClass]="{ 'tw-invisible': showLoadingStyle() }">
     <ng-content></ng-content>
   </span>
   @if (showLoadingStyle()) {
