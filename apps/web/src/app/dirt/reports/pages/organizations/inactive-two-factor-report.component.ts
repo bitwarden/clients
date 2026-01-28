@@ -99,11 +99,8 @@ export class InactiveTwoFactorReportComponent
       });
   }
 
-  async getAllCiphers(): Promise<CipherView[]> {
-    if (this.organization) {
-      return await this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
-    }
-    return [];
+  getAllCiphers(): Promise<CipherView[]> {
+    return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
   }
 
   protected canManageCipher(c: CipherView): boolean {
