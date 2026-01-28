@@ -1,17 +1,17 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, isDevMode, OnInit } from "@angular/core";
 
-import { Icon } from "@bitwarden/assets/svg";
-import { ButtonModule, IconModule } from "@bitwarden/components";
+import { BitSvg } from "@bitwarden/assets/svg";
+import { ButtonModule, SvgModule } from "@bitwarden/components";
 
 @Component({
   selector: "empty-state-card",
   templateUrl: "./empty-state-card.component.html",
-  imports: [CommonModule, IconModule, ButtonModule],
+  imports: [CommonModule, SvgModule, ButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmptyStateCardComponent implements OnInit {
-  readonly icon = input<Icon | null>(null);
+  readonly icon = input<BitSvg | null>(null);
   readonly videoSrc = input<string | null>(null);
   readonly title = input<string>("");
   readonly description = input<string>("");
