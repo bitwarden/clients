@@ -102,7 +102,6 @@
 .account-switcher {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  grid-column-gap: 10px;
   align-items: center;
   justify-items: center;
   padding: 0 10px;
@@ -136,13 +135,6 @@
 
     span {
       font-size: $font-size-small;
-    }
-  }
-
-  &:hover {
-    @include themify($themes) {
-      background-color: themed("headerBorderColor");
-      color: themed("accountSwitcherTextColor");
     }
   }
 }

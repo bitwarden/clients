@@ -1,8 +1,6 @@
-<!-- Please remove this disable statement when editing this file! -->
-<!-- eslint-disable @angular-eslint/template/button-has-type -->
 <ng-container *ngIf="view$ | async as view">
   <button
-    class="account-switcher"
+    class="account-switcher tw-flex"
     (click)="toggle()"
     cdkOverlayOrigin
     #trigger="cdkOverlayOrigin"
@@ -10,32 +8,18 @@
     [disabled]="disabled"
     aria-haspopup="dialog"
   >
-    <ng-container *ngIf="view.activeAccount; else noActiveAccount">
-      <app-avatar
-        [text]="view.activeAccount.name ?? view.activeAccount.email"
-        [id]="view.activeAccount.id"
-        [color]="view.activeAccount.avatarColor"
-        [size]="25"
-        [circle]="true"
-        [fontSize]="14"
-        [dynamic]="true"
-        *ngIf="view.activeAccount.email != null"
-        aria-hidden="true"
-      ></app-avatar>
-      <div class="active-account">
-        <div>{{ view.activeAccount.email }}</div>
-        <span>{{ view.activeAccount.server }}</span>
-        <span class="sr-only">&nbsp;({{ "switchAccount" | i18n }})</span>
-      </div>
-    </ng-container>
-    <ng-template #noActiveAccount>
+    @if (view.activeAccount) {
+      @if (view.activeAccount.email != null) {
+        <bit-avatar
+          [text]="view.activeAccount.name ?? view.activeAccount.email"
+          [id]="view.activeAccount.id"
+          [color]="view.activeAccount.avatarColor"
+          aria-hidden="true"
+        ></bit-avatar>
+      }
+    } @else {
       <span>{{ "switchAccount" | i18n }}</span>
-    </ng-template>
-    <i
-      class="bwi"
-      aria-hidden="true"
-      [ngClass]="{ 'bwi-angle-down': !isOpen, 'bwi-angle-up': isOpen }"
-    ></i>
+    }
   </button>
 
   <ng-template
@@ -63,17 +47,15 @@
           class="account"
           (click)="switch(account.key)"
         >
-          <app-avatar
-            [text]="account.value.name ?? account.value.email"
-            [id]="account.value.id"
-            [size]="25"
-            [circle]="true"
-            [fontSize]="14"
-            [dynamic]="true"
-            [color]="account.value.avatarColor"
-            *ngIf="account.value.email != null"
-            aria-hidden="true"
-          ></app-avatar>
+          @if (account.value.email != null) {
+            <bit-avatar
+              [text]="account.value.name ?? account.value.email"
+              [id]="account.value.id"
+              [color]="account.value.avatarColor"
+              aria-hidden="true"
+            >
+            </bit-avatar>
+          }
           <div class="accountInfo">
             <span class="sr-only">{{ "switchAccount" | i18n }}:&nbsp;</span>
             <span class="email">{{ account.value.email }}</span>
