@@ -33,7 +33,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -124,7 +123,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private policyApiService: PolicyApiServiceAbstraction,
     private organizationMetadataService: OrganizationMetadataServiceAbstraction,
     private memberExportService: MemberExportService,
-    private configService: ConfigService,
     private environmentService: EnvironmentService,
   ) {
     super(
@@ -139,7 +137,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       toastService,
     );
 
-    this.dataSource = new MembersTableDataSource(this.configService, this.environmentService);
+    this.dataSource = new MembersTableDataSource(this.environmentService);
 
     const organization$ = this.route.params.pipe(
       concatMap((params) =>
