@@ -131,7 +131,9 @@ export class DialogComponent implements AfterViewInit {
   protected readonly classes = computed(() => {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
     const baseClasses = ["tw-flex", "tw-flex-col", "tw-w-screen"];
-    const sizeClasses = this.dialogRef?.isDrawer ? ["tw-h-full"] : ["md:tw-p-4", "tw-max-h-[90vh]"];
+    const sizeClasses = this.dialogRef?.isDrawer
+      ? ["tw-h-screen"]
+      : ["md:tw-p-4", "tw-max-h-[90vh]"];
 
     const size = this.dialogSize() ?? "default";
     const animationClasses =
