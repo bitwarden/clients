@@ -502,7 +502,7 @@ export class AddEditV2Component implements OnInit, OnDestroy {
     // Update the config.originalCipher to reflect the archived state
     if (this.config?.originalCipher) {
       this.config.originalCipher.revisionDate = new Date(revisionDate);
-      this.config.originalCipher.archivedDate = new Date(archivedDate);
+      this.config.originalCipher.archivedDate = archivedDate ? new Date(archivedDate) : null;
     }
   };
 
