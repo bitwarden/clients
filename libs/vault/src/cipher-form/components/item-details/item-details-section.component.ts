@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, computed, DestroyRef, input, Input, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
@@ -67,9 +67,14 @@ export class ItemDetailsSectionComponent implements OnInit {
     favorite: [false],
   });
 
+  private readonly hasArchiveFlagEnabled = toSignal(
+    this.cipherArchiveService.hasArchiveFlagEnabled$,
+    { initialValue: false },
+  );
+
   protected readonly showArchiveBadge = computed(() => {
     return (
-      this.cipherArchiveService.hasArchiveFlagEnabled$ &&
+      this.hasArchiveFlagEnabled() &&
       this.originalCipherView()?.isArchived &&
       this.platformUtilsService.getClientType() === ClientType.Desktop
     );

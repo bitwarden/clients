@@ -91,10 +91,14 @@ export class ItemDetailsV2Component {
       return this.allItems();
     }
   });
+  private readonly hasArchiveFlagEnabled = toSignal(
+    this.cipherArchiveService.hasArchiveFlagEnabled$,
+    { initialValue: false },
+  );
 
   protected readonly showArchiveBadge = computed(() => {
     return (
-      this.cipherArchiveService.hasArchiveFlagEnabled$ &&
+      this.hasArchiveFlagEnabled() &&
       this.cipher().isArchived &&
       this.platformUtilsService.getClientType() === ClientType.Desktop
     );

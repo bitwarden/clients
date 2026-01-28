@@ -77,7 +77,12 @@ describe("EmergencyViewDialogComponent", () => {
           useValue: mock<BillingAccountProfileStateService>(),
         },
         { provide: ConfigService, useValue: mock<ConfigService>() },
-        { provide: CipherArchiveService, useValue: mock<CipherArchiveService>() },
+        {
+          provide: CipherArchiveService,
+          useValue: {
+            hasArchiveFlagEnabled$: of(true),
+          },
+        },
       ],
     })
       .overrideComponent(EmergencyViewDialogComponent, {

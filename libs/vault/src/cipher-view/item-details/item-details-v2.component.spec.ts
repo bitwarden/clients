@@ -56,6 +56,8 @@ describe("ItemDetailsV2Component", () => {
     mockPlatformUtilsService = mock<PlatformUtilsService>();
     mockCipherArchiveService = mock<CipherArchiveService>();
 
+    mockCipherArchiveService.hasArchiveFlagEnabled$ = of(true);
+
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [

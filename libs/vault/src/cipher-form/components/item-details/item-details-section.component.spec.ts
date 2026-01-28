@@ -100,6 +100,8 @@ describe("ItemDetailsSectionComponent", () => {
     mockPlatformUtilsService = mock<PlatformUtilsService>();
     mockCipherArchiveService = mock<CipherArchiveService>();
 
+    mockCipherArchiveService.hasArchiveFlagEnabled$ = of(true);
+
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
       providers: [
