@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { lastValueFrom, firstValueFrom, from, switchMap } from "rxjs";
+import { lastValueFrom, firstValueFrom, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -125,8 +125,9 @@ export class MemberActionsService {
             if (enabled) {
               return this.organizationUserService.restoreUser(organization, userId);
             } else {
-              return from(
-                this.organizationUserApiService.restoreOrganizationUser(organization.id, userId),
+              return this.organizationUserApiService.restoreOrganizationUser(
+                organization.id,
+                userId,
               );
             }
           }),

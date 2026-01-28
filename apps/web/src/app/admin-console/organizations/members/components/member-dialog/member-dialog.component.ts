@@ -6,7 +6,6 @@ import {
   combineLatest,
   filter,
   firstValueFrom,
-  from,
   map,
   Observable,
   of,
@@ -202,13 +201,11 @@ export class MemberDialogComponent implements OnDestroy {
     private organizationUserService: OrganizationUserService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
-      switchMap((account) =>
-        organizationService.organizations$(account?.id).pipe(
-          getById(this.params.organizationId),
-          filter((organization) => organization != null),
-          shareReplay({ refCount: true, bufferSize: 1 }),
-        ),
-      ),
+      getUserId,
+      switchMap((userId) => organizationService.organizations$(userId)),
+      getById(this.params.organizationId),
+      filter((organization) => organization != null),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     let userDetails$;
@@ -650,11 +647,9 @@ export class MemberDialogComponent implements OnDestroy {
               params.organizationUserId,
             );
           } else {
-            return from(
-              this.organizationUserApiService.restoreOrganizationUser(
-                params.organizationId,
-                params.organizationUserId,
-              ),
+            return this.organizationUserApiService.restoreOrganizationUser(
+              params.organizationId,
+              params.organizationUserId,
             );
           }
         }),

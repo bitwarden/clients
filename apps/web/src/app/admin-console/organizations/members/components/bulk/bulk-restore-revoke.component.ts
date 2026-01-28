@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
-import { combineLatest, filter, firstValueFrom, from, Observable, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, Observable, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -11,6 +11,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -63,12 +64,15 @@ export class BulkRestoreRevokeComponent {
     );
 
     this.organization$ = accountService.activeAccount$.pipe(
-      switchMap((account) =>
-        organizationService.organizations$(account?.id).pipe(
-          getById(this.organizationId),
-          filter((org): org is Organization => org != null),
-        ),
-      ),
+      getUserId,
+      switchMap((userId) => {
+        const organization = organizationService.organizations$(userId);
+        if (organization == null) {
+          throw new Error("Organization not found");
+        }
+        return organization;
+      }),
+      getById(this.organizationId),
     );
   }
 
@@ -116,11 +120,9 @@ export class BulkRestoreRevokeComponent {
             if (enabled) {
               return this.organizationUserService.bulkRestoreUsers(organization, userIds);
             } else {
-              return from(
-                this.organizationUserApiService.restoreManyOrganizationUsers(
-                  this.organizationId,
-                  userIds,
-                ),
+              return this.organizationUserApiService.restoreManyOrganizationUsers(
+                this.organizationId,
+                userIds,
               );
             }
           }),
