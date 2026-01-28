@@ -301,6 +301,7 @@ jobs:
       - testing
       - rust
       - rust-coverage
+      - upload-codecov
     permissions:
       contents: read
 
