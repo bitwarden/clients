@@ -1278,9 +1278,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK to list organization ciphers when feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const mockCipherView1 = new CipherView();
       mockCipherView1.name = "Test Cipher 1";
@@ -1303,9 +1301,7 @@ describe("Cipher Service", () => {
     });
 
     it("should use SDK with includeMemberItems=false when not provided", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(true);
+      sdkCrudFeatureFlag$.next(true);
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "getAllFromApiForOrganization")
