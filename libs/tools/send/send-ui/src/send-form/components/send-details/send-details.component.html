@@ -6,7 +6,7 @@
   <bit-card>
     <bit-form-field>
       <bit-label>{{ "name" | i18n }}</bit-label>
-      <input appAutofocus bitInput type="text" formControlName="name" />
+      <input bitInput type="text" formControlName="name" />
     </bit-form-field>
 
     <tools-send-text-details
@@ -34,7 +34,7 @@
       ></button>
     </bit-form-field>
 
-    <bit-form-field disableMargin>
+    <bit-form-field>
       <bit-label>{{ "deletionDate" | i18n }}</bit-label>
       <bit-select
         id="deletionDate"
@@ -49,6 +49,80 @@
       </bit-select>
       <bit-hint>{{ "deletionDateDescV2" | i18n }}</bit-hint>
     </bit-form-field>
+
+    <bit-form-field [disableMargin]="!sendDetailsForm.get('authType').value">
+      <bit-label>{{ "whoCanView" | i18n }}</bit-label>
+      <bit-select formControlName="authType">
+        @for (option of availableAuthTypes$ | async; track option.value) {
+          <bit-option [value]="option.value" [label]="option.name"></bit-option>
+        }
+      </bit-select>
+      @if (sendDetailsForm.get("authType").value === AuthType.Email) {
+        <bit-hint class="tw-mt-2">{{ "emailVerificationDesc" | i18n }}</bit-hint>
+      }
+    </bit-form-field>
+
+    @if (sendDetailsForm.get("authType").value === AuthType.Password) {
+      <bit-form-field disableMargin>
+        <bit-label>{{ (passwordRemoved ? "newPassword" : "password") | i18n }}</bit-label>
+        <input bitInput type="password" formControlName="password" />
+        <div bitSuffix ngProjectAs="[bitSuffix]" class="tw-flex tw-items-center">
+          @if (!hasPassword) {
+            <button
+              data-testid="toggle-visibility-for-password"
+              type="button"
+              bitIconButton
+              size="small"
+              bitPasswordInputToggle
+            ></button>
+            <button
+              type="button"
+              bitIconButton="bwi-generate"
+              size="small"
+              [label]="'generatePassword' | i18n"
+              [disabled]="!config.areSendsAllowed"
+              (click)="generatePassword()"
+              data-testid="generate-password"
+            ></button>
+            <button
+              type="button"
+              bitIconButton="bwi-clone"
+              size="small"
+              [label]="'copyPassword' | i18n"
+              [disabled]="!config.areSendsAllowed || !sendDetailsForm.get('password').value"
+              [valueLabel]="'password' | i18n"
+              [appCopyClick]="sendDetailsForm.get('password').value"
+              showToast
+            ></button>
+          } @else {
+            <button
+              class="tw-border-l-0 last:tw-rounded-r focus-visible:tw-border-l focus-visible:tw-ml-[-1px]"
+              type="button"
+              buttonType="danger"
+              bitIconButton="bwi-minus-circle"
+              size="small"
+              [label]="'removePassword' | i18n"
+              [bitAction]="removePassword"
+              showToast
+            ></button>
+          }
+        </div>
+        <bit-hint>{{ "sendPasswordDescV3" | i18n }}</bit-hint>
+      </bit-form-field>
+    }
+
+    @if (sendDetailsForm.get("authType").value === AuthType.Email) {
+      <bit-form-field disableMargin class="tw-mt-4">
+        <bit-label>{{ "emails" | i18n }}</bit-label>
+        <textarea
+          bitInput
+          formControlName="emails"
+          rows="3"
+          [placeholder]="'emailPlaceholder' | i18n"
+        ></textarea>
+        <bit-hint>{{ "enterMultipleEmailsSeparatedByComma" | i18n }}</bit-hint>
+      </bit-form-field>
+    }
   </bit-card>
   <tools-send-options [config]="config" [originalSendView]="originalSendView"></tools-send-options>
 </bit-section>
