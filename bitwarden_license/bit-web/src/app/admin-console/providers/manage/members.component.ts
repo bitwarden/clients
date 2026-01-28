@@ -21,7 +21,6 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -72,7 +71,6 @@ export class vNextMembersComponent {
   private activatedRoute = inject(ActivatedRoute);
   private providerService = inject(ProviderService);
   private accountService = inject(AccountService);
-  private configService = inject(ConfigService);
   private environmentService = inject(EnvironmentService);
   private providerActionsService = inject(ProviderActionsService);
   private memberActionsService = inject(MemberActionsService);
@@ -94,7 +92,7 @@ export class vNextMembersComponent {
   protected statusToggle = new BehaviorSubject<ProviderUserStatusType | undefined>(undefined);
 
   protected readonly dataSource: WritableSignal<ProvidersTableDataSource> = signal(
-    new ProvidersTableDataSource(this.configService, this.environmentService),
+    new ProvidersTableDataSource(this.environmentService),
   );
   protected readonly firstLoaded: WritableSignal<boolean> = signal(false);
 
@@ -177,7 +175,7 @@ export class vNextMembersComponent {
     // Capture the original count BEFORE enforcing the limit
     const originalInvitedCount = allInvitedUsers.length;
 
-    // When feature flag is enabled, limit invited users and uncheck the excess
+    // In cloud environments, limit invited users and uncheck the excess
     let checkedInvitedUsers: ProviderUser[];
     if (this.dataSource().isIncreasedBulkLimitEnabled()) {
       checkedInvitedUsers = this.dataSource().limitAndUncheckExcess(
@@ -198,7 +196,7 @@ export class vNextMembersComponent {
     }
 
     try {
-      // When feature flag is enabled, show toast instead of dialog
+      // In cloud environments, show toast instead of dialog
       if (this.dataSource().isIncreasedBulkLimitEnabled()) {
         await this.apiService.postManyProviderUserReinvite(
           providerId,
@@ -226,7 +224,7 @@ export class vNextMembersComponent {
           });
         }
       } else {
-        // Feature flag disabled - show legacy dialog
+        // In self-hosted environments, show legacy dialog
         const request = this.apiService.postManyProviderUserReinvite(
           providerId,
           new ProviderUserBulkRequest(checkedInvitedUsers.map((user) => user.id)),

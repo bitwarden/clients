@@ -33,7 +33,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -100,7 +99,6 @@ export class vNextMembersComponent {
   private policyService = inject(PolicyService);
   private policyApiService = inject(PolicyApiServiceAbstraction);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
-  private configService = inject(ConfigService);
   private environmentService = inject(EnvironmentService);
   private memberExportService = inject(MemberExportService);
 
@@ -114,7 +112,7 @@ export class vNextMembersComponent {
   protected statusToggle = new BehaviorSubject<OrganizationUserStatusType | undefined>(undefined);
 
   protected readonly dataSource: Signal<MembersTableDataSource> = signal(
-    new MembersTableDataSource(this.configService, this.environmentService),
+    new MembersTableDataSource(this.environmentService),
   );
   protected readonly organization: Signal<Organization | undefined>;
   protected readonly firstLoaded: WritableSignal<boolean> = signal(false);
@@ -389,7 +387,7 @@ export class vNextMembersComponent {
     // Capture the original count BEFORE enforcing the limit
     const originalInvitedCount = allInvitedUsers.length;
 
-    // When feature flag is enabled, limit invited users and uncheck the excess
+    // In cloud environments, limit invited users and uncheck the excess
     let filteredUsers: OrganizationUserView[];
     if (this.dataSource().isIncreasedBulkLimitEnabled()) {
       filteredUsers = this.dataSource().limitAndUncheckExcess(
@@ -418,7 +416,7 @@ export class vNextMembersComponent {
       this.validationService.showError(result.failed);
     }
 
-    // When feature flag is enabled, show toast instead of dialog
+    // In cloud environments, show toast instead of dialog
     if (this.dataSource().isIncreasedBulkLimitEnabled()) {
       const selectedCount = originalInvitedCount;
       const invitedCount = filteredUsers.length;
@@ -441,7 +439,7 @@ export class vNextMembersComponent {
         });
       }
     } else {
-      // Feature flag disabled - show legacy dialog
+      // In self-hosted environments, show legacy dialog
       await this.memberDialogManager.openBulkStatusDialog(
         users,
         filteredUsers,

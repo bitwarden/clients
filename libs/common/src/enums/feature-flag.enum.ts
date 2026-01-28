@@ -13,7 +13,6 @@ export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
-  IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
   MembersComponentRefactor = "pm-29503-refactor-members-inheritance",
 
   /* Auth */
@@ -104,7 +103,6 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
-  [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
   [FeatureFlag.MembersComponentRefactor]: FALSE,
 
   /* Autofill */
