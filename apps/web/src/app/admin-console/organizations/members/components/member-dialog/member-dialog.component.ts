@@ -4,6 +4,7 @@ import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
+  filter,
   firstValueFrom,
   map,
   Observable,
@@ -17,11 +18,9 @@ import {
 import {
   CollectionAdminService,
   OrganizationUserApiService,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -36,8 +35,10 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -197,14 +198,14 @@ export class MemberDialogComponent implements OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
+    private organizationUserService: OrganizationUserService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
-      switchMap((account) =>
-        organizationService
-          .organizations$(account?.id)
-          .pipe(getOrganizationById(this.params.organizationId))
-          .pipe(shareReplay({ refCount: true, bufferSize: 1 })),
-      ),
+      getUserId,
+      switchMap((userId) => organizationService.organizations$(userId)),
+      getById(this.params.organizationId),
+      filter((organization) => organization != null),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     let userDetails$;
@@ -633,9 +634,26 @@ export class MemberDialogComponent implements OnDestroy {
       return;
     }
 
-    await this.organizationUserApiService.restoreOrganizationUser(
-      this.params.organizationId,
-      this.params.organizationUserId,
+    await firstValueFrom(
+      combineLatest([
+        this.configService.getFeatureFlag$(FeatureFlag.DefaultUserCollectionRestore),
+        this.organization$,
+        this.editParams$,
+      ]).pipe(
+        switchMap(([enabled, organization, params]) => {
+          if (enabled) {
+            return this.organizationUserService.restoreUser(
+              organization,
+              params.organizationUserId,
+            );
+          } else {
+            return this.organizationUserApiService.restoreOrganizationUser(
+              params.organizationId,
+              params.organizationUserId,
+            );
+          }
+        }),
+      ),
     );
 
     this.toastService.showToast({
