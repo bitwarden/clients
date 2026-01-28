@@ -492,9 +492,7 @@ export class CipherService implements CipherServiceAbstraction {
    * @deprecated Use `cipherViews$` observable instead
    */
   async getAllDecrypted(userId: UserId): Promise<CipherView[]> {
-    const useSdk = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27632_SdkCipherCrudOperations,
-    );
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       return this.getAllDecryptedUsingSdk(userId);
     }
@@ -768,9 +766,7 @@ export class CipherService implements CipherServiceAbstraction {
     organizationId: string,
     includeMemberItems?: boolean,
   ): Promise<CipherView[]> {
-    const useSdk = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27632_SdkCipherCrudOperations,
-    );
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       return this.getAllFromApiForOrganizationUsingSdk(organizationId, includeMemberItems ?? false);
     }

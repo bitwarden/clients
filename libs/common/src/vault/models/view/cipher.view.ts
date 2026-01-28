@@ -316,20 +316,14 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.viewPassword = obj.viewPassword;
     cipherView.localData = fromSdkLocalData(obj.localData);
     // Convert iterables to arrays to ensure .map() works
-    cipherView.attachments =
-      obj.attachments != null
-        ? Array.from(obj.attachments).map((a) => AttachmentView.fromSdkAttachmentView(a)!)
-        : [];
-    cipherView.fields =
-      obj.fields != null ? Array.from(obj.fields).map((f) => FieldView.fromSdkFieldView(f)!) : [];
-    cipherView.passwordHistory =
-      obj.passwordHistory != null
-        ? Array.from(obj.passwordHistory).map(
-            (ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)!,
-          )
-        : [];
-    cipherView.collectionIds =
-      obj.collectionIds != null ? Array.from(obj.collectionIds).map((i) => uuidAsString(i)) : [];
+    cipherView.attachments = (obj.attachments ?? []).map(
+      (a) => AttachmentView.fromSdkAttachmentView(a)!,
+    );
+    cipherView.fields = (obj.fields ?? []).map((f) => FieldView.fromSdkFieldView(f)!);
+    cipherView.passwordHistory = (obj.passwordHistory ?? []).map(
+      (ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)!,
+    );
+    cipherView.collectionIds = (obj.collectionIds ?? []).map((i) => uuidAsString(i));
     cipherView.revisionDate = new Date(obj.revisionDate);
     cipherView.creationDate = new Date(obj.creationDate);
     cipherView.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);

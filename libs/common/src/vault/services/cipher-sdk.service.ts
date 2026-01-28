@@ -274,23 +274,12 @@ export class DefaultCipherSdkService implements CipherSdkService {
 
           const decryptResult = await ref.value.vault().ciphers().list();
 
-          // Convert successes - SDK returns array of SdkCipherView
-          const successArray = Array.isArray(decryptResult.successes)
-            ? decryptResult.successes
-            : Array.from(decryptResult.successes ?? []);
-
-          const successes = successArray
+          const successes = [...(decryptResult.successes ?? [])]
             .map((sdkCipherView: any) => CipherView.fromSdkCipherView(sdkCipherView))
             .filter((v): v is CipherView => v !== undefined);
 
-          // Convert failures to CipherView with error markers
-          const failureArray = Array.isArray(decryptResult.failures)
-            ? decryptResult.failures
-            : Array.from(decryptResult.failures ?? []);
-
-          const failures: CipherView[] = failureArray.map((failure: any) => {
-            const cipher = Cipher.fromSdkCipher(failure);
-            const cipherView = new CipherView(cipher);
+          const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure: any) => {
+            const cipherView = new CipherView(Cipher.fromSdkCipher(failure));
             cipherView.name = DECRYPT_ERROR;
             cipherView.decryptionFailure = true;
             return cipherView;
