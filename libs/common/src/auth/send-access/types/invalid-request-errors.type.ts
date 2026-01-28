@@ -43,7 +43,7 @@ export type EmailAndOtpRequired = InvalidRequest & {
   send_access_error_type: "email_and_otp_required";
 };
 
-export function emailAndOtpRequiredEmailSent(
+export function emailAndOtpRequired(
   e: SendAccessTokenApiErrorResponse,
 ): e is EmailAndOtpRequired {
   return e.error === "invalid_request" && e.send_access_error_type === "email_and_otp_required";
