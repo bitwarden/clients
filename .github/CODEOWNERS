@@ -8,7 +8,7 @@
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/macos_provider @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/autofill_provider @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/core/src/secure_memory @bitwarden/team-key-management-dev
 
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
@@ -220,6 +220,9 @@ apps/web/src/locales/en/messages.json
 **/*.dockerignore @bitwarden/team-appsec @bitwarden/dept-bre
 **/docker-compose.yml @bitwarden/team-appsec @bitwarden/dept-bre
 **/entrypoint.sh @bitwarden/team-appsec @bitwarden/dept-bre
+
+# Scanning tools
+.checkmarx/ @bitwarden/team-appsec
 
 ## Overrides
 # For the time being platform owns tsconfig and jest config

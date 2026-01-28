@@ -1,7 +1,7 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LinkModule, IconModule } from "@bitwarden/components";
+import { LinkModule, SvgModule } from "@bitwarden/components";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -13,7 +13,7 @@ export default {
   component: CalloutComponent,
   decorators: [
     moduleMetadata({
-      imports: [LinkModule, IconModule],
+      imports: [LinkModule, SvgModule],
       providers: [
         {
           provide: I18nService,

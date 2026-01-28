@@ -1,11 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
+    "autofill_provider",
     "autotype",
     "bitwarden_chromium_import_helper",
     "chromium_importer",
     "core",
-    "macos_provider",
     "napi",
     "process_isolation",
     "proxy",
@@ -58,6 +58,7 @@ security-framework = "=3.5.1"
 security-framework-sys = "=2.15.0"
 serde = "=1.0.209"
 serde_json = "=1.0.127"
+serde_with = "=3.14.1"
 sha2 = "=0.10.9"
 ssh-encoding = "=0.2.0"
 ssh-key = { version = "=0.6.7", default-features = false }
