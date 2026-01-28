@@ -21,6 +21,8 @@ import {
   ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -38,6 +40,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { AllActivityComponent } from "./activity/all-activity.component";
 import { AllApplicationsComponent } from "./all-applications/all-applications.component";
+import { ApplicationsComponent } from "./all-applications/applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
@@ -53,6 +56,7 @@ type ProgressStep = ReportProgress | null;
   templateUrl: "./risk-insights.component.html",
   imports: [
     AllApplicationsComponent,
+    ApplicationsComponent,
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
@@ -77,6 +81,7 @@ type ProgressStep = ReportProgress | null;
 export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   protected ReportStatusEnum = ReportStatus;
+  protected milestone11Enabled: boolean = false;
 
   tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllActivity;
 
@@ -114,6 +119,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     protected dialogService: DialogService,
     private fileDownloadService: FileDownloadService,
     private logService: LogService,
+    private configService: ConfigService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity;
@@ -121,6 +127,10 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    this.milestone11Enabled = await this.configService.getFeatureFlag(
+      FeatureFlag.Milestone11AppPageImprovements,
+    );
+
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
