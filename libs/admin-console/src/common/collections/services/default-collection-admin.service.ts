@@ -5,6 +5,14 @@ import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminView,
+  CollectionAccessDetailsResponse,
+  CollectionDetailsResponse,
+  CollectionResponse,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -13,13 +21,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionAdminService, CollectionService } from "../abstractions";
 import {
-  CollectionData,
-  CollectionAccessDetailsResponse,
-  CollectionDetailsResponse,
-  CollectionResponse,
   BulkCollectionAccessRequest,
-  CollectionAccessSelectionView,
-  CollectionAdminView,
   BaseCollectionRequest,
   UpdateCollectionRequest,
   CreateCollectionRequest,

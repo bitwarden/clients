@@ -1,3 +1,5 @@
+import { SendAccessToken } from "@bitwarden/common/auth/send-access";
+
 import { ListResponse } from "../../../models/response/list.response";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { Send } from "../models/domain/send";
@@ -16,6 +18,10 @@ export abstract class SendApiService {
     request: SendAccessRequest,
     apiUrl?: string,
   ): Promise<SendAccessResponse>;
+  abstract postSendAccessV2(
+    accessToken: SendAccessToken,
+    apiUrl?: string,
+  ): Promise<SendAccessResponse>;
   abstract getSends(): Promise<ListResponse<SendResponse>>;
   abstract postSend(request: SendRequest): Promise<SendResponse>;
   abstract postFileTypeSend(request: SendRequest): Promise<SendFileUploadDataResponse>;
@@ -26,6 +32,11 @@ export abstract class SendApiService {
   abstract getSendFileDownloadData(
     send: SendAccessView,
     request: SendAccessRequest,
+    apiUrl?: string,
+  ): Promise<SendFileDownloadDataResponse>;
+  abstract getSendFileDownloadDataV2(
+    send: SendAccessView,
+    accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse>;
   abstract renewSendFileUploadUrl(

@@ -36,7 +36,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -62,7 +62,7 @@ jobs:
         run: npm test -- --coverage --maxWorkers=3
 
       - name: Report test results
-        uses: dorny/test-reporter@7b7927aa7da8b82e81e755810cb51f39941a2cc7 # v2.2.0
+        uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637 # v2.5.0
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository && !cancelled() }}
         with:
           name: Test Results
@@ -71,7 +71,9 @@ jobs:
           fail-on-error: true
 
       - name: Upload results to codecov.io
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          report_type: test_results
 
       - name: Upload test coverage
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -111,7 +113,7 @@ jobs:
         working-directory: ./apps/desktop/desktop_native
         run: cargo build
 
-      - name: Test Ubuntu
+      - name: Linux unit tests
         if: ${{ matrix.os=='ubuntu-22.04' }}
         working-directory: ./apps/desktop/desktop_native
         run: |
@@ -120,17 +122,21 @@ jobs:
           mkdir -p ~/.local/share/keyrings
           eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
           eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
-          cargo test -- --test-threads=1
+          cargo test --lib -- --test-threads=1
 
-      - name: Test macOS
+      - name: MacOS unit tests
         if: ${{ matrix.os=='macos-14' }}
         working-directory: ./apps/desktop/desktop_native
-        run: cargo test -- --test-threads=1
+        run: cargo test --lib -- --test-threads=1
 
-      - name: Test Windows
+      - name: Windows unit tests
         if: ${{ matrix.os=='windows-2022'}}
         working-directory: ./apps/desktop/desktop_native
-        run: cargo test --workspace --exclude=desktop_napi -- --test-threads=1
+        run: cargo test --lib --workspace --exclude=desktop_napi -- --test-threads=1
+
+      - name: Doc tests
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo test --doc
 
   rust-coverage:
     name: Rust Coverage
