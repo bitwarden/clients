@@ -186,7 +186,7 @@ describe("PhishingDataService", () => {
 
       expect(result).toBe(false);
       expect(logService.error).toHaveBeenCalledWith(
-        "[PhishingDataService] IndexedDB lookup via hasUrl failed",
+        "[PhishingDataService] IndexedDB lookup failed",
         expect.any(Error),
       );
       // Custom matcher is disabled, so no custom matcher error is expected
