@@ -23,12 +23,12 @@ export class WebHeaderComponent {
   /**
    * Custom title that overrides the route data `titleId`
    */
-  readonly title: InputSignal<string> = input();
+  readonly title: InputSignal<string | undefined> = input();
 
   /**
    * Icon to show before the title
    */
-  readonly icon: InputSignal<string> = input();
+  readonly icon: InputSignal<string | undefined> = input();
 
   protected routeData$: Observable<{ titleId: string }>;
   protected account$: Observable<User & { id: UserId }>;
