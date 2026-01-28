@@ -95,7 +95,7 @@
       <bit-chip-select
         [placeholderText]="'filter' | i18n"
         placeholderIcon="bwi-sliders"
-        [options]="filterOptions"
+        [options]="filterOptions()"
         [ngModel]="selectedFilter()"
         (ngModelChange)="setFilterApplicationsByStatus($event)"
         fullWidth="false"

@@ -6,7 +6,6 @@ import {
   ChangeDetectionStrategy,
   signal,
   computed,
-  effect,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -95,30 +94,23 @@ export class ApplicationsComponent implements OnInit {
   protected readonly selectedFilter = signal<ApplicationFilterOption>(ApplicationFilterOption.All);
   protected selectedFilterObservable = toObservable(this.selectedFilter);
   protected readonly ApplicationFilterOption = ApplicationFilterOption;
-  protected filterOptions: { label: string; value: ApplicationFilterOption }[] = [];
+  protected readonly filterOptions = computed(() => [
+    {
+      label: this.i18nService.t("critical", this.criticalApplicationsCount()),
+      value: ApplicationFilterOption.Critical,
+    },
+    {
+      label: this.i18nService.t("notCritical", this.nonCriticalApplicationsCount()),
+      value: ApplicationFilterOption.NonCritical,
+    },
+  ]);
 
   constructor(
     protected i18nService: I18nService,
     protected activatedRoute: ActivatedRoute,
     protected toastService: ToastService,
     protected dataService: RiskInsightsDataService,
-  ) {
-    effect(() => {
-      this.createChipSelectOptions();
-    });
-  }
-  private createChipSelectOptions() {
-    this.filterOptions = [
-      {
-        label: this.i18nService.t("critical", this.criticalApplicationsCount()),
-        value: ApplicationFilterOption.Critical,
-      },
-      {
-        label: this.i18nService.t("notCritical", this.nonCriticalApplicationsCount()),
-        value: ApplicationFilterOption.NonCritical,
-      },
-    ];
-  }
+  ) {}
 
   async ngOnInit() {
     this.dataService.enrichedReportData$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
