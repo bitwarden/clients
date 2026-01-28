@@ -6937,17 +6937,17 @@
   "personalVaultExportPolicyInEffect": {
     "message": "One or more organization policies prevents you from exporting your individual vault."
   },
-  "activateAutofill": {
-    "message": "Activate auto-fill"
+  "activateAutofillPolicy": {
+    "message": "Activate autofill"
   },
   "activateAutofillPolicyDescription": {
     "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "experimentalFeature": {
-    "message": "Compromised or untrusted websites can exploit auto-fill on page load."
+  "autofillOnPageLoadExploitWarning": {
+    "message": "Compromised or untrusted websites can exploit autofill on page load."
   },
-  "learnMoreAboutAutofill": {
-    "message": "Learn more about auto-fill"
+  "learnMoreAboutAutofillPolicy": {
+    "message": "Learn more about autofill"
   },
   "selectType": {
     "message": "Select SSO type"
