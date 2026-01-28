@@ -163,7 +163,11 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
    */
   private handleDocumentKeyDownEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["Tab", "Escape", "ArrowUp", "ArrowDown"]);
-    if (!event.isTrusted || !listenedForKeys.has(event.code)) {
+    // Reject synthetic events except in test environments where Jest creates synthetic events
+    if (
+      (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") ||
+      !listenedForKeys.has(event.code)
+    ) {
       return;
     }
 

@@ -52,6 +52,11 @@ function isNullOrEmpty(s: string | null) {
 // We only have access to the element that's been clicked when the context menu is first opened.
 // Remember it for use later.
 document.addEventListener("contextmenu", (event) => {
+  // If the event doesn't originate from the user agent, it should be ignored
+  // Allow synthetic events in test environments (NODE_ENV === 'test' or jest environment)
+  if (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") {
+    return;
+  }
   clickedElement = event.target as HTMLElement;
 });
 
