@@ -44,7 +44,7 @@ import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 @Component({
   selector: "extension-container",
   template: `
-    <div class="tw-h-[640px] tw-w-[380px] tw-border tw-border-solid tw-border-secondary-300">
+    <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
       <ng-content></ng-content>
     </div>
   `,
@@ -678,7 +678,7 @@ export const WidthOptions: Story = {
     template: /* HTML */ `
       <div class="tw-flex tw-flex-col tw-gap-4 tw-text-main">
         <div>Default:</div>
-        <div class="tw-h-[640px] tw-w-[380px] tw-border tw-border-solid tw-border-secondary-300">
+        <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
           <mock-vault-page></mock-vault-page>
         </div>
         <div>Wide:</div>

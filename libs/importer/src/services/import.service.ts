@@ -4,12 +4,11 @@ import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CollectionService, CollectionWithIdRequest } from "@bitwarden/admin-console/common";
 import {
-  CollectionService,
-  CollectionWithIdRequest,
   CollectionView,
   CollectionTypes,
-} from "@bitwarden/admin-console/common";
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
@@ -32,6 +31,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { KeyService } from "@bitwarden/key-management";
 
 import {
+  ArcCsvImporter,
   AscendoCsvImporter,
   AvastCsvImporter,
   AvastJsonImporter,
@@ -257,6 +257,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new PadlockCsvImporter();
       case "keepass2xml":
         return new KeePass2XmlImporter();
+      case "arccsv":
+        return new ArcCsvImporter();
       case "edgecsv":
       case "chromecsv":
       case "operacsv":

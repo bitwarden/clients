@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Възстановяване на избраните"
   },
+  "archivedItemRestored": {
+    "message": "Архивираният елемент е възстановен"
+  },
+  "archivedItemsRestored": {
+    "message": "Архивираните елементи са възстановени"
+  },
   "restoredItem": {
     "message": "Записът е възстановен"
   },
@@ -5620,13 +5626,13 @@
     "message": "Изпращането е създадено успешно!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Копирайте и споделете връзка към това Изпращане. То ще може да бъде видяно само от хората, които сте посочили, в рамките на следващите $TIME$.",
+  "sendCreatedDescriptionV2": {
+    "message": "Копирайте и споделете връзката към Изпращането. То ще бъде достъпно за всеки с връзката в рамките на следващите $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Централизиране на собствеността на организацията"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Всички данни на членовете ще се притежават и управляват от организацията. Това не включва администраторите и собствениците. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Научете повече относно централизираната собственост",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Предимства"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Получавате пълна видимост върху състоянието на данните, включително споделени и несподелени елементи."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Можете лесно да прехвърляте елементи при премахване и наследяване на потребители, така че да няма пролуки в достъпа."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Можете да дадете на всеки потребител негово собствено място, наречено „Моите елементи“, където всеки да съхранява свои лични данни за вписване."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Изискване от потребителите да прехвърлят данните си"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Ако членовете имат данни в собствените си трезори, от тях ще бъде изискано да ги прехвърлят в организацията, или да напуснат. Ако напуснат, достъпът им ще бъде отнет, но и може да бъде възстановен по всяко време."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Научете повече относно прехвърлянето"
   },
   "organizationDataOwnership": {
     "message": "Задължителна собственост на организационните данни"
@@ -10395,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Изпращане на данните за събитията в трезора към Вашата инсталация на Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Изпращане на данни за събитията до Вашата инстанция на Huntress SIEM"
+  },
   "failedToSaveIntegration": {
     "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
   },
@@ -10505,6 +10545,12 @@
   },
   "index": {
     "message": "Индекс"
+  },
+  "httpEventCollectorUrl": {
+    "message": "Адрес на събирача на събития по HTTP"
+  },
+  "httpEventCollectorToken": {
+    "message": "Идентификатор на събирача на събития по HTTP"
   },
   "selectAPlan": {
     "message": "Изберете план"
@@ -11701,8 +11747,8 @@
     "message": "Архивиране на елемента",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  "archiveItemDialogContent": {
+    "message": "След като бъде архивиран, този елемент няма да се показва в резултатите при търсене, нито в предложенията за автоматично попълване."
   },
   "archiveBulkItems": {
     "message": "Архивиране на елементите",
@@ -12054,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Потвърдете сега."
+  },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
   },
   "additionalStorageGB": {
     "message": "Допълнително място в ГБ"
@@ -12626,5 +12681,8 @@
   },
   "youHavePremium": {
     "message": "Имате платен абонамент"
+  },
+  "emailProtected": {
+    "message": "Е-пощата е защитена"
   }
 }

@@ -3,7 +3,7 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
-import { CollectionAccessSelectionView } from "@bitwarden/admin-console/common";
+import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";

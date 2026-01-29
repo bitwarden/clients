@@ -18,19 +18,21 @@ import {
 import { first } from "rxjs/operators";
 
 import {
-  CollectionAccessSelectionView,
   CollectionAdminService,
-  CollectionAdminView,
   OrganizationUserApiService,
   OrganizationUserUserMiniResponse,
-  CollectionResponse,
-  CollectionView,
   CollectionService,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminView,
+  CollectionView,
+  CollectionResponse,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -357,6 +359,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   protected get dialogReadonly() {
     return this.params.readonly === true;
+  }
+
+  protected get accessTabLabel(): string {
+    return this.dialogReadonly
+      ? this.i18nService.t("viewAccess")
+      : this.i18nService.t("editAccess");
   }
 
   protected async cancel() {

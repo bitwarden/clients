@@ -1,8 +1,6 @@
 import { Observable } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { UserId } from "@bitwarden/common/types/guid";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";

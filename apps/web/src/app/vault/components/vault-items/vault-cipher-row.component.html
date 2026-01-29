@@ -171,37 +171,47 @@
 
       <bit-menu-divider *ngIf="showMenuDivider"></bit-menu-divider>
 
-      @if (!viewingOrgVault) {
-        <button bitMenuItem type="button" *ngIf="showFavorite" (click)="toggleFavorite()">
+      @if (showFavorite) {
+        <button bitMenuItem type="button" (click)="toggleFavorite()">
           <i class="bwi bwi-fw bwi-star" aria-hidden="true"></i>
           {{ (cipher.favorite ? "unfavorite" : "favorite") | i18n }}
         </button>
       }
-      <button bitMenuItem type="button" (click)="editCipher()" *ngIf="canEditCipher">
-        <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
-        {{ "edit" | i18n }}
-      </button>
-      <button bitMenuItem *ngIf="showAttachments" type="button" (click)="attachments()">
-        <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
-        {{ "attachments" | i18n }}
-      </button>
-      <button bitMenuItem *ngIf="showClone" type="button" (click)="clone()">
-        <i class="bwi bwi-fw bwi-files" aria-hidden="true"></i>
-        {{ "clone" | i18n }}
-      </button>
-      <button
-        bitMenuItem
-        *ngIf="showAssignToCollections"
-        type="button"
-        (click)="assignToCollections()"
-      >
-        <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-        {{ "assignToCollections" | i18n }}
-      </button>
-      <button bitMenuItem *ngIf="showEventLogs" type="button" (click)="events()">
-        <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
-        {{ "eventLogs" | i18n }}
-      </button>
+      @if (!isDeleted && canEditCipher) {
+        <button bitMenuItem type="button" (click)="editCipher()">
+          <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+          {{ "edit" | i18n }}
+        </button>
+      }
+      @if (showAttachments) {
+        <button bitMenuItem type="button" (click)="attachments()">
+          <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
+          {{ "attachments" | i18n }}
+        </button>
+      }
+      @if (showClone) {
+        <button bitMenuItem type="button" (click)="clone()">
+          <i class="bwi bwi-fw bwi-files" aria-hidden="true"></i>
+          {{ "clone" | i18n }}
+        </button>
+      }
+      @if (showAssignToCollections) {
+        <button
+          bitMenuItem
+          *ngIf="showAssignToCollections"
+          type="button"
+          (click)="assignToCollections()"
+        >
+          <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+          {{ "assignToCollections" | i18n }}
+        </button>
+      }
+      @if (showEventLogs) {
+        <button bitMenuItem type="button" (click)="events()">
+          <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
+          {{ "eventLogs" | i18n }}
+        </button>
+      }
       @if (showArchiveButton) {
         @if (userCanArchive) {
           <button bitMenuItem (click)="archive()" type="button">

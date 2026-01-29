@@ -5418,6 +5418,12 @@
   "restoreSelected": {
     "message": "Atjaunot atlasīto"
   },
+  "archivedItemRestored": {
+    "message": "Arhīva vienums atjaunots"
+  },
+  "archivedItemsRestored": {
+    "message": "Arhīva vienumi atjaunoti"
+  },
   "restoredItem": {
     "message": "Vienums atjaunots"
   },
@@ -5620,13 +5626,13 @@
     "message": "Send tika veiksmīgi izveidots.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendCreatedDescription": {
-    "message": "Ievieto starpliktuvē un kopīgo šī Send saiti! To $TIME$ no šī brīža var apskatīt cilvēki, kurus norādīji.",
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
         "content": "$1",
-        "example": "7 days"
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -5908,6 +5914,37 @@
         "example": "John Smith"
       }
     }
+  },
+  "centralizeDataOwnership": {
+    "message": "Centralizēt apvienības īpašumtiesības"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Visi dalībnieku vienumi piederēs un tos pārvaldīs apvienība. Pārvaldītāji un īpašnieki ir izņēmums. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Uzzināt vairāk par centralizētām īpašumtiesībām",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Ieguvumi"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Tiek iegūta pilna pārredzamība par pieteikšanās vienumu stāvokli, tajā skaitā kopīgotajiem un nekopīgotajiem vienumiem."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Vienkārša vienumu pārcelšana dalībnieku aiziešanas un aizstāšanas gadījumos, nodrošinot, ka nav piekļuvju spraugu."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Learn more about the transfer"
   },
   "organizationDataOwnership": {
     "message": "Uzspiest apvienības datu īpašumtiesības"
@@ -10395,6 +10432,9 @@
   "datadogEventIntegrationDesc": {
     "message": "Nosūtīt glabātavas notikumu datus uz savu Datadog serveri"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
   "failedToSaveIntegration": {
     "message": "Neizdevās saglabāt iekļaušanu. Lūgums vēlāk mēģināt vēlreiz."
   },
@@ -10505,6 +10545,12 @@
   },
   "index": {
     "message": "Indekss"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Event Collector URL"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Event Collector Token"
   },
   "selectAPlan": {
     "message": "Atlasīt plānu"
@@ -11701,8 +11747,8 @@
     "message": "Arhivēt vienumu",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arhivētie vienumi netiek iekļauti vispārējās meklēšanas iznākumos un automātiskās aizpildes ieteikumos. Vai tiešām ahrivēt šo vienumu?"
+  "archiveItemDialogContent": {
+    "message": "Pēc ievietošanas arhīvā šis vienums netiks iekļauts meklēšanas iznākumā un automātiskās aizpildes ieteikumos."
   },
   "archiveBulkItems": {
     "message": "Arhivēt vienumus",
@@ -12054,6 +12100,15 @@
   },
   "verifyNow": {
     "message": "Apliecini tagad!"
+  },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock."
   },
   "additionalStorageGB": {
     "message": "Papildu krātuve GB"
@@ -12626,5 +12681,8 @@
   },
   "youHavePremium": {
     "message": "Tev ir Premium"
+  },
+  "emailProtected": {
+    "message": "E-pasts aizsargāts"
   }
 }

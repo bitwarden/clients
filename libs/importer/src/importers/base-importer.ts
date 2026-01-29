@@ -2,9 +2,7 @@
 // @ts-strict-ignore
 import * as papa from "papaparse";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { Collection, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView, Collection } from "@bitwarden/common/admin-console/models/collections";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";

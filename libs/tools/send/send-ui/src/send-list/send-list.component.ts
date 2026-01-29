@@ -1,17 +1,8 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import {
   ButtonModule,
@@ -57,8 +48,6 @@ export class SendListComponent {
   protected readonly noResultsIcon = NoResults;
   protected readonly sendListState = SendListState;
 
-  private i18nService = inject(I18nService);
-
   readonly sends = input.required<SendView[]>();
   readonly loading = input<boolean>(false);
   readonly disableSend = input<boolean>(false);
@@ -70,7 +59,7 @@ export class SendListComponent {
   );
 
   protected readonly noSearchResults = computed(
-    () => this.showSearchBar() && (this.sends().length === 0 || this.searchText().length > 0),
+    () => this.showSearchBar() && this.sends().length === 0,
   );
 
   // Reusable data source instance - updated reactively when sends change

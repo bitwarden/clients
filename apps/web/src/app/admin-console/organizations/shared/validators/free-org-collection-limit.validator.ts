@@ -1,7 +1,7 @@
 import { AbstractControl, AsyncValidatorFn, FormControl, ValidationErrors } from "@angular/forms";
 import { combineLatest, map, Observable, of } from "rxjs";
 
-import { Collection } from "@bitwarden/admin-console/common";
+import { Collection } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
