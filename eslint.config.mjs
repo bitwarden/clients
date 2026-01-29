@@ -90,7 +90,7 @@ export default tseslint.config(
       "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: false }],
       "@typescript-eslint/no-this-alias": ["error", { allowedNames: ["self"] }],
       "@typescript-eslint/no-unused-expressions": ["error", { allowTernary: true }],
-      "@typescript-eslint/no-unused-vars": ["error", { args: "none" }],
+      "@typescript-eslint/no-unused-vars": ["error", { args: "none", varsIgnorePattern: "^_" }],
 
       curly: ["error", "all"],
       "no-console": "error",

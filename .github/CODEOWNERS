@@ -193,6 +193,9 @@ apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-key-manage
 apps/browser/src/background/nativeMessaging.background.ts @bitwarden/team-key-management-dev
 apps/desktop/src/services/biometric-message-handler.service.ts @bitwarden/team-key-management-dev
 
+## Architecture
+libs/playwright-helpers @bitwarden/team-architecture
+
 ## Locales ##
 apps/browser/src/_locales/en/messages.json
 apps/browser/store/locales/en
