@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const NoSendsIcon = svgIcon`
+export const NoSendsIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="9 4 83.89 91">
     <path class="tw-fill-illustration-bg-secondary" d="M67 12a2 2 0 0 1 2 2v76a2 2 0 0 1-2 2H11a2 2 0 0 1-2-2V14a2 2 0 0 1 2-2h56Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M67 90V14H11v76h56Zm2-76a2 2 0 0 0-2-2H11a2 2 0 0 0-2 2v76a2 2 0 0 0 2 2h56a2 2 0 0 0 2-2V14Z" clip-rule="evenodd"/>

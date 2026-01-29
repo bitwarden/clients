@@ -189,6 +189,7 @@
         "semver",
         "serde",
         "serde_json",
+        "serde_with",
         "simplelog",
         "style-loader",
         "sysinfo",

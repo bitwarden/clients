@@ -375,7 +375,7 @@ describe("ExtensionLockComponentService", () => {
       platformUtilsService.supportsSecureStorage.mockReturnValue(
         mockInputs.platformSupportsSecureStorage,
       );
-      biometricStateService.biometricUnlockEnabled$ = of(true);
+      biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
 
       //  PIN
       pinService.isPinDecryptionAvailable.mockResolvedValue(mockInputs.pinDecryptionAvailable);
@@ -386,6 +386,7 @@ describe("ExtensionLockComponentService", () => {
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
 
       expect(unlockOptions).toEqual(expectedOutput);
+      expect(biometricStateService.biometricUnlockEnabled$).toHaveBeenCalledWith(userId);
     });
   });
 });

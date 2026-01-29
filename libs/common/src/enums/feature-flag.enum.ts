@@ -13,11 +13,11 @@ export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   BlockClaimedDomainAccountCreation = "pm-28297-block-uninvited-claimed-domain-registration",
-  IncreaseBulkReinviteLimitForCloud = "pm-28251-increase-bulk-reinvite-limit-for-cloud",
   MembersComponentRefactor = "pm-29503-refactor-members-inheritance",
 
   /* Auth */
   PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
+  SafariAccountSwitching = "pm-5594-safari-account-switching",
 
   /* Autofill */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -59,6 +59,7 @@ export enum FeatureFlag {
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
   EventManagementForHuntress = "event-management-for-huntress",
   PhishingDetection = "phishing-detection",
+  Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
 
   /* Vault */
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
@@ -70,7 +71,7 @@ export enum FeatureFlag {
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
 
   /* Platform */
-  IpcChannelFramework = "ipc-channel-framework",
+  ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
 
   /* Innovation */
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
@@ -103,7 +104,6 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.BlockClaimedDomainAccountCreation]: FALSE,
-  [FeatureFlag.IncreaseBulkReinviteLimitForCloud]: FALSE,
   [FeatureFlag.MembersComponentRefactor]: FALSE,
 
   /* Autofill */
@@ -122,6 +122,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
+  [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
@@ -134,6 +135,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
+  [FeatureFlag.SafariAccountSwitching]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
@@ -160,7 +162,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
 
   /* Platform */
-  [FeatureFlag.IpcChannelFramework]: FALSE,
+  [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
 
   /* Innovation */
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,
