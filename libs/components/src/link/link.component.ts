@@ -108,7 +108,7 @@ const commonStyles = [
   },
 })
 export class LinkComponent {
-  readonly el = inject(ElementRef<HTMLElement>);
+  private readonly el = inject(ElementRef<HTMLElement>);
   /**
    * The variant of link you want to render
    * @default "primary"
@@ -131,13 +131,14 @@ export class LinkComponent {
    */
   readonly disabled = input(false, { transform: booleanAttribute });
 
-  protected isButton = this.el.nativeElement.tagName === "BUTTON";
+  protected readonly isButton = this.el.nativeElement.tagName === "BUTTON";
 
   readonly classList = computed(() => {
-    const verticalInset = this.isButton ? "0.25rem" : "0.125rem";
-    const displayStyle = this.isButton ? "" : "inline-flex";
-
-    return [`before:-tw-inset-y-[${verticalInset}]`, `tw-${displayStyle}`]
+    return [
+      this.isButton
+        ? "before:-tw-inset-y-[0.25rem]"
+        : "before:-tw-inset-y-[0.125rem] tw-inline-flex",
+    ]
       .concat(commonStyles)
       .concat(linkStyles[this.linkType()] ?? []);
   });
