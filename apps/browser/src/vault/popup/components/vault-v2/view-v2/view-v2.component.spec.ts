@@ -469,7 +469,7 @@ describe("ViewV2Component", () => {
 
   describe("unarchive button", () => {
     it("shows the unarchive button when the cipher is archived", fakeAsync(() => {
-      component.cipher = { ...mockCipher, isArchived: true } as CipherView;
+      component.cipher = { ...mockCipher, isArchived: true, isDeleted: false } as CipherView;
 
       tick();
       fixture.detectChanges();
@@ -482,6 +482,18 @@ describe("ViewV2Component", () => {
 
     it("does not show the unarchive button when the cipher is not archived", fakeAsync(() => {
       component.cipher = { ...mockCipher, archivedDate: undefined } as CipherView;
+
+      tick();
+      fixture.detectChanges();
+
+      const unarchiveBtn = fixture.debugElement.query(
+        By.css("button[biticonbutton='bwi-unarchive']"),
+      );
+      expect(unarchiveBtn).toBeFalsy();
+    }));
+
+    it("does not show the unarchive button when the cipher is deleted", fakeAsync(() => {
+      component.cipher = { ...mockCipher, isArchived: true, isDeleted: true } as CipherView;
 
       tick();
       fixture.detectChanges();
