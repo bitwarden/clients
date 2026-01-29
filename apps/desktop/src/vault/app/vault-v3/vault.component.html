@@ -1,4 +1,4 @@
-<div class="vault tw-flex tw-h-full">
+<div class="tw-flex tw-h-full">
   <div class="tw-flex tw-flex-col tw-w-6/12">
     <div class="tw-px-2 tw-pt-6 tw-px-6">
       <app-header [title]="'vault' | i18n">
@@ -61,7 +61,7 @@
     }
   </div>
   @if (!!action()) {
-    <div class="details">
+    <div class="tw-flex tw-flex-col tw-flex-1">
       <app-header [title]="headerTitleKey() | i18n" class="tw-bg-bg-secondary tw-px-8 tw-pt-6">
         <button
           type="button"
@@ -71,15 +71,14 @@
           (click)="cancelCipher()"
         ></button>
       </app-header>
-      <div class="content">
-        <div class="inner-content">
-          <div class="box">
+      <div class="tw-flex-auto tw-overflow-y-hidden">
+        <div class="tw-py-2.5 tw-px-1">
+          <div class="tw-mt-7 tw-pt-2.5 tw-pb-7">
             @if (action() === "view") {
               <app-cipher-view [cipher]="cipher()" [collections]="collections"> </app-cipher-view>
             }
             @if (action() === "add" || action() === "edit" || action() === "clone") {
               <vault-cipher-form
-                #vaultForm
                 formId="cipherForm"
                 [config]="config"
                 (cipherSaved)="savedCipher($event)"
@@ -120,14 +119,4 @@
       ></app-vault-item-footer>
     </div>
   }
-  @if (action() !== "add" && action() !== "edit" && action() !== "view" && action() !== "clone") {
-    <div id="logo" class="logo">
-      <div class="content">
-        <div class="inner-content">
-          <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
-        </div>
-      </div>
-    </div>
-  }
 </div>
-<ng-template #folderAddEdit></ng-template>
