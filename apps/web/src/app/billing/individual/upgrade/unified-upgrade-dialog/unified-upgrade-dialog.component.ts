@@ -248,10 +248,14 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
     if (
       this.params.redirectOnCompletion &&
       (status === UnifiedUpgradeDialogStatus.UpgradedToPremium ||
-        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies)
+        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies ||
+        status === UnifiedUpgradeDialogStatus.UpgradedToEnterprise ||
+        status === UnifiedUpgradeDialogStatus.UpgradedToTeams)
     ) {
       const redirectUrl =
-        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies
+        status === UnifiedUpgradeDialogStatus.UpgradedToFamilies ||
+        status === UnifiedUpgradeDialogStatus.UpgradedToEnterprise ||
+        status === UnifiedUpgradeDialogStatus.UpgradedToTeams
           ? `/organizations/${result.organizationId}/vault`
           : "/settings/subscription/user-subscription";
       await this.router.navigate([redirectUrl]);

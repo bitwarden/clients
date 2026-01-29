@@ -31,6 +31,7 @@ import {
   BusinessSubscriptionPricingTierId,
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
+  PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -192,6 +193,14 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   ) {}
 
   async ngOnInit(): Promise<void> {
+    // If the selected plan is Personal Premium, no upgrade is needed
+    if (this.selectedPlanId() == PersonalSubscriptionPricingTierIds.Premium) {
+      this.complete.emit({
+        status: PremiumOrgUpgradePaymentStatus.Closed,
+        organizationId: null,
+      });
+    }
+
     combineLatest([
       this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$(),
       this.subscriptionPricingService.getBusinessSubscriptionPricingTiers$(),

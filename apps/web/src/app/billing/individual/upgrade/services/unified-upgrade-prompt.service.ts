@@ -85,6 +85,11 @@ export class UnifiedUpgradePromptService {
    * @returns A promise that resolves to the dialog result if shown, or null if not shown
    */
   async displayUpgradePromptConditionally(): Promise<UnifiedUpgradeDialogResult | null> {
+    // Prevent opening multiple dialogs if one is already open
+    if (this.unifiedUpgradeDialogRef) {
+      return null;
+    }
+
     const shouldShow = await firstValueFrom(this.shouldShowPrompt$);
 
     if (shouldShow) {
