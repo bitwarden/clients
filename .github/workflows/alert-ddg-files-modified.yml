@@ -73,7 +73,7 @@ jobs:
         _MONITORED_FILES: ${{ steps.changed-files.outputs.monitored_files }}
       with:
         script: |
-          const changedFiles = `$_MONITORED_FILES`.split(' ').filter(file => file.trim() !== '');
+          const changedFiles = process.env._MONITORED_FILES.split(' ').filter(file => file.trim() !== '');
 
           const message = `<!-- comment_tag: ddg-test-warning -->
           ⚠️🦆 **DuckDuckGo Integration files have been modified in this PR:**

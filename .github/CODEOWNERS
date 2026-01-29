@@ -221,6 +221,9 @@ apps/web/src/locales/en/messages.json
 **/docker-compose.yml @bitwarden/team-appsec @bitwarden/dept-bre
 **/entrypoint.sh @bitwarden/team-appsec @bitwarden/dept-bre
 
+# Scanning tools
+.checkmarx/ @bitwarden/team-appsec
+
 ## Overrides
 # For the time being platform owns tsconfig and jest config
 # These overrides will be removed after Nx is implemented

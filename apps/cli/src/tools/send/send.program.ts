@@ -6,6 +6,7 @@ import * as path from "path";
 import * as chalk from "chalk";
 import { program, Command, Option, OptionValues } from "commander";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
@@ -31,13 +32,16 @@ import { parseEmail } from "./util";
 const writeLn = CliUtils.writeLn;
 
 export class SendProgram extends BaseProgram {
-  register() {
-    program.addCommand(this.sendCommand());
+  async register() {
+    const emailAuthEnabled = await this.serviceContainer.configService.getFeatureFlag(
+      FeatureFlag.SendEmailOTP,
+    );
+    program.addCommand(this.sendCommand(emailAuthEnabled));
     // receive is accessible both at `bw receive` and `bw send receive`
     program.addCommand(this.receiveCommand());
   }
 
-  private sendCommand(): Command {
+  private sendCommand(emailAuthEnabled: boolean): Command {
     return new Command("send")
       .argument("<data>", "The data to Send. Specify as a filepath with the --file option")
       .description(
@@ -59,9 +63,7 @@ export class SendProgram extends BaseProgram {
         new Option(
           "--email <email>",
           "optional emails to access this Send. Can also be specified in JSON.",
-        )
-          .argParser(parseEmail)
-          .hideHelp(),
+        ).argParser(parseEmail),
       )
       .option("-a, --maxAccessCount <amount>", "The amount of max possible accesses.")
       .option("--hidden", "Hide <data> in web by default. Valid only if --file is not set.")
@@ -78,11 +80,18 @@ export class SendProgram extends BaseProgram {
       .addCommand(this.templateCommand())
       .addCommand(this.getCommand())
       .addCommand(this.receiveCommand())
-      .addCommand(this.createCommand())
-      .addCommand(this.editCommand())
+      .addCommand(this.createCommand(emailAuthEnabled))
+      .addCommand(this.editCommand(emailAuthEnabled))
       .addCommand(this.removePasswordCommand())
       .addCommand(this.deleteCommand())
       .action(async (data: string, options: OptionValues) => {
+        if (options.email) {
+          if (!emailAuthEnabled) {
+            this.processResponse(Response.error("The --email feature is not currently available."));
+            return;
+          }
+        }
+
         const encodedJson = this.makeSendJson(data, options);
 
         let response: Response;
@@ -199,7 +208,7 @@ export class SendProgram extends BaseProgram {
       });
   }
 
-  private createCommand(): Command {
+  private createCommand(emailAuthEnabled: any): Command {
     return new Command("create")
       .argument("[encodedJson]", "JSON object to upload. Can also be piped in through stdin.")
       .description("create a Send")
@@ -215,6 +224,14 @@ export class SendProgram extends BaseProgram {
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         // subcommands inherit flags from their parent; they cannot override them
         const { fullObject = false, email = undefined, password = undefined } = args.parent.opts();
+
+        if (email) {
+          if (!emailAuthEnabled) {
+            this.processResponse(Response.error("The --email feature is not currently available."));
+            return;
+          }
+        }
+
         const mergedOptions = {
           ...options,
           fullObject: fullObject,
@@ -227,7 +244,7 @@ export class SendProgram extends BaseProgram {
       });
   }
 
-  private editCommand(): Command {
+  private editCommand(emailAuthEnabled: any): Command {
     return new Command("edit")
       .argument(
         "[encodedJson]",
@@ -243,6 +260,14 @@ export class SendProgram extends BaseProgram {
       })
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         await this.exitIfLocked();
+        const { email = undefined, password = undefined } = args.parent.opts();
+        if (email) {
+          if (!emailAuthEnabled) {
+            this.processResponse(Response.error("The --email feature is not currently available."));
+            return;
+          }
+        }
+
         const getCmd = new SendGetCommand(
           this.serviceContainer.sendService,
           this.serviceContainer.environmentService,
@@ -259,8 +284,6 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.accountService,
         );
 
-        // subcommands inherit flags from their parent; they cannot override them
-        const { email = undefined, password = undefined } = args.parent.opts();
         const mergedOptions = {
           ...options,
           email,
@@ -328,6 +351,7 @@ export class SendProgram extends BaseProgram {
       file: sendFile,
       text: sendText,
       type: type,
+      emails: options.email ?? undefined,
     });
 
     return Buffer.from(JSON.stringify(template), "utf8").toString("base64");

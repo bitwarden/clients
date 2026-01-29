@@ -22,6 +22,7 @@ export * from "./form-field";
 export * from "./header";
 export * from "./icon-button";
 export * from "./icon";
+export * from "./svg";
 export * from "./icon-tile";
 export * from "./input";
 export * from "./item";
