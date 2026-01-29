@@ -48,7 +48,8 @@ export default class NativeMessageService {
     this.ipcService = new IPCService(`bitwarden`, (rawMessage) => {
       console.log(`Received unexpected: `, rawMessage);
     });
-
+    console.log("change this file as well");
+    
     this.nodeCryptoFunctionService = new NodeCryptoFunctionService();
     this.encryptService = new EncryptServiceImplementation(
       this.nodeCryptoFunctionService,
