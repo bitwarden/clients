@@ -34,9 +34,12 @@ export class MenuComponent implements AfterContentInit {
 
   ngAfterContentInit() {
     if (this.ariaRole() === "menu") {
-      this.keyManager = new FocusKeyManager(this.menuItems())
+      // Type cast is necessary because MenuItemComponent.disabled is a ModelSignal<boolean>
+      // to satisfy ButtonLikeAbstraction, but FocusKeyManager expects disabled?: boolean.
+      // The skipPredicate correctly calls disabled() to read the signal value.
+      this.keyManager = new FocusKeyManager<MenuItemComponent>(this.menuItems() as any)
         .withWrap()
-        .skipPredicate((item) => !!item.disabled);
+        .skipPredicate((item: MenuItemComponent) => !!item.disabled());
     }
   }
 }
