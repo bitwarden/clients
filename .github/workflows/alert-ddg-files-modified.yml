@@ -2,7 +2,7 @@ name: DDG File Change Monitor
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, ddg-alert-files-list ]
     types: [ opened, synchronize ]
 
 jobs:
