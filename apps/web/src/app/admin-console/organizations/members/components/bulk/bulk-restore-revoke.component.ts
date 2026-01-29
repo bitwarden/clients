@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
-import { combineLatest, firstValueFrom, Observable, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -65,14 +65,14 @@ export class BulkRestoreRevokeComponent {
 
     this.organization$ = accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) => {
-        const organization = organizationService.organizations$(userId);
+      switchMap((userId) => organizationService.organizations$(userId)),
+      getById(this.organizationId),
+      map((organization) => {
         if (organization == null) {
           throw new Error("Organization not found");
         }
         return organization;
       }),
-      getById(this.organizationId),
     );
   }
 

@@ -4,7 +4,6 @@ import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
-  filter,
   firstValueFrom,
   map,
   Observable,
@@ -204,7 +203,12 @@ export class MemberDialogComponent implements OnDestroy {
       getUserId,
       switchMap((userId) => organizationService.organizations$(userId)),
       getById(this.params.organizationId),
-      filter((organization) => organization != null),
+      map((organization) => {
+        if (organization == null) {
+          throw new Error("Organization not found");
+        }
+        return organization;
+      }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
