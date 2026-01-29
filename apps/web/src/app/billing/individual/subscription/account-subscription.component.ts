@@ -262,7 +262,7 @@ export class AccountSubscriptionComponent {
       // Wait for Stripe webhook to process payment and update subscription status on backend
       setTimeout(() => {
         this.subscription.reload();
-      }, 4000);
+      }, 7000);
     }
   }
 
