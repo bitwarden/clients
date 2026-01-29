@@ -6127,8 +6127,8 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
-  "searchResults": {
-    "message": "Search results"
+  "items": {
+    "message": "Items"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"

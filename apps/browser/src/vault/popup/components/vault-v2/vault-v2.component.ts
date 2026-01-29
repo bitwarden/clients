@@ -164,8 +164,8 @@ export class VaultV2Component implements OnInit, OnDestroy {
     switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId)),
   );
 
-  private readonly searchTextSignal = toSignal(this.vaultPopupItemsService.searchText$, {
-    initialValue: "",
+  protected readonly hasFilterApplied = toSignal(this.vaultPopupItemsService.hasFilterApplied$, {
+    initialValue: false,
   });
 
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
@@ -371,12 +371,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.vaultScrollPositionService.stop();
   }
 
-  getTitleText(): string {
-    const searchText = this.searchTextSignal();
-    if (searchText.length < 2) {
+  getAllItemsTitleText(): string {
+    if (!this.hasFilterApplied()) {
       return this.i18nService.t("allItems");
     } else {
-      return this.i18nService.t("searchResults");
+      return this.i18nService.t("items");
     }
   }
 
