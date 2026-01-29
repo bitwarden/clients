@@ -1,4 +1,4 @@
-# CLAUDE.md
+# Clients Monorepo
 
 ## Overview
 
