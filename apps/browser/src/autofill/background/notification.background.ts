@@ -866,13 +866,11 @@ export default class NotificationBackground {
         return;
       }
 
-      const encrypted = await this.cipherService.encrypt(newCipher, activeUserId);
-      const { cipher } = encrypted;
       try {
-        await this.cipherService.createWithServer(encrypted);
+        const resultCipher = await this.cipherService.createWithServer(newCipher, activeUserId);
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
           itemName: newCipher?.name && String(newCipher?.name),
-          cipherId: cipher?.id && String(cipher?.id),
+          cipherId: resultCipher?.id && String(resultCipher?.id),
         });
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
@@ -910,7 +908,6 @@ export default class NotificationBackground {
       await BrowserApi.tabSendMessage(tab, { command: "editedCipher" });
       return;
     }
-    const cipher = await this.cipherService.encrypt(cipherView, userId);
 
     try {
       if (!cipherView.edit) {
@@ -939,7 +936,7 @@ export default class NotificationBackground {
         return;
       }
 
-      await this.cipherService.updateWithServer(cipher);
+      await this.cipherService.updateWithServer(cipherView, userId);
 
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
         itemName: cipherView?.name && String(cipherView?.name),

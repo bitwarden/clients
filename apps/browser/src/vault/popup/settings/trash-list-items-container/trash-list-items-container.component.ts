@@ -115,15 +115,22 @@ export class TrashListItemsContainerComponent {
   }
 
   async restore(cipher: PopupCipherViewLike) {
+    let toastMessage;
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.cipherService.restoreWithServer(cipher.id as string, activeUserId);
+
+      if (cipher.archivedDate) {
+        toastMessage = this.i18nService.t("archivedItemRestored");
+      } else {
+        toastMessage = this.i18nService.t("restoredItem");
+      }
 
       await this.router.navigate(["/trash"]);
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("restoredItem"),
+        message: toastMessage,
       });
     } catch (e) {
       this.logService.error(e);

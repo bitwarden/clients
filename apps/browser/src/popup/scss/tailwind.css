@@ -60,7 +60,7 @@
   }
 
   body {
-    width: 380px;
+    width: 480px;
     height: 100%;
     position: relative;
     min-height: inherit;
@@ -84,9 +84,9 @@
     animation: redraw 1s linear infinite;
   }
 
-  /** 
+  /**
    * Text selection style:
-   * suppress user selection for most elements (to make it more app-like) 
+   * suppress user selection for most elements (to make it more app-like)
    */
   h1,
   h2,
@@ -165,7 +165,7 @@
     @apply tw-text-muted;
   }
 
-  /** 
+  /**
    * Text selection style:
    * Set explicit selection styles (assumes primary accent color has sufficient
    * contrast against the background, so its inversion is also still readable)

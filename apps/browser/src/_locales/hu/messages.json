@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Bejelentkezés hozzáférési kulccsal"
   },
+  "unlockWithPasskey": {
+    "message": "Hozzáférési kulcs"
+  },
   "useSingleSignOn": {
     "message": "Egyszeri bejelentkezés használata"
   },
@@ -582,8 +585,8 @@
   "archiveItem": {
     "message": "Elem archiválása"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  "archiveItemDialogContent": {
+    "message": "Az archiválás után ez az elem kizárásra kerül a keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
   "archived": {
     "message": "Archiválva"
@@ -2473,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Véglegesen törölt elem"
   },
+  "archivedItemRestored": {
+    "message": "Az archivált elem visszaállításra került."
+  },
   "restoreItem": {
     "message": "Elem visszaállítása"
   },
@@ -3363,6 +3369,12 @@
   },
   "error": {
     "message": "Hiba"
+  },
+  "prfUnlockFailed": {
+    "message": "Nem sikerült a feloldás a hozzéférési kulccsal. Próbáljuk újra vagy használjunk más feloldási metódust."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "A feloldáshoz nem állnak rendelkezésre PRF kompatibilis hozzáférési kucsok. Először jelentkezzünk be egy hozzáférési kulccsal."
   },
   "decryptionError": {
     "message": "Visszafejtési hiba"
@@ -4739,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "További opciók"
+  },
   "moreOptionsTitle": {
     "message": "További opciók - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "$WEBSITE$ egyező érzékelés elrejtése",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Egyezés felismerés megjelenítése"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Egyezés felismerés elrejtése"
   },
   "autoFillOnPageLoad": {
     "message": "Automatikus kitöltés oldalbetöltésnél?"
@@ -5669,6 +5681,9 @@
   },
   "extraWide": {
     "message": "Extra széles"
+  },
+  "narrow": {
+    "message": "Keskeny"
   },
   "sshKeyWrongPassword": {
     "message": "A megadott jelszó helytelen."

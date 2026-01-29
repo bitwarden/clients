@@ -101,23 +101,23 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Op deze datum wordt de Send definitief verwijderd.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "Bestand om te delen"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Tekst standaard verbergen"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Je e-mailadres voor ontvangers verbergen."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Weergaven limiteren"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ weergaven over",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -127,41 +127,41 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Niemand kan deze Send weergeven als de limiet is bereikt.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Privénotitie"
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Send-details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Voeg een optioneel wachtwoord toe voor ontvangers om toegang te krijgen tot deze Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Te delen tekst"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Nieuwe Send (tekst)",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Nieuwe Send (bestand)",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "Send (tekst) bewerken",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "Send (bestand) bewerken",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Weet je zeker dat je deze Send permanent wil verwijderen?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
@@ -2091,6 +2091,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Definitief verwijderd item"
+  },
+  "archivedItemRestored": {
+    "message": "Gearchiveerd item hersteld"
   },
   "restoredItem": {
     "message": "Hersteld item"
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Item archiveren"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Gearchiveerde items worden uitgesloten van algemene zoekresultaten en automatische invulsuggesties. Weet je zeker dat je dit item wilt archiveren?"
+  "archiveItemDialogContent": {
+    "message": "Eenmaal gearchiveerd wordt dit item uitgesloten van zoekresultaten en suggesties voor automatisch invullen."
   },
   "unArchiveAndSave": {
     "message": "Dearchiveren en opslaan"

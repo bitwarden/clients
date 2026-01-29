@@ -121,13 +121,13 @@ export class CollectionAdminView extends CollectionView {
     try {
       view.name = await encryptService.decryptString(new EncString(view.name), orgKey);
     } catch (e) {
+      view.name = "[error: cannot decrypt]";
       // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
       // eslint-disable-next-line no-console
       console.error(
         "[CollectionAdminView/fromCollectionAccessDetails] Error decrypting collection name",
         e,
       );
-      throw e;
     }
     view.assigned = collection.assigned;
     view.readOnly = collection.readOnly;

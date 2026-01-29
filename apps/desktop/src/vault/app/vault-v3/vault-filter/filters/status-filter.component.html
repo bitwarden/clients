@@ -6,10 +6,13 @@
     [text]="archiveFilter.name | i18n"
     [attr.aria-pressed]="activeFilter()?.isArchived"
     [appA11yTitle]="archiveFilter.name | i18n"
-  />
-  @if (!(canArchive$ | async)) {
-    <app-premium-badge />
-  }
+  >
+    @if (!(canArchive$ | async)) {
+      <ng-container slot="end">
+        <app-premium-badge />
+      </ng-container>
+    }
+  </bit-nav-item>
 }
 <bit-nav-item
   [icon]="trashFilter.icon"

@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Увійти з ключем доступу"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Використати єдиний вхід"
   },
@@ -582,8 +585,8 @@
   "archiveItem": {
     "message": "Архівувати запис"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архівовані записи виключаються з результатів звичайного пошуку та пропозицій автозаповнення. Ви дійсно хочете архівувати цей запис?"
+  "archiveItemDialogContent": {
+    "message": "Після архівації цей запис буде виключено з результатів пошуку і пропозицій автозаповнення."
   },
   "archived": {
     "message": "Архівовано"
@@ -2473,6 +2476,9 @@
   "permanentlyDeletedItem": {
     "message": "Запис остаточно видалено"
   },
+  "archivedItemRestored": {
+    "message": "Архівований запис відновлено"
+  },
   "restoreItem": {
     "message": "Відновити запис"
   },
@@ -3363,6 +3369,12 @@
   },
   "error": {
     "message": "Помилка"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Помилка розшифрування"
@@ -4739,6 +4751,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Більше опцій"
+  },
   "moreOptionsTitle": {
     "message": "Інші можливості – $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -5125,14 +5140,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Приховати виявлення збігів $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показати виявлення збігів"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Приховати виявлення збігів"
   },
   "autoFillOnPageLoad": {
     "message": "Автоматично заповнювати під час завантаження сторінки?"
@@ -5669,6 +5681,9 @@
   },
   "extraWide": {
     "message": "Дуже широке"
+  },
+  "narrow": {
+    "message": "Вузький"
   },
   "sshKeyWrongPassword": {
     "message": "Ви ввели неправильний пароль."

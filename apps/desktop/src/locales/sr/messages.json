@@ -2092,6 +2092,9 @@
   "permanentlyDeletedItem": {
     "message": "Трајно избрисана ставка"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoredItem": {
     "message": "Ставка враћена"
   },
@@ -4397,8 +4400,8 @@
   "archiveItem": {
     "message": "Архивирај ставку"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивиране ставке су искључене из општих резултата претраге и предлога за ауто попуњавање. Јесте ли сигурни да желите да архивирате ову ставку?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"
