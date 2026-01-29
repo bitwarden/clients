@@ -28,9 +28,6 @@ export class AppTableRowScrollableM11Component {
   @Input() showRowMenuForCriticalApps: boolean = false;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showRowCheckBox: boolean = false;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() selectedUrls: Set<string> = new Set<string>();
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -44,4 +41,21 @@ export class AppTableRowScrollableM11Component {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() checkboxChange!: (applicationName: string, $event: Event) => void;
+
+  allAppsSelected(): boolean {
+    return (
+      this.dataSource.filteredData?.length > 0 &&
+      this.dataSource.filteredData?.every((row) => this.selectedUrls.has(row.applicationName))
+    );
+  }
+
+  selectAllChanged(target: HTMLInputElement) {
+    const checked = target.checked;
+
+    if (checked) {
+      this.dataSource.filteredData.forEach((row) => this.selectedUrls.add(row.applicationName));
+    } else {
+      this.selectedUrls.clear();
+    }
+  }
 }

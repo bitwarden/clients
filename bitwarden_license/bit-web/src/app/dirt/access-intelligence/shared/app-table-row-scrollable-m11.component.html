@@ -1,7 +1,14 @@
 <ng-container>
   <bit-table-scroll [dataSource]="dataSource" [rowSize]="53">
     <ng-container header>
-      <th></th>
+      <th bitCell>
+        <input
+          bitCheckbox
+          type="checkbox"
+          [checked]="allAppsSelected()"
+          (change)="selectAllChanged($event.target)"
+        />
+      </th>
       <th bitCell></th>
       <th bitSortable="applicationName" bitCell tabindex="0">{{ "application" | i18n }}</th>
       <th bitSortable="atRiskPasswordCount" bitCell default="desc" tabindex="0">
@@ -12,32 +19,18 @@
       <th bitSortable="memberCount" bitCell tabindex="0">{{ "totalMembers" | i18n }}</th>
     </ng-container>
     <ng-template bitRowDef let-row>
-      @if (showRowCheckBox) {
-        <td
-          bitCell
-          [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
-          appStopProp
-        >
-          @if (!row.isMarkedAsCritical) {
-            <input
-              bitCheckbox
-              type="checkbox"
-              [checked]="selectedUrls.has(row.applicationName)"
-              (change)="checkboxChange(row.applicationName, $event)"
-            />
-          }
-          @if (row.isMarkedAsCritical) {
-            <i class="bwi bwi-star-f"></i>
-          }
-        </td>
-      }
-      @if (!showRowCheckBox) {
-        <td bitCell [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }">
-          @if (row.isMarkedAsCritical) {
-            <i class="bwi bwi-star-f"></i>
-          }
-        </td>
-      }
+      <td
+        bitCell
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
+        appStopProp
+      >
+        <input
+          bitCheckbox
+          type="checkbox"
+          [checked]="selectedUrls.has(row.applicationName)"
+          (change)="checkboxChange(row.applicationName, $event)"
+        />
+      </td>
       <td
         bitCell
         class="tw-cursor-pointer"
