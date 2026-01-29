@@ -19,7 +19,6 @@ export class SendView implements View {
   key: Uint8Array;
   cryptoKey: SymmetricCryptoKey;
   type: SendType = null;
-  authType: AuthType = null;
   text = new SendTextView();
   file = new SendFileView();
   maxAccessCount?: number = null;
@@ -31,6 +30,7 @@ export class SendView implements View {
   emails: string[] = [];
   disabled = false;
   hideEmail = false;
+  authType: AuthType = null;
 
   constructor(s?: Send) {
     if (!s) {
@@ -49,6 +49,7 @@ export class SendView implements View {
     this.disabled = s.disabled;
     this.password = s.password;
     this.hideEmail = s.hideEmail;
+    this.authType = s.authType;
   }
 
   get urlB64Key(): string {
