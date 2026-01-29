@@ -594,14 +594,6 @@ export class VaultComponent<C extends CipherViewLike>
         });
       });
 
-    this.organizations$
-      .pipe(
-        filter((organizations) => organizations.length === 1),
-        map((organizations) => organizations[0]),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
     firstSetup$
       .pipe(
         switchMap(() => this.refresh$),
