@@ -5,7 +5,6 @@ import { lastValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -44,6 +43,8 @@ import {
   openOffboardingSurvey,
 } from "@bitwarden/web-vault/app/billing/shared/offboarding-survey.component";
 
+import { ChangePaymentMethodDialogComponent } from "../../payment/components";
+
 @Component({
   templateUrl: "./account-subscription.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,7 +62,6 @@ export class AccountSubscriptionComponent {
   private accountService = inject(AccountService);
   private activatedRoute = inject(ActivatedRoute);
   private accountBillingClient = inject(AccountBillingClient);
-  private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
   private fileDownloadService = inject(FileDownloadService);
@@ -212,7 +212,7 @@ export class AccountSubscriptionComponent {
         break;
       }
       case SubscriptionCardActions.UpdatePayment:
-        await this.router.navigate(["../payment-details"], { relativeTo: this.activatedRoute });
+        await this.onUpdatePayment();
         break;
       case SubscriptionCardActions.Resubscribe: {
         const account = this.activeAccount();
@@ -240,6 +240,31 @@ export class AccountSubscriptionComponent {
         break;
     }
   };
+
+  async onUpdatePayment() {
+    const account = this.activeAccount();
+    if (!account) {
+      return;
+    }
+
+    const dialogRef = ChangePaymentMethodDialogComponent.open(this.dialogService, {
+      data: {
+        subscriber: {
+          type: "account",
+          data: account,
+        },
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.closed);
+
+    if (result?.type === "success") {
+      // Wait for Stripe webhook to process payment and update subscription status on backend
+      setTimeout(() => {
+        this.subscription.reload();
+      }, 4000);
+    }
+  }
 
   onStorageCardAction = async (action: StorageCardAction) => {
     const data = this.getAdjustStorageDialogParams(action);
