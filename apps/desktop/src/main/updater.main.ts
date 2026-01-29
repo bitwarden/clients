@@ -185,8 +185,8 @@ export class UpdaterMain {
     }
 
     this.openedNotification = new Notification({
-      title: this.i18nService.t("bitwarden") + " - " + this.i18nService.t("restartToUpdate"),
-      body: this.i18nService.t("restartToUpdateDesc", info.version),
+      title: this.i18nService.t("bitwarden") + " - " + this.i18nService.t("restartAppToUpdate"),
+      body: this.i18nService.t("restartAppToUpdateDesc", info.version),
       timeoutType: "never",
       silent: false,
     });
@@ -206,9 +206,9 @@ export class UpdaterMain {
   private async promptRestartUpdateUsingDialog(info: UpdateDownloadedEvent) {
     const result = await dialog.showMessageBox(this.windowMain.win, {
       type: "info",
-      title: this.i18nService.t("bitwarden") + " - " + this.i18nService.t("restartToUpdate"),
-      message: this.i18nService.t("restartToUpdate"),
-      detail: this.i18nService.t("restartToUpdateDesc", info.version),
+      title: this.i18nService.t("bitwarden") + " - " + this.i18nService.t("restartAppToUpdate"),
+      message: this.i18nService.t("restartAppToUpdate"),
+      detail: this.i18nService.t("restartAppToUpdateDesc", info.version),
       buttons: [this.i18nService.t("restart"), this.i18nService.t("later")],
       cancelId: 1,
       defaultId: 0,

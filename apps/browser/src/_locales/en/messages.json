@@ -823,7 +823,7 @@
   "onSleep": {
     "message": "On system sleep"
   },
-  "onRestart": {
+  "onAppRestart": {
     "message": "On browser restart"
   },
   "never": {
@@ -6054,7 +6054,7 @@
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
     "message": "Your organization has set the default session timeout to On system lock."
   },
-  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnAppRestart": {
     "message": "Your organization has set the default session timeout to On browser restart."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
@@ -6070,7 +6070,7 @@
       }
     }
   },
-  "sessionTimeoutOnRestart": {
+  "sessionTimeoutOnAppRestart": {
     "message": "On browser restart"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
