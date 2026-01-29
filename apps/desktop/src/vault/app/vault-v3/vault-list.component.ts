@@ -178,4 +178,8 @@ export class VaultListComponent<C extends CipherViewLike> {
     const getName = (item: VaultItem<C>) => item.collection?.name || item.cipher?.name;
     return getName(a)?.localeCompare(getName(b)) ?? -1;
   }
+
+  protected trackByFn(index: number, item: VaultItem<C>) {
+    return item.cipher.id || item.collection?.id || index;
+  }
 }

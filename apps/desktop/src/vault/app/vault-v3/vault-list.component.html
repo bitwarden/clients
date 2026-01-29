@@ -29,7 +29,9 @@
           </tr>
         </ng-container>
         <ng-template body let-rows$>
-          <ng-container *cdkVirtualFor="let item of rows$; templateCacheSize: 0">
+          <ng-container
+            *cdkVirtualFor="let item of rows$; trackBy: trackByFn; templateCacheSize: 0"
+          >
             @if (item.collection) {
               <tr
                 bitRow
