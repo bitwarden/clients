@@ -34,6 +34,7 @@ const { userId } = argv;
     nativeMessageService.disconnect();
     return;
   }
+  LogUtils.logSuccess("Test change");
 
   LogUtils.logSuccess("Handshake success response");
   const response = await nativeMessageService.generatePassword(handshakeResponse.sharedKey, userId);
