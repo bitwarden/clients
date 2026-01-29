@@ -139,8 +139,6 @@ import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
-import { Lazy } from "@bitwarden/common/platform/misc/lazy";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
@@ -565,36 +563,18 @@ export default class MainBackground {
       this.memoryStorageService = this.memoryStorageForStateProviders;
     }
 
+    this.encryptService = new EncryptServiceImplementation(
+      this.cryptoFunctionService,
+      this.logService,
+      true,
+    );
+
     if (BrowserApi.isManifestVersion(3)) {
-      // Creates a session key for mv3 storage of large memory items
-      const sessionKey = new Lazy(async () => {
-        // Key already in session storage
-        const sessionStorage = new BrowserMemoryStorageService();
-        const existingKey = await sessionStorage.get<SymmetricCryptoKey>("session-key");
-        if (existingKey) {
-          if (sessionStorage.valuesRequireDeserialization) {
-            return SymmetricCryptoKey.fromJSON(existingKey);
-          }
-          return existingKey;
-        }
-
-        // New key
-        const { derivedKey } = await this.keyGenerationService.createKeyWithPurpose(
-          128,
-          "ephemeral",
-          "bitwarden-ephemeral",
-        );
-        await sessionStorage.save("session-key", derivedKey.toJSON());
-        return derivedKey;
-      });
-
       this.largeObjectMemoryStorageForStateProviders = new LocalBackedSessionStorageService(
-        sessionKey,
+        new BrowserMemoryStorageService(),
         this.storageService,
-        // For local backed session storage, we expect that the encrypted data on disk will persist longer than the encryption key in memory
-        // and failures to decrypt because of that are completely expected. For this reason, we pass in `false` to the `EncryptServiceImplementation`
-        // so that MAC failures are not logged.
-        new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
+        this.keyGenerationService,
+        this.encryptService,
         this.platformUtilsService,
         this.logService,
       );
@@ -627,12 +607,6 @@ export default class MainBackground {
     this.stateEventRunnerService = new DefaultStateEventRunnerService(
       this.globalStateProvider,
       storageServiceProvider,
-    );
-
-    this.encryptService = new EncryptServiceImplementation(
-      this.cryptoFunctionService,
-      this.logService,
-      true,
     );
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
