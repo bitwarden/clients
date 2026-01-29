@@ -36,16 +36,6 @@ sudo apt-get update && sudo apt-get install -y \
     libasound2 \
     libgbm1
 
-if [ "$SETUP_DESKTOP_NATIVE" = "yes" ]; then
-    # Install Rust nightly toolchain (required for desktop native module)
-    echo "Installing Rust nightly toolchain..."
-    rustup toolchain install nightly
-
-    # Install cargo tools for pre-commit hooks (optional but recommended)
-    echo "Installing cargo tools for pre-commit hooks..."
-    cargo install cargo-sort cargo-udeps cargo-deny
-fi
-
 if [ "$SETUP_MKCERT" = "yes" ]; then
     # Install mkcert for SSL certificates (needed for WebAuthn)
     echo "Installing mkcert..."
@@ -68,6 +58,22 @@ if [ "$RUN_NPM_CI" = "yes" ]; then
     # Install npm dependencies
     echo "Running npm ci..."
     npm ci
+fi
+
+if [ "$SETUP_DESKTOP_NATIVE" = "yes" ]; then
+    # Install Rust nightly toolchain (required for desktop native module)
+    echo "Installing Rust nightly toolchain..."
+    rustup toolchain install nightly
+
+    # Install cargo tools for pre-commit hooks (optional but recommended)
+    echo "Installing cargo tools for pre-commit hooks..."
+    cargo install cargo-sort cargo-udeps cargo-deny
+
+    # Build the desktop native module
+    echo "Building desktop native module..."
+    cd /workspace/apps/desktop/desktop_native/napi
+    npm run build
+    cd /workspace
 fi
 
 echo "post-create-command.sh completed"
