@@ -1,10 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { debounceTime, EMPTY, firstValueFrom, map, switchMap } from "rxjs";
+import { catchError, debounceTime, EMPTY, from, map, switchMap, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -54,7 +52,7 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
 export class CriticalApplicationsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   protected enableRequestPasswordChange = false;
-  protected organizationId: OrganizationId;
+  protected organizationId: OrganizationId = "" as OrganizationId;
   noItemsIcon = Security;
 
   protected dataSource = new TableDataSource<ApplicationTableDataSource>();
@@ -152,35 +150,44 @@ export class CriticalApplicationsComponent implements OnInit {
       });
   };
 
-  async requestPasswordChange() {
-    try {
-      const cipherIds = await firstValueFrom(this.dataService.criticalApplicationAtRiskCipherIds$);
+  requestPasswordChange(): void {
+    this.dataService.criticalApplicationAtRiskCipherIds$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
+        take(1), // Handle unsubscribe for one off operation
+        switchMap((cipherIds) =>
+          from(
+            this.securityTasksService.requestPasswordChangeForCriticalApplications(
+              this.organizationId,
+              cipherIds,
+            ),
+          ),
+        ),
+        catchError((error: unknown) => {
+          if (error instanceof ErrorResponse && error.statusCode === 404) {
+            this.toastService.showToast({
+              message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+              variant: "error",
+              title: this.i18nService.t("error"),
+            });
+            return EMPTY;
+          }
 
-      await this.securityTasksService.requestPasswordChangeForCriticalApplications(
-        this.organizationId,
-        cipherIds,
-      );
-      this.toastService.showToast({
-        message: this.i18nService.t("notifiedMembers"),
-        variant: "success",
-        title: this.i18nService.t("success"),
-      });
-    } catch (error) {
-      if (error instanceof ErrorResponse && error.statusCode === 404) {
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
+          });
+          return EMPTY;
+        }),
+      )
+      .subscribe(() => {
         this.toastService.showToast({
-          message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
-          variant: "error",
-          title: this.i18nService.t("error"),
+          message: this.i18nService.t("notifiedMembers"),
+          variant: "success",
+          title: this.i18nService.t("success"),
         });
-        return;
-      }
-
-      this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
-        variant: "error",
-        title: this.i18nService.t("error"),
       });
-    }
   }
 
   showAppAtRiskMembers = async (applicationName: string) => {
