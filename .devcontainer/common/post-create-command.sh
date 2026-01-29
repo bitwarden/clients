@@ -61,6 +61,9 @@ if [ "$SETUP_MKCERT" = "yes" ]; then
     cd /workspace
 fi
 
+# Fix ownership of anonymous volume mount points (created as root by Docker)
+sudo chown node:node /workspace/node_modules /workspace/apps/desktop/desktop_native/target
+
 if [ "$RUN_NPM_CI" = "yes" ]; then
     # Install npm dependencies
     echo "Running npm ci..."
