@@ -7,6 +7,7 @@ import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/pre
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
@@ -89,6 +90,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   protected CipherType = CipherType;
 
   private i18nService = inject(I18nService);
+  private platformUtilsService = inject(PlatformUtilsService);
 
   protected readonly showArchiveButton = computed(() => {
     if (!this.archiveEnabled()) {
@@ -147,9 +149,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     return CipherViewLikeUtils.canLaunch(this.cipher());
   });
 
-  protected readonly launchUri = computed(() => {
-    return CipherViewLikeUtils.getLaunchUri(this.cipher());
-  });
+  protected handleLaunch() {
+    const launchUri = CipherViewLikeUtils.getLaunchUri(this.cipher());
+    this.platformUtilsService.launchUri(launchUri);
+  }
 
   protected readonly subtitle = computed(() => {
     return CipherViewLikeUtils.subtitle(this.cipher());

@@ -68,15 +68,14 @@
     </bit-menu>
   } @else {
     @if (canLaunch()) {
-      <a [href]="launchUri()" target="_blank" rel="noreferrer">
-        <button
-          [disabled]="disabled()"
-          bitIconButton="bwi-external-link"
-          type="button"
-          appStopProp
-          label="{{ 'launch' | i18n }}"
-        ></button>
-      </a>
+      <button
+        [disabled]="disabled()"
+        bitIconButton="bwi-external-link"
+        type="button"
+        appStopProp
+        label="{{ 'launch' | i18n }}"
+        (click)="handleLaunch()"
+      ></button>
     }
     <button
       [bitMenuTriggerFor]="copyOptions"
@@ -151,10 +150,10 @@
     ></button>
     <bit-menu #cipherOptions>
       @if (canLaunch()) {
-        <a bitMenuItem type="button" [href]="launchUri()" target="_blank" rel="noreferrer">
+        <button type="button" bitMenuItem (click)="handleLaunch()">
           <i class="bwi bwi-fw bwi-external-link" aria-hidden="true"></i>
           {{ "launch" | i18n }}
-        </a>
+        </button>
       }
       @if (isLoginCipher()) {
         <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher()">
