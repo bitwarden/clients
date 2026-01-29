@@ -59,7 +59,8 @@ jobs:
       - name: Run tests
         # maxWorkers is a workaround for a memory leak that crashes tests in CI:
         # https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
-        run: npm test -- --coverage --maxWorkers=3
+        # --silent suppresses console output to reduce log size (~90% reduction)
+        run: npm test -- --coverage --maxWorkers=3 --silent
 
       - name: Report test results
         uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637 # v2.5.0
