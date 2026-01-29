@@ -116,7 +116,6 @@ import {
   RoutedVaultFilterModel,
   createFilterFunction,
   All,
-  VaultItem,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
   NewCipherMenuComponent,
@@ -233,17 +232,19 @@ export class VaultComponent<C extends CipherViewLike>
   protected cipherFormComponent: CipherFormComponent | null = null;
   protected readonly action = signal<CipherFormMode | "view" | null>(null);
   protected cipherId: string | null = null;
-  private folderId: string | null | undefined = null;
-  private addType: CipherType | undefined = undefined;
-  private addOrganizationId: string | null = null;
-  private addCollectionIds: string[] | null = null;
   protected activeFilter: VaultFilter = new VaultFilter();
-  private activeUserId: UserId | null = null;
   protected cipherRepromptId: string | null = null;
   protected readonly cipher = signal<CipherView | null>(new CipherView());
   protected collections: CollectionView[] | null = null;
   protected config: CipherFormConfig | null = null;
   protected showAddCipherBtn: boolean = false;
+
+  private folderId: string | null | undefined = null;
+  private addType: CipherType | undefined = undefined;
+  private addOrganizationId: string | null = null;
+  private addCollectionIds: string[] | null = null;
+  private activeUserId: UserId | null = null;
+  private passwordReprompted: boolean = false;
 
   /** Tracks the disabled status of the edit cipher form */
   protected formDisabled: boolean = false;
@@ -358,6 +359,8 @@ export class VaultComponent<C extends CipherViewLike>
   async ngOnInit() {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.activeUserId = activeUserId;
+
+    this.passwordReprompted = this.cipherRepromptId === this.cipherId;
 
     this.searchBarService.setEnabled(false);
 
@@ -558,14 +561,16 @@ export class VaultComponent<C extends CipherViewLike>
           await this.cloneCipher(cipher);
           break;
         }
-        case "restore":
-          if (event.items.length === 1) {
-            await this.handleRestoreEvent(event.items[0] as CipherView);
-          }
+        case "restore": {
+          const cipher = await this.cipherService.getFullCipherView(event.items[0]);
+          await this.handleRestoreEvent(cipher);
           break;
-        case "delete":
-          await this.handleDeleteEvent(event.items);
+        }
+        case "delete": {
+          const cipher = await this.cipherService.getFullCipherView(event.items[0] as CipherView);
+          await this.handleDeleteEvent(cipher);
           break;
+        }
         case "copyField":
           await this.copy(event.item, event.field);
           break;
@@ -835,34 +840,31 @@ export class VaultComponent<C extends CipherViewLike>
     await this.go();
   }
 
-  private async handleRestoreEvent(c: CipherView) {
-    if (!CipherViewLikeUtils.isDeleted(c)) {
-      return;
+  async handleRestoreEvent(cipher: CipherView): Promise<boolean> {
+    let toastMessage;
+    if (!cipher.isDeleted) {
+      return false;
     }
 
-    if (!c.edit) {
-      this.showMissingPermissionsError();
-      return;
-    }
-
-    if (!(await this.repromptCipher([c as C]))) {
-      return;
+    if (cipher.isArchived) {
+      toastMessage = this.i18nService.t("archivedItemRestored");
+    } else {
+      toastMessage = this.i18nService.t("restoredItem");
     }
 
     try {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.cipherService.restoreWithServer(uuidAsString(c.id), activeUserId);
+      await this.cipherService.restoreWithServer(cipher.id, this.activeUserId);
       this.toastService.showToast({
         variant: "success",
-        title: null,
-        message: this.i18nService.t("restoredItem"),
+        message: toastMessage,
       });
+      await this.restoreCipher();
       this.refresh();
     } catch (e) {
       this.logService.error(e);
     }
 
-    await this.restoreCipher();
+    return true;
   }
 
   async handleFavoriteEvent(cipher: C) {
@@ -882,52 +884,46 @@ export class VaultComponent<C extends CipherViewLike>
     this.refresh();
   }
 
-  private async handleDeleteEvent(items: VaultItem<C>[]) {
-    const ciphers: C[] = items.filter((i) => i.collection === undefined).map((i) => i.cipher);
-    const collections = items.filter((i) => i.cipher === undefined).map((i) => i.collection);
-    if (ciphers.length === 1 && collections.length === 0) {
-      const c = ciphers[0];
-      if (!(await this.repromptCipher([c as C]))) {
-        return;
-      }
-
-      if (!c.edit) {
-        this.showMissingPermissionsError();
-        return;
-      }
-
-      const permanent = CipherViewLikeUtils.isDeleted(c);
-
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: permanent ? "permanentlyDeleteItem" : "deleteItem" },
-        content: {
-          key: permanent ? "permanentlyDeleteItemConfirmation" : "deleteItemConfirmation",
-        },
-        type: "warning",
-      });
-
-      if (!confirmed) {
-        return false;
-      }
-
-      try {
-        const activeUserId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(getUserId),
-        );
-        await this.deleteCipherWithServer(uuidAsString(c.id), activeUserId, permanent);
-
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t(permanent ? "permanentlyDeletedItem" : "deletedItem"),
-        });
-        this.refresh();
-      } catch (e) {
-        this.logService.error(e);
-      }
-
-      await this.deleteCipher();
+  async handleDeleteEvent(cipher: CipherView): Promise<boolean> {
+    if (!(await this.promptPassword(cipher))) {
+      return false;
     }
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "deleteItem" },
+      content: {
+        key: cipher.isDeleted ? "permanentlyDeleteItemConfirmation" : "deleteItemConfirmation",
+      },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    try {
+      await (cipher.isDeleted
+        ? this.cipherService.deleteWithServer(cipher.id, this.activeUserId)
+        : this.cipherService.softDeleteWithServer(cipher.id, this.activeUserId));
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t(cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem"),
+      });
+      await this.deleteCipher();
+      this.refresh();
+    } catch (e) {
+      this.logService.error(e);
+    }
+
+    return true;
+  }
+
+  protected async promptPassword(cipher: CipherView): Promise<boolean> {
+    if (cipher.reprompt === CipherRepromptType.None || this.passwordReprompted) {
+      return true;
+    }
+
+    return (this.passwordReprompted = await this.passwordRepromptService.showPasswordPrompt());
   }
 
   private getAvailableCollections(cipher: CipherView): CollectionView[] {
