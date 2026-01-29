@@ -51,9 +51,7 @@ import {
   IconButtonModule,
   BadgeModule,
   DrawerModule,
-  // DialogComponent,
 } from "@bitwarden/components";
-// import { DrawerModule } from "@bitwarden/components/src/drawer";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AttachmentDialogCloseResult,
@@ -331,7 +329,6 @@ export class VaultItemDrawerComponent implements OnInit, OnDestroy {
     private cipherAuthorizationService: CipherAuthorizationService,
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
-    // private routedVaultFilterService: RoutedVaultFilterService,
     private archiveService: CipherArchiveService,
   ) {
     this.updateTitle();

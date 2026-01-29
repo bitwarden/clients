@@ -151,7 +151,6 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     NewCipherMenuComponent,
     SearchModule,
     FormsModule,
-    // VaultItemDrawerComponent
   ],
   providers: [
     {
@@ -885,12 +884,6 @@ export class VaultComponent<C extends CipherViewLike>
     } catch (e) {
       this.logService.error(e);
     }
-
-    // this.cipherId = null;
-    // this.cipher.set(null);
-    // this.action.set(null);
-    // this.changeDetectorRef.detectChanges();
-    // await this.go().catch(() => {});
   }
 
   restoreCipher = async (c: CipherView): Promise<boolean> => {
@@ -919,11 +912,6 @@ export class VaultComponent<C extends CipherViewLike>
     } catch (e) {
       this.logService.error(e);
     }
-
-    // this.cipherId = null;
-    // this.action.set(null);
-    // this.changeDetectorRef.detectChanges();
-    // await this.go().catch(() => {});
   };
 
   async handleFavoriteEvent(cipher: C) {
