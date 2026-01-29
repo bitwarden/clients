@@ -162,6 +162,14 @@ export class ApplicationsComponent implements OnInit {
         this.dataSource.filter = (app) =>
           filterFunction(app) &&
           app.applicationName.toLowerCase().includes(searchText.toLowerCase());
+
+        const filteredUrls = new Set<string>();
+        this.dataSource.filteredData.forEach((row) => {
+          if (this.selectedUrls().has(row.applicationName)) {
+            filteredUrls.add(row.applicationName);
+          }
+        });
+        this.selectedUrls.set(filteredUrls);
       });
   }
 
