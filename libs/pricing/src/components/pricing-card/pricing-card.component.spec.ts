@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { BadgeVariant, ButtonType, IconModule, TypographyModule } from "@bitwarden/components";
+import { BadgeVariant, ButtonType, SvgModule, TypographyModule } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 
 @Component({
@@ -68,13 +68,7 @@ describe("PricingCardComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        PricingCardComponent,
-        TestHostComponent,
-        IconModule,
-        TypographyModule,
-        CommonModule,
-      ],
+      imports: [PricingCardComponent, TestHostComponent, SvgModule, TypographyModule, CommonModule],
     }).compileComponents();
 
     // For signal inputs, we need to set required inputs through the host component

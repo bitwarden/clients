@@ -18,11 +18,11 @@
             type="button"
             role="link"
           >
-            <bit-icon
-              [icon]="rla.isActive ? button.iconActive : button.icon"
+            <bit-svg
+              [content]="rla.isActive ? button.iconActive : button.icon"
               aria-hidden="true"
               class="tw-leading-3"
-            ></bit-icon>
+            ></bit-svg>
             <span class="tw-text-sm tw-truncate tw-max-w-full">
               {{ button.label | i18n }}
             </span>

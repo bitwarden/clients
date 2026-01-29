@@ -8,113 +8,40 @@ import * as stories from "./icon.stories";
 import { IconModule } from "@bitwarden/components";
 ```
 
-# Icon Use Instructions
+# Icon
 
-- Icons will generally be attached to the associated Jira task.
-  - Designers should minify any SVGs before attaching them to Jira using a tool like
-    [SVGOMG](https://jakearchibald.github.io/svgomg/).
-    - **Note:** Ensure the "Remove viewbox" option is toggled off if responsive resizing of the icon
-      is desired.
+The `bit-icon` component renders Bitwarden Web Icons (bwi) using icon font classes.
 
-## Developer Instructions
+## Basic Usage
 
-1. **Download the SVG** and import it as an `.svg` initially into the IDE of your choice.
-   - The SVG should be formatted using either a built-in formatter or an external tool like
-     [SVG Formatter Beautifier](https://codebeautify.org/svg-formatter-beautifier) to make applying
-     classes easier.
+```html
+<bit-icon name="bwi-lock"></bit-icon>
+```
 
-2. **Rename the file** as a `<name>.icon.ts` TypeScript file and place it in the `libs/assets/svg`
-   lib.
+## Icon Names
 
-3. **Import** `svgIcon` from `./icon-service`.
+All available icon names are defined in the `BitwardenIcon` type. Icons use the `bwi-*` naming
+convention (e.g., `bwi-lock`, `bwi-user`, `bwi-key`).
 
-4. **Define and export** a `const` to represent your `svgIcon`.
+## Accessibility
 
-   ```typescript
-   export const ExampleIcon = svgIcon`<svg … </svg>`;
-   ```
+By default, icons are decorative and marked with `aria-hidden="true"`. To make an icon accessible,
+provide an `ariaLabel`:
 
-5. **Replace any hardcoded strokes or fills** with the appropriate Tailwind class.
-   - **Note:** Stroke is used when styling the outline of an SVG path, while fill is used when
-     styling the inside of an SVG path.
+```html
+<bit-icon name="bwi-lock" [ariaLabel]="'Secure lock'"></bit-icon>
+```
 
-   - A non-comprehensive list of common colors and their associated classes is below:
+## Styling
 
-     | Hardcoded Value                                                                                                                          | Tailwind Stroke Class                 | Tailwind Fill Class                 | Tailwind Variable                   |
-     | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | ----------------------------------- | ----------------------------------- |
-     | `#020F66` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#020F66"}}></span> | `tw-stroke-illustration-outline`      | `tw-fill-illustration-outline`      | `--color-illustration-outline`      |
-     | `#DBE5F6` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#DBE5F6"}}></span> | `tw-stroke-illustration-bg-primary`   | `tw-fill-illustration-bg-primary`   | `--color-illustration-bg-primary`   |
-     | `#AAC3EF` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#AAC3EF"}}></span> | `tw-stroke-illustration-bg-secondary` | `tw-fill-illustration-bg-secondary` | `--color-illustration-bg-secondary` |
-     | `#FFFFFF` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#FFFFFF"}}></span> | `tw-stroke-illustration-bg-tertiary`  | `tw-fill-illustration-bg-tertiary`  | `--color-illustration-bg-tertiary`  |
-     | `#FFBF00` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#FFBF00"}}></span> | `tw-stroke-illustration-tertiary`     | `tw-fill-illustration-tertiary`     | `--color-illustration-tertiary`     |
-     | `#175DDC` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#175DDC"}}></span> | `tw-stroke-illustration-logo`         | `tw-fill-illustration-logo`         | `--color-illustration-logo`         |
+The component renders as an inline element. Apply standard CSS classes or styles to customize
+appearance:
 
-   - If the hex that you have on an SVG path is not listed above, there are a few ways to figure out
-     the appropriate Tailwind class:
-     - **Option 1: Figma**
-       - Open the SVG in Figma.
-       - Click on an individual path on the SVG until you see the path's properties in the
-         right-hand panel.
-       - Scroll down to the Colors section.
-         - Example: `Color/Illustration/Outline`
-         - This also includes Hex or RGB values that can be used to find the appropriate Tailwind
-           variable as well if you follow the manual search option below.
-       - Create the appropriate stroke or fill class from the color used.
-         - Example: `Color/Illustration/Outline` corresponds to `--color-illustration-outline` which
-           corresponds to `tw-stroke-illustration-outline` or `tw-fill-illustration-outline`.
-     - **Option 2: Manual Search**
-       - Take the path's stroke or fill hex value and convert it to RGB using a tool like
-         [Hex to RGB](https://www.rgbtohex.net/hex-to-rgb/).
-       - Search for the RGB value without commas in our `tw-theme.css` to find the Tailwind variable
-         that corresponds to the color.
-       - Create the appropriate stroke or fill class using the Tailwind variable.
-         - Example: `--color-illustration-outline` corresponds to `tw-stroke-illustration-outline`
-           or `tw-fill-illustration-outline`.
+```html
+<bit-icon name="bwi-lock" class="tw-text-primary-500 tw-text-2xl"></bit-icon>
+```
 
-6. **Remove any hardcoded width or height attributes** if your SVG has a configured
-   [viewBox](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox) attribute in order
-   to allow the SVG to scale to fit its container.
-   - **Note:** Scaling is required for any SVG used as an
-     [AnonLayout](?path=/docs/component-library-anon-layout--docs) `pageIcon`.
+## Note on SVG Icons
 
-7. **Replace any generic `clipPath` ids** (such as `id="a"`) with a unique id, and update the
-   referencing element to use the new id (such as `clip-path="url(#unique-id-here)"`).
-
-8. **Import your SVG const** anywhere you want to use the SVG.
-   - **Angular Component Example:**
-     - **TypeScript:**
-
-       ```typescript
-       import { Component } from "@angular/core";
-       import { IconModule } from '@bitwarden/components';
-       import { ExampleIcon, Example2Icon } from "@bitwarden/assets/svg";
-
-       @Component({
-         selector: "app-example",
-         standalone: true,
-         imports: [IconModule],
-         templateUrl: "./example.component.html",
-       })
-       export class ExampleComponent {
-         readonly Icons = { ExampleIcon, Example2Icon };
-         ...
-       }
-       ```
-
-     - **HTML:**
-
-       > NOTE: SVG icons are treated as decorative by default and will be `aria-hidden` unless an
-       > `ariaLabel` is explicitly provided to the `<bit-icon>` component
-
-       ```html
-       <bit-icon [icon]="Icons.ExampleIcon"></bit-icon>
-       ```
-
-       With `ariaLabel`
-
-       ```html
-       <bit-icon [icon]="Icons.ExampleIcon" [ariaLabel]="Your custom label text here"></bit-icon>
-       ```
-
-9. **Ensure your SVG renders properly** according to Figma in both light and dark modes on a client
-   which supports multiple style modes.
+For SVG illustrations (not font icons), use the `bit-svg` component instead. See the Svg component
+documentation for details.

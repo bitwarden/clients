@@ -249,6 +249,20 @@ describe("AutoSubmitLoginBackground", () => {
           false,
         );
       });
+
+      it("properly cleans up auto-submit workflows when requestInitiator is falsy but active auto-submit hosts exist", async () => {
+        webRequestDetails.initiator = undefined;
+        jest
+          .spyOn(BrowserApi, "getTab")
+          .mockResolvedValue(mock<chrome.tabs.Tab>({ url: validAutoSubmitUrl, id: 1 }));
+
+        triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
+        await flushPromises();
+
+        expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
+          false,
+        );
+      });
     });
 
     describe("when the extension is running on a Safari browser", () => {
