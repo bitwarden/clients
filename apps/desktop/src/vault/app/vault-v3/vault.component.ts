@@ -564,7 +564,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       }
     }
 
-    if (!cipher.organizationId && !cipher.isDeleted && !cipher.isArchived) {
+    if (userCanArchive && !cipher.isDeleted && !cipher.isArchived) {
       menu.push({
         label: this.i18nService.t("archiveVerb"),
         click: async () => {
@@ -579,7 +579,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       });
     }
 
-    if (cipher.isArchived) {
+    if (cipher.isArchived && !cipher.isDeleted) {
       menu.push({
         label: this.i18nService.t("unArchive"),
         click: async () => {
