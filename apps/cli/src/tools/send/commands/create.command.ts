@@ -11,6 +11,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
@@ -18,7 +19,6 @@ import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
 import { SendTextResponse } from "../models/send-text.response";
 import { SendResponse } from "../models/send.response";
-
 export class SendCreateCommand {
   constructor(
     private sendService: SendService,
@@ -81,12 +81,24 @@ export class SendCreateCommand {
     const emails = req.emails ?? options.emails ?? undefined;
     const maxAccessCount = req.maxAccessCount ?? options.maxAccessCount;
 
-    if (emails !== undefined && password !== undefined) {
+    const hasEmails = emails != null && emails.length > 0;
+    const hasPassword = password != null && password.trim().length > 0;
+
+    if (hasEmails && hasPassword) {
       return Response.badRequest("--password and --emails are mutually exclusive.");
     }
 
     req.key = null;
     req.maxAccessCount = maxAccessCount;
+    req.emails = emails;
+
+    if (hasEmails) {
+      req.authType = AuthType.Email;
+    } else if (hasPassword) {
+      req.authType = AuthType.Password;
+    } else {
+      req.authType = AuthType.None;
+    }
 
     const hasPremium$ = this.accountService.activeAccount$.pipe(
       switchMap(({ id }) => this.accountProfileService.hasPremiumFromAnySource$(id)),
@@ -136,11 +148,6 @@ export class SendCreateCommand {
 
       const sendView = SendResponse.toView(req);
       const [encSend, fileData] = await this.sendService.encrypt(sendView, fileBuffer, password);
-      // Add dates from template
-      encSend.deletionDate = sendView.deletionDate;
-      encSend.expirationDate = sendView.expirationDate;
-      encSend.emails = emails && emails.join(",");
-
       await this.sendApiService.save([encSend, fileData]);
       const newSend = await this.sendService.getFromState(encSend.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

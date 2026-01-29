@@ -1,9 +1,7 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  Injector,
   OnInit,
   Signal,
   computed,
@@ -12,7 +10,7 @@ import {
   input,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -45,7 +43,7 @@ export type PasswordChangeView = (typeof PasswordChangeView)[keyof typeof Passwo
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-password-change-metric",
-  imports: [CommonModule, TypographyModule, JslibModule, ProgressModule, ButtonModule],
+  imports: [TypographyModule, JslibModule, ProgressModule, ButtonModule],
   templateUrl: "./password-change-metric.component.html",
 })
 export class PasswordChangeMetricComponent implements OnInit {
@@ -61,6 +59,9 @@ export class PasswordChangeMetricComponent implements OnInit {
   private readonly _tasks: Signal<SecurityTask[]> = signal<SecurityTask[]>([]);
   private readonly _atRiskCipherIds: Signal<CipherId[]> = signal<CipherId[]>([]);
   private readonly _hasCriticalApplications: Signal<boolean> = signal<boolean>(false);
+  private readonly _reportGeneratedAt: Signal<Date | undefined> = signal<Date | undefined>(
+    undefined,
+  );
 
   // Computed properties
   readonly tasksCount = computed(() => this._tasks().length);
@@ -82,8 +83,24 @@ export class PasswordChangeMetricComponent implements OnInit {
     }
 
     const inProgressTasks = tasks.filter((task) => task.status === SecurityTaskStatus.Pending);
-    const assignedIdSet = new Set(inProgressTasks.map((task) => task.cipherId));
-    const unassignedIds = atRiskIds.filter((id) => !assignedIdSet.has(id));
+    const inProgressTaskIds = new Set(inProgressTasks.map((task) => task.cipherId));
+
+    const reportGeneratedAt = this._reportGeneratedAt();
+    const completedTasksAfterReportGeneration = reportGeneratedAt
+      ? tasks.filter(
+          (task) =>
+            task.status === SecurityTaskStatus.Completed &&
+            new Date(task.revisionDate) >= reportGeneratedAt,
+        )
+      : [];
+    const completedTaskIds = new Set(
+      completedTasksAfterReportGeneration.map((task) => task.cipherId),
+    );
+
+    // find cipher ids from last report that do not have a corresponding in progress task (awaiting password reset) OR completed task
+    const unassignedIds = atRiskIds.filter(
+      (id) => !inProgressTaskIds.has(id) && !completedTaskIds.has(id),
+    );
 
     return unassignedIds.length;
   });
@@ -111,36 +128,26 @@ export class PasswordChangeMetricComponent implements OnInit {
   constructor(
     private allActivitiesService: AllActivitiesService,
     private i18nService: I18nService,
-    private injector: Injector,
     private riskInsightsDataService: RiskInsightsDataService,
     protected securityTasksService: AccessIntelligenceSecurityTasksService,
     private toastService: ToastService,
   ) {
-    // Setup the _tasks signal by manually passing in the injector
-    this._tasks = toSignal(this.securityTasksService.tasks$, {
-      initialValue: [],
-      injector: this.injector,
-    });
-    // Setup the _atRiskCipherIds signal by manually passing in the injector
+    this._tasks = toSignal(this.securityTasksService.tasks$, { initialValue: [] });
     this._atRiskCipherIds = toSignal(
       this.riskInsightsDataService.criticalApplicationAtRiskCipherIds$,
-      {
-        initialValue: [],
-        injector: this.injector,
-      },
+      { initialValue: [] },
     );
-
     this._hasCriticalApplications = toSignal(
       this.riskInsightsDataService.criticalReportResults$.pipe(
-        takeUntilDestroyed(this.destroyRef),
         map((report) => {
           return report != null && (report.reportData?.length ?? 0) > 0;
         }),
       ),
-      {
-        initialValue: false,
-        injector: this.injector,
-      },
+      { initialValue: false },
+    );
+    this._reportGeneratedAt = toSignal(
+      this.riskInsightsDataService.enrichedReportData$.pipe(map((report) => report?.creationDate)),
+      { initialValue: undefined },
     );
 
     effect(() => {
