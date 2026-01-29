@@ -747,7 +747,7 @@ export class VaultComponent<C extends CipherViewLike>
           if (event.items.length === 1) {
             const cipher = await this.cipherService.getFullCipherView(event.items[0]);
             if (!cipher.organizationId && !cipher.isDeleted && !cipher.isArchived) {
-              if (!this.userCanArchive$) {
+              if (!(await firstValueFrom(this.userCanArchive$))) {
                 await this.premiumUpgradePromptService.promptForPremium();
                 return;
               }
