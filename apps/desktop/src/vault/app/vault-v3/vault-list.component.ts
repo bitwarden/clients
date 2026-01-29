@@ -27,10 +27,11 @@ import {
   IconButtonModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { VaultItem, VaultItemEvent } from "@bitwarden/vault";
+import { VaultItem } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-items/vault-cipher-row.component";
 import { VaultCollectionRowComponent } from "./vault-items/vault-collection-row.component";
+import { VaultItemEvent } from "./vault-items/vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
 export const RowHeight = 75;
@@ -180,6 +181,6 @@ export class VaultListComponent<C extends CipherViewLike> {
   }
 
   protected trackByFn(index: number, item: VaultItem<C>) {
-    return item.cipher.id || item.collection?.id || index;
+    return item.cipher?.id || item.collection?.id || index;
   }
 }

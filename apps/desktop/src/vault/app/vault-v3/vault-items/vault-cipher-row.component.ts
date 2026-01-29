@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { NgClass } from "@angular/common";
 import { Component, HostListener, ViewChild, computed, inject, input, output } from "@angular/core";
-import { RouterLink } from "@angular/router";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -26,8 +25,9 @@ import {
   CopyCipherFieldDirective,
   GetOrgNameFromIdPipe,
   OrganizationNameBadgeComponent,
-  VaultItemEvent,
 } from "@bitwarden/vault";
+
+import { VaultItemEvent } from "./vault-item-event";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -40,7 +40,6 @@ import {
     TableModule,
     AriaDisableDirective,
     ButtonLinkDirective,
-    RouterLink,
     OrganizationNameBadgeComponent,
     TooltipDirective,
     BitIconButtonComponent,
@@ -321,6 +320,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   protected editCipher() {
     this.onEvent.emit({ type: "editCipher", item: this.cipher() });
+  }
+
+  protected viewCipher() {
+    this.onEvent.emit({ type: "viewCipher", item: this.cipher() });
   }
 
   @HostListener("contextmenu", ["$event"])
