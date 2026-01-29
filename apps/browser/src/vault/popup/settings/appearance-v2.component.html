@@ -8,7 +8,9 @@
   <form [formGroup]="appearanceForm">
     <bit-card>
       <bit-form-field>
-        <bit-label>{{ "theme" | i18n }}</bit-label>
+        <bit-label class="tw-inline-flex tw-items-center tw-gap-1.5">{{
+          "theme" | i18n
+        }}</bit-label>
         <bit-select formControlName="theme">
           <bit-option
             *ngFor="let o of themeOptions"
