@@ -64,7 +64,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, OrganizationId, UserId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -90,7 +89,6 @@ import {
   CopyClickListener,
   COPY_CLICK_LISTENER,
   IconButtonModule,
-  NoItemsModule,
   SearchModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -161,7 +159,6 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     ItemModule,
     ButtonModule,
     IconButtonModule,
-    NoItemsModule,
     PremiumBadgeComponent,
     VaultListComponent,
     DesktopHeaderComponent,
@@ -220,7 +217,6 @@ export class VaultComponent<C extends CipherViewLike>
   private collectionService = inject(CollectionService);
   private logService = inject(LogService);
   private organizationService = inject(OrganizationService);
-  private folderService = inject(FolderService);
   private restrictedItemTypesService = inject(RestrictedItemTypesService);
   private cipherArchiveService = inject(CipherArchiveService);
   private policyService = inject(PolicyService);

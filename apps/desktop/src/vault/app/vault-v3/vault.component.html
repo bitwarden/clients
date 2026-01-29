@@ -19,46 +19,25 @@
       appAutofocus
     >
     </bit-search>
-    @if (isEmpty && !performingInitialLoad) {
-      <div class="tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-center">
-        <bit-no-items [icon]="(emptyState$ | async)?.icon">
-          <div slot="title">
-            {{ (emptyState$ | async)?.title | i18n }}
-          </div>
-          <p slot="description" bitTypography="body2" class="tw-max-w-md tw-text-center">
-            {{ (emptyState$ | async)?.description | i18n }}
-          </p>
-          @if (showAddCipherBtn) {
-            <button
-              type="button"
-              buttonType="primary"
-              bitButton
-              (click)="addCipher(activeFilter.cipherType)"
-              slot="button"
-            >
-              <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-              {{ "addNewItem" | i18n }}
-            </button>
-          }
-        </bit-no-items>
-      </div>
-    } @else {
-      <app-vault-list
-        class="tw-h-full"
-        [ciphers]="ciphers"
-        [collections]="collectionsToDisplay"
-        [allCollections]="allCollections"
-        [allOrganizations]="allOrganizations"
-        [disabled]="refreshing"
-        [showOwner]="true"
-        [showPremiumFeatures]="userHasPremiumAccess"
-        [useEvents]="false"
-        [userCanArchive]="userCanArchive$ | async"
-        [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
-        [placeholderText]="searchPlaceholderText"
-        (onEvent)="onVaultItemsEvent($event)"
-      />
-    }
+    <app-vault-list
+      class="tw-h-full"
+      [ciphers]="ciphers"
+      [collections]="collectionsToDisplay"
+      [allCollections]="allCollections"
+      [allOrganizations]="allOrganizations"
+      [disabled]="refreshing"
+      [showOwner]="true"
+      [showPremiumFeatures]="userHasPremiumAccess"
+      [useEvents]="false"
+      [userCanArchive]="userCanArchive$ | async"
+      [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
+      [placeholderText]="searchPlaceholderText"
+      [isEmpty]="isEmpty && !performingInitialLoad"
+      [showAddCipherBtn]="showAddCipherBtn"
+      [emptyStateItem]="emptyState$ | async"
+      (onEvent)="onVaultItemsEvent($event)"
+      (onAddCipher)="addCipher()"
+    />
   </div>
   @if (action()) {
     <div class="details">

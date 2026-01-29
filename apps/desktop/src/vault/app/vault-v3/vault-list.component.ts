@@ -6,6 +6,7 @@ import { Component, input, output, effect, inject, computed } from "@angular/cor
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Observable, of, switchMap } from "rxjs";
 
+import { BitSvg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -25,6 +26,7 @@ import {
   MenuModule,
   ButtonModule,
   IconButtonModule,
+  NoItemsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultItem } from "@bitwarden/vault";
@@ -36,6 +38,11 @@ import { VaultItemEvent } from "./vault-items/vault-item-event";
 // Fixed manual row height required due to how cdk-virtual-scroll works
 export const RowHeight = 75;
 export const RowHeightClass = `tw-h-[75px]`;
+type EmptyStateItem = {
+  title: string;
+  description: string;
+  icon: BitSvg;
+};
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -52,6 +59,7 @@ export const RowHeightClass = `tw-h-[75px]`;
     IconButtonModule,
     VaultCollectionRowComponent,
     VaultCipherRowComponent,
+    NoItemsModule,
   ],
 })
 export class VaultListComponent<C extends CipherViewLike> {
@@ -68,8 +76,12 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected readonly placeholderText = input<string>("");
   protected readonly ciphers = input<C[]>([]);
   protected readonly collections = input<CollectionView[]>([]);
+  protected readonly isEmpty = input<boolean>();
+  protected readonly showAddCipherBtn = input<boolean>();
+  protected readonly emptyStateItem = input<EmptyStateItem>();
 
   protected onEvent = output<VaultItemEvent<C>>();
+  protected onAddCipher = output<void>();
 
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
@@ -98,6 +110,10 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected event(event: VaultItemEvent<C>) {
     this.onEvent.emit(event);
+  }
+
+  protected addCipher() {
+    this.onAddCipher.emit();
   }
 
   protected canClone$(vaultItem: VaultItem<C>): Observable<boolean> {
