@@ -109,6 +109,7 @@ export class EncryptedMessageHandlerService {
     if (payload.uri == null) {
       return [];
     }
+    console.log("test");
 
     const ciphersResponse: CipherResponse[] = [];
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
