@@ -32,6 +32,42 @@ import { RiskInsightsEncryptionService } from "./risk-insights-encryption.servic
 import { RiskInsightsOrchestratorService } from "./risk-insights-orchestrator.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
+/**
+ * Test harness to encapsulate private member access.
+ * Provides a maintainable, type-safe way to set up test scenarios
+ * without directly accessing private members throughout tests.
+ */
+class TestHarness {
+  constructor(private service: RiskInsightsOrchestratorService) {}
+
+  setOrganizationContext(organizationId: OrganizationId, organizationName: string) {
+    this.service["_organizationDetailsSubject"].next({ organizationId, organizationName });
+    return this;
+  }
+
+  setUserId(userId: UserId) {
+    this.service["_userIdSubject"].next(userId);
+    return this;
+  }
+
+  setEnrichedReportData(data: RiskInsightsEnrichedData) {
+    this.service["_enrichedReportDataSubject"].next(data);
+    return this;
+  }
+
+  setupCompleteContext(organizationId: OrganizationId, userId: UserId, orgName = "Test Org") {
+    return this.setOrganizationContext(organizationId, orgName).setUserId(userId);
+  }
+
+  getDestroySubject() {
+    return this.service["_destroy$"];
+  }
+
+  getReportStateSubscription() {
+    return this.service["_reportStateSubscription"];
+  }
+}
+
 describe("RiskInsightsOrchestratorService", () => {
   let service: RiskInsightsOrchestratorService;
 
@@ -128,12 +164,8 @@ describe("RiskInsightsOrchestratorService", () => {
         mockRiskInsightsEncryptionService,
       );
 
-      const { _organizationDetailsSubject, _userIdSubject } = testService as any;
-      _organizationDetailsSubject.next({
-        organizationId: mockOrgId,
-        organizationName: mockOrgName,
-      });
-      _userIdSubject.next(mockUserId);
+      const harness = new TestHarness(testService);
+      harness.setupCompleteContext(mockOrgId, mockUserId, mockOrgName);
       testService.rawReportData$.subscribe((state) => {
         if (state.status != ReportStatus.Loading) {
           expect(state.error).toBe("Failed to fetch report");
@@ -146,15 +178,9 @@ describe("RiskInsightsOrchestratorService", () => {
 
   describe("generateReport", () => {
     it("should generate report using member ciphers and password health, then save and emit ReportState", (done) => {
-      const privateOrganizationDetailsSubject = service["_organizationDetailsSubject"];
-      const privateUserIdSubject = service["_userIdSubject"];
-
       // Set up ciphers in orchestrator
-      privateOrganizationDetailsSubject.next({
-        organizationId: mockOrgId,
-        organizationName: mockOrgName,
-      });
-      privateUserIdSubject.next(mockUserId);
+      const harness = new TestHarness(service);
+      harness.setupCompleteContext(mockOrgId, mockUserId, mockOrgName);
 
       // Act
       service.generateReport();
@@ -197,12 +223,11 @@ describe("RiskInsightsOrchestratorService", () => {
 
     describe("destroy", () => {
       it("should complete destroy$ subject and unsubscribe reportStateSubscription", () => {
-        const privateDestroy = (service as any)._destroy$;
-        const privateReportStateSubscription = (service as any)._reportStateSubscription;
+        const harness = new TestHarness(service);
 
         // Spy on the methods you expect to be called.
-        const destroyCompleteSpy = jest.spyOn(privateDestroy, "complete");
-        const unsubscribeSpy = jest.spyOn(privateReportStateSubscription, "unsubscribe");
+        const destroyCompleteSpy = jest.spyOn(harness.getDestroySubject(), "complete");
+        const unsubscribeSpy = jest.spyOn(harness.getReportStateSubscription(), "unsubscribe");
 
         // Execute the destroy method.
         service.destroy();
@@ -217,7 +242,8 @@ describe("RiskInsightsOrchestratorService", () => {
   describe("criticalReportResults$", () => {
     it("should filter reportData and applicationData to only include critical applications", (done) => {
       // Arrange: Create test data with both critical and non-critical applications
-      const testEnrichedReportData = mock<RiskInsightsEnrichedData>({
+      // Note: Using plain object instead of mock() because arrays need to work with .filter()
+      const testEnrichedReportData: RiskInsightsEnrichedData = {
         reportData: [
           { ...mockEnrichedReportData[0], isMarkedAsCritical: true }, // Critical app
           { ...mockEnrichedReportData[1], isMarkedAsCritical: false }, // Non-critical app
@@ -241,11 +267,11 @@ describe("RiskInsightsOrchestratorService", () => {
           },
         ],
         creationDate: new Date(),
-      });
+      };
 
       // Act: Emit the enriched report data to trigger the critical filtering pipeline
-      const privateEnrichedReportDataSubject = service["_enrichedReportDataSubject"];
-      privateEnrichedReportDataSubject.next(testEnrichedReportData);
+      const harness = new TestHarness(service);
+      harness.setEnrichedReportData(testEnrichedReportData);
 
       // Assert: Verify that criticalReportResults$ only contains critical applications
       service.criticalReportResults$.subscribe((criticalResults) => {
@@ -282,7 +308,7 @@ describe("RiskInsightsOrchestratorService", () => {
 
     it("should return empty arrays when no critical applications exist", (done) => {
       // Arrange: Create test data with only non-critical applications
-      const testEnrichedReportData = mock<RiskInsightsEnrichedData>({
+      const testEnrichedReportData: RiskInsightsEnrichedData = {
         reportData: [
           { ...mockEnrichedReportData[0], isMarkedAsCritical: false },
           { ...mockEnrichedReportData[1], isMarkedAsCritical: false },
@@ -305,11 +331,11 @@ describe("RiskInsightsOrchestratorService", () => {
           },
         ],
         creationDate: new Date(),
-      });
+      };
 
       // Act: Emit the enriched report data
-      const privateEnrichedReportDataSubject = service["_enrichedReportDataSubject"];
-      privateEnrichedReportDataSubject.next(testEnrichedReportData);
+      const harness = new TestHarness(service);
+      harness.setEnrichedReportData(testEnrichedReportData);
 
       // Assert: Verify that criticalReportResults$ contains empty arrays
       service.criticalReportResults$.subscribe((criticalResults) => {
