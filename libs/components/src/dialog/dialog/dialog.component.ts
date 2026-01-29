@@ -12,9 +12,10 @@ import {
   computed,
   signal,
   AfterViewInit,
+  NgZone,
 } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, switchMap } from "rxjs";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { combineLatest, switchMap, take } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -65,6 +66,7 @@ const drawerSizeToWidth = {
 })
 export class DialogComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
   private readonly dialogHeader =
     viewChild.required<ElementRef<HTMLHeadingElement>>("dialogHeader");
   private readonly scrollableBody = viewChild.required(CdkScrollable);
@@ -146,18 +148,56 @@ export class DialogComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     /**
-     * Wait a tick for any focus management to occur on the trigger element before moving focus to
-     * the dialog header. We choose the dialog header because it is always present, unlike possible
-     * interactive elements.
-     *
-     * We are doing this manually instead of using `cdkTrapFocusAutoCapture` and `cdkFocusInitial`
-     * because we need this delay behavior.
+     * Wait for the zone to stabilize before performing any focus behaviors. This ensures that all
+     * child elements are rendered and stable.
      */
-    const headerFocusTimeout = setTimeout(() => {
-      this.dialogHeader().nativeElement.focus();
-    }, 0);
+    if (this.ngZone.isStable) {
+      this.handleAutofocus();
+    } else {
+      this.ngZone.onStable
+        .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+        .subscribe(this.handleAutofocus.bind(this));
+    }
+  }
 
-    this.destroyRef.onDestroy(() => clearTimeout(headerFocusTimeout));
+  /**
+   * Ensure that the user's focus is in the dialog by autofocusing the appropriate element.
+   *
+   * If there is a descendant of the dialog with the AutofocusDirective applied, we defer to that.
+   * If not, we want to fallback to a default behavior of focusing the dialog's header element. We
+   * choose the dialog header as the default fallback for dialog focus because it is always present,
+   * unlike possible interactive elements.
+   */
+  private handleAutofocus() {
+    /**
+     * Angular's contentChildren query cannot see into the internal templates of child components.
+     * We need to use a regular DOM query instead to see if there are descendants using the
+     * AutofocusDirective.
+     */
+    const scrollableContentEl = this.scrollableBody().getElementRef().nativeElement;
+    // Must match selectors of AutofocusDirective
+    const autofocusDescendants = scrollableContentEl.querySelectorAll(
+      "[appAutofocus], [bitAutofocus]",
+    );
+    const hasAutofocusDescendants = autofocusDescendants.length > 0;
+
+    if (!hasAutofocusDescendants) {
+      /**
+       * Wait a tick for any focus management to occur on the trigger element before moving focus
+       * to the dialog header.
+       *
+       * We are doing this manually instead of using Angular's built-in focus management
+       * directives (`cdkTrapFocusAutoCapture` and `cdkFocusInitial`) because we need this delay
+       * behavior.
+       *
+       * And yes, we need the timeout even though we are already waiting for ngZone to stabilize.
+       */
+      const headerFocusTimeout = setTimeout(() => {
+        this.dialogHeader().nativeElement.focus();
+      }, 0);
+
+      this.destroyRef.onDestroy(() => clearTimeout(headerFocusTimeout));
+    }
   }
 
   handleEsc(event: Event) {
