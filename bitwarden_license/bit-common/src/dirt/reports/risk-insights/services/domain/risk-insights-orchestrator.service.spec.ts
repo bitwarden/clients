@@ -10,7 +10,12 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
-import { ReportStatus, RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
+import {
+  ReportStatus,
+  RiskInsightsData,
+  RiskInsightsEnrichedData,
+  SaveRiskInsightsReportResponse,
+} from "../../models";
 import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
 import {
@@ -205,6 +210,114 @@ describe("RiskInsightsOrchestratorService", () => {
         // Assert that the methods were called as expected.
         expect(destroyCompleteSpy).toHaveBeenCalled();
         expect(unsubscribeSpy).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("criticalReportResults$", () => {
+    it("should filter reportData and applicationData to only include critical applications", (done) => {
+      // Arrange: Create test data with both critical and non-critical applications
+      const testEnrichedReportData = mock<RiskInsightsEnrichedData>({
+        reportData: [
+          { ...mockEnrichedReportData[0], isMarkedAsCritical: true }, // Critical app
+          { ...mockEnrichedReportData[1], isMarkedAsCritical: false }, // Non-critical app
+        ],
+        summaryData: {
+          ...mockSummaryData,
+          totalApplicationCount: 3,
+          totalCriticalApplicationCount: 1,
+        },
+        applicationData: [
+          { applicationName: "application1.com", isCritical: true, reviewedDate: new Date() },
+          {
+            applicationName: "site2.application1.com",
+            isCritical: false,
+            reviewedDate: null,
+          },
+          {
+            applicationName: "application2.com",
+            isCritical: false,
+            reviewedDate: null,
+          },
+        ],
+        creationDate: new Date(),
+      });
+
+      // Act: Emit the enriched report data to trigger the critical filtering pipeline
+      const privateEnrichedReportDataSubject = service["_enrichedReportDataSubject"];
+      privateEnrichedReportDataSubject.next(testEnrichedReportData);
+
+      // Assert: Verify that criticalReportResults$ only contains critical applications
+      service.criticalReportResults$.subscribe((criticalResults) => {
+        if (criticalResults) {
+          // reportData should only have critical applications
+          expect(criticalResults.reportData).toHaveLength(1);
+          expect(criticalResults.reportData[0].isMarkedAsCritical).toBe(true);
+          expect(criticalResults.reportData[0].applicationName).toBe("application1.com");
+
+          // applicationData should only have critical applications
+          expect(criticalResults.applicationData).toHaveLength(1);
+          expect(criticalResults.applicationData[0].isCritical).toBe(true);
+          expect(criticalResults.applicationData[0].applicationName).toBe("application1.com");
+
+          // summaryData should be recalculated for critical applications only
+          expect(criticalResults.summaryData).toBeDefined();
+          expect(mockReportService.getApplicationsSummary).toHaveBeenCalledWith(
+            expect.arrayContaining([
+              expect.objectContaining({
+                applicationName: "application1.com",
+                isMarkedAsCritical: true,
+              }),
+            ]),
+            expect.arrayContaining([
+              expect.objectContaining({ applicationName: "application1.com", isCritical: true }),
+            ]),
+            testEnrichedReportData.summaryData.totalMemberCount,
+          );
+
+          done();
+        }
+      });
+    });
+
+    it("should return empty arrays when no critical applications exist", (done) => {
+      // Arrange: Create test data with only non-critical applications
+      const testEnrichedReportData = mock<RiskInsightsEnrichedData>({
+        reportData: [
+          { ...mockEnrichedReportData[0], isMarkedAsCritical: false },
+          { ...mockEnrichedReportData[1], isMarkedAsCritical: false },
+        ],
+        summaryData: {
+          ...mockSummaryData,
+          totalApplicationCount: 2,
+          totalCriticalApplicationCount: 0,
+        },
+        applicationData: [
+          {
+            applicationName: "application1.com",
+            isCritical: false,
+            reviewedDate: null,
+          },
+          {
+            applicationName: "application2.com",
+            isCritical: false,
+            reviewedDate: null,
+          },
+        ],
+        creationDate: new Date(),
+      });
+
+      // Act: Emit the enriched report data
+      const privateEnrichedReportDataSubject = service["_enrichedReportDataSubject"];
+      privateEnrichedReportDataSubject.next(testEnrichedReportData);
+
+      // Assert: Verify that criticalReportResults$ contains empty arrays
+      service.criticalReportResults$.subscribe((criticalResults) => {
+        if (criticalResults) {
+          expect(criticalResults.reportData).toHaveLength(0);
+          expect(criticalResults.applicationData).toHaveLength(0);
+          done();
+        }
       });
     });
   });
