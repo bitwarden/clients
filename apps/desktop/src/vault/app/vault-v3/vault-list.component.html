@@ -1,25 +1,5 @@
 <cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout class="tw-pb-8">
   <div class="tw-mb-4 tw-px-6">
-    <div class="tw-px-2 tw-pt-6">
-      <app-header [title]="'vault' | i18n">
-        <vault-new-cipher-menu
-          [canCreateCipher]="true"
-          [canCreateFolder]="true"
-          [canCreateSshKey]="true"
-          (cipherAdded)="addCipher($event)"
-          (folderAdded)="addFolder()"
-        />
-      </app-header>
-    </div>
-    <div class="tw-mb-4">
-      <bit-search
-        [ngModel]="searchText"
-        (ngModelChange)="onSearchTextChanged($event)"
-        [placeholder]="placeholderText()"
-        appAutofocus
-      >
-      </bit-search>
-    </div>
     <div class="tw-@container">
       <bit-table [dataSource]="dataSource" layout="fixed">
         <ng-container header>
