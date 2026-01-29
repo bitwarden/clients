@@ -7,9 +7,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 // eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
 
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeyGenerationService } from "../../../key-management/crypto";
+import { CryptoFunctionService } from "../../../key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
@@ -51,6 +54,8 @@ export class SendService implements InternalSendServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
+    private cryptoFunctionService: CryptoFunctionService,
+    private configService: ConfigService,
   ) {}
 
   async encrypt(
@@ -80,19 +85,30 @@ export class SendService implements InternalSendServiceAbstraction {
       model.cryptoKey = key.derivedKey;
     }
 
+    // Check feature flag for email OTP authentication
+    const sendEmailOTPEnabled = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
+
     const hasEmails = (model.emails?.length ?? 0) > 0;
-    if (hasEmails) {
-      send.emails = model.emails.join(",");
+
+    if (sendEmailOTPEnabled && hasEmails) {
+      const plaintextEmails = model.emails.join(",");
+      send.emails = await this.encryptService.encryptString(plaintextEmails, model.cryptoKey);
+      send.emailHashes = await this.hashEmails(plaintextEmails);
       send.password = null;
-    } else if (password != null) {
-      // Note: Despite being called key, the passwordKey is not used for encryption.
-      // It is used as a static proof that the client knows the password, and has the encryption key.
-      const passwordKey = await this.keyGenerationService.deriveKeyFromPassword(
-        password,
-        model.key,
-        new PBKDF2KdfConfig(SEND_KDF_ITERATIONS),
-      );
-      send.password = passwordKey.keyB64;
+    } else {
+      send.emails = null;
+      send.emailHashes = "";
+
+      if (password != null) {
+        // Note: Despite being called key, the passwordKey is not used for encryption.
+        // It is used as a static proof that the client knows the password, and has the encryption key.
+        const passwordKey = await this.keyGenerationService.deriveKeyFromPassword(
+          password,
+          model.key,
+          new PBKDF2KdfConfig(SEND_KDF_ITERATIONS),
+        );
+        send.password = passwordKey.keyB64;
+      }
     }
     const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
     if (userKey == null) {
@@ -100,10 +116,14 @@ export class SendService implements InternalSendServiceAbstraction {
     }
     // Key is not a SymmetricCryptoKey, but key material used to derive the cryptoKey
     send.key = await this.encryptService.encryptBytes(model.key, userKey);
-    // FIXME: model.name can be null. encryptString should not be called with null values.
-    send.name = await this.encryptService.encryptString(model.name, model.cryptoKey);
-    // FIXME: model.notes can be null. encryptString should not be called with null values.
-    send.notes = await this.encryptService.encryptString(model.notes, model.cryptoKey);
+    send.name =
+      model.name != null
+        ? await this.encryptService.encryptString(model.name, model.cryptoKey)
+        : null;
+    send.notes =
+      model.notes != null
+        ? await this.encryptService.encryptString(model.notes, model.cryptoKey)
+        : null;
     if (send.type === SendType.Text) {
       send.text = new SendText();
       // FIXME: model.text.text can be null. encryptString should not be called with null values.
@@ -126,6 +146,8 @@ export class SendService implements InternalSendServiceAbstraction {
         }
       }
     }
+
+    send.authType = model.authType;
 
     return [send, fileData];
   }
@@ -370,5 +392,20 @@ export class SendService implements InternalSendServiceAbstraction {
 
     decryptedSends.sort(Utils.getSortFunction(this.i18nService, "name"));
     return decryptedSends;
+  }
+
+  private async hashEmails(emails: string): Promise<string> {
+    if (!emails) {
+      return "";
+    }
+
+    const emailArray = emails.split(",").map((e) => e.trim().toLowerCase());
+    const hashPromises = emailArray.map(async (email) => {
+      const hash: Uint8Array = await this.cryptoFunctionService.hash(email, "sha256");
+      return Utils.fromBufferToHex(hash).toUpperCase();
+    });
+
+    const hashes = await Promise.all(hashPromises);
+    return hashes.join(",");
   }
 }

@@ -1253,7 +1253,7 @@ export class VaultComponent<C extends CipherViewLike>
         this.addOrganizationId = collections[0].organizationId;
         this.addCollectionIds = [this.activeFilter.collectionId];
       }
-    } else if (this.activeFilter.organizationId) {
+    } else if (this.activeFilter.organizationId && this.activeFilter.organizationId !== "MyVault") {
       this.addOrganizationId = this.activeFilter.organizationId;
     } else {
       // clear out organizationId when the user switches to a personal vault filter
