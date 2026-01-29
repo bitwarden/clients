@@ -45,6 +45,7 @@ import {
   sendExtensionMessage,
   throttle,
 } from "../utils";
+import { isEventTrusted } from "../utils/security-utils";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,
@@ -618,8 +619,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private handleSubmitButtonInteraction = (event: PointerEvent) => {
     if (
-      // Reject synthetic events except in test environments where Jest creates synthetic events
-      (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") ||
+      /**
+       * Reject synthetic events (not originating from the user agent)
+       * except in test environments where Jest creates synthetic events
+       */
+      !isEventTrusted(event) ||
       !this.submitElements.has(event.target as HTMLElement) ||
       (event.type === "keyup" &&
         !["Enter", "Space"].includes((event as unknown as KeyboardEvent).code))
@@ -705,9 +709,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param event - The keyup event.
    */
   private handleFormFieldKeyupEvent = async (event: globalThis.KeyboardEvent) => {
-    // If the event doesn't originate from the user agent, it should be ignored
-    // Allow synthetic events in test environments (NODE_ENV === 'test' or jest environment)
-    if (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     * except in test environments where Jest creates synthetic events
+     */
+    if (!isEventTrusted(event)) {
       return;
     }
 

@@ -1,6 +1,8 @@
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
+import { isEventTrusted } from "../utils/security-utils";
+
 import {
   ContentMessageWindowData,
   ContentMessageWindowEventHandlers,
@@ -92,12 +94,11 @@ function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUr
  */
 function handleWindowMessageEvent(event: MessageEvent) {
   const { source, data, origin } = event;
-  // Reject synthetic events except in test environments where Jest creates synthetic events
-  if (
-    (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") ||
-    source !== window ||
-    !data?.command
-  ) {
+  /**
+   * Reject synthetic events (not originating from the user agent)
+   * except in test environments where Jest creates synthetic events
+   */
+  if (!isEventTrusted(event) || source !== window || !data?.command) {
     return;
   }
 

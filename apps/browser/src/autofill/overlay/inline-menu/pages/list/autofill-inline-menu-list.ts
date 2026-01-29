@@ -12,6 +12,7 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { InlineMenuFillType } from "../../../../enums/autofill-overlay.enum";
 import { buildSvgDomElement, specialCharacterToKeyMap, throttle } from "../../../../utils";
+import { isEventTrusted } from "../../../../utils/security-utils";
 import {
   creditCardIcon,
   globeIcon,
@@ -195,8 +196,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleSaveLoginInlineMenuKeyUp = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["ArrowDown"]);
     if (
-      // Reject synthetic events except in test environments where Jest creates synthetic events
-      (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") ||
+      /**
+       * Reject synthetic events (not originating from the user agent)
+       * except in test environments where Jest creates synthetic events
+       */
+      !isEventTrusted(event) ||
       !listenedForKeys.has(event.code) ||
       !(event.target instanceof Element)
     ) {
@@ -358,8 +362,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param event - The keyup event.
    */
   private handleFillGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     * except in test environments where Jest creates synthetic events
+     */
     if (
-      (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") ||
+      !isEventTrusted(event) ||
       event.ctrlKey ||
       event.altKey ||
       event.metaKey ||
@@ -405,8 +413,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param event - The keyup event.
    */
   private handleRefreshGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     * except in test environments where Jest creates synthetic events
+     */
     if (
-      (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") ||
+      !isEventTrusted(event) ||
       event.ctrlKey ||
       event.altKey ||
       event.metaKey ||
@@ -991,8 +1003,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private handleFillCipherKeyUpEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp", "ArrowRight"]);
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     * except in test environments where Jest creates synthetic events
+     */
     if (
-      (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") ||
+      !isEventTrusted(event) ||
       !listenedForKeys.has(event.code) ||
       !(event.target instanceof Element)
     ) {
@@ -1023,8 +1039,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private handleNewItemButtonKeyUpEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp"]);
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     * except in test environments where Jest creates synthetic events
+     */
     if (
-      (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") ||
+      !isEventTrusted(event) ||
       !listenedForKeys.has(event.code) ||
       !(event.target instanceof Element)
     ) {
@@ -1089,8 +1109,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private handleViewCipherKeyUpEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp", "ArrowLeft"]);
+    /**
+     * Reject synthetic events (not originating from the user agent)
+     * except in test environments where Jest creates synthetic events
+     */
     if (
-      (!event.isTrusted && typeof jest === "undefined" && process.env.NODE_ENV !== "test") ||
+      !isEventTrusted(event) ||
       !listenedForKeys.has(event.code) ||
       !(event.target instanceof Element)
     ) {
