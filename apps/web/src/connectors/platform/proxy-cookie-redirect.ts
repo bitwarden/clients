@@ -6,6 +6,6 @@
  * of an authentication flow where cookies need to be set or validated through a vendor endpoint.
  */
 window.addEventListener("DOMContentLoaded", () => {
-  const newUrl = `${window.location.origin}/sso_cookie_vendor`;
+  const newUrl = `${window.location.origin}/sso-cookie-vendor`;
   window.location.href = newUrl;
 });
