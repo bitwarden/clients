@@ -210,14 +210,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     );
   });
 
-  protected readonly permissionText = computed(() => {
-    if (!this.cipher().organizationId || this.cipher().collectionIds.length === 0) {
-      return this.i18nService.t("manageCollection");
-    }
-
-    return this.i18nService.t("noAccess");
-  });
-
   protected readonly hasVisibleLoginOptions = computed(() => {
     return (
       this.isLoginCipher() &&
